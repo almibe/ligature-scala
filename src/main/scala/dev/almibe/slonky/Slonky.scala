@@ -19,15 +19,17 @@ trait SlonkyInstance {
 }
 
 trait ReadTx {
-  def exists(key: ByteVector): Task[Boolean]
+  def keyExists(key: ByteVector): Task[Boolean]
+  def prefixExists(prefix: ByteVector): Task[Boolean]
   def get(key: ByteVector): Task[Option[ByteVector]]
   def prefixScan(prefix: ByteVector): Task[Observable[(ByteVector, ByteVector)]]
   def rangeScan(from: ByteVector, to: ByteVector): Task[Observable[(ByteVector, ByteVector)]]
-  def all(): Task[Observable[(ByteVector, ByteVector)]]
+  def scanAll(): Task[Observable[(ByteVector, ByteVector)]]
 }
 
 trait WriteTx {
-  def exists(key: ByteVector): Task[Boolean]
+  def keyExists(key: ByteVector): Task[Boolean]
+  def prefixExists(prefix: ByteVector): Task[Boolean]
   def get(key: ByteVector): Task[Option[ByteVector]]
   def put(key: ByteVector, value: ByteVector): Task[(ByteVector, ByteVector)]
   def remove(key: ByteVector): Task[(ByteVector, ByteVector)]
