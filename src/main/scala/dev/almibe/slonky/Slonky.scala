@@ -4,11 +4,16 @@
 
 package dev.almibe.slonky
 
+import cats.effect.Resource
+import monix.eval.Task
+import monix.reactive.Observable
+import scodec.bits.ByteVector
+
 trait Slonky {
-  def session: Resource[Task, SlonkySession]
+  def instance: Resource[Task, SlonkyInstance]
 }
 
-trait SlonkySession {
+trait SlonkyInstance {
   def read: Resource[Task, ReadTx]
   def write: Resource[Task, WriteTx]
 }
@@ -21,7 +26,9 @@ trait ReadTx {
   def all(): Task[Observable[(ByteVector, ByteVector)]]
 }
 
-trait WriteTx extends ReadTx {
+trait WriteTx {
+  def exists(key: ByteVector): Task[Boolean]
+  def get(key: ByteVector): Task[Option[ByteVector]]
   def put(key: ByteVector, value: ByteVector): Task[(ByteVector, ByteVector)]
   def remove(key: ByteVector): Task[(ByteVector, ByteVector)]
   def cancel(): Unit
