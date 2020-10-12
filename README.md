@@ -13,11 +13,11 @@ On Linux/Mac I recommend using https://sdkman.io/ to manage SBT installs.
 Once that is set up use `sbt publishLocal` to install the artifact locally.
 
 ## Related Projects
-| Name                | Description                                         | URL                                           |
-| ------------------- | --------------------------------------------------- | --------------------------------------------- |
-| slonky-test-suite   | A common test suite for Slonky implementations.     | https://github.com/almibe/slonky-test-suite   |
-| slonky-in-memory    | A simple in-memory implementation for Slonky.       | https://github.com/almibe/slonky-in-memory    |
-| slonky-xodus        | An implementation for Slonky based on Xodus.        | https://github.com/almibe/slonky-xodus        |
-| slonky-rocksdb      | An implementation for Slonky based on RocksDB.      | https://github.com/almibe/slonky-rocksdb      |
-| slonky-swaydb       | An implementation for Slonky based on SwayDB.       | https://github.com/almibe/slonky-swaydb       |
-| slonky-foundationdb | An implementation for Slonky based on FoundationDB. | https://github.com/almibe/slonky-foundationdb |
+| Name                                                                 | Description                                         |
+| -------------------------------------------------------------------- | --------------------------------------------------- |
+| [slonky-test-suite](https://github.com/almibe/slonky-test-suite)     | A common test suite for Slonky implementations.     |
+| [slonky-in-memory](https://github.com/almibe/slonky-in-memory)       | A simple in-memory implementation for Slonky.       |
+| [slonky-xodus](https://github.com/almibe/slonky-xodus)               | An implementation for Slonky based on Xodus.        |
+| [slonky-rocksdb](https://github.com/almibe/slonky-rocksdb)           | An implementation for Slonky based on RocksDB.      |
+| [slonky-swaydb](https://github.com/almibe/slonky-swaydb)             | An implementation for Slonky based on SwayDB.       |
+| [slonky-foundationdb](https://github.com/almibe/slonky-foundationdb) | An implementation for Slonky based on FoundationDB. |
