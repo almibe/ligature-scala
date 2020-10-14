@@ -22,9 +22,9 @@ trait ReadTx {
   def keyExists(key: ByteVector): Task[Boolean]
   def prefixExists(prefix: ByteVector): Task[Boolean]
   def get(key: ByteVector): Task[Option[ByteVector]]
-  def prefixScan(prefix: ByteVector): Task[Observable[(ByteVector, ByteVector)]]
-  def rangeScan(from: ByteVector, to: ByteVector): Task[Observable[(ByteVector, ByteVector)]]
-  def scanAll(): Task[Observable[(ByteVector, ByteVector)]]
+  def prefixScan(prefix: ByteVector): Observable[(ByteVector, ByteVector)]
+  def rangeScan(from: ByteVector, to: ByteVector): Observable[(ByteVector, ByteVector)]
+  def scanAll(): Observable[(ByteVector, ByteVector)]
 }
 
 trait WriteTx {
