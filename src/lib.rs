@@ -2,36 +2,25 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-package dev.almibe.slonky
-
-import cats.effect.Resource
-import monix.eval.Task
-import monix.reactive.Observable
-import scodec.bits.ByteVector
-
 trait Slonky {
-    def instance: Resource[Task, SlonkyInstance]
-}
-
-trait SlonkyInstance {
-    def read: Resource[Task, ReadTx]
-    def write: Resource[Task, WriteTx]
+    async fn read(f: dyn FnOnce(dyn ReadTx) -> Result<T, String>) -> Result<T, String>;
+    async fn write(f: dyn FnOnce(dyn ReadTx) -> Result<T, String>) -> Result<T, String>;
 }
 
 trait ReadTx {
-    def keyExists(key: ByteVector): Task[Boolean]
-    def prefixExists(prefix: ByteVector): Task[Boolean]
-    def get(key: ByteVector): Task[Option[ByteVector]]
-    def prefixScan(prefix: ByteVector): Observable[(ByteVector, ByteVector)]
-    def rangeScan(from: ByteVector, to: ByteVector): Observable[(ByteVector, ByteVector)]
-    def scanAll(): Observable[(ByteVector, ByteVector)]
+    async fn key_exists(key: ByteVector) -> Boolean;
+    async fn prefix_exists(prefix: ByteVector) -> Boolean;
+    async fn get(key: ByteVector) -> Option<ByteVector>;
+    async fn prefix_scan(prefix: ByteVector) -> Stream<(ByteVector, ByteVector)>;
+    async fn range_scan(from: ByteVector, to: ByteVector) -> Stream<(ByteVector, ByteVector)>;
+    async fn scan_all() -> Stream<(ByteVector, ByteVector)>;
 }
 
 trait WriteTx {
-    def keyExists(key: ByteVector): Task[Boolean]
-    def prefixExists(prefix: ByteVector): Task[Boolean]
-    def get(key: ByteVector): Task[Option[ByteVector]]
-    def put(key: ByteVector, value: ByteVector): Task[(ByteVector, ByteVector)]
-    def remove(key: ByteVector): Task[(ByteVector, ByteVector)]
-    def cancel(): Task[Unit]
+    async fn key_exists(key: ByteVector) -> Boolean;
+    async fn prefix_exists(prefix: ByteVector) -> Boolean;
+    async fn get(key: ByteVector) -> Option<ByteVector>;
+    async fn put(key: ByteVector, value: ByteVector) -> (ByteVector, ByteVector);
+    async fn remove(key: ByteVector) -> (ByteVector, ByteVector);
+    async fn cancel() -> Unit;
 }
