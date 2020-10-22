@@ -13,5 +13,4 @@ See the list of related projects below for instances of these interfaces.
 | [slonky-in-memory](https://github.com/almibe/slonky-in-memory)       | A simple in-memory implementation for Slonky.       |
 | [slonky-xodus](https://github.com/almibe/slonky-xodus)               | An implementation for Slonky based on Xodus.        |
 | [slonky-rocksdb](https://github.com/almibe/slonky-rocksdb)           | An implementation for Slonky based on RocksDB.      |
-| [slonky-swaydb](https://github.com/almibe/slonky-swaydb)             | An implementation for Slonky based on SwayDB.       |
 | [slonky-foundationdb](https://github.com/almibe/slonky-foundationdb) | An implementation for Slonky based on FoundationDB. |

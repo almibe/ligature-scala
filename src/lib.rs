@@ -2,25 +2,31 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-trait Slonky {
-    async fn read(f: dyn FnOnce(dyn ReadTx) -> Result<T, String>) -> Result<T, String>;
-    async fn write(f: dyn FnOnce(dyn ReadTx) -> Result<T, String>) -> Result<T, String>;
+use futures::stream::Stream;
+use async_trait::async_trait;
+
+#[async_trait]
+pub trait Slonky {
+    async fn read<T>(&self, f: dyn FnOnce(dyn ReadTx) -> Result<T, String>) -> Result<T, String>;
+    async fn write<T>(&self, f: dyn FnOnce(dyn ReadTx) -> Result<T, String>) -> Result<T, String>;
 }
 
-trait ReadTx {
-    async fn key_exists(key: ByteVector) -> Boolean;
-    async fn prefix_exists(prefix: ByteVector) -> Boolean;
-    async fn get(key: ByteVector) -> Option<ByteVector>;
-    async fn prefix_scan(prefix: ByteVector) -> Stream<(ByteVector, ByteVector)>;
-    async fn range_scan(from: ByteVector, to: ByteVector) -> Stream<(ByteVector, ByteVector)>;
-    async fn scan_all() -> Stream<(ByteVector, ByteVector)>;
+#[async_trait]
+pub trait ReadTx {
+    async fn key_exists(&self, key: &[u8]) -> bool;
+    async fn prefix_exists(&self, prefix: &[u8]) -> bool;
+    async fn get(&self, key: &[u8]) -> Option<&[u8]>;
+    async fn prefix_scan(&self, prefix: &[u8]) -> dyn Stream<Item=(&[u8], &[u8])>;
+    async fn range_scan(&self, from: &[u8], to: &[u8]) -> dyn Stream<Item=(&[u8], &[u8])>;
+    async fn scan_all(&self) -> dyn Stream<Item=(&[u8], &[u8])>;
 }
 
-trait WriteTx {
-    async fn key_exists(key: ByteVector) -> Boolean;
-    async fn prefix_exists(prefix: ByteVector) -> Boolean;
-    async fn get(key: ByteVector) -> Option<ByteVector>;
-    async fn put(key: ByteVector, value: ByteVector) -> (ByteVector, ByteVector);
-    async fn remove(key: ByteVector) -> (ByteVector, ByteVector);
-    async fn cancel() -> Unit;
+#[async_trait]
+pub trait WriteTx {
+    async fn key_exists(&self, key: &[u8]) -> bool;
+    async fn prefix_exists(&self, prefix: &[u8]) -> bool;
+    async fn get(&self, key: &[u8]) -> Option<&[u8]>;
+    async fn put(&self, key: &[u8], value: &[u8]) -> (&[u8], &[u8]);
+    async fn remove(&self, key: &[u8]) -> (&[u8], &[u8]);
+    async fn cancel(&self);
 }
