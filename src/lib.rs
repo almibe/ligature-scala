@@ -7,8 +7,8 @@ use async_trait::async_trait;
 
 #[async_trait]
 pub trait Slonky {
-    async fn read<T>(&self, f: dyn FnOnce(dyn ReadTx) -> Result<T, String>) -> Result<T, String>;
-    async fn write<T>(&self, f: dyn FnOnce(dyn ReadTx) -> Result<T, String>) -> Result<T, String>;
+    async fn read<T, E>(&self, f: dyn FnOnce(dyn ReadTx) -> Result<T, E>) -> Result<T, E>;
+    async fn write<E>(&self, f: dyn FnOnce(dyn WriteTx) -> Result<(), E>) -> Result<(), E>;
 }
 
 #[async_trait]
