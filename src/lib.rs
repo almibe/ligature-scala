@@ -4,12 +4,11 @@
 
 use futures::stream::Stream;
 use async_trait::async_trait;
-use std::sync::Arc;
 
 #[async_trait]
 pub trait Slonky {
-    async fn read<T, E>(&self, f: Arc<dyn Fn(dyn ReadTx) -> Result<T, E>  + Sync + Send>) -> Result<T, E>;
-    async fn write<E>(&self, f: Arc<dyn Fn(dyn WriteTx) -> Result<(), E> + Sync + Send>) -> Result<(), E>;
+    async fn read<T, E>(&self, f: Box<dyn Fn(dyn ReadTx) -> Result<T, E>  + Sync + Send>) -> Result<T, E>;
+    async fn write<E>(&self, f: Box<dyn Fn(dyn WriteTx) -> Result<(), E> + Sync + Send>) -> Result<(), E>;
 }
 
 #[async_trait]
