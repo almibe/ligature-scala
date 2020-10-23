@@ -3,8 +3,8 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 pub trait Slonky {
-    fn read<T, E>(&self, f: Box<dyn Fn(Box<dyn ReadTx>) -> Result<T, E>  + Sync + Send>) -> Result<T, E>;
-    fn write<E>(&self, f: Box<dyn Fn(Box<dyn WriteTx>) -> Result<(), E> + Sync + Send>) -> Result<(), E>;
+    fn read<T, E>(&self, f: Box<dyn Fn(Box<&dyn ReadTx>) -> Result<T, E>>) -> Result<T, E>;
+    fn write<E>(&self, f: Box<dyn Fn(Box<&dyn WriteTx>) -> Result<(), E>>) -> Result<(), E>;
 }
 
 pub trait ReadTx {
