@@ -2,31 +2,25 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-use futures::stream::Stream;
-use async_trait::async_trait;
-
-#[async_trait]
 pub trait Slonky {
-    async fn read<T, E>(&self, f: Box<dyn Fn(dyn ReadTx) -> Result<T, E>  + Sync + Send>) -> Result<T, E>;
-    async fn write<E>(&self, f: Box<dyn Fn(dyn WriteTx) -> Result<(), E> + Sync + Send>) -> Result<(), E>;
+    fn read<T, E>(&self, f: Box<dyn Fn(dyn ReadTx) -> Result<T, E>  + Sync + Send>) -> Result<T, E>;
+    fn write<E>(&self, f: Box<dyn Fn(dyn WriteTx) -> Result<(), E> + Sync + Send>) -> Result<(), E>;
 }
 
-#[async_trait]
 pub trait ReadTx {
-    async fn key_exists(&self, key: &[u8]) -> bool;
-    async fn prefix_exists(&self, prefix: &[u8]) -> bool;
-    async fn get(&self, key: &[u8]) -> Option<Vec<u8>>;
-    async fn prefix_scan(&self, prefix: &[u8]) -> Box<dyn Stream<Item=(Vec<u8>, Vec<u8>)>>;
-    async fn range_scan(&self, from: &[u8], to: &[u8]) -> Box<dyn Stream<Item=(Vec<u8>, Vec<u8>)>>;
-    async fn scan_all(&self) -> Box<dyn Stream<Item=(Vec<u8>, Vec<u8>)>>;
+    fn key_exists(&self, key: &[u8]) -> bool;
+    fn prefix_exists(&self, prefix: &[u8]) -> bool;
+    fn get(&self, key: &[u8]) -> Option<Vec<u8>>;
+    fn prefix_scan(&self, prefix: &[u8]) -> dyn Iterator<Item=(Vec<u8>, Vec<u8>)>;
+    fn range_scan(&self, from: &[u8], to: &[u8]) -> dyn Iterator<Item=(Vec<u8>, Vec<u8>)>;
+    fn scan_all(&self) -> dyn Iterator<Item=(Vec<u8>, Vec<u8>)>;
 }
 
-#[async_trait]
 pub trait WriteTx {
-    async fn key_exists(&self, key: &[u8]) -> bool;
-    async fn prefix_exists(&self, prefix: &[u8]) -> bool;
-    async fn get(&self, key: &[u8]) -> Option<Vec<u8>>;
-    async fn put(&self, key: &[u8], value: &[u8]) -> (Vec<u8>, Vec<u8>);
-    async fn remove(&self, key: &[u8]) -> (Vec<u8>, Vec<u8>);
-    async fn cancel(&self);
+    fn key_exists(&self, key: &[u8]) -> bool;
+    fn prefix_exists(&self, prefix: &[u8]) -> bool;
+    fn get(&self, key: &[u8]) -> Option<Vec<u8>>;
+    fn put(&self, key: &[u8], value: &[u8]) -> (Vec<u8>, Vec<u8>);
+    fn remove(&self, key: &[u8]) -> (Vec<u8>, Vec<u8>);
+    fn cancel(&self);
 }
