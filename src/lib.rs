@@ -16,9 +16,9 @@ pub trait ReadTx {
     async fn key_exists(&self, key: &[u8]) -> bool;
     async fn prefix_exists(&self, prefix: &[u8]) -> bool;
     async fn get(&self, key: &[u8]) -> Option<Vec<u8>>;
-    async fn prefix_scan(&self, prefix: &[u8]) -> dyn Stream<Item=(Vec<u8>, Vec<u8>)>;
-    async fn range_scan(&self, from: &[u8], to: &[u8]) -> dyn Stream<Item=(Vec<u8>, Vec<u8>)>;
-    async fn scan_all(&self) -> dyn Stream<Item=(Vec<u8>, Vec<u8>)>;
+    async fn prefix_scan(&self, prefix: &[u8]) -> Box<dyn Stream<Item=(Vec<u8>, Vec<u8>)>>;
+    async fn range_scan(&self, from: &[u8], to: &[u8]) -> Box<dyn Stream<Item=(Vec<u8>, Vec<u8>)>>;
+    async fn scan_all(&self) -> Box<dyn Stream<Item=(Vec<u8>, Vec<u8>)>>;
 }
 
 #[async_trait]
