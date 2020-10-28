@@ -3,7 +3,7 @@
 
 Slonky's goal is to make it easier to work with low-level, byte-centric, transactional, ordered, key-value stores.
 It does this by providing a common API that works across multiple stores.
-This API builds on existing Scala libraries namely, Monix and Cats Effect.
+This API builds on existing Scala libraries including Cats Effect, fs2, and scodec.
 This project simply provides a set of Scala traits that define the interface for Slonky.
 See the list of related projects below for instances of these interfaces.
 
