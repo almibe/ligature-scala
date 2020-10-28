@@ -30,7 +30,7 @@ trait SlonkyWriteTx {
   def keyExists(key: ByteVector): IO[Boolean]
   def prefixExists(prefix: ByteVector): IO[Boolean]
   def get(key: ByteVector): IO[Option[ByteVector]]
-  def put(key: ByteVector, value: ByteVector): IO[(ByteVector, ByteVector)]
-  def remove(key: ByteVector): IO[(ByteVector, ByteVector)]
+  def put(key: ByteVector, value: ByteVector): IO[Unit]
+  def remove(key: ByteVector): IO[Unit]
   def cancel(): IO[Unit]
 }
