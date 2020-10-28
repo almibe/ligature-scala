@@ -13,11 +13,11 @@ trait Slonky {
 }
 
 trait SlonkyInstance {
-  def read: Resource[IO, ReadTx]
-  def write: Resource[IO, WriteTx]
+  def read: Resource[IO, SlonkyReadTx]
+  def write: Resource[IO, SlonkyWriteTx]
 }
 
-trait ReadTx {
+trait SlonkyReadTx {
   def keyExists(key: ByteVector): IO[Boolean]
   def prefixExists(prefix: ByteVector): IO[Boolean]
   def get(key: ByteVector): IO[Option[ByteVector]]
@@ -26,7 +26,7 @@ trait ReadTx {
   def scanAll(): Stream[IO, (ByteVector, ByteVector)]
 }
 
-trait WriteTx {
+trait SlonkyWriteTx {
   def keyExists(key: ByteVector): IO[Boolean]
   def prefixExists(prefix: ByteVector): IO[Boolean]
   def get(key: ByteVector): IO[Option[ByteVector]]
