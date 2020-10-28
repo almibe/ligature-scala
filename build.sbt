@@ -9,7 +9,7 @@ lazy val root = project
   .in(file("."))
   .settings(
     name := "slonky",
-    libraryDependencies += "io.monix" %% "monix" % "3.2.2",
+    libraryDependencies += "co.fs2" %% "fs2-core" % "2.4.4",
     libraryDependencies += "org.scodec" %% "scodec-bits" % "1.1.20",
     libraryDependencies += "org.scalameta" %% "munit" % "0.7.12" % Test,
     testFrameworks += new TestFramework("munit.Framework")

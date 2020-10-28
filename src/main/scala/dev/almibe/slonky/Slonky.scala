@@ -4,34 +4,33 @@
 
 package dev.almibe.slonky
 
-import cats.effect.Resource
-import monix.eval.Task
-import monix.reactive.Observable
+import cats.effect.{IO, Resource}
 import scodec.bits.ByteVector
+import fs2.Stream
 
 trait Slonky {
-  def instance: Resource[Task, SlonkyInstance]
+  def instance: Resource[IO, SlonkyInstance]
 }
 
 trait SlonkyInstance {
-  def read: Resource[Task, ReadTx]
-  def write: Resource[Task, WriteTx]
+  def read: Resource[IO, ReadTx]
+  def write: Resource[IO, WriteTx]
 }
 
 trait ReadTx {
-  def keyExists(key: ByteVector): Task[Boolean]
-  def prefixExists(prefix: ByteVector): Task[Boolean]
-  def get(key: ByteVector): Task[Option[ByteVector]]
-  def prefixScan(prefix: ByteVector): Observable[(ByteVector, ByteVector)]
-  def rangeScan(from: ByteVector, to: ByteVector): Observable[(ByteVector, ByteVector)]
-  def scanAll(): Observable[(ByteVector, ByteVector)]
+  def keyExists(key: ByteVector): IO[Boolean]
+  def prefixExists(prefix: ByteVector): IO[Boolean]
+  def get(key: ByteVector): IO[Option[ByteVector]]
+  def prefixScan(prefix: ByteVector): Stream[IO, (ByteVector, ByteVector)]
+  def rangeScan(from: ByteVector, to: ByteVector): Stream[IO, (ByteVector, ByteVector)]
+  def scanAll(): Stream[IO, (ByteVector, ByteVector)]
 }
 
 trait WriteTx {
-  def keyExists(key: ByteVector): Task[Boolean]
-  def prefixExists(prefix: ByteVector): Task[Boolean]
-  def get(key: ByteVector): Task[Option[ByteVector]]
-  def put(key: ByteVector, value: ByteVector): Task[(ByteVector, ByteVector)]
-  def remove(key: ByteVector): Task[(ByteVector, ByteVector)]
-  def cancel(): Task[Unit]
+  def keyExists(key: ByteVector): IO[Boolean]
+  def prefixExists(prefix: ByteVector): IO[Boolean]
+  def get(key: ByteVector): IO[Option[ByteVector]]
+  def put(key: ByteVector, value: ByteVector): IO[(ByteVector, ByteVector)]
+  def remove(key: ByteVector): IO[(ByteVector, ByteVector)]
+  def cancel(): IO[Unit]
 }
