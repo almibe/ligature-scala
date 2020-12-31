@@ -1,16 +1,13 @@
 # s&nbsp;&nbsp;l&nbsp;&nbsp;o&nbsp;&nbsp;n&nbsp;&nbsp;k&nbsp;&nbsp;y
-*A transactional API for ordered, key-value stores in Scala.*
+*A transactional API for ordered, key-value stores in Rust.*
 
 Slonky's goal is to make it easier to work with low-level, byte-centric, transactional, ordered, key-value stores.
 It does this by providing a common API that works across multiple stores.
-This API builds on existing Scala libraries including Cats Effect, fs2, and scodec.
-This project simply provides a set of Scala traits that define the interface for Slonky.
+This project simply provides a set of Rust traits that define the interface for Slonky.
 See the list of related projects below for instances of these interfaces.
 
 ## Building
-This project requires SBT to be installed.
-On Linux/Mac I recommend using https://sdkman.io/ to manage SBT installs.
-Once that is set up use `sbt publishLocal` to install the artifact locally.
+TODO.
 
 ## Related Projects
 | Name                                                                 | Description                                         |
