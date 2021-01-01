@@ -18,9 +18,9 @@ pub trait SlonkyReadTx {
   async fn key_exists(self, key: Vec<u8>) -> Result<bool, SlonkyError>;
   async fn prefix_exists(self, prefix: Vec<u8>) -> Result<bool, SlonkyError>;
   async fn get(self, key: Vec<u8>) -> Result<Option<Vec<u8>>, SlonkyError>;
-  fn prefix_scan(self, prefix: Vec<u8>) -> dyn Stream<Item = (Vec<u8>, Vec<u8>)>;
-  fn range_scan(self, from: Vec<u8>, to: Vec<u8>) -> dyn Stream<Item = (Vec<u8>, Vec<u8>)>;
-  fn scan_all(self) -> dyn Stream<Item = (Vec<u8>, Vec<u8>)>;
+  fn prefix_scan(self, prefix: Vec<u8>) -> Box<dyn Stream<Item = (Vec<u8>, Vec<u8>)>>;
+  fn range_scan(self, from: Vec<u8>, to: Vec<u8>) -> Box<dyn Stream<Item = (Vec<u8>, Vec<u8>)>>;
+  fn scan_all(self) -> Box<dyn Stream<Item = (Vec<u8>, Vec<u8>)>>;
 }
 
 #[async_trait]
