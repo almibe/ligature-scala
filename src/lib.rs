@@ -5,27 +5,30 @@
 use async_trait::async_trait;
 use futures_core::stream::Stream;
 
-struct SlonkyError(String)
+pub struct SlonkyError(String);
 
-trait Slonky {
-  fn read() -> Resource<Task, SlonkyReadTx>;
-  fn write() -> Resource<Task, SlonkyWriteTx>;
+#[async_trait]
+pub trait Slonky {
+  async fn read(self) -> Result<Box<dyn SlonkyReadTx>, SlonkyError>;
+  async fn write(self) -> Result<Box<dyn SlonkyWriteTx>, SlonkyError>;
 }
 
-trait SlonkyReadTx {
-  fn keyExists(key -> ByteVector) -> Task<Boolean>;
-  fn prefixExists(prefix -> ByteVector) -> Task<Boolean>;
-  fn get(key -> ByteVector) -> Task<Option<ByteVector>>;
-  fn prefixScan(prefix -> ByteVector) -> Observable<(ByteVector, ByteVector)>;
-  fn rangeScan(from -> ByteVector, to -> ByteVector) -> Observable<(ByteVector, ByteVector)>;
-  fn scanAll() -> Observable<(ByteVector, ByteVector)>;
+#[async_trait]
+pub trait SlonkyReadTx {
+  async fn key_exists(self, key: Vec<u8>) -> Result<bool, SlonkyError>;
+  async fn prefix_exists(self, prefix: Vec<u8>) -> Result<bool, SlonkyError>;
+  async fn get(self, key: Vec<u8>) -> Result<Option<Vec<u8>>, SlonkyError>;
+  fn prefix_scan(self, prefix: Vec<u8>) -> dyn Stream<Item = (Vec<u8>, Vec<u8>)>;
+  fn range_scan(self, from: Vec<u8>, to: Vec<u8>) -> dyn Stream<Item = (Vec<u8>, Vec<u8>)>;
+  fn scan_all(self) -> dyn Stream<Item = (Vec<u8>, Vec<u8>)>;
 }
 
-trait SlonkyWriteTx {
-  fn keyExists(key -> ByteVector) -> Task<Boolean>;
-  fn prefixExists(prefix -> ByteVector) -> Task<Boolean>;
-  fn get(key -> ByteVector) -> Task<Option<ByteVector>>;
-  fn put(key -> ByteVector, value -> ByteVector) -> Task<Unit>;
-  fn remove(key -> ByteVector) -> Task<Unit>;
-  fn cancel() -> Task<Unit>;
+#[async_trait]
+pub trait SlonkyWriteTx {
+  async fn key_exists(self, key: Vec<u8>) -> Result<bool, SlonkyError>;
+  async fn prefix_exists(self, prefix: Vec<u8>) -> Result<bool, SlonkyError>;
+  async fn get(self, key: Vec<u8>) -> Result<Option<Vec<u8>>, SlonkyError>;
+  async fn put(self, key: Vec<u8>, value: Vec<u8>) -> Result<(), SlonkyError>;
+  async fn remove(self, key: Vec<u8>) -> Result<(), SlonkyError>;
+  async fn cancel(self) -> Result<(), SlonkyError>;
 }
