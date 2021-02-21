@@ -4,7 +4,7 @@
 
 package dev.ligature
 
-import cats.effect.IO
+import cats.effect.{IO, Resource}
 import fs2.Stream
 
 final case class Dataset private (val name: String) {
@@ -61,8 +61,12 @@ final case class Statement(val entity: Entity, val attribute: Attribute, val val
 
 final case class PersistedStatement(val statement: Statement, val context: Entity)
 
-/** A trait that all Ligature implementations implement. */
 trait Ligature {
+  def instance: Resource[IO, LigatureInstance]
+}
+
+/** A trait that all Ligature implementations implement. */
+trait LigatureInstance {
   /** Returns all Datasets in a Ligature instance. */
   def allDatasets(): Stream[IO, Either[LigatureError, Dataset]]
 
@@ -86,15 +90,15 @@ trait Ligature {
 
   /** Deletes a dataset with the given name.
    * TODO should probably return its own error type { InvalidDataset, CouldNotDeleteDataset } */
-  def delete_dataset(dataset: Dataset): IO[Either[LigatureError, Unit]]
+  def deleteDataset(dataset: Dataset): IO[Either[LigatureError, Unit]]
 
   /** Initiazes a QueryTx
    * TODO should probably return its own error type CouldNotInitializeQueryTx */
-  def query[T](dataset: Dataset, f: (QueryTx) => Either[LigatureError, T]): IO[Either[LigatureError, T]]
+  def query(dataset: Dataset): Resource[IO, QueryTx]
 
   /** Initiazes a WriteTx
    * TODO should probably return its own error type CouldNotInitializeWriteTx */
-  def write[T](dataset: Dataset, f: (WriteTx) => Either[LigatureError, T]): IO[Either[LigatureError, T]]
+  def write(dataset: Dataset): Resource[IO, WriteTx]
 }
 
 /** Represents a QueryTx within the context of a Ligature instance and a single Dataset */
@@ -103,7 +107,7 @@ trait QueryTx {
   def allStatements(): Stream[IO, Either[LigatureError, PersistedStatement]]
 
   /** Returns all PersistedStatements that match the given criteria.
-   * If a parameter is None then it matches all, so passing all Nones is the same as calling all_statements. */
+   * If a parameter is None then it matches all, so passing all Nones is the same as calling allStatements. */
   def matchStatements(
     source: Option[Entity],
     arrow: Option[Attribute],
@@ -140,7 +144,7 @@ trait WriteTx {
    * This function returns Ok(true) only if the given PersistedStatement was found and removed.
    * Note: Potentally could trigger a ValidationError. */
   def removeStatement(
-    persisted_statement: PersistedStatement,
+    persistedStatement: PersistedStatement,
   ): Either[LigatureError, Boolean]
 
   /** Cancels this transaction so that none of the changes made so far will be stored.

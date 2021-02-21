@@ -4,12 +4,21 @@
 
 package dev.ligature.inmemory
 
-import dev.ligature.{Ligature, Dataset, Entity, Attribute, Value, QueryTx, WriteTx, LigatureError, Statement, PersistedStatement}
-import cats.effect.IO
+import dev.ligature.{Attribute, Dataset, Entity, Ligature, LigatureError, LigatureInstance, PersistedStatement, QueryTx, Statement, Value, WriteTx}
+import cats.effect.{IO, Resource}
 import fs2.Stream
 
 /** A trait that all Ligature implementations implement. */
 final class InMemoryLigature extends Ligature {
+  def instance: Resource[IO, LigatureInstance] = {
+    ???
+  }
+}
+
+private final class InMemoryLigatureInstance extends LigatureInstance {
+  private case class DatasetStore(counter: Long, statements: Set[PersistedStatement])
+  private val store: Map[Dataset, DatasetStore] = Map()
+
   /** Returns all Datasets in a Ligature instance. */
   def allDatasets(): Stream[IO, Either[LigatureError, Dataset]] = {
     ???
@@ -43,19 +52,19 @@ final class InMemoryLigature extends Ligature {
 
   /** Deletes a dataset with the given name.
    * TODO should probably return its own error type { InvalidDataset, CouldNotDeleteDataset } */
-  def delete_dataset(dataset: Dataset): IO[Either[LigatureError, Unit]] = {
+  def deleteDataset(dataset: Dataset): IO[Either[LigatureError, Unit]] = {
     ???
   }
 
   /** Initiazes a QueryTx
    * TODO should probably return its own error type CouldNotInitializeQueryTx */
-  def query[T](dataset: Dataset, f: (QueryTx) => Either[LigatureError, T]): IO[Either[LigatureError, T]] = {
+  def query(dataset: Dataset): Resource[IO, QueryTx] = {
     ???
   }
 
   /** Initiazes a WriteTx
    * TODO should probably return its own error type CouldNotInitializeWriteTx */
-  def write[T](dataset: Dataset, f: (WriteTx) => Either[LigatureError, T]): IO[Either[LigatureError, T]] = {
+  def write(dataset: Dataset): Resource[IO, WriteTx] = {
     ???
   }
 }
@@ -68,7 +77,7 @@ trait InMemoryQueryTx {
   }
 
   /** Returns all PersistedStatements that match the given criteria.
-   * If a parameter is None then it matches all, so passing all Nones is the same as calling all_statements. */
+   * If a parameter is None then it matches all, so passing all Nones is the same as calling allStatements. */
   def matchStatements(
     source: Option[Entity],
     arrow: Option[Attribute],
@@ -115,7 +124,7 @@ trait InMemoryWriteTx {
    * This function returns Ok(true) only if the given PersistedStatement was found and removed.
    * Note: Potentally could trigger a ValidationError. */
   def removeStatement(
-    persisted_statement: PersistedStatement,
+    persistedStatement: PersistedStatement,
   ): Either[LigatureError, Boolean] = {
     ???
   }
