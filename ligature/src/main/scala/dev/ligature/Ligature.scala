@@ -7,27 +7,59 @@ package dev.ligature
 import cats.effect.IO
 import fs2.Stream
 
-case class Dataset(val name: String)
+final case class Dataset private (val name: String) {
+  private def copy(): Unit = ()
+}
 
-case class Entity(val id: Long) extends Value
+object Dataset {
+  private def apply(name: String): Dataset = ???
 
-case class Attribute(val name: String)
+  private val pattern = "^([a-zA-Z_]{1}[a-zA-Z0-9_]*)(/[a-zA-Z_]{1}[a-zA-Z0-9_]*)*$".r
 
-case class LigatureError(val message: String)
+  def fromString(name: String): Option[Dataset] = {
+    if (pattern.matches(name)) {
+      Some(new Dataset(name))
+    } else {
+      None
+    }
+  }
+}
+
+final case class Entity(val id: Long) extends Value
+
+final case class Attribute private (val name: String) {
+  private def copy(): Unit = ()
+}
+
+object Attribute {
+  private def apply(name: String): Attribute = ???
+
+  private val pattern = "^[a-zA-Z_]{1}[a-zA-Z0-9_]*$".r
+
+  def fromString(name: String): Option[Attribute] = {
+    if (pattern.matches(name)) {
+      Some(new Attribute(name))
+    } else {
+      None
+    }
+  }
+}
+
+final case class LigatureError(val message: String)
 
 sealed trait Value
-case class StringLiteral(val value: String) extends Value
-case class IntergerLiteral(val value: Long) extends Value
-case class FloatLiteral(val value: Double) extends Value
+final case class StringLiteral(val value: String) extends Value
+final case class IntergerLiteral(val value: Long) extends Value
+final case class FloatLiteral(val value: Double) extends Value
 
 sealed trait Range
-case class StringLiteralRange(val start: String, val end: String) extends Range
-case class IntergerLiteralRange(val start: Long, val end: Long) extends Range
-case class FloatLiteralRange(val start: Double, val end: Double) extends Range
+final case class StringLiteralRange(val start: String, val end: String) extends Range
+final case class IntergerLiteralRange(val start: Long, val end: Long) extends Range
+final case class FloatLiteralRange(val start: Double, val end: Double) extends Range
 
-case class Statement(val entity: Entity, val attribute: Attribute, val value: Value)
+final case class Statement(val entity: Entity, val attribute: Attribute, val value: Value)
 
-case class PersistedStatement(val statement: Statement, val context: Entity)
+final case class PersistedStatement(val statement: Statement, val context: Entity)
 
 /** A trait that all Ligature implementations implement. */
 trait Ligature {

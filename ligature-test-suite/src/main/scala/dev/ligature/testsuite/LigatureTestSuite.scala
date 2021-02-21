@@ -5,140 +5,135 @@
 package dev.ligature.testsuite
 
 import dev.ligature._
-import dev.ligature.Ligature.a
-import dev.ligature.iris.IRI
 import munit._
-import monix.execution.Scheduler.Implicits.global
 
 abstract class LigatureTestSuite extends FunSuite {
   def createLigature: Ligature
 
-  val testDataset: IRI = IRI("http://localhost/test").getOrElse(???)
-
-  test("Create and close store") {
-    val res = createLigature.instance.use { instance  =>
-      instance.read.use { tx =>
-        tx.datasets.toListL
-      }
-    }.runSyncUnsafe()
-    assert(res.isEmpty)
-  }
-
-  test("creating a new dataset") {
-    val res = createLigature.instance.use { instance =>
-      for {
-        _ <- instance.write.use { tx =>
-          tx.createDataset(testDataset)
-        }
-        res <- instance.read.use { tx =>
-          tx.datasets.toListL
-        }
-      } yield res
-    }.runSyncUnsafe().toSet
-    assertEquals(res, Set(testDataset))
-  }
-
-  test("access and delete new dataset") {
-    val res = createLigature.instance.use { instance  =>
-      for {
-        _ <- instance.write.use { tx =>
-          tx.createDataset(testDataset)
-        }
-        _ <- instance.write.use { tx =>
-          for {
-            _ <- tx.deleteDataset(testDataset)
-            _ <- tx.deleteDataset(IRI("http://localhost/test2").getOrElse(???))
-          } yield ()
-        }
-        res <- instance.read.use { tx =>
-          tx.datasets.toListL
-        }
-      } yield res
-    }.runSyncUnsafe()
-    assert(res.isEmpty)
-  }
-
-  test("new datasets should be empty") {
-    val res = createLigature.instance.use { instance  =>
-      for {
-        _ <- instance.write.use { tx =>
-          tx.createDataset(testDataset)
-        }
-        res <- instance.read.use { tx =>
-          tx.allStatements(testDataset).toListL
-        }
-      } yield res
-    }.runSyncUnsafe()
-    assert(res.isEmpty)
-  }
-
-  test("new node test") {
-    val res = createLigature.instance.use { instance  =>
-      for {
-        _ <- instance.write.use { tx =>
-          for {
-            nn1 <- tx.newNode(testDataset)
-            nn2 <- tx.newNode(testDataset)
-            _   <- tx.addStatement(testDataset, Statement(nn1, a, nn2))
-            nn3 <- tx.newNode(testDataset)
-            nn4 <- tx.newNode(testDataset)
-            _   <- tx.addStatement(testDataset, Statement(nn3, a, nn4))
-          } yield ()
-        }
-        res <- instance.read.use { tx =>
-          tx.allStatements(testDataset).toListL
-        }
-      } yield res
-    }.runSyncUnsafe().toSet
-    assertEquals(res.map { _.statement }, Set(
-      Statement(BlankNode(1), a, BlankNode(2)),
-      Statement(BlankNode(4), a, BlankNode(5))))
-  }
-
-  test("adding statements to datasets") {
-    val res = createLigature.instance.use { instance  =>
-      for {
-        _ <- instance.write.use { tx =>
-          for {
-            ent1 <- tx.newNode(testDataset)
-            ent2 <- tx.newNode(testDataset)
-            _    <- tx.addStatement(testDataset, Statement(ent1, a, ent2))
-            _    <- tx.addStatement(testDataset, Statement(ent1, a, ent2))
-          } yield()
-        }
-        res  <- instance.read.use { tx =>
-          tx.allStatements(testDataset).map { _.statement }.toListL
-        }
-      } yield res
-    }.runSyncUnsafe().toSet
-    assertEquals(res, Set(Statement(BlankNode(1), a, BlankNode(2)),
-      Statement(BlankNode(1), a, BlankNode(2))))
-  }
-
-  test("removing statements from datasets") {
-    val res = createLigature.instance.use { instance =>
-      for {
-        _ <- instance.write.use { tx =>
-          for {
-            nn1 <- tx.newNode(testDataset)
-            nn2 <- tx.newNode(testDataset)
-            nn3 <- tx.newNode(testDataset)
-            _ <- tx.addStatement(testDataset, Statement(nn1, a, nn2))
-            _ <- tx.addStatement(testDataset, Statement(nn3, a, nn2))
-            _ <- tx.removeStatement(testDataset, Statement(nn1, a, nn2))
-            _ <- tx.removeStatement(testDataset, Statement(nn1, a, nn2))
-            _ <- tx.removeStatement(testDataset, Statement(nn2, a, nn1))
-          } yield ()
-        }
-        res <- instance.read.use { tx =>
-          tx.allStatements(testDataset).map {
-            _.statement
-          }.toListL
-        }
-      } yield res
-    }.runSyncUnsafe().toSet
-    assertEquals(res, Set(Statement(BlankNode(3), a, BlankNode(2))))
-  }
+//  test("Create and close store") {
+//    val res = createLigature.instance.use { instance  =>
+//      instance.read.use { tx =>
+//        tx.datasets.toListL
+//      }
+//    }.runSyncUnsafe()
+//    assert(res.isEmpty)
+//  }
+//
+//  test("creating a new dataset") {
+//    val res = createLigature.instance.use { instance =>
+//      for {
+//        _ <- instance.write.use { tx =>
+//          tx.createDataset(testDataset)
+//        }
+//        res <- instance.read.use { tx =>
+//          tx.datasets.toListL
+//        }
+//      } yield res
+//    }.runSyncUnsafe().toSet
+//    assertEquals(res, Set(testDataset))
+//  }
+//
+//  test("access and delete new dataset") {
+//    val res = createLigature.instance.use { instance  =>
+//      for {
+//        _ <- instance.write.use { tx =>
+//          tx.createDataset(testDataset)
+//        }
+//        _ <- instance.write.use { tx =>
+//          for {
+//            _ <- tx.deleteDataset(testDataset)
+//            _ <- tx.deleteDataset(IRI("http://localhost/test2").getOrElse(???))
+//          } yield ()
+//        }
+//        res <- instance.read.use { tx =>
+//          tx.datasets.toListL
+//        }
+//      } yield res
+//    }.runSyncUnsafe()
+//    assert(res.isEmpty)
+//  }
+//
+//  test("new datasets should be empty") {
+//    val res = createLigature.instance.use { instance  =>
+//      for {
+//        _ <- instance.write.use { tx =>
+//          tx.createDataset(testDataset)
+//        }
+//        res <- instance.read.use { tx =>
+//          tx.allStatements(testDataset).toListL
+//        }
+//      } yield res
+//    }.runSyncUnsafe()
+//    assert(res.isEmpty)
+//  }
+//
+//  test("new node test") {
+//    val res = createLigature.instance.use { instance  =>
+//      for {
+//        _ <- instance.write.use { tx =>
+//          for {
+//            nn1 <- tx.newNode(testDataset)
+//            nn2 <- tx.newNode(testDataset)
+//            _   <- tx.addStatement(testDataset, Statement(nn1, a, nn2))
+//            nn3 <- tx.newNode(testDataset)
+//            nn4 <- tx.newNode(testDataset)
+//            _   <- tx.addStatement(testDataset, Statement(nn3, a, nn4))
+//          } yield ()
+//        }
+//        res <- instance.read.use { tx =>
+//          tx.allStatements(testDataset).toListL
+//        }
+//      } yield res
+//    }.runSyncUnsafe().toSet
+//    assertEquals(res.map { _.statement }, Set(
+//      Statement(BlankNode(1), a, BlankNode(2)),
+//      Statement(BlankNode(4), a, BlankNode(5))))
+//  }
+//
+//  test("adding statements to datasets") {
+//    val res = createLigature.instance.use { instance  =>
+//      for {
+//        _ <- instance.write.use { tx =>
+//          for {
+//            ent1 <- tx.newNode(testDataset)
+//            ent2 <- tx.newNode(testDataset)
+//            _    <- tx.addStatement(testDataset, Statement(ent1, a, ent2))
+//            _    <- tx.addStatement(testDataset, Statement(ent1, a, ent2))
+//          } yield()
+//        }
+//        res  <- instance.read.use { tx =>
+//          tx.allStatements(testDataset).map { _.statement }.toListL
+//        }
+//      } yield res
+//    }.runSyncUnsafe().toSet
+//    assertEquals(res, Set(Statement(BlankNode(1), a, BlankNode(2)),
+//      Statement(BlankNode(1), a, BlankNode(2))))
+//  }
+//
+//  test("removing statements from datasets") {
+//    val res = createLigature.instance.use { instance =>
+//      for {
+//        _ <- instance.write.use { tx =>
+//          for {
+//            nn1 <- tx.newNode(testDataset)
+//            nn2 <- tx.newNode(testDataset)
+//            nn3 <- tx.newNode(testDataset)
+//            _ <- tx.addStatement(testDataset, Statement(nn1, a, nn2))
+//            _ <- tx.addStatement(testDataset, Statement(nn3, a, nn2))
+//            _ <- tx.removeStatement(testDataset, Statement(nn1, a, nn2))
+//            _ <- tx.removeStatement(testDataset, Statement(nn1, a, nn2))
+//            _ <- tx.removeStatement(testDataset, Statement(nn2, a, nn1))
+//          } yield ()
+//        }
+//        res <- instance.read.use { tx =>
+//          tx.allStatements(testDataset).map {
+//            _.statement
+//          }.toListL
+//        }
+//      } yield res
+//    }.runSyncUnsafe().toSet
+//    assertEquals(res, Set(Statement(BlankNode(3), a, BlankNode(2))))
+//  }
 
   ////  test("matching against a non-existent dataset") {
   ////    val res = createLigature.instance.use { instance  =>
