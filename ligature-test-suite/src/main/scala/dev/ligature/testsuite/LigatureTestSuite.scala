@@ -11,7 +11,9 @@ import monix.execution.Scheduler.Implicits.global
 abstract class LigatureTestSuite extends FunSuite {
   def createLigature: Ligature
 
-  val testDataset = Dataset.fromString("test").get
+  val testDataset = Dataset.fromString("test/test").get
+  val testDataset2 = Dataset.fromString("test/test2").get
+  val testDataset3 = Dataset.fromString("test3/test").get
 
   test("create and close store") {
     val res = createLigature.instance.use { instance: LigatureInstance  =>
@@ -22,12 +24,43 @@ abstract class LigatureTestSuite extends FunSuite {
 
   test("creating a new dataset") {
     val res = createLigature.instance.use { instance: LigatureInstance =>
-      instance.createDataset(testDataset)
-      instance.allDatasets.toListL
+      for {
+        _ <- instance.createDataset(testDataset)
+        res <- instance.allDatasets().toListL
+      } yield res
     }.runSyncUnsafe()
     assertEquals(res, List(Right(testDataset)))
   }
-//
+
+  test("check if datasets exist") {
+    val res = createLigature.instance.use { instance: LigatureInstance =>
+      for {
+        _ <- instance.createDataset(testDataset)
+        exists1 <- instance.datasetExists(testDataset)
+        exists2 <- instance.datasetExists(testDataset2)
+      } yield (exists1, exists2)
+    }.runSyncUnsafe()
+    assert(res._1.right.get)
+    assert(!res._2.right.get)
+  }
+
+  test("match datasets prefix") {
+    val res = createLigature.instance.use { instance: LigatureInstance =>
+      for {
+        _ <- instance.createDataset(testDataset)
+        _ <- instance.createDataset(testDataset2)
+        _ <- instance.createDataset(testDataset3)
+        res1 <- instance.matchDatasetsPrefix("test").toListL
+        res2 <- instance.matchDatasetsPrefix("test/").toListL
+        res3 <- instance.matchDatasetsPrefix("snoo").toListL
+      } yield (res1, res2, res3)
+    }.runSyncUnsafe()
+    assertEquals(res._1.length, 3)
+    assertEquals(res._2.length, 2)
+    assertEquals(res._3.length, 0)
+  }
+
+  //
 //  test("access and delete new dataset") {
 //    val res = createLigature.instance.use { instance  =>
 //      for {

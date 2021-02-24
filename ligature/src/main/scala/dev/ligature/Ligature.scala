@@ -8,8 +8,10 @@ import cats.effect.{Resource}
 import monix.reactive._
 import monix.eval.Task
 
-final case class Dataset private (val name: String) {
+final case class Dataset private (val name: String) extends Ordered[Dataset] {
   private def copy(): Unit = ()
+
+  override def compare(that: Dataset): Int = this.name.compare(that.name)
 }
 
 object Dataset {

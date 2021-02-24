@@ -4,51 +4,55 @@
 
 package dev.ligature.inmemory
 
-import dev.ligature.{Attribute, Dataset, Entity, Ligature, LigatureError, LigatureInstance, PersistedStatement,
-  QueryTx, Statement, Value, WriteTx}
+import dev.ligature.{Attribute, Dataset, Entity, Ligature, LigatureError, LigatureInstance, PersistedStatement, QueryTx, Statement, Value, WriteTx}
 import cats.effect.Resource
 import monix.reactive._
 import monix.eval.Task
+import scala.collection.immutable.TreeMap
+
+import java.util.concurrent.locks.{ReadWriteLock, ReentrantReadWriteLock}
 
 /** A trait that all Ligature implementations implement. */
 final class InMemoryLigature extends Ligature {
   private val acquire: Task[LigatureInstance] = Task(new InMemoryLigatureInstance())
-
   private val release: LigatureInstance => Task[Unit] = _ => Task.unit
-
   def instance: Resource[Task, LigatureInstance] = {
-//    Resource.make(acquire)(release)
-//    Resource(Task {
-//      val in = new InMemoryLigatureInstance()
-//      (in, Task.unit)
-    Resource.make {
-      Task(new InMemoryLigatureInstance())                         // build
-    } { inStream =>
-      Task.unit // release
-    }
+    Resource.make(acquire)(release)
   }
 }
 
 private final class InMemoryLigatureInstance extends LigatureInstance {
   private case class DatasetStore(counter: Long, statements: Set[PersistedStatement])
-  private val store: Map[Dataset, DatasetStore] = Map()
+  private var store = TreeMap[Dataset, DatasetStore]()
+  private val lock: ReadWriteLock = new ReentrantReadWriteLock()
 
   /** Returns all Datasets in a Ligature instance. */
   def allDatasets(): Observable[Either[LigatureError, Dataset]] = {
-    Observable.fromIterable(store.keys.toList.map(Right(_)))
+    val l = lock.readLock()
+    try {
+      l.lock()
+      Observable.fromIterable(store.keys.toList.map(Right(_)))
+    } finally  {
+      l.unlock()
+    }
   }
 
   /** Check if a given Dataset exists. */
-  def datasetExists(dataset: Dataset): Task[Either[LigatureError, Boolean]] = {
-    ???
-    //Right(store.exists(dataset))
+  def datasetExists(dataset: Dataset): Task[Either[LigatureError, Boolean]] = Task {
+    Right(store.contains(dataset)) //todo should lock before reading
   }
 
   /** Returns all Datasets in a Ligature instance that start with the given prefix. */
   def matchDatasetsPrefix(
     prefix: String,
   ): Observable[Either[LigatureError, Dataset]] = {
-    ???
+    val l = lock.readLock()
+    try {
+      l.lock()
+      Observable.fromIterable(store.filter(_._1.name.startsWith(prefix)).keys.map(Right(_)))
+    } finally {
+      l.unlock()
+    }
   }
 
   /** Returns all Datasets in a Ligature instance that are in a given range (inclusive, exclusive]. */
@@ -61,8 +65,20 @@ private final class InMemoryLigatureInstance extends LigatureInstance {
 
   /** Creates a dataset with the given name.
     * TODO should probably return its own error type { InvalidDataset, DatasetExists, CouldNotCreateDataset } */
-  def createDataset(dataset: Dataset): Task[Either[LigatureError, Unit]] = {
-    ???
+  def createDataset(dataset: Dataset): Task[Either[LigatureError, Unit]] = Task {
+    if (store.contains(dataset)) { //todo should lock before reading
+      Right(())
+    } else {
+      val l = lock.writeLock()
+      try {
+        l.lock()
+        val newStore = store + (dataset -> DatasetStore(0L, Set()))
+        store = newStore
+        Right(())
+      } finally {
+        l.unlock()
+      }
+    }
   }
 
   /** Deletes a dataset with the given name.
