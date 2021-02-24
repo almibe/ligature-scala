@@ -6,32 +6,27 @@ package dev.ligature.testsuite
 
 import dev.ligature._
 import munit._
+import monix.execution.Scheduler.Implicits.global
 
 abstract class LigatureTestSuite extends FunSuite {
   def createLigature: Ligature
 
-//  test("Create and close store") {
-//    val res = createLigature.instance.use { instance  =>
-//      instance.read.use { tx =>
-//        tx.datasets.toListL
-//      }
-//    }.runSyncUnsafe()
-//    assert(res.isEmpty)
-//  }
-//
-//  test("creating a new dataset") {
-//    val res = createLigature.instance.use { instance =>
-//      for {
-//        _ <- instance.write.use { tx =>
-//          tx.createDataset(testDataset)
-//        }
-//        res <- instance.read.use { tx =>
-//          tx.datasets.toListL
-//        }
-//      } yield res
-//    }.runSyncUnsafe().toSet
-//    assertEquals(res, Set(testDataset))
-//  }
+  val testDataset = Dataset.fromString("test").get
+
+  test("create and close store") {
+    val res = createLigature.instance.use { instance: LigatureInstance  =>
+      instance.allDatasets().toListL
+    }.runSyncUnsafe()
+    assert(res.isEmpty)
+  }
+
+  test("creating a new dataset") {
+    val res = createLigature.instance.use { instance: LigatureInstance =>
+      instance.createDataset(testDataset)
+      instance.allDatasets.toListL
+    }.runSyncUnsafe()
+    assertEquals(res, List(Right(testDataset)))
+  }
 //
 //  test("access and delete new dataset") {
 //    val res = createLigature.instance.use { instance  =>
@@ -45,11 +40,11 @@ abstract class LigatureTestSuite extends FunSuite {
 //            _ <- tx.deleteDataset(IRI("http://localhost/test2").getOrElse(???))
 //          } yield ()
 //        }
-//        res <- instance.read.use { tx =>
-//          tx.datasets.toListL
+//        res <- instance.query.use { tx =>
+//          tx.datasets.compile.toList
 //        }
 //      } yield res
-//    }.runSyncUnsafe()
+//    }.unsafeRunSync()
 //    assert(res.isEmpty)
 //  }
 //
@@ -59,11 +54,11 @@ abstract class LigatureTestSuite extends FunSuite {
 //        _ <- instance.write.use { tx =>
 //          tx.createDataset(testDataset)
 //        }
-//        res <- instance.read.use { tx =>
-//          tx.allStatements(testDataset).toListL
+//        res <- instance.query.use { tx =>
+//          tx.allStatements(testDataset).compile.toList
 //        }
 //      } yield res
-//    }.runSyncUnsafe()
+//    }.unsafeRunSync()
 //    assert(res.isEmpty)
 //  }
 //
@@ -80,11 +75,11 @@ abstract class LigatureTestSuite extends FunSuite {
 //            _   <- tx.addStatement(testDataset, Statement(nn3, a, nn4))
 //          } yield ()
 //        }
-//        res <- instance.read.use { tx =>
-//          tx.allStatements(testDataset).toListL
+//        res <- instance.query.use { tx =>
+//          tx.allStatements(testDataset).compile.toList
 //        }
 //      } yield res
-//    }.runSyncUnsafe().toSet
+//    }.unsafeRunSync().toSet
 //    assertEquals(res.map { _.statement }, Set(
 //      Statement(BlankNode(1), a, BlankNode(2)),
 //      Statement(BlankNode(4), a, BlankNode(5))))
@@ -101,11 +96,11 @@ abstract class LigatureTestSuite extends FunSuite {
 //            _    <- tx.addStatement(testDataset, Statement(ent1, a, ent2))
 //          } yield()
 //        }
-//        res  <- instance.read.use { tx =>
-//          tx.allStatements(testDataset).map { _.statement }.toListL
+//        res  <- instance.query.use { tx =>
+//          tx.allStatements(testDataset).map { _.statement }.compile.toList
 //        }
 //      } yield res
-//    }.runSyncUnsafe().toSet
+//    }.unsafeRunSync().toSet
 //    assertEquals(res, Set(Statement(BlankNode(1), a, BlankNode(2)),
 //      Statement(BlankNode(1), a, BlankNode(2))))
 //  }
@@ -125,22 +120,22 @@ abstract class LigatureTestSuite extends FunSuite {
 //            _ <- tx.removeStatement(testDataset, Statement(nn2, a, nn1))
 //          } yield ()
 //        }
-//        res <- instance.read.use { tx =>
+//        res <- instance.query.use { tx =>
 //          tx.allStatements(testDataset).map {
 //            _.statement
-//          }.toListL
+//          }.compile.toList
 //        }
 //      } yield res
-//    }.runSyncUnsafe().toSet
+//    }.unsafeRunSync().toSet
 //    assertEquals(res, Set(Statement(BlankNode(3), a, BlankNode(2))))
 //  }
 
   ////  test("matching against a non-existent dataset") {
   ////    val res = createLigature.instance.use { instance  =>
-  ////    val (r1, r2) = instance.read.use { tx =>
+  ////    val (r1, r2) = instance.query.use { tx =>
   ////      for {
-  ////        r1 <- tx.matchStatements(testDataset, null, null, StringLiteral("French")).toListL
-  ////        r2 <- tx.matchStatements(testDataset, null, a, null).toListL
+  ////        r1 <- tx.matchStatements(testDataset, null, null, StringLiteral("French")).compile.toList
+  ////        r2 <- tx.matchStatements(testDataset, null, a, null).compile.toList
   ////      } yield(r1, r2)
   ////    }
   ////  }
@@ -156,7 +151,7 @@ abstract class LigatureTestSuite extends FunSuite {
   ////      tx.addStatement(testDataset, Statement(valjean, Predicate("prisonNumber"), LongLiteral(24601)))
   ////      tx.addStatement(testDataset, Statement(javert, Predicate("nationality"), StringLiteral("French")))
   ////    }
-  ////    instance.read.use { tx =>
+  ////    instance.query.use { tx =>
   ////      tx.matchStatements(testDataset, null, null, StringLiteral("French"))
   ////              .toSet() shouldBe setOf(
   ////                  Statement(valjean, Predicate("nationality"), StringLiteral("French")),
@@ -200,7 +195,7 @@ abstract class LigatureTestSuite extends FunSuite {
   ////      tx.addStatement(testDataset, Statement(trout, Predicate("nationality"), StringLiteral("American")))
   ////      tx.addStatement(testDataset, Statement(trout, Predicate("prisonNumber"), LongLiteral(24603)))
   ////    }
-  ////    instance.read.use { tx =>
+  ////    instance.query.use { tx =>
   ////      tx.matchStatements(testDataset, null, null, StringLiteralRange("French", "German"))
   ////              .toSet() shouldBe setOf(
   ////                  Statement(valjean, Predicate("nationality"), StringLiteral("French")),

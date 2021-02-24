@@ -4,14 +4,28 @@
 
 package dev.ligature.inmemory
 
-import dev.ligature.{Attribute, Dataset, Entity, Ligature, LigatureError, LigatureInstance, PersistedStatement, QueryTx, Statement, Value, WriteTx}
-import cats.effect.{IO, Resource}
-import fs2.Stream
+import dev.ligature.{Attribute, Dataset, Entity, Ligature, LigatureError, LigatureInstance, PersistedStatement,
+  QueryTx, Statement, Value, WriteTx}
+import cats.effect.Resource
+import monix.reactive._
+import monix.eval.Task
 
 /** A trait that all Ligature implementations implement. */
 final class InMemoryLigature extends Ligature {
-  def instance: Resource[IO, LigatureInstance] = {
-    ???
+  private val acquire: Task[LigatureInstance] = Task(new InMemoryLigatureInstance())
+
+  private val release: LigatureInstance => Task[Unit] = _ => Task.unit
+
+  def instance: Resource[Task, LigatureInstance] = {
+//    Resource.make(acquire)(release)
+//    Resource(Task {
+//      val in = new InMemoryLigatureInstance()
+//      (in, Task.unit)
+    Resource.make {
+      Task(new InMemoryLigatureInstance())                         // build
+    } { inStream =>
+      Task.unit // release
+    }
   }
 }
 
@@ -20,19 +34,20 @@ private final class InMemoryLigatureInstance extends LigatureInstance {
   private val store: Map[Dataset, DatasetStore] = Map()
 
   /** Returns all Datasets in a Ligature instance. */
-  def allDatasets(): Stream[IO, Either[LigatureError, Dataset]] = {
-    ???
+  def allDatasets(): Observable[Either[LigatureError, Dataset]] = {
+    Observable.fromIterable(store.keys.toList.map(Right(_)))
   }
 
   /** Check if a given Dataset exists. */
-  def datasetExists(dataset: Dataset): IO[Either[LigatureError, Boolean]] = {
+  def datasetExists(dataset: Dataset): Task[Either[LigatureError, Boolean]] = {
     ???
+    //Right(store.exists(dataset))
   }
 
   /** Returns all Datasets in a Ligature instance that start with the given prefix. */
   def matchDatasetsPrefix(
     prefix: String,
-  ): Stream[IO, Either[LigatureError, Dataset]] = {
+  ): Observable[Either[LigatureError, Dataset]] = {
     ???
   }
 
@@ -40,31 +55,31 @@ private final class InMemoryLigatureInstance extends LigatureInstance {
   def matchDatasetsRange(
     start: String,
     end: String,
-  ): Stream[IO, Either[LigatureError, Dataset]] = {
+  ): Observable[Either[LigatureError, Dataset]] = {
     ???
   }
 
   /** Creates a dataset with the given name.
     * TODO should probably return its own error type { InvalidDataset, DatasetExists, CouldNotCreateDataset } */
-  def createDataset(dataset: Dataset): IO[Either[LigatureError, Unit]] = {
+  def createDataset(dataset: Dataset): Task[Either[LigatureError, Unit]] = {
     ???
   }
 
   /** Deletes a dataset with the given name.
    * TODO should probably return its own error type { InvalidDataset, CouldNotDeleteDataset } */
-  def deleteDataset(dataset: Dataset): IO[Either[LigatureError, Unit]] = {
+  def deleteDataset(dataset: Dataset): Task[Either[LigatureError, Unit]] = {
     ???
   }
 
   /** Initiazes a QueryTx
    * TODO should probably return its own error type CouldNotInitializeQueryTx */
-  def query(dataset: Dataset): Resource[IO, QueryTx] = {
+  def query(dataset: Dataset): Resource[Task, QueryTx] = {
     ???
   }
 
   /** Initiazes a WriteTx
    * TODO should probably return its own error type CouldNotInitializeWriteTx */
-  def write(dataset: Dataset): Resource[IO, WriteTx] = {
+  def write(dataset: Dataset): Resource[Task, WriteTx] = {
     ???
   }
 }
@@ -72,7 +87,7 @@ private final class InMemoryLigatureInstance extends LigatureInstance {
 /** Represents a QueryTx within the context of a Ligature instance and a single Dataset */
 trait InMemoryQueryTx {
   /** Returns all PersistedStatements in this Dataset. */
-  def allStatements(): Stream[IO, Either[LigatureError, PersistedStatement]] = {
+  def allStatements(): Observable[Either[LigatureError, PersistedStatement]] = {
     ???
   }
 
@@ -82,7 +97,7 @@ trait InMemoryQueryTx {
     source: Option[Entity],
     arrow: Option[Attribute],
     target: Option[Value],
-  ): Stream[IO, Either[LigatureError, PersistedStatement]] = {
+  ): Observable[Either[LigatureError, PersistedStatement]] = {
     ???
   }
 
@@ -92,14 +107,14 @@ trait InMemoryQueryTx {
     source: Option[Entity],
     arrow: Option[Attribute],
     target: Range,
-  ): Stream[IO, Either[LigatureError, PersistedStatement]] = {
+  ): Observable[Either[LigatureError, PersistedStatement]] = {
     ???
   }
 
   /** Returns the PersistedStatement for the given context. */
   def statementForContext(
     context: Entity,
-  ): IO[Either[LigatureError, Option[PersistedStatement]]] = {
+  ): Task[Either[LigatureError, Option[PersistedStatement]]] = {
     ???
   }
 }
