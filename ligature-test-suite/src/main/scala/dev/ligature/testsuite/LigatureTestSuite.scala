@@ -95,21 +95,19 @@ abstract class LigatureTestSuite extends FunSuite {
     }.runSyncUnsafe()
     assert(res.isEmpty)
   }
-//
-//  test("new datasets should be empty") {
-//    val res = createLigature.instance.use { instance  =>
-//      for {
-//        _ <- instance.write.use { tx =>
-//          tx.createDataset(testDataset)
-//        }
-//        res <- instance.query.use { tx =>
-//          tx.allStatements(testDataset).compile.toList
-//        }
-//      } yield res
-//    }.runSyncUnsafe()
-//    assert(res.isEmpty)
-//  }
-//
+
+  test("new datasets should be empty") {
+    val res = createLigature.instance.use { instance  =>
+      for {
+        _ <- instance.createDataset(testDataset)
+        res <- instance.query(testDataset).use { tx =>
+          tx.allStatements().toListL
+        }
+      } yield res
+    }.runSyncUnsafe()
+    assert(res.isEmpty)
+  }
+
 //  test("new node test") {
 //    val res = createLigature.instance.use { instance  =>
 //      for {

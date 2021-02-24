@@ -112,17 +112,17 @@ trait QueryTx {
   /** Returns all PersistedStatements that match the given criteria.
    * If a parameter is None then it matches all, so passing all Nones is the same as calling allStatements. */
   def matchStatements(
-    source: Option[Entity],
-    arrow: Option[Attribute],
-    target: Option[Value],
+    entity: Option[Entity],
+    attribute: Option[Attribute],
+    value: Option[Value],
   ): Observable[Either[LigatureError, PersistedStatement]]
 
   /** Retuns all PersistedStatements that match the given criteria.
    * If a parameter is None then it matches all. */
   def matchStatementsRange(
-    source: Option[Entity],
-    arrow: Option[Attribute],
-    target: Range,
+    entity: Option[Entity],
+    attribute: Option[Attribute],
+    value: Range,
   ): Observable[Either[LigatureError, PersistedStatement]]
 
   /** Returns the PersistedStatement for the given context. */

@@ -21,8 +21,9 @@ final class InMemoryLigature extends Ligature {
   }
 }
 
+private case class DatasetStore(counter: Long, statements: Set[PersistedStatement])
+
 private final class InMemoryLigatureInstance extends LigatureInstance {
-  private case class DatasetStore(counter: Long, statements: Set[PersistedStatement])
   private var store = TreeMap[Dataset, DatasetStore]()
   private val lock: ReadWriteLock = new ReentrantReadWriteLock()
 
@@ -108,7 +109,9 @@ private final class InMemoryLigatureInstance extends LigatureInstance {
   /** Initiazes a QueryTx
    * TODO should probably return its own error type CouldNotInitializeQueryTx */
   def query(dataset: Dataset): Resource[Task, QueryTx] = {
-    ???
+    val acquire: Task[InMemoryQueryTx] = Task(new InMemoryQueryTx(store.get(dataset).get)) //TODO handle this better
+    val release: QueryTx => Task[Unit] = _ => Task.unit
+    Resource.make(acquire)(release)
   }
 
   /** Initiazes a WriteTx
@@ -119,18 +122,18 @@ private final class InMemoryLigatureInstance extends LigatureInstance {
 }
 
 /** Represents a QueryTx within the context of a Ligature instance and a single Dataset */
-trait InMemoryQueryTx {
+class InMemoryQueryTx(private val store: DatasetStore) extends QueryTx {
   /** Returns all PersistedStatements in this Dataset. */
   def allStatements(): Observable[Either[LigatureError, PersistedStatement]] = {
-    ???
+    Observable.fromIterable(store.statements.map(Right(_)))
   }
 
   /** Returns all PersistedStatements that match the given criteria.
    * If a parameter is None then it matches all, so passing all Nones is the same as calling allStatements. */
   def matchStatements(
-    source: Option[Entity],
-    arrow: Option[Attribute],
-    target: Option[Value],
+    entity: Option[Entity],
+    attribute: Option[Attribute],
+    value: Option[Value],
   ): Observable[Either[LigatureError, PersistedStatement]] = {
     ???
   }
@@ -138,9 +141,9 @@ trait InMemoryQueryTx {
   /** Retuns all PersistedStatements that match the given criteria.
    * If a parameter is None then it matches all. */
   def matchStatementsRange(
-    source: Option[Entity],
-    arrow: Option[Attribute],
-    target: Range,
+    entity: Option[Entity],
+    attribute: Option[Attribute],
+    value: dev.ligature.Range,
   ): Observable[Either[LigatureError, PersistedStatement]] = {
     ???
   }
@@ -154,7 +157,7 @@ trait InMemoryQueryTx {
 }
 
 /** Represents a WriteTx within the context of a Ligature instance and a single Dataset */
-trait InMemoryWriteTx {
+class InMemoryWriteTx extends WriteTx {
   /** Creates a new, unique Entity within this Dataset.
    * Note: Entities are shared across named graphs in a given Dataset. */
   def newEntity(): Either[LigatureError, Entity] = {
