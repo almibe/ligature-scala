@@ -60,26 +60,41 @@ abstract class LigatureTestSuite extends FunSuite {
     assertEquals(res._3.length, 0)
   }
 
-  //
-//  test("access and delete new dataset") {
-//    val res = createLigature.instance.use { instance  =>
-//      for {
-//        _ <- instance.write.use { tx =>
-//          tx.createDataset(testDataset)
-//        }
-//        _ <- instance.write.use { tx =>
-//          for {
-//            _ <- tx.deleteDataset(testDataset)
-//            _ <- tx.deleteDataset(IRI("http://localhost/test2").getOrElse(???))
-//          } yield ()
-//        }
-//        res <- instance.query.use { tx =>
-//          tx.datasets.compile.toList
-//        }
-//      } yield res
-//    }.unsafeRunSync()
-//    assert(res.isEmpty)
-//  }
+  test("match datasets range") {
+    val res = createLigature.instance.use { instance: LigatureInstance =>
+      for {
+        _ <- instance.createDataset(Dataset.fromString("a").get)
+        _ <- instance.createDataset(Dataset.fromString("app").get)
+        _ <- instance.createDataset(Dataset.fromString("b").get)
+        _ <- instance.createDataset(Dataset.fromString("be").get)
+        _ <- instance.createDataset(Dataset.fromString("bee").get)
+        _ <- instance.createDataset(Dataset.fromString("test1/test").get)
+        _ <- instance.createDataset(Dataset.fromString("test2/test2").get)
+        _ <- instance.createDataset(Dataset.fromString("test3/test").get)
+        _ <- instance.createDataset(Dataset.fromString("test4").get)
+        _ <- instance.createDataset(Dataset.fromString("z").get)
+        res <- instance.allDatasets().toListL
+        res1 <- instance.matchDatasetsRange("a", "b").toListL
+        res2 <- instance.matchDatasetsRange("be", "test3").toListL
+        res3 <- instance.matchDatasetsRange("snoo", "zz").toListL
+      } yield (res1, res2, res3)
+    }.runSyncUnsafe()
+    assertEquals(res._1.length, 2) //TODO check instances not just counts
+    assertEquals(res._2.length, 4) //TODO check instances not just counts
+    assertEquals(res._3.length, 5) //TODO check instances not just counts
+  }
+
+  test("create and delete new dataset") {
+    val res = createLigature.instance.use { instance  =>
+      for {
+        _ <- instance.createDataset(testDataset)
+        _ <- instance.deleteDataset(testDataset)
+        _ <- instance.deleteDataset(testDataset2)
+        res <- instance.allDatasets().toListL
+      } yield res
+    }.runSyncUnsafe()
+    assert(res.isEmpty)
+  }
 //
 //  test("new datasets should be empty") {
 //    val res = createLigature.instance.use { instance  =>
@@ -91,7 +106,7 @@ abstract class LigatureTestSuite extends FunSuite {
 //          tx.allStatements(testDataset).compile.toList
 //        }
 //      } yield res
-//    }.unsafeRunSync()
+//    }.runSyncUnsafe()
 //    assert(res.isEmpty)
 //  }
 //
@@ -112,7 +127,7 @@ abstract class LigatureTestSuite extends FunSuite {
 //          tx.allStatements(testDataset).compile.toList
 //        }
 //      } yield res
-//    }.unsafeRunSync().toSet
+//    }.runSyncUnsafe().toSet
 //    assertEquals(res.map { _.statement }, Set(
 //      Statement(BlankNode(1), a, BlankNode(2)),
 //      Statement(BlankNode(4), a, BlankNode(5))))
@@ -133,7 +148,7 @@ abstract class LigatureTestSuite extends FunSuite {
 //          tx.allStatements(testDataset).map { _.statement }.compile.toList
 //        }
 //      } yield res
-//    }.unsafeRunSync().toSet
+//    }.runSyncUnsafe().toSet
 //    assertEquals(res, Set(Statement(BlankNode(1), a, BlankNode(2)),
 //      Statement(BlankNode(1), a, BlankNode(2))))
 //  }
@@ -159,7 +174,7 @@ abstract class LigatureTestSuite extends FunSuite {
 //          }.compile.toList
 //        }
 //      } yield res
-//    }.unsafeRunSync().toSet
+//    }.runSyncUnsafe().toSet
 //    assertEquals(res, Set(Statement(BlankNode(3), a, BlankNode(2))))
 //  }
 

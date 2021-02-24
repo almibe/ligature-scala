@@ -60,7 +60,13 @@ private final class InMemoryLigatureInstance extends LigatureInstance {
     start: String,
     end: String,
   ): Observable[Either[LigatureError, Dataset]] = {
-    ???
+    val l = lock.readLock()
+    try {
+      l.lock()
+      Observable.fromIterable(store.filter { case (k, v) => k.name >= start && k.name < end }.keys.map(Right(_)))
+    } finally {
+      l.unlock()
+    }
   }
 
   /** Creates a dataset with the given name.
@@ -84,7 +90,19 @@ private final class InMemoryLigatureInstance extends LigatureInstance {
   /** Deletes a dataset with the given name.
    * TODO should probably return its own error type { InvalidDataset, CouldNotDeleteDataset } */
   def deleteDataset(dataset: Dataset): Task[Either[LigatureError, Unit]] = {
-    ???
+    val l = lock.writeLock()
+    try {
+      l.lock()
+      if (store.contains(dataset)) {
+        val newStore = store - dataset
+        store = newStore
+        Task(Right(()))
+      } else {
+        Task(Right(()))
+      }
+    } finally {
+      l.unlock()
+    }
   }
 
   /** Initiazes a QueryTx
