@@ -114,15 +114,15 @@ abstract class LigatureTestSuite extends FunSuite {
         _ <- instance.createDataset(testDataset)
         _ <- instance.write(testDataset).use { tx =>
           for {
-            entity1 <- tx.newEntity()
-            entity2 <- tx.newEntity()
-          } yield (entity1, entity2)
+            _ <- tx.newEntity()
+            _ <- tx.newEntity()
+          } yield ()
         }
         res <- instance.write(testDataset).use { tx =>
           for {
-            entity1 <- tx.newEntity()
-            entity2 <- tx.newEntity()
-          } yield (entity1, entity2)
+            entity3 <- tx.newEntity()
+            entity4 <- tx.newEntity()
+          } yield (entity3, entity4)
         }
       } yield res
     }.runSyncUnsafe()

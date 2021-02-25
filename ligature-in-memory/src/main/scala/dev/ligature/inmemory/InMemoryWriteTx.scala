@@ -15,7 +15,9 @@ class InMemoryWriteTx(private val store: DatasetStore) extends WriteTx {
   /** Creates a new, unique Entity within this Dataset.
    *  Note: Entities are shared across named graphs in a given Dataset. */
   def newEntity(): Task[Either[LigatureError, Entity]] = Task {
-    Right(Entity(1L))
+    val counter = _newDatasetStore.counter + 1L
+    _newDatasetStore = _newDatasetStore.copy(counter = counter)
+    Right(Entity(counter))
   }
 
   /** Adds a given Statement to this Dataset.

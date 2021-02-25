@@ -114,12 +114,12 @@ private final class InMemoryLigatureInstance extends LigatureInstance {
 
     val acquire: Task[InMemoryQueryTx] = Task {
       l.lock()
-      new InMemoryQueryTx(store.get(dataset).get)
+      new InMemoryQueryTx(store(dataset))
     }
 
-    val release: QueryTx => Task[Unit] = _ => {
+    val release: QueryTx => Task[Unit] = _ => Task {
       l.unlock()
-      Task.unit
+      ()
     }
 
     Resource.make(acquire)(release)
@@ -132,13 +132,16 @@ private final class InMemoryLigatureInstance extends LigatureInstance {
 
     val acquire: Task[InMemoryWriteTx] = Task {
       l.lock()
-      new InMemoryWriteTx(store.get(dataset).get)
+      new InMemoryWriteTx(store(dataset))
     }
 
-    val release: InMemoryWriteTx => Task[Unit] = _ => {
-      //TODO check if Tx has been canceled and update current state accordingly.
+    val release: InMemoryWriteTx => Task[Unit] = writeTx => Task {
+      if (!writeTx.isCanceled()) {
+        val newStore = this.store.updated(dataset, writeTx.newDatasetStore())
+        this.store = newStore
+      }
       l.unlock()
-      Task.unit
+      ()
     }
 
     Resource.make(acquire)(release)
