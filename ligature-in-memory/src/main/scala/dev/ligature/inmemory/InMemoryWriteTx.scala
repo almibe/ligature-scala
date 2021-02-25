@@ -9,30 +9,42 @@ import monix.eval.Task
 
 /** Represents a WriteTx within the context of a Ligature instance and a single Dataset */
 class InMemoryWriteTx(private val store: DatasetStore) extends WriteTx {
+  private var _isCanceled = false
+  private var _newDatasetStore = store.copy()
+
   /** Creates a new, unique Entity within this Dataset.
-   * Note: Entities are shared across named graphs in a given Dataset. */
+   *  Note: Entities are shared across named graphs in a given Dataset. */
   def newEntity(): Task[Either[LigatureError, Entity]] = Task {
     Right(Entity(1L))
   }
 
   /** Adds a given Statement to this Dataset.
-   * If the Statement already exists nothing happens (TODO maybe add it with a new context?).
-   * Note: Potentally could trigger a ValidationError */
+   *  If the Statement already exists nothing happens (TODO maybe add it with a new context?).
+   *  Note: Potentally could trigger a ValidationError */
   def addStatement(statement: Statement): Task[Either[LigatureError, PersistedStatement]] = {
     ???
   }
 
   /** Removes a given PersistedStatement from this Dataset.
-   * If the PersistedStatement doesn't exist nothing happens and returns Ok(false).
-   * This function returns Ok(true) only if the given PersistedStatement was found and removed.
-   * Note: Potentally could trigger a ValidationError. */
+   *  If the PersistedStatement doesn't exist nothing happens and returns Ok(false).
+   *  This function returns Ok(true) only if the given PersistedStatement was found and removed.
+   *  Note: Potentally could trigger a ValidationError. */
   def removeStatement(persistedStatement: PersistedStatement): Task[Either[LigatureError, Boolean]] = {
     ???
   }
 
   /** Cancels this transaction so that none of the changes made so far will be stored.
-   * This also closes this transaction so no other methods can be called without returning a LigatureError. */
+   *  This also closes this transaction so no other methods can be called without returning a LigatureError. */
   def cancel(): Task[Either[LigatureError, Unit]] = {
-    ???
+    _isCanceled = true
+    Task(Right(()))
   }
+
+  /** Tracks if the given WriteTx has been canceled or not.
+   *  Used in the release method of the Resource[Task, WriteTx]. */
+  def isCanceled(): Boolean = _isCanceled
+
+  /** Returns the DatasetStore that has been modified by this WriteTx.
+   *  Used in the release method of the Resource[Task, WriteTx]. */
+  def newDatasetStore(): DatasetStore = _newDatasetStore
 }

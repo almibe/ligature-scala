@@ -22,7 +22,7 @@ final class InMemoryLigature extends Ligature {
   }
 }
 
-private case class DatasetStore(counter: Long, statements: Set[PersistedStatement])
+protected case class DatasetStore(counter: Long, statements: Set[PersistedStatement])
 
 private final class InMemoryLigatureInstance extends LigatureInstance {
   private var store = TreeMap[Dataset, DatasetStore]()
@@ -107,19 +107,40 @@ private final class InMemoryLigatureInstance extends LigatureInstance {
     }
   }
 
-  /** Initiazes a QueryTx
+  /** Initializes a QueryTx
    * TODO should probably return its own error type CouldNotInitializeQueryTx */
-  def query(dataset: Dataset): Resource[Task, QueryTx] = { //TODO acquire read lock
-    val acquire: Task[InMemoryQueryTx] = Task(new InMemoryQueryTx(store.get(dataset).get)) //TODO handle this better
-    val release: QueryTx => Task[Unit] = _ => Task.unit
+  def query(dataset: Dataset): Resource[Task, QueryTx] = {
+    val l = lock.readLock()
+
+    val acquire: Task[InMemoryQueryTx] = Task {
+      l.lock()
+      new InMemoryQueryTx(store.get(dataset).get)
+    }
+
+    val release: QueryTx => Task[Unit] = _ => {
+      l.unlock()
+      Task.unit
+    }
+
     Resource.make(acquire)(release)
   }
 
-  /** Initiazes a WriteTx
+  /** Initializes a WriteTx
    * TODO should probably return its own error type CouldNotInitializeWriteTx */
   def write(dataset: Dataset): Resource[Task, WriteTx] = { //TODO acquire write lock
-    val acquire: Task[InMemoryWriteTx] = Task(new InMemoryWriteTx(store.get(dataset).get)) //TODO handle this better
-    val release: WriteTx => Task[Unit] = _ => Task.unit
+    val l = lock.writeLock()
+
+    val acquire: Task[InMemoryWriteTx] = Task {
+      l.lock()
+      new InMemoryWriteTx(store.get(dataset).get)
+    }
+
+    val release: InMemoryWriteTx => Task[Unit] = _ => {
+      //TODO check if Tx has been canceled and update current state accordingly.
+      l.unlock()
+      Task.unit
+    }
+
     Resource.make(acquire)(release)
   }
 }

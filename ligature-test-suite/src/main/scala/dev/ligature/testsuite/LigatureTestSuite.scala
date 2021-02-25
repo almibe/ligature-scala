@@ -112,6 +112,12 @@ abstract class LigatureTestSuite extends FunSuite {
     val (entity1, entity2) = createLigature.instance.use { instance  =>
       for {
         _ <- instance.createDataset(testDataset)
+        _ <- instance.write(testDataset).use { tx =>
+          for {
+            entity1 <- tx.newEntity()
+            entity2 <- tx.newEntity()
+          } yield (entity1, entity2)
+        }
         res <- instance.write(testDataset).use { tx =>
           for {
             entity1 <- tx.newEntity()
@@ -120,8 +126,8 @@ abstract class LigatureTestSuite extends FunSuite {
         }
       } yield res
     }.runSyncUnsafe()
-    assertEquals(entity1.right.get.id, 1L)
-    assertEquals(entity2.right.get.id, 2L)
+    assertEquals(entity1.right.get.id, 3L)
+    assertEquals(entity2.right.get.id, 4L)
   }
 
 //  test("adding statements to datasets") {
