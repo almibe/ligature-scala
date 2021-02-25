@@ -14,6 +14,7 @@ abstract class LigatureTestSuite extends FunSuite {
   val testDataset = Dataset.fromString("test/test").get
   val testDataset2 = Dataset.fromString("test/test2").get
   val testDataset3 = Dataset.fromString("test3/test").get
+  val a = Attribute.fromString("a").get
 
   test("create and close store") {
     val res = createLigature.instance.use { instance: LigatureInstance  =>
@@ -130,26 +131,54 @@ abstract class LigatureTestSuite extends FunSuite {
     assertEquals(entity2.right.get.id, 4L)
   }
 
-//  test("adding statements to datasets") {
-//    val res = createLigature.instance.use { instance  =>
-//      for {
-//        _ <- instance.write.use { tx =>
-//          for {
-//            ent1 <- tx.newNode(testDataset)
-//            ent2 <- tx.newNode(testDataset)
-//            _    <- tx.addStatement(testDataset, Statement(ent1, a, ent2))
-//            _    <- tx.addStatement(testDataset, Statement(ent1, a, ent2))
-//          } yield()
-//        }
-//        res  <- instance.query.use { tx =>
-//          tx.allStatements(testDataset).map { _.statement }.compile.toList
-//        }
-//      } yield res
-//    }.runSyncUnsafe().toSet
-//    assertEquals(res, Set(Statement(BlankNode(1), a, BlankNode(2)),
-//      Statement(BlankNode(1), a, BlankNode(2))))
-//  }
-//
+  test("allow canceling WriteTx") {
+    val (entity1, entity2) = createLigature.instance.use { instance  =>
+      for {
+        _ <- instance.createDataset(testDataset)
+        _ <- instance.write(testDataset).use { tx =>
+          for {
+            _ <- tx.newEntity()
+            _ <- tx.newEntity()
+            _ <- tx.cancel()
+          } yield ()
+        }
+        res <- instance.write(testDataset).use { tx =>
+          for {
+            entity1 <- tx.newEntity()
+            entity2 <- tx.newEntity()
+          } yield (entity1, entity2)
+        }
+      } yield res
+    }.runSyncUnsafe()
+    assertEquals(entity1.right.get.id, 1L)
+    assertEquals(entity2.right.get.id, 2L)
+  }
+
+  test("adding statements to datasets") {
+    val res = createLigature.instance.use { instance  =>
+      for {
+        _ <- instance.createDataset(testDataset)
+        _ <- instance.write(testDataset).use { tx =>
+          for {
+            ent1 <- tx.newEntity()
+            ent2 <- tx.newEntity()
+            ent3 <- tx.newEntity()
+            _    <- tx.addStatement(Statement(ent1.right.get, a, ent2.right.get))
+            _    <- tx.addStatement(Statement(ent1.right.get, a, ent2.right.get)) //dupes get added since they'll have unique contexts
+            _    <- tx.addStatement(Statement(ent1.right.get, a, ent3.right.get))
+          } yield()
+        }
+        res  <- instance.query(testDataset).use { tx =>
+          tx.allStatements().toListL
+        }
+      } yield res
+    }.runSyncUnsafe().map(_.right.get).toSet
+    assertEquals(res, Set(
+      PersistedStatement(Statement(Entity(1), a, Entity(2)), Entity(4)),
+      PersistedStatement(Statement(Entity(1), a, Entity(2)), Entity(5)),
+      PersistedStatement(Statement(Entity(1), a, Entity(3)), Entity(6))))
+  }
+
 //  test("removing statements from datasets") {
 //    val res = createLigature.instance.use { instance =>
 //      for {
