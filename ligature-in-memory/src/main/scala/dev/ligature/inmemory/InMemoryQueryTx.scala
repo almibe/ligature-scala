@@ -22,7 +22,17 @@ class InMemoryQueryTx(private val store: DatasetStore) extends QueryTx {
                        attribute: Option[Attribute],
                        value: Option[Value],
                      ): Observable[Either[LigatureError, PersistedStatement]] = {
-    ???
+    var res = Observable.fromIterable(store.statements)
+    if (entity.isDefined) {
+      res = res.filter(_.statement.entity == entity.get)
+    }
+    if (attribute.isDefined) {
+      res = res.filter(_.statement.attribute == attribute.get)
+    }
+    if (value.isDefined) {
+      res = res.filter(_.statement.value == value.get)
+    }
+    res.map(Right(_))
   }
 
   /** Retuns all PersistedStatements that match the given criteria.
@@ -30,9 +40,25 @@ class InMemoryQueryTx(private val store: DatasetStore) extends QueryTx {
   def matchStatementsRange(
                             entity: Option[Entity],
                             attribute: Option[Attribute],
-                            value: dev.ligature.Range,
+                            range: dev.ligature.Range,
                           ): Observable[Either[LigatureError, PersistedStatement]] = {
-    ???
+    var res = Observable.fromIterable(store.statements)
+    if (entity.isDefined) {
+      res = res.filter(_.statement.entity == entity.get)
+    }
+    if (attribute.isDefined) {
+      res = res.filter(_.statement.attribute == attribute.get)
+    }
+    res = res.filter { ps =>
+      val testValue = ps.statement.value
+      (testValue, range) match {
+        case (StringLiteral(v), StringLiteralRange(start, end))     => v >= start && v < end
+        case (FloatLiteral(v), FloatLiteralRange(start, end))       => v >= start && v < end
+        case (IntergerLiteral(v), IntergerLiteralRange(start, end)) => v >= start && v < end
+        case _                                                      => false
+      }
+    }
+    res.map(Right(_))
   }
 
   /** Returns the PersistedStatement for the given context. */

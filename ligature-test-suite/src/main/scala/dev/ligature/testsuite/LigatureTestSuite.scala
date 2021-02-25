@@ -226,76 +226,68 @@ abstract class LigatureTestSuite extends FunSuite {
     assertEquals(res.right.get.get, PersistedStatement(Statement(Entity(2), a, Entity(2)), Entity(4)))
   }
 
-//  test("matching statements in datasets") {
-//    val res = createLigature.instance.use { instance  =>
-//    lateinit var valjean: Node
-//    lateinit var javert: Node
-//    instance.write.use { tx =>
-//      valjean = tx.newEntity(testDataset)
-//      javert = tx.newEntity(testDataset)
-//      tx.addStatement(testDataset, Statement(valjean, Predicate("nationality"), StringLiteral("French")))
-//      tx.addStatement(testDataset, Statement(valjean, Predicate("prisonNumber"), LongLiteral(24601)))
-//      tx.addStatement(testDataset, Statement(javert, Predicate("nationality"), StringLiteral("French")))
-//    }
-//    instance.query.use { tx =>
-//      tx.matchStatements(testDataset, null, null, StringLiteral("French"))
-//              .toSet() shouldBe setOf(
-//                  Statement(valjean, Predicate("nationality"), StringLiteral("French")),
-//                  Statement(javert, Predicate("nationality"), StringLiteral("French"))
-//      )
-//      tx.matchStatements(testDataset, null, null, LongLiteral(24601))
-//              .toSet() shouldBe setOf(
-//                  Statement(valjean, Predicate("prisonNumber"), LongLiteral(24601))
-//      )
-//      tx.matchStatements(testDataset, valjean)
-//              .toSet() shouldBe setOf(
-//                  Statement(valjean, Predicate("nationality"), StringLiteral("French")),
-//                  Statement(valjean, Predicate("prisonNumber"), LongLiteral(24601))
-//      )
-//      tx.matchStatements(testDataset, javert, Predicate("nationality"), StringLiteral("French"))
-//              .toSet() shouldBe setOf(
-//                  Statement(javert, Predicate("nationality"), StringLiteral("French"))
-//      )
-//      tx.matchStatements(testDataset, null, null, null)
-//              .toSet() shouldBe setOf(
-//                  Statement(valjean, Predicate("nationality"), StringLiteral("French")),
-//                  Statement(valjean, Predicate("prisonNumber"), LongLiteral(24601)),
-//                  Statement(javert, Predicate("nationality"), StringLiteral("French"))
-//      )
-//    }
-//  }
+  test("matching statements in datasets") {
+    val (all, as, hellos, helloa) = createLigature.instance.use { instance  =>
+      for {
+        _ <- instance.createDataset(testDataset)
+        _ <- instance.write(testDataset).use { tx =>
+          for {
+            ent1 <- tx.newEntity()
+            ent2 <- tx.newEntity()
+            ent3 <- tx.newEntity()
+            _    <- tx.addStatement(Statement(ent1.right.get, a, StringLiteral("Hello")))
+            _    <- tx.addStatement(Statement(ent2.right.get, a, ent1.right.get))
+            _    <- tx.addStatement(Statement(ent2.right.get, a, ent3.right.get))
+            _    <- tx.addStatement(Statement(ent3.right.get, b, ent2.right.get))
+            _    <- tx.addStatement(Statement(ent3.right.get, b, StringLiteral("Hello")))
+          } yield()
+        }
+        res <- instance.query(testDataset).use { tx =>
+          for {
+            all <- tx.matchStatements(None, None, None).toListL
+            as  <- tx.matchStatements(None, Some(a), None).toListL
+            hellos <- tx.matchStatements(None, None, Some(StringLiteral("Hello"))).toListL
+            helloa <- tx.matchStatements(None, Some(a), Some(StringLiteral("Hello"))).toListL
+          } yield (all, as, hellos, helloa)
+        }
+      } yield res
+    }.runSyncUnsafe()
+    assertEquals(all.map(_.right.get).toSet.size, 5)
+    assertEquals(as.map(_.right.get).toSet.size, 3)
+    assertEquals(hellos.map(_.right.get).toSet.size, 2)
+    assertEquals(helloa.map(_.right.get).toSet.size, 1)
+  }
 
-//  test("matching statements with literals and ranges in datasets") {
-//    val res = createLigature.instance.use { instance  =>
-//    lateinit var valjean: Node
-//    lateinit var javert: Node
-//    lateinit var trout: Node
-//    instance.write.use { tx =>
-//      valjean = tx.newEntity(testDataset)
-//      javert = tx.newEntity(testDataset)
-//      trout = tx.newEntity(testDataset)
-//      tx.addStatement(testDataset, Statement(valjean, Predicate("nationality"), StringLiteral("French")))
-//      tx.addStatement(testDataset, Statement(valjean, Predicate("prisonNumber"), LongLiteral(24601)))
-//      tx.addStatement(testDataset, Statement(javert, Predicate("nationality"), StringLiteral("French")))
-//      tx.addStatement(testDataset, Statement(javert, Predicate("prisonNumber"), LongLiteral(24602)))
-//      tx.addStatement(testDataset, Statement(trout, Predicate("nationality"), StringLiteral("American")))
-//      tx.addStatement(testDataset, Statement(trout, Predicate("prisonNumber"), LongLiteral(24603)))
-//    }
-//    instance.query.use { tx =>
-//      tx.matchStatements(testDataset, null, null, StringLiteralRange("French", "German"))
-//              .toSet() shouldBe setOf(
-//                  Statement(valjean, Predicate("nationality"), StringLiteral("French")),
-//                  Statement(javert, Predicate("nationality"), StringLiteral("French"))
-//      )
-//      tx.matchStatements(testDataset, null, null, LongLiteralRange(24601, 24603))
-//              .toSet() shouldBe setOf(
-//                  Statement(valjean, Predicate("prisonNumber"), LongLiteral(24601)),
-//                  Statement(javert, Predicate("prisonNumber"), LongLiteral(24602))
-//      )
-//      tx.matchStatements(testDataset, valjean, null, LongLiteralRange(24601, 24603))
-//              .toSet() shouldBe setOf(
-//                  Statement(valjean, Predicate("prisonNumber"), LongLiteral(24601))
-//      )
-//    }
-//  }}
+  test("matching statements with literals and ranges in datasets") {
+    val (res1, res2, res3) = createLigature.instance.use { instance  =>
+      for {
+        _ <- instance.createDataset(testDataset)
+        _ <- instance.write(testDataset).use { tx =>
+          for {
+            ent1 <- tx.newEntity()
+            ent2 <- tx.newEntity()
+            ent3 <- tx.newEntity()
+            _    <- tx.addStatement(Statement(ent1.right.get, a, ent2.right.get))
+            _    <- tx.addStatement(Statement(ent1.right.get, b, FloatLiteral(1.1)))
+            _    <- tx.addStatement(Statement(ent1.right.get, a, IntergerLiteral(5L)))
+            _    <- tx.addStatement(Statement(ent2.right.get, a, IntergerLiteral(3L)))
+            _    <- tx.addStatement(Statement(ent2.right.get, a, FloatLiteral(10.0)))
+            _    <- tx.addStatement(Statement(ent2.right.get, b, ent3.right.get))
+            _    <- tx.addStatement(Statement(ent3.right.get, a, IntergerLiteral(7L)))
+            _    <- tx.addStatement(Statement(ent3.right.get, b, FloatLiteral(12.5)))
+          } yield()
+        }
+        res <- instance.query(testDataset).use { tx =>
+          for {
+            res1 <- tx.matchStatementsRange(None, None, FloatLiteralRange(1.0, 11.0)).toListL
+            res2  <- tx.matchStatementsRange(None, None, IntergerLiteralRange(3,5)).toListL
+            res3 <- tx.matchStatementsRange(None, Some(b), FloatLiteralRange(1.0, 11.0)).toListL
+          } yield (res1, res2, res3)
+        }
+      } yield res
+    }.runSyncUnsafe()
+    assertEquals(res1.map(_.right.get).toSet.size, 2)
+    assertEquals(res2.map(_.right.get).toSet.size, 1)
+    assertEquals(res3.map(_.right.get).toSet.size, 1)
+  }
 }
