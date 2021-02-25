@@ -135,12 +135,12 @@ trait QueryTx {
 trait WriteTx {
   /** Creates a new, unique Entity within this Dataset.
    * Note: Entities are shared across named graphs in a given Dataset. */
-  def newEntity(): Either[LigatureError, Entity]
+  def newEntity(): Task[Either[LigatureError, Entity]]
 
   /** Adds a given Statement to this Dataset.
    * If the Statement already exists nothing happens (TODO maybe add it with a new context?).
    * Note: Potentally could trigger a ValidationError */
-  def addStatement(statement: Statement): Either[LigatureError, PersistedStatement]
+  def addStatement(statement: Statement): Task[Either[LigatureError, PersistedStatement]]
 
   /** Removes a given PersistedStatement from this Dataset.
    * If the PersistedStatement doesn't exist nothing happens and returns Ok(false).
@@ -148,9 +148,9 @@ trait WriteTx {
    * Note: Potentally could trigger a ValidationError. */
   def removeStatement(
     persistedStatement: PersistedStatement,
-  ): Either[LigatureError, Boolean]
+  ): Task[Either[LigatureError, Boolean]]
 
   /** Cancels this transaction so that none of the changes made so far will be stored.
    * This also closes this transaction so no other methods can be called without returning a LigatureError. */
-  def cancel(): Either[LigatureError, Unit]
+  def cancel(): Task[Either[LigatureError, Unit]]
 }

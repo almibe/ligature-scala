@@ -108,29 +108,22 @@ abstract class LigatureTestSuite extends FunSuite {
     assert(res.isEmpty)
   }
 
-//  test("new node test") {
-//    val res = createLigature.instance.use { instance  =>
-//      for {
-//        _ <- instance.write.use { tx =>
-//          for {
-//            nn1 <- tx.newNode(testDataset)
-//            nn2 <- tx.newNode(testDataset)
-//            _   <- tx.addStatement(testDataset, Statement(nn1, a, nn2))
-//            nn3 <- tx.newNode(testDataset)
-//            nn4 <- tx.newNode(testDataset)
-//            _   <- tx.addStatement(testDataset, Statement(nn3, a, nn4))
-//          } yield ()
-//        }
-//        res <- instance.query.use { tx =>
-//          tx.allStatements(testDataset).compile.toList
-//        }
-//      } yield res
-//    }.runSyncUnsafe().toSet
-//    assertEquals(res.map { _.statement }, Set(
-//      Statement(BlankNode(1), a, BlankNode(2)),
-//      Statement(BlankNode(4), a, BlankNode(5))))
-//  }
-//
+  test("create new entity") {
+    val (entity1, entity2) = createLigature.instance.use { instance  =>
+      for {
+        _ <- instance.createDataset(testDataset)
+        res <- instance.write(testDataset).use { tx =>
+          for {
+            entity1 <- tx.newEntity()
+            entity2 <- tx.newEntity()
+          } yield (entity1, entity2)
+        }
+      } yield res
+    }.runSyncUnsafe()
+    assertEquals(entity1.right.get.id, 1L)
+    assertEquals(entity2.right.get.id, 2L)
+  }
+
 //  test("adding statements to datasets") {
 //    val res = createLigature.instance.use { instance  =>
 //      for {

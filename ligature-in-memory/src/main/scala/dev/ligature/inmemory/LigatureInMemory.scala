@@ -4,7 +4,8 @@
 
 package dev.ligature.inmemory
 
-import dev.ligature.{Attribute, Dataset, Entity, Ligature, LigatureError, LigatureInstance, PersistedStatement, QueryTx, Statement, Value, WriteTx}
+import dev.ligature.{Attribute, Dataset, Entity, Ligature, LigatureError, LigatureInstance, PersistedStatement,
+  QueryTx, Statement, Value, WriteTx}
 import cats.effect.Resource
 import monix.reactive._
 import monix.eval.Task
@@ -108,7 +109,7 @@ private final class InMemoryLigatureInstance extends LigatureInstance {
 
   /** Initiazes a QueryTx
    * TODO should probably return its own error type CouldNotInitializeQueryTx */
-  def query(dataset: Dataset): Resource[Task, QueryTx] = {
+  def query(dataset: Dataset): Resource[Task, QueryTx] = { //TODO acquire read lock
     val acquire: Task[InMemoryQueryTx] = Task(new InMemoryQueryTx(store.get(dataset).get)) //TODO handle this better
     val release: QueryTx => Task[Unit] = _ => Task.unit
     Resource.make(acquire)(release)
@@ -116,8 +117,10 @@ private final class InMemoryLigatureInstance extends LigatureInstance {
 
   /** Initiazes a WriteTx
    * TODO should probably return its own error type CouldNotInitializeWriteTx */
-  def write(dataset: Dataset): Resource[Task, WriteTx] = {
-    ???
+  def write(dataset: Dataset): Resource[Task, WriteTx] = { //TODO acquire write lock
+    val acquire: Task[InMemoryWriteTx] = Task(new InMemoryWriteTx(store.get(dataset).get)) //TODO handle this better
+    val release: WriteTx => Task[Unit] = _ => Task.unit
+    Resource.make(acquire)(release)
   }
 }
 
@@ -157,17 +160,17 @@ class InMemoryQueryTx(private val store: DatasetStore) extends QueryTx {
 }
 
 /** Represents a WriteTx within the context of a Ligature instance and a single Dataset */
-class InMemoryWriteTx extends WriteTx {
+class InMemoryWriteTx(private val store: DatasetStore) extends WriteTx {
   /** Creates a new, unique Entity within this Dataset.
    * Note: Entities are shared across named graphs in a given Dataset. */
-  def newEntity(): Either[LigatureError, Entity] = {
-    ???
+  def newEntity(): Task[Either[LigatureError, Entity]] = Task {
+    Right(Entity(1L))
   }
 
   /** Adds a given Statement to this Dataset.
    * If the Statement already exists nothing happens (TODO maybe add it with a new context?).
    * Note: Potentally could trigger a ValidationError */
-  def addStatement(statement: Statement): Either[LigatureError, PersistedStatement] = {
+  def addStatement(statement: Statement): Task[Either[LigatureError, PersistedStatement]] = {
     ???
   }
 
@@ -177,13 +180,13 @@ class InMemoryWriteTx extends WriteTx {
    * Note: Potentally could trigger a ValidationError. */
   def removeStatement(
     persistedStatement: PersistedStatement,
-  ): Either[LigatureError, Boolean] = {
+  ): Task[Either[LigatureError, Boolean]] = {
     ???
   }
 
   /** Cancels this transaction so that none of the changes made so far will be stored.
    * This also closes this transaction so no other methods can be called without returning a LigatureError. */
-  def cancel(): Either[LigatureError, Unit] = {
+  def cancel(): Task[Either[LigatureError, Unit]] = {
     ???
   }
 }
