@@ -179,30 +179,31 @@ abstract class LigatureTestSuite extends FunSuite {
       PersistedStatement(Statement(Entity(1), a, Entity(3)), Entity(6))))
   }
 
-//  test("removing statements from datasets") {
-//    val res = createLigature.instance.use { instance =>
-//      for {
-//        _ <- instance.write.use { tx =>
-//          for {
-//            nn1 <- tx.newNode(testDataset)
-//            nn2 <- tx.newNode(testDataset)
-//            nn3 <- tx.newNode(testDataset)
-//            _ <- tx.addStatement(testDataset, Statement(nn1, a, nn2))
-//            _ <- tx.addStatement(testDataset, Statement(nn3, a, nn2))
-//            _ <- tx.removeStatement(testDataset, Statement(nn1, a, nn2))
-//            _ <- tx.removeStatement(testDataset, Statement(nn1, a, nn2))
-//            _ <- tx.removeStatement(testDataset, Statement(nn2, a, nn1))
-//          } yield ()
-//        }
-//        res <- instance.query.use { tx =>
-//          tx.allStatements(testDataset).map {
-//            _.statement
-//          }.compile.toList
-//        }
-//      } yield res
-//    }.runSyncUnsafe().toSet
-//    assertEquals(res, Set(Statement(BlankNode(3), a, BlankNode(2))))
-//  }
+  test("removing statements from datasets") {
+    val res = createLigature.instance.use { instance =>
+      for {
+        _ <- instance.createDataset(testDataset)
+        _ <- instance.write(testDataset).use { tx =>
+          for {
+            nn1 <- tx.newEntity()
+            nn2 <- tx.newEntity()
+            nn3 <- tx.newEntity()
+            ps1 <- tx.addStatement(Statement(nn1.right.get, a, nn2.right.get))
+            _ <- tx.addStatement(Statement(nn3.right.get, a, nn2.right.get))
+            _ <- tx.removeStatement(ps1.right.get)
+            _ <- tx.removeStatement(ps1.right.get)
+            _ <- tx.removeStatement(PersistedStatement(Statement(nn2.right.get, a, nn1.right.get), Entity(5)))
+          } yield ()
+        }
+        res <- instance.query(testDataset).use { tx =>
+          tx.allStatements().map {
+            _.right.get.statement
+          }.toListL
+        }
+      } yield res
+    }.runSyncUnsafe().toSet
+    assertEquals(res, Set(Statement(Entity(3), a, Entity(2))))
+  }
 
   ////  test("matching against a non-existent dataset") {
   ////    val res = createLigature.instance.use { instance  =>
@@ -219,8 +220,8 @@ abstract class LigatureTestSuite extends FunSuite {
   ////    lateinit var valjean: Node
   ////    lateinit var javert: Node
   ////    instance.write.use { tx =>
-  ////      valjean = tx.newNode(testDataset)
-  ////      javert = tx.newNode(testDataset)
+  ////      valjean = tx.newEntity(testDataset)
+  ////      javert = tx.newEntity(testDataset)
   ////      tx.addStatement(testDataset, Statement(valjean, Predicate("nationality"), StringLiteral("French")))
   ////      tx.addStatement(testDataset, Statement(valjean, Predicate("prisonNumber"), LongLiteral(24601)))
   ////      tx.addStatement(testDataset, Statement(javert, Predicate("nationality"), StringLiteral("French")))
@@ -259,9 +260,9 @@ abstract class LigatureTestSuite extends FunSuite {
   ////    lateinit var javert: Node
   ////    lateinit var trout: Node
   ////    instance.write.use { tx =>
-  ////      valjean = tx.newNode(testDataset)
-  ////      javert = tx.newNode(testDataset)
-  ////      trout = tx.newNode(testDataset)
+  ////      valjean = tx.newEntity(testDataset)
+  ////      javert = tx.newEntity(testDataset)
+  ////      trout = tx.newEntity(testDataset)
   ////      tx.addStatement(testDataset, Statement(valjean, Predicate("nationality"), StringLiteral("French")))
   ////      tx.addStatement(testDataset, Statement(valjean, Predicate("prisonNumber"), LongLiteral(24601)))
   ////      tx.addStatement(testDataset, Statement(javert, Predicate("nationality"), StringLiteral("French")))
