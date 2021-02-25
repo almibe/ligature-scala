@@ -15,6 +15,7 @@ abstract class LigatureTestSuite extends FunSuite {
   val testDataset2 = Dataset.fromString("test/test2").get
   val testDataset3 = Dataset.fromString("test3/test").get
   val a = Attribute.fromString("a").get
+  val b = Attribute.fromString("b").get
 
   test("create and close store") {
     val res = createLigature.instance.use { instance: LigatureInstance  =>
@@ -205,98 +206,96 @@ abstract class LigatureTestSuite extends FunSuite {
     assertEquals(res, Set(Statement(Entity(3), a, Entity(2))))
   }
 
-  ////  test("matching against a non-existent dataset") {
-  ////    val res = createLigature.instance.use { instance  =>
-  ////    val (r1, r2) = instance.query.use { tx =>
-  ////      for {
-  ////        r1 <- tx.matchStatements(testDataset, null, null, StringLiteral("French")).compile.toList
-  ////        r2 <- tx.matchStatements(testDataset, null, a, null).compile.toList
-  ////      } yield(r1, r2)
-  ////    }
-  ////  }
-  ////
-  ////  test("matching statements in datasets") {
-  ////    val res = createLigature.instance.use { instance  =>
-  ////    lateinit var valjean: Node
-  ////    lateinit var javert: Node
-  ////    instance.write.use { tx =>
-  ////      valjean = tx.newEntity(testDataset)
-  ////      javert = tx.newEntity(testDataset)
-  ////      tx.addStatement(testDataset, Statement(valjean, Predicate("nationality"), StringLiteral("French")))
-  ////      tx.addStatement(testDataset, Statement(valjean, Predicate("prisonNumber"), LongLiteral(24601)))
-  ////      tx.addStatement(testDataset, Statement(javert, Predicate("nationality"), StringLiteral("French")))
-  ////    }
-  ////    instance.query.use { tx =>
-  ////      tx.matchStatements(testDataset, null, null, StringLiteral("French"))
-  ////              .toSet() shouldBe setOf(
-  ////                  Statement(valjean, Predicate("nationality"), StringLiteral("French")),
-  ////                  Statement(javert, Predicate("nationality"), StringLiteral("French"))
-  ////      )
-  ////      tx.matchStatements(testDataset, null, null, LongLiteral(24601))
-  ////              .toSet() shouldBe setOf(
-  ////                  Statement(valjean, Predicate("prisonNumber"), LongLiteral(24601))
-  ////      )
-  ////      tx.matchStatements(testDataset, valjean)
-  ////              .toSet() shouldBe setOf(
-  ////                  Statement(valjean, Predicate("nationality"), StringLiteral("French")),
-  ////                  Statement(valjean, Predicate("prisonNumber"), LongLiteral(24601))
-  ////      )
-  ////      tx.matchStatements(testDataset, javert, Predicate("nationality"), StringLiteral("French"))
-  ////              .toSet() shouldBe setOf(
-  ////                  Statement(javert, Predicate("nationality"), StringLiteral("French"))
-  ////      )
-  ////      tx.matchStatements(testDataset, null, null, null)
-  ////              .toSet() shouldBe setOf(
-  ////                  Statement(valjean, Predicate("nationality"), StringLiteral("French")),
-  ////                  Statement(valjean, Predicate("prisonNumber"), LongLiteral(24601)),
-  ////                  Statement(javert, Predicate("nationality"), StringLiteral("French"))
-  ////      )
-  ////    }
-  ////  }
-  ////
-  ////  test("matching statements with literals and ranges in datasets") {
-  ////    val res = createLigature.instance.use { instance  =>
-  ////    lateinit var valjean: Node
-  ////    lateinit var javert: Node
-  ////    lateinit var trout: Node
-  ////    instance.write.use { tx =>
-  ////      valjean = tx.newEntity(testDataset)
-  ////      javert = tx.newEntity(testDataset)
-  ////      trout = tx.newEntity(testDataset)
-  ////      tx.addStatement(testDataset, Statement(valjean, Predicate("nationality"), StringLiteral("French")))
-  ////      tx.addStatement(testDataset, Statement(valjean, Predicate("prisonNumber"), LongLiteral(24601)))
-  ////      tx.addStatement(testDataset, Statement(javert, Predicate("nationality"), StringLiteral("French")))
-  ////      tx.addStatement(testDataset, Statement(javert, Predicate("prisonNumber"), LongLiteral(24602)))
-  ////      tx.addStatement(testDataset, Statement(trout, Predicate("nationality"), StringLiteral("American")))
-  ////      tx.addStatement(testDataset, Statement(trout, Predicate("prisonNumber"), LongLiteral(24603)))
-  ////    }
-  ////    instance.query.use { tx =>
-  ////      tx.matchStatements(testDataset, null, null, StringLiteralRange("French", "German"))
-  ////              .toSet() shouldBe setOf(
-  ////                  Statement(valjean, Predicate("nationality"), StringLiteral("French")),
-  ////                  Statement(javert, Predicate("nationality"), StringLiteral("French"))
-  ////      )
-  ////      tx.matchStatements(testDataset, null, null, LongLiteralRange(24601, 24603))
-  ////              .toSet() shouldBe setOf(
-  ////                  Statement(valjean, Predicate("prisonNumber"), LongLiteral(24601)),
-  ////                  Statement(javert, Predicate("prisonNumber"), LongLiteral(24602))
-  ////      )
-  ////      tx.matchStatements(testDataset, valjean, null, LongLiteralRange(24601, 24603))
-  ////              .toSet() shouldBe setOf(
-  ////                  Statement(valjean, Predicate("prisonNumber"), LongLiteral(24601))
-  ////      )
-  ////    }
-  ////  }
-  ////
-  ////  test("matching statements with dataset literals in datasets") {
-  ////    val res = createLigature.instance.use { instance  =>
-  ////    val dataset = store.createDataset(NamedNode("test"))
-  ////    dataset shouldNotBe null
-  ////    val tx = dataset.writeTx()
-  ////    TODO("Add values")
-  ////    tx.commit()
-  ////    val tx = dataset.tx()
-  ////    TODO("Add assertions")
-  ////    tx.cancel() // TODO add test running against a non-existant dataset w/ match-statement calls
-  ////  }
+  test("get persisted statement from context") {
+    val res = createLigature.instance.use { instance =>
+      for {
+        _ <- instance.createDataset(testDataset)
+        ps <- instance.write(testDataset).use { tx =>
+          for {
+            nn1 <- tx.newEntity()
+            nn2 <- tx.newEntity()
+            _ <- tx.addStatement(Statement(nn1.right.get, a, nn2.right.get))
+            ps <- tx.addStatement(Statement(nn2.right.get, a, nn2.right.get))
+          } yield ps.right.get
+        }
+        res <- instance.query(testDataset).use { tx =>
+          tx.statementForContext(ps.context)
+        }
+      } yield res
+    }.runSyncUnsafe()
+    assertEquals(res.right.get.get, PersistedStatement(Statement(Entity(2), a, Entity(2)), Entity(4)))
+  }
+
+//  test("matching statements in datasets") {
+//    val res = createLigature.instance.use { instance  =>
+//    lateinit var valjean: Node
+//    lateinit var javert: Node
+//    instance.write.use { tx =>
+//      valjean = tx.newEntity(testDataset)
+//      javert = tx.newEntity(testDataset)
+//      tx.addStatement(testDataset, Statement(valjean, Predicate("nationality"), StringLiteral("French")))
+//      tx.addStatement(testDataset, Statement(valjean, Predicate("prisonNumber"), LongLiteral(24601)))
+//      tx.addStatement(testDataset, Statement(javert, Predicate("nationality"), StringLiteral("French")))
+//    }
+//    instance.query.use { tx =>
+//      tx.matchStatements(testDataset, null, null, StringLiteral("French"))
+//              .toSet() shouldBe setOf(
+//                  Statement(valjean, Predicate("nationality"), StringLiteral("French")),
+//                  Statement(javert, Predicate("nationality"), StringLiteral("French"))
+//      )
+//      tx.matchStatements(testDataset, null, null, LongLiteral(24601))
+//              .toSet() shouldBe setOf(
+//                  Statement(valjean, Predicate("prisonNumber"), LongLiteral(24601))
+//      )
+//      tx.matchStatements(testDataset, valjean)
+//              .toSet() shouldBe setOf(
+//                  Statement(valjean, Predicate("nationality"), StringLiteral("French")),
+//                  Statement(valjean, Predicate("prisonNumber"), LongLiteral(24601))
+//      )
+//      tx.matchStatements(testDataset, javert, Predicate("nationality"), StringLiteral("French"))
+//              .toSet() shouldBe setOf(
+//                  Statement(javert, Predicate("nationality"), StringLiteral("French"))
+//      )
+//      tx.matchStatements(testDataset, null, null, null)
+//              .toSet() shouldBe setOf(
+//                  Statement(valjean, Predicate("nationality"), StringLiteral("French")),
+//                  Statement(valjean, Predicate("prisonNumber"), LongLiteral(24601)),
+//                  Statement(javert, Predicate("nationality"), StringLiteral("French"))
+//      )
+//    }
+//  }
+
+//  test("matching statements with literals and ranges in datasets") {
+//    val res = createLigature.instance.use { instance  =>
+//    lateinit var valjean: Node
+//    lateinit var javert: Node
+//    lateinit var trout: Node
+//    instance.write.use { tx =>
+//      valjean = tx.newEntity(testDataset)
+//      javert = tx.newEntity(testDataset)
+//      trout = tx.newEntity(testDataset)
+//      tx.addStatement(testDataset, Statement(valjean, Predicate("nationality"), StringLiteral("French")))
+//      tx.addStatement(testDataset, Statement(valjean, Predicate("prisonNumber"), LongLiteral(24601)))
+//      tx.addStatement(testDataset, Statement(javert, Predicate("nationality"), StringLiteral("French")))
+//      tx.addStatement(testDataset, Statement(javert, Predicate("prisonNumber"), LongLiteral(24602)))
+//      tx.addStatement(testDataset, Statement(trout, Predicate("nationality"), StringLiteral("American")))
+//      tx.addStatement(testDataset, Statement(trout, Predicate("prisonNumber"), LongLiteral(24603)))
+//    }
+//    instance.query.use { tx =>
+//      tx.matchStatements(testDataset, null, null, StringLiteralRange("French", "German"))
+//              .toSet() shouldBe setOf(
+//                  Statement(valjean, Predicate("nationality"), StringLiteral("French")),
+//                  Statement(javert, Predicate("nationality"), StringLiteral("French"))
+//      )
+//      tx.matchStatements(testDataset, null, null, LongLiteralRange(24601, 24603))
+//              .toSet() shouldBe setOf(
+//                  Statement(valjean, Predicate("prisonNumber"), LongLiteral(24601)),
+//                  Statement(javert, Predicate("prisonNumber"), LongLiteral(24602))
+//      )
+//      tx.matchStatements(testDataset, valjean, null, LongLiteralRange(24601, 24603))
+//              .toSet() shouldBe setOf(
+//                  Statement(valjean, Predicate("prisonNumber"), LongLiteral(24601))
+//      )
+//    }
+//  }}
 }

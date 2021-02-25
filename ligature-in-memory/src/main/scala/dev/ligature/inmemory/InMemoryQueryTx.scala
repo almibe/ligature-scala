@@ -36,7 +36,7 @@ class InMemoryQueryTx(private val store: DatasetStore) extends QueryTx {
   }
 
   /** Returns the PersistedStatement for the given context. */
-  def statementForContext(context: Entity): Task[Either[LigatureError, Option[PersistedStatement]]] = {
-    ???
+  def statementForContext(context: Entity): Task[Either[LigatureError, Option[PersistedStatement]]] = Task {
+    Right(store.statements.find(_.context == context))
   }
 }
