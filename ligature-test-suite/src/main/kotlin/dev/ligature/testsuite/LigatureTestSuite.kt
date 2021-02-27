@@ -30,7 +30,7 @@ abstract class LigatureTestSuite : FunSpec() {
         test("creating a new dataset") {
             val instance = createLigature()
             instance.createDataset(testDataset)
-            val res = instance.allDatasets().toList()
+            val res = instance.allDatasets().map { it.getOrThrow() }.toList()
             res shouldBe listOf(testDataset)
         }
 
@@ -40,7 +40,7 @@ abstract class LigatureTestSuite : FunSpec() {
             val exists1 = instance.datasetExists(testDataset).getOrThrow()
             val exists2 = instance.datasetExists(testDataset2).getOrThrow()
             assert(exists1)
-            assert(exists2)
+            assert(!exists2)
         }
 
         test("match datasets prefix") {
@@ -114,12 +114,12 @@ abstract class LigatureTestSuite : FunSpec() {
 
         test("allow canceling WriteTx") {
             val instance = createLigature()
-                instance.createDataset(testDataset)
-                instance.write(testDataset) { tx ->
-                    tx.newEntity()
-                    tx.newEntity()
-                    tx.cancel()
-                }
+            instance.createDataset(testDataset)
+            instance.write(testDataset) { tx ->
+                tx.newEntity()
+                tx.newEntity()
+                tx.cancel()
+            }
             val res = instance.write(testDataset) { tx ->
                 val entity1 = tx.newEntity()
                 val entity2 = tx.newEntity()
@@ -141,7 +141,7 @@ abstract class LigatureTestSuite : FunSpec() {
                 tx.addStatement(Statement(ent1, a, ent3))
             }
             val res = instance.query(testDataset) { tx ->
-                tx.allStatements().toSet()
+                tx.allStatements().map { it.getOrThrow() }.toSet()
             }
             res shouldBe setOf(
                     PersistedStatement(Statement(Entity(1), a, Entity(2)), Entity(4)),
