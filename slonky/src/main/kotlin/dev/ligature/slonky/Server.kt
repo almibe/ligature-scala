@@ -4,11 +4,17 @@
 
 package dev.ligature.slonky
 
+import dev.ligature.Dataset
 import dev.ligature.Ligature
 
 import io.vertx.core.Vertx
 import io.vertx.core.http.HttpServer
 import io.vertx.ext.web.Router
+import io.vertx.ext.web.handler.BodyHandler
+import io.vertx.kotlin.coroutines.dispatcher
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.flow.fold
+import kotlinx.coroutines.launch
 
 class Server(private val port: Int = 4444, private val ligature: Ligature) {
     private val server: HttpServer
@@ -18,33 +24,46 @@ class Server(private val port: Int = 4444, private val ligature: Ligature) {
         server = vertx.createHttpServer()
         val router = Router.router(vertx)
 
-        router.post("/").handler { rc ->
-            //TODO create dataset
-//        val dataset = TODO()
-//        ligature.createDataset(dataset)
+        router.post().handler(BodyHandler.create()).handler { rc ->
+            val body = rc.bodyAsString
+            if (body == null) { // create new dataset
+                GlobalScope.launch(vertx.dispatcher()) {
+                    val res = ligature.createDataset(Dataset(rc.normalizedPath().removePrefix("/")))
+                    rc.response().send()
+                }
+                //TODO add statement
+                // val statement = TODO()
+                // ligature.write { tx ->
+                //     tx.addStatement(statement)
+                // }
+            } else { // add statement to dataset
+                //TODO create dataset
+                // val dataset = TODO()
+                // ligature.createDataset(dataset)
+            }
         }
-        router.postWithRegex("todo").handler { rc ->
-            //TODO add statement
-//        val statement = TODO()
-//        ligature.write { tx ->
-//            tx.addStatement(statement)
-//        }
-        }
-        router.delete("/").handler { rc ->
-            //TODO delete dataset
+        router.delete().handler { rc ->
+            val body = rc.bodyAsString
+            if (body == null) {
+                //TODO delete dataset
 //        val dataset = TODO()
 //        ligature.deleteDataset(dataset)
-        }
-        router.deleteWithRegex("todo").handler { rc ->
-            //TODO remove statement
+            } else {
+                //TODO remove statement
 //        val dataset = TODO()
 //        val statement = TODO()
 //        ligature.write { tx ->
 //            tx.removeStatement(statement)
 //        }
+            }
         }
         router.get("/").handler { rc ->
-            rc.response().send("")
+            GlobalScope.launch(vertx.dispatcher()) {
+                val res = ligature.allDatasets().fold("") { current, next ->
+                    current + next.getOrThrow().name + "\n"
+                }
+                rc.response().send(res)
+            }
             //TODO query datasets
             //TODO figure out if it's a range or prefix search
 //        val prefix = TODO()

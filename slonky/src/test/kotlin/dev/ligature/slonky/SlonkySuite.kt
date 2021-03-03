@@ -11,129 +11,102 @@ import io.vertx.core.Vertx
 import io.vertx.core.buffer.Buffer
 import io.vertx.ext.web.client.HttpResponse
 import io.vertx.ext.web.client.WebClient
-import io.vertx.kotlin.coroutines.await
 import io.vertx.kotlin.coroutines.awaitResult
 
 class SlonkySuite: FunSpec() {
     init {
         val port = 4444
+        val local = "localhost"
+        lateinit var server: Server
+        //this mean that server + client have different vertx instances, but this shouldn't be an issue
+        val client = WebClient.create(Vertx.vertx())
 
-        test("Datasets should initially be empty") {
-            val server = Server(port, InMemoryLigature()) //TODO should be in before
-            val vertx = Vertx.vertx()
-            val client = WebClient.create(vertx)
-            val res = awaitResult<HttpResponse<Buffer>> { h ->
-                client.get(port, "localhost", "").send(h)
-            }
-            res.bodyAsString() shouldBe null
-            server.shutDown()
-//            res.bodyAsString().lines().isEmpty())
+        beforeTest {
+            server = Server(port, InMemoryLigature())
         }
 
-//        test("Add Datasets") {
-//            main() //TODO should be in before
-//            val vertx = Vertx.vertx()
-//            val client = WebClient.create(vertx)
-//
-//            //TODO insert POSTs to add Datasets
-//
-//            val res = client.get("$root/").send().result()
-//            assert(res.bodyAsString().lines().isEmpty()) //TODO replace with shouldBe w/ values
-//            TODO()
-//        }
-//
+        afterTest {
+            server.shutDown()
+        }
+
+        test("Datasets should initially be empty") {
+            val res = awaitResult<HttpResponse<Buffer>> { h ->
+                client.get(port, local, "").send(h)
+            }
+            //empty bodies are null in Vert.x
+            res.bodyAsString() shouldBe null
+        }
+
+        test("Add Datasets") {
+            val postRes = awaitResult<HttpResponse<Buffer>> { h ->
+                client.post(port, local, "/testDataset").send(h)
+            }
+            val res = awaitResult<HttpResponse<Buffer>> { h ->
+                client.get(port, local, "").send(h)
+            }
+            res.bodyAsString().lines().filterNot { it.isBlank() } shouldBe listOf("testDataset")
+        }
+
 //        test("Query Datasets w/ prefix") {
-//            main() //TODO should be in before
-//            val vertx = Vertx.vertx()
-//            val client = WebClient.create(vertx)
-//
 //            //TODO insert POSTs to add Datasets
 //
-//            val res = client.get("$root/").send().result()
+//            val res = client.get(port, local, "").send().result()
 //            assert(res.bodyAsString().lines().isEmpty()) //TODO replace with shouldBe w/ values
 //            TODO()
 //        }
 //
 //        test("Query Datasets w/ range") {
-//            main() //TODO should be in before
-//            val vertx = Vertx.vertx()
-//            val client = WebClient.create(vertx)
-//
 //            //TODO insert POSTs to add Datasets
 //
-//            val res = client.get("$root/").send().result()
+//            val res = client.get(port, local, "").send().result()
 //            assert(res.bodyAsString().lines().isEmpty()) //TODO replace with shouldBe w/ values
 //            TODO()
 //        }
 //
 //        test("Delete Datasets") {
-//            main() //TODO should be in before
-//            val vertx = Vertx.vertx()
-//            val client = WebClient.create(vertx)
-//
 //            //TODO insert POSTs to add Datasets
 //
-//            val res = client.get("$root/").send().result()
+//            val res = client.get(port, local, "").send().result()
 //            assert(res.bodyAsString().lines().isEmpty()) //TODO replace with shouldBe w/ values
 //            TODO()
 //        }
 //
 //        test("Statements in new Dataset should start empty") {
-//            main() //TODO should be in before
-//            val vertx = Vertx.vertx()
-//            val client = WebClient.create(vertx)
-//
 //            //TODO insert POSTs to add Datasets
 //
-//            val res = client.get("$root/").send().result()
+//            val res = client.get(port, local, "").send().result()
 //            assert(res.bodyAsString().lines().isEmpty()) //TODO replace with shouldBe w/ values
 //            TODO()
 //        }
 //
 //        test("Add Statements") {
-//            main() //TODO should be in before
-//            val vertx = Vertx.vertx()
-//            val client = WebClient.create(vertx)
-//
 //            //TODO insert POSTs to add Datasets
 //
-//            val res = client.get("$root/").send().result()
+//            val res = client.get(port, local, "").send().result()
 //            assert(res.bodyAsString().lines().isEmpty()) //TODO replace with shouldBe w/ values
 //            TODO()
 //        }
 //
 //        test("Match Statements") {
-//            main() //TODO should be in before
-//            val vertx = Vertx.vertx()
-//            val client = WebClient.create(vertx)
-//
 //            //TODO insert POSTs to add Datasets
 //
-//            val res = client.get("$root/").send().result()
+//            val res = client.get(port, local, "").send().result()
 //            assert(res.bodyAsString().lines().isEmpty()) //TODO replace with shouldBe w/ values
 //            TODO()
 //        }
 //
 //        test("Match Statements with ranges") {
-//            main() //TODO should be in before
-//            val vertx = Vertx.vertx()
-//            val client = WebClient.create(vertx)
-//
 //            //TODO insert POSTs to add Datasets
 //
-//            val res = client.get("$root/").send().result()
+//            val res = client.get(port, local, "").send().result()
 //            assert(res.bodyAsString().lines().isEmpty()) //TODO replace with shouldBe w/ values
 //            TODO()
 //        }
 //
 //        test("Delete Statements") {
-//            main() //TODO should be in before
-//            val vertx = Vertx.vertx()
-//            val client = WebClient.create(vertx)
-//
 //            //TODO insert POSTs to add Datasets
 //
-//            val res = client.get("$root/").send().result()
+//            val res = client.get(port, local, "").send().result()
 //            assert(res.bodyAsString().lines().isEmpty()) //TODO replace with shouldBe w/ values
 //            TODO()
 //        }
