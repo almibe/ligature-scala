@@ -4,23 +4,32 @@
 
 package dev.ligature.slonky
 
+import dev.ligature.inmemory.InMemoryLigature
 import io.kotest.core.spec.style.FunSpec
+import io.kotest.matchers.shouldBe
 import io.vertx.core.Vertx
+import io.vertx.core.buffer.Buffer
+import io.vertx.ext.web.client.HttpResponse
 import io.vertx.ext.web.client.WebClient
+import io.vertx.kotlin.coroutines.await
+import io.vertx.kotlin.coroutines.awaitResult
 
 class SlonkySuite: FunSpec() {
     init {
-        val root = "http://localhost:4444/"
+        val port = 4444
 
-//        test("Datasets should initially be empty") {
-//            main() //TODO should be in before
-//            val vertx = Vertx.vertx()
-//            val client = WebClient.create(vertx)
-//            val res = client.get("$root/").send().result()
-//            assert(res.bodyAsString().lines().isEmpty())
-//            TODO()
-//        }
-//
+        test("Datasets should initially be empty") {
+            val server = Server(port, InMemoryLigature()) //TODO should be in before
+            val vertx = Vertx.vertx()
+            val client = WebClient.create(vertx)
+            val res = awaitResult<HttpResponse<Buffer>> { h ->
+                client.get(port, "localhost", "").send(h)
+            }
+            res.bodyAsString() shouldBe null
+            server.shutDown()
+//            res.bodyAsString().lines().isEmpty())
+        }
+
 //        test("Add Datasets") {
 //            main() //TODO should be in before
 //            val vertx = Vertx.vertx()
@@ -128,5 +137,5 @@ class SlonkySuite: FunSpec() {
 //            assert(res.bodyAsString().lines().isEmpty()) //TODO replace with shouldBe w/ values
 //            TODO()
 //        }
-//    }
+    }
 }

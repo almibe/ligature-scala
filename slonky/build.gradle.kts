@@ -8,8 +8,8 @@ plugins {
 
 dependencies {
     implementation("io.vertx:vertx-web:4.0.2")
+    implementation("io.vertx:vertx-lang-kotlin-coroutines:4.0.2")
     implementation(project(":ligature-in-memory"))
-//    testImplementation("io.vertx:vertx-junit5:4.0.2")
     testImplementation("io.vertx:vertx-web-client:4.0.2")
     testImplementation("io.kotest:kotest-runner-junit5:4.4.1")
     testImplementation("io.kotest:kotest-assertions-core:4.4.1")
