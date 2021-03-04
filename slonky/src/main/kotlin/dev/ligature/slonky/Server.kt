@@ -37,16 +37,29 @@ class Server(private val port: Int = 4444, private val ligature: Ligature) {
                     rc.response().send()
                 }
             } else { // add statement to dataset
-                val statementJson = JsonParser.parseString(body)
+                val statementJson = JsonParser.parseString(body).asJsonObject
 
-                //handle entity
-                val entity = TODO()
+                val entityJson = statementJson.get("entity")
+                val entity = if (entityJson.isJsonNull) {
+                    null
+                } else {
+                    Entity(entityJson.asString.toLong())
+                }
 
-                //handle attribute
-                val attribute = TODO()
+                val attribute = Attribute(statementJson.get("attribute").asString)
 
-                //handle value
-                val value: Value? = TODO()
+                val valueJson = statementJson.get("value")
+                val valueJsonType = statementJson.get("value-type").asString
+                val value: Value? = when {
+                    valueJsonType == "Entity" -> {
+                        if (entityJson.isJsonNull) {
+                            null
+                        } else {
+                            Entity(entityJson.asString.toLong())
+                        }
+                    }
+                    else -> TODO()
+                }
 
                 GlobalScope.launch(vertx.dispatcher()) {
                     val dataset = Dataset(rc.normalizedPath().removePrefix("/"))

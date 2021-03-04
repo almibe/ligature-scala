@@ -5,7 +5,10 @@
 package dev.ligature.slonky
 
 import com.google.gson.JsonArray
+import com.google.gson.JsonNull
+import com.google.gson.JsonObject
 import com.google.gson.JsonParser
+import dev.ligature.Statement
 import dev.ligature.inmemory.InMemoryLigature
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
@@ -101,14 +104,34 @@ class SlonkySuite: FunSpec() {
             JsonParser.parseString(res.bodyAsString()).asJsonArray shouldBe JsonArray()
         }
 
-//        test("Add Statements") {
-//            //TODO insert POSTs to add Datasets
-//
-//            val res = client.get(port, local, "").send().result()
-//            assert(res.bodyAsString().lines().isEmpty()) //TODO replace with shouldBe w/ values
-//            TODO()
-//        }
-//
+        test("Add Statements") {
+            val inStatement = JsonObject()
+            inStatement.add("entity", JsonNull.INSTANCE)
+            inStatement.addProperty("attribute", "attribute")
+            inStatement.add("value", JsonNull.INSTANCE)
+            inStatement.addProperty("value-type", "Entity")
+
+            val outStatement = JsonObject()
+            inStatement.addProperty("entity", "1")
+            inStatement.addProperty("attribute", "attribute")
+            inStatement.addProperty("value", "2")
+            inStatement.addProperty("value-type", "Entity")
+
+            val expected = JsonArray()
+            expected.add(outStatement)
+
+            awaitResult<HttpResponse<Buffer>> { h -> //create Dataset
+                client.post(port, local, "/testDataset").send(h)
+            }
+            awaitResult<HttpResponse<Buffer>> { h -> //add Statement
+                client.post(port, local, "/testDataset").sendBuffer(Buffer.buffer(inStatement.toString()), h)
+            }
+            val res = awaitResult<HttpResponse<Buffer>> { h -> //get all Statements
+                client.get(port, local, "/testDataset").send(h)
+            }
+            JsonParser.parseString(res.bodyAsString()).asJsonArray shouldBe expected
+        }
+
 //        test("Match Statements") {
 //            //TODO insert POSTs to add Datasets
 //
