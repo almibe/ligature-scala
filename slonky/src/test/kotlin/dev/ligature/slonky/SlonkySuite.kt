@@ -4,6 +4,8 @@
 
 package dev.ligature.slonky
 
+import com.google.gson.JsonArray
+import com.google.gson.JsonParser
 import dev.ligature.inmemory.InMemoryLigature
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
@@ -33,8 +35,7 @@ class SlonkySuite: FunSpec() {
             val res = awaitResult<HttpResponse<Buffer>> { h ->
                 client.get(port, local, "").send(h)
             }
-            //empty bodies are null in Vert.x
-            res.bodyAsString() shouldBe null
+            JsonParser.parseString(res.bodyAsString()).asJsonArray shouldBe JsonArray()
         }
 
         test("Add Datasets") {
@@ -44,7 +45,8 @@ class SlonkySuite: FunSpec() {
             val res = awaitResult<HttpResponse<Buffer>> { h ->
                 client.get(port, local, "").send(h)
             }
-            res.bodyAsString().lines().filterNot { it.isBlank() } shouldBe listOf("testDataset")
+            JsonParser.parseString(res.bodyAsString()).asJsonArray shouldBe
+                JsonParser.parseString("[\"testDataset\"]").asJsonArray
         }
 
         test("Query Datasets w/ prefix") {
@@ -56,10 +58,8 @@ class SlonkySuite: FunSpec() {
             val res = awaitResult<HttpResponse<Buffer>> { h ->
                 client.get(port, local, "/?prefix=test%2F").send(h)
             }
-            res.bodyAsString().lines().filterNot { it.isBlank() } shouldBe listOf(
-                "test/test1",
-                "test/test2"
-            )
+            JsonParser.parseString(res.bodyAsString()).asJsonArray shouldBe
+                JsonParser.parseString("[\"test/test1\",\"test/test2\"]").asJsonArray
         }
 
         test("Query Datasets w/ range") {
@@ -71,10 +71,8 @@ class SlonkySuite: FunSpec() {
             val res = awaitResult<HttpResponse<Buffer>> { h ->
                 client.get(port, local, "/?start=test1&end=test3").send(h)
             }
-            res.bodyAsString().lines().filterNot { it.isBlank() } shouldBe listOf(
-                "test1/test1",
-                "test2/test2"
-            )
+            JsonParser.parseString(res.bodyAsString()).asJsonArray shouldBe
+                    JsonParser.parseString("[\"test1/test1\",\"test2/test2\"]").asJsonArray
         }
 
         test("Delete Datasets") {
@@ -89,21 +87,20 @@ class SlonkySuite: FunSpec() {
             val res = awaitResult<HttpResponse<Buffer>> { h ->
                 client.get(port, local, "").send(h)
             }
-            res.bodyAsString().lines().filterNot { it.isBlank() } shouldBe listOf(
-                "test",
-                "test1/test1",
-                "test3/test"
-            )
+            JsonParser.parseString(res.bodyAsString()).asJsonArray shouldBe
+                    JsonParser.parseString("[\"test\",\"test1/test1\",\"test3/test\"]").asJsonArray
         }
 
-//        test("Statements in new Dataset should start empty") {
-//            //TODO insert POSTs to add Datasets
-//
-//            val res = client.get(port, local, "").send().result()
-//            assert(res.bodyAsString().lines().isEmpty()) //TODO replace with shouldBe w/ values
-//            TODO()
-//        }
-//
+        test("Statements in new Dataset should start empty") {
+            awaitResult<HttpResponse<Buffer>> { h -> //create Dataset
+                client.post(port, local, "/testDataset").send(h)
+            }
+            val res = awaitResult<HttpResponse<Buffer>> { h -> //get all Statements
+                client.get(port, local, "/testDataset").send(h)
+            }
+            JsonParser.parseString(res.bodyAsString()).asJsonArray shouldBe JsonArray()
+        }
+
 //        test("Add Statements") {
 //            //TODO insert POSTs to add Datasets
 //
