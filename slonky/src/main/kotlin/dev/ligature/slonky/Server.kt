@@ -28,7 +28,7 @@ class Server(private val port: Int = 4444, private val ligature: Ligature) {
             val body = rc.bodyAsString
             if (body == null) { // create new dataset
                 GlobalScope.launch(vertx.dispatcher()) {
-                    val res = ligature.createDataset(Dataset(rc.normalizedPath().removePrefix("/")))
+                    ligature.createDataset(Dataset(rc.normalizedPath().removePrefix("/")))
                     rc.response().send()
                 }
                 //TODO add statement
@@ -42,12 +42,13 @@ class Server(private val port: Int = 4444, private val ligature: Ligature) {
                 // ligature.createDataset(dataset)
             }
         }
-        router.delete().handler { rc ->
+        router.delete().handler(BodyHandler.create()).handler { rc ->
             val body = rc.bodyAsString
             if (body == null) {
-                //TODO delete dataset
-//        val dataset = TODO()
-//        ligature.deleteDataset(dataset)
+                GlobalScope.launch(vertx.dispatcher()) {
+                    ligature.deleteDataset(Dataset(rc.normalizedPath().removePrefix("/")))
+                    rc.response().send()
+                }
             } else {
                 //TODO remove statement
 //        val dataset = TODO()

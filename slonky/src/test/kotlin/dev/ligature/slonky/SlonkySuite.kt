@@ -77,14 +77,25 @@ class SlonkySuite: FunSpec() {
             )
         }
 
-//        test("Delete Datasets") {
-//            //TODO insert POSTs to add Datasets
-//
-//            val res = client.get(port, local, "").send().result()
-//            assert(res.bodyAsString().lines().isEmpty()) //TODO replace with shouldBe w/ values
-//            TODO()
-//        }
-//
+        test("Delete Datasets") {
+            listOf("test", "test1/test1", "test2/test2", "test3/test").forEach {
+                awaitResult<HttpResponse<Buffer>> { h ->
+                    client.post(port, local, "/$it").send(h)
+                }
+            }
+            awaitResult<HttpResponse<Buffer>> { h ->
+                client.delete(port, local, "/test2/test2").send(h)
+            }
+            val res = awaitResult<HttpResponse<Buffer>> { h ->
+                client.get(port, local, "").send(h)
+            }
+            res.bodyAsString().lines().filterNot { it.isBlank() } shouldBe listOf(
+                "test",
+                "test1/test1",
+                "test3/test"
+            )
+        }
+
 //        test("Statements in new Dataset should start empty") {
 //            //TODO insert POSTs to add Datasets
 //
