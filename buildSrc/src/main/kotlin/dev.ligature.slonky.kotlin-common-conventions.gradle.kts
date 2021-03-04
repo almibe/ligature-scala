@@ -9,6 +9,7 @@ repositories {
 tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
     kotlinOptions {
         freeCompilerArgs = freeCompilerArgs + "-Xallow-result-return-type"
+        jvmTarget = "1.8"
     }
 }
 

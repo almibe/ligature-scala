@@ -57,26 +57,34 @@ class Server(private val port: Int = 4444, private val ligature: Ligature) {
 //        }
             }
         }
-        router.get("/").handler { rc ->
-            GlobalScope.launch(vertx.dispatcher()) {
-                val res = ligature.allDatasets().fold("") { current, next ->
-                    current + next.getOrThrow().name + "\n"
+        router.get().handler { rc ->
+            val prefix = rc.queryParam("prefix")
+            val rangeStart = rc.queryParam("start")
+            val rangeEnd = rc.queryParam("end")
+            if (prefix.size == 1 && rangeStart.isEmpty() && rangeEnd.isEmpty()) {
+                GlobalScope.launch(vertx.dispatcher()) {
+                    val res = ligature.matchDatasetsPrefix(prefix.first()).fold("") { current, next ->
+                        current + next.getOrThrow().name + "\n"
+                    }
+                    rc.response().send(res)
                 }
-                rc.response().send(res)
+            } else if (prefix.isEmpty() && rangeStart.size == 1 && rangeEnd.size == 1) {
+                GlobalScope.launch(vertx.dispatcher()) {
+                    val res = ligature.matchDatasetsRange(rangeStart.first(), rangeEnd.first()).fold("") { current, next ->
+                        current + next.getOrThrow().name + "\n"
+                    }
+                    rc.response().send(res)
+                }
+            } else { //TODO make sure that pathParams are empty + other checks
+                GlobalScope.launch(vertx.dispatcher()) {
+                    val res = ligature.allDatasets().fold("") { current, next ->
+                        current + next.getOrThrow().name + "\n"
+                    }
+                    rc.response().send(res)
+                }
             }
-            //TODO query datasets
-            //TODO figure out if it's a range or prefix search
-//        val prefix = TODO()
-//        val rangeStart = TODO()
-//        val rangeEnd = TODO()
-//        if (prefix != null && rangeStart == null && rangeEnd == null) {
-//            TODO()
-//        } else if (prefix == null && rangeStart != null && rangeEnd != null) {
-//            TODO()
-//        } else {
-//            TODO()
-//        }
         }
+        //TODO everything below should be merged into the above route
         router.getWithRegex("todo").handler { rc ->
             //TODO query statements
             //TODO figure out if it's a range or prefix search
@@ -92,7 +100,7 @@ class Server(private val port: Int = 4444, private val ligature: Ligature) {
 //        }
         }
 
-        server.requestHandler(router).listen(port) //TODO should have a configurable port
+        server.requestHandler(router).listen(port)
     }
 
     fun shutDown() {

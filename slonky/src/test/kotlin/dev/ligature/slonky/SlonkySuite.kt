@@ -38,7 +38,7 @@ class SlonkySuite: FunSpec() {
         }
 
         test("Add Datasets") {
-            val postRes = awaitResult<HttpResponse<Buffer>> { h ->
+            awaitResult<HttpResponse<Buffer>> { h ->
                 client.post(port, local, "/testDataset").send(h)
             }
             val res = awaitResult<HttpResponse<Buffer>> { h ->
@@ -47,22 +47,36 @@ class SlonkySuite: FunSpec() {
             res.bodyAsString().lines().filterNot { it.isBlank() } shouldBe listOf("testDataset")
         }
 
-//        test("Query Datasets w/ prefix") {
-//            //TODO insert POSTs to add Datasets
-//
-//            val res = client.get(port, local, "").send().result()
-//            assert(res.bodyAsString().lines().isEmpty()) //TODO replace with shouldBe w/ values
-//            TODO()
-//        }
-//
-//        test("Query Datasets w/ range") {
-//            //TODO insert POSTs to add Datasets
-//
-//            val res = client.get(port, local, "").send().result()
-//            assert(res.bodyAsString().lines().isEmpty()) //TODO replace with shouldBe w/ values
-//            TODO()
-//        }
-//
+        test("Query Datasets w/ prefix") {
+            listOf("test/test1", "test/test2", "test3/test").forEach {
+                awaitResult<HttpResponse<Buffer>> { h ->
+                    client.post(port, local, "/$it").send(h)
+                }
+            }
+            val res = awaitResult<HttpResponse<Buffer>> { h ->
+                client.get(port, local, "/?prefix=test%2F").send(h)
+            }
+            res.bodyAsString().lines().filterNot { it.isBlank() } shouldBe listOf(
+                "test/test1",
+                "test/test2"
+            )
+        }
+
+        test("Query Datasets w/ range") {
+            listOf("test", "test1/test1", "test2/test2", "test3/test").forEach {
+                awaitResult<HttpResponse<Buffer>> { h ->
+                    client.post(port, local, "/$it").send(h)
+                }
+            }
+            val res = awaitResult<HttpResponse<Buffer>> { h ->
+                client.get(port, local, "/?start=test1&end=test3").send(h)
+            }
+            res.bodyAsString().lines().filterNot { it.isBlank() } shouldBe listOf(
+                "test1/test1",
+                "test2/test2"
+            )
+        }
+
 //        test("Delete Datasets") {
 //            //TODO insert POSTs to add Datasets
 //
