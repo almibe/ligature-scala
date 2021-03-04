@@ -4,11 +4,9 @@
 
 package dev.ligature.slonky
 
-import com.google.gson.JsonArray
-import com.google.gson.JsonNull
-import com.google.gson.JsonObject
-import com.google.gson.JsonParser
-import dev.ligature.Statement
+import com.google.gson.*
+import com.google.gson.annotations.SerializedName
+import dev.ligature.PersistedStatement
 import dev.ligature.inmemory.InMemoryLigature
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
@@ -18,6 +16,19 @@ import io.vertx.ext.web.client.HttpResponse
 import io.vertx.ext.web.client.WebClient
 import io.vertx.kotlin.coroutines.awaitResult
 
+data class AtomicApiStatement(
+    val entity: String?,
+    val attribute: String,
+    val value: String?,
+    @SerializedName("value-type") val valueType: String)
+
+data class AtomicApiPersistedStatement(
+    val entity: String,
+    val attribute: String,
+    val value: String,
+    @SerializedName("value-type") val valueType: String,
+    val context: String)
+
 class SlonkySuite: FunSpec() {
     init {
         val port = 4444
@@ -25,6 +36,7 @@ class SlonkySuite: FunSpec() {
         lateinit var server: Server
         //this mean that server + client have different vertx instances, but this shouldn't be an issue
         val client = WebClient.create(Vertx.vertx())
+        val gson = GsonBuilder().serializeNulls().create()
 
         beforeTest {
             server = Server(port, InMemoryLigature())
@@ -105,31 +117,26 @@ class SlonkySuite: FunSpec() {
         }
 
         test("Add Statements") {
-            val inStatement = JsonObject()
-            inStatement.add("entity", JsonNull.INSTANCE)
-            inStatement.addProperty("attribute", "attribute")
-            inStatement.add("value", JsonNull.INSTANCE)
-            inStatement.addProperty("value-type", "Entity")
 
-            val outStatement = JsonObject()
-            inStatement.addProperty("entity", "1")
-            inStatement.addProperty("attribute", "attribute")
-            inStatement.addProperty("value", "2")
-            inStatement.addProperty("value-type", "Entity")
+            val input = listOf(AtomicApiStatement(null, "attribute", null, "Entity"))
 
-            val expected = JsonArray()
-            expected.add(outStatement)
+            val out = listOf(AtomicApiPersistedStatement("1", "attribute", "2", "Entity", "3"))
+
+            val expected = gson.toJson(out)
 
             awaitResult<HttpResponse<Buffer>> { h -> //create Dataset
                 client.post(port, local, "/testDataset").send(h)
             }
-            awaitResult<HttpResponse<Buffer>> { h -> //add Statement
-                client.post(port, local, "/testDataset").sendBuffer(Buffer.buffer(inStatement.toString()), h)
+            input.forEach { statement ->
+                awaitResult<HttpResponse<Buffer>> { h -> //add Statement
+                    client.post(port, local, "/testDataset").sendBuffer(Buffer.buffer(gson.toJson(statement)), h)
+                }
             }
             val res = awaitResult<HttpResponse<Buffer>> { h -> //get all Statements
                 client.get(port, local, "/testDataset").send(h)
             }
-            JsonParser.parseString(res.bodyAsString()).asJsonArray shouldBe expected
+            JsonParser.parseString(res.bodyAsString()).asJsonArray shouldBe
+                    JsonParser.parseString(expected).asJsonArray
         }
 
 //        test("Match Statements") {

@@ -92,7 +92,7 @@ class Server(private val port: Int = 4444, private val ligature: Ligature) {
         router.get().handler { rc ->
             val path = rc.normalizedPath()
 
-            if (path == "/") {
+            if (path == "/") { //handle Datasets
                 val prefix = rc.queryParam("prefix")
                 val rangeStart = rc.queryParam("start")
                 val rangeEnd = rc.queryParam("end")
@@ -112,26 +112,24 @@ class Server(private val port: Int = 4444, private val ligature: Ligature) {
                         rc.response().send(gson.toJson(res.toList()))
                     }
                 }
-            } else {
+            } else { //handle Statements within a given Dataset
                 val dataset = Dataset(path.removePrefix("/"))
                 val entity = rc.queryParam("entity")
                 val attribute = rc.queryParam("attribute")
                 val value = rc.queryParam("value")
                 val valueStart = rc.queryParam("value-start")
                 val valueEnd = rc.queryParam("value-end")
-                if (entity.isEmpty() && attribute.isEmpty() && value.isEmpty() && valueStart.isEmpty() && valueEnd.isEmpty()) {
+                if (entity.isEmpty() && attribute.isEmpty() && value.isEmpty() && valueStart.isEmpty() && valueEnd.isEmpty()) { //get all
                     GlobalScope.launch(vertx.dispatcher()) {
                         val res = JsonArray()
                         ligature.query(dataset) { tx ->
                             tx.allStatements().toList().forEach { statement ->
-                                val e = JsonObject()
-                                //TODO finish mapping
-                                res.add(e)
+                                res.add(serializeStatement(statement.getOrThrow()))
                             }
                         }
                         rc.response().send(res.toString())
                     }
-                } else {
+                } else { //TODO handle simple match and range match
                     TODO()
                 }
             }
@@ -159,11 +157,29 @@ class Server(private val port: Int = 4444, private val ligature: Ligature) {
         server.close().run {  }
     }
 
-    fun serializeStatement(statement: Statement): JsonObject {
-        TODO()
+    fun serializeStatement(statement: PersistedStatement): JsonObject {
+        val out = JsonObject()
+        out.addProperty("entity", statement.statement.entity.id.toString())
+        out.addProperty("attribute", statement.statement.attribute.name)
+        out.addProperty("value", serializeValue(statement.statement.value))
+        out.addProperty("value-type", serializeValueType(statement.statement.value))
+        out.addProperty("context", statement.context.id.toString())
+        return out
     }
 
-    fun deserializeStatement(statement: String): Statement {
-        TODO()
-    }
+    fun serializeValue(value: Value): String =
+        when (value) {
+            is Entity -> value.id.toString()
+            is StringLiteral -> value.value
+            is FloatLiteral -> value.value.toString()
+            is IntegerLiteral -> value.value.toString()
+        }
+
+    fun serializeValueType(value: Value): String  =
+        when (value) {
+            is Entity -> "Entity"
+            is StringLiteral -> "StringLiteral"
+            is FloatLiteral -> "FloatLiteral"
+            is IntegerLiteral -> "IntegerLiteral"
+        }
 }
