@@ -5,8 +5,9 @@
 package dev.ligature.slonky
 
 import com.google.gson.Gson
+import com.google.gson.JsonArray
 import com.google.gson.JsonObject
-import com.google.gson.stream.JsonWriter
+import com.google.gson.JsonParser
 import dev.ligature.*
 
 import io.vertx.core.Vertx
@@ -15,11 +16,9 @@ import io.vertx.ext.web.Router
 import io.vertx.ext.web.handler.BodyHandler
 import io.vertx.kotlin.coroutines.dispatcher
 import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.flow.fold
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.launch
-import java.lang.RuntimeException
 
 class Server(private val port: Int = 4444, private val ligature: Ligature) {
     private val server: HttpServer
@@ -38,26 +37,16 @@ class Server(private val port: Int = 4444, private val ligature: Ligature) {
                     rc.response().send()
                 }
             } else { // add statement to dataset
-                //TODO needs rewrite, this is a very short term, busted solution
-                val parts = body.split(" ")
+                val statementJson = JsonParser.parseString(body)
 
                 //handle entity
-                val entity = if (parts[0].matches("^#\\d+$".toRegex())) {
-                    Entity(parts[0].removePrefix("#").toLong())
-                } else null
+                val entity = TODO()
 
                 //handle attribute
-                val attribute = Attribute(parts[1])
+                val attribute = TODO()
 
                 //handle value
-                val valueContent = body.trim().removePrefix(parts[0]).trim().removePrefix(parts[1]).trim()
-                val value: Value? = when {
-                    valueContent.matches("^\\d+$".toRegex()) -> IntegerLiteral(valueContent.toLong())
-                    valueContent.matches("^\\d+\\.\\d+$".toRegex()) -> FloatLiteral(valueContent.toDouble())
-                    valueContent == "_" -> null //null means make new Entity
-                    valueContent.matches("^#\\d+$".toRegex()) -> Entity(parts[0].removePrefix("#").toLong())
-                    else -> throw RuntimeException("Invalid Value")
-                }
+                val value: Value? = TODO()
 
                 GlobalScope.launch(vertx.dispatcher()) {
                     val dataset = Dataset(rc.normalizedPath().removePrefix("/"))
@@ -119,12 +108,15 @@ class Server(private val port: Int = 4444, private val ligature: Ligature) {
                 val valueEnd = rc.queryParam("value-end")
                 if (entity.isEmpty() && attribute.isEmpty() && value.isEmpty() && valueStart.isEmpty() && valueEnd.isEmpty()) {
                     GlobalScope.launch(vertx.dispatcher()) {
-                        val res = ligature.query(dataset) { tx ->
-                            tx.allStatements().fold("") { current, next ->
-                                ""//current + next.getOrThrow().name + "\n"
+                        val res = JsonArray()
+                        ligature.query(dataset) { tx ->
+                            tx.allStatements().toList().forEach { statement ->
+                                val e = JsonObject()
+                                //TODO finish mapping
+                                res.add(e)
                             }
                         }
-                        rc.response().send(res)
+                        rc.response().send(res.toString())
                     }
                 } else {
                     TODO()
