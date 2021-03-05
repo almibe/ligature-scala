@@ -197,14 +197,44 @@ class SlonkySuite: FunSpec() {
                     JsonParser.parseString(expected3).asJsonArray
         }
 
-//        test("Match Statements with ranges") {
-//            //TODO insert POSTs to add Datasets
-//
-//            val res = client.get(port, local, "").send().result()
-//            assert(res.bodyAsString().lines().isEmpty()) //TODO replace with shouldBe w/ values
-//            TODO()
-//        }
-//
+        test("Match Statements with ranges") {
+            val input = listOf(
+                AtomicApiStatement(null, "attribute", "1", "IntegerLiteral"),
+                AtomicApiStatement(null, "attribute", "2", "IntegerLiteral"),
+                AtomicApiStatement(null, "attribute", "3", "IntegerLiteral"),
+                AtomicApiStatement(null, "attribute", "4.2", "FloatLiteral"),
+                AtomicApiStatement(null, "attribute", "4.3", "FloatLiteral"),
+            )
+
+            val expected1 = gson.toJson(listOf(
+                AtomicApiStatement(null, "attribute", "1", "IntegerLiteral"),
+                AtomicApiStatement(null, "attribute", "2", "IntegerLiteral"),
+            ))
+            val expected2 = gson.toJson(listOf(
+                AtomicApiStatement(null, "attribute", "4.2", "FloatLiteral"),
+            ))
+
+            awaitResult<HttpResponse<Buffer>> { h -> //create Dataset
+                client.post(port, local, "/testDataset").send(h)
+            }
+            input.forEach { statement ->
+                awaitResult<HttpResponse<Buffer>> { h -> //add Statement
+                    client.post(port, local, "/testDataset").sendBuffer(Buffer.buffer(gson.toJson(statement)), h)
+                }
+            }
+
+            val res1 = awaitResult<HttpResponse<Buffer>> { h -> //get all Statements
+                client.get(port, local, "/testDataset?value-start=1&value-end=3&value-type=IntegerLiteral").send(h)
+            }
+            val res2 = awaitResult<HttpResponse<Buffer>> { h -> //get all Statements
+                client.get(port, local, "/testDataset?value-start=4.1&value-end=4.3&value-type=FloatLiteral").send(h)
+            }
+           JsonParser.parseString(res1.bodyAsString()).asJsonArray shouldBe
+                    JsonParser.parseString(expected1).asJsonArray
+            JsonParser.parseString(res2.bodyAsString()).asJsonArray shouldBe
+                    JsonParser.parseString(expected2).asJsonArray
+        }
+
 //        test("Delete Statements") {
 //            //TODO insert POSTs to add Datasets
 //
