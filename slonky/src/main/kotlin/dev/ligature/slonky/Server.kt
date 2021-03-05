@@ -19,6 +19,7 @@ import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.launch
+import java.lang.RuntimeException
 
 class Server(private val port: Int = 4444, private val ligature: Ligature) {
     private val server: HttpServer
@@ -50,15 +51,18 @@ class Server(private val port: Int = 4444, private val ligature: Ligature) {
 
                 val valueJson = statementJson.get("value")
                 val valueJsonType = statementJson.get("value-type").asString
-                val value: Value? = when {
-                    valueJsonType == "Entity" -> {
-                        if (entityJson.isJsonNull) {
+                val value: Value? = when (valueJsonType) {
+                    "Entity" -> {
+                        if (valueJson.isJsonNull) {
                             null
                         } else {
-                            Entity(entityJson.asString.toLong())
+                            Entity(valueJson.asString.toLong())
                         }
                     }
-                    else -> TODO()
+                    "StringLiteral" -> StringLiteral(valueJson.asString)
+                    "IntegerLiteral" -> IntegerLiteral(valueJson.asString.toLong())
+                    "FloatLiteral" -> FloatLiteral(valueJson.asString.toDouble())
+                    else -> throw RuntimeException("Bad value-type $valueJsonType")
                 }
 
                 GlobalScope.launch(vertx.dispatcher()) {
@@ -117,9 +121,14 @@ class Server(private val port: Int = 4444, private val ligature: Ligature) {
                 val entity = rc.queryParam("entity")
                 val attribute = rc.queryParam("attribute")
                 val value = rc.queryParam("value")
+                val valueType = rc.queryParam("value-type")
                 val valueStart = rc.queryParam("value-start")
                 val valueEnd = rc.queryParam("value-end")
-                if (entity.isEmpty() && attribute.isEmpty() && value.isEmpty() && valueStart.isEmpty() && valueEnd.isEmpty()) { //get all
+
+                val oneOrZero = { x: Int -> x == 1 || x == 0 }
+                val bothOneOrZero = { x: Int, y: Int -> oneOrZero(x) || oneOrZero(y) }
+
+                if (entity.isEmpty() && attribute.isEmpty() && value.isEmpty() && valueType.isEmpty() && valueStart.isEmpty() && valueEnd.isEmpty()) { //get all
                     GlobalScope.launch(vertx.dispatcher()) {
                         val res = JsonArray()
                         ligature.query(dataset) { tx ->
@@ -129,25 +138,25 @@ class Server(private val port: Int = 4444, private val ligature: Ligature) {
                         }
                         rc.response().send(res.toString())
                     }
-                } else { //TODO handle simple match and range match
+                } else if (oneOrZero(entity.size) && oneOrZero(attribute.size) && bothOneOrZero(value.size, valueType.size) && valueStart.isEmpty() && valueEnd.isEmpty()) {
+                    //handle simple match
+                    val entity = entity.firstOrNull()
+                    val attribute = attribute.firstOrNull()
+                    val value = value.firstOrNull()
+                    val valueType = valueType.firstOrNull()
                     TODO()
+                } else if (oneOrZero(entity.size) && oneOrZero(attribute.size) && value.isEmpty() && valueType.size == 1 && valueStart.size == 1 && valueEnd.size == 1) {
+                    //handle range match
+                    val entity = entity.firstOrNull()
+                    val attribute = attribute.firstOrNull()
+                    val valueStart = valueStart.first()
+                    val valueEnd = valueEnd.first()
+                    val valueType = valueType.first()
+                    TODO()
+                } else {
+                    throw RuntimeException("Illegal State for Statement lookup")
                 }
             }
-        }
-        //TODO everything below should be merged into the above route
-        router.getWithRegex("todo").handler { rc ->
-            //TODO query statements
-            //TODO figure out if it's a range or prefix search
-//        val prefix = TODO()
-//        val rangeStart = TODO()
-//        val rangeEnd = TODO()
-//        if (prefix != null && rangeStart == null && rangeEnd == null) {
-//            TODO()
-//        } else if (prefix == null && rangeStart != null && rangeEnd != null) {
-//            TODO()
-//        } else {
-//            TODO()
-//        }
         }
 
         server.requestHandler(router).listen(port)
