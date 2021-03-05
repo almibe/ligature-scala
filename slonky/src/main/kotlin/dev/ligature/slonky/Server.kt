@@ -85,12 +85,31 @@ class Server(private val port: Int = 4444, private val ligature: Ligature) {
                     rc.response().send()
                 }
             } else {
-                //TODO remove statement
-//        val dataset = TODO()
-//        val statement = TODO()
-//        ligature.write { tx ->
-//            tx.removeStatement(statement)
-//        }
+                val statementJson = JsonParser.parseString(body).asJsonObject
+
+                val entity = Entity(statementJson.get("entity").asString.toLong())
+                val attribute = Attribute(statementJson.get("attribute").asString)
+                val valueJson = statementJson.get("value")
+                val valueJsonType = statementJson.get("value-type").asString
+                val value: Value = when (valueJsonType) {
+                    "Entity" -> Entity(valueJson.asString.toLong())
+                    "StringLiteral" -> StringLiteral(valueJson.asString)
+                    "IntegerLiteral" -> IntegerLiteral(valueJson.asString.toLong())
+                    "FloatLiteral" -> FloatLiteral(valueJson.asString.toDouble())
+                    else -> throw RuntimeException("Bad value-type $valueJsonType")
+                }
+
+                val context = Entity(statementJson.get("context").asString.toLong())
+
+                val statement = PersistedStatement(Statement(entity, attribute, value), context)
+
+                GlobalScope.launch(vertx.dispatcher()) {
+                    val dataset = Dataset(rc.normalizedPath().removePrefix("/"))
+                    ligature.write(dataset) { tx ->
+                        tx.removeStatement(statement)
+                    }
+                }
+                rc.response().send()
             }
         }
         router.get().handler { rc ->
@@ -140,7 +159,6 @@ class Server(private val port: Int = 4444, private val ligature: Ligature) {
                         rc.response().send(res.toString())
                     }
                 } else if (oneOrZero(entity.size) && oneOrZero(attribute.size) && bothOneOrZero(value.size, valueType.size) && valueStart.isEmpty() && valueEnd.isEmpty()) {
-                    println("here")
                     //handle simple match
                     val entity: Entity? = entity.firstOrNull()?.let { Entity(it.toLong()) }
                     val attribute: Attribute? = attribute.firstOrNull()?.let { Attribute(it) }
@@ -153,7 +171,6 @@ class Server(private val port: Int = 4444, private val ligature: Ligature) {
                                 res.add(serializeStatement(statement.getOrThrow()))
                             }
                         }
-                        println("xxx $res")
                         rc.response().send(res.toString())
                     }
                 } else if (oneOrZero(entity.size) && oneOrZero(attribute.size) && value.isEmpty() && valueType.size == 1 && valueStart.size == 1 && valueEnd.size == 1) {

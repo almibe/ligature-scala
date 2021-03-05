@@ -6,7 +6,6 @@ package dev.ligature.slonky
 
 import com.google.gson.*
 import com.google.gson.annotations.SerializedName
-import dev.ligature.PersistedStatement
 import dev.ligature.inmemory.InMemoryLigature
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
@@ -235,12 +234,48 @@ class SlonkySuite: FunSpec() {
                     JsonParser.parseString(expected2).asJsonArray
         }
 
-//        test("Delete Statements") {
-//            //TODO insert POSTs to add Datasets
-//
-//            val res = client.get(port, local, "").send().result()
-//            assert(res.bodyAsString().lines().isEmpty()) //TODO replace with shouldBe w/ values
-//            TODO()
-//        }
+        test("Delete Statements") {
+            val input = listOf(
+                AtomicApiStatement(null, "attribute", null, "Entity"),
+                AtomicApiStatement(null, "attribute", "1", "Entity"),
+                AtomicApiStatement(null, "attribute2", "Hello", "StringLiteral"),
+                AtomicApiStatement(null, "attribute3", "3453", "IntegerLiteral"),
+                AtomicApiStatement("1", "attribute4", "4.2", "FloatLiteral"),
+            )
+
+            val toDelete = listOf(
+                AtomicApiPersistedStatement("1", "attribute", "2", "Entity", "3"),
+                AtomicApiPersistedStatement("4", "attribute", "1", "Entity", "5"),
+                AtomicApiPersistedStatement("6", "attribute2", "Hello", "StringLiteral", "98"), //doesn't match
+                AtomicApiPersistedStatement("8", "attribute3", "3454", "IntegerLiteral", "9"), //doesn't match
+                AtomicApiPersistedStatement("2", "attribute4", "4.2", "FloatLiteral", "10"), //doesn't match
+            )
+
+            val out = listOf(
+                AtomicApiPersistedStatement("6", "attribute2", "Hello", "StringLiteral", "7"), //doesn't match
+                AtomicApiPersistedStatement("8", "attribute3", "3453", "IntegerLiteral", "9"), //doesn't match
+                AtomicApiPersistedStatement("1", "attribute4", "4.2", "FloatLiteral", "10"), //doesn't match
+            )
+            val expected = gson.toJson(out)
+
+            awaitResult<HttpResponse<Buffer>> { h -> //create Dataset
+                client.post(port, local, "/testDataset").send(h)
+            }
+            input.forEach { statement ->
+                awaitResult<HttpResponse<Buffer>> { h -> //add Statement
+                    client.post(port, local, "/testDataset").sendBuffer(Buffer.buffer(gson.toJson(statement)), h)
+                }
+            }
+            toDelete.forEach { statement ->
+                awaitResult<HttpResponse<Buffer>> { h -> //add Statement
+                    client.delete(port, local, "/testDataset").sendBuffer(Buffer.buffer(gson.toJson(statement)), h)
+                }
+            }
+            val res = awaitResult<HttpResponse<Buffer>> { h -> //get all Statements
+                client.get(port, local, "/testDataset").send(h)
+            }
+            JsonParser.parseString(res.bodyAsString()).asJsonArray shouldBe
+                    JsonParser.parseString(expected).asJsonArray
+        }
     }
 }
