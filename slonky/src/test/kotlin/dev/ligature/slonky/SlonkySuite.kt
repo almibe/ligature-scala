@@ -187,7 +187,7 @@ class SlonkySuite: FunSpec() {
                 client.get(port, local, "/testDataset?attribute=attribute").send(h)
             }
             val res3 = awaitResult<HttpResponse<Buffer>> { h -> //get all Statements
-                client.get(port, local, "/testDataset?entity=8&value=3453&context=9").send(h)
+                client.get(port, local, "/testDataset?entity=8&value=3453&value-type=IntegerLiteral&context=9").send(h)
             }
             JsonParser.parseString(res1.bodyAsString()).asJsonArray shouldBe
                     JsonParser.parseString(expected1).asJsonArray

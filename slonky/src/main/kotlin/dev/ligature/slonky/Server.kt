@@ -128,7 +128,8 @@ class Server(private val port: Int = 4444, private val ligature: Ligature) {
                 val oneOrZero = { x: Int -> x == 1 || x == 0 }
                 val bothOneOrZero = { x: Int, y: Int -> oneOrZero(x) || oneOrZero(y) }
 
-                if (entity.isEmpty() && attribute.isEmpty() && value.isEmpty() && valueType.isEmpty() && valueStart.isEmpty() && valueEnd.isEmpty()) { //get all
+                if (entity.isEmpty() && attribute.isEmpty() && value.isEmpty() && valueType.isEmpty() && valueStart.isEmpty() && valueEnd.isEmpty()) {
+                    //get all
                     GlobalScope.launch(vertx.dispatcher()) {
                         val res = JsonArray()
                         ligature.query(dataset) { tx ->
@@ -139,20 +140,37 @@ class Server(private val port: Int = 4444, private val ligature: Ligature) {
                         rc.response().send(res.toString())
                     }
                 } else if (oneOrZero(entity.size) && oneOrZero(attribute.size) && bothOneOrZero(value.size, valueType.size) && valueStart.isEmpty() && valueEnd.isEmpty()) {
+                    println("here")
                     //handle simple match
-                    val entity = entity.firstOrNull()
-                    val attribute = attribute.firstOrNull()
-                    val value = value.firstOrNull()
-                    val valueType = valueType.firstOrNull()
-                    TODO()
+                    val entity: Entity? = entity.firstOrNull()?.let { Entity(it.toLong()) }
+                    val attribute: Attribute? = attribute.firstOrNull()?.let { Attribute(it) }
+                    val value: Value? = value.firstOrNull()?.let { deserializeValue(it, valueType.first()) }
+
+                    GlobalScope.launch(vertx.dispatcher()) {
+                        val res = JsonArray()
+                        ligature.query(dataset) { tx ->
+                            tx.matchStatements(entity, attribute, value).toList().forEach { statement ->
+                                res.add(serializeStatement(statement.getOrThrow()))
+                            }
+                        }
+                        println("xxx $res")
+                        rc.response().send(res.toString())
+                    }
                 } else if (oneOrZero(entity.size) && oneOrZero(attribute.size) && value.isEmpty() && valueType.size == 1 && valueStart.size == 1 && valueEnd.size == 1) {
                     //handle range match
-                    val entity = entity.firstOrNull()
-                    val attribute = attribute.firstOrNull()
-                    val valueStart = valueStart.first()
-                    val valueEnd = valueEnd.first()
-                    val valueType = valueType.first()
-                    TODO()
+                    val entity: Entity? = entity.firstOrNull()?.let { Entity(it.toLong()) }
+                    val attribute: Attribute? = attribute.firstOrNull()?.let { Attribute(it) }
+                    val valueRange: Range = deserializeValueRange(valueStart.first(), valueEnd.first(), valueType.first())
+
+                    GlobalScope.launch(vertx.dispatcher()) {
+                        val res = JsonArray()
+                        ligature.query(dataset) { tx ->
+                            tx.matchStatementsRange(entity, attribute, valueRange).toList().forEach { statement ->
+                                res.add(serializeStatement(statement.getOrThrow()))
+                            }
+                        }
+                        rc.response().send(res.toString())
+                    }
                 } else {
                     throw RuntimeException("Illegal State for Statement lookup")
                 }
@@ -191,4 +209,23 @@ class Server(private val port: Int = 4444, private val ligature: Ligature) {
             is FloatLiteral -> "FloatLiteral"
             is IntegerLiteral -> "IntegerLiteral"
         }
+
+    fun deserializeValue(value: String, valueType: String): Value =
+        when (valueType) {
+            "Entity" -> Entity(value.toLong())
+            "StringLiteral" -> StringLiteral(value)
+            "FloatLiteral" -> FloatLiteral(value.toDouble())
+            "IntegerLiteral" -> IntegerLiteral(value.toLong())
+            else -> throw RuntimeException("Illegal value type $valueType")
+        }
+
+    fun deserializeValueRange(valueStart: String, valueEnd: String, valueType: String): Range {
+        when (valueType) {
+            "Entity" -> TODO()
+            "StringLiteral" -> TODO()
+            "FloatLiteral" -> TODO()
+            "IntegerLiteral" -> TODO()
+            else -> throw RuntimeException("Illegal value type $valueType")
+        }
+    }
 }
