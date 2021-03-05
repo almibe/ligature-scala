@@ -219,13 +219,11 @@ class Server(private val port: Int = 4444, private val ligature: Ligature) {
             else -> throw RuntimeException("Illegal value type $valueType")
         }
 
-    fun deserializeValueRange(valueStart: String, valueEnd: String, valueType: String): Range {
+    fun deserializeValueRange(valueStart: String, valueEnd: String, valueType: String): Range =
         when (valueType) {
-            "Entity" -> TODO()
-            "StringLiteral" -> TODO()
-            "FloatLiteral" -> TODO()
-            "IntegerLiteral" -> TODO()
+            "StringLiteral" -> StringLiteralRange(valueStart, valueEnd)
+            "FloatLiteral" -> FloatLiteralRange(valueStart.toDouble(), valueEnd.toDouble())
+            "IntegerLiteral" -> IntegerLiteralRange(valueStart.toLong(), valueEnd.toLong())
             else -> throw RuntimeException("Illegal value type $valueType")
         }
-    }
 }

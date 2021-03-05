@@ -207,11 +207,11 @@ class SlonkySuite: FunSpec() {
             )
 
             val expected1 = gson.toJson(listOf(
-                AtomicApiStatement(null, "attribute", "1", "IntegerLiteral"),
-                AtomicApiStatement(null, "attribute", "2", "IntegerLiteral"),
+                AtomicApiPersistedStatement("1", "attribute", "1", "IntegerLiteral", "2"),
+                AtomicApiPersistedStatement("3", "attribute", "2", "IntegerLiteral", "4"),
             ))
             val expected2 = gson.toJson(listOf(
-                AtomicApiStatement(null, "attribute", "4.2", "FloatLiteral"),
+                AtomicApiPersistedStatement("7", "attribute", "4.2", "FloatLiteral", "8"),
             ))
 
             awaitResult<HttpResponse<Buffer>> { h -> //create Dataset
