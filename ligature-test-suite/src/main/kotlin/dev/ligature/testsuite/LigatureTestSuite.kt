@@ -100,12 +100,12 @@ abstract class LigatureTestSuite : FunSpec() {
             val instance = createLigature()
             instance.createDataset(testDataset)
             instance.write(testDataset) { tx ->
-                tx.newEntity()
-                tx.newEntity()
+                tx.newAnonymousEntity()
+                tx.newAnonymousEntity()
             }
             val res = instance.write(testDataset) { tx ->
-                val entity3 = tx.newEntity()
-                val entity4 = tx.newEntity()
+                val entity3 = tx.newAnonymousEntity()
+                val entity4 = tx.newAnonymousEntity()
                 Pair(entity3, entity4)
             }
             res.first.getOrThrow().id shouldBe 3L
@@ -116,13 +116,13 @@ abstract class LigatureTestSuite : FunSpec() {
             val instance = createLigature()
             instance.createDataset(testDataset)
             instance.write(testDataset) { tx ->
-                tx.newEntity()
-                tx.newEntity()
+                tx.newAnonymousEntity()
+                tx.newAnonymousEntity()
                 tx.cancel()
             }
             val res = instance.write(testDataset) { tx ->
-                val entity1 = tx.newEntity()
-                val entity2 = tx.newEntity()
+                val entity1 = tx.newAnonymousEntity()
+                val entity2 = tx.newAnonymousEntity()
                 Pair(entity1, entity2)
             }
             res.first.getOrThrow().id shouldBe  1L
@@ -132,13 +132,14 @@ abstract class LigatureTestSuite : FunSpec() {
         test("adding statements to datasets") {
             val instance = createLigature()
             instance.createDataset(testDataset)
-            instance.write(testDataset) { tx ->
-                val ent1 = tx.newEntity().getOrThrow()
-                val ent2 = tx.newEntity().getOrThrow()
-                val ent3 = tx.newEntity().getOrThrow()
+            val entities = instance.write(testDataset) { tx ->
+                val ent1 = tx.newAnonymousEntity().getOrThrow()
+                val ent2 = tx.newAnonymousEntity().getOrThrow()
+                val ent3 = tx.newAnonymousEntity().getOrThrow()
                 tx.addStatement(Statement(ent1, a, ent2))
                 tx.addStatement(Statement(ent1, a, ent2)) //dupes get added since they'll have unique contexts
                 tx.addStatement(Statement(ent1, a, ent3))
+                listOf(ent1, ent2, ent3)
             }
             val res = instance.query(testDataset) { tx ->
                 tx.allStatements().map { it.getOrThrow() }.toSet()
@@ -153,9 +154,9 @@ abstract class LigatureTestSuite : FunSpec() {
             val instance = createLigature()
             instance.createDataset(testDataset)
             instance.write(testDataset) { tx ->
-                val nn1 = tx.newEntity().getOrThrow()
-                val nn2 = tx.newEntity().getOrThrow()
-                val nn3 = tx.newEntity().getOrThrow()
+                val nn1 = tx.newAnonymousEntity().getOrThrow()
+                val nn2 = tx.newAnonymousEntity().getOrThrow()
+                val nn3 = tx.newAnonymousEntity().getOrThrow()
                 val ps1 = tx.addStatement(Statement(nn1, a, nn2)).getOrThrow()
                 tx.addStatement(Statement(nn3, a, nn2))
                 tx.removeStatement(ps1)
@@ -172,8 +173,8 @@ abstract class LigatureTestSuite : FunSpec() {
             val instance = createLigature()
             instance.createDataset(testDataset)
             val ps = instance.write(testDataset) { tx ->
-                val nn1 = tx.newEntity().getOrThrow()
-                val nn2 = tx.newEntity().getOrThrow()
+                val nn1 = tx.newAnonymousEntity().getOrThrow()
+                val nn2 = tx.newAnonymousEntity().getOrThrow()
                 tx.addStatement(Statement(nn1, a, nn2))
                 tx.addStatement(Statement(nn2, a, nn2))
             }.getOrThrow()
@@ -187,9 +188,9 @@ abstract class LigatureTestSuite : FunSpec() {
             val instance = createLigature()
             instance.createDataset(testDataset)
             instance.write(testDataset) { tx ->
-                val ent1 = tx.newEntity()
-                val ent2 = tx.newEntity()
-                val ent3 = tx.newEntity()
+                val ent1 = tx.newAnonymousEntity()
+                val ent2 = tx.newAnonymousEntity()
+                val ent3 = tx.newAnonymousEntity()
                 tx.addStatement(Statement(ent1.getOrThrow(), a, StringLiteral("Hello")))
                 tx.addStatement(Statement(ent2.getOrThrow(), a, ent1.getOrThrow()))
                 tx.addStatement(Statement(ent2.getOrThrow(), a, ent3.getOrThrow()))
@@ -213,9 +214,9 @@ abstract class LigatureTestSuite : FunSpec() {
             val instance = createLigature()
             instance.createDataset(testDataset)
             instance.write(testDataset) { tx ->
-                val ent1 = tx.newEntity().getOrThrow()
-                val ent2 = tx.newEntity().getOrThrow()
-                val ent3 = tx.newEntity().getOrThrow()
+                val ent1 = tx.newAnonymousEntity().getOrThrow()
+                val ent2 = tx.newAnonymousEntity().getOrThrow()
+                val ent3 = tx.newAnonymousEntity().getOrThrow()
                 tx.addStatement(Statement(ent1, a, ent2))
                 tx.addStatement(Statement(ent1, b, FloatLiteral(1.1)))
                 tx.addStatement(Statement(ent1, a, IntegerLiteral(5L)))

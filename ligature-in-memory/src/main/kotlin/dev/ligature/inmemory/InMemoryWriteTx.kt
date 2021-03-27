@@ -5,6 +5,7 @@
 package dev.ligature.inmemory
 
 import dev.ligature.*
+import java.util.*
 import kotlin.Result.Companion.success
 
 /** Represents a WriteTx within the context of a Ligature instance and a single Dataset */
@@ -14,19 +15,18 @@ class InMemoryWriteTx(private val store: DatasetStore) : WriteTx {
 
     /** Creates a new, unique Entity within this Dataset.
      *  Note: Entities are shared across named graphs in a given Dataset. */
-    override suspend fun newEntity(): Result<Entity> {
-        val counter = _newDatasetStore.counter + 1L
-        _newDatasetStore = _newDatasetStore.copy(counter = counter)
-        return success(Entity(counter))
+    override suspend fun newAnonymousEntity(prefix: String): Result<Entity> {
+        val uuid = UUID.randomUUID()
+        return success(Entity(prefix + uuid))
     }
 
     /** Adds a given Statement to this Dataset.
      *  If the Statement already exists nothing happens (TODO maybe add it with a new context?).
      *  Note: Potentally could trigger a ValidationError */
     override suspend fun addStatement(statement: Statement): Result<PersistedStatement> {
-        val counter = _newDatasetStore.counter + 1L
-        val persistedStatement = PersistedStatement(statement, Entity(counter))
-        _newDatasetStore = _newDatasetStore.copy(counter = counter, statements = _newDatasetStore.statements + persistedStatement)
+        val context = newAnonymousEntity().getOrThrow()
+        val persistedStatement = PersistedStatement(statement, context)
+        _newDatasetStore = _newDatasetStore.copy(statements = _newDatasetStore.statements + persistedStatement)
         return success(persistedStatement)
     }
 

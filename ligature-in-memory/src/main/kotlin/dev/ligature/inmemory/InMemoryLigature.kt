@@ -12,7 +12,7 @@ import java.util.concurrent.locks.ReadWriteLock
 import java.util.concurrent.locks.ReentrantReadWriteLock
 import kotlin.Result.Companion.success
 
-data class DatasetStore(var counter: Long, val statements: Set<PersistedStatement>)
+data class DatasetStore(val statements: Set<PersistedStatement>)
 
 /** A trait that all Ligature implementations implement. */
 class InMemoryLigature(): Ligature {
@@ -75,7 +75,7 @@ class InMemoryLigature(): Ligature {
             if (store.contains(dataset)) {
                 success(Unit)
             } else {
-                store[dataset] = DatasetStore(0L, setOf())
+                store[dataset] = DatasetStore(setOf())
 //                val newStore = store.put(dataset, DatasetStore(0L, setOf()))
 //                store = newStore
                 success(Unit)

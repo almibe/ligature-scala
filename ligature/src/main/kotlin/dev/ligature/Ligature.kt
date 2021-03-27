@@ -30,7 +30,7 @@ data class Dataset(val name: String): Comparable<Dataset> {
 //    }
 //}
 
-data class Entity(val id: Long): Value()
+data class Entity(val id: String): Value()
 
 data class Attribute(val name: String)
 
@@ -84,7 +84,7 @@ interface Ligature {
     /** Returns all Datasets in a Ligature instance that are in a given range (inclusive, exclusive]. */
     suspend fun matchDatasetsRange(
             start: String,
-    end: String,
+            end: String,
     ): Flow<Result<Dataset>>
 
     /** Creates a dataset with the given name.
@@ -133,9 +133,9 @@ interface QueryTx {
 
 /** Represents a WriteTx within the context of a Ligature instance and a single Dataset */
 interface WriteTx {
-    /** Creates a new, unique Entity within this Dataset.
+    /** Creates a new, unique Entity within this Dataset by combining a UUID and an optional prefix.
      * Note: Entities are shared across named graphs in a given Dataset. */
-    suspend fun newEntity(): Result<Entity>
+    suspend fun newAnonymousEntity(prefix: String = ""): Result<Entity>
 
     /** Adds a given Statement to this Dataset.
      * If the Statement already exists nothing happens (TODO maybe add it with a new context?).
