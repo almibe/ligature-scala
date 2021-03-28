@@ -4,237 +4,290 @@
 
 package dev.ligature.testsuite
 
-import dev.ligature.*
-import io.kotest.core.spec.style.FunSpec
-import io.kotest.matchers.shouldBe
-import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.toList
-import kotlinx.coroutines.flow.toSet
+import dev.ligature._
+import munit._
+import monix.execution.Scheduler.Implicits.global
 
-abstract class LigatureTestSuite : FunSpec() {
-    abstract fun createLigature(): Ligature
+abstract class LigatureTestSuite extends FunSuite {
+    def createLigature: Ligature
 
-    val testDataset = Dataset("test/test")
-    val testDataset2 = Dataset("test/test2")
-    val testDataset3 = Dataset("test3/test")
-    val a = Attribute("a")
-    val b = Attribute("b")
+    val testDataset = Dataset.fromString("test/test").get
+    val testDataset2 = Dataset.fromString("test/test2").get
+    val testDataset3 = Dataset.fromString("test3/test").get
+    val a = Attribute.fromString("a").get
+    val b = Attribute.fromString("b").get
 
-    init {
-        test("create and close store") {
-            val instance = createLigature()
-            val res = instance.allDatasets().toList()
-            assert(res.isEmpty())
-        }
+    test("create and close store") {
+        val res = createLigature.instance.use { instance: LigatureInstance  =>
+            instance.allDatasets().toListL
+        }.runSyncUnsafe()
+        assert(res.isEmpty)
+    }
 
-        test("creating a new dataset") {
-            val instance = createLigature()
-            instance.createDataset(testDataset)
-            val res = instance.allDatasets().map { it.getOrThrow() }.toList()
-            res shouldBe listOf(testDataset)
-        }
+    test("creating a new dataset") {
+        val res = createLigature.instance.use { instance: LigatureInstance =>
+            for {
+                _ <- instance.createDataset(testDataset)
+                res <- instance.allDatasets().toListL
+            } yield res
+        }.runSyncUnsafe()
+        assertEquals(res, List(Right(testDataset)))
+    }
 
-        test("check if datasets exist") {
-            val instance = createLigature()
-            instance.createDataset(testDataset)
-            val exists1 = instance.datasetExists(testDataset).getOrThrow()
-            val exists2 = instance.datasetExists(testDataset2).getOrThrow()
-            assert(exists1)
-            assert(!exists2)
-        }
+    test("check if datasets exist") {
+        val res = createLigature.instance.use { instance: LigatureInstance =>
+            for {
+                _ <- instance.createDataset(testDataset)
+                exists1 <- instance.datasetExists(testDataset)
+                exists2 <- instance.datasetExists(testDataset2)
+            } yield (exists1, exists2)
+        }.runSyncUnsafe()
+        assert(res._1.right.get)
+        assert(!res._2.right.get)
+    }
 
-        test("match datasets prefix") {
-            val instance = createLigature()
-            instance.createDataset(testDataset)
-            instance.createDataset(testDataset2)
-            instance.createDataset(testDataset3)
-            val res1 = instance.matchDatasetsPrefix("test").toList()
-            val res2 = instance.matchDatasetsPrefix("test/").toList()
-            val res3 = instance.matchDatasetsPrefix("snoo").toList()
-            res1.size shouldBe 3
-            res2.size shouldBe 2
-            res3.size shouldBe 0
-        }
+    test("match datasets prefix") {
+        val res = createLigature.instance.use { instance: LigatureInstance =>
+            for {
+                _ <- instance.createDataset(testDataset)
+                _ <- instance.createDataset(testDataset2)
+                _ <- instance.createDataset(testDataset3)
+                res1 <- instance.matchDatasetsPrefix("test").toListL
+                res2 <- instance.matchDatasetsPrefix("test/").toListL
+                res3 <- instance.matchDatasetsPrefix("snoo").toListL
+            } yield (res1, res2, res3)
+        }.runSyncUnsafe()
+        assertEquals(res._1.length, 3)
+        assertEquals(res._2.length, 2)
+        assertEquals(res._3.length, 0)
+    }
 
-        test("match datasets range") {
-            val instance = createLigature()
-            instance.createDataset(Dataset("a"))
-            instance.createDataset(Dataset("app"))
-            instance.createDataset(Dataset("b"))
-            instance.createDataset(Dataset("be"))
-            instance.createDataset(Dataset("bee"))
-            instance.createDataset(Dataset("test1/test"))
-            instance.createDataset(Dataset("test2/test2"))
-            instance.createDataset(Dataset("test3/test"))
-            instance.createDataset(Dataset("test4"))
-            instance.createDataset(Dataset("z"))
-            val res = instance.allDatasets().toList()
-            val res1 = instance.matchDatasetsRange("a", "b").toList()
-            val res2 = instance.matchDatasetsRange("be", "test3").toList()
-            val res3 = instance.matchDatasetsRange("snoo", "zz").toList()
-            res.size shouldBe 10
-            res1.size shouldBe 2 //TODO check instances not just counts
-            res2.size shouldBe 4 //TODO check instances not just counts
-            res3.size shouldBe 5 //TODO check instances not just counts
-        }
+    test("match datasets range") {
+        val res = createLigature.instance.use { instance: LigatureInstance =>
+            for {
+                _ <- instance.createDataset(Dataset.fromString("a").get)
+                _ <- instance.createDataset(Dataset.fromString("app").get)
+                _ <- instance.createDataset(Dataset.fromString("b").get)
+                _ <- instance.createDataset(Dataset.fromString("be").get)
+                _ <- instance.createDataset(Dataset.fromString("bee").get)
+                _ <- instance.createDataset(Dataset.fromString("test1/test").get)
+                _ <- instance.createDataset(Dataset.fromString("test2/test2").get)
+                _ <- instance.createDataset(Dataset.fromString("test3/test").get)
+                _ <- instance.createDataset(Dataset.fromString("test4").get)
+                _ <- instance.createDataset(Dataset.fromString("z").get)
+                res <- instance.allDatasets().toListL
+                res1 <- instance.matchDatasetsRange("a", "b").toListL
+                res2 <- instance.matchDatasetsRange("be", "test3").toListL
+                res3 <- instance.matchDatasetsRange("snoo", "zz").toListL
+            } yield (res1, res2, res3)
+        }.runSyncUnsafe()
+        assertEquals(res._1.length, 2) //TODO check instances not just counts
+        assertEquals(res._2.length, 4) //TODO check instances not just counts
+        assertEquals(res._3.length, 5) //TODO check instances not just counts
+    }
 
-        test("create and delete new dataset") {
-            val instance = createLigature()
-            instance.createDataset(testDataset)
-            instance.deleteDataset(testDataset)
-            instance.deleteDataset(testDataset2)
-            val res = instance.allDatasets().toList()
-            assert(res.isEmpty())
-        }
+    test("create and delete new dataset") {
+        val res = createLigature.instance.use { instance  =>
+            for {
+                _ <- instance.createDataset(testDataset)
+                _ <- instance.deleteDataset(testDataset)
+                _ <- instance.deleteDataset(testDataset2)
+                res <- instance.allDatasets().toListL
+            } yield res
+        }.runSyncUnsafe()
+        assert(res.isEmpty)
+    }
 
-        test("new datasets should be empty") {
-            val instance = createLigature()
-            instance.createDataset(testDataset)
-            val res = instance.query(testDataset) { tx ->
-                tx.allStatements().toList()
-            }
-            assert(res.isEmpty())
-        }
+    test("new datasets should be empty") {
+        val res = createLigature.instance.use { instance  =>
+            for {
+                _ <- instance.createDataset(testDataset)
+                res <- instance.query(testDataset).use { tx =>
+                    tx.allStatements().toListL
+                }
+            } yield res
+        }.runSyncUnsafe()
+        assert(res.isEmpty)
+    }
 
-        test("create new entity") {
-            val instance = createLigature()
-            instance.createDataset(testDataset)
-            instance.write(testDataset) { tx ->
-                tx.newAnonymousEntity()
-                tx.newAnonymousEntity()
-            }
-            val res = instance.write(testDataset) { tx ->
-                val entity3 = tx.newAnonymousEntity()
-                val entity4 = tx.newAnonymousEntity()
-                Pair(entity3, entity4)
-            }
-            res.first.getOrThrow().id shouldBe 3L
-            res.second.getOrThrow().id shouldBe 4L
-        }
+    test("create new entity") {
+        val (entity1, entity2) = createLigature.instance.use { instance  =>
+            for {
+                _ <- instance.createDataset(testDataset)
+                _ <- instance.write(testDataset).use { tx =>
+                    for {
+                        _ <- tx.newEntity()
+                        _ <- tx.newEntity()
+                    } yield ()
+                }
+                res <- instance.write(testDataset).use { tx =>
+                    for {
+                        entity3 <- tx.newEntity()
+                        entity4 <- tx.newEntity()
+                    } yield (entity3, entity4)
+                }
+            } yield res
+        }.runSyncUnsafe()
+        assertEquals(entity1.right.get.id, 3L)
+        assertEquals(entity2.right.get.id, 4L)
+    }
 
-        test("allow canceling WriteTx") {
-            val instance = createLigature()
-            instance.createDataset(testDataset)
-            instance.write(testDataset) { tx ->
-                tx.newAnonymousEntity()
-                tx.newAnonymousEntity()
-                tx.cancel()
-            }
-            val res = instance.write(testDataset) { tx ->
-                val entity1 = tx.newAnonymousEntity()
-                val entity2 = tx.newAnonymousEntity()
-                Pair(entity1, entity2)
-            }
-            res.first.getOrThrow().id shouldBe  1L
-            res.second.getOrThrow().id shouldBe 2L
-        }
+    test("allow canceling WriteTx") {
+        val (entity1, entity2) = createLigature.instance.use { instance  =>
+            for {
+                _ <- instance.createDataset(testDataset)
+                _ <- instance.write(testDataset).use { tx =>
+                    for {
+                        _ <- tx.newEntity()
+                        _ <- tx.newEntity()
+                        _ <- tx.cancel()
+                    } yield ()
+                }
+                res <- instance.write(testDataset).use { tx =>
+                    for {
+                        entity1 <- tx.newEntity()
+                        entity2 <- tx.newEntity()
+                    } yield (entity1, entity2)
+                }
+            } yield res
+        }.runSyncUnsafe()
+        assertEquals(entity1.right.get.id, 1L)
+        assertEquals(entity2.right.get.id, 2L)
+    }
 
-        test("adding statements to datasets") {
-            val instance = createLigature()
-            instance.createDataset(testDataset)
-            val entities = instance.write(testDataset) { tx ->
-                val ent1 = tx.newAnonymousEntity().getOrThrow()
-                val ent2 = tx.newAnonymousEntity().getOrThrow()
-                val ent3 = tx.newAnonymousEntity().getOrThrow()
-                tx.addStatement(Statement(ent1, a, ent2))
-                tx.addStatement(Statement(ent1, a, ent2)) //dupes get added since they'll have unique contexts
-                tx.addStatement(Statement(ent1, a, ent3))
-                listOf(ent1, ent2, ent3)
-            }
-            val res = instance.query(testDataset) { tx ->
-                tx.allStatements().map { it.getOrThrow() }.toSet()
-            }
-            res shouldBe setOf(
-                    PersistedStatement(Statement(Entity(1), a, Entity(2)), Entity(4)),
-                    PersistedStatement(Statement(Entity(1), a, Entity(2)), Entity(5)),
-                    PersistedStatement(Statement(Entity(1), a, Entity(3)), Entity(6)))
-        }
+    test("adding statements to datasets") {
+        val res = createLigature.instance.use { instance  =>
+            for {
+                _ <- instance.createDataset(testDataset)
+                _ <- instance.write(testDataset).use { tx =>
+                    for {
+                        ent1 <- tx.newEntity()
+                        ent2 <- tx.newEntity()
+                        ent3 <- tx.newEntity()
+                        _    <- tx.addStatement(Statement(ent1.right.get, a, ent2.right.get))
+                        _    <- tx.addStatement(Statement(ent1.right.get, a, ent2.right.get)) //dupes get added since they'll have unique contexts
+                        _    <- tx.addStatement(Statement(ent1.right.get, a, ent3.right.get))
+                    } yield()
+                }
+                res  <- instance.query(testDataset).use { tx =>
+                    tx.allStatements().toListL
+                }
+            } yield res
+        }.runSyncUnsafe().map(_.right.get).toSet
+        assertEquals(res, Set(
+            PersistedStatement(Statement(Entity(1), a, Entity(2)), Entity(4)),
+            PersistedStatement(Statement(Entity(1), a, Entity(2)), Entity(5)),
+            PersistedStatement(Statement(Entity(1), a, Entity(3)), Entity(6))))
+    }
 
-        test("removing statements from datasets") {
-            val instance = createLigature()
-            instance.createDataset(testDataset)
-            instance.write(testDataset) { tx ->
-                val nn1 = tx.newAnonymousEntity().getOrThrow()
-                val nn2 = tx.newAnonymousEntity().getOrThrow()
-                val nn3 = tx.newAnonymousEntity().getOrThrow()
-                val ps1 = tx.addStatement(Statement(nn1, a, nn2)).getOrThrow()
-                tx.addStatement(Statement(nn3, a, nn2))
-                tx.removeStatement(ps1)
-                tx.removeStatement(ps1)
-                tx.removeStatement(PersistedStatement(Statement(nn2, a, nn1), Entity(5)))
-            }
-            val res = instance.query(testDataset) { tx ->
-                tx.allStatements().map { it.getOrThrow().statement }.toSet()
-            }
-            res shouldBe setOf(Statement(Entity(3), a, Entity(2)))
-        }
+    test("removing statements from datasets") {
+        val res = createLigature.instance.use { instance =>
+            for {
+                _ <- instance.createDataset(testDataset)
+                _ <- instance.write(testDataset).use { tx =>
+                    for {
+                        nn1 <- tx.newEntity()
+                        nn2 <- tx.newEntity()
+                        nn3 <- tx.newEntity()
+                        ps1 <- tx.addStatement(Statement(nn1.right.get, a, nn2.right.get))
+                        _ <- tx.addStatement(Statement(nn3.right.get, a, nn2.right.get))
+                        _ <- tx.removeStatement(ps1.right.get)
+                        _ <- tx.removeStatement(ps1.right.get)
+                        _ <- tx.removeStatement(PersistedStatement(Statement(nn2.right.get, a, nn1.right.get), Entity(5)))
+                    } yield ()
+                }
+                res <- instance.query(testDataset).use { tx =>
+                    tx.allStatements().map {
+                        _.right.get.statement
+                    }.toListL
+                }
+            } yield res
+        }.runSyncUnsafe().toSet
+        assertEquals(res, Set(Statement(Entity(3), a, Entity(2))))
+    }
 
-        test("get persisted statement from context") {
-            val instance = createLigature()
-            instance.createDataset(testDataset)
-            val ps = instance.write(testDataset) { tx ->
-                val nn1 = tx.newAnonymousEntity().getOrThrow()
-                val nn2 = tx.newAnonymousEntity().getOrThrow()
-                tx.addStatement(Statement(nn1, a, nn2))
-                tx.addStatement(Statement(nn2, a, nn2))
-            }.getOrThrow()
-            val res = instance.query(testDataset) { tx ->
-                tx.statementForContext(ps.context)
-            }.getOrThrow()
-            res shouldBe PersistedStatement(Statement(Entity(2), a, Entity(2)), Entity(4))
-        }
+    test("get persisted statement from context") {
+        val res = createLigature.instance.use { instance =>
+            for {
+                _ <- instance.createDataset(testDataset)
+                ps <- instance.write(testDataset).use { tx =>
+                    for {
+                        nn1 <- tx.newEntity()
+                        nn2 <- tx.newEntity()
+                        _ <- tx.addStatement(Statement(nn1.right.get, a, nn2.right.get))
+                        ps <- tx.addStatement(Statement(nn2.right.get, a, nn2.right.get))
+                    } yield ps.right.get
+                }
+                res <- instance.query(testDataset).use { tx =>
+                    tx.statementForContext(ps.context)
+                }
+            } yield res
+        }.runSyncUnsafe()
+        assertEquals(res.right.get.get, PersistedStatement(Statement(Entity(2), a, Entity(2)), Entity(4)))
+    }
 
-        test("matching statements in datasets") {
-            val instance = createLigature()
-            instance.createDataset(testDataset)
-            instance.write(testDataset) { tx ->
-                val ent1 = tx.newAnonymousEntity()
-                val ent2 = tx.newAnonymousEntity()
-                val ent3 = tx.newAnonymousEntity()
-                tx.addStatement(Statement(ent1.getOrThrow(), a, StringLiteral("Hello")))
-                tx.addStatement(Statement(ent2.getOrThrow(), a, ent1.getOrThrow()))
-                tx.addStatement(Statement(ent2.getOrThrow(), a, ent3.getOrThrow()))
-                tx.addStatement(Statement(ent3.getOrThrow(), b, ent2.getOrThrow()))
-                tx.addStatement(Statement(ent3.getOrThrow(), b, StringLiteral("Hello")))
-            }
-            val (all, allAs, hellos, helloa) = instance.query(testDataset) { tx ->
-                val all = tx.matchStatements(null, null, null).toList()
-                val allAs  = tx.matchStatements(null, a, null).toList()
-                val hellos = tx.matchStatements(null, null, StringLiteral("Hello")).toList()
-                val helloa = tx.matchStatements(null, a, StringLiteral("Hello")).toList()
-                listOf(all, allAs, hellos, helloa)
-            }
-            all.size shouldBe 5
-            allAs.size shouldBe 3
-            hellos.size shouldBe 2
-            helloa.size shouldBe 1
-        }
+    test("matching statements in datasets") {
+        val (all, as, hellos, helloa) = createLigature.instance.use { instance  =>
+            for {
+                _ <- instance.createDataset(testDataset)
+                _ <- instance.write(testDataset).use { tx =>
+                    for {
+                        ent1 <- tx.newEntity()
+                        ent2 <- tx.newEntity()
+                        ent3 <- tx.newEntity()
+                        _    <- tx.addStatement(Statement(ent1.right.get, a, StringLiteral("Hello")))
+                        _    <- tx.addStatement(Statement(ent2.right.get, a, ent1.right.get))
+                        _    <- tx.addStatement(Statement(ent2.right.get, a, ent3.right.get))
+                        _    <- tx.addStatement(Statement(ent3.right.get, b, ent2.right.get))
+                        _    <- tx.addStatement(Statement(ent3.right.get, b, StringLiteral("Hello")))
+                    } yield()
+                }
+                res <- instance.query(testDataset).use { tx =>
+                    for {
+                        all <- tx.matchStatements(None, None, None).toListL
+                        as  <- tx.matchStatements(None, Some(a), None).toListL
+                        hellos <- tx.matchStatements(None, None, Some(StringLiteral("Hello"))).toListL
+                        helloa <- tx.matchStatements(None, Some(a), Some(StringLiteral("Hello"))).toListL
+                    } yield (all, as, hellos, helloa)
+                }
+            } yield res
+        }.runSyncUnsafe()
+        assertEquals(all.map(_.right.get).toSet.size, 5)
+        assertEquals(as.map(_.right.get).toSet.size, 3)
+        assertEquals(hellos.map(_.right.get).toSet.size, 2)
+        assertEquals(helloa.map(_.right.get).toSet.size, 1)
+    }
 
-        test("matching statements with literals and ranges in datasets") {
-            val instance = createLigature()
-            instance.createDataset(testDataset)
-            instance.write(testDataset) { tx ->
-                val ent1 = tx.newAnonymousEntity().getOrThrow()
-                val ent2 = tx.newAnonymousEntity().getOrThrow()
-                val ent3 = tx.newAnonymousEntity().getOrThrow()
-                tx.addStatement(Statement(ent1, a, ent2))
-                tx.addStatement(Statement(ent1, b, FloatLiteral(1.1)))
-                tx.addStatement(Statement(ent1, a, IntegerLiteral(5L)))
-                tx.addStatement(Statement(ent2, a, IntegerLiteral(3L)))
-                tx.addStatement(Statement(ent2, a, FloatLiteral(10.0)))
-                tx.addStatement(Statement(ent2, b, ent3))
-                tx.addStatement(Statement(ent3, a, IntegerLiteral(7L)))
-                tx.addStatement(Statement(ent3, b, FloatLiteral(12.5)))
-            }
-            val (res1, res2, res3) = instance.query(testDataset) { tx ->
-                val res1 = tx.matchStatementsRange(null, null, FloatLiteralRange(1.0, 11.0)).toList()
-                val res2  = tx.matchStatementsRange(null, null, IntegerLiteralRange(3,5)).toList()
-                val res3 = tx.matchStatementsRange(null, b, FloatLiteralRange(1.0, 11.0)).toList()
-                listOf(res1, res2, res3)
-            }
-            res1.size shouldBe 2
-            res2.size shouldBe 1
-            res3.size shouldBe 1
-        }
+    test("matching statements with literals and ranges in datasets") {
+        val (res1, res2, res3) = createLigature.instance.use { instance  =>
+            for {
+                _ <- instance.createDataset(testDataset)
+                _ <- instance.write(testDataset).use { tx =>
+                    for {
+                        ent1 <- tx.newEntity()
+                        ent2 <- tx.newEntity()
+                        ent3 <- tx.newEntity()
+                        _    <- tx.addStatement(Statement(ent1.right.get, a, ent2.right.get))
+                        _    <- tx.addStatement(Statement(ent1.right.get, b, FloatLiteral(1.1)))
+                        _    <- tx.addStatement(Statement(ent1.right.get, a, IntergerLiteral(5L)))
+                        _    <- tx.addStatement(Statement(ent2.right.get, a, IntergerLiteral(3L)))
+                        _    <- tx.addStatement(Statement(ent2.right.get, a, FloatLiteral(10.0)))
+                        _    <- tx.addStatement(Statement(ent2.right.get, b, ent3.right.get))
+                        _    <- tx.addStatement(Statement(ent3.right.get, a, IntergerLiteral(7L)))
+                        _    <- tx.addStatement(Statement(ent3.right.get, b, FloatLiteral(12.5)))
+                    } yield()
+                }
+                res <- instance.query(testDataset).use { tx =>
+                    for {
+                        res1 <- tx.matchStatementsRange(None, None, FloatLiteralRange(1.0, 11.0)).toListL
+                        res2  <- tx.matchStatementsRange(None, None, IntergerLiteralRange(3,5)).toListL
+                        res3 <- tx.matchStatementsRange(None, Some(b), FloatLiteralRange(1.0, 11.0)).toListL
+                    } yield (res1, res2, res3)
+                }
+            } yield res
+        }.runSyncUnsafe()
+        assertEquals(res1.map(_.right.get).toSet.size, 2)
+        assertEquals(res2.map(_.right.get).toSet.size, 1)
+        assertEquals(res3.map(_.right.get).toSet.size, 1)
     }
 }
