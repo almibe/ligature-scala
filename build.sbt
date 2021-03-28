@@ -27,8 +27,8 @@ lazy val ligature = (project in file("ligature"))
 //
 //lazy val ligatureTestSuite = (project in file("ligature-test-suite"))
 //  .settings(
-//    name := "ligature-in-memory",
-//    libraryDependencies += monix,
+//    name := "ligature-test-suite",
+//    libraryDependencies += fs2,
 //    libraryDependencies += munit,
 //  ).dependsOn(ligature)
 //
