@@ -16,6 +16,9 @@ abstract class LigatureTestSuite extends FunSuite {
     val testDataset3 = Dataset.fromString("test3/test").get
     val a = Attribute.fromString("a").get
     val b = Attribute.fromString("b").get
+    val entity1 = Entity("a")
+    val entity2 = Entity("b")
+    val entity3 = Entity("c")
 
     test("create and close store") {
         val res = createLigature.instance.use { (instance: LigatureInstance)  =>
@@ -132,101 +135,94 @@ abstract class LigatureTestSuite extends FunSuite {
         //TODO make sure names are UUIDS + Test also with prefixes
     }
 
-    //TODO this needs to be rewritten to use Statements instead of newAnonymousEntities methods
-//    test("allow canceling WriteTx") {
-//        val (entity1, entity2) = createLigature.instance.use { instance  =>
-//            for {
-//                _ <- instance.createDataset(testDataset)
-//                _ <- instance.write(testDataset).use { tx =>
-//                    for {
-//                        _ <- tx.newAnonymousEntity()
-//                        _ <- tx.newAnonymousEntity()
-//                        _ <- tx.cancel()
-//                    } yield ()
-//                }
-//                res <- instance.write(testDataset).use { tx =>
-//                    for {
-//                        entity1 <- tx.newAnonymousEntity()
-//                        entity2 <- tx.newAnonymousEntity()
-//                    } yield (entity1, entity2)
-//                }
-//            } yield res
-//        }.unsafeRunSync()
-//        assertEquals(entity1.right.get.id, 1L)
-//        assertEquals(entity2.right.get.id, 2L)
-//    }
-//
-//    test("adding statements to datasets") {
-//        val res = createLigature.instance.use { instance  =>
-//            for {
-//                _ <- instance.createDataset(testDataset)
-//                entities <- instance.write(testDataset).use { tx =>
-//                    for {
-//                        ent1 <- tx.newAnonymousEntity()
-//                        ent2 <- tx.newAnonymousEntity()
-//                        ent3 <- tx.newAnonymousEntity()
-//                        _    <- tx.addStatement(Statement(ent1.right.get, a, ent2.right.get))
-//                        _    <- tx.addStatement(Statement(ent1.right.get, a, ent2.right.get)) //dupes get added since they'll have unique contexts
-//                        _    <- tx.addStatement(Statement(ent1.right.get, a, ent3.right.get))
-//                    } yield(ent1, ent2, ent3)
-//                }
-//                statements  <- instance.query(testDataset).use { tx =>
-//                    tx.allStatements().compile.toList
-//                }
-//            } yield (entities, statements)
-//        }.unsafeRunSync().map(_.right.get).toSet
-//        assertEquals(res, Set(
-//            PersistedStatement(Statement(Entity(1), a, Entity(2)), Entity(4)),
-//            PersistedStatement(Statement(Entity(1), a, Entity(2)), Entity(5)),
-//            PersistedStatement(Statement(Entity(1), a, Entity(3)), Entity(6))))
-//    }
-//
-//    test("removing statements from datasets") {
-//        val res = createLigature.instance.use { instance =>
-//            for {
-//                _ <- instance.createDataset(testDataset)
-//                _ <- instance.write(testDataset).use { tx =>
-//                    for {
-//                        nn1 <- tx.newAnonymousEntity()
-//                        nn2 <- tx.newAnonymousEntity()
-//                        nn3 <- tx.newAnonymousEntity()
-//                        ps1 <- tx.addStatement(Statement(nn1.right.get, a, nn2.right.get))
-//                        _ <- tx.addStatement(Statement(nn3.right.get, a, nn2.right.get))
-//                        _ <- tx.removeStatement(ps1.right.get)
-//                        _ <- tx.removeStatement(ps1.right.get)
-//                        _ <- tx.removeStatement(PersistedStatement(Statement(nn2.right.get, a, nn1.right.get), Entity(5)))
-//                    } yield ()
-//                }
-//                res <- instance.query(testDataset).use { tx =>
-//                    tx.allStatements().map {
-//                        _.right.get.statement
-//                    }.compile.toList
-//                }
-//            } yield res
-//        }.unsafeRunSync().toSet
-//        assertEquals(res, Set(Statement(Entity(3), a, Entity(2))))
-//    }
-//
-//    test("get persisted statement from context") {
-//        val res = createLigature.instance.use { instance =>
-//            for {
-//                _ <- instance.createDataset(testDataset)
-//                ps <- instance.write(testDataset).use { tx =>
-//                    for {
-//                        nn1 <- tx.newAnonymousEntity()
-//                        nn2 <- tx.newAnonymousEntity()
-//                        _ <- tx.addStatement(Statement(nn1.right.get, a, nn2.right.get))
-//                        ps <- tx.addStatement(Statement(nn2.right.get, a, nn2.right.get))
-//                    } yield ps.right.get
-//                }
-//                res <- instance.query(testDataset).use { tx =>
-//                    tx.statementForContext(ps.context)
-//                }
-//            } yield res
-//        }.unsafeRunSync()
-//        assertEquals(res.right.get.get, PersistedStatement(Statement(Entity(2), a, Entity(2)), Entity(4)))
-//    }
-//
+    test("adding statements to datasets") {
+        val res = createLigature.instance.use { instance  =>
+            for {
+                _ <- instance.createDataset(testDataset)
+                _ <- instance.write(testDataset).use { tx =>
+                    for {
+                        ps1  <- tx.addStatement(Statement(entity1, a, entity2))
+                        ps2  <- tx.addStatement(Statement(entity1, a, entity2)) //dupes get added since they'll have unique contexts
+                        ps3  <- tx.addStatement(Statement(entity1, a, entity3))
+                    } yield(ps1, ps2, ps3)
+                }
+                statements  <- instance.query(testDataset).use { tx =>
+                    tx.allStatements().compile.toList
+                }
+            } yield statements
+        }.unsafeRunSync().map(_.right.get).map(_.statement).toSet
+        assertEquals(res, Set(
+            Statement(entity1, a, entity2),
+            Statement(entity1, a, entity2),
+            Statement(entity1, a, entity3)))
+    }
+
+    test("removing statements from datasets") {
+        val res = createLigature.instance.use { instance =>
+            for {
+                _ <- instance.createDataset(testDataset)
+                ps2 <- instance.write(testDataset).use { tx =>
+                    for {
+                        ps1 <- tx.addStatement(Statement(entity1, a, entity2))
+                        ps2 <- tx.addStatement(Statement(entity3, a, entity2))
+                        _ <- tx.removeStatement(ps1.right.get)
+                        _ <- tx.removeStatement(ps1.right.get)
+                        //below doesn't actually remove since context is different
+                        _ <- tx.removeStatement(PersistedStatement(Statement(entity3, a, entity2), entity1))
+                    } yield ps2
+                }
+                statements <- instance.query(testDataset).use { tx =>
+                    tx.allStatements().compile.toList
+                }
+            } yield (ps2, statements)
+        }.unsafeRunSync()
+        assertEquals(res._2.toSet, Set(res._1))
+    }
+
+    test("get persisted statement from context") {
+        val res = createLigature.instance.use { instance =>
+            for {
+                _ <- instance.createDataset(testDataset)
+                ps <- instance.write(testDataset).use { tx =>
+                    for {
+                        _ <- tx.addStatement(Statement(entity1, a, entity2))
+                        ps <- tx.addStatement(Statement(entity2, a, entity3))
+                    } yield ps.right.get
+                }
+                res <- instance.query(testDataset).use { tx =>
+                    tx.statementForContext(ps.context)
+                }
+            } yield res
+        }.unsafeRunSync().map(_.get.statement)
+        assertEquals(res.right.get, Statement(entity2, a, entity3))
+    }
+
+    test("allow canceling WriteTx") {
+        val res = createLigature.instance.use { instance  =>
+            for {
+                _ <- instance.createDataset(testDataset)
+                _ <- instance.write(testDataset).use { tx =>
+                    for {
+                        _ <- tx.addStatement(Statement(entity1, a, entity2))
+                        _ <- tx.cancel()
+                    } yield ()
+                }
+                _ <- instance.write(testDataset).use { tx =>
+                    for {
+                        _ <- tx.addStatement(Statement(entity2, a, entity3))
+                        _ <- tx.addStatement(Statement(entity3, a, entity2))
+                    } yield ()
+                }
+                statements <- instance.query(testDataset).use { tx =>
+                    tx.allStatements().compile.toList
+                }
+            } yield statements
+        }.unsafeRunSync().map(_.right.get).map(_.statement).toSet
+        assertEquals(res, Set(
+            Statement(entity2, a, entity3),
+            Statement(entity3, a, entity2)))
+    }
+
 //    test("matching statements in datasets") {
 //        val (all, as, hellos, helloa) = createLigature.instance.use { instance  =>
 //            for {
