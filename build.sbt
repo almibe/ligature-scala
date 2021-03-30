@@ -17,21 +17,23 @@ lazy val ligature = (project in file("ligature"))
     testFrameworks += new TestFramework("munit.Framework"),
   )
 
-//lazy val ligatureInMemory = (project in file("ligature-in-memory"))
-//  .settings(
-//    name := "ligature-in-memory",
-//    libraryDependencies += monix,
-//    libraryDependencies += munit % Test,
-//    testFrameworks += new TestFramework("munit.Framework"),
-//  ).dependsOn(ligature, ligatureTestSuite % Test)
-//
-//lazy val ligatureTestSuite = (project in file("ligature-test-suite"))
-//  .settings(
-//    name := "ligature-test-suite",
-//    libraryDependencies += fs2,
-//    libraryDependencies += munit,
-//  ).dependsOn(ligature)
-//
+lazy val ligatureTestSuite = (project in file("ligature-test-suite"))
+  .settings(
+    name := "ligature-test-suite",
+    scalaVersion := rcVersion,
+    libraryDependencies += fs2,
+    libraryDependencies += munit,
+  ).dependsOn(ligature)
+
+lazy val ligatureInMemory = (project in file("ligature-in-memory"))
+  .settings(
+    name := "ligature-in-memory",
+    scalaVersion := rcVersion,
+    libraryDependencies += fs2,
+    libraryDependencies += munit % Test,
+    testFrameworks += new TestFramework("munit.Framework"),
+  ).dependsOn(ligature, ligatureTestSuite % Test)
+
 //lazy val slonky = (project in file("slonky"))
 //  .settings(
 //    name := "slonky",

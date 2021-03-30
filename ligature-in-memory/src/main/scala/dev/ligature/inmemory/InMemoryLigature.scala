@@ -32,7 +32,7 @@ private final class InMemoryLigatureInstance extends LigatureInstance {
         val l = lock.readLock()
         try {
             l.lock()
-            Observable.fromIterable(store.keys.toList.map(Right(_)))
+            Stream.emits(store.keys.toList.map(Right(_)))
         } finally  {
             l.unlock()
         }
@@ -50,7 +50,7 @@ private final class InMemoryLigatureInstance extends LigatureInstance {
         val l = lock.readLock()
         try {
             l.lock()
-            Observable.fromIterable(store.filter(_._1.name.startsWith(prefix)).keys.map(Right(_)))
+            Stream.emits(store.filter(_._1.name.startsWith(prefix)).keys.map(Right(_)).toList)
         } finally {
             l.unlock()
         }
@@ -64,7 +64,7 @@ private final class InMemoryLigatureInstance extends LigatureInstance {
         val l = lock.readLock()
         try {
             l.lock()
-            Observable.fromIterable(store.filter { case (k, v) => k.name >= start && k.name < end }.keys.map(Right(_)))
+            Stream.emits(store.filter { case (k, v) => k.name >= start && k.name < end }.keys.map(Right(_)).toList)
         } finally {
             l.unlock()
         }

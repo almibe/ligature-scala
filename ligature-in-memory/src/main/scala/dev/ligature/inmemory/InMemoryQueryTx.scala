@@ -12,7 +12,7 @@ import fs2.Stream
 class InMemoryQueryTx(private val store: DatasetStore) extends QueryTx {
     /** Returns all PersistedStatements in this Dataset. */
     def allStatements(): Stream[IO, Either[LigatureError, PersistedStatement]] = {
-        Observable.fromIterable(store.statements.map(Right(_)))
+        Stream.emits(store.statements.map(Right(_)).toSeq)
     }
 
     /** Returns all PersistedStatements that match the given criteria.
@@ -22,7 +22,7 @@ class InMemoryQueryTx(private val store: DatasetStore) extends QueryTx {
                          attribute: Option[Attribute],
                          value: Option[Value],
                        ): Stream[IO, Either[LigatureError, PersistedStatement]] = {
-        var res = Observable.fromIterable(store.statements)
+        var res = Stream.emits(store.statements.toSeq)
         if (entity.isDefined) {
             res = res.filter(_.statement.entity == entity.get)
         }
@@ -42,7 +42,7 @@ class InMemoryQueryTx(private val store: DatasetStore) extends QueryTx {
                               attribute: Option[Attribute],
                               range: dev.ligature.Range,
                             ): Stream[IO, Either[LigatureError, PersistedStatement]] = {
-        var res = Observable.fromIterable(store.statements)
+        var res = Stream.emits(store.statements.toSeq)
         if (entity.isDefined) {
             res = res.filter(_.statement.entity == entity.get)
         }

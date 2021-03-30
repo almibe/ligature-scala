@@ -27,7 +27,7 @@ object Dataset {
   }
 }
 
-final case class Entity(val id: String) extends Value
+final case class Entity(val name: String) extends Value
 
 final case class Attribute private (val name: String) {
   private def copy(): Unit = ()
@@ -139,7 +139,7 @@ trait WriteTx {
   /** Adds a given Statement to this Dataset.
    * If the Statement already exists nothing happens (TODO maybe add it with a new context?).
    * Note: Potentally could trigger a ValidationError */
-  def addStatement(statement: Statement): IO[Either[LigatureError, PersistedStatement]]
+  def addStatement(statement: Statement, contextPrefix: String = ""): IO[Either[LigatureError, PersistedStatement]]
 
   /** Removes a given PersistedStatement from this Dataset.
    * If the PersistedStatement doesn't exist nothing happens and returns Ok(false).
