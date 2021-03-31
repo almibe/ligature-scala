@@ -14,15 +14,16 @@ import io.vertx.core.Vertx
 import io.vertx.core.http.HttpServer
 import io.vertx.ext.web.Router
 import io.vertx.ext.web.handler.BodyHandler
+import io.vertx.core.AbstractVerticle
 
 import java.lang.RuntimeException
 
-class Server(private val port: Int = 4444, private val ligature: LigatureInstance) {
+class ServerVerticle(private val port: Int = 4444) extends AbstractVerticle {
     private val vertx = Vertx.vertx()
     private val server: HttpServer = vertx.createHttpServer()
     private val gson = Gson()
 
-    def start() = {
+    override def start() = {
         val router = Router.router(vertx)
 
 //        router.post().handler(BodyHandler.create()).handler { rc ->
@@ -72,41 +73,41 @@ class Server(private val port: Int = 4444, private val ligature: LigatureInstanc
 //                }
 //            }
 //        }
-        router.delete().handler(BodyHandler.create()).handler { rc =>
-            val body = rc.getBodyAsString()
-            if (body == null) {
-                GlobalScope.launch(vertx.dispatcher()) {
-                    ligature.deleteDataset(Dataset(rc.normalizedPath().removePrefix("/")))
-                    rc.response().send()
-                }
-            } else {
-                val statementJson = JsonParser.parseString(body).asJsonObject
+        // router.delete().handler(BodyHandler.create()).handler { rc =>
+        //     val body = rc.getBodyAsString()
+        //     if (body == null) {
+        //         GlobalScope.launch(vertx.dispatcher()) {
+        //             ligature.deleteDataset(Dataset(rc.normalizedPath().removePrefix("/")))
+        //             rc.response().send()
+        //         }
+        //     } else {
+        //         val statementJson = JsonParser.parseString(body).asJsonObject
 
-                val entity = Entity(statementJson.get("entity").asString.toLong())
-                val attribute = Attribute(statementJson.get("attribute").asString)
-                val valueJson = statementJson.get("value")
-                val valueJsonType = statementJson.get("value-type").asString
-                val value: Value = valueJsonType match {
-                    case "Entity" => Entity(valueJson.asString)
-                    case "StringLiteral" => StringLiteral(valueJson.asString)
-                    case "IntegerLiteral" => IntegerLiteral(valueJson.asString.toLong)
-                    case "FloatLiteral" => FloatLiteral(valueJson.asString.toDouble)
-                    case _ => throw RuntimeException("Bad value-type $valueJsonType")
-                }
+        //         val entity = Entity(statementJson.get("entity").asString.toLong())
+        //         val attribute = Attribute(statementJson.get("attribute").asString)
+        //         val valueJson = statementJson.get("value")
+        //         val valueJsonType = statementJson.get("value-type").asString
+        //         val value: Value = valueJsonType match {
+        //             case "Entity" => Entity(valueJson.asString)
+        //             case "StringLiteral" => StringLiteral(valueJson.asString)
+        //             case "IntegerLiteral" => IntegerLiteral(valueJson.asString.toLong)
+        //             case "FloatLiteral" => FloatLiteral(valueJson.asString.toDouble)
+        //             case _ => throw RuntimeException("Bad value-type $valueJsonType")
+        //         }
 
-                val context = Entity(statementJson.get("context").asString)
+        //         val context = Entity(statementJson.get("context").asString)
 
-                val statement = PersistedStatement(Statement(entity, attribute, value), context)
+        //         val statement = PersistedStatement(Statement(entity, attribute, value), context)
 
-                GlobalScope.launch(vertx.dispatcher()) {
-                    val dataset = Dataset(rc.normalizedPath().removePrefix("/"))
-                    ligature.write(dataset) { tx ->
-                        tx.removeStatement(statement)
-                    }
-                }
-                rc.response().send()
-            }
-        }
+        //         GlobalScope.launch(vertx.dispatcher()) {
+        //             val dataset = Dataset(rc.normalizedPath().removePrefix("/"))
+        //             ligature.write(dataset) { tx ->
+        //                 tx.removeStatement(statement)
+        //             }
+        //         }
+        //         rc.response().send()
+        //     }
+        // }
 //        router.get().handler { rc ->
 //            val path = rc.normalizedPath()
 //

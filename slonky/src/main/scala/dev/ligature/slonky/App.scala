@@ -4,14 +4,18 @@
 
 package dev.ligature.slonky
 
+import cats.effect.IO
 import dev.ligature.inmemory.InMemoryLigature
+import io.vertx.core.Vertx
 
 @main def app() = {
-    val port: Int = 4444
-    val ligature = InMemoryLigature() //TODO should eventually not be hardcoded
+  val ligature = InMemoryLigature() //TODO should eventually not be hardcoded
 
-    ligature.instance.use { instance =>
-        val server = Server(port, instance) //TODO server should probably be a resource as well
-        server.start()
-    }
+  ligature.instance.use { ligatureInstance => IO {
+    val vertx = Vertx.vertx()
+    val port: Int = 4444
+
+    vertx.deployVerticle(ServerVerticle(port)) //TODO should server be a resource or a verticle....probably a verticle
+    vertx.deployVerticle(LigatureVerticle(ligatureInstance))
+  }}
 }
