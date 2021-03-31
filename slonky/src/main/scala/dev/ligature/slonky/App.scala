@@ -6,9 +6,12 @@ package dev.ligature.slonky
 
 import dev.ligature.inmemory.InMemoryLigature
 
-fun main() {
-    val port: Int =4444
+@main def app() = {
+    val port: Int = 4444
     val ligature = InMemoryLigature() //TODO should eventually not be hardcoded
 
-    Server(port, ligature)
+    ligature.instance.use { instance =>
+        val server = Server(port, instance) //TODO server should probably be a resource as well
+        server.start()
+    }
 }

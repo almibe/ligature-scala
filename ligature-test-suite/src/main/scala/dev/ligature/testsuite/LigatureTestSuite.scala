@@ -260,18 +260,18 @@ abstract class LigatureTestSuite extends FunSuite {
                     for {
                         _    <- tx.addStatement(Statement(entity1, a, entity2))
                         _    <- tx.addStatement(Statement(entity1, b, FloatLiteral(1.1)))
-                        _    <- tx.addStatement(Statement(entity1, a, IntergerLiteral(5L)))
-                        _    <- tx.addStatement(Statement(entity2, a, IntergerLiteral(3L)))
+                        _    <- tx.addStatement(Statement(entity1, a, IntegerLiteral(5L)))
+                        _    <- tx.addStatement(Statement(entity2, a, IntegerLiteral(3L)))
                         _    <- tx.addStatement(Statement(entity2, a, FloatLiteral(10.0)))
                         _    <- tx.addStatement(Statement(entity2, b, entity3))
-                        _    <- tx.addStatement(Statement(entity3, a, IntergerLiteral(7L)))
+                        _    <- tx.addStatement(Statement(entity3, a, IntegerLiteral(7L)))
                         _    <- tx.addStatement(Statement(entity3, b, FloatLiteral(12.5)))
                     } yield()
                 }
                 res <- instance.query(testDataset).use { tx =>
                     for {
                         res1 <- tx.matchStatementsRange(None, None, FloatLiteralRange(1.0, 11.0)).compile.toList
-                        res2  <- tx.matchStatementsRange(None, None, IntergerLiteralRange(3,5)).compile.toList
+                        res2  <- tx.matchStatementsRange(None, None, IntegerLiteralRange(3,5)).compile.toList
                         res3 <- tx.matchStatementsRange(None, Some(b), FloatLiteralRange(1.0, 11.0)).compile.toList
                     } yield (res1, res2, res3)
                 }

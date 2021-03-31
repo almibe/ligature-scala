@@ -51,12 +51,12 @@ final case class LigatureError(val message: String)
 
 sealed trait Value //TODO make a sealed interface later
 final case class StringLiteral(val value: String) extends Value
-final case class IntergerLiteral(val value: Long) extends Value
+final case class IntegerLiteral(val value: Long) extends Value
 final case class FloatLiteral(val value: Double) extends Value
 
 sealed trait Range
 final case class StringLiteralRange(val start: String, val end: String) extends Range
-final case class IntergerLiteralRange(val start: Long, val end: Long) extends Range
+final case class IntegerLiteralRange(val start: Long, val end: Long) extends Range
 final case class FloatLiteralRange(val start: Double, val end: Double) extends Range
 
 final case class Statement(val entity: Entity, val attribute: Attribute, val value: Value)

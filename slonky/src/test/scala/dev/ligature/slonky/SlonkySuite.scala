@@ -7,28 +7,26 @@ package dev.ligature.slonky
 import com.google.gson.*
 import com.google.gson.annotations.SerializedName
 import dev.ligature.inmemory.InMemoryLigature
-import io.kotest.core.spec.style.FunSpec
-import io.kotest.matchers.shouldBe
 import io.vertx.core.Vertx
 import io.vertx.core.buffer.Buffer
 import io.vertx.ext.web.client.HttpResponse
 import io.vertx.ext.web.client.WebClient
-import io.vertx.kotlin.coroutines.awaitResult
+import munit._
 
-data class AtomicApiStatement(
+case class AtomicApiStatement(
     val entity: String?,
     val attribute: String,
     val value: String?,
     @SerializedName("value-type") val valueType: String)
 
-data class AtomicApiPersistedStatement(
+case class AtomicApiPersistedStatement(
     val entity: String,
     val attribute: String,
     val value: String,
     @SerializedName("value-type") val valueType: String,
     val context: String)
 
-class SlonkySuite: FunSpec() {
+class SlonkySuite extends FunSuite() {
     init {
         val port = 4444
         val local = "localhost"

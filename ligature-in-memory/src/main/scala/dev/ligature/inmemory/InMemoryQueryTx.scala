@@ -5,7 +5,7 @@
 package dev.ligature.inmemory
 
 import cats.effect.IO
-import dev.ligature._
+import dev.ligature.*
 import fs2.Stream
 
 /** Represents a QueryTx within the context of a Ligature instance and a single Dataset */
@@ -54,7 +54,7 @@ class InMemoryQueryTx(private val store: DatasetStore) extends QueryTx {
             (testValue, range) match {
                 case (StringLiteral(v), StringLiteralRange(start, end))     => v >= start && v < end
                 case (FloatLiteral(v), FloatLiteralRange(start, end))       => v >= start && v < end
-                case (IntergerLiteral(v), IntergerLiteralRange(start, end)) => v >= start && v < end
+                case (IntegerLiteral(v), IntegerLiteralRange(start, end)) => v >= start && v < end
                 case _                                                      => false
             }
         }
