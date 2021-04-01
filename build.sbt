@@ -44,4 +44,7 @@ lazy val slonky = (project in file("slonky"))
     libraryDependencies += gson,
     libraryDependencies += munit % Test,
     testFrameworks += new TestFramework("munit.Framework"),
+    mainClass in (Compile, run) := Some("dev.ligature.slonky.Slonky"),
   ).dependsOn(ligature, ligatureInMemory)
+
+addCommandAlias("run", "slonky/run")
