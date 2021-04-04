@@ -17,10 +17,11 @@ import io.vertx.core.http.HttpServer
 import io.vertx.ext.web.Router
 import io.vertx.ext.web.handler.BodyHandler
 import io.vertx.core.AbstractVerticle
+import dev.ligature.*
 
 import java.lang.RuntimeException
 
-class ServerVerticle(private val port: Int = 4444) extends AbstractVerticle {
+class ServerVerticle(private val port: Int = 4444, private val instance: LigatureInstance) extends AbstractVerticle {
   override def start() = {
     val bus = vertx.eventBus()
     val server: HttpServer = vertx.createHttpServer()

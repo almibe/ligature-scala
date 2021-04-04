@@ -27,21 +27,20 @@ case class AtomicApiPersistedStatement(
     val context: String)
 
 class SlonkySuite extends FunSuite() {
-    init {
-        val port = 4444
-        val local = "localhost"
-        lateinit var server: Server
-        //this mean that server + client have different vertx instances, but this shouldn't be an issue
-        val client = WebClient.create(Vertx.vertx())
-        val gson = GsonBuilder().serializeNulls().create()
+  val port = 4444
+  val local = "localhost"
+  var server: Server
+  //this mean that server + client have different vertx instances, but this shouldn't be an issue
+  val client = WebClient.create(Vertx.vertx())
+  val gson = GsonBuilder().serializeNulls().create()
 
-        beforeTest {
-            server = Server(port, InMemoryLigature())
-        }
+  beforeTest {
+    server = Server(port, InMemoryLigature())
+  }
 
-        afterTest {
-            server.shutDown()
-        }
+  afterTest {
+    server.shutDown()
+  }
 
         test("Datasets should initially be empty") {
             val res = awaitResult<HttpResponse<Buffer>> { h ->
