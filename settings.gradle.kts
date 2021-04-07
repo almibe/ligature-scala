@@ -8,4 +8,4 @@
  */
 
 rootProject.name = "slonky"
-include("ligature", "ligature-test-suite", "ligature-in-memory", "slonky")
+include("ligature", "ligature-test-suite", "ligature-in-memory", "slonky", "wander")
