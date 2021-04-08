@@ -4,8 +4,7 @@
 
 package dev.ligature
 
-import cats.effect.{Resource, IO}
-import fs2.Stream
+import io.smallrye.mutiny.{Multi, Uni}
 
 final case class Dataset private (val name: String) extends Ordered[Dataset] {
   private def copy(): Unit = ()
@@ -63,50 +62,46 @@ final case class Statement(val entity: Entity, val attribute: Attribute, val val
 
 final case class PersistedStatement(val statement: Statement, val context: Entity)
 
-trait Ligature {
-  def instance: Resource[IO, LigatureInstance]
-}
-
 /** A trait that all Ligature implementations implement. */
-trait LigatureInstance {
+trait Ligature {
   /** Returns all Datasets in a Ligature instance. */
-  def allDatasets(): Stream[IO, Either[LigatureError, Dataset]]
+  def allDatasets(): Multi[Either[LigatureError, Dataset]]
 
   /** Check if a given Dataset exists. */
-  def datasetExists(dataset: Dataset): IO[Either[LigatureError, Boolean]]
+  def datasetExists(dataset: Dataset): Uni[Either[LigatureError, Boolean]]
 
   /** Returns all Datasets in a Ligature instance that start with the given prefix. */
   def matchDatasetsPrefix(
                            prefix: String,
-                         ): Stream[IO, Either[LigatureError, Dataset]]
+                         ): Multi[Either[LigatureError, Dataset]]
 
   /** Returns all Datasets in a Ligature instance that are in a given range (inclusive, exclusive]. */
   def matchDatasetsRange(
                           start: String,
                           end: String,
-                        ): Stream[IO, Either[LigatureError, Dataset]]
+                        ): Multi[Either[LigatureError, Dataset]]
 
   /** Creates a dataset with the given name.
    * TODO should probably return its own error type { InvalidDataset, DatasetExists, CouldNotCreateDataset } */
-  def createDataset(dataset: Dataset): IO[Either[LigatureError, Unit]]
+  def createDataset(dataset: Dataset): Uni[Either[LigatureError, Unit]]
 
   /** Deletes a dataset with the given name.
    * TODO should probably return its own error type { InvalidDataset, CouldNotDeleteDataset } */
-  def deleteDataset(dataset: Dataset): IO[Either[LigatureError, Unit]]
+  def deleteDataset(dataset: Dataset): Uni[Either[LigatureError, Unit]]
 
   /** Initiazes a QueryTx
    * TODO should probably return its own error type CouldNotInitializeQueryTx */
-  def query(dataset: Dataset): Resource[IO, QueryTx]
+  def query[T](dataset: Dataset, fn: (queryTx: QueryTx) => T): Uni[T]
 
   /** Initiazes a WriteTx
    * TODO should probably return its own error type CouldNotInitializeWriteTx */
-  def write(dataset: Dataset): Resource[IO, WriteTx]
+  def write[T](dataset: Dataset, fn: (writeTx: WriteTx) => T): Uni[T]
 }
 
 /** Represents a QueryTx within the context of a Ligature instance and a single Dataset */
 trait QueryTx {
   /** Returns all PersistedStatements in this Dataset. */
-  def allStatements(): Stream[IO, Either[LigatureError, PersistedStatement]]
+  def allStatements(): Multi[Either[LigatureError, PersistedStatement]]
 
   /** Returns all PersistedStatements that match the given criteria.
    * If a parameter is None then it matches all, so passing all Nones is the same as calling allStatements. */
@@ -114,7 +109,7 @@ trait QueryTx {
                        entity: Option[Entity],
                        attribute: Option[Attribute],
                        value: Option[Value],
-                     ): Stream[IO, Either[LigatureError, PersistedStatement]]
+                     ): Multi[Either[LigatureError, PersistedStatement]]
 
   /** Retuns all PersistedStatements that match the given criteria.
    * If a parameter is None then it matches all. */
@@ -122,24 +117,24 @@ trait QueryTx {
                             entity: Option[Entity],
                             attribute: Option[Attribute],
                             value: Range,
-                          ): Stream[IO, Either[LigatureError, PersistedStatement]]
+                          ): Multi[Either[LigatureError, PersistedStatement]]
 
   /** Returns the PersistedStatement for the given context. */
   def statementForContext(
                            context: Entity,
-                         ): IO[Either[LigatureError, Option[PersistedStatement]]]
+                         ): Uni[Either[LigatureError, Option[PersistedStatement]]]
 }
 
 /** Represents a WriteTx within the context of a Ligature instance and a single Dataset */
 trait WriteTx {
   /** Creates a new, unique Entity within this Dataset by combining a UUID and an optional prefix.
    * Note: Entities are shared across named graphs in a given Dataset. */
-  def newAnonymousEntity(prefix: String = ""): IO[Either[LigatureError, Entity]]
+  def newAnonymousEntity(prefix: String = ""): Uni[Either[LigatureError, Entity]]
 
   /** Adds a given Statement to this Dataset.
    * If the Statement already exists nothing happens (TODO maybe add it with a new context?).
    * Note: Potentally could trigger a ValidationError */
-  def addStatement(statement: Statement, contextPrefix: String = ""): IO[Either[LigatureError, PersistedStatement]]
+  def addStatement(statement: Statement, contextPrefix: String = ""): Uni[Either[LigatureError, PersistedStatement]]
 
   /** Removes a given PersistedStatement from this Dataset.
    * If the PersistedStatement doesn't exist nothing happens and returns Ok(false).
@@ -147,9 +142,9 @@ trait WriteTx {
    * Note: Potentally could trigger a ValidationError. */
   def removeStatement(
                        persistedStatement: PersistedStatement,
-                     ): IO[Either[LigatureError, Boolean]]
+                     ): Uni[Either[LigatureError, Boolean]]
 
   /** Cancels this transaction so that none of the changes made so far will be stored.
    * This also closes this transaction so no other methods can be called without returning a LigatureError. */
-  def cancel(): IO[Either[LigatureError, Unit]]
+  def cancel(): Uni[Either[LigatureError, Unit]]
 }
