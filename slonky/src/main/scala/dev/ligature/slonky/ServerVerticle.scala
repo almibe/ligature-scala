@@ -21,7 +21,7 @@ import dev.ligature.*
 
 import java.lang.RuntimeException
 
-class ServerVerticle(private val port: Int = 4444, private val instance: LigatureInstance) extends AbstractVerticle {
+class ServerVerticle(private val port: Int = 4444, private val instance: Ligature) extends AbstractVerticle {
   override def start() = {
     val bus = vertx.eventBus()
     val server: HttpServer = vertx.createHttpServer()
@@ -224,11 +224,10 @@ class ServerVerticle(private val port: Int = 4444, private val instance: Ligatur
 
   def serializeValueType(value: Value): String  =
     value match {
-      case Entity => "Entity"
-      case StringLiteral => "StringLiteral"
-      case FloatLiteral => "FloatLiteral"
-      case IntegerLiteral => "IntegerLiteral"
-      case _ => throw RuntimeException(s"Illegal value type $value")
+      case Entity(_) => "Entity"
+      case StringLiteral(_) => "StringLiteral"
+      case FloatLiteral(_) => "FloatLiteral"
+      case IntegerLiteral(_) => "IntegerLiteral"
     }
 
   def deserializeValue(value: String, valueType: String): Value =

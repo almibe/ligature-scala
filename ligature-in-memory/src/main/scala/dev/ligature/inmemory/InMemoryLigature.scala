@@ -13,7 +13,7 @@ import java.util.concurrent.locks.{ReadWriteLock, ReentrantReadWriteLock}
 
 protected case class DatasetStore(counter: Long, statements: Set[PersistedStatement])
 
-private final class InMemoryLigature extends Ligature {
+final class InMemoryLigature extends Ligature {
     private var store = TreeMap[Dataset, DatasetStore]()
     private val lock: ReadWriteLock = new ReentrantReadWriteLock()
 
