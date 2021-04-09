@@ -10,19 +10,31 @@ import com.google.gson.Gson
 import com.google.gson.JsonArray
 import com.google.gson.JsonObject
 import com.google.gson.JsonParser
-import dev.ligature.*
 
 import io.vertx.core.Vertx
 import io.vertx.core.http.HttpServer
 import io.vertx.ext.web.Router
 import io.vertx.ext.web.handler.BodyHandler
 import io.vertx.core.AbstractVerticle
+
 import dev.ligature.*
+
+import cats.effect.{IO, Resource}
 
 import java.lang.RuntimeException
 
-class ServerVerticle(private val port: Int = 4444, private val instance: LigatureInstance) extends AbstractVerticle {
-  override def start() = {
+object ServerInstance {
+  private def acquire(ligature: LigatureInstance): IO[ServerResource] = IO(new ServerResource(ligature))
+  private val release: ServerResource => IO[Unit] = _ => IO.unit
+  def instance(ligature: LigatureInstance): Resource[IO, ServerResource] = {
+    Resource.make(acquire(ligature))(release)
+  }
+}
+
+class ServerResource(private val instance: LigatureInstance, private val port: Int = 4444) {
+  private val vertx = Vertx.vertx
+
+  def start() = {
     val bus = vertx.eventBus()
     val server: HttpServer = vertx.createHttpServer()
     val gson = Gson()
@@ -224,11 +236,10 @@ class ServerVerticle(private val port: Int = 4444, private val instance: Ligatur
 
   def serializeValueType(value: Value): String  =
     value match {
-      case Entity => "Entity"
-      case StringLiteral => "StringLiteral"
-      case FloatLiteral => "FloatLiteral"
-      case IntegerLiteral => "IntegerLiteral"
-      case _ => throw RuntimeException(s"Illegal value type $value")
+      case Entity(_) => "Entity"
+      case StringLiteral(_) => "StringLiteral"
+      case FloatLiteral(_) => "FloatLiteral"
+      case IntegerLiteral(_) => "IntegerLiteral"
     }
 
   def deserializeValue(value: String, valueType: String): Value =

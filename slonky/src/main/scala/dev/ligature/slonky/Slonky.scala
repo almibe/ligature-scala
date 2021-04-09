@@ -7,20 +7,21 @@ package dev.ligature.slonky
 import cats.effect.{IO, IOApp, ExitCode}
 import cats.effect.unsafe.implicits.global
 import dev.ligature.inmemory.InMemoryLigature
-import io.vertx.core.Vertx
 
 object Slonky extends IOApp {
   override def run(args: List[String]): IO[ExitCode] = {
     val ligature = InMemoryLigature() //TODO should eventually not be hardcoded
     val port = 5671
-    val vertx = Vertx.vertx()
 
-    ligature.instance.use { ligatureInstance => IO.never.as {
-    //  vertx = Vertx.vertx()
+    for {
+      res <- IO(ExitCode.Success)
+    } yield res
 
-      vertx.deployVerticle(ServerVerticle(port, ligatureInstance)) //TODO should server be a resource or a verticle....it should probably a verticle?
-      vertx.deployVerticle(LigatureVerticle(ligatureInstance))
-      ExitCode.Success
-    }}
+    // ligature.instance.use { ligatureInstance => IO {
+    //   ServerInstance.instance(ligatureInstance).use { server => {
+        
+    //     ExitCode.Success
+    //   }}
+    // }}
   }
 }
