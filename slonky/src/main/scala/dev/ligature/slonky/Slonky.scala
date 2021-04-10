@@ -13,15 +13,15 @@ object Slonky extends IOApp {
     val ligature = InMemoryLigature() //TODO should eventually not be hardcoded
     val port = 5671
 
-    for {
-      res <- IO(ExitCode.Success)
-    } yield res
-
-    // ligature.instance.use { ligatureInstance => IO {
-    //   ServerInstance.instance(ligatureInstance).use { server => {
-        
-    //     ExitCode.Success
-    //   }}
-    // }}
+    (for {
+        ligature <- ligature.instance
+        server <- ServerInstance.instance(ligature, port)
+    } yield (ligature, server))
+    .use { case (ligature, server) =>
+      for {
+        _ <- IO.never
+        res <- IO(ExitCode.Success)
+      } yield res
+    }
   }
 }

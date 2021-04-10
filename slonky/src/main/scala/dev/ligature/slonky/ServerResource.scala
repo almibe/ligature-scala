@@ -24,15 +24,23 @@ import cats.effect.{IO, Resource}
 import java.lang.RuntimeException
 
 object ServerInstance {
-  private def acquire(ligature: LigatureInstance): IO[ServerResource] = IO(new ServerResource(ligature))
-  private val release: ServerResource => IO[Unit] = _ => IO.unit
-  def instance(ligature: LigatureInstance): Resource[IO, ServerResource] = {
-    Resource.make(acquire(ligature))(release)
+  private def acquire(ligature: LigatureInstance, port: Int): IO[ServerResource] = IO {
+    val server = new ServerResource(ligature, port)
+    server.start()
+    server
+  }
+  private val release: ServerResource => IO[Unit] = server => IO { server.stop(); () }
+  def instance(ligature: LigatureInstance, port: Int): Resource[IO, ServerResource] = {
+    Resource.make(acquire(ligature, port))(release)
   }
 }
 
 class ServerResource(private val instance: LigatureInstance, private val port: Int = 4444) {
   private val vertx = Vertx.vertx
+
+  def stop() = {
+    vertx.close
+  }
 
   def start() = {
     val bus = vertx.eventBus()
