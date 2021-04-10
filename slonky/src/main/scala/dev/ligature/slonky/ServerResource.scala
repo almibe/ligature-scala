@@ -16,6 +16,7 @@ import io.vertx.core.http.HttpServer
 import io.vertx.ext.web.Router
 import io.vertx.ext.web.handler.BodyHandler
 import io.vertx.core.AbstractVerticle
+import io.vertx.core.Handler
 
 import dev.ligature.*
 
@@ -23,26 +24,18 @@ import cats.effect.{IO, Resource}
 
 import java.lang.RuntimeException
 
-object ServerInstance {
-  private def acquire(ligature: LigatureInstance, port: Int): IO[ServerResource] = IO {
-    val server = new ServerResource(ligature, port)
-    server.start()
-    server
-  }
-  private val release: ServerResource => IO[Unit] = server => IO { server.stop(); () }
-  def instance(ligature: LigatureInstance, port: Int): Resource[IO, ServerResource] = {
-    Resource.make(acquire(ligature, port))(release)
-  }
-}
-
-class ServerResource(private val instance: LigatureInstance, private val port: Int = 4444) {
+class ServerResource {
   private val vertx = Vertx.vertx
 
-  def stop() = {
-    vertx.close
+  private def acquire(ligature: LigatureInstance, port: Int): IO[HttpServer] = {
+    start(ligature, port)
+  }
+  private val release: HttpServer => IO[Unit] = server => IO { vertx.close(); () } //TODO I should probably map the close Future to an IO[Unit]
+  def instance(ligature: LigatureInstance, port: Int = 4444): Resource[IO, HttpServer] = {
+    Resource.make(acquire(ligature, port))(release)
   }
 
-  def start() = {
+  def start(ligature: LigatureInstance, port: Int): IO[HttpServer] = {
     val bus = vertx.eventBus()
     val server: HttpServer = vertx.createHttpServer()
     val gson = Gson()
@@ -221,10 +214,10 @@ class ServerResource(private val instance: LigatureInstance, private val port: I
         }
       }
     }
-    server.requestHandler(router).listen(port)
+    server.requestHandler(router).listen(port).asIO
   }
 
-  def serializeStatement(statement: PersistedStatement): JsonObject = {
+    def serializeStatement(statement: PersistedStatement): JsonObject = {
     val out = JsonObject()
     out.addProperty("entity", statement.statement.entity.name.toString())
     out.addProperty("attribute", statement.statement.attribute.name)
