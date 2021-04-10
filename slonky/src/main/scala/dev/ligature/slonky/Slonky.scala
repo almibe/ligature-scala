@@ -6,6 +6,7 @@ package dev.ligature.slonky
 
 import cats.effect.{IO, IOApp, ExitCode}
 import cats.effect.unsafe.implicits.global
+import dev.ligature.Ligature
 import dev.ligature.inmemory.InMemoryLigature
 import io.vertx.core.Future
 import scala.jdk.FutureConverters._
@@ -15,17 +16,21 @@ object Slonky extends IOApp {
     val ligature = InMemoryLigature() //TODO should eventually not be hardcoded
     val port = 5678
 
-    (for {
-        ligature <- ligature.instance
-        server <- ServerResource().instance(ligature, port)
-    } yield (ligature, server))
-    .use { case (ligature, server) =>
+    runServer(port, ligature) { _ =>
       for {
-        _ <- IO.never
+        _   <- IO.never
         res <- IO(ExitCode.Success)
       } yield res
     }
   }
+}
+
+def runServer[T](port: Int, ligature: Ligature)(fn: (Unit) => IO[T]): IO[T] = {
+    (for {
+        ligature <- ligature.instance
+        server   <- ServerResource().instance(ligature, port)
+    } yield ())
+    .use(fn)
 }
 
 extension [T](future: Future[T]) {
