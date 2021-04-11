@@ -21,6 +21,7 @@ import io.vertx.core.Handler
 import dev.ligature.*
 
 import cats.effect.{IO, Resource}
+import cats.effect.unsafe.implicits.global
 
 import java.lang.RuntimeException
 
@@ -148,6 +149,9 @@ class ServerResource {
           // }
         } else { //TODO make sure that pathParams are empty + other checks
           //TODO post to event bus to get all datasets
+          ligature.allDatasets().map { _.getOrElse {???}.name }.compile.toList.unsafeRunAsync { res =>
+            rc.response.end(gson.toJson(res.getOrElse {???}.asJava))
+          }
           // GlobalScope.launch(vertx.dispatcher()) {
           //   val res = ligature.allDatasets().map { it.getOrThrow().name }
           //   rc.response().send(gson.toJson(res.toList()))

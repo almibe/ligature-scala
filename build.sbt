@@ -7,6 +7,7 @@ ThisBuild / organizationName := "ligature"
 val fs2 = "co.fs2" %% "fs2-core" % "3.0.1"
 val munit = "org.scalameta" %% "munit" % "0.7.23"
 val vertxWeb = "io.vertx" % "vertx-web" % "4.0.3"
+val vertxWebClient = "io.vertx" % "vertx-web-client" % "4.0.3"
 val gson = "com.google.code.gson" % "gson" % "2.8.6"
 
 lazy val ligature = (project in file("ligature"))
@@ -41,6 +42,7 @@ lazy val slonky = (project in file("slonky"))
     scalaVersion := rcVersion,
     libraryDependencies += fs2,
     libraryDependencies += vertxWeb,
+    libraryDependencies += vertxWebClient,
     libraryDependencies += gson,
     libraryDependencies += munit % Test,
     testFrameworks += new TestFramework("munit.Framework"),
