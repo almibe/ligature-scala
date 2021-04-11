@@ -45,11 +45,10 @@ class ServerResource {
     router.post().handler(BodyHandler.create()).handler { rc =>
       val body = rc.getBodyAsString
       if (body == null) { // create new dataset
-        //TODO post to event bus to create dataset
-        // GlobalScope.launch(vertx.dispatcher()) {
-          // ligature.createDataset(Dataset(rc.normalizedPath().removePrefix("/")))
-          // rc.response().send()
-        // }
+        //TODO maybe create a removePrefix("/") method instead of tail?
+        ligature.createDataset(Dataset.fromString(rc.normalizedPath().tail).getOrElse { ??? }).unsafeRunAsync { res =>
+          rc.response.end
+        }
       } else { // add statement to dataset
         val statementJson = JsonParser.parseString(body).getAsJsonObject
 
@@ -136,26 +135,17 @@ class ServerResource {
         val rangeStart = rc.queryParam("start")
         val rangeEnd = rc.queryParam("end")
         if (prefix.size == 1 && rangeStart.isEmpty() && rangeEnd.isEmpty()) {
-          //TODO post to event bus to match dataset prefix
-          // GlobalScope.launch(vertx.dispatcher()) {
-          //   val res = ligature.matchDatasetsPrefix(prefix.first()).map { it.getOrThrow().name }
-          //   rc.response().send(gson.toJson(res.toList()))
-          // }
+          ligature.matchDatasetsPrefix(prefix.asScala.head).map { _.getOrElse {???}.name }.compile.toList.unsafeRunAsync { res =>
+            rc.response.end(gson.toJson(res.getOrElse {???}.asJava))
+          }
         } else if (prefix.isEmpty() && rangeStart.size == 1 && rangeEnd.size == 1) {
-          //TODO post to event bus to match dataset range
-          // GlobalScope.launch(vertx.dispatcher()) {
-          //   val res = ligature.matchDatasetsRange(rangeStart.first(), rangeEnd.first()).map { it.getOrThrow().name }
-          //   rc.response().send(gson.toJson(res.toList()))
-          // }
+          ligature.matchDatasetsRange(rangeStart.get(0), rangeEnd.get(0)).map { _.getOrElse {???}.name }.compile.toList.unsafeRunAsync { res =>
+            rc.response.end(gson.toJson(res.getOrElse {???}.asJava))
+          }
         } else { //TODO make sure that pathParams are empty + other checks
-          //TODO post to event bus to get all datasets
           ligature.allDatasets().map { _.getOrElse {???}.name }.compile.toList.unsafeRunAsync { res =>
             rc.response.end(gson.toJson(res.getOrElse {???}.asJava))
           }
-          // GlobalScope.launch(vertx.dispatcher()) {
-          //   val res = ligature.allDatasets().map { it.getOrThrow().name }
-          //   rc.response().send(gson.toJson(res.toList()))
-          // }
         }
       } else { //handle Statements within a given Dataset
         val dataset = Dataset.fromString(path.stripPrefix("/")).get //TODO error handling
@@ -170,8 +160,7 @@ class ServerResource {
         val bothOneOrZero = { (x: Int, y: Int) => oneOrZero(x) || oneOrZero(y) }
 
         if (entity.isEmpty && attribute.isEmpty && value.isEmpty && valueType.isEmpty && valueStart.isEmpty && valueEnd.isEmpty) {
-          //get all
-          //TODO post to event bus to get all statements
+          //get all statements
           // GlobalScope.launch(vertx.dispatcher()) {
           //   val res = JsonArray()
           //   ligature.query(dataset) { tx =>
@@ -218,10 +207,10 @@ class ServerResource {
         }
       }
     }
-    server.requestHandler(router).listen(port).asIO
+    toIO(() => server.requestHandler(router).listen(port))
   }
 
-    def serializeStatement(statement: PersistedStatement): JsonObject = {
+  def serializeStatement(statement: PersistedStatement): JsonObject = {
     val out = JsonObject()
     out.addProperty("entity", statement.statement.entity.name.toString())
     out.addProperty("attribute", statement.statement.attribute.name)

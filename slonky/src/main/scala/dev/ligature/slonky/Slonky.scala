@@ -33,8 +33,6 @@ def runServer[T](port: Int, ligature: Ligature)(fn: (Unit) => IO[T]): IO[T] = {
     .use(fn)
 }
 
-extension [T](future: Future[T]) {
-  def asIO: IO[T] = {
-    IO.fromFuture(IO(future.toCompletionStage.asScala))
-  }
+def toIO[T](in: () => Future[T]): IO[T] = {
+  IO.fromFuture[T](IO(in().toCompletionStage.asScala))
 }

@@ -38,7 +38,7 @@ class SlonkySuite extends FunSuite() {
 
   test("Datasets should initially be empty") {
     val res = runServer(port, createLigature()) { _ =>
-      client.get(port, local, "").send.asIO
+      toIO(() => client.get(port, local, "").send)
     }.unsafeRunSync()
     assertEquals(JsonParser.parseString(res.bodyAsString()).getAsJsonArray, JsonArray())
   }
@@ -46,99 +46,101 @@ class SlonkySuite extends FunSuite() {
   test("Add Datasets") {
     val res = runServer(port, createLigature()) { _ =>
       for {
-        _   <- client.post(port, local, "/testDataset").send().asIO
-        res <- client.get(port, local, "").send.asIO
+        _   <- toIO(() => client.post(port, local, "/testDataset").send())
+        res <- toIO(() => client.get(port, local, "").send())
       } yield res
     }.unsafeRunSync()
     assertEquals(JsonParser.parseString(res.bodyAsString()).getAsJsonArray,
       JsonParser.parseString("[\"testDataset\"]").getAsJsonArray)
-    }
+  }
 
-    //     test("Query Datasets w/ prefix") {
-    //         listOf("test/test1", "test/test2", "test3/test").forEach {
-    //             awaitResult<HttpResponse<Buffer>> { h ->
-    //                 client.post(port, local, "/$it").send(h)
-    //             }
-    //         }
-    //         val res = awaitResult<HttpResponse<Buffer>> { h ->
-    //             client.get(port, local, "/?prefix=test%2F").send(h)
-    //         }
-    //         JsonParser.parseString(res.bodyAsString()).asJsonArray shouldBe
-    //             JsonParser.parseString("[\"test/test1\",\"test/test2\"]").asJsonArray
-    //     }
+  test("Query Datasets w/ prefix") {
+    val writes = List("test/test1", "test/test2", "test3/test")
+      .map { ds => toIO(() => client.post(port, local, s"/$ds").send()) }
+      .reduce(_ >> _)
 
-    //     test("Query Datasets w/ range") {
-    //         listOf("test", "test1/test1", "test2/test2", "test3/test").forEach {
-    //             awaitResult<HttpResponse<Buffer>> { h ->
-    //                 client.post(port, local, "/$it").send(h)
-    //             }
-    //         }
-    //         val res = awaitResult<HttpResponse<Buffer>> { h ->
-    //             client.get(port, local, "/?start=test1&end=test3").send(h)
-    //         }
-    //         JsonParser.parseString(res.bodyAsString()).asJsonArray shouldBe
-    //                 JsonParser.parseString("[\"test1/test1\",\"test2/test2\"]").asJsonArray
-    //     }
+    val res = runServer(port, createLigature()) { _ => 
+      for {
+        _  <- writes
+        res <- toIO(() => client.get(port, local, "/?prefix=test%2F").send())
+      } yield res
+    }.unsafeRunSync()
+    assertEquals(JsonParser.parseString(res.bodyAsString()).getAsJsonArray,
+      JsonParser.parseString("[\"test/test1\",\"test/test2\"]").getAsJsonArray)
+  }
 
-    //     test("Delete Datasets") {
-    //         listOf("test", "test1/test1", "test2/test2", "test3/test").forEach {
-    //             awaitResult<HttpResponse<Buffer>> { h ->
-    //                 client.post(port, local, "/$it").send(h)
-    //             }
-    //         }
-    //         awaitResult<HttpResponse<Buffer>> { h ->
-    //             client.delete(port, local, "/test2/test2").send(h)
-    //         }
-    //         val res = awaitResult<HttpResponse<Buffer>> { h ->
-    //             client.get(port, local, "").send(h)
-    //         }
-    //         JsonParser.parseString(res.bodyAsString()).asJsonArray shouldBe
-    //                 JsonParser.parseString("[\"test\",\"test1/test1\",\"test3/test\"]").asJsonArray
-    //     }
+  test("Query Datasets w/ range") {
+    val writes = List("test", "test1/test1", "test2/test2", "test3/test")
+      .map { ds => toIO(() => client.post(port, local, s"/$ds").send() )}
+      .reduce(_ >> _)
+    val res = runServer(port, createLigature()) { _ =>
+      for {
+        _   <- writes
+        res <- toIO(() => client.get(port, local, "/?start=test1&end=test3").send())
+      } yield res
+    }.unsafeRunSync()
+    assertEquals(JsonParser.parseString(res.bodyAsString()).getAsJsonArray(),
+      JsonParser.parseString("[\"test1/test1\",\"test2/test2\"]").getAsJsonArray())
+  }
 
-    //     test("Statements in new Dataset should start empty") {
-    //         awaitResult<HttpResponse<Buffer>> { h -> //create Dataset
-    //             client.post(port, local, "/testDataset").send(h)
-    //         }
-    //         val res = awaitResult<HttpResponse<Buffer>> { h -> //get all Statements
-    //             client.get(port, local, "/testDataset").send(h)
-    //         }
-    //         JsonParser.parseString(res.bodyAsString()).asJsonArray shouldBe JsonArray()
-    //     }
+  test("Delete Datasets") {
+    val writes = List("test", "test1/test1", "test2/test2", "test3/test")
+      .map { ds => toIO(() => client.post(port, local, s"/$ds").send()) }
+      .reduce(_ >> _)
+    val res = runServer(port, createLigature()) { _ =>
+      for {
+        _   <- writes
+        _   <- toIO(() => client.delete(port, local, "/test2/test2").send())
+        res <- toIO(() => client.get(port, local, "").send())
+      } yield res
+    }.unsafeRunSync()
+    assertEquals(JsonParser.parseString(res.bodyAsString()).getAsJsonArray,
+      JsonParser.parseString("[\"test\",\"test1/test1\",\"test3/test\"]").getAsJsonArray)
+  }
 
-    //     test("Add Statements") {
-    //         val input = listOf(
-    //             AtomicApiStatement(null, "attribute", null, "Entity"),
-    //             AtomicApiStatement(null, "attribute", "1", "Entity"),
-    //             AtomicApiStatement(null, "attribute2", "Hello", "StringLiteral"),
-    //             AtomicApiStatement(null, "attribute3", "3453", "IntegerLiteral"),
-    //             AtomicApiStatement("1", "attribute4", "4.2", "FloatLiteral"),
-    //         )
+  test("Statements in new Dataset should start empty") {
+    val res = runServer(port, createLigature()) { _ => 
+      for {
+        _   <- toIO(() => client.post(port, local, "/testDataset").send())
+        res <- toIO(() => client.get(port, local, "/testDataset").send())
+      } yield res
+    }.unsafeRunSync()
+    assertEquals(JsonParser.parseString(res.bodyAsString()).getAsJsonArray, JsonArray())
+  }
 
-    //         val out = listOf(
-    //             AtomicApiPersistedStatement("1", "attribute", "2", "Entity", "3"),
-    //             AtomicApiPersistedStatement("4", "attribute", "1", "Entity", "5"),
-    //             AtomicApiPersistedStatement("6", "attribute2", "Hello", "StringLiteral", "7"),
-    //             AtomicApiPersistedStatement("8", "attribute3", "3453", "IntegerLiteral", "9"),
-    //             AtomicApiPersistedStatement("1", "attribute4", "4.2", "FloatLiteral", "10"),
-    //         )
+  // test("Add Statements") {
+  //   val input = listOf(
+  //     AtomicApiStatement(null, "attribute", null, "Entity"),
+  //     AtomicApiStatement(null, "attribute", "1", "Entity"),
+  //     AtomicApiStatement(null, "attribute2", "Hello", "StringLiteral"),
+  //     AtomicApiStatement(null, "attribute3", "3453", "IntegerLiteral"),
+  //     AtomicApiStatement("1", "attribute4", "4.2", "FloatLiteral"),
+  //   )
 
-    //         val expected = gson.toJson(out)
+  //   val out = listOf(
+  //     AtomicApiPersistedStatement("1", "attribute", "2", "Entity", "3"),
+  //     AtomicApiPersistedStatement("4", "attribute", "1", "Entity", "5"),
+  //     AtomicApiPersistedStatement("6", "attribute2", "Hello", "StringLiteral", "7"),
+  //     AtomicApiPersistedStatement("8", "attribute3", "3453", "IntegerLiteral", "9"),
+  //     AtomicApiPersistedStatement("1", "attribute4", "4.2", "FloatLiteral", "10"),
+  //   )
 
-    //         awaitResult<HttpResponse<Buffer>> { h -> //create Dataset
-    //             client.post(port, local, "/testDataset").send(h)
-    //         }
-    //         input.forEach { statement ->
-    //             val res = awaitResult<HttpResponse<Buffer>> { h -> //add Statement
-    //                 client.post(port, local, "/testDataset").sendBuffer(Buffer.buffer(gson.toJson(statement)), h)
-    //             }
-    //         }
-    //         val res = awaitResult<HttpResponse<Buffer>> { h -> //get all Statements
-    //             client.get(port, local, "/testDataset").send(h)
-    //         }
-    //         JsonParser.parseString(res.bodyAsString()).asJsonArray shouldBe
-    //                 JsonParser.parseString(expected).asJsonArray
-    //     }
+  //   val expected = gson.toJson(out)
+
+  //   awaitResult<HttpResponse<Buffer>> { h -> //create Dataset
+  //     client.post(port, local, "/testDataset").send(h)
+  //   }
+  //   input.forEach { statement ->
+  //     val res = awaitResult<HttpResponse<Buffer>> { h -> //add Statement
+  //       client.post(port, local, "/testDataset").sendBuffer(Buffer.buffer(gson.toJson(statement)), h)
+  //     }
+  //   }
+  //   val res = awaitResult<HttpResponse<Buffer>> { h -> //get all Statements
+  //     client.get(port, local, "/testDataset").send(h)
+  //   }
+  //   JsonParser.parseString(res.bodyAsString()).asJsonArray shouldBe
+  //     JsonParser.parseString(expected).asJsonArray
+  // }
 
     //     test("Match Statements") {
     //         val input = listOf(
