@@ -19,7 +19,8 @@ case class AtomicApiStatement(
   val entity: String,
   val attribute: String,
   val value: String,
-  val valueType: String)
+  val valueType: String,
+  val contextPrefix: String)
 
 case class AtomicApiPersistedStatement(
   val entity: String,
@@ -108,39 +109,29 @@ class SlonkySuite extends FunSuite() {
     assertEquals(JsonParser.parseString(res.bodyAsString()).getAsJsonArray, JsonArray())
   }
 
-  // test("Add Statements") {
-  //   val input = listOf(
-  //     AtomicApiStatement(null, "attribute", null, "Entity"),
-  //     AtomicApiStatement(null, "attribute", "1", "Entity"),
-  //     AtomicApiStatement(null, "attribute2", "Hello", "StringLiteral"),
-  //     AtomicApiStatement(null, "attribute3", "3453", "IntegerLiteral"),
-  //     AtomicApiStatement("1", "attribute4", "4.2", "FloatLiteral"),
-  //   )
-
-  //   val out = listOf(
-  //     AtomicApiPersistedStatement("1", "attribute", "2", "Entity", "3"),
-  //     AtomicApiPersistedStatement("4", "attribute", "1", "Entity", "5"),
-  //     AtomicApiPersistedStatement("6", "attribute2", "Hello", "StringLiteral", "7"),
-  //     AtomicApiPersistedStatement("8", "attribute3", "3453", "IntegerLiteral", "9"),
-  //     AtomicApiPersistedStatement("1", "attribute4", "4.2", "FloatLiteral", "10"),
-  //   )
-
-  //   val expected = gson.toJson(out)
-
-  //   awaitResult<HttpResponse<Buffer>> { h -> //create Dataset
-  //     client.post(port, local, "/testDataset").send(h)
-  //   }
-  //   input.forEach { statement ->
-  //     val res = awaitResult<HttpResponse<Buffer>> { h -> //add Statement
-  //       client.post(port, local, "/testDataset").sendBuffer(Buffer.buffer(gson.toJson(statement)), h)
-  //     }
-  //   }
-  //   val res = awaitResult<HttpResponse<Buffer>> { h -> //get all Statements
-  //     client.get(port, local, "/testDataset").send(h)
-  //   }
-  //   JsonParser.parseString(res.bodyAsString()).asJsonArray shouldBe
-  //     JsonParser.parseString(expected).asJsonArray
-  // }
+  test("Add Statements") {
+    val input = List(
+      AtomicApiStatement("1", "attribute", "2", "Entity", "stat1/"),
+      AtomicApiStatement("3", "attribute", "1", "Entity", "stat2/"),
+      AtomicApiStatement("4", "attribute2", "Hello", "StringLiteral", "stat3/"),
+      AtomicApiStatement("5", "attribute3", "3453", "IntegerLiteral", "stat4/"),
+      AtomicApiStatement("1", "attribute4", "4.2", "FloatLiteral", "stat5/"),
+    )
+    
+    awaitResult<HttpResponse<Buffer>> { h -> //create Dataset
+      client.post(port, local, "/testDataset").send(h)
+    }
+    input.forEach { statement ->
+      val res = awaitResult<HttpResponse<Buffer>> { h -> //add Statement
+        client.post(port, local, "/testDataset").sendBuffer(Buffer.buffer(gson.toJson(statement)), h)
+      }
+    }
+    val res = awaitResult<HttpResponse<Buffer>> { h -> //get all Statements
+      client.get(port, local, "/testDataset").send(h)
+    }
+    JsonParser.parseString(res.bodyAsString()).asJsonArray shouldBe
+      JsonParser.parseString(expected).asJsonArray
+  }
 
     //     test("Match Statements") {
     //         val input = listOf(

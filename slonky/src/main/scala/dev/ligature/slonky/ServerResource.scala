@@ -93,11 +93,9 @@ class ServerResource {
     router.delete().handler(BodyHandler.create()).handler { rc =>
       val body = rc.getBodyAsString()
       if (body == null) {
-        //TODO post to event bus to remove dataset
-        // GlobalScope.launch(vertx.dispatcher()) {
-        //     ligature.deleteDataset(Dataset(rc.normalizedPath().removePrefix("/")))
-        //     rc.response().send()
-        // }
+        ligature.deleteDataset(Dataset.fromString(rc.normalizedPath().tail).getOrElse {???}).unsafeRunAsync { _ =>
+          rc.response.send
+        }
       } else {
         val statementJson = JsonParser.parseString(body).getAsJsonObject()
 
@@ -129,7 +127,6 @@ class ServerResource {
     }
     router.get().handler { rc =>
       val path = rc.normalizedPath()
-
       if (path == "/") { //handle Datasets
         val prefix = rc.queryParam("prefix")
         val rangeStart = rc.queryParam("start")
@@ -161,6 +158,11 @@ class ServerResource {
 
         if (entity.isEmpty && attribute.isEmpty && value.isEmpty && valueType.isEmpty && valueStart.isEmpty && valueEnd.isEmpty) {
           //get all statements
+          ligature.query(Dataset.fromString(rc.normalizedPath().tail).getOrElse {???}).use { tx =>
+            tx.allStatements().compile.toList
+          }.unsafeRunAsync { res =>
+            rc.response.end(gson.toJson(res.getOrElse {???}.asJava))
+          }
           // GlobalScope.launch(vertx.dispatcher()) {
           //   val res = JsonArray()
           //   ligature.query(dataset) { tx =>
