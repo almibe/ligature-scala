@@ -17,6 +17,9 @@ abstract class LigatureTestSuite : FunSpec() {
     val testDataset = Dataset("test/test")
     val testDataset2 = Dataset("test/test2")
     val testDataset3 = Dataset("test3/test")
+    val ent1 = Entity("ent1")
+    val ent2 = Entity("ent2")
+    val ent3 = Entity("ent3")
     val a = Attribute("a")
     val b = Attribute("b")
 
@@ -96,7 +99,8 @@ abstract class LigatureTestSuite : FunSpec() {
             assert(res.isEmpty())
         }
 
-        test("create new entity") {
+        test("test creating anonymous entities") {
+            TODO("rewrite")
             val instance = createLigature()
             instance.createDataset(testDataset)
             instance.write(testDataset) { tx ->
@@ -133,69 +137,59 @@ abstract class LigatureTestSuite : FunSpec() {
             val instance = createLigature()
             instance.createDataset(testDataset)
             val entities = instance.write(testDataset) { tx ->
-                val ent1 = tx.newAnonymousEntity().getOrThrow()
-                val ent2 = tx.newAnonymousEntity().getOrThrow()
-                val ent3 = tx.newAnonymousEntity().getOrThrow()
                 tx.addStatement(Statement(ent1, a, ent2))
                 tx.addStatement(Statement(ent1, a, ent2)) //dupes get added since they'll have unique contexts
                 tx.addStatement(Statement(ent1, a, ent3))
                 listOf(ent1, ent2, ent3)
             }
             val res = instance.query(testDataset) { tx ->
-                tx.allStatements().map { it.getOrThrow() }.toSet()
+                tx.allStatements().map { it.getOrThrow() }.map { it.statement }.toSet()
             }
             res shouldBe setOf(
-                    PersistedStatement(Statement(Entity(1), a, Entity(2)), Entity(4)),
-                    PersistedStatement(Statement(Entity(1), a, Entity(2)), Entity(5)),
-                    PersistedStatement(Statement(Entity(1), a, Entity(3)), Entity(6)))
+                    Statement(ent1, a, ent2),
+                    Statement(ent1, a, ent2),
+                    Statement(ent1, a, ent3),
+            )
         }
 
         test("removing statements from datasets") {
             val instance = createLigature()
             instance.createDataset(testDataset)
             instance.write(testDataset) { tx ->
-                val nn1 = tx.newAnonymousEntity().getOrThrow()
-                val nn2 = tx.newAnonymousEntity().getOrThrow()
-                val nn3 = tx.newAnonymousEntity().getOrThrow()
-                val ps1 = tx.addStatement(Statement(nn1, a, nn2)).getOrThrow()
-                tx.addStatement(Statement(nn3, a, nn2))
+                val ps1 = tx.addStatement(Statement(ent1, a, ent2)).getOrThrow()
+                tx.addStatement(Statement(ent3, a, ent2))
                 tx.removeStatement(ps1)
                 tx.removeStatement(ps1)
-                tx.removeStatement(PersistedStatement(Statement(nn2, a, nn1), Entity(5)))
+                tx.removeStatement(PersistedStatement(Statement(ent2, a, ent1), Entity("iDontExist")))
             }
             val res = instance.query(testDataset) { tx ->
                 tx.allStatements().map { it.getOrThrow().statement }.toSet()
             }
-            res shouldBe setOf(Statement(Entity(3), a, Entity(2)))
+            res shouldBe setOf(Statement(ent3, a, ent2))
         }
 
         test("get persisted statement from context") {
             val instance = createLigature()
             instance.createDataset(testDataset)
             val ps = instance.write(testDataset) { tx ->
-                val nn1 = tx.newAnonymousEntity().getOrThrow()
-                val nn2 = tx.newAnonymousEntity().getOrThrow()
-                tx.addStatement(Statement(nn1, a, nn2))
-                tx.addStatement(Statement(nn2, a, nn2))
+                tx.addStatement(Statement(ent1, a, ent2))
+                tx.addStatement(Statement(ent2, a, ent2))
             }.getOrThrow()
             val res = instance.query(testDataset) { tx ->
                 tx.statementForContext(ps.context)
             }.getOrThrow()
-            res shouldBe PersistedStatement(Statement(Entity(2), a, Entity(2)), Entity(4))
+            res shouldBe ps
         }
 
         test("matching statements in datasets") {
             val instance = createLigature()
             instance.createDataset(testDataset)
             instance.write(testDataset) { tx ->
-                val ent1 = tx.newAnonymousEntity()
-                val ent2 = tx.newAnonymousEntity()
-                val ent3 = tx.newAnonymousEntity()
-                tx.addStatement(Statement(ent1.getOrThrow(), a, StringLiteral("Hello")))
-                tx.addStatement(Statement(ent2.getOrThrow(), a, ent1.getOrThrow()))
-                tx.addStatement(Statement(ent2.getOrThrow(), a, ent3.getOrThrow()))
-                tx.addStatement(Statement(ent3.getOrThrow(), b, ent2.getOrThrow()))
-                tx.addStatement(Statement(ent3.getOrThrow(), b, StringLiteral("Hello")))
+                tx.addStatement(Statement(ent1, a, StringLiteral("Hello")))
+                tx.addStatement(Statement(ent2, a, ent1))
+                tx.addStatement(Statement(ent2, a, ent3))
+                tx.addStatement(Statement(ent3, b, ent2))
+                tx.addStatement(Statement(ent3, b, StringLiteral("Hello")))
             }
             val (all, allAs, hellos, helloa) = instance.query(testDataset) { tx ->
                 val all = tx.matchStatements(null, null, null).toList()
@@ -214,9 +208,6 @@ abstract class LigatureTestSuite : FunSpec() {
             val instance = createLigature()
             instance.createDataset(testDataset)
             instance.write(testDataset) { tx ->
-                val ent1 = tx.newAnonymousEntity().getOrThrow()
-                val ent2 = tx.newAnonymousEntity().getOrThrow()
-                val ent3 = tx.newAnonymousEntity().getOrThrow()
                 tx.addStatement(Statement(ent1, a, ent2))
                 tx.addStatement(Statement(ent1, b, FloatLiteral(1.1)))
                 tx.addStatement(Statement(ent1, a, IntegerLiteral(5L)))
