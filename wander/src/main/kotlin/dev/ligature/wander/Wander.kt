@@ -5,5 +5,7 @@
 package dev.ligature.wander
 
 class Wander {
-
+    fun run(input: String): String { //TODO don't return String
+        TODO()
+    }
 }
