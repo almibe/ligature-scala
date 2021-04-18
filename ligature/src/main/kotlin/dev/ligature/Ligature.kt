@@ -64,9 +64,7 @@ data class StringLiteralRange(val start: String, val end: String): Range()
 data class IntegerLiteralRange(val start: Long, val end: Long): Range()
 data class FloatLiteralRange(val start: Double, val end: Double): Range()
 
-data class Statement(val entity: Entity, val attribute: Attribute, val value: Value)
-
-data class PersistedStatement(val statement: Statement, val context: Entity)
+data class Statement(val entity: Entity, val attribute: Attribute, val value: Value, val context: Entity)
 
 /** A interface that all Ligature implementations implement. */
 interface Ligature {
@@ -106,29 +104,26 @@ interface Ligature {
 
 /** Represents a QueryTx within the context of a Ligature instance and a single Dataset */
 interface QueryTx {
-    /** Returns all PersistedStatements in this Dataset. */
-    suspend fun allStatements(): Flow<Result<PersistedStatement>>
+    /** Returns all Statements in this Dataset. */
+    suspend fun allStatements(): Flow<Result<Statement>>
 
-    /** Returns all PersistedStatements that match the given criteria.
+    /** Returns all Statements that match the given criteria.
      * If a parameter is None then it matches all, so passing all Nones is the same as calling allStatements. */
     suspend fun matchStatements(
-            entity: Entity?,
-            attribute: Attribute?,
-            value: Value?,
-    ): Flow<Result<PersistedStatement>>
+            entity: Entity? = null,
+            attribute: Attribute? = null,
+            value: Value? = null,
+            context: Entity? = null
+    ): Flow<Result<Statement>>
 
-    /** Retuns all PersistedStatements that match the given criteria.
+    /** Retuns all Statements that match the given criteria.
      * If a parameter is None then it matches all. */
     suspend fun matchStatementsRange(
             entity: Entity?,
             attribute: Attribute?,
             range: Range,
-    ): Flow<Result<PersistedStatement>>
-
-    /** Returns the PersistedStatement for the given context. */
-    suspend fun statementForContext(
-            context: Entity,
-    ): Result<PersistedStatement?>
+            context: Entity? = null
+    ): Flow<Result<Statement>>
 }
 
 /** Represents a WriteTx within the context of a Ligature instance and a single Dataset */
@@ -138,16 +133,16 @@ interface WriteTx {
     suspend fun newAnonymousEntity(prefix: String = ""): Result<Entity>
 
     /** Adds a given Statement to this Dataset.
-     * If the Statement already exists nothing happens (TODO maybe add it with a new context?).
-     * Note: Potentally could trigger a ValidationError */
-    suspend fun addStatement(statement: Statement): Result<PersistedStatement>
+     * If the Statement already exists nothing happens.
+     * Note: Potentially could trigger a ValidationError */
+    suspend fun addStatement(statement: Statement): Result<Unit>
 
-    /** Removes a given PersistedStatement from this Dataset.
-     * If the PersistedStatement doesn't exist nothing happens and returns Ok(false).
-     * This function returns Ok(true) only if the given PersistedStatement was found and removed.
-     * Note: Potentally could trigger a ValidationError. */
+    /** Removes a given Statement from this Dataset.
+     * If the Statement doesn't exist nothing happens and returns Ok(false).
+     * This function returns Ok(true) only if the given Statement was found and removed.
+     * Note: Potentially could trigger a ValidationError. */
     suspend fun removeStatement(
-            persistedStatement: PersistedStatement,
+            persistedStatement: Statement,
     ): Result<Boolean>
 
     /** Cancels this transaction so that none of the changes made so far will be stored.
