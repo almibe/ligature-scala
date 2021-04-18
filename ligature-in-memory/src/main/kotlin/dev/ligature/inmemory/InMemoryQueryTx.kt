@@ -14,7 +14,7 @@ import kotlin.Result.Companion.success
 /** Represents a QueryTx within the context of a Ligature instance and a single Dataset */
 class InMemoryQueryTx(private val store: DatasetStore) : QueryTx {
     /** Returns all PersistedStatements in this Dataset. */
-    override suspend fun allStatements(): Flow<Result<PersistedStatement>> {
+    override suspend fun allStatements(): Flow<Result<Statement>> {
         return store.statements.map { success(it) }.asFlow()
     }
 
@@ -24,16 +24,20 @@ class InMemoryQueryTx(private val store: DatasetStore) : QueryTx {
             entity: Entity?,
             attribute: Attribute?,
             value: Value?,
-    ): Flow<Result<PersistedStatement>> {
+            context: Entity?
+    ): Flow<Result<Statement>> {
         var res = store.statements.asFlow()
         if (entity != null) {
-            res = res.filter { it.statement.entity == entity }
+            res = res.filter { it.entity == entity }
         }
         if (attribute != null) {
-            res = res.filter { it.statement.attribute == attribute }
+            res = res.filter { it.attribute == attribute }
         }
         if (value != null) {
-            res = res.filter { it.statement.value == value }
+            res = res.filter { it.value == value }
+        }
+        if (context != null) {
+            res = res.filter { it.context == context }
         }
         return res.map { success(it) }
     }
@@ -44,16 +48,17 @@ class InMemoryQueryTx(private val store: DatasetStore) : QueryTx {
             entity: Entity?,
             attribute: Attribute?,
             range: Range,
-    ): Flow<Result<PersistedStatement>> {
+            context: Entity?
+    ): Flow<Result<Statement>> {
         var res = store.statements.asFlow()
         if (entity != null) {
-            res = res.filter { it.statement.entity == entity }
+            res = res.filter { it.entity == entity }
         }
         if (attribute != null) {
-            res = res.filter { it.statement.attribute == attribute }
+            res = res.filter { it.attribute == attribute }
         }
-        res = res.filter { ps ->
-            val value = ps.statement.value
+        res = res.filter { s ->
+            val value = s.value
             when {
                 value is StringLiteral && range is StringLiteralRange   -> value.value >= range.start && value.value < range.end
                 value is FloatLiteral && range is FloatLiteralRange     -> value.value >= range.start && value.value < range.end
@@ -61,10 +66,9 @@ class InMemoryQueryTx(private val store: DatasetStore) : QueryTx {
                 else                                                    -> false
             }
         }
+        if (context != null) {
+            res = res.filter { it.context == context }
+        }
         return res.map { success(it) }
     }
-
-    /** Returns the PersistedStatement for the given context. */
-    override suspend fun statementForContext(context: Entity): Result<PersistedStatement?> =
-        success(store.statements.find { it.context == context })
 }

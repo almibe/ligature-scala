@@ -22,21 +22,19 @@ class InMemoryWriteTx(private val store: DatasetStore) : WriteTx {
 
     /** Adds a given Statement to this Dataset.
      *  If the Statement already exists nothing happens (TODO maybe add it with a new context?).
-     *  Note: Potentally could trigger a ValidationError */
-    override suspend fun addStatement(statement: Statement): Result<PersistedStatement> {
-        val context = newAnonymousEntity().getOrThrow()
-        val persistedStatement = PersistedStatement(statement, context)
-        _newDatasetStore = _newDatasetStore.copy(statements = _newDatasetStore.statements + persistedStatement)
-        return success(persistedStatement)
+     *  Note: Potentially could trigger a ValidationError */
+    override suspend fun addStatement(statement: Statement): Result<Unit> {
+        _newDatasetStore = _newDatasetStore.copy(statements = _newDatasetStore.statements + statement)
+        return success(Unit)
     }
 
     /** Removes a given PersistedStatement from this Dataset.
      *  If the PersistedStatement doesn't exist nothing happens and returns Ok(false).
      *  This function returns Ok(true) only if the given PersistedStatement was found and removed.
-     *  Note: Potentally could trigger a ValidationError. */
-    override suspend fun removeStatement(persistedStatement: PersistedStatement): Result<Boolean> =
-        if (_newDatasetStore.statements.contains(persistedStatement)) {
-            _newDatasetStore = _newDatasetStore.copy(statements = _newDatasetStore.statements.minus(persistedStatement))
+     *  Note: Potentially could trigger a ValidationError. */
+    override suspend fun removeStatement(statement: Statement): Result<Boolean> =
+        if (_newDatasetStore.statements.contains(statement)) {
+            _newDatasetStore = _newDatasetStore.copy(statements = _newDatasetStore.statements.minus(statement))
             success(true)
         } else {
             success(false)
