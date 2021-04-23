@@ -52,59 +52,59 @@ class SlonkySuite: FunSpec() {
             JsonParser.parseString(res.bodyAsString()).asJsonArray shouldBe JsonArray()
         }
 
-//        test("Add Datasets") {
-//            awaitResult<HttpResponse<Buffer>> { h ->
-//                client.post(port, local, "/testDataset").send(h)
-//            }
-//            val res = awaitResult<HttpResponse<Buffer>> { h ->
-//                client.get(port, local, "").send(h)
-//            }
-//            JsonParser.parseString(res.bodyAsString()).asJsonArray shouldBe
-//                JsonParser.parseString("[\"testDataset\"]").asJsonArray
-//        }
-//
-//        test("Query Datasets w/ prefix") {
-//            listOf("test/test1", "test/test2", "test3/test").forEach {
-//                awaitResult<HttpResponse<Buffer>> { h ->
-//                    client.post(port, local, "/$it").send(h)
-//                }
-//            }
-//            val res = awaitResult<HttpResponse<Buffer>> { h ->
-//                client.get(port, local, "/?prefix=test%2F").send(h)
-//            }
-//            JsonParser.parseString(res.bodyAsString()).asJsonArray shouldBe
-//                JsonParser.parseString("[\"test/test1\",\"test/test2\"]").asJsonArray
-//        }
-//
-//        test("Query Datasets w/ range") {
-//            listOf("test", "test1/test1", "test2/test2", "test3/test").forEach {
-//                awaitResult<HttpResponse<Buffer>> { h ->
-//                    client.post(port, local, "/$it").send(h)
-//                }
-//            }
-//            val res = awaitResult<HttpResponse<Buffer>> { h ->
-//                client.get(port, local, "/?start=test1&end=test3").send(h)
-//            }
-//            JsonParser.parseString(res.bodyAsString()).asJsonArray shouldBe
-//                    JsonParser.parseString("[\"test1/test1\",\"test2/test2\"]").asJsonArray
-//        }
-//
-//        test("Delete Datasets") {
-//            listOf("test", "test1/test1", "test2/test2", "test3/test").forEach {
-//                awaitResult<HttpResponse<Buffer>> { h ->
-//                    client.post(port, local, "/$it").send(h)
-//                }
-//            }
-//            awaitResult<HttpResponse<Buffer>> { h ->
-//                client.delete(port, local, "/test2/test2").send(h)
-//            }
-//            val res = awaitResult<HttpResponse<Buffer>> { h ->
-//                client.get(port, local, "").send(h)
-//            }
-//            JsonParser.parseString(res.bodyAsString()).asJsonArray shouldBe
-//                    JsonParser.parseString("[\"test\",\"test1/test1\",\"test3/test\"]").asJsonArray
-//        }
-//
+        test("Add Datasets") {
+            awaitResult<HttpResponse<Buffer>> { h ->
+                client.post(port, local, "/testDataset").send(h)
+            }
+            val res = awaitResult<HttpResponse<Buffer>> { h ->
+                client.get(port, local, "").send(h)
+            }
+            JsonParser.parseString(res.bodyAsString()).asJsonArray shouldBe
+                JsonParser.parseString("[\"testDataset\"]").asJsonArray
+        }
+
+        test("Query Datasets w/ prefix") {
+            listOf("test/test1", "test/test2", "test3/test").forEach {
+                awaitResult<HttpResponse<Buffer>> { h ->
+                    client.post(port, local, "/$it").send(h)
+                }
+            }
+            val res = awaitResult<HttpResponse<Buffer>> { h ->
+                client.get(port, local, "/?prefix=test%2F").send(h)
+            }
+            JsonParser.parseString(res.bodyAsString()).asJsonArray shouldBe
+                JsonParser.parseString("[\"test/test1\",\"test/test2\"]").asJsonArray
+        }
+
+        test("Query Datasets w/ range") {
+            listOf("test", "test1/test1", "test2/test2", "test3/test").forEach {
+                awaitResult<HttpResponse<Buffer>> { h ->
+                    client.post(port, local, "/$it").send(h)
+                }
+            }
+            val res = awaitResult<HttpResponse<Buffer>> { h ->
+                client.get(port, local, "/?start=test1&end=test3").send(h)
+            }
+            JsonParser.parseString(res.bodyAsString()).asJsonArray shouldBe
+                    JsonParser.parseString("[\"test1/test1\",\"test2/test2\"]").asJsonArray
+        }
+
+        test("Delete Datasets") {
+            listOf("test", "test1/test1", "test2/test2", "test3/test").forEach {
+                awaitResult<HttpResponse<Buffer>> { h ->
+                    client.post(port, local, "/$it").send(h)
+                }
+            }
+            awaitResult<HttpResponse<Buffer>> { h ->
+                client.delete(port, local, "/test2/test2").send(h)
+            }
+            val res = awaitResult<HttpResponse<Buffer>> { h ->
+                client.get(port, local, "").send(h)
+            }
+            JsonParser.parseString(res.bodyAsString()).asJsonArray shouldBe
+                    JsonParser.parseString("[\"test\",\"test1/test1\",\"test3/test\"]").asJsonArray
+        }
+
 //        test("Statements in new Dataset should start empty") {
 //            awaitResult<HttpResponse<Buffer>> { h -> //create Dataset
 //                client.post(port, local, "/testDataset").send(h)
