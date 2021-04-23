@@ -10,6 +10,7 @@ dependencies {
     implementation("io.vertx:vertx-web:4.0.2")
     implementation("io.vertx:vertx-lang-kotlin-coroutines:4.0.2")
     implementation("com.google.code.gson:gson:2.8.6")
+    implementation(project(":lig"))
     implementation(project(":ligature-in-memory"))
     testImplementation("io.vertx:vertx-web-client:4.0.2")
     testImplementation("io.kotest:kotest-runner-junit5:4.4.1")
