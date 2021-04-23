@@ -15,16 +15,16 @@ class WanderSuite : FunSpec() {
     }
 
     init {
-        test("integer literal") {
-            val text = readFile("intLiteral.wander")
-            val res = wander.run(text)
-            val exp = readFile("")
-            res shouldBe 5
-        }
-
-        test("let error") {
-            val text = readFile("let-err.wander")
-        }
+//        test("integer literal") {
+//            val text = readFile("intLiteral.wander")
+//            val res = wander.run(text)
+//            val exp = readFile("")
+//            res shouldBe 5
+//        }
+//
+//        test("let error") {
+//            val text = readFile("let-err.wander")
+//        }
     }
     //TODO read in .wander program
     //TODO run it

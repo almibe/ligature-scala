@@ -5,5 +5,3 @@
 package dev.ligature.wander
 
 sealed class Expression
-
-data class
