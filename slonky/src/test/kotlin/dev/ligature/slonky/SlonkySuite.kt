@@ -146,53 +146,58 @@ class SlonkySuite: FunSpec() {
             resStatements shouldBe expected
         }
 
-//        test("Match Statements") {
-//            val input = listOf(
-//                AtomicApiStatement(null, "attribute", null, "Entity"),
-//                AtomicApiStatement(null, "attribute", "1", "Entity"),
-//                AtomicApiStatement(null, "attribute2", "Hello", "StringLiteral"),
-//                AtomicApiStatement(null, "attribute3", "3453", "IntegerLiteral"),
-//                AtomicApiStatement("1", "attribute4", "4.2", "FloatLiteral"),
-//            )
-//
-//            val expected1 = gson.toJson(listOf(
-//                AtomicApiPersistedStatement("1", "attribute", "2", "Entity", "3"),
-//                AtomicApiPersistedStatement("1", "attribute4", "4.2", "FloatLiteral", "10"),
-//            ))
-//            val expected2 = gson.toJson(listOf(
-//                AtomicApiPersistedStatement("1", "attribute", "2", "Entity", "3"),
-//                AtomicApiPersistedStatement("4", "attribute", "1", "Entity", "5"),
-//            ))
-//            val expected3 = gson.toJson(listOf(
-//                AtomicApiPersistedStatement("8", "attribute3", "3453", "IntegerLiteral", "9"),
-//            ))
-//
-//            awaitResult<HttpResponse<Buffer>> { h -> //create Dataset
-//                client.post(port, local, "/testDataset").send(h)
-//            }
-//            input.forEach { statement ->
-//                awaitResult<HttpResponse<Buffer>> { h -> //add Statement
-//                    client.post(port, local, "/testDataset").sendBuffer(Buffer.buffer(gson.toJson(statement)), h)
-//                }
-//            }
-//
-//            val res1 = awaitResult<HttpResponse<Buffer>> { h -> //get all Statements
-//                client.get(port, local, "/testDataset?entity=1").send(h)
-//            }
-//            val res2 = awaitResult<HttpResponse<Buffer>> { h -> //get all Statements
-//                client.get(port, local, "/testDataset?attribute=attribute").send(h)
-//            }
-//            val res3 = awaitResult<HttpResponse<Buffer>> { h -> //get all Statements
-//                client.get(port, local, "/testDataset?entity=8&value=3453&value-type=IntegerLiteral&context=9").send(h)
-//            }
-//            JsonParser.parseString(res1.bodyAsString()).asJsonArray shouldBe
-//                    JsonParser.parseString(expected1).asJsonArray
-//            JsonParser.parseString(res2.bodyAsString()).asJsonArray shouldBe
-//                    JsonParser.parseString(expected2).asJsonArray
-//            JsonParser.parseString(res3.bodyAsString()).asJsonArray shouldBe
-//                    JsonParser.parseString(expected3).asJsonArray
-//        }
-//
+        test("Match Statements") {
+            val entities = (1..5).map { i -> Entity("entity$i") }.toList()
+            val attributes = (1..4).map { i -> Attribute("attribute$i") }.toList()
+            val values = listOf(StringLiteral("Hello"), IntegerLiteral(3453), FloatLiteral(4.2))
+            val contexts = (1..5).map { i -> Entity("context$i") }.toList()
+
+            val input = setOf(
+                Statement(entities[0], attributes[0], entities[1], contexts[0]),
+                Statement(entities[2], attributes[0], entities[0], contexts[1]),
+                Statement(entities[3], attributes[1], values[0], contexts[2]),
+                Statement(entities[4], attributes[2], values[1], contexts[3]),
+                Statement(entities[0], attributes[3], values[2], contexts[4]),
+            )
+
+            val expected1 = setOf(
+                Statement(entities[0], attributes[0], entities[1], contexts[0]),
+                Statement(entities[0], attributes[3], values[2], contexts[4]),
+            )
+            val expected2 = setOf(
+                Statement(entities[0], attributes[0], entities[1], contexts[0]),
+                Statement(entities[2], attributes[0], entities[0], contexts[1]),
+            )
+            val expected3 = setOf(
+                Statement(entities[4], attributes[2], values[1], contexts[3])
+            )
+
+            awaitResult<HttpResponse<Buffer>> { h -> //create Dataset
+                client.post(port, local, "/testDataset").send(h)
+            }
+            val writeResponse = awaitResult<HttpResponse<Buffer>> { h -> //add statements as lig
+                client.post(port, local, "/testDataset").sendBuffer(Buffer.buffer(ligWriter.write(input.iterator())), h)
+            }
+            writeResponse.statusCode() shouldBe 200
+
+            val res1 = awaitResult<HttpResponse<Buffer>> { h -> //get all Statements
+                client.get(port, local, "/testDataset?entity=entity1").send(h)
+            }.bodyAsString()
+            val res2 = awaitResult<HttpResponse<Buffer>> { h -> //get all Statements
+                client.get(port, local, "/testDataset?attribute=attribute1").send(h)
+            }.bodyAsString()
+            val res3 = awaitResult<HttpResponse<Buffer>> { h -> //get all Statements
+                client.get(port, local, "/testDataset?entity=entity5&value=3453&value-type=IntegerLiteral&context=context4").send(h)
+            }.bodyAsString()
+
+            val resStatements1 = ligParser.parse(res1).asSequence().toSet()
+            val resStatements2 = ligParser.parse(res2).asSequence().toSet()
+            val resStatements3 = ligParser.parse(res3).asSequence().toSet()
+            resStatements1 shouldBe expected1
+            resStatements2 shouldBe expected2
+            resStatements3 shouldBe expected3
+        }
+
 //        test("Match Statements with ranges") {
 //            val input = listOf(
 //                AtomicApiStatement(null, "attribute", "1", "IntegerLiteral"),
