@@ -94,17 +94,6 @@ class LigSuite : FunSpec() {
             statements shouldBe resStatements.asSequence().toList()
         }
 
-//        test("parsing with comments") {
-//            val textInput = "#comment\n    #comment\n<e1> @<a2> 777 <e5># comment\n" +
-//                    "<e1> @<a3> \"Test\" <e6>  #comment\n\n\n #comment"
-//            val expectedStatements = listOf(
-//                Statement(Entity("e1"), Attribute("a2"), IntegerLiteral(777), Entity("e5")),
-//                Statement(Entity("e1"), Attribute("a3"), StringLiteral("Test"), Entity("e6")),
-//            )
-//            val resStatements = ligParser.parse(textInput)
-//            expectedStatements shouldBe resStatements.asSequence().toList()
-//        }
-//
 //        test("parsing with wildcards") {
 //            val textInput = "<e1> @<a2> 777 <e5>\n" +
 //                    "_ @<a3> _ <e6>\n" +
