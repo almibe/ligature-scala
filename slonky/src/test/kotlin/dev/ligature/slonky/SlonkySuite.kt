@@ -198,44 +198,53 @@ class SlonkySuite: FunSpec() {
             resStatements3 shouldBe expected3
         }
 
-//        test("Match Statements with ranges") {
-//            val input = listOf(
-//                AtomicApiStatement(null, "attribute", "1", "IntegerLiteral"),
-//                AtomicApiStatement(null, "attribute", "2", "IntegerLiteral"),
-//                AtomicApiStatement(null, "attribute", "3", "IntegerLiteral"),
-//                AtomicApiStatement(null, "attribute", "4.2", "FloatLiteral"),
-//                AtomicApiStatement(null, "attribute", "4.3", "FloatLiteral"),
-//            )
-//
-//            val expected1 = gson.toJson(listOf(
-//                AtomicApiPersistedStatement("1", "attribute", "1", "IntegerLiteral", "2"),
-//                AtomicApiPersistedStatement("3", "attribute", "2", "IntegerLiteral", "4"),
-//            ))
-//            val expected2 = gson.toJson(listOf(
-//                AtomicApiPersistedStatement("7", "attribute", "4.2", "FloatLiteral", "8"),
-//            ))
-//
-//            awaitResult<HttpResponse<Buffer>> { h -> //create Dataset
-//                client.post(port, local, "/testDataset").send(h)
-//            }
-//            input.forEach { statement ->
-//                awaitResult<HttpResponse<Buffer>> { h -> //add Statement
-//                    client.post(port, local, "/testDataset").sendBuffer(Buffer.buffer(gson.toJson(statement)), h)
-//                }
-//            }
-//
-//            val res1 = awaitResult<HttpResponse<Buffer>> { h -> //get all Statements
-//                client.get(port, local, "/testDataset?value-start=1&value-end=3&value-type=IntegerLiteral").send(h)
-//            }
-//            val res2 = awaitResult<HttpResponse<Buffer>> { h -> //get all Statements
-//                client.get(port, local, "/testDataset?value-start=4.1&value-end=4.3&value-type=FloatLiteral").send(h)
-//            }
-//           JsonParser.parseString(res1.bodyAsString()).asJsonArray shouldBe
-//                    JsonParser.parseString(expected1).asJsonArray
-//            JsonParser.parseString(res2.bodyAsString()).asJsonArray shouldBe
-//                    JsonParser.parseString(expected2).asJsonArray
-//        }
-//
+        test("Match Statements with ranges") {
+            val entities = (1..5).map { i -> Entity("entity$i") }.toList()
+            val attribute = Attribute("attribute")
+            val values = listOf(
+                IntegerLiteral(1),
+                IntegerLiteral(2),
+                IntegerLiteral(3),
+                FloatLiteral(4.2),
+                FloatLiteral(4.3))
+            val contexts = (1..5).map { i -> Entity("context$i") }.toList()
+
+            val input = setOf(
+                Statement(entities[0], attribute, values[0], contexts[0]),
+                Statement(entities[1], attribute, values[1], contexts[1]),
+                Statement(entities[2], attribute, values[2], contexts[2]),
+                Statement(entities[3], attribute, values[3], contexts[3]),
+                Statement(entities[4], attribute, values[4], contexts[4]),
+            )
+
+            val expected1 = setOf(
+                Statement(entities[0], attribute, values[0], contexts[0]),
+                Statement(entities[1], attribute, values[1], contexts[1]),
+            )
+            val expected2 = setOf(
+                Statement(entities[3], attribute, values[3], contexts[3]),
+            )
+
+            awaitResult<HttpResponse<Buffer>> { h -> //create Dataset
+                client.post(port, local, "/testDataset").send(h)
+            }
+            val writeResponse = awaitResult<HttpResponse<Buffer>> { h -> //add statements as lig
+                client.post(port, local, "/testDataset").sendBuffer(Buffer.buffer(ligWriter.write(input.iterator())), h)
+            }
+
+            val res1 = awaitResult<HttpResponse<Buffer>> { h -> //get all Statements
+                client.get(port, local, "/testDataset?value-start=1&value-end=3&value-type=IntegerLiteral").send(h)
+            }.bodyAsString()
+            val res2 = awaitResult<HttpResponse<Buffer>> { h -> //get all Statements
+                client.get(port, local, "/testDataset?value-start=4.1&value-end=4.3&value-type=FloatLiteral").send(h)
+            }.bodyAsString()
+
+            val resStatements1 = ligParser.parse(res1).asSequence().toSet()
+            val resStatements2 = ligParser.parse(res2).asSequence().toSet()
+            resStatements1 shouldBe expected1
+            resStatements2 shouldBe expected2
+        }
+
 //        test("Delete Statements") {
 //            val input = listOf(
 //                AtomicApiStatement(null, "attribute", null, "Entity"),

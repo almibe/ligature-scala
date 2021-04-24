@@ -71,9 +71,10 @@ class StatementRequests(val ligature: Ligature) {
         val valueType = rc.queryParam("value-type")
         val valueStart = rc.queryParam("value-start")
         val valueEnd = rc.queryParam("value-end")
+        //TODO needs context as well
 
         val oneOrZero = { x: Int -> x == 1 || x == 0 }
-        val bothOneOrZero = { x: Int, y: Int -> oneOrZero(x) || oneOrZero(y) } //TODO should be && or did I name this incorrectly?
+        val bothOneOrZero = { x: Int, y: Int -> (x == 0 && y == 0) || (x == 1 && y == 1) }
 
         if (entity.isEmpty() && attribute.isEmpty() && value.isEmpty() && valueType.isEmpty() && valueStart.isEmpty() && valueEnd.isEmpty()) {
             //get all
@@ -86,17 +87,18 @@ class StatementRequests(val ligature: Ligature) {
             rc.response().send(sb.toString())
         } else if (oneOrZero(entity.size) && oneOrZero(attribute.size) && bothOneOrZero(value.size, valueType.size) && valueStart.isEmpty() && valueEnd.isEmpty()) {
             //handle simple match
+            val sb = StringBuilder()
             val entity: Entity? = entity.firstOrNull()?.let { Entity(it) }
             val attribute: Attribute? = attribute.firstOrNull()?.let { Attribute(it) }
             val value: Value? = value.firstOrNull()?.let { deserializeValue(it, valueType.first()) }
+            //TODO needs context as well
 
-            val res = JsonArray()
             ligature.query(dataset) { tx ->
                 tx.matchStatements(entity, attribute, value).toList().forEach { statement ->
-                    res.add(serializeStatement(statement.getOrThrow()))
+                    sb.appendLine(ligWriter.writeStatement(statement.getOrThrow()))
                 }
             }
-            rc.response().send(res.toString())
+            rc.response().send(sb.toString())
         } else if (oneOrZero(entity.size) && oneOrZero(attribute.size) && value.isEmpty() && valueType.size == 1 && valueStart.size == 1 && valueEnd.size == 1) {
             //handle range match
             val entity: Entity? = entity.firstOrNull()?.let { Entity(it) }
