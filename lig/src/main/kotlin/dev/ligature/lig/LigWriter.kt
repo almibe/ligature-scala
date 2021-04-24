@@ -8,13 +8,22 @@ import dev.ligature.*
 
 class LigWriter {
     fun write(statements: Iterator<Statement>): String {
-        val sb = StringBuffer()
+        val sb = StringBuilder()
         statements.forEach { statement ->
-            sb.append("${writeEntity(statement.entity)} ${writeAttribute(statement.attribute)} " +
-                    "${writeValue(statement.value)} ${writeEntity(statement.context)}\n")
+            sb.appendLine(writeStatement(statement))
         }
         return sb.toString()
     }
+
+    fun writeStatement(statement: Statement): String =
+        StringBuilder().append(writeEntity(statement.entity))
+            .append(' ')
+            .append(writeAttribute(statement.attribute))
+            .append(' ')
+            .append(writeValue(statement.value))
+            .append(' ')
+            .append(writeEntity(statement.context))
+            .toString()
 
     fun writeEntity(entity: Entity): String {
         return "<${entity.id}>"
@@ -27,9 +36,9 @@ class LigWriter {
     fun writeValue(value: Value): String {
         return when(value) {
             is Entity -> writeEntity(value)
-            is IntegerLiteral -> value.toString()
-            is FloatLiteral -> value.toString()
-            is StringLiteral -> "\"$value\"" //TODO this needs to handle all characters
+            is IntegerLiteral -> value.value.toString()
+            is FloatLiteral -> value.value.toString()
+            is StringLiteral -> "\"${value.value}\"" //TODO this needs to handle escaping special characters
         }
     }
 }

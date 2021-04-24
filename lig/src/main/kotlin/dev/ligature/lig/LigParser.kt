@@ -4,52 +4,61 @@
 
 package dev.ligature.lig
 
-import arrow.core.Either
-import arrow.core.Some
-import arrow.core.getOrElse
-import arrow.core.none
+import arrow.core.*
 import dev.ligature.*
 import dev.ligature.rakkoon.*
 
 class LigParser {
     fun parse(input: String): Iterator<Statement> {
-        println("xxx")
         val rakkoon = Rakkoon(input)
         val statements = mutableListOf<Statement>()
         var previousStatement: Statement? = null //used for handling wildcards
         while (!rakkoon.isComplete()) {
-            println("a")
             val resStatement = parseStatement(rakkoon, previousStatement)
-            println(resStatement)
             statements.add(resStatement)
         }
         return statements.iterator()
     }
 
     fun parseStatement(rakkoon: Rakkoon, previousStatement: Statement?): Statement {
+        ignoreWhitespaceAndNewLines(rakkoon)
         val entity = parseEntity(rakkoon, previousStatement?.entity)
+        ignoreWhitespace(rakkoon)
         val attribute = parseAttribute(rakkoon, previousStatement?.attribute)
+        ignoreWhitespace(rakkoon)
         val value = parseValue(rakkoon, previousStatement?.value)
+        ignoreWhitespace(rakkoon)
         val context = parseEntity(rakkoon, previousStatement?.context)
+        ignoreWhitespaceAndNewLines(rakkoon)
 
-        return Statement(entity, attribute, value, context)
+        return Statement(entity.getOrElse { TODO() }, attribute, value, context.getOrElse { TODO() })
+    }
+
+    fun ignoreWhitespace(rakkoon: Rakkoon) {
+        rakkoon.bite(Rule(regexPattern(" *".toRegex()), ignoreAction))
+    }
+
+    fun ignoreWhitespaceAndNewLines(rakkoon: Rakkoon) {
+        rakkoon.bite(Rule(regexPattern("[ \n]*".toRegex()), ignoreAction))
     }
 
     fun parseWildcard(rakkoon: Rakkoon): Boolean {
-        TODO()
+        return rakkoon.bite(Rule(stringPattern("_"), ignoreAction)).isRight()
     }
 
-    fun parseEntity(rakkoon: Rakkoon, previousEntity: Entity?): Entity {
+    fun parseEntity(rakkoon: Rakkoon, previousEntity: Entity?): Either<RakkoonError, Entity> {
         //TODO need to also check for _
         val res = rakkoon.bite(Rule(stringPattern("<"), ignoreAction))
-        println(res)
+        if (res.isLeft()) { return Either.Left(NoMatch(rakkoon.currentOffset())) }
         //TODO error handling
         val entity: Either<RakkoonError, CharSequence> = rakkoon.bite(Rule(regexPattern("[a-zA-Z0-9_:]+".toRegex()), valueAction))
         //TODO error handling
         val res2 = rakkoon.bite(Rule(stringPattern(">"), ignoreAction))
-        println(res2)
         //TODO error handling
-        return Entity(entity.getOrElse { TODO() }.toString()) //TODO needs validation
+        if (res.isLeft() || entity.isLeft() || res2.isLeft()) {
+            return Either.Left(NoMatch(rakkoon.currentOffset()))
+        }
+        return Either.Right(Entity(entity.getOrElse { TODO() }.toString())) //TODO needs validation
     }
 
     fun parseAttribute(rakkoon: Rakkoon, previousAttribute: Attribute?): Attribute {
@@ -67,17 +76,34 @@ class LigParser {
     private val entityPattern = "<[a-zA-Z0-9_]+>".toRegex()
     private val integerPattern = "\\d+".toRegex()
     private val floatPattern = "\\d+\\.\\d+".toRegex()
-    private val stringPattern = "\"[a-zA-Z0-9_ \t\n]\"".toRegex()
+    private val stringPattern = "\"[a-zA-Z0-9_ \t\n]+\"".toRegex()
 
     fun parseValue(rakkoon: Rakkoon, previousValue: Value?): Value {
-//        return when {
-//            entityPattern.matches(value) -> parseEntity(value)
-//            integerPattern.matches(value) -> IntegerLiteral(value.toLong())
-//            floatPattern.matches(value) -> FloatLiteral(value.toDouble())
-//            stringPattern.matches(value) -> StringLiteral(value.removePrefix("\"").removeSuffix("\""))
-//            else -> TODO()
-//        }
         //TODO need to check for _ first
-        return parseEntity(rakkoon, null)
+        val entityRes = parseEntity(rakkoon, null)
+        if (entityRes.isRight()) return entityRes.getOrElse { TODO() }
+
+        val floatRes = parseFloatLiteral(rakkoon)
+        if (floatRes.isRight()) return floatRes.getOrElse { TODO() }
+
+        val integerRes = parseIntegerLiteral(rakkoon)
+        if (integerRes.isRight()) return integerRes.getOrElse { TODO() }
+
+        val stringRes = parseStringLiteral(rakkoon)
+        if (stringRes.isRight()) return stringRes.getOrElse { TODO() }
+
+        TODO("Unsupported Value")
     }
+
+    fun parseFloatLiteral(rakkoon: Rakkoon): Either<RakkoonError, FloatLiteral> =
+        rakkoon.bite(Rule(regexPattern(floatPattern), valueAction))
+            .map { FloatLiteral(it.toString().toDouble()) }
+
+    fun parseIntegerLiteral(rakkoon: Rakkoon): Either<RakkoonError, IntegerLiteral> =
+        rakkoon.bite(Rule(regexPattern(integerPattern), valueAction))
+            .map { IntegerLiteral(it.toString().toLong()) }
+
+    fun parseStringLiteral(rakkoon: Rakkoon): Either<RakkoonError, StringLiteral> =
+        rakkoon.bite(Rule(regexPattern(stringPattern), valueAction))
+            .map { StringLiteral(it.toString().removeSurrounding("\"")) }
 }

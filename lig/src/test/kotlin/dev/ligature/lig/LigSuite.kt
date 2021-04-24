@@ -4,6 +4,7 @@
 
 package dev.ligature.lig
 
+import arrow.core.Either
 import dev.ligature.*
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
@@ -23,7 +24,7 @@ class LigSuite : FunSpec() {
         test("parse entities") {
             val test = "<test>"
             val entity = ligParser.parseEntity(Rakkoon(test), null)
-            entity shouldBe Entity("test")
+            entity shouldBe Either.Right(Entity("test"))
         }
 
         test("write attributes") {
@@ -38,25 +39,61 @@ class LigSuite : FunSpec() {
             entity shouldBe Attribute("test")
         }
 
-//        test("basic Statement with all Entities") {
-//            val statement = Statement(Entity("e1"), Attribute("a1"), Entity("e2"), Entity("context"))
-//            val lines = ligWriter.write(listOf(statement).iterator())
-//            val resStatements = ligParser.parse(lines)
-//            listOf(statement) shouldBe resStatements.asSequence().toList()
-//        }
-//
-//        test("list of Statements with Literal Values") {
-//            val statements = listOf(
-//                Statement(Entity("e1"), Attribute("a1"), Entity("e2"), Entity("context")),
-//                Statement(Entity("e2"), Attribute("a2"), StringLiteral("string literal"), Entity("context2")),
-//                Statement(Entity("e2"), Attribute("a3"), IntegerLiteral(Long.MAX_VALUE), Entity("context3")),
-//                Statement(Entity("e3"), Attribute("a4"), FloatLiteral(7.5), Entity("context4"))
-//            )
-//            val lines = ligWriter.write(statements.iterator())
-//            val resStatements = ligParser.parse(lines)
-//            listOf(statements) shouldBe resStatements.asSequence().toList()
-//        }
-//
+        test("write FloatLiteral") {
+            val test = FloatLiteral(3.0)
+            val res = ligWriter.writeValue(test)
+            res shouldBe "3.0"
+        }
+
+        test("parse FloatLiteral") {
+            val test = "3.5"
+            val res = ligParser.parseFloatLiteral(Rakkoon(test))
+            res shouldBe Either.Right(FloatLiteral(3.5))
+        }
+
+        test("write IntegerLiteral") {
+            val test = IntegerLiteral(3535)
+            val res = ligWriter.writeValue(test)
+            res shouldBe "3535"
+        }
+
+        test("parse IntegerLiteral") {
+            val test = "3452345"
+            val res = ligParser.parseIntegerLiteral(Rakkoon(test))
+            res shouldBe Either.Right(IntegerLiteral(3452345))
+        }
+
+        test("write StringLiteral") {
+            val test = StringLiteral("3535 55Hello")
+            val res = ligWriter.writeValue(test)
+            res shouldBe "\"3535 55Hello\""
+        }
+
+        test("parse StringLiteral") {
+            val test = "\"3452345\nHello\""
+            val res = ligParser.parseStringLiteral(Rakkoon(test))
+            res shouldBe Either.Right(StringLiteral("3452345\nHello"))
+        }
+
+        test("basic Statement with all Entities") {
+            val statement = Statement(Entity("e1"), Attribute("a1"), Entity("e2"), Entity("context"))
+            val lines = ligWriter.write(listOf(statement).iterator())
+            val resStatements = ligParser.parse(lines)
+            listOf(statement) shouldBe resStatements.asSequence().toList()
+        }
+
+        test("list of Statements with Literal Values") {
+            val statements = listOf(
+                Statement(Entity("e1"), Attribute("a1"), Entity("e2"), Entity("context")),
+                Statement(Entity("e2"), Attribute("a2"), StringLiteral("string literal"), Entity("context2")),
+                Statement(Entity("e2"), Attribute("a3"), IntegerLiteral(Long.MAX_VALUE), Entity("context3")),
+                Statement(Entity("e3"), Attribute("a4"), FloatLiteral(7.5), Entity("context4"))
+            )
+            val lines = ligWriter.write(statements.iterator())
+            val resStatements = ligParser.parse(lines)
+            statements shouldBe resStatements.asSequence().toList()
+        }
+
 //        test("parsing with comments") {
 //            val textInput = "#comment\n    #comment\n<e1> @<a2> 777 <e5># comment\n" +
 //                    "<e1> @<a3> \"Test\" <e6>  #comment\n\n\n #comment"
