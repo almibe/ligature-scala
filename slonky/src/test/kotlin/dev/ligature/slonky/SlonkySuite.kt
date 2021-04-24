@@ -6,7 +6,10 @@ package dev.ligature.slonky
 
 import com.google.gson.*
 import com.google.gson.annotations.SerializedName
+import dev.ligature.*
 import dev.ligature.inmemory.InMemoryLigature
+import dev.ligature.lig.LigParser
+import dev.ligature.lig.LigWriter
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import io.vertx.core.Vertx
@@ -36,6 +39,8 @@ class SlonkySuite: FunSpec() {
         //this mean that server + client have different vertx instances, but this shouldn't be an issue
         val client = WebClient.create(Vertx.vertx())
         val gson = GsonBuilder().serializeNulls().create()
+        val ligWriter = LigWriter()
+        val ligParser = LigParser()
 
         beforeTest {
             server = Server(port, InMemoryLigature())
@@ -105,50 +110,42 @@ class SlonkySuite: FunSpec() {
                     JsonParser.parseString("[\"test\",\"test1/test1\",\"test3/test\"]").asJsonArray
         }
 
-//        test("Statements in new Dataset should start empty") {
-//            awaitResult<HttpResponse<Buffer>> { h -> //create Dataset
-//                client.post(port, local, "/testDataset").send(h)
-//            }
-//            val res = awaitResult<HttpResponse<Buffer>> { h -> //get all Statements
-//                client.get(port, local, "/testDataset").send(h)
-//            }
-//            JsonParser.parseString(res.bodyAsString()).asJsonArray shouldBe JsonArray()
-//        }
-//
-//        test("Add Statements") {
-//            val input = listOf(
-//                AtomicApiStatement(null, "attribute", null, "Entity"),
-//                AtomicApiStatement(null, "attribute", "1", "Entity"),
-//                AtomicApiStatement(null, "attribute2", "Hello", "StringLiteral"),
-//                AtomicApiStatement(null, "attribute3", "3453", "IntegerLiteral"),
-//                AtomicApiStatement("1", "attribute4", "4.2", "FloatLiteral"),
-//            )
-//
-//            val out = listOf(
-//                AtomicApiPersistedStatement("1", "attribute", "2", "Entity", "3"),
-//                AtomicApiPersistedStatement("4", "attribute", "1", "Entity", "5"),
-//                AtomicApiPersistedStatement("6", "attribute2", "Hello", "StringLiteral", "7"),
-//                AtomicApiPersistedStatement("8", "attribute3", "3453", "IntegerLiteral", "9"),
-//                AtomicApiPersistedStatement("1", "attribute4", "4.2", "FloatLiteral", "10"),
-//            )
-//
-//            val expected = gson.toJson(out)
-//
-//            awaitResult<HttpResponse<Buffer>> { h -> //create Dataset
-//                client.post(port, local, "/testDataset").send(h)
-//            }
-//            input.forEach { statement ->
-//                val res = awaitResult<HttpResponse<Buffer>> { h -> //add Statement
-//                    client.post(port, local, "/testDataset").sendBuffer(Buffer.buffer(gson.toJson(statement)), h)
-//                }
-//            }
-//            val res = awaitResult<HttpResponse<Buffer>> { h -> //get all Statements
-//                client.get(port, local, "/testDataset").send(h)
-//            }
-//            JsonParser.parseString(res.bodyAsString()).asJsonArray shouldBe
-//                    JsonParser.parseString(expected).asJsonArray
-//        }
-//
+        test("Statements in new Dataset should start empty") {
+            awaitResult<HttpResponse<Buffer>> { h -> //create Dataset
+                client.post(port, local, "/testDataset").send(h)
+            }
+            val res = awaitResult<HttpResponse<Buffer>> { h -> //get all Statements
+                client.get(port, local, "/testDataset").send(h)
+            }
+            res.bodyAsString() shouldBe null //Vert.x treats an empty body as null and not empty String :(
+        }
+
+        test("Add Statements") {
+            val input = listOf(
+                Statement(Entity("ent1"), Attribute("attribute"), StringLiteral("Hey"), Entity("Context1")),
+                Statement(Entity("ent1"), Attribute("attribute"), StringLiteral("Hey"), Entity("Context1")), //dupe
+                Statement(Entity("ent1"), Attribute("attribute"), StringLiteral("Hey"), Entity("Context2")),
+                Statement(Entity("ent2"), Attribute("size"), IntegerLiteral(34537463), Entity("Context3")),
+                Statement(Entity("ent3"), Attribute("notPi"), FloatLiteral(3.131123), Entity("Context4")),
+                Statement(Entity("ent4"), Attribute("attribute5"), Entity("Hey"), Entity("Context5")),
+            )
+
+            val expected = input.toSet() //use a set to check for case of adding repeated Statements...see above
+
+            awaitResult<HttpResponse<Buffer>> { h -> //create Dataset
+                client.post(port, local, "/testDataset").send(h)
+            }
+            val writeResponse = awaitResult<HttpResponse<Buffer>> { h -> //add statements as lig
+                client.post(port, local, "/testDataset").sendBuffer(Buffer.buffer(ligWriter.write(input.iterator())), h)
+            }
+            writeResponse.statusCode() shouldBe 200
+            val res = awaitResult<HttpResponse<Buffer>> { h -> //get all Statements as lig
+                client.get(port, local, "/testDataset").send(h)
+            }.bodyAsString()
+            val resStatements = ligParser.parse(res).asSequence().toSet()
+            resStatements shouldBe expected
+        }
+
 //        test("Match Statements") {
 //            val input = listOf(
 //                AtomicApiStatement(null, "attribute", null, "Entity"),

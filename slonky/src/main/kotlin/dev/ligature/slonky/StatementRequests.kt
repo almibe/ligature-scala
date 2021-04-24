@@ -10,6 +10,8 @@ import com.google.gson.JsonObject
 import com.google.gson.JsonParser
 
 import dev.ligature.*
+import dev.ligature.lig.LigParser
+import dev.ligature.lig.LigWriter
 
 import io.vertx.ext.web.RoutingContext
 import kotlinx.coroutines.GlobalScope
@@ -17,47 +19,20 @@ import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.launch
 
 class StatementRequests(val ligature: Ligature) {
-    private val gson = Gson()
+    private val ligWriter = LigWriter()
+    private val ligParser = LigParser()
 
     suspend fun addStatements(rc: RoutingContext) {
-        rc.response().setStatusCode(500).send("Error Adding Statement")
-//                val statementJson = JsonParser.parseString(body).asJsonObject
-//
-//                val entityJson = statementJson.get("entity")
-//                val entity = if (entityJson.isJsonNull) {
-//                    null
-//                } else {
-//                    Entity(entityJson.asString)
-//                }
-//
-//                val attribute = Attribute(statementJson.get("attribute").asString)
-//
-//                val valueJson = statementJson.get("value")
-//                val valueJsonType = statementJson.get("value-type").asString
-//                val value: Value? = when (valueJsonType) {
-//                    "Entity" -> {
-//                        if (valueJson.isJsonNull) {
-//                            null
-//                        } else {
-//                            Entity(valueJson.asString)
-//                        }
-//                    }
-//                    "StringLiteral" -> StringLiteral(valueJson.asString)
-//                    "IntegerLiteral" -> IntegerLiteral(valueJson.asString.toLong())
-//                    "FloatLiteral" -> FloatLiteral(valueJson.asString.toDouble())
-//                    else -> throw RuntimeException("Bad value-type $valueJsonType")
-//                }
-//
-//                GlobalScope.launch(vertx.dispatcher()) {
-//                    val dataset = Dataset(rc.normalizedPath().removePrefix("/"))
-//                    ligature.write(dataset) { tx ->
-//                        val statement = Statement(entity ?: tx.newAnonymousEntity().getOrThrow(),
-//                            attribute,
-//                            value ?: tx.newAnonymousEntity().getOrThrow())
-//                        tx.addStatement(statement)
-//                    }
-//                    rc.response().send()
-//                }
+        val body = rc.bodyAsString
+        println(body)
+        val statements = ligParser.parse(body)
+        val dataset = Dataset(rc.normalizedPath().removePrefix("/"))
+        ligature.write(dataset) { tx ->
+            statements.forEach { statement ->
+                tx.addStatement(statement)
+            }
+        }
+        rc.response().send()
     }
 
     suspend fun removeStatements(rc: RoutingContext) {
@@ -98,17 +73,17 @@ class StatementRequests(val ligature: Ligature) {
         val valueEnd = rc.queryParam("value-end")
 
         val oneOrZero = { x: Int -> x == 1 || x == 0 }
-        val bothOneOrZero = { x: Int, y: Int -> oneOrZero(x) || oneOrZero(y) }
+        val bothOneOrZero = { x: Int, y: Int -> oneOrZero(x) || oneOrZero(y) } //TODO should be && or did I name this incorrectly?
 
         if (entity.isEmpty() && attribute.isEmpty() && value.isEmpty() && valueType.isEmpty() && valueStart.isEmpty() && valueEnd.isEmpty()) {
             //get all
-            val res = JsonArray()
+            val sb = StringBuilder()
             ligature.query(dataset) { tx ->
                 tx.allStatements().toList().forEach { statement ->
-                    res.add(serializeStatement(statement.getOrThrow()))
+                    sb.appendLine(ligWriter.writeStatement(statement.getOrThrow()))
                 }
             }
-            rc.response().send(res.toString())
+            rc.response().send(sb.toString())
         } else if (oneOrZero(entity.size) && oneOrZero(attribute.size) && bothOneOrZero(value.size, valueType.size) && valueStart.isEmpty() && valueEnd.isEmpty()) {
             //handle simple match
             val entity: Entity? = entity.firstOrNull()?.let { Entity(it) }
@@ -140,7 +115,7 @@ class StatementRequests(val ligature: Ligature) {
         }
     }
 
-    fun serializeStatement(statement: Statement): JsonObject {
+    fun serializeStatement(statement: Statement): JsonObject { //TODO eventually remove
         val out = JsonObject()
         out.addProperty("entity", statement.entity.id)
         out.addProperty("attribute", statement.attribute.name)
@@ -150,7 +125,7 @@ class StatementRequests(val ligature: Ligature) {
         return out
     }
 
-    fun serializeValue(value: Value): String =
+    fun serializeValue(value: Value): String = //TODO eventually remove
         when (value) {
             is Entity -> value.id.toString()
             is StringLiteral -> value.value
@@ -158,7 +133,7 @@ class StatementRequests(val ligature: Ligature) {
             is IntegerLiteral -> value.value.toString()
         }
 
-    fun serializeValueType(value: Value): String  =
+    fun serializeValueType(value: Value): String  = //TODO eventually remove
         when (value) {
             is Entity -> "Entity"
             is StringLiteral -> "StringLiteral"
@@ -166,7 +141,7 @@ class StatementRequests(val ligature: Ligature) {
             is IntegerLiteral -> "IntegerLiteral"
         }
 
-    fun deserializeValue(value: String, valueType: String): Value =
+    fun deserializeValue(value: String, valueType: String): Value =  //TODO eventually remove
         when (valueType) {
             "Entity" -> Entity(value)
             "StringLiteral" -> StringLiteral(value)
@@ -175,7 +150,7 @@ class StatementRequests(val ligature: Ligature) {
             else -> throw RuntimeException("Illegal value type $valueType")
         }
 
-    fun deserializeValueRange(valueStart: String, valueEnd: String, valueType: String): Range =
+    fun deserializeValueRange(valueStart: String, valueEnd: String, valueType: String): Range = //TODO eventually remove
         when (valueType) {
             "StringLiteral" -> StringLiteralRange(valueStart, valueEnd)
             "FloatLiteral" -> FloatLiteralRange(valueStart.toDouble(), valueEnd.toDouble())
