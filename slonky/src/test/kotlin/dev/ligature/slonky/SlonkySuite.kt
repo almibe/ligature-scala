@@ -18,19 +18,6 @@ import io.vertx.ext.web.client.HttpResponse
 import io.vertx.ext.web.client.WebClient
 import io.vertx.kotlin.coroutines.awaitResult
 
-data class AtomicApiStatement( //TODO probably delete
-    val entity: String?,
-    val attribute: String,
-    val value: String?,
-    @SerializedName("value-type") val valueType: String)
-
-data class AtomicApiPersistedStatement( //TODO probably delete
-    val entity: String,
-    val attribute: String,
-    val value: String,
-    @SerializedName("value-type") val valueType: String,
-    val context: String)
-
 class SlonkySuite: FunSpec() {
     init {
         val port = 4444
@@ -231,6 +218,7 @@ class SlonkySuite: FunSpec() {
             val writeResponse = awaitResult<HttpResponse<Buffer>> { h -> //add statements as lig
                 client.post(port, local, "/testDataset").sendBuffer(Buffer.buffer(ligWriter.write(input.iterator())), h)
             }
+            writeResponse.statusCode() shouldBe 200
 
             val res1 = awaitResult<HttpResponse<Buffer>> { h -> //get all Statements
                 client.get(port, local, "/testDataset?value-start=1&value-end=3&value-type=IntegerLiteral").send(h)
@@ -245,48 +233,57 @@ class SlonkySuite: FunSpec() {
             resStatements2 shouldBe expected2
         }
 
-//        test("Delete Statements") {
-//            val input = listOf(
-//                AtomicApiStatement(null, "attribute", null, "Entity"),
-//                AtomicApiStatement(null, "attribute", "1", "Entity"),
-//                AtomicApiStatement(null, "attribute2", "Hello", "StringLiteral"),
-//                AtomicApiStatement(null, "attribute3", "3453", "IntegerLiteral"),
-//                AtomicApiStatement("1", "attribute4", "4.2", "FloatLiteral"),
-//            )
-//
-//            val toDelete = listOf(
-//                AtomicApiPersistedStatement("1", "attribute", "2", "Entity", "3"),
-//                AtomicApiPersistedStatement("4", "attribute", "1", "Entity", "5"),
-//                AtomicApiPersistedStatement("6", "attribute2", "Hello", "StringLiteral", "98"), //doesn't match
-//                AtomicApiPersistedStatement("8", "attribute3", "3454", "IntegerLiteral", "9"), //doesn't match
-//                AtomicApiPersistedStatement("2", "attribute4", "4.2", "FloatLiteral", "10"), //doesn't match
-//            )
-//
-//            val out = listOf(
-//                AtomicApiPersistedStatement("6", "attribute2", "Hello", "StringLiteral", "7"), //doesn't match
-//                AtomicApiPersistedStatement("8", "attribute3", "3453", "IntegerLiteral", "9"), //doesn't match
-//                AtomicApiPersistedStatement("1", "attribute4", "4.2", "FloatLiteral", "10"), //doesn't match
-//            )
-//            val expected = gson.toJson(out)
-//
-//            awaitResult<HttpResponse<Buffer>> { h -> //create Dataset
-//                client.post(port, local, "/testDataset").send(h)
-//            }
-//            input.forEach { statement ->
-//                awaitResult<HttpResponse<Buffer>> { h -> //add Statement
-//                    client.post(port, local, "/testDataset").sendBuffer(Buffer.buffer(gson.toJson(statement)), h)
-//                }
-//            }
-//            toDelete.forEach { statement ->
-//                awaitResult<HttpResponse<Buffer>> { h -> //add Statement
-//                    client.delete(port, local, "/testDataset").sendBuffer(Buffer.buffer(gson.toJson(statement)), h)
-//                }
-//            }
-//            val res = awaitResult<HttpResponse<Buffer>> { h -> //get all Statements
-//                client.get(port, local, "/testDataset").send(h)
-//            }
-//            JsonParser.parseString(res.bodyAsString()).asJsonArray shouldBe
-//                    JsonParser.parseString(expected).asJsonArray
-//        }
+        test("Delete Statements") {
+            val entities = (1..5).map { i -> Entity("entity$i") }.toList()
+            val attributes = (1..4).map { i -> Attribute("attribute$i") }.toList()
+            val values = listOf(
+                IntegerLiteral(1),
+                StringLiteral("Hello"),
+                IntegerLiteral(3453),
+                FloatLiteral(4.2))
+            val contexts = (1..5).map { i -> Entity("context$i") }.toList()
+
+            val input = setOf(
+                Statement(entities[0], attributes[0], entities[1], contexts[0]),
+                Statement(entities[2], attributes[0], values[0], contexts[1]),
+                Statement(entities[3], attributes[1], values[1], contexts[2]),
+                Statement(entities[4], attributes[2], values[2], contexts[3]),
+                Statement(entities[0], attributes[3], values[3], contexts[4]),
+            )
+
+            val toDelete = setOf(
+                Statement(entities[0], attributes[0], entities[1], contexts[0]),
+                Statement(entities[2], attributes[0], values[0], contexts[1]),
+                Statement(Entity("6"), Attribute("attribute2"), values[1], contexts[2]), //doesn't match
+                Statement(Entity("8"), Attribute("attribute3"), values[2], contexts[3]), //doesn't match
+                Statement(Entity("2"), Attribute("attribute4"), values[3], contexts[4]), //doesn't match
+            )
+
+            val expected = setOf(
+                Statement(entities[3], attributes[1], values[1], contexts[2]),
+                Statement(entities[4], attributes[2], values[2], contexts[3]),
+                Statement(entities[0], attributes[3], values[3], contexts[4]),
+            )
+
+            awaitResult<HttpResponse<Buffer>> { h -> //create Dataset
+                client.post(port, local, "/testDataset").send(h)
+            }
+            val writeResponse = awaitResult<HttpResponse<Buffer>> { h -> //add statements as lig
+                client.post(port, local, "/testDataset").sendBuffer(Buffer.buffer(ligWriter.write(input.iterator())), h)
+            }
+            writeResponse.statusCode() shouldBe 200
+
+            val deleteResponse = awaitResult<HttpResponse<Buffer>> { h ->
+                client.delete(port, local, "/testDataset").sendBuffer(Buffer.buffer(ligWriter.write(toDelete.iterator())), h)
+            }
+            deleteResponse.statusCode() shouldBe 200
+
+            val res = awaitResult<HttpResponse<Buffer>> { h -> //get all Statements
+                client.get(port, local, "/testDataset").send(h)
+            }.bodyAsString()
+
+            val resStatements = ligParser.parse(res).asSequence().toSet()
+            resStatements shouldBe expected
+        }
     }
 }
