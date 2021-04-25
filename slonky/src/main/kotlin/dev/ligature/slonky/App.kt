@@ -7,7 +7,7 @@ package dev.ligature.slonky
 import dev.ligature.inmemory.InMemoryLigature
 
 fun main() {
-    val port: Int =4444
+    val port =4444
     val ligature = InMemoryLigature() //TODO should eventually not be hardcoded
 
     Server(port, ligature)

@@ -142,7 +142,7 @@ interface WriteTx {
      * This function returns Ok(true) only if the given Statement was found and removed.
      * Note: Potentially could trigger a ValidationError. */
     suspend fun removeStatement(
-            persistedStatement: Statement,
+            statement: Statement,
     ): Result<Boolean>
 
     /** Cancels this transaction so that none of the changes made so far will be stored.

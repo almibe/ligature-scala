@@ -5,7 +5,6 @@
 package dev.ligature.slonky
 
 import com.google.gson.*
-import com.google.gson.annotations.SerializedName
 import dev.ligature.*
 import dev.ligature.inmemory.InMemoryLigature
 import dev.ligature.lig.LigParser
@@ -25,7 +24,6 @@ class SlonkySuite: FunSpec() {
         lateinit var server: Server
         //this mean that server + client have different vertx instances, but this shouldn't be an issue
         val client = WebClient.create(Vertx.vertx())
-        val gson = GsonBuilder().serializeNulls().create()
         val ligWriter = LigWriter()
         val ligParser = LigParser()
 

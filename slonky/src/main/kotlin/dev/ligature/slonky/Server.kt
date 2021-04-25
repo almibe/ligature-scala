@@ -12,12 +12,9 @@ import io.vertx.ext.web.Router
 import io.vertx.ext.web.handler.BodyHandler
 import io.vertx.kotlin.coroutines.dispatcher
 import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.launch
-import java.lang.RuntimeException
 
-class Server(private val port: Int = 4444, private val ligature: Ligature) {
+class Server(port: Int = 4444, ligature: Ligature) {
     private val server: HttpServer
     private val datasetRequests = DatasetRequests(ligature)
     private val statementRequests = StatementRequests(ligature)

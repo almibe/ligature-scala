@@ -44,18 +44,18 @@ class StatementRequests(private val ligature: Ligature) {
     suspend fun queryStatements(rc: RoutingContext) {
         val path = rc.normalizedPath()
         val dataset = Dataset(path.removePrefix("/"))
-        val entity = rc.queryParam("entity")
-        val attribute = rc.queryParam("attribute")
-        val value = rc.queryParam("value")
-        val valueType = rc.queryParam("value-type")
-        val valueStart = rc.queryParam("value-start")
-        val valueEnd = rc.queryParam("value-end")
+        val entityQp = rc.queryParam("entity")
+        val attributeQp = rc.queryParam("attribute")
+        val valueQp = rc.queryParam("value")
+        val valueTypeQp = rc.queryParam("value-type")
+        val valueStartQp = rc.queryParam("value-start")
+        val valueEndQp = rc.queryParam("value-end")
         //TODO needs context as well
 
         val oneOrZero = { x: Int -> x == 1 || x == 0 }
         val bothOneOrZero = { x: Int, y: Int -> (x == 0 && y == 0) || (x == 1 && y == 1) }
 
-        if (entity.isEmpty() && attribute.isEmpty() && value.isEmpty() && valueType.isEmpty() && valueStart.isEmpty() && valueEnd.isEmpty()) {
+        if (entityQp.isEmpty() && attributeQp.isEmpty() && valueQp.isEmpty() && valueTypeQp.isEmpty() && valueStartQp.isEmpty() && valueEndQp.isEmpty()) {
             //get all
             val sb = StringBuilder()
             ligature.query(dataset) { tx ->
@@ -64,12 +64,12 @@ class StatementRequests(private val ligature: Ligature) {
                 }
             }
             rc.response().send(sb.toString())
-        } else if (oneOrZero(entity.size) && oneOrZero(attribute.size) && bothOneOrZero(value.size, valueType.size) && valueStart.isEmpty() && valueEnd.isEmpty()) {
+        } else if (oneOrZero(entityQp.size) && oneOrZero(attributeQp.size) && bothOneOrZero(valueQp.size, valueTypeQp.size) && valueStartQp.isEmpty() && valueEndQp.isEmpty()) {
             //handle simple match
             val sb = StringBuilder()
-            val entity: Entity? = entity.firstOrNull()?.let { Entity(it) }
-            val attribute: Attribute? = attribute.firstOrNull()?.let { Attribute(it) }
-            val value: Value? = value.firstOrNull()?.let { deserializeValue(it, valueType.first()) }
+            val entity: Entity? = entityQp.firstOrNull()?.let { Entity(it) }
+            val attribute: Attribute? = attributeQp.firstOrNull()?.let { Attribute(it) }
+            val value: Value? = valueQp.firstOrNull()?.let { deserializeValue(it, valueTypeQp.first()) }
             //TODO needs context as well
 
             ligature.query(dataset) { tx ->
@@ -78,12 +78,12 @@ class StatementRequests(private val ligature: Ligature) {
                 }
             }
             rc.response().send(sb.toString())
-        } else if (oneOrZero(entity.size) && oneOrZero(attribute.size) && value.isEmpty() && valueType.size == 1 && valueStart.size == 1 && valueEnd.size == 1) {
+        } else if (oneOrZero(entityQp.size) && oneOrZero(attributeQp.size) && valueQp.isEmpty() && valueTypeQp.size == 1 && valueStartQp.size == 1 && valueEndQp.size == 1) {
             //handle range match
             val sb = StringBuilder()
-            val entity: Entity? = entity.firstOrNull()?.let { Entity(it) }
-            val attribute: Attribute? = attribute.firstOrNull()?.let { Attribute(it) }
-            val valueRange: Range = deserializeValueRange(valueStart.first(), valueEnd.first(), valueType.first())
+            val entity: Entity? = entityQp.firstOrNull()?.let { Entity(it) }
+            val attribute: Attribute? = attributeQp.firstOrNull()?.let { Attribute(it) }
+            val valueRange: Range = deserializeValueRange(valueStartQp.first(), valueEndQp.first(), valueTypeQp.first())
             //TODO needs context as well
 
             ligature.query(dataset) { tx ->

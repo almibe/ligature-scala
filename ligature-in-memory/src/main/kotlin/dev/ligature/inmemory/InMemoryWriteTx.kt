@@ -9,7 +9,7 @@ import java.util.*
 import kotlin.Result.Companion.success
 
 /** Represents a WriteTx within the context of a Ligature instance and a single Dataset */
-class InMemoryWriteTx(private val store: DatasetStore) : WriteTx {
+class InMemoryWriteTx(store: DatasetStore) : WriteTx {
     private var _isCanceled = false
     private var _newDatasetStore = store.copy()
 
