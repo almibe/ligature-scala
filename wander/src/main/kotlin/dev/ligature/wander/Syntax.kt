@@ -4,4 +4,15 @@
 
 package dev.ligature.wander
 
+import dev.ligature.*
+
 sealed class Expression
+
+sealed class Primitive: Expression()
+data class IntegerPrimitive(val integerLiteral: IntegerLiteral): Primitive()
+data class FloatPrimitive(val floatLiteral: FloatLiteral): Primitive()
+data class StringPrimitive(val stringLiteral: StringLiteral): Primitive()
+data class EntityPrimitive(val entity: Entity): Primitive()
+data class AttributePrimitive(val attribute: Attribute): Primitive()
+data class ValuePrimitive(val value: Value): Primitive() //TODO is this needed?
+data class BooleanPrimitive(val boolean: Boolean): Primitive()

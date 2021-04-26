@@ -5,29 +5,37 @@
 package dev.ligature.wander
 
 import io.kotest.core.spec.style.FunSpec
+import io.kotest.data.Row2
+import io.kotest.data.forAll
+import io.kotest.inspectors.forAll
 import io.kotest.matchers.shouldBe
+import java.nio.file.Files
+import java.nio.file.Path
+import java.nio.file.Paths
+import kotlin.io.path.ExperimentalPathApi
+import kotlin.io.path.extension
+import kotlin.io.path.readText
+import kotlin.streams.toList
 
+@OptIn(ExperimentalPathApi::class)
 class WanderSuite : FunSpec() {
     private val wander = Wander()
 
-    fun readFile(name: String): String {
-        TODO()
-    }
+    private fun readDirectory(path: String): List<Path> =
+        Files.walk(Paths.get(path)).toList()
 
     init {
-//        test("integer literal") {
-//            val text = readFile("intLiteral.wander")
-//            val res = wander.run(text)
-//            val exp = readFile("")
-//            res shouldBe 5
-//        }
-//
-//        test("let error") {
-//            val text = readFile("let-err.wander")
-//        }
+        test("primitives support") {
+            val files = readDirectory("src/test/resources/primitives")
+            val pairs = files.filter { it.extension == "wander" }.map {
+                val text = it.readText()
+                val result = wander.run(text)
+                val expected = it.resolveSibling(it.fileName.toString().replace(".wander", ".result")).readText()
+                result to expected
+            }
+            pairs.forAll {
+                it.first shouldBe it.second
+            }
+        }
     }
-    //TODO read in .wander program
-    //TODO run it
-    //TODO read in .result file
-    //TODO assert results are the same
 }
