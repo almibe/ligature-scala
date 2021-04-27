@@ -4,15 +4,20 @@
 
 package dev.ligature.wander
 
-import arrow.core.getOrElse
-import dev.ligature.rakkoon.Rakkoon
-import dev.ligature.rakkoon.Rule
-import dev.ligature.rakkoon.stringPattern
-import dev.ligature.rakkoon.toIntAction
+import arrow.core.Either
 
 class Wander {
-    fun run(input: String): String { //TODO don't return String, should be an either
-        val rakkoon = Rakkoon(input)
-        return rakkoon.bite(Rule(stringPattern("5"), toIntAction)).getOrElse { "TODO()" }.toString()
+    private val reader = Reader()
+    private val interpreter = Interpreter()
+    private val writer = Writer()
+
+    fun run(input: String): Either<WanderError, Primitive> { //TODO don't return String, should be an either
+        val script = reader.read(input)
+        return interpreter.run(script)
+    }
+
+    fun runAndPrint(input: String): String {
+        val result = run(input)
+        return writer.write(result)
     }
 }
