@@ -21,6 +21,6 @@ data class FloatPrimitive(val value: FloatLiteral): Primitive()
 data class StringPrimitive(val value: StringLiteral): Primitive()
 data class EntityPrimitive(val value: Entity): Primitive()
 data class AttributePrimitive(val value: Attribute): Primitive()
-data class ValuePrimitive(val value: Value): Primitive() //TODO is this needed?
+data class ValuePrimitive(val value: Value): Primitive()
 data class BooleanPrimitive(val value: Boolean): Primitive()
 object UnitPrimitive: Primitive()

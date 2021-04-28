@@ -116,7 +116,7 @@ interface QueryTx {
             context: Entity? = null
     ): Flow<Result<Statement>>
 
-    /** Retuns all Statements that match the given criteria.
+    /** Returns all Statements that match the given criteria.
      * If a parameter is None then it matches all. */
     suspend fun matchStatementsRange(
             entity: Entity?,
