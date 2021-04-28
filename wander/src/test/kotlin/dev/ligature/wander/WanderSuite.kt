@@ -24,17 +24,21 @@ class WanderSuite : FunSpec() {
     private fun readDirectory(path: String): List<Path> =
         Files.walk(Paths.get(path)).toList()
 
+    data class TestResult(val expected: String, val commandResult: String, val queryResult: String)
+
     init {
         test("primitives support") {
             val files = readDirectory("src/test/resources/primitives")
-            val pairs = files.filter { it.extension == "wander" }.map {
+            val results = files.filter { it.extension == "wander" }.map {
                 val text = it.readText()
-                val result = wander.run(text)
+                val queryResult = wander.runQueryAndPrint(text)
+                val commandResult = wander.runCommandAndPrint(text)
                 val expected = it.resolveSibling(it.fileName.toString().replace(".wander", ".result")).readText()
-                result to expected
+                TestResult(expected, commandResult, queryResult)
             }
-            pairs.forAll {
-                it.first shouldBe it.second
+            results.forAll {
+                it.commandResult shouldBe it.expected
+                it.queryResult shouldBe it.expected
             }
         }
     }

@@ -5,7 +5,6 @@
 package dev.ligature.wander
 
 import arrow.core.Either
-import arrow.core.getOrElse
 import dev.ligature.IntegerLiteral
 import dev.ligature.rakkoon.Action
 import dev.ligature.rakkoon.Rakkoon
@@ -13,12 +12,21 @@ import dev.ligature.rakkoon.Rule
 import dev.ligature.rakkoon.stringPattern
 
 class Reader {
-    val toIntegerAction = Action<IntegerPrimitive> {
+    private val toIntegerAction = Action<IntegerPrimitive> {
         Either.Right(IntegerPrimitive(IntegerLiteral(it.toString().toLong())))
     }
 
     fun read(script: String): Either<WanderError, Script> {
         val rakkoon = Rakkoon(script)
+        val wanderStatement = readWanderStatement(rakkoon)
+        return when (wanderStatement) {
+            is Either.Left  -> wanderStatement
+            is Either.Right -> Either.Right(Script(listOf(wanderStatement.value)))
+        }
+    }
+
+    private fun readWanderStatement(rakkoon: Rakkoon): Either<WanderError, WanderStatement> {
+
         return rakkoon.bite(Rule(stringPattern("5"), toIntegerAction)).mapLeft { ParsingError(it) }
     }
 }

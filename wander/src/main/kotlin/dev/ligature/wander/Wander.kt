@@ -11,13 +11,27 @@ class Wander {
     private val interpreter = Interpreter()
     private val writer = Writer()
 
-    fun run(input: String): Either<WanderError, Primitive> { //TODO don't return String, should be an either
-        val script = reader.read(input)
-        return interpreter.run(script)
+    fun runCommand(input: String): Either<WanderError, Primitive> {
+        return when (val script = reader.read(input)) {
+            is Either.Left  -> script
+            is Either.Right -> interpreter.run(script.value)
+        }
     }
 
-    fun runAndPrint(input: String): String {
-        val result = run(input)
+    fun runCommandAndPrint(input: String): String {
+        val result = runCommand(input)
+        return writer.write(result)
+    }
+
+    fun runQuery(input: String): Either<WanderError, Primitive> {
+        return when (val script = reader.read(input)) {
+            is Either.Left  -> script
+            is Either.Right -> interpreter.run(script.value)
+        }
+    }
+
+    fun runQueryAndPrint(input: String): String {
+        val result = runQuery(input)
         return writer.write(result)
     }
 }

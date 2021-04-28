@@ -9,3 +9,7 @@ import dev.ligature.rakkoon.RakkoonError
 sealed class WanderError
 
 data class ParsingError(val error: RakkoonError): WanderError()
+
+sealed class SymbolError: WanderError()
+data class SymbolExits(val name: String): SymbolError()
+data class UnknownSymbol(val name: String): SymbolError()

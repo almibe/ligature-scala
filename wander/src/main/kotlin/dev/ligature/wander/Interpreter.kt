@@ -8,6 +8,19 @@ import arrow.core.Either
 
 class Interpreter {
     fun run(script: Script): Either<WanderError, Primitive> {
-        TODO()
+        val topScope = Scope(null)
+        var result: Either<WanderError, Primitive> = Either.Right(UnitPrimitive)
+        script.lines.forEach {
+            result = runStatement(it, topScope)
+        }
+        return result
+    }
+
+    private fun runStatement(statement: WanderStatement, scope: Scope): Either<WanderError, Primitive> {
+        return when (statement) {
+            is LetStatement -> TODO("evaluate and then store symbol")
+            is Symbol -> scope.lookupSymbol(statement.name)
+            is Primitive -> Either.Right(statement)
+        }
     }
 }
