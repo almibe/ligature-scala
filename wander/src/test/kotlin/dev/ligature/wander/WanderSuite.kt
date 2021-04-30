@@ -5,8 +5,6 @@
 package dev.ligature.wander
 
 import io.kotest.core.spec.style.FunSpec
-import io.kotest.data.Row2
-import io.kotest.data.forAll
 import io.kotest.inspectors.forAll
 import io.kotest.matchers.shouldBe
 import java.nio.file.Files
@@ -26,17 +24,27 @@ class WanderSuite : FunSpec() {
 
     data class TestResult(val expected: String, val commandResult: String, val queryResult: String)
 
+    private fun buildResults(path: String): List<TestResult> {
+        val files = readDirectory(path)
+        return files.filter { it.extension == "wander" }.map {
+            val text = it.readText()
+            val queryResult = wander.runQueryAndPrint(text)
+            val commandResult = wander.runCommandAndPrint(text)
+            val expected = it.resolveSibling(it.fileName.toString().replace(".wander", ".result")).readText()
+            TestResult(expected, commandResult, queryResult)
+        }
+    }
+
     init {
         test("primitives support") {
-            val files = readDirectory("src/test/resources/primitives")
-            val results = files.filter { it.extension == "wander" }.map {
-                val text = it.readText()
-                val queryResult = wander.runQueryAndPrint(text)
-                val commandResult = wander.runCommandAndPrint(text)
-                val expected = it.resolveSibling(it.fileName.toString().replace(".wander", ".result")).readText()
-                TestResult(expected, commandResult, queryResult)
+            buildResults("src/test/resources/primitives").forAll {
+                it.commandResult shouldBe it.expected
+                it.queryResult shouldBe it.expected
             }
-            results.forAll {
+        }
+
+        test("assignment support") {
+            buildResults("src/test/resources/assignment").forAll {
                 it.commandResult shouldBe it.expected
                 it.queryResult shouldBe it.expected
             }

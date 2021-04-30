@@ -36,5 +36,6 @@ class Writer {
         when (error) {
             is ParsingError -> "Parsing Error: ${error.error}"
             is SymbolError -> "Symbol Error"
+            is NotSupported -> error.message
         }
 }
