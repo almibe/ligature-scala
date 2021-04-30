@@ -31,7 +31,7 @@ class LigParser {
         val context = parseEntity(rakkoon, previousStatement?.context)
         ignoreWhitespaceAndNewLines(rakkoon)
 
-        return Statement(entity.getOrElse { TODO() }, attribute, value, context.getOrElse { TODO() })
+        return Statement(entity.getOrElse { TODO() }, attribute.getOrElse { TODO() }, value, context.getOrElse { TODO() })
     }
 
     fun ignoreWhitespace(rakkoon: Rakkoon) {
@@ -46,7 +46,7 @@ class LigParser {
         return rakkoon.bite(Rule(stringPattern("_"), ignoreAction)).isRight()
     }
 
-    fun parseEntity(rakkoon: Rakkoon, previousEntity: Entity?): Either<RakkoonError, Entity> {
+    fun parseEntity(rakkoon: Rakkoon, previousEntity: Entity? = null): Either<RakkoonError, Entity> {
         //TODO need to also check for _
         val res = rakkoon.bite(Rule(stringPattern("<"), ignoreAction))
         if (res.isLeft()) { return Either.Left(NoMatch(rakkoon.currentOffset())) }
@@ -61,15 +61,19 @@ class LigParser {
         return Either.Right(Entity(entity.getOrElse { TODO() }.toString())) //TODO needs validation
     }
 
-    fun parseAttribute(rakkoon: Rakkoon, previousAttribute: Attribute?): Attribute {
+    fun parseAttribute(rakkoon: Rakkoon, previousAttribute: Attribute? = null): Either<RakkoonError, Attribute> {
         //TODO need to also check for _
         val res = rakkoon.bite(Rule(stringPattern("@<"), ignoreAction))
+        if (res.isLeft()) { return Either.Left(NoMatch(rakkoon.currentOffset())) }
         //TODO error handling
         val attribute: Either<RakkoonError, CharSequence> = rakkoon.bite(Rule(regexPattern("[a-zA-Z0-9_:]+".toRegex()), valueAction))
         //TODO error handling
         val res2 = rakkoon.bite(Rule(stringPattern(">"), ignoreAction))
+        if (res.isLeft() || attribute.isLeft() || res2.isLeft()) {
+            return Either.Left(NoMatch(rakkoon.currentOffset()))
+        }
         //TODO error handling
-        return Attribute(attribute.getOrElse { TODO() }.toString()) //TODO needs validation
+        return Either.Right(Attribute(attribute.getOrElse { TODO() }.toString())) //TODO needs validation
     }
 
     //TODO all of the patterns below are overly simplistic
@@ -78,7 +82,7 @@ class LigParser {
     private val floatPattern = "\\d+\\.\\d+".toRegex()
     private val stringPattern = "\"[a-zA-Z0-9_ \t\n]+\"".toRegex()
 
-    fun parseValue(rakkoon: Rakkoon, previousValue: Value?): Value {
+    fun parseValue(rakkoon: Rakkoon, previousValue: Value? = null): Value {
         //TODO need to check for _ first
         val entityRes = parseEntity(rakkoon, null)
         if (entityRes.isRight()) return entityRes.getOrElse { TODO() }

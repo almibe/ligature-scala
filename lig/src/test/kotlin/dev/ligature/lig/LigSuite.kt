@@ -35,8 +35,8 @@ class LigSuite : FunSpec() {
 
         test("parse attributes") {
             val test = "@<test>"
-            val entity = ligParser.parseAttribute(Rakkoon(test), null)
-            entity shouldBe Attribute("test")
+            val attribute = ligParser.parseAttribute(Rakkoon(test), null)
+            attribute shouldBe Either.Right(Attribute("test"))
         }
 
         test("write FloatLiteral") {
