@@ -2,12 +2,22 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at https://mozilla.org/MPL/2.0/. */
 
-package dev.ligature.wander
+package dev.ligature.wander.interpreter
 
 import arrow.core.Either
+import dev.ligature.wander.WanderError
+import dev.ligature.wander.parser.*
 
 class Interpreter {
-    fun run(script: Script): Either<WanderError, Primitive> {
+    fun runCommmand(script: Script): Either<WanderError, Primitive> {
+        return run(script)
+    }
+
+    fun runQuery(script: Script): Either<WanderError, Primitive> {
+        return run(script)
+    }
+
+    private fun run(script: Script): Either<WanderError, Primitive> {
         val topScope = Scope(null)
         var result: Either<WanderError, Primitive> = Either.Right(UnitPrimitive)
         script.lines.forEach {

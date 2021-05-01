@@ -2,10 +2,15 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at https://mozilla.org/MPL/2.0/. */
 
-package dev.ligature.wander
+package dev.ligature.wander.writer
 
 import arrow.core.Either
 import dev.ligature.lig.LigWriter
+import dev.ligature.wander.error.WanderError
+import dev.ligature.wander.error.NotSupported
+import dev.ligature.wander.error.ParsingError
+import dev.ligature.wander.error.SymbolError
+import dev.ligature.wander.parser.*
 
 class Writer {
     private val ligWriter = LigWriter()

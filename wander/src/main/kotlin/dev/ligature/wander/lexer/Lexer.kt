@@ -2,16 +2,15 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at https://mozilla.org/MPL/2.0/. */
 
-package dev.ligature.wander
+package dev.ligature.wander.lexer
 
 import arrow.core.Either
-import arrow.core.getOrElse
-import arrow.core.getOrHandle
 import dev.ligature.IntegerLiteral
 import dev.ligature.lig.LigParser
 import dev.ligature.rakkoon.*
+import dev.ligature.wander.parser.LetStatement
 
-class Reader {
+class Lexer {
     private val ligParser = LigParser()
     private val truePattern = stringPattern("true")
     private val falsePattern = stringPattern("false")
@@ -19,19 +18,36 @@ class Reader {
 
     private val endOfLineRule = Rule(regexPattern("( *\n| *#.*\n| *$| *#.*$)".toRegex()), ignoreAction)
 
+    private val whiteSpace = regexPattern("[ \t]+".toRegex())
+
     private val toIntegerAction = Action<IntegerPrimitive> {
         Either.Right(IntegerPrimitive(IntegerLiteral(it.toString().toLong())))
     }
 
-    fun read(script: String): Either<WanderError, Script> {
+    fun read(script: String): Either<WanderError, List<WanderToken>> {
         val rakkoon = Rakkoon(script)
-        return when (val wanderStatement = readWanderStatement(rakkoon)) {
-            is Either.Left  -> wanderStatement
-            is Either.Right -> Either.Right(Script(listOf(wanderStatement.value)))
+        val tokens = mutableListOf<WanderToken>()
+        while(!rakkoon.isComplete()) {
+            when (val tokenRes = readToken(rakkoon)) {
+                is Either.Left  -> return tokenRes
+                is Either.Right -> tokens.add(tokenRes.value)
+            }
         }
+        return Either.Right(tokens)
     }
 
-    private fun readWanderStatement(rakkoon: Rakkoon): Either<WanderError, WanderStatement> {
+    private fun readToken(rakkoon: Rakkoon): Either<WanderError, WanderToken> {
+        return Either.Left(NotSupported("Error")) //TODO report an error
+    }
+
+    private fun readLetStatement(rakkoon: Rakkoon): Either<WanderError, LetStatement> {
+        val letKeyword = stringPattern("let")
+        val equalPattern = ignoreSurrounding(whiteSpace, stringPattern("="))
+//        val
+        TODO()
+    }
+
+    private fun readPrimitive(rakkoon: Rakkoon): Either<WanderError, Primitive> {
         val attributeRes = ligParser.parseAttribute(rakkoon)
         if (attributeRes.isRight()) return attributeRes.map { AttributePrimitive(it) }.mapLeft { TODO() }
 
@@ -50,9 +66,6 @@ class Reader {
         val stringRes = ligParser.parseStringLiteral(rakkoon)
         if (stringRes.isRight()) return stringRes.map { StringPrimitive(it) }.mapLeft { TODO() }
 
-        val endOfLineRes = rakkoon.bite(endOfLineRule)
-        if (endOfLineRes.isRight()) return endOfLineRes.map { UnitPrimitive }.mapLeft { TODO() }
-
-        return Either.Left(NotSupported("Error")) //TODO report an error
+        TODO()
     }
 }
