@@ -27,7 +27,7 @@ class LexerSpec : FunSpec() {
             val res = lexer.read(script)
             res shouldBe listOf(
                 tk(0, LetKeyword),
-                tk(4, Symbol("x")),
+                tk(4, Identifier("x")),
                 tk(6, AssignmentOperator),
                 tk(8, IntegerPrimitive(IntegerLiteral(5L)))
             )
@@ -38,14 +38,14 @@ class LexerSpec : FunSpec() {
             val res = lexer.read(script)
             res shouldBe listOf(
                 tk(0, LetKeyword),
-                tk(4, Symbol("y")),
+                tk(4, Identifier("y")),
                 tk(6, AssignmentOperator),
                 tk(8, IntegerPrimitive(IntegerLiteral(5L))),
                 tk(12, LetKeyword),
-                tk(16, Symbol("x")),
+                tk(16, Identifier("x")),
                 tk(18, AssignmentOperator),
                 tk(19, IntegerPrimitive(IntegerLiteral(4L))),
-                tk(21, Symbol("x")),
+                tk(21, Identifier("x")),
             )
         }
     }

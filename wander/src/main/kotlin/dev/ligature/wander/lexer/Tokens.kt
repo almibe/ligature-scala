@@ -14,15 +14,20 @@ data class WanderToken(
 sealed class WanderTokenValue
 
 /**
- * Symbols are used for user defined names like variables, traits, and functions.
+ * Identifiers are used for user defined names like variables, traits, and functions.
  */
-data class Symbol(val name: String): WanderTokenValue()
+data class Identifier(val name: String): WanderTokenValue()
 
-sealed class Punctuation: WanderTokenValue()
-object OpenParen: Punctuation()
-object CloseParen: Punctuation()
-object OpenBrace: Punctuation()
-object CloseBrace: Punctuation()
+/**
+ * Symbols are used to represent punctuation and operators.
+ */
+sealed class Symbol: WanderTokenValue()
+object OpenParen: Symbol()
+object CloseParen: Symbol()
+object OpenBrace: Symbol()
+object CloseBrace: Symbol()
+object AssignmentOperator: Symbol()
+object Dot: Symbol()
 
 /**
  * Keywords are defined by the language like let, trait, and when.
@@ -31,13 +36,6 @@ sealed class Keyword: WanderTokenValue()
 object LetKeyword: Keyword()
 object TraitKeyword: Keyword()
 object WhenKeyword: Keyword()
-
-/**
- * Operators are like keywords but are symbols instead of text.
- */
-sealed class Operator: WanderTokenValue()
-object AssignmentOperator: Operator()
-object Dot: Operator()
 
 sealed class Primitive: WanderTokenValue()
 data class IntegerPrimitive(val value: IntegerLiteral): Primitive()
