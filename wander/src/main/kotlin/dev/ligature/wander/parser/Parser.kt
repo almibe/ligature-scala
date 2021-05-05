@@ -5,10 +5,11 @@
 package dev.ligature.wander.parser
 
 import arrow.core.Either
+import dev.ligature.wander.error.*
 import dev.ligature.wander.lexer.WanderToken
 
 class Parser {
-    fun parse(tokens: List<WanderToken>): Either<WanderError, Script> {
+    fun parse(tokens: List<WanderToken>): Either<ParserError, Script> {
         TODO()
     }
 }

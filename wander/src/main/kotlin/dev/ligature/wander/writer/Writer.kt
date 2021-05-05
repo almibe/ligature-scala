@@ -6,10 +6,7 @@ package dev.ligature.wander.writer
 
 import arrow.core.Either
 import dev.ligature.lig.LigWriter
-import dev.ligature.wander.error.WanderError
-import dev.ligature.wander.error.NotSupported
-import dev.ligature.wander.error.ParsingError
-import dev.ligature.wander.error.SymbolError
+import dev.ligature.wander.error.*
 import dev.ligature.wander.parser.*
 
 class Writer {
@@ -39,7 +36,8 @@ class Writer {
 
     private fun writeError(error: WanderError): String =
         when (error) {
-            is ParsingError -> "Parsing Error: ${error.error}"
+            is LexerError -> "Lexing Error at ${error.position}: ${error.message}"
+            is ParserError -> "Parsing Error at ${error.position}: ${error.message}"
             is SymbolError -> "Symbol Error"
             is NotSupported -> error.message
         }

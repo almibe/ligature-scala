@@ -4,13 +4,13 @@
 
 package dev.ligature.wander.error
 
-import dev.ligature.rakkoon.RakkoonError
-
 sealed class WanderError
 
 sealed class InterpreterError: WanderError()
 
-data class ParsingError(val error: RakkoonError): WanderError()
+data class LexerError(val message: String, val position: Int): WanderError()
+
+data class ParserError(val message: String, val position: Int): WanderError()
 
 data class NotSupported(val message: String = "Error: Not Supported"): WanderError()
 

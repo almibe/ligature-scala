@@ -8,21 +8,22 @@ import arrow.core.Either
 import dev.ligature.IntegerLiteral
 import dev.ligature.lig.LigParser
 import dev.ligature.rakkoon.*
+import dev.ligature.wander.error.*
 import dev.ligature.wander.parser.LetStatement
 
 class Lexer {
     private val ligParser = LigParser()
-    private val truePattern = stringPattern("true")
-    private val falsePattern = stringPattern("false")
-    private val booleanRule = Rule(anyPattern(truePattern, falsePattern), valueAction)
-
-    private val endOfLineRule = Rule(regexPattern("( *\n| *#.*\n| *$| *#.*$)".toRegex()), ignoreAction)
-
-    private val whiteSpace = regexPattern("[ \t]+".toRegex())
-
-    private val toIntegerAction = Action<IntegerPrimitive> {
-        Either.Right(IntegerPrimitive(IntegerLiteral(it.toString().toLong())))
-    }
+//    private val truePattern = stringPattern("true")
+//    private val falsePattern = stringPattern("false")
+//    private val booleanRule = Rule(anyPattern(truePattern, falsePattern), valueAction)
+//
+//    private val endOfLineRule = Rule(regexPattern("( *\n| *#.*\n| *$| *#.*$)".toRegex()), ignoreAction)
+//
+//    private val whiteSpace = regexPattern("[ \t]+".toRegex())
+//
+//    private val toIntegerAction = Action<IntegerPrimitive> {
+//        Either.Right(IntegerPrimitive(IntegerLiteral(it.toString().toLong())))
+//    }
 
     fun read(script: String): Either<WanderError, List<WanderToken>> {
         val rakkoon = Rakkoon(script)
@@ -36,23 +37,55 @@ class Lexer {
         return Either.Right(tokens)
     }
 
-    private fun readToken(rakkoon: Rakkoon): Either<WanderError, WanderToken> {
-        return Either.Left(NotSupported("Error")) //TODO report an error
+    private fun Char.isNewLine(): Boolean {
+        return this == '\n'
     }
 
-    private fun readLetStatement(rakkoon: Rakkoon): Either<WanderError, LetStatement> {
-        val letKeyword = stringPattern("let")
-        val equalPattern = ignoreSurrounding(whiteSpace, stringPattern("="))
-//        val
+    private fun Char.isOperator(): Boolean {
         TODO()
+    }
+
+    private fun Char.isIdentifier(): Boolean {
+        TODO()
+    }
+
+    private fun readNewLine(rakkoon: Rakkoon): Either<LexerError, WanderToken> {
+        TODO()
+    }
+
+    private fun readOperator(rakkoon: Rakkoon): Either<LexerError, WanderToken> {
+        TODO()
+    }
+
+    private fun readNumber(rakkoon: Rakkoon): Either<LexerError, WanderToken> {
+        TODO()
+    }
+
+    private fun readIdentifer(rakkoon: Rakkoon): Either<LexerError, WanderToken> {
+        TODO()
+    }
+
+    private fun readToken(rakkoon: Rakkoon): Either<LexerError, WanderToken> {
+        when (rakkoon.peek()) {
+            ' ', '\t' -> TODO("remove white space")
+        }
+        val next = rakkoon.peek()
+        return when  {
+            next == null -> TODO()
+            next.isNewLine() -> readNewLine(rakkoon)
+            next.isOperator() -> readOperator(rakkoon)
+            next.isDigit() -> readNumber(rakkoon)
+            next.isIdentifier() -> readIdentifer(rakkoon)
+            else -> return Either.Left(LexerError("Unexpected input.\n${rakkoon.remainingText()}", rakkoon.currentOffset()))
+        }
     }
 
     private fun readPrimitive(rakkoon: Rakkoon): Either<WanderError, Primitive> {
         val attributeRes = ligParser.parseAttribute(rakkoon)
         if (attributeRes.isRight()) return attributeRes.map { AttributePrimitive(it) }.mapLeft { TODO() }
 
-        val booleanRes = rakkoon.bite(booleanRule)
-        if (booleanRes.isRight()) return booleanRes.map { BooleanPrimitive(it.toString().toBoolean()) }.mapLeft { TODO() }
+//        val booleanRes = rakkoon.bite(booleanRule)
+//        if (booleanRes.isRight()) return booleanRes.map { BooleanPrimitive(it.toString().toBoolean()) }.mapLeft { TODO() }
 
         val entityRes = ligParser.parseEntity(rakkoon)
         if (entityRes.isRight()) return entityRes.map { EntityPrimitive(it) }.mapLeft { TODO() }

@@ -5,31 +5,31 @@
 package dev.ligature.wander.interpreter
 
 import arrow.core.Either
-import dev.ligature.wander.WanderError
+import dev.ligature.wander.error.InterpreterError
 import dev.ligature.wander.parser.*
 
 class Interpreter {
-    fun runCommmand(script: Script): Either<WanderError, Primitive> {
+    fun runCommmand(script: Script): Either<InterpreterError, Primitive> {
         return run(script)
     }
 
-    fun runQuery(script: Script): Either<WanderError, Primitive> {
+    fun runQuery(script: Script): Either<InterpreterError, Primitive> {
         return run(script)
     }
 
-    private fun run(script: Script): Either<WanderError, Primitive> {
+    private fun run(script: Script): Either<InterpreterError, Primitive> {
         val topScope = Scope(null)
-        var result: Either<WanderError, Primitive> = Either.Right(UnitPrimitive)
+        var result: Either<InterpreterError, Primitive> = Either.Right(UnitPrimitive)
         script.lines.forEach {
             result = runStatement(it, topScope)
         }
         return result
     }
 
-    private fun runStatement(statement: WanderStatement, scope: Scope): Either<WanderError, Primitive> {
+    private fun runStatement(statement: WanderStatement, scope: Scope): Either<InterpreterError, Primitive> {
         return when (statement) {
             is LetStatement -> TODO("evaluate and then store symbol")
-            is Symbol -> scope.lookupSymbol(statement.name)
+            is Symbol -> TODO()//scope.lookupSymbol(statement.name)
             is Primitive -> Either.Right(statement)
         }
     }
