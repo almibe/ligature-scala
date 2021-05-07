@@ -43,16 +43,22 @@ class Lexer {
             else -> false
         }
 
-    private fun readNewLine(rakkoon: Rakkoon): Either<LexerError, WanderToken> {
-        TODO()
-    }
+    private fun readNewLine(rakkoon: Rakkoon): Either<LexerError, WanderToken> =
+        when (rakkoon.peek()) {
+            '\n' -> {
+                rakkoon.bite(1U)
+                Either.Right(WanderToken(rakkoon.currentOffset(), NewLineToken))
+            }
+            else -> Either.Left(LexerError("Invalid newline", rakkoon.currentOffset()))
+        }
 
     @kotlin.ExperimentalUnsignedTypes
     private fun readOperator(rakkoon: Rakkoon): Either<LexerError, WanderToken> {
-        when (rakkoon.peek(1U)) {
+        val operatorOffset = rakkoon.currentOffset()
+        when (rakkoon.peek()) {
             '=' -> {
                 rakkoon.bite(1U);
-                return Either.Right(WanderToken(rakkoon.currentOffset(), AssignmentOperator))
+                return Either.Right(WanderToken(operatorOffset, AssignmentOperator))
             }
             else -> TODO()
         }
