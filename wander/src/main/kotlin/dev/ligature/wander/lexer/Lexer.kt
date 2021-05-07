@@ -47,7 +47,7 @@ class Lexer {
         when (rakkoon.peek()) {
             '\n' -> {
                 rakkoon.bite(1U)
-                Either.Right(WanderToken(rakkoon.currentOffset(), NewLineToken))
+                Either.Right(WanderToken(rakkoon.currentOffset()-1, NewLineToken))
             }
             else -> Either.Left(LexerError("Invalid newline", rakkoon.currentOffset()))
         }

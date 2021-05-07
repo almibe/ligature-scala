@@ -58,10 +58,12 @@ class LexerSpec : FunSpec() {
                 tk(4, Identifier("y")),
                 tk(6, AssignmentOperator),
                 tk(8, IntegerPrimitive(IntegerLiteral(5L))),
+                tk(9, NewLineToken),
                 tk(12, LetKeyword),
                 tk(16, Identifier("x")),
                 tk(18, AssignmentOperator),
                 tk(19, IntegerPrimitive(IntegerLiteral(4L))),
+                tk(20, NewLineToken),
                 tk(21, Identifier("x")),
             ))
         }
