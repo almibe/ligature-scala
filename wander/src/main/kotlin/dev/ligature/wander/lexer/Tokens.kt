@@ -13,6 +13,8 @@ data class WanderToken(
 
 sealed class WanderTokenValue
 
+object NewLineToken: WanderTokenValue()
+
 /**
  * Identifiers are used for user defined names like variables, traits, and functions.
  */

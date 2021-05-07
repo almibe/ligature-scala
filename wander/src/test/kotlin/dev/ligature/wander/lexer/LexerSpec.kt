@@ -14,7 +14,23 @@ class LexerSpec : FunSpec() {
     private fun tk(offset: Int, token: WanderTokenValue) = WanderToken(offset, token)
 
     init {
-        test("single primitive") {
+        test("integer primitive") {
+            val script = "5"
+            val res = lexer.read(script)
+            res shouldBe listOf(
+                tk(0, IntegerPrimitive(IntegerLiteral(5L)))
+            )
+        }
+
+        test("boolean primitive") {
+            val script = "true"
+            val res = lexer.read(script)
+            res shouldBe listOf(
+                tk(0, BooleanPrimitive(true))
+            )
+        }
+
+        test("string primitive") {
             val script = "\"Hello\""
             val res = lexer.read(script)
             res shouldBe listOf(

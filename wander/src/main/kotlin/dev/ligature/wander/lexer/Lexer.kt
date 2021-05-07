@@ -5,25 +5,14 @@
 package dev.ligature.wander.lexer
 
 import arrow.core.Either
-import dev.ligature.IntegerLiteral
+import arrow.core.None
+import arrow.core.Some
 import dev.ligature.lig.LigParser
 import dev.ligature.rakkoon.*
 import dev.ligature.wander.error.*
-import dev.ligature.wander.parser.LetStatement
 
 class Lexer {
     private val ligParser = LigParser()
-//    private val truePattern = stringPattern("true")
-//    private val falsePattern = stringPattern("false")
-//    private val booleanRule = Rule(anyPattern(truePattern, falsePattern), valueAction)
-//
-//    private val endOfLineRule = Rule(regexPattern("( *\n| *#.*\n| *$| *#.*$)".toRegex()), ignoreAction)
-//
-//    private val whiteSpace = regexPattern("[ \t]+".toRegex())
-//
-//    private val toIntegerAction = Action<IntegerPrimitive> {
-//        Either.Right(IntegerPrimitive(IntegerLiteral(it.toString().toLong())))
-//    }
 
     fun read(script: String): Either<WanderError, List<WanderToken>> {
         val rakkoon = Rakkoon(script)
@@ -41,41 +30,57 @@ class Lexer {
         return this == '\n'
     }
 
-    private fun Char.isOperator(): Boolean {
-        TODO()
-    }
+    private fun Char.isOperator(): Boolean =
+        when (this) {
+            '=' -> true //TODO add all other operators
+            else -> false
+        }
 
-    private fun Char.isIdentifier(): Boolean {
-        TODO()
-    }
+    private fun Char.isIdentifier(): Boolean =
+        when (this) {
+            in 'a'..'z', in 'A'..'Z', '_' -> true
+            else -> false
+        }
 
     private fun readNewLine(rakkoon: Rakkoon): Either<LexerError, WanderToken> {
         TODO()
     }
 
+    @kotlin.ExperimentalUnsignedTypes
     private fun readOperator(rakkoon: Rakkoon): Either<LexerError, WanderToken> {
-        TODO()
+        when (rakkoon.peek(1U)) {
+            '=' -> {
+                rakkoon.bite(1U);
+                return Either.Right(WanderToken(rakkoon.currentOffset(), AssignmentOperator))
+            }
+            else -> TODO()
+        }
     }
 
     private fun readNumber(rakkoon: Rakkoon): Either<LexerError, WanderToken> {
         TODO()
     }
 
-    private fun readIdentifer(rakkoon: Rakkoon): Either<LexerError, WanderToken> {
-        TODO()
+    private fun readIdentifier(rakkoon: Rakkoon): Either<LexerError, WanderToken> {
+        return when (val res = rakkoon.nibble(rangeNibbler('a'..'z', 'A'..'Z', '_'..'_', '0'..'9'))) {
+            None -> Either.Left(LexerError("Illegal Identifier", rakkoon.currentOffset()))
+            is Some -> {
+                //TODO check for keywords
+                val match = res.value
+                Either.Right(WanderToken(match.range.first, Identifier(match.value)))
+            }
+        }
     }
 
     private fun readToken(rakkoon: Rakkoon): Either<LexerError, WanderToken> {
-        when (rakkoon.peek()) {
-            ' ', '\t' -> TODO("remove white space")
-        }
+        rakkoon.nibble(charNibbler(' ', '\t')) //remove whitespace
         val next = rakkoon.peek()
         return when  {
             next == null -> TODO()
             next.isNewLine() -> readNewLine(rakkoon)
             next.isOperator() -> readOperator(rakkoon)
             next.isDigit() -> readNumber(rakkoon)
-            next.isIdentifier() -> readIdentifer(rakkoon)
+            next.isIdentifier() -> readIdentifier(rakkoon)
             else -> return Either.Left(LexerError("Unexpected input.\n${rakkoon.remainingText()}", rakkoon.currentOffset()))
         }
     }
