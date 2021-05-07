@@ -121,9 +121,48 @@ class LigParser {
         }
     }
 
-    private val stringContentNibbler = Nibbler {
+    @OptIn(ExperimentalUnsignedTypes::class)
+    private val stringContentNibbler = Nibbler { lookAhead ->
         //Full pattern \"(([^\x00-\x1F\"\\]|\\[\"\\/bfnrt]|\\u[0-9a-fA-F]{4})*)\"
+        val commandChars = 0x00.toChar()..0x1F.toChar()
+        val validHexChar = { c: Char? -> c != null && ( c in '0'..'9' || c in 'a'..'f' || c in 'A'..'F' ) }
 
-        TODO()
+        var offset = 0U
+        var fail = false
+        while (lookAhead.peek(offset) != null) {
+            val c = lookAhead.peek(offset)!!
+            if (commandChars.contains(c) || c == '"') {
+                fail = true
+                break
+            } else if (c == '\\') {
+                when (lookAhead.peek(offset + 1U)) {
+                    '\\', '"', 'b', 'f', 'n', 'r', 't' -> offset = offset + 2U
+                    'u' -> {
+                        for (i in 1U..4U) {
+                            if (!validHexChar(lookAhead.peek(offset + 1U + i))) {
+                                fail = true
+                                break
+                            }
+                        }
+                        if (fail) {
+                            break
+                        } else {
+                            offset = offset + 5U
+                        }
+                    }
+                    else -> {
+                        fail = true
+                        break
+                    }
+                }
+            } else {
+                offset++
+            }
+        }
+        if (fail || offset == 0U) {
+            Cancel
+        } else {
+            Complete(offset.toInt())
+        }
     }
 }
