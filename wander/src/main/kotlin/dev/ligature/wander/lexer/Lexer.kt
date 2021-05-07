@@ -7,6 +7,7 @@ package dev.ligature.wander.lexer
 import arrow.core.Either
 import arrow.core.None
 import arrow.core.Some
+import dev.ligature.IntegerLiteral
 import dev.ligature.lig.LigParser
 import dev.ligature.rakkoon.*
 import dev.ligature.wander.error.*
@@ -58,16 +59,29 @@ class Lexer {
     }
 
     private fun readNumber(rakkoon: Rakkoon): Either<LexerError, WanderToken> {
-        TODO()
+        val initialOffset = rakkoon.currentOffset()
+        return when (val number = rakkoon.nibble(rangeNibbler('0'..'9'))) {
+            None -> TODO()
+            is Some -> {
+                when (rakkoon.nibble(charNibbler('.'))) {
+                    None -> Either.Right(WanderToken(initialOffset, IntegerPrimitive(IntegerLiteral(number.value.value.toLong()))))
+                    is Some -> TODO()
+                }
+            }
+        }
     }
 
     private fun readIdentifier(rakkoon: Rakkoon): Either<LexerError, WanderToken> {
         return when (val res = rakkoon.nibble(rangeNibbler('a'..'z', 'A'..'Z', '_'..'_', '0'..'9'))) {
             None -> Either.Left(LexerError("Illegal Identifier", rakkoon.currentOffset()))
             is Some -> {
-                //TODO check for keywords
                 val match = res.value
-                Either.Right(WanderToken(match.range.first, Identifier(match.value)))
+                when (match.value) { //TODO check for keywords
+                    "true" -> Either.Right(WanderToken(match.range.first, BooleanPrimitive(true)))
+                    "false" -> Either.Right(WanderToken(match.range.first, BooleanPrimitive(false)))
+                    "let" -> Either.Right(WanderToken(match.range.first, LetKeyword))
+                    else -> Either.Right(WanderToken(match.range.first, Identifier(match.value)))
+                }
             }
         }
     }
