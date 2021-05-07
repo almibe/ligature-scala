@@ -5,13 +5,15 @@
 package dev.ligature.lig
 
 import arrow.core.*
-import arrow.core.computations.either
 import dev.ligature.*
 import dev.ligature.rakkoon.*
 
 data class LigError(val message: String)
 
 class LigParser {
+    private val whiteSpaceNibbler = charNibbler(' ', '\t')
+    private val whiteSpaceAndNewLineNibbler = charNibbler(' ', '\t', '\n')
+
     fun parse(input: String): Iterator<Statement> {
         val rakkoon = Rakkoon(input)
         val statements = mutableListOf<Statement>()
@@ -26,40 +28,20 @@ class LigParser {
     }
 
     fun parseStatement(rakkoon: Rakkoon, previousStatement: Statement?): Either<LigError, Statement> {
-        ignoreWhitespaceAndNewLines(rakkoon)
+        rakkoon.nibble(whiteSpaceAndNewLineNibbler)
         val entity = parseEntity(rakkoon, previousStatement?.entity)
         if (entity.isLeft()) return entity.map { TODO() }
-        ignoreWhitespace(rakkoon)
+        rakkoon.nibble(whiteSpaceNibbler)
         val attribute = parseAttribute(rakkoon, previousStatement?.attribute)
         if (attribute.isLeft()) return attribute.map { TODO() }
-        ignoreWhitespace(rakkoon)
+        rakkoon.nibble(whiteSpaceNibbler)
         val value = parseValue(rakkoon, previousStatement?.value)
         if (value.isLeft()) return value.map { TODO() }
-        ignoreWhitespace(rakkoon)
+        rakkoon.nibble(whiteSpaceNibbler)
         val context = parseEntity(rakkoon, previousStatement?.context)
-        ignoreWhitespaceAndNewLines(rakkoon)
+        rakkoon.nibble(whiteSpaceAndNewLineNibbler)
 
         return Either.Right(Statement(entity.getOrElse { TODO() }, attribute.getOrElse { TODO() }, value.getOrElse { TODO() }, context.getOrElse { TODO() }))
-    }
-
-    fun ignoreWhitespace(rakkoon: Rakkoon) {
-        rakkoon.nibble { input, _ ->
-            when (input) {
-                ' ', '\t' -> Next
-                null -> Complete()
-                else -> Complete(1)
-            }
-        }
-    }
-
-    fun ignoreWhitespaceAndNewLines(rakkoon: Rakkoon) {
-        rakkoon.nibble { input, _ ->
-            when (input) {
-                ' ', '\t', '\n' -> Next
-                null -> Complete()
-                else -> Complete(1)
-            }
-        }
     }
 
     fun parseWildcard(rakkoon: Rakkoon): Boolean {
@@ -131,13 +113,17 @@ class LigParser {
     }
 
     fun parseStringLiteral(rakkoon: Rakkoon): Either<LigError, StringLiteral> {
-        val quote = stringNibbler("\"")
-        val stringPattern = "[a-zA-Z0-9_ \t\n]".toRegex() //TODO too simplistic
-        val content = predicateNibbler { it.toString().matches(stringPattern) }
+        val quote = charNibbler('"')
 
-        return when (val res = rakkoon.nibble(quote, content, quote)) {
+        return when (val res = rakkoon.nibble(quote, stringContentNibbler, quote)) {
             is None -> Either.Left(LigError("Could not parse String."))
             is Some -> Either.Right(StringLiteral(res.value[1].value))
         }
+    }
+
+    private val stringContentNibbler = Nibbler {
+        //Full pattern \"(([^\x00-\x1F\"\\]|\\[\"\\/bfnrt]|\\u[0-9a-fA-F]{4})*)\"
+
+        TODO()
     }
 }
