@@ -70,9 +70,9 @@ class LigSuite : FunSpec() {
         }
 
         test("parse StringLiteral") {
-            val test = "\"3452345\nHello\""
+            val test = "\"3452345\\nHello\""
             val res = ligParser.parseStringLiteral(Rakkoon(test))
-            res shouldBe Either.Right(StringLiteral("3452345\nHello"))
+            res shouldBe Either.Right(StringLiteral("3452345\\nHello"))
         }
 
         test("basic Statement with all Entities") {

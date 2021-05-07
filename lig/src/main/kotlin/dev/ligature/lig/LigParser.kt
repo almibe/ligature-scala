@@ -131,8 +131,10 @@ class LigParser {
         var fail = false
         while (lookAhead.peek(offset) != null) {
             val c = lookAhead.peek(offset)!!
-            if (commandChars.contains(c) || c == '"') {
+            if (commandChars.contains(c)) {
                 fail = true
+                break
+            } else if (c == '"') {
                 break
             } else if (c == '\\') {
                 when (lookAhead.peek(offset + 1U)) {
