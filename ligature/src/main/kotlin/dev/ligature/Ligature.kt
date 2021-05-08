@@ -4,53 +4,93 @@
 
 package dev.ligature
 
+import dev.ligature.rakkoon.Rakkoon
 import kotlinx.coroutines.flow.Flow
+import arrow.core.*
 
-data class Dataset(val name: String): Comparable<Dataset> {
+class Dataset private constructor(val name: String): Comparable<Dataset> {
     override fun compareTo(other: Dataset): Int = name.compareTo(other.name)
+
+    override fun equals(other: Any?): Boolean {
+        return if (other is Dataset) {
+            this.name == other.name
+        } else {
+            false
+        }
+    }
+
+    override fun hashCode(): Int = name.hashCode()
+
+    override fun toString(): String = "Dataset(name=$name)"
+
+    operator fun component1(): String = name
+
+    companion object {
+        fun from(name: String): Option<Dataset> = from(Rakkoon(name))
+
+        fun from(rakkoon: Rakkoon): Option<Dataset> {
+            val res = rakkoon.nibble { lookAhead ->
+                //private val pattern = "^([a-zA-Z_]{1}[a-zA-Z0-9_]*)(/[a-zA-Z_]{1}[a-zA-Z0-9_]*)*$".r
+                TODO()
+            }
+            return res.map { Dataset(it.value) }
+        }
+    }
 }
 
-//final case class Dataset private (val name: String) extends Ordered[Dataset] {
-//    private def copy(): Unit = ()
-//
-//    override def compare(that: Dataset): Int = this.name.compare(that.name)
-//}
-//
-//object Dataset {
-//    private def apply(name: String): Dataset = ???
-//
-//    private val pattern = "^([a-zA-Z_]{1}[a-zA-Z0-9_]*)(/[a-zA-Z_]{1}[a-zA-Z0-9_]*)*$".r
-//
-//    def fromString(name: String): Option[Dataset] = {
-//        if (pattern.matches(name)) {
-//            Some(new Dataset(name))
-//        } else {
-//            None
-//        }
-//    }
-//}
+class Entity private constructor(val id: String): Value() {
+    override fun equals(other: Any?): Boolean {
+        return if (other is Entity) {
+            this.id == other.id
+        } else {
+            false
+        }
+    }
 
-data class Entity(val id: String): Value()
+    override fun hashCode(): Int = id.hashCode()
 
-data class Attribute(val name: String)
+    override fun toString(): String = "Entity(id=$id)"
 
-//data class Attribute private (val name: String) {
-//    private def copy(): Unit = ()
-//}
-//
-//object Attribute {
-//    private def apply(name: String): Attribute = ???
-//
-//    private val pattern = "^[a-zA-Z_]{1}[a-zA-Z0-9_]*$".r
-//
-//    def fromString(name: String): Option[Attribute] = {
-//        if (pattern.matches(name)) {
-//            Some(new Attribute(name))
-//        } else {
-//            None
-//        }
-//    }
-//}
+    operator fun component1(): String = id
+
+    companion object {
+        fun from(name: String): Option<Entity> = from(Rakkoon(name))
+
+        fun from(rakkoon: Rakkoon): Option<Entity> {
+            val res = rakkoon.nibble { lookAhead ->
+                TODO()
+            }
+            return res.map { Entity(it.value) }
+        }
+    }
+}
+
+class Attribute private constructor(val name: String) {
+    override fun equals(other: Any?): Boolean {
+        return if (other is Attribute) {
+            this.name == other.name
+        } else {
+            false
+        }
+    }
+
+    override fun hashCode(): Int = name.hashCode()
+
+    override fun toString(): String = "Attribute(name=$name)"
+
+    operator fun component1(): String = name
+
+    companion object {
+        fun from(name: String): Option<Attribute> = from(Rakkoon(name))
+
+        fun from(rakkoon: Rakkoon): Option<Attribute> {
+            val res = rakkoon.nibble { lookAhead ->
+                TODO()
+            }
+            return res.map { Attribute(it.value) }
+        }
+    }
+}
 
 data class LigatureError(val message: String)
 
