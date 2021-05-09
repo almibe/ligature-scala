@@ -4,6 +4,8 @@
 
 package dev.ligature.testsuite
 
+import arrow.core.Either
+import arrow.core.getOrElse
 import dev.ligature.*
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
@@ -15,17 +17,23 @@ import kotlinx.coroutines.flow.toSet
 abstract class LigatureTestSuite : FunSpec() {
     abstract fun createLigature(): Ligature
 
-    val testDataset = Dataset("test/test")
-    val testDataset2 = Dataset("test/test2")
-    val testDataset3 = Dataset("test3/test")
-    val ent1 = Entity("ent1")
-    val ent2 = Entity("ent2")
-    val ent3 = Entity("ent3")
-    val con1 = Entity("context1")
-    val con2 = Entity("context2")
-    val con3 = Entity("context3")
-    val a = Attribute("a")
-    val b = Attribute("b")
+    //Some helper functions
+    private fun dataset(name: String): Dataset = Dataset.from(name).getOrElse { TODO() }
+    private fun entity(id: String): Entity = Entity.from(id).getOrElse { TODO() }
+    private fun attribute(name: String): Attribute = Attribute.from(name).getOrElse { TODO() }
+    private fun <E,T>Either<E, T>.getOrThrow(): T = this.getOrElse { TODO() }
+
+    val testDataset = dataset("test/test")
+    val testDataset2 = dataset("test/test2")
+    val testDataset3 = dataset("test3/test")
+    val ent1 = entity("ent1")
+    val ent2 = entity("ent2")
+    val ent3 = entity("ent3")
+    val con1 = entity("context1")
+    val con2 = entity("context2")
+    val con3 = entity("context3")
+    val a = attribute("a")
+    val b = attribute("b")
 
     init {
         test("create and close store") {
@@ -65,16 +73,16 @@ abstract class LigatureTestSuite : FunSpec() {
 
         test("match datasets range") {
             val instance = createLigature()
-            instance.createDataset(Dataset("a"))
-            instance.createDataset(Dataset("app"))
-            instance.createDataset(Dataset("b"))
-            instance.createDataset(Dataset("be"))
-            instance.createDataset(Dataset("bee"))
-            instance.createDataset(Dataset("test1/test"))
-            instance.createDataset(Dataset("test2/test2"))
-            instance.createDataset(Dataset("test3/test"))
-            instance.createDataset(Dataset("test4"))
-            instance.createDataset(Dataset("z"))
+            instance.createDataset(dataset("a"))
+            instance.createDataset(dataset("app"))
+            instance.createDataset(dataset("b"))
+            instance.createDataset(dataset("be"))
+            instance.createDataset(dataset("bee"))
+            instance.createDataset(dataset("test1/test"))
+            instance.createDataset(dataset("test2/test2"))
+            instance.createDataset(dataset("test3/test"))
+            instance.createDataset(dataset("test4"))
+            instance.createDataset(dataset("z"))
             val res = instance.allDatasets().toList()
             val res1 = instance.matchDatasetsRange("a", "b").toList()
             val res2 = instance.matchDatasetsRange("be", "test3").toList()
@@ -143,7 +151,7 @@ abstract class LigatureTestSuite : FunSpec() {
                 tx.addStatement(Statement(ent3, a, ent2, con1))
                 tx.removeStatement(statement)
                 tx.removeStatement(statement)
-                tx.removeStatement(Statement(ent2, a, ent1, Entity("iDontExist")))
+                tx.removeStatement(Statement(ent2, a, ent1, entity("iDontExist")))
             }
             val res = instance.query(testDataset) { tx ->
                 tx.allStatements().map { it.getOrThrow() }.toSet()
