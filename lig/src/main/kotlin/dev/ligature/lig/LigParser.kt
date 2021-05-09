@@ -58,9 +58,15 @@ class LigParser {
 
         return when (val entityRes = rakkoon.nibble(openEntityNibbler, entityNibbler, closeEntityNibbler)) {
             is None -> Either.Left(LigError("Could not parse Entity."))
-            is Some -> Either.Right(Entity(entityRes.value[1].value))
+            is Some -> createEntity(entityRes.value[1].value)
         }
     }
+
+    fun createEntity(id: String): Either<LigError, Entity> =
+        when (val res = Entity.from(id)) {
+            is None -> Either.Left(LigError("Invalid Entity Id - $id"))
+            is Some -> Either.Right(res.value)
+        }
 
     fun parseAttribute(rakkoon: Rakkoon, previousAttribute: Attribute? = null): Either<LigError, Attribute> {
         //TODO need to also check for _
@@ -72,9 +78,15 @@ class LigParser {
 
         return when (val attributeRes = rakkoon.nibble(openAttributeNibbler, attributeNibbler, closeAttributeNibbler)) {
             is None -> Either.Left(LigError("Could not parse Attribute.\n${rakkoon.remainingText()}"))
-            is Some -> Either.Right(Attribute(attributeRes.value[1].value))
+            is Some -> createAttribute(attributeRes.value[1].value)
         }
     }
+
+    fun createAttribute(name: String): Either<LigError, Attribute> =
+        when (val res = Attribute.from(name)) {
+            is None -> Either.Left(LigError("Invalid Attribute name - $name"))
+            is Some -> Either.Right(res.value)
+        }
 
     fun parseValue(rakkoon: Rakkoon, previousValue: Value? = null): Either<LigError, Value> {
         //TODO need to check for _ first

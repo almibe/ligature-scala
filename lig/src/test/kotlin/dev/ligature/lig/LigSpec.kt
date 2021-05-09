@@ -5,38 +5,43 @@
 package dev.ligature.lig
 
 import arrow.core.Either
+import arrow.core.getOrElse
 import dev.ligature.*
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import dev.ligature.rakkoon.*
 
-class LigSuite : FunSpec() {
+class LigSpec : FunSpec() {
     init {
         val ligParser = LigParser()
         val ligWriter = LigWriter()
 
+        val testEntity = Entity.from("test").getOrElse { TODO() }
+        val testAttribute = Attribute.from("test").getOrElse { TODO() }
+
+        fun entity(id: String): Entity = Entity.from(id).getOrElse { TODO() }
+        fun attribute(name: String): Attribute = Attribute.from(name).getOrElse { TODO() }
+
         test("write entities") {
-            val entity = Entity("test")
-            val res = ligWriter.writeEntity(entity)
+            val res = ligWriter.writeEntity(testEntity)
             res shouldBe "<test>"
         }
 
         test("parse entities") {
             val test = "<test>"
             val entity = ligParser.parseEntity(Rakkoon(test), null)
-            entity shouldBe Either.Right(Entity("test"))
+            entity shouldBe Either.Right(testEntity)
         }
 
         test("write attributes") {
-            val attribute = Attribute("test")
-            val res = ligWriter.writeAttribute(attribute)
+            val res = ligWriter.writeAttribute(testAttribute)
             res shouldBe "@<test>"
         }
 
         test("parse attributes") {
             val test = "@<test>"
             val attribute = ligParser.parseAttribute(Rakkoon(test), null)
-            attribute shouldBe Either.Right(Attribute("test"))
+            attribute shouldBe Either.Right(testAttribute)
         }
 
         test("write FloatLiteral") {
@@ -76,7 +81,7 @@ class LigSuite : FunSpec() {
         }
 
         test("basic Statement with all Entities") {
-            val statement = Statement(Entity("e1"), Attribute("a1"), Entity("e2"), Entity("context"))
+            val statement = Statement(entity("e1"), attribute("a1"), entity("e2"), entity("context"))
             val lines = ligWriter.write(listOf(statement).iterator())
             val resStatements = ligParser.parse(lines)
             listOf(statement) shouldBe resStatements.asSequence().toList()
@@ -84,10 +89,10 @@ class LigSuite : FunSpec() {
 
         test("list of Statements with Literal Values") {
             val statements = listOf(
-                Statement(Entity("e1"), Attribute("a1"), Entity("e2"), Entity("context")),
-                Statement(Entity("e2"), Attribute("a2"), StringLiteral("string literal"), Entity("context2")),
-                Statement(Entity("e2"), Attribute("a3"), IntegerLiteral(Long.MAX_VALUE), Entity("context3")),
-                Statement(Entity("e3"), Attribute("a4"), FloatLiteral(7.5), Entity("context4"))
+                Statement(entity("e1"), attribute("a1"), entity("e2"), entity("context")),
+                Statement(entity("e2"), attribute("a2"), StringLiteral("string literal"), entity("context2")),
+                Statement(entity("e2"), attribute("a3"), IntegerLiteral(Long.MAX_VALUE), entity("context3")),
+                Statement(entity("e3"), attribute("a4"), FloatLiteral(7.5), entity("context4"))
             )
             val lines = ligWriter.write(statements.iterator())
             val resStatements = ligParser.parse(lines)
