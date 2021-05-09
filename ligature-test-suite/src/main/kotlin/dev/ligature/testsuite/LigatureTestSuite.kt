@@ -18,14 +18,14 @@ abstract class LigatureTestSuite : FunSpec() {
     abstract fun createLigature(): Ligature
 
     //Some helper functions
-    private fun dataset(name: String): Dataset = Dataset.from(name).getOrElse { TODO() }
+    private fun dataset(name: String): Dataset = Dataset.from(name).getOrElse { TODO("Could not create Dataset $name") }
     private fun entity(id: String): Entity = Entity.from(id).getOrElse { TODO() }
     private fun attribute(name: String): Attribute = Attribute.from(name).getOrElse { TODO() }
     private fun <E,T>Either<E, T>.getOrThrow(): T = this.getOrElse { TODO() }
 
-    val testDataset = dataset("test/test")
-    val testDataset2 = dataset("test/test2")
-    val testDataset3 = dataset("test3/test")
+    val testDataset = dataset("test_test")
+    val testDataset2 = dataset("test_test2")
+    val testDataset3 = dataset("test3_test")
     val ent1 = entity("ent1")
     val ent2 = entity("ent2")
     val ent3 = entity("ent3")
@@ -64,7 +64,7 @@ abstract class LigatureTestSuite : FunSpec() {
             instance.createDataset(testDataset2)
             instance.createDataset(testDataset3)
             val res1 = instance.matchDatasetsPrefix("test").toList()
-            val res2 = instance.matchDatasetsPrefix("test/").toList()
+            val res2 = instance.matchDatasetsPrefix("test_").toList()
             val res3 = instance.matchDatasetsPrefix("snoo").toList()
             res1.size shouldBe 3
             res2.size shouldBe 2
@@ -78,9 +78,9 @@ abstract class LigatureTestSuite : FunSpec() {
             instance.createDataset(dataset("b"))
             instance.createDataset(dataset("be"))
             instance.createDataset(dataset("bee"))
-            instance.createDataset(dataset("test1/test"))
-            instance.createDataset(dataset("test2/test2"))
-            instance.createDataset(dataset("test3/test"))
+            instance.createDataset(dataset("test1_test"))
+            instance.createDataset(dataset("test2_test2"))
+            instance.createDataset(dataset("test3_test"))
             instance.createDataset(dataset("test4"))
             instance.createDataset(dataset("z"))
             val res = instance.allDatasets().toList()
