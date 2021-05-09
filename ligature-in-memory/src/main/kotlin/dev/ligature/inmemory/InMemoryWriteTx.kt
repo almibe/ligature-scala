@@ -4,9 +4,11 @@
 
 package dev.ligature.inmemory
 
+import arrow.core.Either
+import arrow.core.None
+import arrow.core.Some
 import dev.ligature.*
 import java.util.*
-import kotlin.Result.Companion.success
 
 /** Represents a WriteTx within the context of a Ligature instance and a single Dataset */
 class InMemoryWriteTx(store: DatasetStore) : WriteTx {
@@ -15,36 +17,38 @@ class InMemoryWriteTx(store: DatasetStore) : WriteTx {
 
     /** Creates a new, unique Entity within this Dataset.
      *  Note: Entities are shared across named graphs in a given Dataset. */
-    override suspend fun newAnonymousEntity(prefix: String): Result<Entity> {
-        val uuid = UUID.randomUUID()
-        return success(Entity(prefix + uuid))
+    override suspend fun newAnonymousEntity(prefix: String): Either<LigatureError, Entity> {
+        return when (val res = Entity.from(prefix + UUID.randomUUID().toString())) {
+            is None -> Either.Left(LigatureError("Could not create Entity with id - $res"))
+            is Some -> Either.Right(res.value)
+        }
     }
 
     /** Adds a given Statement to this Dataset.
      *  If the Statement already exists nothing happens (TODO maybe add it with a new context?).
      *  Note: Potentially could trigger a ValidationError */
-    override suspend fun addStatement(statement: Statement): Result<Unit> {
+    override suspend fun addStatement(statement: Statement): Either<LigatureError, Unit> {
         _newDatasetStore = _newDatasetStore.copy(statements = _newDatasetStore.statements + statement)
-        return success(Unit)
+        return Either.Right(Unit)
     }
 
     /** Removes a given PersistedStatement from this Dataset.
      *  If the PersistedStatement doesn't exist nothing happens and returns Ok(false).
      *  This function returns Ok(true) only if the given PersistedStatement was found and removed.
      *  Note: Potentially could trigger a ValidationError. */
-    override suspend fun removeStatement(statement: Statement): Result<Boolean> =
+    override suspend fun removeStatement(statement: Statement): Either<LigatureError, Boolean> =
         if (_newDatasetStore.statements.contains(statement)) {
             _newDatasetStore = _newDatasetStore.copy(statements = _newDatasetStore.statements.minus(statement))
-            success(true)
+            Either.Right(true)
         } else {
-            success(false)
+            Either.Right(false)
         }
 
     /** Cancels this transaction so that none of the changes made so far will be stored.
      *  This also closes this transaction so no other methods can be called without returning a LigatureError. */
-    override suspend fun cancel(): Result<Unit> {
+    override suspend fun cancel(): Either<LigatureError, Unit> {
         _isCanceled = true
-        return success(Unit)
+        return Either.Right(Unit)
     }
 
     /** Tracks if the given WriteTx has been canceled or not.

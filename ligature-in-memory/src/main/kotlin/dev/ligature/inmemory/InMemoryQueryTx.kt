@@ -4,18 +4,18 @@
 
 package dev.ligature.inmemory
 
+import arrow.core.Either
 import dev.ligature.*
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.asFlow
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.map
-import kotlin.Result.Companion.success
 
 /** Represents a QueryTx within the context of a Ligature instance and a single Dataset */
 class InMemoryQueryTx(private val store: DatasetStore) : QueryTx {
     /** Returns all PersistedStatements in this Dataset. */
-    override suspend fun allStatements(): Flow<Result<Statement>> {
-        return store.statements.map { success(it) }.asFlow()
+    override suspend fun allStatements(): Flow<Either<LigatureError, Statement>> {
+        return store.statements.map { Either.Right(it) }.asFlow()
     }
 
     /** Returns all PersistedStatements that match the given criteria.
@@ -25,7 +25,7 @@ class InMemoryQueryTx(private val store: DatasetStore) : QueryTx {
             attribute: Attribute?,
             value: Value?,
             context: Entity?
-    ): Flow<Result<Statement>> {
+    ): Flow<Either<LigatureError, Statement>> {
         var res = store.statements.asFlow()
         if (entity != null) {
             res = res.filter { it.entity == entity }
@@ -39,7 +39,7 @@ class InMemoryQueryTx(private val store: DatasetStore) : QueryTx {
         if (context != null) {
             res = res.filter { it.context == context }
         }
-        return res.map { success(it) }
+        return res.map { Either.Right(it) }
     }
 
     /** Retuns all PersistedStatements that match the given criteria.
@@ -49,7 +49,7 @@ class InMemoryQueryTx(private val store: DatasetStore) : QueryTx {
             attribute: Attribute?,
             range: Range,
             context: Entity?
-    ): Flow<Result<Statement>> {
+    ): Flow<Either<LigatureError, Statement>> {
         var res = store.statements.asFlow()
         if (entity != null) {
             res = res.filter { it.entity == entity }
@@ -69,6 +69,6 @@ class InMemoryQueryTx(private val store: DatasetStore) : QueryTx {
         if (context != null) {
             res = res.filter { it.context == context }
         }
-        return res.map { success(it) }
+        return res.map { Either.Right(it) }
     }
 }

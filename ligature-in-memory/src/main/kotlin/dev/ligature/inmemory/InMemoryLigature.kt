@@ -4,13 +4,13 @@
 
 package dev.ligature.inmemory
 
+import arrow.core.Either
 import dev.ligature.*
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.asFlow
 import java.util.*
 import java.util.concurrent.locks.ReadWriteLock
 import java.util.concurrent.locks.ReentrantReadWriteLock
-import kotlin.Result.Companion.success
 
 data class DatasetStore(val statements: Set<Statement>)
 
@@ -20,33 +20,33 @@ class InMemoryLigature(): Ligature {
     private val lock: ReadWriteLock = ReentrantReadWriteLock()
 
     /** Returns all Datasets in a Ligature instance. */
-    override suspend fun allDatasets(): Flow<Result<Dataset>> {
+    override suspend fun allDatasets(): Flow<Either<LigatureError, Dataset>> {
         val l = lock.readLock()
         return try {
             l.lock()
-            store.keys.map { success(it) }.asFlow()
+            store.keys.map { Either.Right(it) }.asFlow()
         } finally  {
             l.unlock()
         }
     }
 
     /** Check if a given Dataset exists. */
-    override suspend fun datasetExists(dataset: Dataset): Result<Boolean> {
+    override suspend fun datasetExists(dataset: Dataset): Either<LigatureError, Boolean> {
         val l = lock.readLock()
         return try {
             l.lock()
-            success(store.contains(dataset))
+            Either.Right(store.contains(dataset))
         } finally {
             l.unlock()
         }
     }
 
     /** Returns all Datasets in a Ligature instance that start with the given prefix. */
-    override suspend fun matchDatasetsPrefix(prefix: String): Flow<Result<Dataset>> {
+    override suspend fun matchDatasetsPrefix(prefix: String): Flow<Either<LigatureError, Dataset>> {
         val l = lock.readLock()
         return try {
             l.lock()
-            store.filter { (key, _) -> key.name.startsWith(prefix) }.keys.map { success(it) }.asFlow()
+            store.filter { (key, _) -> key.name.startsWith(prefix) }.keys.map { Either.Right(it) }.asFlow()
         } finally {
             l.unlock()
         }
@@ -56,11 +56,11 @@ class InMemoryLigature(): Ligature {
     override suspend fun matchDatasetsRange(
             start: String,
             end: String,
-    ): Flow<Result<Dataset>> {
+    ): Flow<Either<LigatureError, Dataset>> {
         val l = lock.readLock()
         return try {
             l.lock()
-            store.filter { (key, _) -> key.name >= start && key.name < end }.keys.map { success(it) }.asFlow()
+            store.filter { (key, _) -> key.name >= start && key.name < end }.keys.map { Either.Right(it) }.asFlow()
         } finally {
             l.unlock()
         }
@@ -68,17 +68,17 @@ class InMemoryLigature(): Ligature {
 
     /** Creates a dataset with the given name.
      * TODO should probably return its own error type { InvalidDataset, DatasetExists, CouldNotCreateDataset } */
-    override suspend fun createDataset(dataset: Dataset): Result<Unit> {
+    override suspend fun createDataset(dataset: Dataset): Either<LigatureError, Unit> {
         val l = lock.writeLock()
         return try {
             l.lock()
             if (store.contains(dataset)) {
-                success(Unit)
+                Either.Right(Unit)
             } else {
                 store[dataset] = DatasetStore(setOf())
 //                val newStore = store.put(dataset, DatasetStore(0L, setOf()))
 //                store = newStore
-                success(Unit)
+                Either.Right(Unit)
             }
         } finally {
             l.unlock()
@@ -87,7 +87,7 @@ class InMemoryLigature(): Ligature {
 
     /** Deletes a dataset with the given name.
      * TODO should probably return its own error type { InvalidDataset, CouldNotDeleteDataset } */
-    override suspend fun deleteDataset(dataset: Dataset): Result<Unit> {
+    override suspend fun deleteDataset(dataset: Dataset): Either<LigatureError, Unit> {
         val l = lock.writeLock()
         return try {
             l.lock()
@@ -95,9 +95,9 @@ class InMemoryLigature(): Ligature {
 //                val newStore = store - dataset
 //                store = newStore
                 store.remove(dataset)
-                success(Unit)
+                Either.Right(Unit)
             } else {
-                success(Unit)
+                Either.Right(Unit)
             }
         } finally {
             l.unlock()
