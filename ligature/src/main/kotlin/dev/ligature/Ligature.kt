@@ -170,29 +170,29 @@ data class Statement(val entity: Entity, val attribute: Attribute, val value: Va
 /** A interface that all Ligature implementations implement. */
 interface Ligature {
     /** Returns all Datasets in a Ligature instance. */
-    suspend fun allDatasets(): Flow<Result<Dataset>>
+    suspend fun allDatasets(): Flow<Either<LigatureError, Dataset>>
 
     /** Check if a given Dataset exists. */
-    suspend fun datasetExists(dataset: Dataset): Result<Boolean>
+    suspend fun datasetExists(dataset: Dataset): Either<LigatureError, Boolean>
 
     /** Returns all Datasets in a Ligature instance that start with the given prefix. */
     suspend fun matchDatasetsPrefix(
             prefix: String,
-    ): Flow<Result<Dataset>>
+    ): Flow<Either<LigatureError, Dataset>>
 
     /** Returns all Datasets in a Ligature instance that are in a given range (inclusive, exclusive]. */
     suspend fun matchDatasetsRange(
             start: String,
             end: String,
-    ): Flow<Result<Dataset>>
+    ): Flow<Either<LigatureError, Dataset>>
 
     /** Creates a dataset with the given name.
      * TODO should probably return its own error type { InvalidDataset, DatasetExists, CouldNotCreateDataset } */
-    suspend fun createDataset(dataset: Dataset): Result<Unit>
+    suspend fun createDataset(dataset: Dataset): Either<LigatureError, Unit>
 
     /** Deletes a dataset with the given name.
      * TODO should probably return its own error type { InvalidDataset, CouldNotDeleteDataset } */
-    suspend fun deleteDataset(dataset: Dataset): Result<Unit>
+    suspend fun deleteDataset(dataset: Dataset): Either<LigatureError, Unit>
 
     /** Initiazes a QueryTx
      * TODO should probably return its own error type CouldNotInitializeQueryTx */
@@ -206,7 +206,7 @@ interface Ligature {
 /** Represents a QueryTx within the context of a Ligature instance and a single Dataset */
 interface QueryTx {
     /** Returns all Statements in this Dataset. */
-    suspend fun allStatements(): Flow<Result<Statement>>
+    suspend fun allStatements(): Flow<Either<LigatureError, Statement>>
 
     /** Returns all Statements that match the given criteria.
      * If a parameter is None then it matches all, so passing all Nones is the same as calling allStatements. */
@@ -215,7 +215,7 @@ interface QueryTx {
             attribute: Attribute? = null,
             value: Value? = null,
             context: Entity? = null
-    ): Flow<Result<Statement>>
+    ): Flow<Either<LigatureError, Statement>>
 
     /** Returns all Statements that match the given criteria.
      * If a parameter is None then it matches all. */
@@ -224,19 +224,19 @@ interface QueryTx {
             attribute: Attribute?,
             range: Range,
             context: Entity? = null
-    ): Flow<Result<Statement>>
+    ): Flow<Either<LigatureError, Statement>>
 }
 
 /** Represents a WriteTx within the context of a Ligature instance and a single Dataset */
 interface WriteTx {
     /** Creates a new, unique Entity within this Dataset by combining a UUID and an optional prefix.
      * Note: Entities are shared across named graphs in a given Dataset. */
-    suspend fun newAnonymousEntity(prefix: String = ""): Result<Entity>
+    suspend fun newAnonymousEntity(prefix: String = ""): Either<LigatureError, Entity>
 
     /** Adds a given Statement to this Dataset.
      * If the Statement already exists nothing happens.
      * Note: Potentially could trigger a ValidationError */
-    suspend fun addStatement(statement: Statement): Result<Unit>
+    suspend fun addStatement(statement: Statement): Either<LigatureError, Unit>
 
     /** Removes a given Statement from this Dataset.
      * If the Statement doesn't exist nothing happens and returns Ok(false).
@@ -244,9 +244,9 @@ interface WriteTx {
      * Note: Potentially could trigger a ValidationError. */
     suspend fun removeStatement(
             statement: Statement,
-    ): Result<Boolean>
+    ): Either<LigatureError, Boolean>
 
     /** Cancels this transaction so that none of the changes made so far will be stored.
      * This also closes this transaction so no other methods can be called without returning a LigatureError. */
-    suspend fun cancel(): Result<Unit>
+    suspend fun cancel(): Either<LigatureError, Unit>
 }
