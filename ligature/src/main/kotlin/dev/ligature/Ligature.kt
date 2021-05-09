@@ -7,6 +7,50 @@ package dev.ligature
 import dev.ligature.rakkoon.Rakkoon
 import kotlinx.coroutines.flow.Flow
 import arrow.core.*
+import dev.ligature.rakkoon.Cancel
+import dev.ligature.rakkoon.Complete
+import dev.ligature.rakkoon.Nibbler
+
+@OptIn(ExperimentalUnsignedTypes::class)
+val datasetNibbler = Nibbler {
+    when (it.peek(0U)) {
+        in 'a'..'z', in 'A'..'Z', '_' -> {
+            var offset = 1U
+            while (it.peek(offset) != null) {
+                when (it.peek(offset)) {
+                    in 'a'..'z', in 'A'..'Z', in '0'..'9', '_' -> {
+                        offset++
+                    }
+                    else -> break
+                }
+            }
+            Complete(offset.toInt())
+        }
+        else -> Cancel
+    }
+}
+
+private val identifierSpecialChars = listOf('-', '.', '_', '~', ':', '/', '?', '#', '[', ']', '@', '!', '$', '&', '\'',
+    '(', ')', '*', '+', ',', ';', '%', '=')
+
+@OptIn(ExperimentalUnsignedTypes::class)
+val identifierNibbler = Nibbler {
+    when (it.peek(0U)) {
+        in 'a'..'z', in 'A'..'Z', '_' -> {
+            var offset = 1U
+            while (it.peek(offset) != null) {
+                when (it.peek(offset)) {
+                    in 'a'..'z', in 'A'..'Z', in '0'..'9', in identifierSpecialChars -> {
+                        offset++
+                    }
+                    else -> break
+                }
+            }
+            Complete(offset.toInt())
+        }
+        else -> Cancel
+    }
+}
 
 class Dataset private constructor(val name: String): Comparable<Dataset> {
     override fun compareTo(other: Dataset): Int = name.compareTo(other.name)
@@ -26,13 +70,18 @@ class Dataset private constructor(val name: String): Comparable<Dataset> {
     operator fun component1(): String = name
 
     companion object {
-        fun from(name: String): Option<Dataset> = from(Rakkoon(name))
-
-        fun from(rakkoon: Rakkoon): Option<Dataset> {
-            val res = rakkoon.nibble { lookAhead ->
-                //private val pattern = "^([a-zA-Z_]{1}[a-zA-Z0-9_]*)(/[a-zA-Z_]{1}[a-zA-Z0-9_]*)*$".r
-                TODO()
+        /**
+         * Attempts to create a Dataset with the given name.
+         * If the entire String is a valid Dataset name then Some(dataset) is returned otherwise None is.
+         */
+        fun from(name: String): Option<Dataset> =
+            when (val dataset = from(Rakkoon(name))) {
+                is None -> dataset
+                is Some -> if (dataset.value.name == name) dataset else none()
             }
+
+        private fun from(rakkoon: Rakkoon): Option<Dataset> {
+            val res = rakkoon.nibble(datasetNibbler)
             return res.map { Dataset(it.value) }
         }
     }
@@ -54,12 +103,18 @@ class Entity private constructor(val id: String): Value() {
     operator fun component1(): String = id
 
     companion object {
-        fun from(name: String): Option<Entity> = from(Rakkoon(name))
-
-        fun from(rakkoon: Rakkoon): Option<Entity> {
-            val res = rakkoon.nibble { lookAhead ->
-                TODO()
+        /**
+         * Attempts to create an Entity with the given name.
+         * If the entire String is a valid Entity identifier then Some(entity) is returned otherwise None is.
+         */
+        fun from(id: String): Option<Entity> =
+            when (val entity = from(Rakkoon(id))) {
+                is None -> entity
+                is Some -> if (entity.value.id == id) entity else none()
             }
+
+        private fun from(rakkoon: Rakkoon): Option<Entity> {
+            val res = rakkoon.nibble(identifierNibbler)
             return res.map { Entity(it.value) }
         }
     }
@@ -81,12 +136,18 @@ class Attribute private constructor(val name: String) {
     operator fun component1(): String = name
 
     companion object {
-        fun from(name: String): Option<Attribute> = from(Rakkoon(name))
-
-        fun from(rakkoon: Rakkoon): Option<Attribute> {
-            val res = rakkoon.nibble { lookAhead ->
-                TODO()
+        /**
+         * Attempts to create an Attribute with the given name.
+         * If the entire String is a valid Attribute name then Some(attribute) is returned otherwise None is.
+         */
+        fun from(name: String): Option<Attribute> =
+            when (val attribute = from(Rakkoon(name))) {
+                is None -> attribute
+                is Some -> if (attribute.value.name == name) attribute else none()
             }
+
+        private fun from(rakkoon: Rakkoon): Option<Attribute> {
+            val res = rakkoon.nibble(identifierNibbler)
             return res.map { Attribute(it.value) }
         }
     }
