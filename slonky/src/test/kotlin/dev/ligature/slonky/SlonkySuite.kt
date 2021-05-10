@@ -62,20 +62,20 @@ class SlonkySuite: FunSpec() {
         }
 
         test("Query Datasets w/ prefix") {
-            listOf("test/test1", "test/test2", "test3/test").forEach {
+            listOf("test_test1", "test_test2", "test3_test").forEach {
                 awaitResult<HttpResponse<Buffer>> { h ->
                     client.post(port, local, "/$it").send(h)
                 }
             }
             val res = awaitResult<HttpResponse<Buffer>> { h ->
-                client.get(port, local, "/?prefix=test%2F").send(h)
+                client.get(port, local, "/?prefix=test_").send(h)
             }
             JsonParser.parseString(res.bodyAsString()).asJsonArray shouldBe
-                JsonParser.parseString("[\"test/test1\",\"test/test2\"]").asJsonArray
+                JsonParser.parseString("[\"test_test1\",\"test_test2\"]").asJsonArray
         }
 
         test("Query Datasets w/ range") {
-            listOf("test", "test1/test1", "test2/test2", "test3/test").forEach {
+            listOf("test", "test1_test1", "test2_test2", "test3_test").forEach {
                 awaitResult<HttpResponse<Buffer>> { h ->
                     client.post(port, local, "/$it").send(h)
                 }
@@ -84,23 +84,23 @@ class SlonkySuite: FunSpec() {
                 client.get(port, local, "/?start=test1&end=test3").send(h)
             }
             JsonParser.parseString(res.bodyAsString()).asJsonArray shouldBe
-                    JsonParser.parseString("[\"test1/test1\",\"test2/test2\"]").asJsonArray
+                    JsonParser.parseString("[\"test1_test1\",\"test2_test2\"]").asJsonArray
         }
 
         test("Delete Datasets") {
-            listOf("test", "test1/test1", "test2/test2", "test3/test").forEach {
+            listOf("test", "test1_test1", "test2_test2", "test3_test").forEach {
                 awaitResult<HttpResponse<Buffer>> { h ->
                     client.post(port, local, "/$it").send(h)
                 }
             }
             awaitResult<HttpResponse<Buffer>> { h ->
-                client.delete(port, local, "/test2/test2").send(h)
+                client.delete(port, local, "/test2_test2").send(h)
             }
             val res = awaitResult<HttpResponse<Buffer>> { h ->
                 client.get(port, local, "").send(h)
             }
             JsonParser.parseString(res.bodyAsString()).asJsonArray shouldBe
-                    JsonParser.parseString("[\"test\",\"test1/test1\",\"test3/test\"]").asJsonArray
+                    JsonParser.parseString("[\"test\",\"test1_test1\",\"test3_test\"]").asJsonArray
         }
 
         test("Statements in new Dataset should start empty") {
@@ -260,9 +260,9 @@ class SlonkySuite: FunSpec() {
             val toDelete = setOf(
                 Statement(entities[0], attributes[0], entities[1], contexts[0]),
                 Statement(entities[2], attributes[0], values[0], contexts[1]),
-                Statement(entity("6"), attribute("attribute2"), values[1], contexts[2]), //doesn't match
-                Statement(entity("8"), attribute("attribute3"), values[2], contexts[3]), //doesn't match
-                Statement(entity("2"), attribute("attribute4"), values[3], contexts[4]), //doesn't match
+                Statement(entity("_6"), attribute("attribute2"), values[1], contexts[2]), //doesn't match
+                Statement(entity("_8"), attribute("attribute3"), values[2], contexts[3]), //doesn't match
+                Statement(entity("_2"), attribute("attribute4"), values[3], contexts[4]), //doesn't match
             )
 
             val expected = setOf(
