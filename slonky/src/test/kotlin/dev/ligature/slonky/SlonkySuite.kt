@@ -4,6 +4,8 @@
 
 package dev.ligature.slonky
 
+import arrow.core.Either
+import arrow.core.getOrElse
 import com.google.gson.*
 import dev.ligature.*
 import dev.ligature.inmemory.InMemoryLigature
@@ -18,6 +20,12 @@ import io.vertx.ext.web.client.WebClient
 import io.vertx.kotlin.coroutines.awaitResult
 
 class SlonkySuite: FunSpec() {
+    //Some helper functions
+    private fun dataset(name: String): Dataset = Dataset.from(name).getOrElse { TODO("Could not create Dataset $name") }
+    private fun entity(id: String): Entity = Entity.from(id).getOrElse { TODO() }
+    private fun attribute(name: String): Attribute = Attribute.from(name).getOrElse { TODO() }
+    private fun <E,T> Either<E, T>.getOrThrow(): T = this.getOrElse { TODO() }
+
     init {
         val port = 4444
         val local = "localhost"
@@ -107,12 +115,12 @@ class SlonkySuite: FunSpec() {
 
         test("Add Statements") {
             val input = listOf(
-                Statement(Entity("ent1"), Attribute("attribute"), StringLiteral("Hey"), Entity("Context1")),
-                Statement(Entity("ent1"), Attribute("attribute"), StringLiteral("Hey"), Entity("Context1")), //dupe
-                Statement(Entity("ent1"), Attribute("attribute"), StringLiteral("Hey"), Entity("Context2")),
-                Statement(Entity("ent2"), Attribute("size"), IntegerLiteral(34537463), Entity("Context3")),
-                Statement(Entity("ent3"), Attribute("notPi"), FloatLiteral(3.131123), Entity("Context4")),
-                Statement(Entity("ent4"), Attribute("attribute5"), Entity("Hey"), Entity("Context5")),
+                Statement(entity("ent1"), attribute("attribute"), StringLiteral("Hey"), entity("Context1")),
+                Statement(entity("ent1"), attribute("attribute"), StringLiteral("Hey"), entity("Context1")), //dupe
+                Statement(entity("ent1"), attribute("attribute"), StringLiteral("Hey"), entity("Context2")),
+                Statement(entity("ent2"), attribute("size"), IntegerLiteral(34537463), entity("Context3")),
+                Statement(entity("ent3"), attribute("notPi"), FloatLiteral(3.131123), entity("Context4")),
+                Statement(entity("ent4"), attribute("attribute5"), entity("Hey"), entity("Context5")),
             )
 
             val expected = input.toSet() //use a set to check for case of adding repeated Statements...see above
@@ -132,10 +140,10 @@ class SlonkySuite: FunSpec() {
         }
 
         test("Match Statements") {
-            val entities = (1..5).map { i -> Entity("entity$i") }.toList()
-            val attributes = (1..4).map { i -> Attribute("attribute$i") }.toList()
+            val entities = (1..5).map { i -> entity("entity$i") }.toList()
+            val attributes = (1..4).map { i -> attribute("attribute$i") }.toList()
             val values = listOf(StringLiteral("Hello"), IntegerLiteral(3453), FloatLiteral(4.2))
-            val contexts = (1..5).map { i -> Entity("context$i") }.toList()
+            val contexts = (1..5).map { i -> entity("context$i") }.toList()
 
             val input = setOf(
                 Statement(entities[0], attributes[0], entities[1], contexts[0]),
@@ -184,15 +192,15 @@ class SlonkySuite: FunSpec() {
         }
 
         test("Match Statements with ranges") {
-            val entities = (1..5).map { i -> Entity("entity$i") }.toList()
-            val attribute = Attribute("attribute")
+            val entities = (1..5).map { i -> entity("entity$i") }.toList()
+            val attribute = attribute("attribute")
             val values = listOf(
                 IntegerLiteral(1),
                 IntegerLiteral(2),
                 IntegerLiteral(3),
                 FloatLiteral(4.2),
                 FloatLiteral(4.3))
-            val contexts = (1..5).map { i -> Entity("context$i") }.toList()
+            val contexts = (1..5).map { i -> entity("context$i") }.toList()
 
             val input = setOf(
                 Statement(entities[0], attribute, values[0], contexts[0]),
@@ -232,14 +240,14 @@ class SlonkySuite: FunSpec() {
         }
 
         test("Delete Statements") {
-            val entities = (1..5).map { i -> Entity("entity$i") }.toList()
-            val attributes = (1..4).map { i -> Attribute("attribute$i") }.toList()
+            val entities = (1..5).map { i -> entity("entity$i") }.toList()
+            val attributes = (1..4).map { i -> attribute("attribute$i") }.toList()
             val values = listOf(
                 IntegerLiteral(1),
                 StringLiteral("Hello"),
                 IntegerLiteral(3453),
                 FloatLiteral(4.2))
-            val contexts = (1..5).map { i -> Entity("context$i") }.toList()
+            val contexts = (1..5).map { i -> entity("context$i") }.toList()
 
             val input = setOf(
                 Statement(entities[0], attributes[0], entities[1], contexts[0]),
@@ -252,9 +260,9 @@ class SlonkySuite: FunSpec() {
             val toDelete = setOf(
                 Statement(entities[0], attributes[0], entities[1], contexts[0]),
                 Statement(entities[2], attributes[0], values[0], contexts[1]),
-                Statement(Entity("6"), Attribute("attribute2"), values[1], contexts[2]), //doesn't match
-                Statement(Entity("8"), Attribute("attribute3"), values[2], contexts[3]), //doesn't match
-                Statement(Entity("2"), Attribute("attribute4"), values[3], contexts[4]), //doesn't match
+                Statement(entity("6"), attribute("attribute2"), values[1], contexts[2]), //doesn't match
+                Statement(entity("8"), attribute("attribute3"), values[2], contexts[3]), //doesn't match
+                Statement(entity("2"), attribute("attribute4"), values[3], contexts[4]), //doesn't match
             )
 
             val expected = setOf(
