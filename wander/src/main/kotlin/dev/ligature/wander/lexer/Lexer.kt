@@ -7,6 +7,7 @@ package dev.ligature.wander.lexer
 import arrow.core.Either
 import arrow.core.None
 import arrow.core.Some
+import dev.ligature.FloatLiteral
 import dev.ligature.IntegerLiteral
 import dev.ligature.lig.LigParser
 import dev.ligature.rakkoon.*
@@ -29,6 +30,10 @@ class Lexer {
 
     private fun Char.isNewLine(): Boolean {
         return this == '\n'
+    }
+
+    private fun Char.isString(): Boolean {
+        return this == '"'
     }
 
     private fun Char.isOperator(): Boolean =
@@ -55,12 +60,30 @@ class Lexer {
     @kotlin.ExperimentalUnsignedTypes
     private fun readOperator(rakkoon: Rakkoon): Either<LexerError, WanderToken> {
         val operatorOffset = rakkoon.currentOffset()
-        when (rakkoon.peek()) {
+        return when (rakkoon.peek()) {
             '=' -> {
                 rakkoon.bite(1U);
-                return Either.Right(WanderToken(operatorOffset, AssignmentOperator))
-            }
-            else -> TODO()
+                Either.Right(WanderToken(operatorOffset, AssignmentOperator))
+            } //TODO might need to handle == if I decide to handle equality that way
+            '@' -> readAttribute(rakkoon)
+            '<' -> readEntity(rakkoon) //TODO will probably need to handle less than as well eventually
+            else -> Either.Left(LexerError("Unsupported operator, ${rakkoon.remainingText()}", rakkoon.currentOffset()))
+        }
+    }
+
+    private fun readAttribute(rakkoon: Rakkoon): Either<LexerError, WanderToken> {
+        val startingOffset = rakkoon.currentOffset()
+        return when (val res = ligParser.parseAttribute(rakkoon)) {
+            is Either.Left -> Either.Left(LexerError("Error reading Attribute, ${rakkoon.remainingText()}", rakkoon.currentOffset()))
+            is Either.Right -> Either.Right(WanderToken(startingOffset, AttributePrimitive(res.value)))
+        }
+    }
+
+    private fun readEntity(rakkoon: Rakkoon): Either<LexerError, WanderToken> {
+        val startingOffset = rakkoon.currentOffset()
+        return when (val res = ligParser.parseEntity(rakkoon)) {
+            is Either.Left -> Either.Left(LexerError("Error reading Entity, ${rakkoon.remainingText()}", rakkoon.currentOffset()))
+            is Either.Right -> Either.Right(WanderToken(startingOffset, EntityPrimitive(res.value)))
         }
     }
 
@@ -68,12 +91,19 @@ class Lexer {
         val initialOffset = rakkoon.currentOffset()
         return when (val number = rakkoon.nibble(rangeNibbler('0'..'9'))) {
             None -> TODO()
-            is Some -> {
+            is Some ->
                 when (rakkoon.nibble(charNibbler('.'))) {
                     None -> Either.Right(WanderToken(initialOffset, IntegerPrimitive(IntegerLiteral(number.value.value.toLong()))))
-                    is Some -> TODO()
+                    is Some -> {
+                        when (val decimal = rakkoon.nibble(rangeNibbler('0'..'9'))) {
+                            is None -> TODO("return error parsing float")
+                            is Some -> {
+                                val numberRepresentation = number.value.value + "." + decimal.value.value
+                                Either.Right(WanderToken(initialOffset, FloatPrimitive(FloatLiteral(numberRepresentation.toDouble()))))
+                            }
+                        }
+                    }
                 }
-            }
         }
     }
 
@@ -92,19 +122,24 @@ class Lexer {
         }
     }
 
+    private fun readString(rakkoon: Rakkoon): Either<LexerError, WanderToken> {
+        TODO("Use implementation from lig")
+    }
+
     private fun readToken(rakkoon: Rakkoon): Either<LexerError, WanderToken> {
         rakkoon.nibble(charNibbler(' ', '\t')) //remove whitespace
-        val next = rakkoon.peek()
-        return when  {
-            next == null -> TODO()
-            next.isNewLine() -> readNewLine(rakkoon)
-            next.isOperator() -> readOperator(rakkoon)
-            next.isDigit() -> readNumber(rakkoon)
-            next.isIdentifier() -> readIdentifier(rakkoon)
+        return when (rakkoon.peek()) {
+            null -> Either.Right(WanderToken(rakkoon.currentOffset(), EndOfScriptToken))
+            '\n' -> readNewLine(rakkoon)
+            '"' -> readString(rakkoon)
+            '=', '<', '@' -> readOperator(rakkoon)
+            in '0'..'9' -> readNumber(rakkoon)
+            in 'a'..'z', in 'A'..'Z', '_' -> readIdentifier(rakkoon)
             else -> return Either.Left(LexerError("Unexpected input.\n${rakkoon.remainingText()}", rakkoon.currentOffset()))
         }
     }
 
+    //TODO remove after testing all primitives
     private fun readPrimitive(rakkoon: Rakkoon): Either<WanderError, Primitive> {
         val attributeRes = ligParser.parseAttribute(rakkoon)
         if (attributeRes.isRight()) return attributeRes.map { AttributePrimitive(it) }.mapLeft { TODO() }

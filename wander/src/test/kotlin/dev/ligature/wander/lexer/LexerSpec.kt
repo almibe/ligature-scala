@@ -5,8 +5,8 @@
 package dev.ligature.wander.lexer
 
 import arrow.core.Either
-import dev.ligature.IntegerLiteral
-import dev.ligature.StringLiteral
+import arrow.core.getOrElse
+import dev.ligature.*
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 
@@ -20,6 +20,30 @@ class LexerSpec : FunSpec() {
             val res = lexer.read(script)
             res shouldBe Either.Right(listOf(
                 tk(0, IntegerPrimitive(IntegerLiteral(5L)))
+            ))
+        }
+
+        test("float primitive") {
+            val script = "5.75"
+            val res = lexer.read(script)
+            res shouldBe Either.Right(listOf(
+                tk(0, FloatPrimitive(FloatLiteral(5.75)))
+            ))
+        }
+
+        test("Entity primitive") {
+            val script = "<hello___:::///////3905823989>"
+            val res = lexer.read(script)
+            res shouldBe Either.Right(listOf(
+                tk(0, EntityPrimitive(Entity.from("hello___:::///////3905823989").getOrElse { TODO() }))
+            ))
+        }
+
+        test("Attribute primitive") {
+            val script = "@<test://#&%?__075029823984_testlkj>"
+            val res = lexer.read(script)
+            res shouldBe Either.Right(listOf(
+                tk(0, AttributePrimitive(Attribute.from("test://#&%?__075029823984_testlkj").getOrElse { TODO() }))
             ))
         }
 

@@ -13,6 +13,7 @@ data class WanderToken(
 
 sealed class WanderTokenValue
 
+object EndOfScriptToken: WanderTokenValue()
 object NewLineToken: WanderTokenValue()
 
 /**
