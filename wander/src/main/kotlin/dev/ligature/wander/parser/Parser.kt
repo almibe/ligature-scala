@@ -10,6 +10,13 @@ import dev.ligature.wander.lexer.WanderToken
 
 class Parser {
     fun parse(tokens: List<WanderToken>): Either<ParserError, Script> {
-        TODO()
+        val tokenScanner = TokenScanner(tokens)
+        val statements = mutableListOf<WanderStatement>()
+        while (!tokenScanner.isComplete()) {
+            when (val token = tokenScanner.peek()) {
+                else -> Either.Left(ParserError("Unexpected token, ${token!!.debug}", token.offset))
+            }
+        }
+        return Either.Right(Script(statements))
     }
 }
