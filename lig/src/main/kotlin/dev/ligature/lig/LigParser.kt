@@ -51,12 +51,10 @@ class LigParser {
 
     fun parseEntity(rakkoon: Rakkoon, previousEntity: Entity? = null): Either<LigError, Entity> {
         //TODO need to also check for _
-        val entityPattern = "[a-zA-Z0-9_:]+".toRegex()
         val openEntityNibbler = stringNibbler("<")
-        val entityNibbler = predicateNibbler { it.toString().matches(entityPattern) }
         val closeEntityNibbler = stringNibbler(">")
 
-        return when (val entityRes = rakkoon.nibble(openEntityNibbler, entityNibbler, closeEntityNibbler)) {
+        return when (val entityRes = rakkoon.nibble(openEntityNibbler, identifierNibbler, closeEntityNibbler)) {
             is None -> Either.Left(LigError("Could not parse Entity."))
             is Some -> createEntity(entityRes.value[1].value)
         }
@@ -70,13 +68,10 @@ class LigParser {
 
     fun parseAttribute(rakkoon: Rakkoon, previousAttribute: Attribute? = null): Either<LigError, Attribute> {
         //TODO need to also check for _
-        println(rakkoon.remainingText())
-        val attributePattern = "[a-zA-Z0-9_:]".toRegex()
         val openAttributeNibbler = stringNibbler("@<")
-        val attributeNibbler = predicateNibbler { it.toString().matches(attributePattern) }
         val closeAttributeNibbler = stringNibbler(">")
 
-        return when (val attributeRes = rakkoon.nibble(openAttributeNibbler, attributeNibbler, closeAttributeNibbler)) {
+        return when (val attributeRes = rakkoon.nibble(openAttributeNibbler, identifierNibbler, closeAttributeNibbler)) {
             is None -> Either.Left(LigError("Could not parse Attribute.\n${rakkoon.remainingText()}"))
             is Some -> createAttribute(attributeRes.value[1].value)
         }

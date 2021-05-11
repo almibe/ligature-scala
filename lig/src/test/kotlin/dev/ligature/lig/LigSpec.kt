@@ -33,6 +33,12 @@ class LigSpec : FunSpec() {
             entity shouldBe Either.Right(testEntity)
         }
 
+        test("complex entity parsing") {
+            val entity = "<http$://&&this@2]34.[42;342?#--__>"
+            val entityRes = ligParser.parseEntity(Rakkoon(entity))
+            entityRes shouldBe Either.Right(entity("http\$://&&this@2]34.[42;342?#--__"))
+        }
+
         test("write attributes") {
             val res = ligWriter.writeAttribute(testAttribute)
             res shouldBe "@<test>"
@@ -42,6 +48,12 @@ class LigSpec : FunSpec() {
             val test = "@<test>"
             val attribute = ligParser.parseAttribute(Rakkoon(test), null)
             attribute shouldBe Either.Right(testAttribute)
+        }
+
+        test("complex attribute parsing") {
+            val attribute = "@<http$://&&this@2]34.[42;342?#--__>"
+            val attributeRes = ligParser.parseAttribute(Rakkoon(attribute))
+            attributeRes shouldBe Either.Right(attribute("http\$://&&this@2]34.[42;342?#--__"))
         }
 
         test("write FloatLiteral") {
