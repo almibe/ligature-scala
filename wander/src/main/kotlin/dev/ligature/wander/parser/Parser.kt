@@ -14,8 +14,9 @@ class Parser {
         val statements = mutableListOf<WanderStatement>()
         while (!tokenScanner.isComplete()) {
             when (val token = tokenScanner.peek()) {
-                else -> Either.Left(ParserError("Unexpected token, ${token!!.debug}", token.offset))
+                else -> return Either.Left(ParserError("Unexpected token, ${token!!.debug}", token.offset))
             }
+            tokenScanner.skip()
         }
         return Either.Right(Script(statements))
     }

@@ -18,11 +18,11 @@ class Writer {
      */
     fun write(result: Either<WanderError, Primitive>): String =
         when (result) {
-            is Either.Right -> writePrimitive(result.value)
-            is Either.Left  -> writeError(result.value)
+            is Either.Right -> write(result.value)
+            is Either.Left  -> write(result.value)
         }
 
-    private fun writePrimitive(primitive: Primitive): String =
+    fun write(primitive: Primitive): String =
         when (primitive) {
             is IntegerPrimitive -> ligWriter.writeValue(primitive.value)
             is AttributePrimitive -> ligWriter.writeAttribute(primitive.value)
@@ -34,7 +34,7 @@ class Writer {
             is ValuePrimitive -> ligWriter.writeValue(primitive.value)
         }
 
-    private fun writeError(error: WanderError): String =
+    fun write(error: WanderError): String =
         when (error) {
             is LexerError -> "Lexing Error at ${error.position}: ${error.message}"
             is ParserError -> "Parsing Error at ${error.position}: ${error.message}"

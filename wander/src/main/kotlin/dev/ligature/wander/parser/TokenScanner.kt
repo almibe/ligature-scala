@@ -4,7 +4,6 @@
 
 package dev.ligature.wander.parser
 
-import dev.ligature.wander.lexer.EndOfScriptToken
 import dev.ligature.wander.lexer.WanderToken
 
 @OptIn(ExperimentalUnsignedTypes::class)

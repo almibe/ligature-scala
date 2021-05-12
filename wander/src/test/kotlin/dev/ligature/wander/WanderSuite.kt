@@ -36,18 +36,18 @@ class WanderSuite : FunSpec() {
     }
 
     init {
-        test("primitives support") {
-            buildResults("src/test/resources/primitives").forAll {
-                it.commandResult shouldBe it.expected
-                it.queryResult shouldBe it.expected
-            }
-        }
-
-        test("assignment support") {
-            buildResults("src/test/resources/assignment").forAll {
-                it.commandResult shouldBe it.expected
-                it.queryResult shouldBe it.expected
-            }
-        }
+//        test("primitives support") {
+//            buildResults("src/test/resources/primitives").forAll {
+//                it.commandResult shouldBe it.expected
+//                it.queryResult shouldBe it.expected
+//            }
+//        }
+//
+//        test("assignment support") {
+//            buildResults("src/test/resources/assignment").forAll {
+//                it.commandResult shouldBe it.expected
+//                it.queryResult shouldBe it.expected
+//            }
+//        }
     }
 }

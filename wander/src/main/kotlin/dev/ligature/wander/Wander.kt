@@ -22,7 +22,7 @@ class Wander {
     fun runCommand(input: String): Either<WanderError, Primitive> {
         val tokens = lexer.read(input)
         val script = parser.parse(tokens.getOrElse { TODO() })
-        return interpreter.runCommmand(script.getOrElse { TODO() })
+        return interpreter.runCommand(script.getOrElse { TODO() })
     }
 
     fun runCommandAndPrint(input: String): String {

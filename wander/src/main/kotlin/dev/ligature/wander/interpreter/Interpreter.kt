@@ -9,7 +9,7 @@ import dev.ligature.wander.error.InterpreterError
 import dev.ligature.wander.parser.*
 
 class Interpreter {
-    fun runCommmand(script: Script): Either<InterpreterError, Primitive> {
+    fun runCommand(script: Script): Either<InterpreterError, Primitive> {
         return run(script)
     }
 

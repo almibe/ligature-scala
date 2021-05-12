@@ -4,21 +4,27 @@
 
 package dev.ligature.wander.parser
 
+import arrow.core.Either
+import arrow.core.getOrElse
+import dev.ligature.wander.lexer.Lexer
 import io.kotest.core.spec.style.FunSpec
-import io.kotest.inspectors.forAll
 import io.kotest.matchers.shouldBe
-import java.nio.file.Files
-import java.nio.file.Path
-import java.nio.file.Paths
-import kotlin.io.path.ExperimentalPathApi
-import kotlin.io.path.extension
-import kotlin.io.path.readText
-import kotlin.streams.toList
 
 class ParserSpec : FunSpec() {
-    init {
-        test("primitives support") {
+    val lexer = Lexer()
+    val parser = Parser()
 
+    init {
+        test("empty script") {
+            val script = ""
+            val res = parser.parse(lexer.read(script).getOrElse { TODO("parser error") })
+            res shouldBe Either.Right(Script(listOf()))
+        }
+
+        test("primitives support") {
+            val script = "5"
+            val res = parser.parse(lexer.read(script).getOrElse { TODO("parser error") })
+            res shouldBe Either.Right(Script(listOf()))
         }
     }
 }
