@@ -18,8 +18,9 @@ class InMemoryWriteTx(store: DatasetStore) : WriteTx {
     /** Creates a new, unique Entity within this Dataset.
      *  Note: Entities are shared across named graphs in a given Dataset. */
     override suspend fun newAnonymousEntity(prefix: String): Either<LigatureError, Entity> {
-        return when (val res = Entity.from(prefix + UUID.randomUUID().toString())) {
-            is None -> Either.Left(LigatureError("Could not create Entity with id - $res"))
+        val id = prefix + UUID.randomUUID().toString()
+        return when (val res = Entity.from(id)) {
+            is None -> Either.Left(LigatureError("Could not create Entity with id - $id"))
             is Some -> Either.Right(res.value)
         }
     }
