@@ -119,7 +119,7 @@ abstract class LigatureTestSuite : FunSpec() {
                 Pair(entity3, entity4)
             }
             val uuidPattern = "[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}"
-            res.first.getOrThrow().id.matches(uuidPattern.toRegex()) shouldBe true
+            res.first.getOrThrow().id.matches("_$uuidPattern".toRegex()) shouldBe true
             res.second.getOrThrow().id.matches("prefixTest$uuidPattern".toRegex()) shouldBe true
         }
 
