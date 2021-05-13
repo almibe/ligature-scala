@@ -14,5 +14,6 @@ include(
     "ligature-in-memory",
     "lig",
     "slonky",
+    "wander-grammar",
     "wander"
 )

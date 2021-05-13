@@ -10,6 +10,7 @@ and is built to run on the JVM or natively with GraalVM.
 ## Subprojects
  - ligature - The main api for Ligature.
  - lig - A support for serialization with Ligature.
+ - wander-grammar - ANTLR grammar for Wander.
  - wander - A scripting language for working with Ligature.
  - ligature-test-suite - A single test suite for the Ligature api.
  - ligature-in-memory - An implementation of Ligature that stores all data in memory.
