@@ -11,5 +11,6 @@ dependencies {
 }
 
 tasks.generateGrammarSource {
-    outputDirectory = File("${project.buildDir}/generated-src/antlr/main/dev/ligature/wander/parser".toString())
+    outputDirectory = File("${project.buildDir}/generated-src/antlr/main/dev/ligature/wander/parser")
+    arguments = arguments + listOf("-visitor")
 }
