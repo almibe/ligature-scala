@@ -5,7 +5,6 @@
 package dev.ligature.wander.interpreter
 
 import arrow.core.Either
-import dev.ligature.wander.parser.Primitive
 import dev.ligature.wander.error.SymbolExits
 import dev.ligature.wander.error.UnknownSymbol
 
@@ -33,4 +32,16 @@ class Scope(private val parentScope: Scope?) {
                 parentScope?.lookupSymbol(name) ?: Either.Left(UnknownSymbol(name))
             }
         }
+}
+
+fun createCommandScope(): Scope {
+    val scope = Scope(null)
+    //TODO add default functions
+    return scope
+}
+
+fun createQueryScope(): Scope {
+    val scope = Scope(null)
+    //TODO add default functions
+    return scope
 }

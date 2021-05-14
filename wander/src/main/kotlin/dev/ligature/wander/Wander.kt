@@ -5,24 +5,17 @@
 package dev.ligature.wander
 
 import arrow.core.Either
-import arrow.core.getOrElse
 import dev.ligature.wander.error.WanderError
 import dev.ligature.wander.interpreter.Interpreter
-import dev.ligature.wander.lexer.Lexer
-import dev.ligature.wander.parser.Parser
-import dev.ligature.wander.parser.Primitive
+import dev.ligature.wander.interpreter.Primitive
 import dev.ligature.wander.writer.Writer
 
 class Wander {
-    private val lexer = Lexer()
-    private val parser = Parser()
     private val interpreter = Interpreter()
     private val writer = Writer()
 
     fun runCommand(input: String): Either<WanderError, Primitive> {
-        val tokens = lexer.read(input)
-        val script = parser.parse(tokens.getOrElse { TODO() })
-        return interpreter.runCommand(script.getOrElse { TODO() })
+        return interpreter.runCommand(input)
     }
 
     fun runCommandAndPrint(input: String): String {
@@ -31,9 +24,7 @@ class Wander {
     }
 
     fun runQuery(input: String): Either<WanderError, Primitive> {
-        val tokens = lexer.read(input)
-        val script = parser.parse(tokens.getOrElse { TODO() })
-        return interpreter.runQuery(script.getOrElse { TODO() })
+        return interpreter.runQuery(input)
     }
 
     fun runQueryAndPrint(input: String): String {

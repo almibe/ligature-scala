@@ -7,7 +7,7 @@ package dev.ligature.wander.writer
 import arrow.core.Either
 import dev.ligature.lig.LigWriter
 import dev.ligature.wander.error.*
-import dev.ligature.wander.parser.*
+import dev.ligature.wander.interpreter.*
 
 class Writer {
     private val ligWriter = LigWriter()
@@ -32,11 +32,11 @@ class Writer {
             is StringPrimitive -> ligWriter.writeValue(primitive.value)
             UnitPrimitive -> "Unit"
             is ValuePrimitive -> ligWriter.writeValue(primitive.value)
+            is WanderFunction -> TODO()
         }
 
     fun write(error: WanderError): String =
         when (error) {
-            is LexerError -> "Lexing Error at ${error.position}: ${error.message}"
             is ParserError -> "Parsing Error at ${error.position}: ${error.message}"
             is SymbolError -> "Symbol Error"
             is NotSupported -> error.message
