@@ -33,15 +33,3 @@ class Scope(private val parentScope: Scope?) {
             }
         }
 }
-
-fun createCommandScope(): Scope {
-    val scope = Scope(null)
-    //TODO add default functions
-    return scope
-}
-
-fun createQueryScope(): Scope {
-    val scope = Scope(null)
-    //TODO add default functions
-    return scope
-}

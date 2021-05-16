@@ -2,8 +2,7 @@ grammar Wander;
 @header {
 package dev.ligature.wander.parser;
 }
-script: stat*;
-stat: letStat | expression;
+script: (letStat | expression)*;
 expression: primative | funcCall | whenExpression; //TODO support method calls and specific types of expressions
 letStat: 'let' IDENTIFIER '=' expression;
 whenExpression: 'when'; //TODO complete

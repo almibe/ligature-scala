@@ -5,13 +5,27 @@
 package dev.ligature.wander.interpreter
 
 import arrow.core.Either
+import dev.ligature.Ligature
 import dev.ligature.wander.error.InterpreterError
 import dev.ligature.wander.parser.*
 import org.antlr.v4.runtime.CharStreams
 import org.antlr.v4.runtime.CommonTokenStream
-import org.antlr.v4.runtime.tree.ParseTreeWalker
 
-class Interpreter {
+class Interpreter(private val ligature: Ligature) {
+    private val scriptVisitor = ScriptVisitor()
+
+    fun createCommandScope(): Scope {
+        val scope = Scope(null)
+        //TODO add default functions
+        return scope
+    }
+
+    fun createQueryScope(): Scope {
+        val scope = Scope(null)
+        //TODO add default functions
+        return scope
+    }
+
     fun runCommand(script: String): Either<InterpreterError, Primitive> {
         return run(script, createCommandScope())
     }
@@ -20,21 +34,17 @@ class Interpreter {
         return run(script, createQueryScope())
     }
 
-    private fun run(script: String, topScope: Scope): Either<InterpreterError, Primitive> {
-        TODO()
-    }
-
-    private fun parse(input: String) {
-        val inputStream = CharStreams.fromString(input)
+    fun run(script: String, topScope: Scope): Either<InterpreterError, Primitive> {
+        val inputStream = CharStreams.fromString(script)
         val lexer = WanderLexer(inputStream)
         val tokenStream = CommonTokenStream(lexer)
         val parser = WanderParser(tokenStream)
-        val tree = parser.script()
-        val walker = ParseTreeWalker()
-        walker.walk(WanderListener(), tree)
+        return scriptVisitor.visitScript(parser.script())
     }
 }
 
-private class WanderListener(): WanderBaseListener() {
-
+class ScriptVisitor: WanderBaseVisitor<Either<InterpreterError, Primitive>>() {
+    override fun visitScript(ctx: WanderParser.ScriptContext): Either<InterpreterError, Primitive> {
+        TODO()
+    }
 }
