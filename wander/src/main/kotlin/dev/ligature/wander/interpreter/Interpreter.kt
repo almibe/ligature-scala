@@ -6,7 +6,6 @@ package dev.ligature.wander.interpreter
 
 import arrow.core.Either
 import dev.ligature.Ligature
-import dev.ligature.StringLiteral
 import dev.ligature.lig.LigParser
 import dev.ligature.rakkoon.Rakkoon
 import dev.ligature.wander.error.InterpreterError
@@ -14,6 +13,7 @@ import dev.ligature.wander.error.ParserError
 import dev.ligature.wander.parser.*
 import org.antlr.v4.runtime.CharStreams
 import org.antlr.v4.runtime.CommonTokenStream
+import org.antlr.v4.runtime.tree.TerminalNode
 
 class Interpreter(private val ligature: Ligature) {
     fun createCommandScope(): Scope {
@@ -68,13 +68,11 @@ class ExpressionVisitor(scope: Scope): WanderBaseVisitor<Either<InterpreterError
 class PrimitiveVisitor: WanderBaseVisitor<Either<InterpreterError, Primitive>>() {
     override fun visitPrimative(ctx: WanderParser.PrimativeContext): Either<InterpreterError, Primitive> {
         return when {
-            ctx.entity() != null -> {
-                val entityVisitor = EntityVisitor()
-                entityVisitor.visitEntity(ctx.entity())
+            ctx.ENTITY() != null -> {
+                handleEntity(ctx.ENTITY())
             }
-            ctx.attribute() != null -> {
-                val attributeVisitor = AttributeVisitor()
-                attributeVisitor.visitAttribute(ctx.attribute())
+            ctx.ATTRIBUTE() != null -> {
+                handleAttribute(ctx.ATTRIBUTE())
             }
             ctx.value() != null -> {
                 val valueVisitor = ValueVisitor()
@@ -89,18 +87,14 @@ class PrimitiveVisitor: WanderBaseVisitor<Either<InterpreterError, Primitive>>()
     }
 }
 
-class EntityVisitor: WanderBaseVisitor<Either<InterpreterError, EntityPrimitive>>() {
-    override fun visitEntity(ctx: WanderParser.EntityContext): Either<InterpreterError, EntityPrimitive> {
-        return ligParser.parseEntity(Rakkoon(ctx.text))
-            .mapLeft { ParserError("Could not parse Entity.", -1) }.map { EntityPrimitive(it) } //TODO fix error
-    }
+fun handleEntity(ctx: TerminalNode): Either<InterpreterError, EntityPrimitive> {
+    return ligParser.parseEntity(Rakkoon(ctx.text))
+        .mapLeft { ParserError("Could not parse Entity.", -1) }.map { EntityPrimitive(it) } //TODO fix error
 }
 
-class AttributeVisitor: WanderBaseVisitor<Either<InterpreterError, AttributePrimitive>>() {
-    override fun visitAttribute(ctx: WanderParser.AttributeContext): Either<InterpreterError, AttributePrimitive> {
-        return ligParser.parseAttribute(Rakkoon(ctx.text))
-            .mapLeft { ParserError("Could not parse Attribute.", -1) }.map { AttributePrimitive(it) } //TODO fix error
-    }
+fun handleAttribute(ctx: TerminalNode): Either<InterpreterError, AttributePrimitive> {
+    return ligParser.parseAttribute(Rakkoon(ctx.text))
+        .mapLeft { ParserError("Could not parse Attribute.", -1) }.map { AttributePrimitive(it) } //TODO fix error
 }
 
 class ValueVisitor: WanderBaseVisitor<Either<InterpreterError, Primitive>>() {
