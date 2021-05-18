@@ -6,14 +6,16 @@ package dev.ligature.wander.interpreter
 
 import arrow.core.Either
 import dev.ligature.Ligature
+import dev.ligature.StringLiteral
+import dev.ligature.lig.LigParser
+import dev.ligature.rakkoon.Rakkoon
 import dev.ligature.wander.error.InterpreterError
+import dev.ligature.wander.error.ParserError
 import dev.ligature.wander.parser.*
 import org.antlr.v4.runtime.CharStreams
 import org.antlr.v4.runtime.CommonTokenStream
 
 class Interpreter(private val ligature: Ligature) {
-    private val scriptVisitor = ScriptVisitor()
-
     fun createCommandScope(): Scope {
         val scope = Scope(null)
         //TODO add default functions
@@ -39,12 +41,84 @@ class Interpreter(private val ligature: Ligature) {
         val lexer = WanderLexer(inputStream)
         val tokenStream = CommonTokenStream(lexer)
         val parser = WanderParser(tokenStream)
+        val scriptVisitor = ScriptVisitor(topScope)
         return scriptVisitor.visitScript(parser.script())
     }
 }
 
-class ScriptVisitor: WanderBaseVisitor<Either<InterpreterError, Primitive>>() {
+val ligParser = LigParser()
+
+class ScriptVisitor(private val topScope: Scope): WanderBaseVisitor<Either<InterpreterError, Primitive>>() {
     override fun visitScript(ctx: WanderParser.ScriptContext): Either<InterpreterError, Primitive> {
-        TODO()
+        if (ctx.expression().size == 0) {
+            return Either.Right(UnitPrimitive)
+        }
+        val expressionVisitor = ExpressionVisitor(topScope)
+        return expressionVisitor.visitExpression(ctx.expression(0))
+    }
+}
+
+class ExpressionVisitor(scope: Scope): WanderBaseVisitor<Either<InterpreterError, Primitive>>() {
+    override fun visitExpression(ctx: WanderParser.ExpressionContext): Either<InterpreterError, Primitive> {
+        val primitiveVisitor = PrimitiveVisitor()
+        return primitiveVisitor.visitPrimative(ctx.primative())
+    }
+}
+
+class PrimitiveVisitor: WanderBaseVisitor<Either<InterpreterError, Primitive>>() {
+    override fun visitPrimative(ctx: WanderParser.PrimativeContext): Either<InterpreterError, Primitive> {
+        return when {
+            ctx.entity() != null -> {
+                val entityVisitor = EntityVisitor()
+                entityVisitor.visitEntity(ctx.entity())
+            }
+            ctx.attribute() != null -> {
+                val attributeVisitor = AttributeVisitor()
+                attributeVisitor.visitAttribute(ctx.attribute())
+            }
+            ctx.value() != null -> {
+                val valueVisitor = ValueVisitor()
+                valueVisitor.visitValue(ctx.value())
+            }
+            ctx.BOOLEAN() != null -> {
+                val text = ctx.BOOLEAN().text
+                Either.Right(BooleanPrimitive(text.toBoolean()))
+            }
+            else -> Either.Left(ParserError("Unknown primitive.", -1)) //TODO fix error
+        }
+    }
+}
+
+class EntityVisitor: WanderBaseVisitor<Either<InterpreterError, EntityPrimitive>>() {
+    override fun visitEntity(ctx: WanderParser.EntityContext): Either<InterpreterError, EntityPrimitive> {
+        return ligParser.parseEntity(Rakkoon(ctx.text))
+            .mapLeft { ParserError("Could not parse Entity.", -1) }.map { EntityPrimitive(it) } //TODO fix error
+    }
+}
+
+class AttributeVisitor: WanderBaseVisitor<Either<InterpreterError, AttributePrimitive>>() {
+    override fun visitAttribute(ctx: WanderParser.AttributeContext): Either<InterpreterError, AttributePrimitive> {
+        return ligParser.parseAttribute(Rakkoon(ctx.text))
+            .mapLeft { ParserError("Could not parse Attribute.", -1) }.map { AttributePrimitive(it) } //TODO fix error
+    }
+}
+
+class ValueVisitor: WanderBaseVisitor<Either<InterpreterError, Primitive>>() {
+    override fun visitValue(ctx: WanderParser.ValueContext): Either<InterpreterError, Primitive> {
+        return when {
+            ctx.INTEGER_LITERAL() != null -> {
+                ligParser.parseIntegerLiteral(Rakkoon(ctx.INTEGER_LITERAL()!!.text))
+                    .mapLeft { ParserError("Could not parse value.", -1) }.map { IntegerPrimitive(it) } //TODO fix error
+            }
+            ctx.FLOAT_LITERAL() != null -> {
+                ligParser.parseFloatLiteral(Rakkoon(ctx.FLOAT_LITERAL()!!.text))
+                    .mapLeft { ParserError("Could not parse value.", -1) }.map { FloatPrimitive(it) } //TODO fix error
+            }
+            ctx.STRING_LITERAL() != null -> {
+                ligParser.parseStringLiteral(Rakkoon(ctx.STRING_LITERAL()!!.text))
+                    .mapLeft { ParserError("Could not parse value.", -1) }.map { StringPrimitive(it) } //TODO fix error
+            }
+            else -> TODO()
+        }
     }
 }

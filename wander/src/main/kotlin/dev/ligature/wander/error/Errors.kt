@@ -7,8 +7,8 @@ package dev.ligature.wander.error
 sealed class WanderError
 
 sealed class InterpreterError: WanderError()
-data class ParserError(val message: String, val position: Int): WanderError()
-data class NotSupported(val message: String = "Error: Not Supported"): WanderError()
+data class ParserError(val message: String, val position: Int): InterpreterError()
+data class NotSupported(val message: String = "Error: Not Supported"): InterpreterError()
 
 sealed class SymbolError: WanderError()
 data class SymbolExits(val name: String): SymbolError()

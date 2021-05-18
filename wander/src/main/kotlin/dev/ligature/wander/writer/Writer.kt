@@ -33,6 +33,7 @@ class Writer {
             UnitPrimitive -> "Unit"
             is ValuePrimitive -> ligWriter.writeValue(primitive.value)
             is WanderFunction -> TODO()
+            is StatementPrimitive -> ligWriter.writeStatement(primitive.value)
         }
 
     fun write(error: WanderError): String =
