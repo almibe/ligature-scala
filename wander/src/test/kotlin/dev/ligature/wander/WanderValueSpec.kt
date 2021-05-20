@@ -11,7 +11,7 @@ import dev.ligature.wander.interpreter.*
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 
-class PrimitiveSpec : FunSpec() {
+class WanderValueSpec : FunSpec() {
     private val ligature = InMemoryLigature()
     private val wander = Wander(ligature)
 
