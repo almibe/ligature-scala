@@ -6,17 +6,17 @@ package dev.ligature.wander.interpreter
 
 import dev.ligature.*
 
-sealed class Primitive
-data class IntegerPrimitive(val value: IntegerLiteral): Primitive()
-data class FloatPrimitive(val value: FloatLiteral): Primitive()
-data class StringPrimitive(val value: StringLiteral): Primitive()
-data class EntityPrimitive(val value: Entity): Primitive()
-data class AttributePrimitive(val value: Attribute): Primitive()
-data class StatementPrimitive(val value: Statement): Primitive()
-data class ValuePrimitive(val value: Value): Primitive()
-data class BooleanPrimitive(val value: Boolean): Primitive()
-object UnitPrimitive: Primitive()
+sealed class WanderValue
+data class IntegerWanderValue(val value: IntegerLiteral): WanderValue()
+data class FloatWanderValue(val value: FloatLiteral): WanderValue()
+data class StringWanderValue(val value: StringLiteral): WanderValue()
+data class EntityWanderValue(val value: Entity): WanderValue()
+data class AttributeWanderValue(val value: Attribute): WanderValue()
+data class StatementWanderValue(val value: Statement): WanderValue()
+data class ValueWanderValue(val value: Value): WanderValue()
+data class BooleanWanderValue(val value: Boolean): WanderValue()
+object UnitWanderValue: WanderValue()
 
 sealed class ArgumentType
 
-data class WanderFunction(val arguments: List<ArgumentType>, val body: (List<Primitive>) -> Primitive): Primitive()
+data class WanderFunction(val arguments: List<ArgumentType>, val body: (List<WanderValue>) -> WanderValue): WanderValue()

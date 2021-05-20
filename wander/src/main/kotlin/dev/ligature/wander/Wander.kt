@@ -8,21 +8,21 @@ import arrow.core.Either
 import dev.ligature.Ligature
 import dev.ligature.wander.error.WanderError
 import dev.ligature.wander.interpreter.Interpreter
-import dev.ligature.wander.interpreter.Primitive
+import dev.ligature.wander.interpreter.WanderValue
 import dev.ligature.wander.interpreter.Scope
 
 class Wander(ligature: Ligature) {
     private val interpreter = Interpreter(ligature)
 
-    fun runCommand(input: String): Either<WanderError, Primitive> {
+    fun runCommand(input: String): Either<WanderError, WanderValue> {
         return interpreter.runCommand(input)
     }
 
-    fun runQuery(input: String): Either<WanderError, Primitive> {
+    fun runQuery(input: String): Either<WanderError, WanderValue> {
         return interpreter.runQuery(input)
     }
 
-    fun run(input: String): Either<WanderError, Primitive> {
+    fun run(input: String): Either<WanderError, WanderValue> {
         return interpreter.run(input, Scope(null))
     }
 }

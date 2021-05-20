@@ -12,9 +12,9 @@ import dev.ligature.wander.error.UnknownSymbol
  * A Scope represents the values stored in the current scope, but can also reference parent scopes.
  */
 class Scope(private val parentScope: Scope?) {
-    private val symbols = mutableMapOf<String, Primitive>()
+    private val symbols = mutableMapOf<String, WanderValue>()
 
-    fun addSymbol(name: String, value: Primitive): Either<SymbolExits, Unit> =
+    fun addSymbol(name: String, value: WanderValue): Either<SymbolExits, Unit> =
         synchronized(this) {
             if (symbols.containsKey(name)) {
                 Either.Left(SymbolExits(name))
@@ -24,7 +24,7 @@ class Scope(private val parentScope: Scope?) {
             }
         }
 
-    fun lookupSymbol(name: String): Either<UnknownSymbol, Primitive> =
+    fun lookupSymbol(name: String): Either<UnknownSymbol, WanderValue> =
         synchronized(this) {
             if (symbols.containsKey(name)) {
                 Either.Right(symbols[name]!!)

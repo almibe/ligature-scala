@@ -19,19 +19,19 @@ class DefineSpec : FunSpec() {
         test("basic assignment") {
             val script = "(def x 5)"
             val res = wander.run(script)
-            res shouldBe Either.Right(UnitPrimitive)
+            res shouldBe Either.Right(UnitWanderValue)
         }
 
         test("basic assignment w/ return") {
             val script = "(def x 5)\nx"
             val res = wander.run(script)
-            res shouldBe Either.Right(IntegerPrimitive(IntegerLiteral(5L)))
+            res shouldBe Either.Right(IntegerWanderValue(IntegerLiteral(5L)))
         }
 
         test("basic assignment w/ return w/ weird spacing") {
             val script = "(def \n x\n\t  \n 55)x"
             val res = wander.run(script)
-            res shouldBe Either.Right(IntegerPrimitive(IntegerLiteral(55L)))
+            res shouldBe Either.Right(IntegerWanderValue(IntegerLiteral(55L)))
         }
     }
 }

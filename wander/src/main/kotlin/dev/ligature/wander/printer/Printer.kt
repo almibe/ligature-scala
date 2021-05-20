@@ -16,24 +16,24 @@ class Printer {
      * The write function accepts a primitive and writes it as a human-readable String.
      * This value is what will be presented to users after executing a script.
      */
-    fun print(result: Either<WanderError, Primitive>): String =
+    fun print(result: Either<WanderError, WanderValue>): String =
         when (result) {
             is Either.Right -> print(result.value)
             is Either.Left  -> print(result.value)
         }
 
-    fun print(primitive: Primitive): String =
-        when (primitive) {
-            is IntegerPrimitive -> ligWriter.writeValue(primitive.value)
-            is AttributePrimitive -> ligWriter.writeAttribute(primitive.value)
-            is BooleanPrimitive -> primitive.value.toString()
-            is EntityPrimitive -> ligWriter.writeEntity(primitive.value)
-            is FloatPrimitive -> ligWriter.writeValue(primitive.value)
-            is StringPrimitive -> ligWriter.writeValue(primitive.value)
-            UnitPrimitive -> "Unit"
-            is ValuePrimitive -> ligWriter.writeValue(primitive.value)
+    fun print(wanderValue: WanderValue): String =
+        when (wanderValue) {
+            is IntegerWanderValue -> ligWriter.writeValue(wanderValue.value)
+            is AttributeWanderValue -> ligWriter.writeAttribute(wanderValue.value)
+            is BooleanWanderValue -> wanderValue.value.toString()
+            is EntityWanderValue -> ligWriter.writeEntity(wanderValue.value)
+            is FloatWanderValue -> ligWriter.writeValue(wanderValue.value)
+            is StringWanderValue -> ligWriter.writeValue(wanderValue.value)
+            UnitWanderValue -> "Unit"
+            is ValueWanderValue -> ligWriter.writeValue(wanderValue.value)
             is WanderFunction -> TODO()
-            is StatementPrimitive -> ligWriter.writeStatement(primitive.value)
+            is StatementWanderValue -> ligWriter.writeStatement(wanderValue.value)
         }
 
     fun print(error: WanderError): String =
