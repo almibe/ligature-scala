@@ -2,14 +2,14 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at https://mozilla.org/MPL/2.0/. */
 
-package dev.ligature.wander.writer
+package dev.ligature.wander.printer
 
 import io.kotest.core.spec.style.FunSpec
 import kotlin.io.path.ExperimentalPathApi
 
 @OptIn(ExperimentalPathApi::class)
-class WriterSpec : FunSpec() {
-    private val writer = Writer()
+class PrinterSpec : FunSpec() {
+    private val printer = Printer()
 
     init {
     }

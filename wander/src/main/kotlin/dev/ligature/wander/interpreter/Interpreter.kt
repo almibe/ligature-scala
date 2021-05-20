@@ -61,12 +61,12 @@ class ScriptVisitor(private val topScope: Scope): WanderBaseVisitor<Either<Inter
 class ExpressionVisitor(scope: Scope): WanderBaseVisitor<Either<InterpreterError, Primitive>>() {
     override fun visitExpression(ctx: WanderParser.ExpressionContext): Either<InterpreterError, Primitive> {
         val primitiveVisitor = PrimitiveVisitor()
-        return primitiveVisitor.visitPrimative(ctx.primative())
+        return primitiveVisitor.visitWanderValue(ctx.wanderValue())
     }
 }
 
 class PrimitiveVisitor: WanderBaseVisitor<Either<InterpreterError, Primitive>>() {
-    override fun visitPrimative(ctx: WanderParser.PrimativeContext): Either<InterpreterError, Primitive> {
+    override fun visitWanderValue(ctx: WanderParser.WanderValueContext): Either<InterpreterError, Primitive> {
         return when {
             ctx.ENTITY() != null -> {
                 handleEntity(ctx.ENTITY())

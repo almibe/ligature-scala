@@ -2,27 +2,27 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at https://mozilla.org/MPL/2.0/. */
 
-package dev.ligature.wander.writer
+package dev.ligature.wander.printer
 
 import arrow.core.Either
 import dev.ligature.lig.LigWriter
 import dev.ligature.wander.error.*
 import dev.ligature.wander.interpreter.*
 
-class Writer {
+class Printer {
     private val ligWriter = LigWriter()
 
     /**
      * The write function accepts a primitive and writes it as a human-readable String.
      * This value is what will be presented to users after executing a script.
      */
-    fun write(result: Either<WanderError, Primitive>): String =
+    fun print(result: Either<WanderError, Primitive>): String =
         when (result) {
-            is Either.Right -> write(result.value)
-            is Either.Left  -> write(result.value)
+            is Either.Right -> print(result.value)
+            is Either.Left  -> print(result.value)
         }
 
-    fun write(primitive: Primitive): String =
+    fun print(primitive: Primitive): String =
         when (primitive) {
             is IntegerPrimitive -> ligWriter.writeValue(primitive.value)
             is AttributePrimitive -> ligWriter.writeAttribute(primitive.value)
@@ -36,7 +36,7 @@ class Writer {
             is StatementPrimitive -> ligWriter.writeStatement(primitive.value)
         }
 
-    fun write(error: WanderError): String =
+    fun print(error: WanderError): String =
         when (error) {
             is ParserError -> "Parsing Error at ${error.position}: ${error.message}"
             is SymbolError -> "Symbol Error"
