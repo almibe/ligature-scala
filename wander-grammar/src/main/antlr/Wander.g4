@@ -6,12 +6,12 @@ grammar Wander;
 package dev.ligature.wander.parser;
 }
 script: expression*;
-expression: wanderValue | funcCall;
-funcCall: '(' atom* ')';
+expression: wanderValue | list;
+list: '(' atom* ')';
 vector: '[' atom* ']';
 atom: WANDER_NAME | expression; //TODO
-value: ENTITY | STRING_LITERAL | FLOAT_LITERAL | INTEGER_LITERAL;
-wanderValue: ENTITY | ATTRIBUTE | value | BOOLEAN | vector;
+ligatureValue: ENTITY | STRING_LITERAL | FLOAT_LITERAL | INTEGER_LITERAL;
+wanderValue: ATTRIBUTE | ligatureValue | BOOLEAN | vector;
 BOOLEAN: 'true' | 'false';
 INTEGER_LITERAL: [0-9]+; //TODO should probably like allow things like 04
 FLOAT_LITERAL: [0-9]+ '.' [0-9]+; //TODO should probably not allow things like 000234234.234234
