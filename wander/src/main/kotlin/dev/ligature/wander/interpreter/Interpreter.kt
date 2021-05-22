@@ -75,8 +75,23 @@ class ScriptVisitor(private val topScope: Scope): WanderBaseVisitor<Either<Wande
 
 class ExpressionVisitor(private val scope: Scope): WanderBaseVisitor<Either<WanderError, WanderValue>>() {
     override fun visitExpression(ctx: WanderParser.ExpressionContext): Either<WanderError, WanderValue> {
-        val wanderValueVisitor = WanderValueVisitor(scope)
-        return wanderValueVisitor.visitWanderValue(ctx.wanderValue())
+        return when {
+            ctx.wanderValue() != null -> {
+                val wanderValueVisitor = WanderValueVisitor(scope)
+                wanderValueVisitor.visitWanderValue(ctx.wanderValue())
+            }
+            ctx.functionCall() != null -> {
+                val functionCallVisitor = FunctionCallVisitor(scope)
+                functionCallVisitor.visitFunctionCall(ctx.functionCall())
+            }
+            else -> TODO("unknown expression type")
+        }
+    }
+}
+
+class FunctionCallVisitor(private val scope: Scope): WanderBaseVisitor<Either<WanderError, WanderValue>>() {
+    override fun visitFunctionCall(ctx: WanderParser.FunctionCallContext): Either<WanderError, WanderValue> {
+        TODO()
     }
 }
 

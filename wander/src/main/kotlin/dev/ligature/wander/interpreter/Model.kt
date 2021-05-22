@@ -5,6 +5,7 @@
 package dev.ligature.wander.interpreter
 
 import dev.ligature.*
+import kotlin.reflect.KClass
 
 sealed class WanderValue
 data class IntegerWanderValue(val value: IntegerLiteral): WanderValue()
@@ -17,6 +18,4 @@ data class ValueWanderValue(val value: Value): WanderValue()
 data class BooleanWanderValue(val value: Boolean): WanderValue()
 object UnitWanderValue: WanderValue()
 
-sealed class ArgumentType
-
-data class WanderFunction(val arguments: List<ArgumentType>, val body: (List<WanderValue>) -> WanderValue): WanderValue()
+data class WanderFunction(val arguments: List<KClass<out WanderValue>>, val body: (List<WanderValue>) -> WanderValue): WanderValue()
