@@ -61,5 +61,18 @@ class WanderValueSpec : FunSpec() {
             val res = wander.run(script)
             res shouldBe Either.Right(AttributeWanderValue(Attribute.from("hello:world:attribute").orNull()!!))
         }
+
+        test("statement support") {
+            val script = "<hello> @<hello:world:attribute> <world> <_7582447583758>"
+            val res = wander.run(script)
+            res shouldBe Either.Right(StatementWanderValue(
+                Statement(
+                    Entity.from("hello").orNull()!!,
+                    Attribute.from("hello:world:attribute").orNull()!!,
+                    Entity.from("world").orNull()!!,
+                    Entity.from("_7582447583758").orNull()!!,
+                )
+            ))
+        }
     }
 }

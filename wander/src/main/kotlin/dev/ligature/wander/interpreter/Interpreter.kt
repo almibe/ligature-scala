@@ -5,7 +5,7 @@
 package dev.ligature.wander.interpreter
 
 import arrow.core.Either
-import dev.ligature.Ligature
+import dev.ligature.*
 import dev.ligature.lig.LigParser
 import dev.ligature.rakkoon.Rakkoon
 import dev.ligature.wander.error.InterpreterError
@@ -60,23 +60,24 @@ class ScriptVisitor(private val topScope: Scope): WanderBaseVisitor<Either<Inter
 
 class ExpressionVisitor(scope: Scope): WanderBaseVisitor<Either<InterpreterError, WanderValue>>() {
     override fun visitExpression(ctx: WanderParser.ExpressionContext): Either<InterpreterError, WanderValue> {
-        val primitiveVisitor = PrimitiveVisitor()
-        return primitiveVisitor.visitWanderValue(ctx.wanderValue())
+        val wanderValueVisitor = WanderValueVisitor()
+        return wanderValueVisitor.visitWanderValue(ctx.wanderValue())
     }
 }
 
-class PrimitiveVisitor: WanderBaseVisitor<Either<InterpreterError, WanderValue>>() {
+class WanderValueVisitor: WanderBaseVisitor<Either<InterpreterError, WanderValue>>() {
     override fun visitWanderValue(ctx: WanderParser.WanderValueContext): Either<InterpreterError, WanderValue> {
         return when {
-            ctx.ENTITY() != null -> {
-                handleEntity(ctx.ENTITY())
+            ctx.statement() != null -> {
+                val statementVisitor = StatementVisitor()
+                statementVisitor.visitStatement(ctx.statement())
             }
             ctx.ATTRIBUTE() != null -> {
                 handleAttribute(ctx.ATTRIBUTE())
             }
-            ctx.value() != null -> {
-                val valueVisitor = ValueVisitor()
-                valueVisitor.visitValue(ctx.value())
+            ctx.ligatureValue() != null -> {
+                val valueVisitor = LigatureValueVisitor()
+                wrapValue(valueVisitor.visitLigatureValue(ctx.ligatureValue()))
             }
             ctx.BOOLEAN() != null -> {
                 val text = ctx.BOOLEAN().text
@@ -87,9 +88,40 @@ class PrimitiveVisitor: WanderBaseVisitor<Either<InterpreterError, WanderValue>>
     }
 }
 
-fun handleEntity(ctx: TerminalNode): Either<InterpreterError, EntityWanderValue> {
+fun wrapValue(value: Either<InterpreterError, Value>): Either<InterpreterError, WanderValue> = //TODO this can be cleaned up
+    when (value) {
+        is Either.Left -> value
+        is Either.Right -> when (value.value) {
+            is IntegerLiteral -> value.map { IntegerWanderValue(it as IntegerLiteral) }
+            is Entity -> value.map { EntityWanderValue(it as Entity) }
+            is FloatLiteral -> value.map { FloatWanderValue(it as FloatLiteral) }
+            is StringLiteral -> value.map { StringWanderValue(it as StringLiteral) }
+        }
+    }
+
+class StatementVisitor(): WanderBaseVisitor<Either<InterpreterError, StatementWanderValue>>() {
+    override fun visitStatement(ctx: WanderParser.StatementContext): Either<InterpreterError, StatementWanderValue> {
+        val entity = handleEntity(ctx.ENTITY(0))
+        val attribute = handleAttribute(ctx.ATTRIBUTE())
+        val valueVisitor = LigatureValueVisitor()
+        val value = valueVisitor.visitLigatureValue(ctx.ligatureValue())
+        val context = handleEntity(ctx.ENTITY(1))
+        return when {
+            entity.isLeft() -> TODO()
+            attribute.isLeft() -> TODO()
+            value.isLeft() -> TODO()
+            context.isLeft() -> TODO()
+            else -> {
+                val statement = Statement(entity.orNull()!!, attribute.orNull()!!.value, value.orNull()!!, context.orNull()!!)
+                Either.Right(StatementWanderValue(statement))
+            }
+        }
+    }
+}
+
+fun handleEntity(ctx: TerminalNode): Either<InterpreterError, Entity> {
     return ligParser.parseEntity(Rakkoon(ctx.text))
-        .mapLeft { ParserError("Could not parse Entity.", -1) }.map { EntityWanderValue(it) } //TODO fix error
+        .mapLeft { ParserError("Could not parse Entity.", -1) } //TODO fix error
 }
 
 fun handleAttribute(ctx: TerminalNode): Either<InterpreterError, AttributeWanderValue> {
@@ -97,20 +129,23 @@ fun handleAttribute(ctx: TerminalNode): Either<InterpreterError, AttributeWander
         .mapLeft { ParserError("Could not parse Attribute.", -1) }.map { AttributeWanderValue(it) } //TODO fix error
 }
 
-class ValueVisitor: WanderBaseVisitor<Either<InterpreterError, WanderValue>>() {
-    override fun visitValue(ctx: WanderParser.ValueContext): Either<InterpreterError, WanderValue> {
+class LigatureValueVisitor: WanderBaseVisitor<Either<InterpreterError, Value>>() {
+    override fun visitLigatureValue(ctx: WanderParser.LigatureValueContext): Either<InterpreterError, Value> {
         return when {
+            ctx.ENTITY() != null -> {
+                handleEntity(ctx.ENTITY())
+            }
             ctx.INTEGER_LITERAL() != null -> {
                 ligParser.parseIntegerLiteral(Rakkoon(ctx.INTEGER_LITERAL()!!.text))
-                    .mapLeft { ParserError("Could not parse value.", -1) }.map { IntegerWanderValue(it) } //TODO fix error
+                    .mapLeft { ParserError("Could not parse value.", -1) } //TODO fix error
             }
             ctx.FLOAT_LITERAL() != null -> {
                 ligParser.parseFloatLiteral(Rakkoon(ctx.FLOAT_LITERAL()!!.text))
-                    .mapLeft { ParserError("Could not parse value.", -1) }.map { FloatWanderValue(it) } //TODO fix error
+                    .mapLeft { ParserError("Could not parse value.", -1) } //TODO fix error
             }
             ctx.STRING_LITERAL() != null -> {
                 ligParser.parseStringLiteral(Rakkoon(ctx.STRING_LITERAL()!!.text))
-                    .mapLeft { ParserError("Could not parse value.", -1) }.map { StringWanderValue(it) } //TODO fix error
+                    .mapLeft { ParserError("Could not parse value.", -1) } //TODO fix error
             }
             else -> TODO()
         }

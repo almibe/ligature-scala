@@ -11,25 +11,25 @@ import dev.ligature.wander.interpreter.*
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 
-class DefineSpec : FunSpec() {
+class LetSpec : FunSpec() {
     private val ligature = InMemoryLigature()
     private val wander = Wander(ligature)
 
     init {
         test("basic assignment") {
-            val script = "(def x 5)"
+            val script = "let x = 5"
             val res = wander.run(script)
             res shouldBe Either.Right(UnitWanderValue)
         }
 
         test("basic assignment w/ return") {
-            val script = "(def x 5)\nx"
+            val script = "let x = 5\nx"
             val res = wander.run(script)
             res shouldBe Either.Right(IntegerWanderValue(IntegerLiteral(5L)))
         }
 
         test("basic assignment w/ return w/ weird spacing") {
-            val script = "(def \n x\n\t  \n 55)x"
+            val script = "let \n x\n\t  \n= 55 x"
             val res = wander.run(script)
             res shouldBe Either.Right(IntegerWanderValue(IntegerLiteral(55L)))
         }

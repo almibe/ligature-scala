@@ -5,13 +5,12 @@ grammar Wander;
 @header {
 package dev.ligature.wander.parser;
 }
-script: expression*;
-expression: wanderValue | list;
-list: '(' atom* ')';
-vector: '[' atom* ']';
-atom: WANDER_NAME | expression; //TODO
+script: (expression | letStatement)*;
+expression: wanderValue;
+letStatement: 'let' WANDER_NAME '=' expression;
+statement: ENTITY ATTRIBUTE ligatureValue ENTITY;
+wanderValue: statement | ATTRIBUTE | ligatureValue | BOOLEAN;
 ligatureValue: ENTITY | STRING_LITERAL | FLOAT_LITERAL | INTEGER_LITERAL;
-wanderValue: ATTRIBUTE | ligatureValue | BOOLEAN | vector;
 BOOLEAN: 'true' | 'false';
 INTEGER_LITERAL: [0-9]+; //TODO should probably like allow things like 04
 FLOAT_LITERAL: [0-9]+ '.' [0-9]+; //TODO should probably not allow things like 000234234.234234
