@@ -53,25 +53,51 @@ class ScriptVisitor(private val topScope: Scope): WanderBaseVisitor<Either<Inter
         if (ctx.expression().size == 0) {
             return Either.Right(UnitWanderValue)
         }
-        var step = 0; //used for stepping through expressions
+        var step = 0; //used for stepping through script
         var lastResult: Either<InterpreterError, WanderValue>? = null
-        while (ctx.expression(step) != null) {
-            val expressionVisitor = ExpressionVisitor(topScope)
-            lastResult = expressionVisitor.visitExpression(ctx.expression(step))
-            step++
+
+        while (ctx.getChild(step) != null) {
+            when (val current = ctx.getChild(step)) {
+                is WanderParser.ExpressionContext -> {
+                    val expressionVisitor = ExpressionVisitor(topScope)
+                    lastResult = expressionVisitor.visitExpression(current)
+                    step++
+                }
+                is WanderParser.LetStatementContext -> {
+                    val letStatementVisitor = LetStatementVisitor(topScope)
+                    lastResult = letStatementVisitor.visitLetStatement(current)
+                    step++
+                }
+                else -> TODO()
+            }
         }
         return lastResult!!
     }
 }
 
-class ExpressionVisitor(scope: Scope): WanderBaseVisitor<Either<InterpreterError, WanderValue>>() {
+class ExpressionVisitor(private val scope: Scope): WanderBaseVisitor<Either<InterpreterError, WanderValue>>() {
     override fun visitExpression(ctx: WanderParser.ExpressionContext): Either<InterpreterError, WanderValue> {
-        val wanderValueVisitor = WanderValueVisitor()
+        val wanderValueVisitor = WanderValueVisitor(scope)
         return wanderValueVisitor.visitWanderValue(ctx.wanderValue())
     }
 }
 
-class WanderValueVisitor: WanderBaseVisitor<Either<InterpreterError, WanderValue>>() {
+class LetStatementVisitor(private val scope: Scope): WanderBaseVisitor<Either<InterpreterError, UnitWanderValue>>() {
+    override fun visitLetStatement(ctx: WanderParser.LetStatementContext): Either<InterpreterError, UnitWanderValue> {
+        val name = ctx.WANDER_NAME().text
+        val expressionVisitor = ExpressionVisitor(scope)
+        return when (val res = expressionVisitor.visitExpression(ctx.expression())) {
+            is Either.Left -> res
+            is Either.Right -> {
+                val value = res.value
+                scope.addSymbol(name, value)
+                Either.Right(UnitWanderValue)
+            }
+        }
+    }
+}
+
+class WanderValueVisitor(private val scope: Scope): WanderBaseVisitor<Either<InterpreterError, WanderValue>>() {
     override fun visitWanderValue(ctx: WanderParser.WanderValueContext): Either<InterpreterError, WanderValue> {
         return when {
             ctx.statement() != null -> {
@@ -89,6 +115,7 @@ class WanderValueVisitor: WanderBaseVisitor<Either<InterpreterError, WanderValue
                 val text = ctx.BOOLEAN().text
                 Either.Right(BooleanWanderValue(text.toBoolean()))
             }
+            ctx.WANDER_NAME() != null -> scope.lookupSymbol(ctx.WANDER_NAME().text)
             else -> Either.Left(ParserError("Unknown primitive.", -1)) //TODO fix error
         }
     }

@@ -9,7 +9,5 @@ sealed class WanderError
 sealed class InterpreterError: WanderError()
 data class ParserError(val message: String, val position: Int): InterpreterError()
 data class NotSupported(val message: String = "Error: Not Supported"): InterpreterError()
-
-sealed class SymbolError: WanderError()
-data class SymbolExits(val name: String): SymbolError()
-data class UnknownSymbol(val name: String): SymbolError()
+data class SymbolExits(val name: String): InterpreterError()
+data class UnknownSymbol(val name: String): InterpreterError()

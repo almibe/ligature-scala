@@ -39,7 +39,8 @@ class Printer {
     fun print(error: WanderError): String =
         when (error) {
             is ParserError -> "Parsing Error at ${error.position}: ${error.message}"
-            is SymbolError -> "Symbol Error"
             is NotSupported -> error.message
+            is SymbolExits -> TODO()
+            is UnknownSymbol -> TODO()
         }
 }

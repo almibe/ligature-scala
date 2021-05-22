@@ -11,11 +11,20 @@ import dev.ligature.wander.interpreter.*
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 
-class LetSpec : FunSpec() {
+class AssignmentSpec : FunSpec() {
     private val ligature = InMemoryLigature()
     private val wander = Wander(ligature)
 
     init {
+        test("access name from scope") {
+            val interpreter = Interpreter(ligature)
+            val script = "x"
+            val scope = Scope()
+            scope.addSymbol("x", IntegerWanderValue(IntegerLiteral(5L)))
+            val res = interpreter.run(script, scope)
+            res shouldBe Either.Right(IntegerWanderValue(IntegerLiteral(5L)))
+        }
+
         test("basic assignment") {
             val script = "let x = 5"
             val res = wander.run(script)

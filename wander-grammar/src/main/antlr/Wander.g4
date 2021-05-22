@@ -9,7 +9,7 @@ script: (expression | letStatement)*;
 expression: wanderValue;
 letStatement: 'let' WANDER_NAME '=' expression;
 statement: ENTITY ATTRIBUTE ligatureValue ENTITY;
-wanderValue: statement | ATTRIBUTE | ligatureValue | BOOLEAN;
+wanderValue: statement | ATTRIBUTE | ligatureValue | BOOLEAN | WANDER_NAME;
 ligatureValue: ENTITY | STRING_LITERAL | FLOAT_LITERAL | INTEGER_LITERAL;
 BOOLEAN: 'true' | 'false';
 INTEGER_LITERAL: [0-9]+; //TODO should probably like allow things like 04
