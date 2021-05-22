@@ -6,7 +6,7 @@ package dev.ligature.wander
 
 import arrow.core.Either
 import dev.ligature.Ligature
-import dev.ligature.wander.error.WanderError
+import dev.ligature.wander.interpreter.WanderError
 import dev.ligature.wander.interpreter.Interpreter
 import dev.ligature.wander.interpreter.WanderValue
 import dev.ligature.wander.interpreter.Scope

@@ -5,8 +5,6 @@
 package dev.ligature.wander.interpreter
 
 import arrow.core.Either
-import dev.ligature.wander.error.SymbolExits
-import dev.ligature.wander.error.UnknownSymbol
 
 /**
  * A Scope represents the values stored in the current scope, but can also reference parent scopes.

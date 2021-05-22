@@ -8,8 +8,6 @@ import arrow.core.Either
 import dev.ligature.*
 import dev.ligature.lig.LigParser
 import dev.ligature.rakkoon.Rakkoon
-import dev.ligature.wander.error.InterpreterError
-import dev.ligature.wander.error.ParserError
 import dev.ligature.wander.parser.*
 import org.antlr.v4.runtime.CharStreams
 import org.antlr.v4.runtime.CommonTokenStream
@@ -28,15 +26,15 @@ class Interpreter(private val ligature: Ligature) {
         return scope
     }
 
-    fun runCommand(script: String): Either<InterpreterError, WanderValue> {
+    fun runCommand(script: String): Either<WanderError, WanderValue> {
         return run(script, createCommandScope())
     }
 
-    fun runQuery(script: String): Either<InterpreterError, WanderValue> {
+    fun runQuery(script: String): Either<WanderError, WanderValue> {
         return run(script, createQueryScope())
     }
 
-    fun run(script: String, topScope: Scope): Either<InterpreterError, WanderValue> {
+    fun run(script: String, topScope: Scope): Either<WanderError, WanderValue> {
         val inputStream = CharStreams.fromString(script)
         val lexer = WanderLexer(inputStream)
         val tokenStream = CommonTokenStream(lexer)
@@ -48,13 +46,13 @@ class Interpreter(private val ligature: Ligature) {
 
 val ligParser = LigParser()
 
-class ScriptVisitor(private val topScope: Scope): WanderBaseVisitor<Either<InterpreterError, WanderValue>>() {
-    override fun visitScript(ctx: WanderParser.ScriptContext): Either<InterpreterError, WanderValue> {
+class ScriptVisitor(private val topScope: Scope): WanderBaseVisitor<Either<WanderError, WanderValue>>() {
+    override fun visitScript(ctx: WanderParser.ScriptContext): Either<WanderError, WanderValue> {
         if (ctx.expression().size == 0) {
             return Either.Right(UnitWanderValue)
         }
         var step = 0; //used for stepping through script
-        var lastResult: Either<InterpreterError, WanderValue>? = null
+        var lastResult: Either<WanderError, WanderValue>? = null
 
         while (ctx.getChild(step) != null) {
             when (val current = ctx.getChild(step)) {
@@ -75,15 +73,15 @@ class ScriptVisitor(private val topScope: Scope): WanderBaseVisitor<Either<Inter
     }
 }
 
-class ExpressionVisitor(private val scope: Scope): WanderBaseVisitor<Either<InterpreterError, WanderValue>>() {
-    override fun visitExpression(ctx: WanderParser.ExpressionContext): Either<InterpreterError, WanderValue> {
+class ExpressionVisitor(private val scope: Scope): WanderBaseVisitor<Either<WanderError, WanderValue>>() {
+    override fun visitExpression(ctx: WanderParser.ExpressionContext): Either<WanderError, WanderValue> {
         val wanderValueVisitor = WanderValueVisitor(scope)
         return wanderValueVisitor.visitWanderValue(ctx.wanderValue())
     }
 }
 
-class LetStatementVisitor(private val scope: Scope): WanderBaseVisitor<Either<InterpreterError, UnitWanderValue>>() {
-    override fun visitLetStatement(ctx: WanderParser.LetStatementContext): Either<InterpreterError, UnitWanderValue> {
+class LetStatementVisitor(private val scope: Scope): WanderBaseVisitor<Either<WanderError, UnitWanderValue>>() {
+    override fun visitLetStatement(ctx: WanderParser.LetStatementContext): Either<WanderError, UnitWanderValue> {
         val name = ctx.WANDER_NAME().text
         val expressionVisitor = ExpressionVisitor(scope)
         return when (val res = expressionVisitor.visitExpression(ctx.expression())) {
@@ -97,8 +95,8 @@ class LetStatementVisitor(private val scope: Scope): WanderBaseVisitor<Either<In
     }
 }
 
-class WanderValueVisitor(private val scope: Scope): WanderBaseVisitor<Either<InterpreterError, WanderValue>>() {
-    override fun visitWanderValue(ctx: WanderParser.WanderValueContext): Either<InterpreterError, WanderValue> {
+class WanderValueVisitor(private val scope: Scope): WanderBaseVisitor<Either<WanderError, WanderValue>>() {
+    override fun visitWanderValue(ctx: WanderParser.WanderValueContext): Either<WanderError, WanderValue> {
         return when {
             ctx.statement() != null -> {
                 val statementVisitor = StatementVisitor()
@@ -121,7 +119,7 @@ class WanderValueVisitor(private val scope: Scope): WanderBaseVisitor<Either<Int
     }
 }
 
-fun wrapValue(value: Either<InterpreterError, Value>): Either<InterpreterError, WanderValue> = //TODO this can be cleaned up
+fun wrapValue(value: Either<WanderError, Value>): Either<WanderError, WanderValue> = //TODO this can be cleaned up
     when (value) {
         is Either.Left -> value
         is Either.Right -> when (value.value) {
@@ -132,8 +130,8 @@ fun wrapValue(value: Either<InterpreterError, Value>): Either<InterpreterError, 
         }
     }
 
-class StatementVisitor(): WanderBaseVisitor<Either<InterpreterError, StatementWanderValue>>() {
-    override fun visitStatement(ctx: WanderParser.StatementContext): Either<InterpreterError, StatementWanderValue> {
+class StatementVisitor(): WanderBaseVisitor<Either<WanderError, StatementWanderValue>>() {
+    override fun visitStatement(ctx: WanderParser.StatementContext): Either<WanderError, StatementWanderValue> {
         val entity = handleEntity(ctx.ENTITY(0))
         val attribute = handleAttribute(ctx.ATTRIBUTE())
         val valueVisitor = LigatureValueVisitor()
@@ -152,18 +150,18 @@ class StatementVisitor(): WanderBaseVisitor<Either<InterpreterError, StatementWa
     }
 }
 
-fun handleEntity(ctx: TerminalNode): Either<InterpreterError, Entity> {
+fun handleEntity(ctx: TerminalNode): Either<WanderError, Entity> {
     return ligParser.parseEntity(Rakkoon(ctx.text))
         .mapLeft { ParserError("Could not parse Entity.", -1) } //TODO fix error
 }
 
-fun handleAttribute(ctx: TerminalNode): Either<InterpreterError, AttributeWanderValue> {
+fun handleAttribute(ctx: TerminalNode): Either<WanderError, AttributeWanderValue> {
     return ligParser.parseAttribute(Rakkoon(ctx.text))
         .mapLeft { ParserError("Could not parse Attribute.", -1) }.map { AttributeWanderValue(it) } //TODO fix error
 }
 
-class LigatureValueVisitor: WanderBaseVisitor<Either<InterpreterError, Value>>() {
-    override fun visitLigatureValue(ctx: WanderParser.LigatureValueContext): Either<InterpreterError, Value> {
+class LigatureValueVisitor: WanderBaseVisitor<Either<WanderError, Value>>() {
+    override fun visitLigatureValue(ctx: WanderParser.LigatureValueContext): Either<WanderError, Value> {
         return when {
             ctx.ENTITY() != null -> {
                 handleEntity(ctx.ENTITY())

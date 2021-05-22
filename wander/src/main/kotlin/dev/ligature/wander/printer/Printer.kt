@@ -6,7 +6,6 @@ package dev.ligature.wander.printer
 
 import arrow.core.Either
 import dev.ligature.lig.LigWriter
-import dev.ligature.wander.error.*
 import dev.ligature.wander.interpreter.*
 
 class Printer {
