@@ -8,6 +8,6 @@ plugins {
 
 dependencies {
     api(project(":ligature"))
-    implementation("io.kotest:kotest-runner-junit5:4.4.1")
-    implementation("io.kotest:kotest-assertions-core:4.4.1")
+    implementation("io.kotest:kotest-runner-junit5:4.6.0")
+    implementation("io.kotest:kotest-assertions-core:4.6.0")
 }
