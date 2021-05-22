@@ -74,5 +74,11 @@ class WanderValueSpec : FunSpec() {
                 )
             ))
         }
+
+        test("multiple values") {
+            val script = "12 \"hello\" 234.2341 @<hello:world:attribute>"
+            val res = wander.run(script)
+            res shouldBe Either.Right(AttributeWanderValue(Attribute.from("hello:world:attribute").orNull()!!))
+        }
     }
 }

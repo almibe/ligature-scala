@@ -53,8 +53,14 @@ class ScriptVisitor(private val topScope: Scope): WanderBaseVisitor<Either<Inter
         if (ctx.expression().size == 0) {
             return Either.Right(UnitWanderValue)
         }
-        val expressionVisitor = ExpressionVisitor(topScope)
-        return expressionVisitor.visitExpression(ctx.expression(0))
+        var step = 0; //used for stepping through expressions
+        var lastResult: Either<InterpreterError, WanderValue>? = null
+        while (ctx.expression(step) != null) {
+            val expressionVisitor = ExpressionVisitor(topScope)
+            lastResult = expressionVisitor.visitExpression(ctx.expression(step))
+            step++
+        }
+        return lastResult!!
     }
 }
 
