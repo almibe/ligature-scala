@@ -26,7 +26,9 @@ class WanderSpec : FunSpec() {
     private fun readDirectory(path: String): List<Path> =
         Files.walk(Paths.get(path)).toList()
 
-    data class TestResult(val expected: String, val commandResult: String, val queryResult: String)
+    data class TestResult(val fileName: String, val expected: String, val commandResult: String, val queryResult: String) {
+        override fun toString(): String = fileName
+    }
 
     private fun buildResults(path: String): List<TestResult> {
         val files = readDirectory(path)
@@ -35,7 +37,7 @@ class WanderSpec : FunSpec() {
             val queryResult = printer.print(wander.runQuery(text))
             val commandResult = printer.print(wander.runCommand(text))
             val expected = it.resolveSibling(it.fileName.toString().replace(".wander", ".result")).readText()
-            TestResult(expected, commandResult, queryResult)
+            TestResult(it.fileName.toString(), expected, commandResult, queryResult)
         }
     }
 
@@ -47,11 +49,11 @@ class WanderSpec : FunSpec() {
             }
         }
 
-//        test("assignment support") {
-//            buildResults("src/test/resources/assignment").forAll {
-//                it.commandResult shouldBe it.expected
-//                it.queryResult shouldBe it.expected
-//            }
-//        }
+        test("assignment support") {
+            buildResults("src/test/resources/assignment").forAll {
+                it.commandResult shouldBe it.expected
+                it.queryResult shouldBe it.expected
+            }
+        }
     }
 }
