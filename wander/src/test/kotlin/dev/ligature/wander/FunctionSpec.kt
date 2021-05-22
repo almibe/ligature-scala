@@ -20,7 +20,7 @@ class FunctionSpec : FunSpec() {
             val interpreter = Interpreter(ligature)
             val script = "x()"
             val scope = Scope()
-            scope.addSymbol("x", WanderFunction(listOf()) { IntegerWanderValue(IntegerLiteral(5L)) })
+            scope.addSymbol("x", WanderFunction(listOf()) { Either.Right(IntegerWanderValue(IntegerLiteral(5L))) })
             val res = interpreter.run(script, scope)
             res shouldBe Either.Right(IntegerWanderValue(IntegerLiteral(5L)))
         }
@@ -31,12 +31,16 @@ class FunctionSpec : FunSpec() {
             val scope = Scope()
             scope.addSymbol("plusOne", WanderFunction(listOf(IntegerWanderValue::class)) { args ->
                 when (val toInc = args[0]) {
-                    is IntegerWanderValue -> IntegerWanderValue(IntegerLiteral(toInc.value.value + 1))
+                    is IntegerWanderValue -> Either.Right(IntegerWanderValue(IntegerLiteral(toInc.value.value + 1)))
                     else -> TODO()
                 }
             })
             val res = interpreter.run(script, scope)
             res shouldBe Either.Right(IntegerWanderValue(IntegerLiteral(5L)))
+        }
+
+        test("expect an error when calling a function with incorrect params") {
+            TODO()
         }
 
         test("define and call a function with zero params") {

@@ -91,7 +91,23 @@ class ExpressionVisitor(private val scope: Scope): WanderBaseVisitor<Either<Wand
 
 class FunctionCallVisitor(private val scope: Scope): WanderBaseVisitor<Either<WanderError, WanderValue>>() {
     override fun visitFunctionCall(ctx: WanderParser.FunctionCallContext): Either<WanderError, WanderValue> {
-        TODO()
+        val functionName = ctx.WANDER_NAME().text
+        val functionRef = scope.lookupSymbol(functionName)
+        return when {
+            functionRef.isLeft() -> {
+                TODO("symbol not found")
+            }
+            functionRef.orNull()!! !is WanderFunction -> {
+                TODO("symbol is not a function")
+            }
+            else -> {
+                val function = functionRef.orNull()!! as WanderFunction
+                //get params
+                //check params
+                //call function
+                function.body.invoke(listOf())
+            }
+        }
     }
 }
 

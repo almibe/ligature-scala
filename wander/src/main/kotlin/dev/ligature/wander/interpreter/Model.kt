@@ -4,6 +4,7 @@
 
 package dev.ligature.wander.interpreter
 
+import arrow.core.Either
 import dev.ligature.*
 import kotlin.reflect.KClass
 
@@ -18,4 +19,6 @@ data class ValueWanderValue(val value: Value): WanderValue()
 data class BooleanWanderValue(val value: Boolean): WanderValue()
 object UnitWanderValue: WanderValue()
 
-data class WanderFunction(val arguments: List<KClass<out WanderValue>>, val body: (List<WanderValue>) -> WanderValue): WanderValue()
+//TODO I'm not sure if I want the body to return just a WanderValue or an either w/ an Error case
+data class WanderFunction(val arguments: List<KClass<out WanderValue>>,
+                          val body: (List<WanderValue>) -> Either<WanderError, WanderValue>): WanderValue()
