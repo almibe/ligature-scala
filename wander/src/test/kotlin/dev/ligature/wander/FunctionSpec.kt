@@ -54,16 +54,19 @@ class FunctionSpec : FunSpec() {
             res shouldBe Either.Right(IntegerWanderValue(IntegerLiteral(39L)))
         }
 
-//        test("expect an error when calling a function with incorrect params") {
-//            TODO()
-//        }
-//
-//        test("define and call a function with zero params") {
-//            TODO()
-//        }
+        test("define and call a function with zero params") {
+            val interpreter = Interpreter(ligature)
+            val script = "let five = (-> Integer) { 5 } \nfive()"
+            val res = interpreter.run(script, Scope())
+            res shouldBe Either.Right(IntegerWanderValue(IntegerLiteral(5L)))
+        }
 //
 //        test("define and call a function with one param") {
 //            TODO()
+//        }
+//
+//        test("expect an error when calling a function with incorrect params") {
+//            TODO("work on this after declarations work")
 //        }
 //
 //        test("call function with method syntax") {

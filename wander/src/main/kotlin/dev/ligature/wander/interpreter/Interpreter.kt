@@ -138,6 +138,10 @@ class LetStatementVisitor(private val scope: Scope): WanderBaseVisitor<Either<Wa
 class WanderValueVisitor(private val scope: Scope): WanderBaseVisitor<Either<WanderError, WanderValue>>() {
     override fun visitWanderValue(ctx: WanderParser.WanderValueContext): Either<WanderError, WanderValue> {
         return when {
+            ctx.functionDecl() != null -> {
+                val functionDeclVisitor = FunctionDeclVisitor(scope)
+                functionDeclVisitor.visitFunctionDecl(ctx.functionDecl())
+            }
             ctx.statement() != null -> {
                 val statementVisitor = StatementVisitor()
                 statementVisitor.visitStatement(ctx.statement())
@@ -169,6 +173,13 @@ fun wrapValue(value: Either<WanderError, Value>): Either<WanderError, WanderValu
             is StringLiteral -> value.map { StringWanderValue(it as StringLiteral) }
         }
     }
+
+class FunctionDeclVisitor(private val scope: Scope): WanderBaseVisitor<Either<WanderError, WanderFunction>>() {
+    override fun visitFunctionDecl(ctx: WanderParser.FunctionDeclContext?): Either<WanderError, WanderFunction> {
+        //TODO hard coded for now
+        return Either.Right(WanderFunction(listOf()) { Either.Right(IntegerWanderValue(IntegerLiteral(5L))) })
+    }
+}
 
 class StatementVisitor(): WanderBaseVisitor<Either<WanderError, StatementWanderValue>>() {
     override fun visitStatement(ctx: WanderParser.StatementContext): Either<WanderError, StatementWanderValue> {
