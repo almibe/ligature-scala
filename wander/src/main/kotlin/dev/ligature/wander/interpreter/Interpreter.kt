@@ -102,15 +102,17 @@ class FunctionCallVisitor(private val scope: Scope): WanderBaseVisitor<Either<Wa
             }
             else -> {
                 val function = functionRef.orNull()!! as WanderFunction
-                val params = mutableListOf<WanderValue>()
-                if (ctx.expression() != null) {
-                    //get params
-                    //check params
+                val params = if (ctx.expression() != null) {
+                    //check param types
                     val expressionVisitor = ExpressionVisitor(scope)
-                    when (val expressionRes = expressionVisitor.visitExpression(ctx.expression())) {
-                        is Either.Left -> return expressionRes
-                        is Either.Right -> params.add(expressionRes.value)
+                    ctx.expression().map {
+                        when (val expressionRes = expressionVisitor.visitExpression(it)) {
+                            is Either.Left -> return expressionRes
+                            is Either.Right -> expressionRes.value
+                        }
                     }
+                } else {
+                    listOf()
                 }
                 function.body.invoke(params)
             }
