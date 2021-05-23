@@ -10,10 +10,10 @@ expression: wanderValue | functionCall;
 letStatement: 'let' WANDER_NAME '=' expression;
 statement: ENTITY ATTRIBUTE ligatureValue ENTITY;
 wanderValue: statement | ATTRIBUTE | ligatureValue | BOOLEAN | WANDER_NAME;
-functionCall: WANDER_NAME '(' expression? ')'; //TODO support more than zero or one arguments
+functionCall: WANDER_NAME '(' (expression (',' expression)*)? ')'; //TODO support more than zero or one arguments
 ligatureValue: ENTITY | STRING_LITERAL | FLOAT_LITERAL | INTEGER_LITERAL;
 BOOLEAN: 'true' | 'false';
-INTEGER_LITERAL: [0-9]+; //TODO should probably like allow things like 04
+INTEGER_LITERAL: [0-9]+; //TODO should probably not allow things like 04
 FLOAT_LITERAL: [0-9]+ '.' [0-9]+; //TODO should probably not allow things like 000234234.234234
 ENTITY: '<' IDENTIFIER '>';
 ATTRIBUTE: '@<' IDENTIFIER '>';
