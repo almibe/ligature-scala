@@ -36,19 +36,38 @@ class FunctionSpec : FunSpec() {
                 }
             })
             val res = interpreter.run(script, scope)
-            res shouldBe Either.Right(IntegerWanderValue(IntegerLiteral(5L)))
+            res shouldBe Either.Right(IntegerWanderValue(IntegerLiteral(42L)))
         }
 
-        test("expect an error when calling a function with incorrect params") {
-            TODO()
+        test("call a function from scope with three params") {
+            val interpreter = Interpreter(ligature)
+            val script = "add3Numbers(12,13, 14)"
+            val scope = Scope()
+            scope.addSymbol("add3Numbers", WanderFunction(listOf(IntegerWanderValue::class)) { args ->
+                args.size shouldBe 3
+                val total = args.fold(0L) { current, arg ->
+                    current + (arg as IntegerWanderValue).value.value
+                }
+                Either.Right(IntegerWanderValue(IntegerLiteral(total)))
+            })
+            val res = interpreter.run(script, scope)
+            res shouldBe Either.Right(IntegerWanderValue(IntegerLiteral(39L)))
         }
 
-        test("define and call a function with zero params") {
-            TODO()
-        }
-
-        test("define and call a function with one param") {
-            TODO()
-        }
+//        test("expect an error when calling a function with incorrect params") {
+//            TODO()
+//        }
+//
+//        test("define and call a function with zero params") {
+//            TODO()
+//        }
+//
+//        test("define and call a function with one param") {
+//            TODO()
+//        }
+//
+//        test("call function with method syntax") {
+//            TODO()
+//        }
     }
 }
