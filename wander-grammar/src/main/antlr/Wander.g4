@@ -12,7 +12,7 @@ statement: ENTITY ATTRIBUTE ligatureValue ENTITY;
 wanderValue: statement | ATTRIBUTE | ligatureValue | BOOLEAN | WANDER_NAME | functionDecl;
 functionDecl: '(' (parameter (',' parameter)*)? '->' TYPE ')' '{' script '}';
 parameter: WANDER_NAME ':' TYPE;
-functionCall: WANDER_NAME '(' (expression (',' expression)*)? ')'; //TODO support more than zero or one arguments
+functionCall: WANDER_NAME '(' (expression (',' expression)*)? ')';
 ligatureValue: ENTITY | STRING_LITERAL | FLOAT_LITERAL | INTEGER_LITERAL;
 BOOLEAN: 'true' | 'false';
 TYPE: 'Integer'; //TODO Add other types
@@ -27,5 +27,3 @@ fragment STRING_CONTENT: ~[\u0000-\u001F"\\] | '\\' ["\\/bfnrt] | '\\u' HEX HEX 
 fragment HEX: [0-9a-fA-F];
 WS: [ \t\r\n]+ -> skip;
 //TODO whenExpression
-//TODO function call
-//TODO function declaration
