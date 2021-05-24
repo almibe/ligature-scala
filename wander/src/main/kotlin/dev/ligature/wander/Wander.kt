@@ -11,18 +11,30 @@ import dev.ligature.wander.interpreter.Interpreter
 import dev.ligature.wander.interpreter.WanderValue
 import dev.ligature.wander.interpreter.Scope
 
-class Wander(ligature: Ligature) {
-    private val interpreter = Interpreter(ligature)
+class Wander(private val ligature: Ligature) {
+    private val interpreter = Interpreter()
 
     fun runCommand(input: String): Either<WanderError, WanderValue> {
-        return interpreter.runCommand(input)
+        return interpreter.run(input, createCommandScope())
     }
 
     fun runQuery(input: String): Either<WanderError, WanderValue> {
-        return interpreter.runQuery(input)
+        return interpreter.run(input, createQueryScope())
     }
 
     fun run(input: String): Either<WanderError, WanderValue> {
         return interpreter.run(input, Scope(null))
+    }
+
+    private fun createCommandScope(): Scope {
+        val scope = Scope(null)
+        //TODO add default functions
+        return scope
+    }
+
+    private fun createQueryScope(): Scope {
+        val scope = Scope(null)
+        //TODO add default functions
+        return scope
     }
 }

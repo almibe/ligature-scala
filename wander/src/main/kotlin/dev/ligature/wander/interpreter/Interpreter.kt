@@ -13,27 +13,7 @@ import org.antlr.v4.runtime.CharStreams
 import org.antlr.v4.runtime.CommonTokenStream
 import org.antlr.v4.runtime.tree.TerminalNode
 
-class Interpreter(private val ligature: Ligature) {
-    fun createCommandScope(): Scope {
-        val scope = Scope(null)
-        //TODO add default functions
-        return scope
-    }
-
-    fun createQueryScope(): Scope {
-        val scope = Scope(null)
-        //TODO add default functions
-        return scope
-    }
-
-    fun runCommand(script: String): Either<WanderError, WanderValue> {
-        return run(script, createCommandScope())
-    }
-
-    fun runQuery(script: String): Either<WanderError, WanderValue> {
-        return run(script, createQueryScope())
-    }
-
+class Interpreter {
     fun run(script: String, topScope: Scope): Either<WanderError, WanderValue> {
         val inputStream = CharStreams.fromString(script)
         val lexer = WanderLexer(inputStream)
@@ -181,7 +161,7 @@ class FunctionDeclVisitor(private val scope: Scope): WanderBaseVisitor<Either<Wa
     }
 }
 
-class StatementVisitor(): WanderBaseVisitor<Either<WanderError, StatementWanderValue>>() {
+class StatementVisitor: WanderBaseVisitor<Either<WanderError, StatementWanderValue>>() {
     override fun visitStatement(ctx: WanderParser.StatementContext): Either<WanderError, StatementWanderValue> {
         val entity = handleEntity(ctx.ENTITY(0))
         val attribute = handleAttribute(ctx.ATTRIBUTE())

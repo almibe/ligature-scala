@@ -17,7 +17,7 @@ class FunctionSpec : FunSpec() {
 
     init {
         test("call a function from scope with zero params") {
-            val interpreter = Interpreter(ligature)
+            val interpreter = Interpreter()
             val script = "x()"
             val scope = Scope()
             scope.addSymbol("x", WanderFunction(listOf()) { Either.Right(IntegerWanderValue(IntegerLiteral(5L))) })
@@ -26,7 +26,7 @@ class FunctionSpec : FunSpec() {
         }
 
         test("call a function from scope with one param") {
-            val interpreter = Interpreter(ligature)
+            val interpreter = Interpreter()
             val script = "plusOne(41)"
             val scope = Scope()
             scope.addSymbol("plusOne", WanderFunction(listOf(IntegerWanderValue::class)) { args ->
@@ -40,7 +40,7 @@ class FunctionSpec : FunSpec() {
         }
 
         test("call a function from scope with three params") {
-            val interpreter = Interpreter(ligature)
+            val interpreter = Interpreter()
             val script = "add3Numbers(12,13, 14)"
             val scope = Scope()
             scope.addSymbol("add3Numbers", WanderFunction(listOf(IntegerWanderValue::class)) { args ->
@@ -55,7 +55,7 @@ class FunctionSpec : FunSpec() {
         }
 
         test("define and call a function with zero params") {
-            val interpreter = Interpreter(ligature)
+            val interpreter = Interpreter()
             val script = "let five = (-> Integer) { 5 } \nfive()"
             val res = interpreter.run(script, Scope())
             res shouldBe Either.Right(IntegerWanderValue(IntegerLiteral(5L)))

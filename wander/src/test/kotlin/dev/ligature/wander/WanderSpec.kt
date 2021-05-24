@@ -5,7 +5,7 @@
 package dev.ligature.wander
 
 import dev.ligature.inmemory.InMemoryLigature
-import dev.ligature.wander.printer.Printer
+import dev.ligature.wander.writer.Writer
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.inspectors.forAll
 import io.kotest.matchers.shouldBe
@@ -21,7 +21,7 @@ import kotlin.streams.toList
 class WanderSpec : FunSpec() {
     private val ligature = InMemoryLigature()
     private val wander = Wander(ligature)
-    private val printer = Printer()
+    private val printer = Writer()
 
     private fun readDirectory(path: String): List<Path> =
         Files.walk(Paths.get(path)).toList()
@@ -34,8 +34,8 @@ class WanderSpec : FunSpec() {
         val files = readDirectory(path)
         return files.filter { it.extension == "wander" }.map {
             val text = it.readText()
-            val queryResult = printer.print(wander.runQuery(text))
-            val commandResult = printer.print(wander.runCommand(text))
+            val queryResult = printer.write(wander.runQuery(text))
+            val commandResult = printer.write(wander.runCommand(text))
             val expected = it.resolveSibling(it.fileName.toString().replace(".wander", ".result")).readText()
             TestResult(it.fileName.toString(), expected, commandResult, queryResult)
         }

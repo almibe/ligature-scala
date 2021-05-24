@@ -17,7 +17,7 @@ class AssignmentSpec : FunSpec() {
 
     init {
         test("access name from scope") {
-            val interpreter = Interpreter(ligature)
+            val interpreter = Interpreter()
             val script = "x"
             val scope = Scope()
             scope.addSymbol("x", IntegerWanderValue(IntegerLiteral(5L)))
