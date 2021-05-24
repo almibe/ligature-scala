@@ -5,36 +5,44 @@
 package dev.ligature.wander
 
 import arrow.core.Either
+import dev.ligature.Dataset
 import dev.ligature.Ligature
-import dev.ligature.wander.interpreter.WanderError
-import dev.ligature.wander.interpreter.Interpreter
-import dev.ligature.wander.interpreter.WanderValue
-import dev.ligature.wander.interpreter.Scope
+import dev.ligature.QueryTx
+import dev.ligature.WriteTx
+import dev.ligature.wander.interpreter.*
 
 class Wander(private val ligature: Ligature) {
     private val interpreter = Interpreter()
 
-    fun runCommand(input: String): Either<WanderError, WanderValue> {
-        return interpreter.run(input, createCommandScope())
+    suspend fun runCommand(dataset: Dataset, input: String): Either<WanderError, WanderValue> {
+        return ligature.write(dataset) {
+            interpreter.run(input, createCommandScope(it))
+        }
     }
 
-    fun runQuery(input: String): Either<WanderError, WanderValue> {
-        return interpreter.run(input, createQueryScope())
+    suspend fun runQuery(dataset: Dataset, input: String): Either<WanderError, WanderValue> {
+        return ligature.query(dataset) {
+            interpreter.run(input, createQueryScope(it))
+        }
     }
 
     fun run(input: String): Either<WanderError, WanderValue> {
         return interpreter.run(input, Scope(null))
     }
 
-    private fun createCommandScope(): Scope {
+    private fun createCommandScope(writeTx: WriteTx): Scope {
         val scope = Scope(null)
-        //TODO add default functions
+        scope.addSymbol("addStatement", WanderFunction(listOf(StatementWanderValue::class), TODO()))
+        scope.addSymbol("generateEntity", WanderFunction(listOf(EntityWanderValue::class), TODO()))
+        scope.addSymbol("removeStatement", WanderFunction(listOf(StatementWanderValue::class), TODO()))
         return scope
     }
 
-    private fun createQueryScope(): Scope {
+    private fun createQueryScope(queryTx: QueryTx): Scope {
         val scope = Scope(null)
-        //TODO add default functions
+        scope.addSymbol("allStatements", WanderFunction(listOf(), TODO()))
+        scope.addSymbol("matchStatements", WanderFunction(listOf(), TODO())) //TODO figure out what argument type should be
+        scope.addSymbol("matchStatementsRange", WanderFunction(listOf(), TODO())) //TODO figure out what argument type should be
         return scope
     }
 }
