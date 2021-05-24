@@ -114,8 +114,8 @@ abstract class LigatureTestSuite : FunSpec() {
             val instance = createLigature()
             instance.createDataset(testDataset)
             val res = instance.write(testDataset) { tx ->
-                val entity3 = tx.newAnonymousEntity()
-                val entity4 = tx.newAnonymousEntity("prefixTest")
+                val entity3 = tx.generateEntity()
+                val entity4 = tx.generateEntity("prefixTest")
                 Pair(entity3, entity4)
             }
             val uuidPattern = "[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}"
