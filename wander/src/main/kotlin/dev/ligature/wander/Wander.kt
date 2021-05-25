@@ -5,8 +5,6 @@
 package dev.ligature.wander
 
 import arrow.core.Either
-import dev.ligature.Dataset
-import dev.ligature.Ligature
 import dev.ligature.QueryTx
 import dev.ligature.WriteTx
 import dev.ligature.wander.interpreter.*
@@ -28,19 +26,39 @@ class Wander {
 
     private fun createCommandScope(writeTx: WriteTx): Scope {
         val scope = Scope(null)
-        scope.addSymbol("addStatement", WanderFunction(listOf(StatementWanderValue::class),
-            TODO()))
-        scope.addSymbol("generateEntity", WanderFunction(listOf(EntityWanderValue::class),
-            TODO()))
-        scope.addSymbol("removeStatement", WanderFunction(listOf(StatementWanderValue::class),
-            TODO()))
+        scope.addSymbol("addStatement", WanderFunction(listOf(StatementWanderValue::class)) { args ->
+            if (args.size == 1 && args[0] is StatementWanderValue) {
+                TODO()
+            } else {
+                Either.Left(ArgumentError("addStatement accepts 1 Statement found $args"))
+            }
+        })
+        scope.addSymbol("generateEntity", WanderFunction(listOf(EntityWanderValue::class)) { args ->
+            if (args.size == 1 && args[0] is EntityWanderValue) {
+                TODO() //writeTx.generateEntity()
+            } else {
+                Either.Left(ArgumentError("generateEntity accepts 1 Entity found $args"))
+            }
+        })
+        scope.addSymbol("removeStatement", WanderFunction(listOf(StatementWanderValue::class)) { args ->
+            if (args.size == 1 && args[0] is StatementWanderValue) {
+                TODO()
+            } else {
+                Either.Left(ArgumentError("removeStatement accepts 1 Statement found $args"))
+            }
+        })
         return scope
     }
 
     private fun createQueryScope(queryTx: QueryTx): Scope {
         val scope = Scope(null)
-        scope.addSymbol("matchStatements", WanderFunction(listOf(StatementQueryValue::class),
-            TODO()))
+        scope.addSymbol("matchStatements", WanderFunction(listOf(StatementQueryValue::class)) { args ->
+            if (args.size == 1 && args[0] is StatementQueryValue) {
+                TODO()
+            } else {
+                Either.Left(ArgumentError("matchStatements accepts 1 StatementQuery found $args"))
+            }
+        })
         return scope
     }
 }
