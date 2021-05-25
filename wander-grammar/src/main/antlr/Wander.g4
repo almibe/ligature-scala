@@ -9,11 +9,13 @@ script: (expression | letStatement)*;
 expression: wanderValue | functionCall;
 letStatement: 'let' WANDER_NAME '=' expression;
 statement: ENTITY ATTRIBUTE ligatureValue ENTITY;
-wanderValue: statement | ATTRIBUTE | ligatureValue | BOOLEAN | WANDER_NAME | functionDecl;
+statementQuery: (ENTITY | '?') (ATTRIBUTE | '?') (ligatureValue | range | '?') (ENTITY | '?');
+wanderValue: statement | statementQuery | ATTRIBUTE | ligatureValue | BOOLEAN | WANDER_NAME | functionDecl;
 functionDecl: '(' (parameter (',' parameter)*)? '->' TYPE ')' '{' script '}';
 parameter: WANDER_NAME ':' TYPE;
 functionCall: WANDER_NAME '(' (expression (',' expression)*)? ')';
 ligatureValue: ENTITY | STRING_LITERAL | FLOAT_LITERAL | INTEGER_LITERAL;
+range: ligatureValue '..' ligatureValue;
 BOOLEAN: 'true' | 'false';
 TYPE: 'Integer'; //TODO Add other types
 INTEGER_LITERAL: [0-9]+; //TODO should probably not allow things like 04

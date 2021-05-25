@@ -4,7 +4,6 @@
 
 package dev.ligature.wander
 
-import dev.ligature.inmemory.InMemoryLigature
 import dev.ligature.wander.writer.Writer
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.inspectors.forAll
@@ -19,14 +18,13 @@ import kotlin.streams.toList
 
 @OptIn(ExperimentalPathApi::class)
 class WanderSpec : FunSpec() {
-    private val ligature = InMemoryLigature()
-    private val wander = Wander(ligature)
+    private val wander = Wander()
     private val printer = Writer()
 
     private fun readDirectory(path: String): List<Path> =
         Files.walk(Paths.get(path)).toList()
 
-    data class TestResult(val fileName: String, val expected: String, val commandResult: String, val queryResult: String) {
+    data class TestResult(val fileName: String, val expected: String, val result: String) {
         override fun toString(): String = fileName
     }
 
@@ -34,25 +32,22 @@ class WanderSpec : FunSpec() {
         val files = readDirectory(path)
         return files.filter { it.extension == "wander" }.map {
             val text = it.readText()
-            val queryResult = printer.write(wander.runQuery(text))
-            val commandResult = printer.write(wander.runCommand(text))
+            val result = printer.write(wander.run(text))
             val expected = it.resolveSibling(it.fileName.toString().replace(".wander", ".result")).readText()
-            TestResult(it.fileName.toString(), expected, commandResult, queryResult)
+            TestResult(it.fileName.toString(), expected, result)
         }
     }
 
     init {
         test("primitives support") {
             buildResults("src/test/resources/primitives").forAll {
-                it.commandResult shouldBe it.expected
-                it.queryResult shouldBe it.expected
+                it.result shouldBe it.expected
             }
         }
 
         test("assignment support") {
             buildResults("src/test/resources/assignment").forAll {
-                it.commandResult shouldBe it.expected
-                it.queryResult shouldBe it.expected
+                it.result shouldBe it.expected
             }
         }
     }

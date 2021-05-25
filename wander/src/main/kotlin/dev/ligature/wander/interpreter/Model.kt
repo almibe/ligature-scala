@@ -6,6 +6,7 @@ package dev.ligature.wander.interpreter
 
 import arrow.core.Either
 import dev.ligature.*
+import kotlinx.coroutines.flow.Flow
 import kotlin.reflect.KClass
 
 sealed class WanderValue
@@ -17,8 +18,14 @@ data class AttributeWanderValue(val value: Attribute): WanderValue()
 data class StatementWanderValue(val value: Statement): WanderValue()
 data class ValueWanderValue(val value: Value): WanderValue()
 data class BooleanWanderValue(val value: Boolean): WanderValue()
+data class StreamWanderValue(val stream: Flow<WanderValue>): WanderValue()
 object UnitWanderValue: WanderValue()
 
 //TODO I'm not sure if I want the body to return just a WanderValue or an either w/ an Error case
 data class WanderFunction(val arguments: List<KClass<out WanderValue>>,
                           val body: (List<WanderValue>) -> Either<WanderError, WanderValue>): WanderValue()
+
+data class StatementQueryValue(val entity: Entity?, val attribute: Attribute?, val value: ValueQueryType, val context: Entity?): WanderValue()
+sealed class ValueQueryType
+data class ValueQuery(val value: Value?): ValueQueryType()
+data class RangeQuery(val range: Range): ValueQueryType()

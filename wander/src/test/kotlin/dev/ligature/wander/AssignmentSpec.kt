@@ -6,14 +6,12 @@ package dev.ligature.wander
 
 import arrow.core.Either
 import dev.ligature.IntegerLiteral
-import dev.ligature.inmemory.InMemoryLigature
 import dev.ligature.wander.interpreter.*
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 
 class AssignmentSpec : FunSpec() {
-    private val ligature = InMemoryLigature()
-    private val wander = Wander(ligature)
+    private val wander = Wander()
 
     init {
         test("access name from scope") {

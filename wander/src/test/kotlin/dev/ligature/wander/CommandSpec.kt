@@ -13,7 +13,7 @@ import io.kotest.matchers.shouldBe
 
 class CommandSpec : FunSpec() {
     private val ligature = InMemoryLigature()
-    private val wander = Wander(ligature)
+    private val wander = Wander()
 
     init {
         test("allow adding Statements") {

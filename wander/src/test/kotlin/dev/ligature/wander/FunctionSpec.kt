@@ -13,7 +13,7 @@ import io.kotest.matchers.shouldBe
 
 class FunctionSpec : FunSpec() {
     private val ligature = InMemoryLigature()
-    private val wander = Wander(ligature)
+    private val wander = Wander()
 
     init {
         test("call a function from scope with zero params") {

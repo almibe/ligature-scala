@@ -33,6 +33,8 @@ class Writer {
             is ValueWanderValue -> ligWriter.writeValue(wanderValue.value)
             is WanderFunction -> TODO()
             is StatementWanderValue -> ligWriter.writeStatement(wanderValue.value)
+            is StatementQueryValue -> TODO()
+            is StreamWanderValue -> TODO()
         }
 
     fun write(error: WanderError): String =
