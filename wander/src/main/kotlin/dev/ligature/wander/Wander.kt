@@ -28,23 +28,29 @@ class Wander {
         val scope = Scope(null)
         scope.addSymbol("addStatement", WanderFunction(listOf(StatementWanderValue::class)) { args ->
             if (args.size == 1 && args[0] is StatementWanderValue) {
-                TODO()
+                val statement = (args[0] as StatementWanderValue).value
+                writeTx.addStatement(statement)
+                Either.Right(UnitWanderValue)
             } else {
-                Either.Left(ArgumentError("addStatement accepts 1 Statement found $args"))
+                Either.Left(ArgumentError("addStatement accepts 1 Statement, found $args"))
             }
         })
         scope.addSymbol("generateEntity", WanderFunction(listOf(EntityWanderValue::class)) { args ->
             if (args.size == 1 && args[0] is EntityWanderValue) {
-                TODO() //writeTx.generateEntity()
+                val prefixEntity = (args[0] as EntityWanderValue).value
+                writeTx.generateEntity(prefixEntity.id)
+                Either.Right(UnitWanderValue)
             } else {
-                Either.Left(ArgumentError("generateEntity accepts 1 Entity found $args"))
+                Either.Left(ArgumentError("generateEntity accepts 1 Entity, found $args"))
             }
         })
         scope.addSymbol("removeStatement", WanderFunction(listOf(StatementWanderValue::class)) { args ->
             if (args.size == 1 && args[0] is StatementWanderValue) {
-                TODO()
+                val statement = (args[0] as StatementWanderValue).value
+                writeTx.removeStatement(statement)
+                Either.Right(UnitWanderValue)
             } else {
-                Either.Left(ArgumentError("removeStatement accepts 1 Statement found $args"))
+                Either.Left(ArgumentError("removeStatement accepts 1 Statement, found $args"))
             }
         })
         return scope
@@ -56,7 +62,7 @@ class Wander {
             if (args.size == 1 && args[0] is StatementQueryValue) {
                 TODO()
             } else {
-                Either.Left(ArgumentError("matchStatements accepts 1 StatementQuery found $args"))
+                Either.Left(ArgumentError("matchStatements accepts 1 StatementQuery, found $args"))
             }
         })
         return scope

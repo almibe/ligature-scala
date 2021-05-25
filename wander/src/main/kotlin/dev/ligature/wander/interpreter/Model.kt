@@ -23,7 +23,7 @@ object UnitWanderValue: WanderValue()
 
 //TODO I'm not sure if I want the body to return just a WanderValue or an either w/ an Error case
 data class WanderFunction(val arguments: List<KClass<out WanderValue>>,
-                          val body: (List<WanderValue>) -> Either<WanderError, WanderValue>): WanderValue()
+                          val body: suspend (List<WanderValue>) -> Either<WanderError, WanderValue>): WanderValue()
 
 data class StatementQueryValue(val entity: Entity?, val attribute: Attribute?, val value: ValueQueryType, val context: Entity?): WanderValue()
 sealed class ValueQueryType
