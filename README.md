@@ -16,7 +16,7 @@ and is built to run on the JVM or natively with GraalVM.
  - ligature-test-suite - A single test suite for the Ligature api.
  - ligature-in-memory - An implementation of Ligature that stores all data in memory.
  - ligature-lmdb - An implementation of Ligature that uses lmdb for storage.
- - slonky - An implementation of Ligature's HTTP specifications.
+ - ligature-http - An implementation of Ligature's HTTP specifications.
 
 ## Related Projects
  - [ligature-specification](https://github.com/almibe/ligature-specification) - The specification for Ligature and related specifications.
