@@ -9,6 +9,7 @@ import dev.ligature.*
 import dev.ligature.lig.LigParser
 import dev.ligature.rakkoon.Rakkoon
 import dev.ligature.wander.parser.*
+import kotlinx.coroutines.runBlocking
 import org.antlr.v4.runtime.CharStreams
 import org.antlr.v4.runtime.CommonTokenStream
 import org.antlr.v4.runtime.tree.TerminalNode
@@ -94,7 +95,9 @@ class FunctionCallVisitor(private val scope: Scope): WanderBaseVisitor<Either<Wa
                 } else {
                     listOf()
                 }
-                function.body.invoke(params)
+                runBlocking { //TODO fix this so I'm not blocking
+                    function.body(params)
+                }
             }
         }
     }

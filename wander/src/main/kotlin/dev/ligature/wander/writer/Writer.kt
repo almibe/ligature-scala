@@ -43,5 +43,6 @@ class Writer {
             is NotSupported -> error.message
             is SymbolExits -> TODO()
             is UnknownSymbol -> TODO()
+            is ArgumentError -> TODO()
         }
 }
