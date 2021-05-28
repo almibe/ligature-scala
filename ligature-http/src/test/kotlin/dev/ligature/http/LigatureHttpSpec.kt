@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at https://mozilla.org/MPL/2.0/. */
 
-package dev.ligature.slonky
+package dev.ligature.http
 
 import arrow.core.Either
 import arrow.core.getOrElse
@@ -19,7 +19,7 @@ import io.vertx.ext.web.client.HttpResponse
 import io.vertx.ext.web.client.WebClient
 import io.vertx.kotlin.coroutines.awaitResult
 
-class SlonkySuite: FunSpec() {
+class LigatureHttpSpec: FunSpec() {
     //Some helper functions
     private fun dataset(name: String): Dataset = Dataset.from(name).getOrElse { TODO("Could not create Dataset $name") }
     private fun entity(id: String): Entity = Entity.from(id).getOrElse { TODO() }

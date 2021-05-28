@@ -1,4 +1,5 @@
-# s&nbsp;&nbsp;l&nbsp;&nbsp;o&nbsp;&nbsp;n&nbsp;&nbsp;k&nbsp;&nbsp;y
+# ligature-jvm
+
 An implementation of the [Ligature knowledge graph](https://github.com/almibe/ligature-specification)
 written in Kotlin for the JVM.
 
