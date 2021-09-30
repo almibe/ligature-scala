@@ -21,10 +21,10 @@ class InMemoryQueryTx(private val store: DatasetStore) : QueryTx {
     /** Returns all PersistedStatements that match the given criteria.
      * If a parameter is None then it matches all, so passing all Nones is the same as calling allStatements. */
     override suspend fun matchStatements(
-            entity: Entity?,
-            attribute: Attribute?,
+            entity: Identifier?,
+            attribute: Identifier?,
             value: Value?,
-            context: Entity?
+            context: Identifier?
     ): Flow<Either<LigatureError, Statement>> {
         var res = store.statements.asFlow()
         if (entity != null) {
@@ -45,10 +45,10 @@ class InMemoryQueryTx(private val store: DatasetStore) : QueryTx {
     /** Retuns all PersistedStatements that match the given criteria.
      * If a parameter is None then it matches all. */
     override suspend fun matchStatementsRange(
-            entity: Entity?,
-            attribute: Attribute?,
+            entity: Identifier?,
+            attribute: Identifier?,
             range: Range,
-            context: Entity?
+            context: Identifier?
     ): Flow<Either<LigatureError, Statement>> {
         var res = store.statements.asFlow()
         if (entity != null) {
@@ -61,7 +61,7 @@ class InMemoryQueryTx(private val store: DatasetStore) : QueryTx {
             val value = s.value
             when {
                 value is StringLiteral && range is StringLiteralRange   -> value.value >= range.start && value.value < range.end
-                value is FloatLiteral && range is FloatLiteralRange     -> value.value >= range.start && value.value < range.end
+                //value is FloatLiteral && range is FloatLiteralRange     -> value.value >= range.start && value.value < range.end
                 value is IntegerLiteral && range is IntegerLiteralRange -> value.value >= range.start && value.value < range.end
                 else                                                    -> false
             }
