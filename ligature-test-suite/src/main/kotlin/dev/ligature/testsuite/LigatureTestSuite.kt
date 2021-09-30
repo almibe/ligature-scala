@@ -18,21 +18,21 @@ abstract class LigatureTestSuite : FunSpec() {
 
     //Some helper functions
     private fun dataset(name: String): Dataset = Dataset.from(name).getOrElse { TODO("Could not create Dataset $name") }
-    private fun entity(id: String): Entity = Entity.from(id).getOrElse { TODO() }
-    private fun attribute(name: String): Attribute = Attribute.from(name).getOrElse { TODO() }
+    private fun identifier(id: String): Identifier = Identifier(id).getOrElse { TODO() }
+//    private fun attribute(name: String): Attribute = Attribute.from(name).getOrElse { TODO() }
     private fun <E,T>Either<E, T>.getOrThrow(): T = this.getOrElse { TODO() }
 
     val testDataset = dataset("test_test")
     val testDataset2 = dataset("test_test2")
     val testDataset3 = dataset("test3_test")
-    val ent1 = entity("ent1")
-    val ent2 = entity("ent2")
-    val ent3 = entity("ent3")
-    val con1 = entity("context1")
-    val con2 = entity("context2")
-    val con3 = entity("context3")
-    val a = attribute("a")
-    val b = attribute("b")
+    val ent1 = identifier("ent1")
+    val ent2 = identifier("ent2")
+    val ent3 = identifier("ent3")
+    val con1 = identifier("context1")
+    val con2 = identifier("context2")
+    val con3 = identifier("context3")
+    val a = identifier("a")
+    val b = identifier("b")
 
     init {
         test("create and close store") {
@@ -114,9 +114,9 @@ abstract class LigatureTestSuite : FunSpec() {
             val instance = createLigature()
             instance.createDataset(testDataset)
             val res = instance.write(testDataset) { tx ->
-                val entity3 = tx.generateEntity()
-                val entity4 = tx.generateEntity("prefixTest")
-                Pair(entity3, entity4)
+                val identifier3 = tx.generateIdentifier()
+                val identifier4 = tx.generateIdentifier("prefixTest")
+                Pair(identifier3, identifier4)
             }
             val uuidPattern = "[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}"
             res.first.getOrThrow().id.matches("_$uuidPattern".toRegex()) shouldBe true
@@ -150,7 +150,7 @@ abstract class LigatureTestSuite : FunSpec() {
                 tx.addStatement(Statement(ent3, a, ent2, con1))
                 tx.removeStatement(statement)
                 tx.removeStatement(statement)
-                tx.removeStatement(Statement(ent2, a, ent1, entity("iDontExist")))
+                tx.removeStatement(Statement(ent2, a, ent1, identifier("iDontExist")))
             }
             val res = instance.query(testDataset) { tx ->
                 tx.allStatements().map { it.getOrThrow() }.toSet()
@@ -221,23 +221,24 @@ abstract class LigatureTestSuite : FunSpec() {
             instance.createDataset(testDataset)
             instance.write(testDataset) { tx ->
                 tx.addStatement(Statement(ent1, a, ent2, con1))
-                tx.addStatement(Statement(ent1, b, FloatLiteral(1.1), con1))
+                //tx.addStatement(Statement(ent1, b, FloatLiteral(1.1), con1))
                 tx.addStatement(Statement(ent1, a, IntegerLiteral(5L), con1))
                 tx.addStatement(Statement(ent2, a, IntegerLiteral(3L), con1))
-                tx.addStatement(Statement(ent2, a, FloatLiteral(10.0), con1))
+                //tx.addStatement(Statement(ent2, a, FloatLiteral(10.0), con1))
                 tx.addStatement(Statement(ent2, b, ent3, con1))
                 tx.addStatement(Statement(ent3, a, IntegerLiteral(7L), con1))
-                tx.addStatement(Statement(ent3, b, FloatLiteral(12.5), con1))
+                //tx.addStatement(Statement(ent3, b, FloatLiteral(12.5), con1))
             }
-            val (res1, res2, res3) = instance.query(testDataset) { tx ->
-                val res1 = tx.matchStatementsRange(null, null, FloatLiteralRange(1.0, 11.0)).toList()
-                val res2  = tx.matchStatementsRange(null, null, IntegerLiteralRange(3,5)).toList()
-                val res3 = tx.matchStatementsRange(null, b, FloatLiteralRange(1.0, 11.0)).toList()
-                listOf(res1, res2, res3)
+            val res = instance.query(testDataset) { tx ->
+                //val res1 = tx.matchStatementsRange(null, null, FloatLiteralRange(1.0, 11.0)).toList()
+                val res  = tx.matchStatementsRange(null, null, IntegerLiteralRange(3,5)).toList()
+                //val res3 = tx.matchStatementsRange(null, b, FloatLiteralRange(1.0, 11.0)).toList()
+                //listOf(res1, res2, res3)
+                res
             }
-            res1.size shouldBe 2
-            res2.size shouldBe 1
-            res3.size shouldBe 1
+//            res1.size shouldBe 2
+            res.size shouldBe 1
+//            res3.size shouldBe 1
         }
     }
 }
