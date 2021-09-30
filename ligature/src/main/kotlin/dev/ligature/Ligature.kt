@@ -87,85 +87,102 @@ class Dataset private constructor(val name: String): Comparable<Dataset> {
     }
 }
 
-class Entity private constructor(val id: String): Value() {
-    override fun equals(other: Any?): Boolean {
-        return if (other is Entity) {
-            this.id == other.id
-        } else {
-            false
-        }
-    }
-
-    override fun hashCode(): Int = id.hashCode()
-
-    override fun toString(): String = "Entity(id=$id)"
-
-    operator fun component1(): String = id
-
+@JvmInline
+value class Identifier private constructor(val id: String): Value {
     companion object {
-        /**
-         * Attempts to create an Entity with the given name.
-         * If the entire String is a valid Entity identifier then Some(entity) is returned otherwise None is.
-         */
-        fun from(id: String): Option<Entity> =
-            when (val entity = from(Rakkoon(id))) {
-                is None -> entity
-                is Some -> if (entity.value.id == id) entity else none()
+        operator fun invoke(id: String): Option<Identifier> = //TODO should be an Either or a Result not Option
+            when (val identifier = from(Rakkoon(id))) {
+                is None -> identifier
+                is Some -> if (identifier.value.id == id) identifier else none()
             }
 
-        private fun from(rakkoon: Rakkoon): Option<Entity> {
+        private fun from(rakkoon: Rakkoon): Option<Identifier> {
             val res = rakkoon.nibble(identifierNibbler)
-            return res.map { Entity(it.value) }
+            return res.map { Identifier(it.value) }
         }
+
     }
 }
 
-class Attribute private constructor(val name: String) {
-    override fun equals(other: Any?): Boolean {
-        return if (other is Attribute) {
-            this.name == other.name
-        } else {
-            false
-        }
-    }
-
-    override fun hashCode(): Int = name.hashCode()
-
-    override fun toString(): String = "Attribute(name=$name)"
-
-    operator fun component1(): String = name
-
-    companion object {
-        /**
-         * Attempts to create an Attribute with the given name.
-         * If the entire String is a valid Attribute name then Some(attribute) is returned otherwise None is.
-         */
-        fun from(name: String): Option<Attribute> =
-            when (val attribute = from(Rakkoon(name))) {
-                is None -> attribute
-                is Some -> if (attribute.value.name == name) attribute else none()
-            }
-
-        private fun from(rakkoon: Rakkoon): Option<Attribute> {
-            val res = rakkoon.nibble(identifierNibbler)
-            return res.map { Attribute(it.value) }
-        }
-    }
-}
+//class Entity private constructor(val id: String): Value() {
+//    override fun equals(other: Any?): Boolean {
+//        return if (other is Entity) {
+//            this.id == other.id
+//        } else {
+//            false
+//        }
+//    }
+//
+//    override fun hashCode(): Int = id.hashCode()
+//
+//    override fun toString(): String = "Entity(id=$id)"
+//
+//    operator fun component1(): String = id
+//
+//    companion object {
+//        /**
+//         * Attempts to create an Entity with the given name.
+//         * If the entire String is a valid Entity identifier then Some(entity) is returned otherwise None is.
+//         */
+//        fun from(id: String): Option<Entity> =
+//            when (val entity = from(Rakkoon(id))) {
+//                is None -> entity
+//                is Some -> if (entity.value.id == id) entity else none()
+//            }
+//
+//        private fun from(rakkoon: Rakkoon): Option<Entity> {
+//            val res = rakkoon.nibble(identifierNibbler)
+//            return res.map { Entity(it.value) }
+//        }
+//    }
+//}
+//
+//class Attribute private constructor(val name: String) {
+//    override fun equals(other: Any?): Boolean {
+//        return if (other is Attribute) {
+//            this.name == other.name
+//        } else {
+//            false
+//        }
+//    }
+//
+//    override fun hashCode(): Int = name.hashCode()
+//
+//    override fun toString(): String = "Attribute(name=$name)"
+//
+//    operator fun component1(): String = name
+//
+//    companion object {
+//        /**
+//         * Attempts to create an Attribute with the given name.
+//         * If the entire String is a valid Attribute name then Some(attribute) is returned otherwise None is.
+//         */
+//        fun from(name: String): Option<Attribute> =
+//            when (val attribute = from(Rakkoon(name))) {
+//                is None -> attribute
+//                is Some -> if (attribute.value.name == name) attribute else none()
+//            }
+//
+//        private fun from(rakkoon: Rakkoon): Option<Attribute> {
+//            val res = rakkoon.nibble(identifierNibbler)
+//            return res.map { Attribute(it.value) }
+//        }
+//    }
+//}
 
 data class LigatureError(val message: String)
 
-sealed class Value() //TODO make a sealed interface later
-data class StringLiteral(val value: String): Value()
-data class IntegerLiteral(val value: Long): Value()
-data class FloatLiteral(val value: Double): Value()
+sealed interface Value //TODO make a sealed interface later
+data class StringLiteral(val value: String): Value
+data class IntegerLiteral(val value: Long): Value
+//data class FloatLiteral(val value: Double): Value()
 
 sealed class Range //TODO make a sealed interface later
 data class StringLiteralRange(val start: String, val end: String): Range()
 data class IntegerLiteralRange(val start: Long, val end: Long): Range()
-data class FloatLiteralRange(val start: Double, val end: Double): Range()
+//data class FloatLiteralRange(val start: Double, val end: Double): Range()
 
-data class Statement(val entity: Entity, val attribute: Attribute, val value: Value, val context: Entity)
+data class Statement(val entity: Identifier, val attribute: Identifier, val value: Value, val context: Identifier)
 
 /** A interface that all Ligature implementations implement. */
 interface Ligature {
@@ -211,27 +228,27 @@ interface QueryTx {
     /** Returns all Statements that match the given criteria.
      * If a parameter is None then it matches all, so passing all Nones is the same as calling allStatements. */
     suspend fun matchStatements(
-            entity: Entity? = null,
-            attribute: Attribute? = null,
+            entity: Identifier? = null,
+            attribute: Identifier? = null,
             value: Value? = null,
-            context: Entity? = null
+            context: Identifier? = null
     ): Flow<Either<LigatureError, Statement>>
 
     /** Returns all Statements that match the given criteria.
      * If a parameter is None then it matches all. */
     suspend fun matchStatementsRange(
-            entity: Entity?,
-            attribute: Attribute?,
+            entity: Identifier?,
+            attribute: Identifier?,
             range: Range,
-            context: Entity? = null
+            context: Identifier? = null
     ): Flow<Either<LigatureError, Statement>>
 }
 
 /** Represents a WriteTx within the context of a Ligature instance and a single Dataset */
 interface WriteTx {
-    /** Creates a new, unique Entity within this Dataset by combining a UUID and an optional prefix.
+    /** Creates a new, unique Identifier within this Dataset by combining a UUID and an optional prefix.
      * Note: Entities are shared across named graphs in a given Dataset. */
-    suspend fun generateEntity(prefix: String = "_"): Either<LigatureError, Entity>
+    suspend fun generateIdentifier(prefix: String = "_"): Either<LigatureError, Identifier>
 
     /** Adds a given Statement to this Dataset.
      * If the Statement already exists nothing happens.

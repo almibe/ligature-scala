@@ -50,7 +50,7 @@ class LigatureSpec : FunSpec() {
             }
         }
 
-        test("valid Attribute names") {
+        test("valid Identifier names") {
             //TODO add more tests
             val oks = listOf(
                     "test",
@@ -77,13 +77,11 @@ class LigatureSpec : FunSpec() {
                     " test")
 
             for(ok in oks) {
-                Entity.from(ok).getOrElse { TODO() }.id shouldBe ok
-                Attribute.from(ok).getOrElse { TODO() }.name shouldBe ok
+                Identifier(ok).getOrElse { TODO() }.id shouldBe ok
             }
 
             for(err in errs) {
-                Entity.from(err) shouldBe None
-                Attribute.from(err) shouldBe None
+                Identifier(err) shouldBe None
             }
         }
     }
