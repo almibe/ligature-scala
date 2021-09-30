@@ -29,16 +29,16 @@ class LigParser {
 
     fun parseStatement(rakkoon: Rakkoon, previousStatement: Statement?): Either<LigError, Statement> {
         rakkoon.nibble(whiteSpaceAndNewLineNibbler)
-        val entity = parseEntity(rakkoon, previousStatement?.entity)
+        val entity = parseIdentifier(rakkoon, previousStatement?.entity)
         if (entity.isLeft()) return entity.map { TODO() }
         rakkoon.nibble(whiteSpaceNibbler)
-        val attribute = parseAttribute(rakkoon, previousStatement?.attribute)
+        val attribute = parseIdentifier(rakkoon, previousStatement?.attribute)
         if (attribute.isLeft()) return attribute.map { TODO() }
         rakkoon.nibble(whiteSpaceNibbler)
         val value = parseValue(rakkoon, previousStatement?.value)
         if (value.isLeft()) return value.map { TODO() }
         rakkoon.nibble(whiteSpaceNibbler)
-        val context = parseEntity(rakkoon, previousStatement?.context)
+        val context = parseIdentifier(rakkoon, previousStatement?.context)
         rakkoon.nibble(whiteSpaceAndNewLineNibbler)
 
         return Either.Right(Statement(entity.getOrElse { TODO() }, attribute.getOrElse { TODO() }, value.getOrElse { TODO() }, context.getOrElse { TODO() }))
@@ -49,47 +49,47 @@ class LigParser {
 //        return rakkoon.bite(Rule(stringNibbler("_"), ignoreAction)).isRight()
     }
 
-    fun parseEntity(rakkoon: Rakkoon, previousEntity: Entity? = null): Either<LigError, Entity> {
+    fun parseIdentifier(rakkoon: Rakkoon, previousIdentifier: Identifier? = null): Either<LigError, Identifier> {
         //TODO need to also check for _
-        val openEntityNibbler = stringNibbler("<")
-        val closeEntityNibbler = stringNibbler(">")
+        val openIdentifierNibbler = stringNibbler("<")
+        val closeIdentifierNibbler = stringNibbler(">")
 
-        return when (val entityRes = rakkoon.nibble(openEntityNibbler, identifierNibbler, closeEntityNibbler)) {
-            is None -> Either.Left(LigError("Could not parse Entity."))
-            is Some -> createEntity(entityRes.value[1].value)
+        return when (val entityRes = rakkoon.nibble(openIdentifierNibbler, identifierNibbler, closeIdentifierNibbler)) {
+            is None -> Either.Left(LigError("Could not parse Identifier."))
+            is Some -> createIdentifier(entityRes.value[1].value)
         }
     }
 
-    fun createEntity(id: String): Either<LigError, Entity> =
-        when (val res = Entity.from(id)) {
-            is None -> Either.Left(LigError("Invalid Entity Id - $id"))
+    fun createIdentifier(id: String): Either<LigError, Identifier> =
+        when (val res = Identifier(id)) {
+            is None -> Either.Left(LigError("Invalid Identifier Id - $id"))
             is Some -> Either.Right(res.value)
         }
 
-    fun parseAttribute(rakkoon: Rakkoon, previousAttribute: Attribute? = null): Either<LigError, Attribute> {
-        //TODO need to also check for _
-        val openAttributeNibbler = stringNibbler("@<")
-        val closeAttributeNibbler = stringNibbler(">")
-
-        return when (val attributeRes = rakkoon.nibble(openAttributeNibbler, identifierNibbler, closeAttributeNibbler)) {
-            is None -> Either.Left(LigError("Could not parse Attribute.\n${rakkoon.remainingText()}"))
-            is Some -> createAttribute(attributeRes.value[1].value)
-        }
-    }
-
-    fun createAttribute(name: String): Either<LigError, Attribute> =
-        when (val res = Attribute.from(name)) {
-            is None -> Either.Left(LigError("Invalid Attribute name - $name"))
-            is Some -> Either.Right(res.value)
-        }
+//    fun parseAttribute(rakkoon: Rakkoon, previousAttribute: Attribute? = null): Either<LigError, Attribute> {
+//        //TODO need to also check for _
+//        val openAttributeNibbler = stringNibbler("@<")
+//        val closeAttributeNibbler = stringNibbler(">")
+//
+//        return when (val attributeRes = rakkoon.nibble(openAttributeNibbler, identifierNibbler, closeAttributeNibbler)) {
+//            is None -> Either.Left(LigError("Could not parse Attribute.\n${rakkoon.remainingText()}"))
+//            is Some -> createAttribute(attributeRes.value[1].value)
+//        }
+//    }
+//
+//    fun createAttribute(name: String): Either<LigError, Attribute> =
+//        when (val res = Attribute.from(name)) {
+//            is None -> Either.Left(LigError("Invalid Attribute name - $name"))
+//            is Some -> Either.Right(res.value)
+//        }
 
     fun parseValue(rakkoon: Rakkoon, previousValue: Value? = null): Either<LigError, Value> {
         //TODO need to check for _ first
-        val entityRes = parseEntity(rakkoon, null)
+        val entityRes = parseIdentifier(rakkoon, null)
         if (entityRes.isRight()) return entityRes
 
-        val floatRes = parseFloatLiteral(rakkoon)
-        if (floatRes.isRight()) return floatRes
+//        val floatRes = parseFloatLiteral(rakkoon)
+//        if (floatRes.isRight()) return floatRes
 
         val integerRes = parseIntegerLiteral(rakkoon)
         if (integerRes.isRight()) return integerRes
@@ -100,15 +100,15 @@ class LigParser {
         return Either.Left(LigError("Unsupported Value\n${rakkoon.remainingText()}"))
     }
 
-    fun parseFloatLiteral(rakkoon: Rakkoon): Either<LigError, FloatLiteral> {
-        val numberNibbler = rangeNibbler('0'..'9')
-        val decimalNibbler = stringNibbler(".")
-
-        return when (val res = rakkoon.nibble(numberNibbler, decimalNibbler, numberNibbler)) {
-            is None -> Either.Left(LigError("Could not parse Float."))
-            is Some -> Either.Right(FloatLiteral(res.value.map { it.value }.fold("") { x, y -> x + y }.toDouble() ))
-        }
-    }
+//    fun parseFloatLiteral(rakkoon: Rakkoon): Either<LigError, FloatLiteral> {
+//        val numberNibbler = rangeNibbler('0'..'9')
+//        val decimalNibbler = stringNibbler(".")
+//
+//        return when (val res = rakkoon.nibble(numberNibbler, decimalNibbler, numberNibbler)) {
+//            is None -> Either.Left(LigError("Could not parse Float."))
+//            is Some -> Either.Right(FloatLiteral(res.value.map { it.value }.fold("") { x, y -> x + y }.toDouble() ))
+//        }
+//    }
 
     fun parseIntegerLiteral(rakkoon: Rakkoon): Either<LigError, IntegerLiteral> {
         val numberNibbler = rangeNibbler('0'..'9')

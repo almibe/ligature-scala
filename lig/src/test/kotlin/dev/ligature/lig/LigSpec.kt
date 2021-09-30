@@ -16,57 +16,55 @@ class LigSpec : FunSpec() {
         val ligParser = LigParser()
         val ligWriter = LigWriter()
 
-        val testEntity = Entity.from("test").getOrElse { TODO() }
-        val testAttribute = Attribute.from("test").getOrElse { TODO() }
+        val testIdentifier = Identifier("test").getOrElse { TODO() }
 
-        fun entity(id: String): Entity = Entity.from(id).getOrElse { TODO() }
-        fun attribute(name: String): Attribute = Attribute.from(name).getOrElse { TODO() }
+        fun identifier(id: String) = Identifier(id).getOrElse { TODO() }
 
         test("write entities") {
-            val res = ligWriter.writeEntity(testEntity)
+            val res = ligWriter.writeEntity(testIdentifier)
             res shouldBe "<test>"
         }
 
         test("parse entities") {
             val test = "<test>"
             val entity = ligParser.parseEntity(Rakkoon(test), null)
-            entity shouldBe Either.Right(testEntity)
+            entity shouldBe Either.Right(testIdentifier)
         }
 
         test("complex entity parsing") {
             val entity = "<http$://&&this@2]34.[42;342?#--__>"
             val entityRes = ligParser.parseEntity(Rakkoon(entity))
-            entityRes shouldBe Either.Right(entity("http\$://&&this@2]34.[42;342?#--__"))
+            entityRes shouldBe Either.Right(Identifier("http\$://&&this@2]34.[42;342?#--__"))
         }
 
         test("write attributes") {
-            val res = ligWriter.writeAttribute(testAttribute)
+            val res = ligWriter.writeAttribute(testIdentifier)
             res shouldBe "@<test>"
         }
 
         test("parse attributes") {
             val test = "@<test>"
             val attribute = ligParser.parseAttribute(Rakkoon(test), null)
-            attribute shouldBe Either.Right(testAttribute)
+            attribute shouldBe Either.Right(testIdentifier)
         }
 
         test("complex attribute parsing") {
             val attribute = "@<http$://&&this@2]34.[42;342?#--__>"
             val attributeRes = ligParser.parseAttribute(Rakkoon(attribute))
-            attributeRes shouldBe Either.Right(attribute("http\$://&&this@2]34.[42;342?#--__"))
+            attributeRes shouldBe Either.Right(identifier("http\$://&&this@2]34.[42;342?#--__"))
         }
 
-        test("write FloatLiteral") {
-            val test = FloatLiteral(3.0)
-            val res = ligWriter.writeValue(test)
-            res shouldBe "3.0"
-        }
-
-        test("parse FloatLiteral") {
-            val test = "3.5"
-            val res = ligParser.parseFloatLiteral(Rakkoon(test))
-            res shouldBe Either.Right(FloatLiteral(3.5))
-        }
+//        test("write FloatLiteral") {
+//            val test = FloatLiteral(3.0)
+//            val res = ligWriter.writeValue(test)
+//            res shouldBe "3.0"
+//        }
+//
+//        test("parse FloatLiteral") {
+//            val test = "3.5"
+//            val res = ligParser.parseFloatLiteral(Rakkoon(test))
+//            res shouldBe Either.Right(FloatLiteral(3.5))
+//        }
 
         test("write IntegerLiteral") {
             val test = IntegerLiteral(3535)
@@ -93,7 +91,7 @@ class LigSpec : FunSpec() {
         }
 
         test("basic Statement with all Entities") {
-            val statement = Statement(entity("e1"), attribute("a1"), entity("e2"), entity("context"))
+            val statement = Statement(identifier("e1"), identifier("a1"), identifier("e2"), identifier("context"))
             val lines = ligWriter.write(listOf(statement).iterator())
             val resStatements = ligParser.parse(lines)
             listOf(statement) shouldBe resStatements.asSequence().toList()
@@ -101,10 +99,10 @@ class LigSpec : FunSpec() {
 
         test("list of Statements with Literal Values") {
             val statements = listOf(
-                Statement(entity("e1"), attribute("a1"), entity("e2"), entity("context")),
-                Statement(entity("e2"), attribute("a2"), StringLiteral("string literal"), entity("context2")),
-                Statement(entity("e2"), attribute("a3"), IntegerLiteral(Long.MAX_VALUE), entity("context3")),
-                Statement(entity("e3"), attribute("a4"), FloatLiteral(7.5), entity("context4"))
+                Statement(identifier("e1"), identifier("a1"), identifier("e2"), identifier("context")),
+                Statement(identifier("e2"), identifier("a2"), StringLiteral("string literal"), identifier("context2")),
+                Statement(identifier("e2"), identifier("a3"), IntegerLiteral(Long.MAX_VALUE), identifier("context3")),
+                //Statement(identifier("e3"), identifier("a4"), FloatLiteral(7.5), identifier("context4"))
             )
             val lines = ligWriter.write(statements.iterator())
             val resStatements = ligParser.parse(lines)

@@ -16,28 +16,24 @@ class LigWriter {
     }
 
     fun writeStatement(statement: Statement): String =
-        StringBuilder().append(writeEntity(statement.entity))
+        StringBuilder().append(writeIdentifier(statement.entity))
             .append(' ')
-            .append(writeAttribute(statement.attribute))
+            .append(writeIdentifier(statement.attribute))
             .append(' ')
             .append(writeValue(statement.value))
             .append(' ')
-            .append(writeEntity(statement.context))
+            .append(writeIdentifier(statement.context))
             .toString()
 
-    fun writeEntity(entity: Entity): String {
+    fun writeIdentifier(entity: Identifier): String {
         return "<${entity.id}>"
-    }
-
-    fun writeAttribute(attribute: Attribute): String {
-        return "@<${attribute.name}>"
     }
 
     fun writeValue(value: Value): String {
         return when(value) {
-            is Entity -> writeEntity(value)
+            is Identifier -> writeIdentifier(value)
             is IntegerLiteral -> value.value.toString()
-            is FloatLiteral -> value.value.toString()
+            //is FloatLiteral -> value.value.toString()
             is StringLiteral -> "\"${value.value}\"" //TODO this needs to handle escaping special characters
         }
     }
