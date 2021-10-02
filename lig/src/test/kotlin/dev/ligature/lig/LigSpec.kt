@@ -20,38 +20,21 @@ class LigSpec : FunSpec() {
 
         fun identifier(id: String) = Identifier(id).getOrElse { TODO() }
 
-        test("write entities") {
-            val res = ligWriter.writeEntity(testIdentifier)
+        test("write identifiers") {
+            val res = ligWriter.writeIdentifier(testIdentifier)
             res shouldBe "<test>"
         }
 
-        test("parse entities") {
+        test("parse identifiers") {
             val test = "<test>"
-            val entity = ligParser.parseEntity(Rakkoon(test), null)
-            entity shouldBe Either.Right(testIdentifier)
+            val identifier = ligParser.parseIdentifier(Rakkoon(test), null)
+            identifier shouldBe Either.Right(testIdentifier)
         }
 
-        test("complex entity parsing") {
-            val entity = "<http$://&&this@2]34.[42;342?#--__>"
-            val entityRes = ligParser.parseEntity(Rakkoon(entity))
-            entityRes shouldBe Either.Right(Identifier("http\$://&&this@2]34.[42;342?#--__"))
-        }
-
-        test("write attributes") {
-            val res = ligWriter.writeAttribute(testIdentifier)
-            res shouldBe "@<test>"
-        }
-
-        test("parse attributes") {
-            val test = "@<test>"
-            val attribute = ligParser.parseAttribute(Rakkoon(test), null)
-            attribute shouldBe Either.Right(testIdentifier)
-        }
-
-        test("complex attribute parsing") {
-            val attribute = "@<http$://&&this@2]34.[42;342?#--__>"
-            val attributeRes = ligParser.parseAttribute(Rakkoon(attribute))
-            attributeRes shouldBe Either.Right(identifier("http\$://&&this@2]34.[42;342?#--__"))
+        test("complex entity identifier") {
+            val identifier = "<http$://&&this@2]34.[42;342?#--__>"
+            val identifierRes = ligParser.parseIdentifier(Rakkoon(identifier))
+            identifierRes shouldBe Either.Right(identifier("http\$://&&this@2]34.[42;342?#--__"))
         }
 
 //        test("write FloatLiteral") {

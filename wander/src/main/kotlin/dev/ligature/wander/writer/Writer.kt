@@ -24,10 +24,10 @@ class Writer {
     fun write(wanderValue: WanderValue): String =
         when (wanderValue) {
             is IntegerWanderValue -> ligWriter.writeValue(wanderValue.value)
-            is AttributeWanderValue -> ligWriter.writeAttribute(wanderValue.value)
+//            is AttributeWanderValue -> ligWriter.writeAttribute(wanderValue.value)
             is BooleanWanderValue -> wanderValue.value.toString()
-            is EntityWanderValue -> ligWriter.writeEntity(wanderValue.value)
-            is FloatWanderValue -> ligWriter.writeValue(wanderValue.value)
+            is IdentifierWanderValue -> ligWriter.writeIdentifier(wanderValue.value)
+//            is FloatWanderValue -> ligWriter.writeValue(wanderValue.value)
             is StringWanderValue -> ligWriter.writeValue(wanderValue.value)
             UnitWanderValue -> "Unit"
             is ValueWanderValue -> ligWriter.writeValue(wanderValue.value)

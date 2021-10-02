@@ -83,8 +83,8 @@ class StatementRequests(private val ligature: Ligature) {
         } else if (oneOrZero(entityQp.size) && oneOrZero(attributeQp.size) && bothOneOrZero(valueQp.size, valueTypeQp.size) && valueStartQp.isEmpty() && valueEndQp.isEmpty()) {
             //handle simple match
             val sb = StringBuilder()
-            val entity: Entity? = entityQp.firstOrNull()?.let { Entity.from(it).orNull() }
-            val attribute: Attribute? = attributeQp.firstOrNull()?.let { Attribute.from(it).orNull() }
+            val entity: Identifier? = entityQp.firstOrNull()?.let { Identifier(it).orNull() }
+            val attribute: Identifier? = attributeQp.firstOrNull()?.let { Identifier(it).orNull() }
             val value: Value? = valueQp.firstOrNull()?.let { deserializeValue(it, valueTypeQp.first()) }
             //TODO needs context as well
 
@@ -97,8 +97,8 @@ class StatementRequests(private val ligature: Ligature) {
         } else if (oneOrZero(entityQp.size) && oneOrZero(attributeQp.size) && valueQp.isEmpty() && valueTypeQp.size == 1 && valueStartQp.size == 1 && valueEndQp.size == 1) {
             //handle range match
             val sb = StringBuilder()
-            val entity: Entity? = entityQp.firstOrNull()?.let { Entity.from(it).orNull() }
-            val attribute: Attribute? = attributeQp.firstOrNull()?.let { Attribute.from(it).orNull() }
+            val entity: Identifier? = entityQp.firstOrNull()?.let { Identifier(it).orNull() }
+            val attribute: Identifier? = attributeQp.firstOrNull()?.let { Identifier(it).orNull() }
             val valueRange: Range = deserializeValueRange(valueStartQp.first(), valueEndQp.first(), valueTypeQp.first())
             //TODO needs context as well
 
@@ -116,10 +116,10 @@ class StatementRequests(private val ligature: Ligature) {
     private fun deserializeValue(value: String, valueType: String): Value =  //TODO eventually remove
         when (valueType) {
             "Entity" -> {
-                Entity.from(value).getOrElse { throw RuntimeException("Invalid Entity - $value") }
+                Identifier(value).getOrElse { throw RuntimeException("Invalid Entity - $value") }
             }
             "StringLiteral" -> StringLiteral(value)
-            "FloatLiteral" -> FloatLiteral(value.toDouble())
+            //"FloatLiteral" -> FloatLiteral(value.toDouble())
             "IntegerLiteral" -> IntegerLiteral(value.toLong())
             else -> throw RuntimeException("Illegal value type $valueType")
         }
@@ -127,7 +127,7 @@ class StatementRequests(private val ligature: Ligature) {
     private fun deserializeValueRange(valueStart: String, valueEnd: String, valueType: String): Range = //TODO eventually remove
         when (valueType) {
             "StringLiteral" -> StringLiteralRange(valueStart, valueEnd)
-            "FloatLiteral" -> FloatLiteralRange(valueStart.toDouble(), valueEnd.toDouble())
+            //"FloatLiteral" -> FloatLiteralRange(valueStart.toDouble(), valueEnd.toDouble())
             "IntegerLiteral" -> IntegerLiteralRange(valueStart.toLong(), valueEnd.toLong())
             else -> throw RuntimeException("Illegal value type $valueType")
         }

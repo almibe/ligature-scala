@@ -1,5 +1,6 @@
 plugins {
     antlr
+    id("maven-publish")
 }
 
 repositories {

@@ -35,10 +35,10 @@ class Wander {
                 Either.Left(ArgumentError("addStatement accepts 1 Statement, found $args"))
             }
         })
-        scope.addSymbol("generateEntity", WanderFunction(listOf(EntityWanderValue::class)) { args ->
-            if (args.size == 1 && args[0] is EntityWanderValue) {
-                val prefixEntity = (args[0] as EntityWanderValue).value
-                writeTx.generateEntity(prefixEntity.id)
+        scope.addSymbol("generateEntity", WanderFunction(listOf(IdentifierWanderValue::class)) { args ->
+            if (args.size == 1 && args[0] is IdentifierWanderValue) {
+                val identifierPrefix = (args[0] as IdentifierWanderValue).value
+                writeTx.generateIdentifier(identifierPrefix.id)
                 Either.Right(UnitWanderValue)
             } else {
                 Either.Left(ArgumentError("generateEntity accepts 1 Entity, found $args"))

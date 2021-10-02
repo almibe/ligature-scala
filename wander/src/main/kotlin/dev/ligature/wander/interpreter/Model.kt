@@ -9,23 +9,21 @@ import dev.ligature.*
 import kotlinx.coroutines.flow.Flow
 import kotlin.reflect.KClass
 
-sealed class WanderValue
-data class IntegerWanderValue(val value: IntegerLiteral): WanderValue()
-data class FloatWanderValue(val value: FloatLiteral): WanderValue()
-data class StringWanderValue(val value: StringLiteral): WanderValue()
-data class EntityWanderValue(val value: Entity): WanderValue()
-data class AttributeWanderValue(val value: Attribute): WanderValue()
-data class StatementWanderValue(val value: Statement): WanderValue()
-data class ValueWanderValue(val value: Value): WanderValue()
-data class BooleanWanderValue(val value: Boolean): WanderValue()
-data class StreamWanderValue(val stream: Flow<WanderValue>): WanderValue()
-object UnitWanderValue: WanderValue()
+sealed interface WanderValue
+data class IntegerWanderValue(val value: IntegerLiteral): WanderValue
+data class StringWanderValue(val value: StringLiteral): WanderValue
+data class IdentifierWanderValue(val value: Identifier): WanderValue
+data class StatementWanderValue(val value: Statement): WanderValue
+data class ValueWanderValue(val value: Value): WanderValue
+data class BooleanWanderValue(val value: Boolean): WanderValue
+data class StreamWanderValue(val stream: Flow<WanderValue>): WanderValue
+object UnitWanderValue: WanderValue
 
 //TODO I'm not sure if I want the body to return just a WanderValue or an either w/ an Error case
 data class WanderFunction(val arguments: List<KClass<out WanderValue>>,
-                          val body: suspend (List<WanderValue>) -> Either<WanderError, WanderValue>): WanderValue()
+                          val body: suspend (List<WanderValue>) -> Either<WanderError, WanderValue>): WanderValue
 
-data class StatementQueryValue(val entity: Entity?, val attribute: Attribute?, val value: ValueQueryType, val context: Entity?): WanderValue()
-sealed class ValueQueryType
-data class ValueQuery(val value: Value?): ValueQueryType()
-data class RangeQuery(val range: Range): ValueQueryType()
+data class StatementQueryValue(val entity: Identifier?, val attribute: Identifier?, val value: ValueQueryType, val context: Identifier?): WanderValue
+sealed interface ValueQueryType
+data class ValueQuery(val value: Value?): ValueQueryType
+data class RangeQuery(val range: Range): ValueQueryType

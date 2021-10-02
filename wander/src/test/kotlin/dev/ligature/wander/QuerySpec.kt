@@ -20,16 +20,16 @@ class QuerySpec : FunSpec() {
         test("allow getting all Statements") {
             ligature.write(ds) {
                 it.addStatement(Statement(
-                    Entity.from("hello").orNull()!!,
-                    Attribute.from("attr").orNull()!!,
-                    Entity.from("world").orNull()!!,
-                    Entity.from("_1").orNull()!!
+                    Identifier("hello").orNull()!!,
+                    Identifier("attr").orNull()!!,
+                    Identifier("world").orNull()!!,
+                    Identifier("_1").orNull()!!
                 ))
                 it.addStatement(Statement(
-                    Entity.from("hello").orNull()!!,
-                    Attribute.from("attr").orNull()!!,
+                    Identifier("hello").orNull()!!,
+                    Identifier("attr").orNull()!!,
                     IntegerLiteral(45L),
-                    Entity.from("_2").orNull()!!
+                    Identifier("_2").orNull()!!
                 ))
             }
             val res = ligature.query(ds) {
