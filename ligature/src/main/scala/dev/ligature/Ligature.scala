@@ -11,8 +11,6 @@ final case class Dataset private (val name: String) extends Ordered[Dataset] {
 }
 
 object Dataset {
-  private def apply(name: String): Dataset = ???
-
   private val pattern = "^([a-zA-Z_][a-zA-Z0-9_]*)(/[a-zA-Z_][a-zA-Z0-9_]*)*$".r
 
   def fromString(name: String): Either[LigatureError, Dataset] = {
@@ -29,8 +27,6 @@ final case class Identifier private (val name: String) extends Value {
 }
 
 object Identifier {
-  private def apply(name: String): Identifier = ???
-
   private val pattern = "^[a-zA-Z0-9-._~:/?#\\[\\]@!$&'()*+,;%=]+$".r
 
   def fromString(name: String): Either[LigatureError, Identifier] = {

@@ -36,11 +36,11 @@ class LigatureSuite extends FunSuite {
       " test")
 
     for(ok <- oks) {
-      assertEquals(Dataset.fromString(ok).get.name, ok)
+      assertEquals(Dataset.fromString(ok).getOrElse(throw RuntimeException(s"Invalid Dataset $ok")).name, ok)
     }
 
     for(err <- errs) {
-      assertEquals(Dataset.fromString(err), None)
+      assertEquals(Dataset.fromString(err).isLeft, true)
     }
   }
 
@@ -71,11 +71,11 @@ class LigatureSuite extends FunSuite {
       " test")
 
     for(ok <- oks) {
-      assertEquals(Identifier.fromString(ok).get.name, ok)
+      assertEquals(Identifier.fromString(ok).getOrElse(throw RuntimeException(s"Invalid Identifier $ok")).name, ok)
     }
 
     for(err <- errs) {
-      assertEquals(Identifier.fromString(err), None)
+      assertEquals(Identifier.fromString(err).isLeft, true)
     }
   }
 }
