@@ -7,3 +7,14 @@ It focuses on providing a server for working with Ligature's data model and is b
 
 ## Building
 This project requires sbt to build.
+See https://www.scala-sbt.org/
+
+### Basics
+
+Run `sbt` to bring up the sbt shell.
+
+Use `projects` to see the list of sub-projects.
+
+Use `project {project-name}` to switch projects.
+
+Use `test` to run tests.

@@ -44,7 +44,7 @@ class LigatureSuite extends FunSuite {
     }
   }
 
-  test("valid Attribute names") {
+  test("valid Identifier names") {
     //TODO add more tests
     val oks = List(
       "test",
@@ -56,26 +56,26 @@ class LigatureSuite extends FunSuite {
       "__test__",
       "testTest",
       "G",
+      "2",
+      "5test",
+      "test!",
+      "/_/_",
+      "test//test",
       "HELLO")
 
     val errs = List(
       "",
-      "2",
-      "5test",
-      "test!",
       "this is a test",
-      "/_/_",
-      "test//test",
       "test test",
       "test/ /test",
       " test")
 
     for(ok <- oks) {
-      assertEquals(Attribute.fromString(ok).get.name, ok)
+      assertEquals(Identifier.fromString(ok).get.name, ok)
     }
 
     for(err <- errs) {
-      assertEquals(Attribute.fromString(err), None)
+      assertEquals(Identifier.fromString(err), None)
     }
   }
 }
