@@ -4,6 +4,9 @@
 
 package dev.ligature.wander
 
-class Wander {
-
+class WanderSuite {
+    //TODO read in .wander program
+    //TODO run it
+    //TODO read in .result file
+    //TODO assert results are the same
 }

@@ -4,6 +4,6 @@
 
 package dev.ligature.wander
 
-class Wander {
+sealed class Expression
 
-}
+data class
