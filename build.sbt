@@ -1,13 +1,13 @@
-lazy val rcVersion = "3.0.0-RC2"
+lazy val rcVersion = "3.0.2"
 
 ThisBuild / version          := "0.1.0-SNAPSHOT"
 ThisBuild / organization     := "dev.ligature"
 ThisBuild / organizationName := "ligature"
 
-val fs2 = "co.fs2" %% "fs2-core" % "3.0.1"
-val munit = "org.scalameta" %% "munit" % "0.7.23"
-val vertxWeb = "io.vertx" % "vertx-web" % "4.0.3"
-val vertxWebClient = "io.vertx" % "vertx-web-client" % "4.0.3"
+val fs2 = "co.fs2" %% "fs2-core" % "3.2.0"
+val munit = "org.scalameta" %% "munit" % "0.7.29"
+val vertxWeb = "io.vertx" % "vertx-web" % "4.1.5"
+val vertxWebClient = "io.vertx" % "vertx-web-client" % "4.1.5"
 val gson = "com.google.code.gson" % "gson" % "2.8.6"
 
 lazy val ligature = (project in file("ligature"))
