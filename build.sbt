@@ -19,6 +19,15 @@ lazy val ligature = (project in file("ligature"))
     testFrameworks += new TestFramework("munit.Framework"),
   )
 
+lazy val lig = (project in file("lig"))
+  .settings(
+      name := "lig",
+      scalaVersion := rcVersion,
+      libraryDependencies += fs2,
+      libraryDependencies += munit % Test,
+      testFrameworks += new TestFramework("munit.Framework"),
+  ).dependsOn(ligature)
+
 lazy val ligatureTestSuite = (project in file("ligature-test-suite"))
   .settings(
     name := "ligature-test-suite",
