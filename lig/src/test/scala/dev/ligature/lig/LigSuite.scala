@@ -7,30 +7,29 @@ package dev.ligature.lig
 import munit.FunSuite
 
 class LigSpec extends FunSuite {
-    init {
-        val ligParser = LigParser()
-        val ligWriter = LigWriter()
+    val ligParser = LigParser()
+    val ligWriter = LigWriter()
 
-        val testIdentifier = Identifier("test").getOrElse { TODO() }
+    val testIdentifier = Identifier("test").getOrElse { TODO() }
 
-        fun identifier(id: String) = Identifier(id).getOrElse { TODO() }
+    def identifier(id: String) = Identifier(id).getOrElse { TODO() }
 
-        test("write identifiers") {
-            val res = ligWriter.writeIdentifier(testIdentifier)
-            res shouldBe "<test>"
-        }
+    test("write identifiers") {
+        val res = ligWriter.writeIdentifier(testIdentifier)
+        res shouldBe "<test>"
+    }
 
-        test("parse identifiers") {
-            val test = "<test>"
-            val identifier = ligParser.parseIdentifier(Rakkoon(test), null)
-            identifier shouldBe Either.Right(testIdentifier)
-        }
+    test("parse identifiers") {
+        val test = "<test>"
+        val identifier = ligParser.parseIdentifier(Rakkoon(test), null)
+        identifier shouldBe Either.Right(testIdentifier)
+    }
 
-        test("complex entity identifier") {
-            val identifier = "<http$://&&this@2]34.[42;342?#--__>"
-            val identifierRes = ligParser.parseIdentifier(Rakkoon(identifier))
-            identifierRes shouldBe Either.Right(identifier("http$://&&this@2]34.[42;342?#--__"))
-        }
+    test("complex entity identifier") {
+        val identifier = "<http$://&&this@2]34.[42;342?#--__>"
+        val identifierRes = ligParser.parseIdentifier(Rakkoon(identifier))
+        identifierRes shouldBe Either.Right(identifier("http$://&&this@2]34.[42;342?#--__"))
+    }
 
 //        test("write FloatLiteral") {
 //            val test = FloatLiteral(3.0)
@@ -44,48 +43,48 @@ class LigSpec extends FunSuite {
 //            res shouldBe Either.Right(FloatLiteral(3.5))
 //        }
 
-        test("write IntegerLiteral") {
-            val test = IntegerLiteral(3535)
-            val res = ligWriter.writeValue(test)
-            res shouldBe "3535"
-        }
+    test("write IntegerLiteral") {
+        val test = IntegerLiteral(3535)
+        val res = ligWriter.writeValue(test)
+        res shouldBe "3535"
+    }
 
-        test("parse IntegerLiteral") {
-            val test = "3452345"
-            val res = ligParser.parseIntegerLiteral(Rakkoon(test))
-            res shouldBe Either.Right(IntegerLiteral(3452345))
-        }
+    test("parse IntegerLiteral") {
+        val test = "3452345"
+        val res = ligParser.parseIntegerLiteral(Rakkoon(test))
+        res shouldBe Either.Right(IntegerLiteral(3452345))
+    }
 
-        test("write StringLiteral") {
-            val test = StringLiteral("3535 55Hello")
-            val res = ligWriter.writeValue(test)
-            res shouldBe "\"3535 55Hello\""
-        }
+    test("write StringLiteral") {
+        val test = StringLiteral("3535 55Hello")
+        val res = ligWriter.writeValue(test)
+        res shouldBe "\"3535 55Hello\""
+    }
 
-        test("parse StringLiteral") {
-            val test = "\"3452345\\nHello\""
-            val res = ligParser.parseStringLiteral(Rakkoon(test))
-            res shouldBe Either.Right(StringLiteral("3452345\\nHello"))
-        }
+    test("parse StringLiteral") {
+        val test = "\"3452345\\nHello\""
+        val res = ligParser.parseStringLiteral(Rakkoon(test))
+        res shouldBe Either.Right(StringLiteral("3452345\\nHello"))
+    }
 
-        test("basic Statement with all Entities") {
-            val statement = Statement(identifier("e1"), identifier("a1"), identifier("e2"), identifier("context"))
-            val lines = ligWriter.write(listOf(statement).iterator())
-            val resStatements = ligParser.parse(lines)
-            listOf(statement) shouldBe resStatements.asSequence().toList()
-        }
+    test("basic Statement with all Entities") {
+        val statement = Statement(identifier("e1"), identifier("a1"), identifier("e2"), identifier("context"))
+        val lines = ligWriter.write(listOf(statement).iterator())
+        val resStatements = ligParser.parse(lines)
+        listOf(statement) shouldBe resStatements.asSequence().toList()
+    }
 
-        test("list of Statements with Literal Values") {
-            val statements = listOf(
-                Statement(identifier("e1"), identifier("a1"), identifier("e2"), identifier("context")),
-                Statement(identifier("e2"), identifier("a2"), StringLiteral("string literal"), identifier("context2")),
-                Statement(identifier("e2"), identifier("a3"), IntegerLiteral(Long.MAX_VALUE), identifier("context3")),
-                //Statement(identifier("e3"), identifier("a4"), FloatLiteral(7.5), identifier("context4"))
-            )
-            val lines = ligWriter.write(statements.iterator())
-            val resStatements = ligParser.parse(lines)
-            statements shouldBe resStatements.asSequence().toList()
-        }
+    test("list of Statements with Literal Values") {
+        val statements = listOf(
+            Statement(identifier("e1"), identifier("a1"), identifier("e2"), identifier("context")),
+            Statement(identifier("e2"), identifier("a2"), StringLiteral("string literal"), identifier("context2")),
+            Statement(identifier("e2"), identifier("a3"), IntegerLiteral(Long.MAX_VALUE), identifier("context3")),
+            //Statement(identifier("e3"), identifier("a4"), FloatLiteral(7.5), identifier("context4"))
+        )
+        val lines = ligWriter.write(statements.iterator())
+        val resStatements = ligParser.parse(lines)
+        statements shouldBe resStatements.asSequence().toList()
+    }
 
 //        test("parsing with wildcards") {
 //            val textInput = "<e1> @<a2> 777 <e5>\n" +
@@ -101,5 +100,4 @@ class LigSpec extends FunSuite {
 //            val resStatements = ligParser.parse(textInput)
 //            expectedStatements shouldBe resStatements.asSequence().toList()
 //        }
-    }
 }
