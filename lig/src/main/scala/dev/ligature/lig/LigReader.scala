@@ -5,8 +5,8 @@
 package dev.ligature.lig
 
 import scala.collection.mutable.ArrayBuffer
-import dev.ligature.gaze.{Gaze, Step, takeCharacters, takeString, takeWhile}
-import dev.ligature.{Identifier, IntegerLiteral, Statement, Value}
+import dev.ligature.gaze.{Gaze, NoMatch, Step, takeCharacters, takeString, takeWhile}
+import dev.ligature.{Identifier, IntegerLiteral, Statement, StringLiteral, Value}
 
 case class LigError(val message: String)
 
@@ -85,59 +85,69 @@ class LigReader {
     def parseStringLiteral(gaze: Gaze[Char]): Either[LigError, StringLiteral] = {
         val quote = takeString("\"")
 
-        return when (val res = gaze.nibble(quote, stringContentStep, quote)) {
-            is None -> Either.Left(LigError("Could not parse String."))
-            is Some -> Either.Right(StringLiteral(res.value[1].value))
+        val res = gaze.attempt(quote, stringContentStep, quote)
+
+        res match {
+            case Left(_) => ??? //Either.Left(LigError("Could not parse String."))
+            case Right(res) => ??? //Either.Right(StringLiteral(res.value[1].value))
         }
     }
 
     private val identifierStep = takeWhile { c =>
-        true
+        ???
     }
 
-    private val stringContentStep = Step { lookAhead ->
+    private val stringContentStep = (gaze: Gaze[Char]) => {
         //Full pattern \"(([^\x00-\x1F\"\\]|\\[\"\\/bfnrt]|\\u[0-9a-fA-F]{4})*)\"
-        val commandChars = 0x00.toChar() to 0x1F.toChar()
-        val validHexChar = { c: Char? -> c != null && ( c in '0'..'9' || c in 'a'..'f' || c in 'A'..'F' ) }
+        val commandChars = 0x00.toChar to 0x1F.toChar
+        val validHexChar = (c: Char) => { ( ('0' to '9' contains c) || ('a' to 'f' contains c) || ('A' to 'F' contains c) ) }
+        val hexStep = takeWhile(validHexChar)
 
-        var offset = 0
+        var sb = StringBuilder()
+        var offset = 0 //TODO delete
         var fail = false
-        while (lookAhead.peek(offset) != null) {
-            val c = lookAhead.peek(offset)!!
+        var complete = false
+        while (!complete || !fail || gaze.peek().isDefined) {
+            val c = gaze.next().get
             if (commandChars.contains(c)) {
                 fail = true
-                break
             } else if (c == '"') {
-                break
+                complete = true
             } else if (c == '\\') {
-                when (lookAhead.peek(offset + 1)) {
-                    '\\', '"', 'b', 'f', 'n', 'r', 't' -> offset = offset + 2
-                    'u' -> {
-                        for (i in 1..4) {
-                            if (!validHexChar(lookAhead.peek(offset + 1 + i))) {
+                sb.append(c)
+                gaze.next() match {
+                    case None => fail = true
+                    case Some(c) => {
+                        c match {
+                            case '\\' | '"' | 'b' | 'f' | 'n' | 'r' | 't' => sb.append(c)
+                            case 'u' => {
+                                sb.append(c)
+                                val res = gaze.attempt(hexStep)
+                                res match {
+                                    case Left(_) => fail = true
+                                    case Right(res) => {
+                                        if (res.length == 4) {
+                                            sb.append(res)
+                                        } else {
+                                            fail = true
+                                        }
+                                    }
+                                }
+                            }
+                            case _ => {
                                 fail = true
-                                break
                             }
                         }
-                        if (fail) {
-                            break
-                        } else {
-                            offset = offset + 5
-                        }
-                    }
-                    else -> {
-                        fail = true
-                        break
                     }
                 }
             } else {
-                offset++
+                sb.append(c)
             }
         }
-        if (fail || offset == 0) {
-            Cancel
+        if (fail) {
+            Left(NoMatch)
         } else {
-            Complete(offset.toInt())
+            Right(sb.toString)
         }
     }
 }
