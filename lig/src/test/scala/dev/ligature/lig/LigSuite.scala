@@ -8,7 +8,7 @@ import munit.FunSuite
 import dev.ligature.{Identifier, IntegerLiteral, Statement, StringLiteral}
 import dev.ligature.gaze.Gaze
 
-class LigSpec extends FunSuite {
+class LigSuite extends FunSuite {
     val ligReader = LigReader()
     val testIdentifier = Identifier.fromString("test").getOrElse { ??? }
     def identifier(id: String) = Identifier.fromString(id).getOrElse { ??? }
@@ -66,7 +66,6 @@ class LigSpec extends FunSuite {
             Statement(identifier("e1"), identifier("a1"), identifier("e2"), identifier("context")),
             Statement(identifier("e2"), identifier("a2"), StringLiteral("string literal"), identifier("context2")),
             Statement(identifier("e2"), identifier("a3"), IntegerLiteral(Long.MaxValue), identifier("context3")),
-            //Statement(identifier("e3"), identifier("a4"), FloatLiteral(7.5), identifier("context4"))
         )
         val lines = write(statements.iterator)
         val resStatements = ligReader.parse(lines)

@@ -30,5 +30,5 @@ def writeValue(value: Value): String =
     value match {
         case id: Identifier     => writeIdentifier(id)
         case IntegerLiteral(value) => value.toString()
-        case StringLiteral(value)  => "\"${value}\"" //TODO this needs to handle escaping special characters
+        case StringLiteral(value)  => s"\"${value}\"" //TODO this needs to handle escaping special characters
     }

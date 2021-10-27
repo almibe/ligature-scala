@@ -74,7 +74,7 @@ class LigReader {
     }
 
     def parseIntegerLiteral(gaze: Gaze[Char]): Either[LigError, IntegerLiteral] = {
-        val numberStep = takeCharacters(Range(0,9).map(d => d.toChar).toList*)
+        val numberStep = takeCharacters(('0' to '9').toSeq*)
 
         gaze.attempt(numberStep) match {
             case Left(_) => Left(LigError("Could not parse Integer."))
@@ -85,16 +85,16 @@ class LigReader {
     def parseStringLiteral(gaze: Gaze[Char]): Either[LigError, StringLiteral] = {
         val quote = takeString("\"")
 
-        val res = gaze.attempt(quote, stringContentStep, quote)
+        val res = gaze.attempt(quote, stringContentStep)
 
         res match {
-            case Left(_) => ??? //Either.Left(LigError("Could not parse String."))
-            case Right(res) => ??? //Either.Right(StringLiteral(res.value[1].value))
+            case Left(_) => Left(LigError("Could not parse String."))
+            case Right(res) => Right(StringLiteral(res(1)))
         }
     }
 
     private val identifierStep = takeWhile { c =>
-        ???
+        "[a-zA-Z0-9-._~:/?#\\[\\]@!$&'()*+,;%=]".r.matches(c.toString)
     }
 
     private val stringContentStep = (gaze: Gaze[Char]) => {
@@ -107,7 +107,7 @@ class LigReader {
         var offset = 0 //TODO delete
         var fail = false
         var complete = false
-        while (!complete || !fail || gaze.peek().isDefined) {
+        while (!complete && !fail && gaze.peek().isDefined) {
             val c = gaze.next().get
             if (commandChars.contains(c)) {
                 fail = true
