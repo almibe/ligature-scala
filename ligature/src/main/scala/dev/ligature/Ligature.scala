@@ -55,84 +55,84 @@ trait Ligature {
   /** Returns all Datasets in a Ligature instance. */
   def allDatasets(): Either[LigatureError, Iterator[Dataset]]
 
-  /** Check if a given Dataset exists. */
-  def datasetExists(dataset: Dataset): Either[LigatureError, Boolean]
+  // /** Check if a given Dataset exists. */
+  // def datasetExists(dataset: Dataset): Either[LigatureError, Boolean]
 
-  /** Returns all Datasets in a Ligature instance that start with the given prefix. */
-  def matchDatasetsPrefix(
-                           prefix: String,
-                         ): Either[LigatureError, Iterator[Dataset]]
+  // /** Returns all Datasets in a Ligature instance that start with the given prefix. */
+  // def matchDatasetsPrefix(
+  //                          prefix: String,
+  //                        ): Either[LigatureError, Iterator[Dataset]]
 
-  /** Returns all Datasets in a Ligature instance that are in a given range (inclusive, exclusive]. */
-  def matchDatasetsRange(
-                          start: String,
-                          end: String,
-                        ): Either[LigatureError, Iterator[Dataset]]
+  // /** Returns all Datasets in a Ligature instance that are in a given range (inclusive, exclusive]. */
+  // def matchDatasetsRange(
+  //                         start: String,
+  //                         end: String,
+  //                       ): Either[LigatureError, Iterator[Dataset]]
 
-  /** Creates a dataset with the given name.
-   * TODO should probably return its own error type { InvalidDataset, DatasetExists, CouldNotCreateDataset } */
-  def createDataset(dataset: Dataset): Either[LigatureError, Unit]
+  // /** Creates a dataset with the given name.
+  //  * TODO should probably return its own error type { InvalidDataset, DatasetExists, CouldNotCreateDataset } */
+  // def createDataset(dataset: Dataset): Either[LigatureError, Unit]
 
-  /** Deletes a dataset with the given name.
-   * TODO should probably return its own error type { InvalidDataset, CouldNotDeleteDataset } */
-  def deleteDataset(dataset: Dataset): Either[LigatureError, Unit]
+  // /** Deletes a dataset with the given name.
+  //  * TODO should probably return its own error type { InvalidDataset, CouldNotDeleteDataset } */
+  // def deleteDataset(dataset: Dataset): Either[LigatureError, Unit]
 
-  /** Initiazes a QueryTx
-   * TODO should probably return its own error type CouldNotInitializeQueryTx */
-  def query[R](dataset: Dataset, query: (QueryTx) => R): Either[LigatureError, R]
+  // /** Initializes a QueryTx
+  //  * TODO should probably return its own error type CouldNotInitializeQueryTx */
+  // def query[R](dataset: Dataset, query: (QueryTx) => R): Either[LigatureError, R]
 
-  /** Initiazes a WriteTx
-   * TODO should probably return its own error type CouldNotInitializeWriteTx */
-  def write[R](dataset: Dataset, write: (WriteTx) => R): Either[LigatureError, R]
+  // /** Initializes a WriteTx
+  //  * TODO should probably return its own error type CouldNotInitializeWriteTx */
+  // def write[R](dataset: Dataset, write: (WriteTx) => R): Either[LigatureError, R]
 }
 
-/** Represents a QueryTx within the context of a Ligature instance and a single Dataset */
-trait QueryTx {
-  /** Returns all PersistedStatements in this Dataset. */
-  def allStatements(): Either[LigatureError, Iterator[Statement]]
+// /** Represents a QueryTx within the context of a Ligature instance and a single Dataset */
+// trait QueryTx {
+//   /** Returns all PersistedStatements in this Dataset. */
+//   def allStatements(): Either[LigatureError, Iterator[Statement]]
 
-  /** Returns all PersistedStatements that match the given criteria.
-   * If a parameter is None then it matches all, so passing all Nones is the same as calling allStatements. */
-  def matchStatements(
-                       entity: Option[Identifier],
-                       attribute: Option[Identifier],
-                       value: Option[Value]
-                     ): Either[LigatureError, Iterator[Statement]]
+//   /** Returns all PersistedStatements that match the given criteria.
+//    * If a parameter is None then it matches all, so passing all Nones is the same as calling allStatements. */
+//   def matchStatements(
+//                        entity: Option[Identifier],
+//                        attribute: Option[Identifier],
+//                        value: Option[Value]
+//                      ): Either[LigatureError, Iterator[Statement]]
 
-  /** Retuns all PersistedStatements that match the given criteria.
-   * If a parameter is None then it matches all. */
-  def matchStatementsRange(
-                            entity: Option[Identifier],
-                            attribute: Option[Identifier],
-                            value: Range
-                          ): Either[LigatureError, Iterator[Statement]]
+//   /** Returns all PersistedStatements that match the given criteria.
+//    * If a parameter is None then it matches all. */
+//   def matchStatementsRange(
+//                             entity: Option[Identifier],
+//                             attribute: Option[Identifier],
+//                             value: Range
+//                           ): Either[LigatureError, Iterator[Statement]]
 
-  /** Returns the PersistedStatement for the given context. */
-  def statementForContext(
-                           context: Identifier,
-                         ): Either[LigatureError, Option[Statement]]
-}
+//   /** Returns the PersistedStatement for the given context. */
+//   def statementForContext(
+//                            context: Identifier,
+//                          ): Either[LigatureError, Option[Statement]]
+// }
 
-/** Represents a WriteTx within the context of a Ligature instance and a single Dataset */
-trait WriteTx {
-  /** Creates a new, unique Entity within this Dataset by combining a UUID and an optional prefix.
-   * Note: Entities are shared across named graphs in a given Dataset. */
-  def newIdentifier(prefix: String = ""): Either[LigatureError, Identifier]
+// /** Represents a WriteTx within the context of a Ligature instance and a single Dataset */
+// trait WriteTx {
+//   /** Creates a new, unique Entity within this Dataset by combining a UUID and an optional prefix.
+//    * Note: Entities are shared across named graphs in a given Dataset. */
+//   def newIdentifier(prefix: String = ""): Either[LigatureError, Identifier]
 
-  /** Adds a given Statement to this Dataset.
-   * If the Statement already exists nothing happens (TODO maybe add it with a new context?).
-   * Note: Potentally could trigger a ValidationError */
-  def addStatement(statement: Statement): Either[LigatureError, Statement]
+//   /** Adds a given Statement to this Dataset.
+//    * If the Statement already exists nothing happens (TODO maybe add it with a new context?).
+//    * Note: Potentially could trigger a ValidationError */
+//   def addStatement(statement: Statement): Either[LigatureError, Statement]
 
-  /** Removes a given PersistedStatement from this Dataset.
-   * If the PersistedStatement doesn't exist nothing happens and returns Ok(false).
-   * This function returns Ok(true) only if the given PersistedStatement was found and removed.
-   * Note: Potentally could trigger a ValidationError. */
-  def removeStatement(
-                       statement: Statement,
-                     ): Either[LigatureError, Boolean]
+//   /** Removes a given PersistedStatement from this Dataset.
+//    * If the PersistedStatement doesn't exist nothing happens and returns Ok(false).
+//    * This function returns Ok(true) only if the given PersistedStatement was found and removed.
+//    * Note: Potentially could trigger a ValidationError. */
+//   def removeStatement(
+//                        statement: Statement,
+//                      ): Either[LigatureError, Boolean]
 
-  /** Cancels this transaction so that none of the changes made so far will be stored.
-   * This also closes this transaction so no other methods can be called without returning a LigatureError. */
-  def cancel(): Either[LigatureError, Unit]
-}
+//   /** Cancels this transaction so that none of the changes made so far will be stored.
+//    * This also closes this transaction so no other methods can be called without returning a LigatureError. */
+//   def cancel(): Either[LigatureError, Unit]
+// }

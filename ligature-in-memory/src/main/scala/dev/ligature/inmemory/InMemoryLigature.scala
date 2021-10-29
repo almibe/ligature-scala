@@ -4,7 +4,7 @@
 
 package dev.ligature.inmemory
 
-import dev.ligature.{Attribute, Dataset, Entity, Ligature, LigatureError, LigatureInstance, PersistedStatement,
+import dev.ligature.{Attribute, Dataset, Entity, Ligature, LigatureError,
     QueryTx, Statement, Value, WriteTx}
 import cats.effect.{IO, Resource}
 import fs2.Stream
@@ -12,18 +12,9 @@ import scala.collection.immutable.TreeMap
 
 import java.util.concurrent.locks.{ReadWriteLock, ReentrantReadWriteLock}
 
-/** A trait that all Ligature implementations implement. */
+protected case class DatasetStore(counter: Long, statements: Set[Statement])
+
 final class InMemoryLigature extends Ligature {
-    private val acquire: IO[LigatureInstance] = IO(new InMemoryLigatureInstance())
-    private val release: LigatureInstance => IO[Unit] = _ => IO.unit
-    def instance: Resource[IO, LigatureInstance] = {
-        Resource.make(acquire)(release)
-    }
-}
-
-protected case class DatasetStore(counter: Long, statements: Set[PersistedStatement])
-
-private final class InMemoryLigatureInstance extends LigatureInstance {
     private var store = TreeMap[Dataset, DatasetStore]()
     private val lock: ReadWriteLock = new ReentrantReadWriteLock()
 
