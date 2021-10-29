@@ -58,7 +58,7 @@ class LigSuite extends FunSuite {
         val statement = Statement(identifier("e1"), identifier("a1"), identifier("e2"), identifier("context"))
         val lines = write(List(statement).iterator)
         val resStatements = ligReader.parse(lines)
-        assertEquals(List(statement), resStatements.toList)
+        assertEquals(List(statement), resStatements.getOrElse(???).toList)
     }
 
     test("list of Statements with Literal Values") {
@@ -69,6 +69,6 @@ class LigSuite extends FunSuite {
         )
         val lines = write(statements.iterator)
         val resStatements = ligReader.parse(lines)
-        assertEquals(statements, resStatements.toList)
+        assertEquals(statements, resStatements.getOrElse(???).toList)
     }
 }

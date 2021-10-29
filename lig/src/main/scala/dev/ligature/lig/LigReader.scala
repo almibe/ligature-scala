@@ -14,21 +14,21 @@ class LigReader {
     private val whiteSpaceStep = takeCharacters(' ', '\t')
     private val whiteSpaceAndNewLineStep = takeCharacters(' ', '\t', '\n')
  
-    def parse(input: String): Iterator[Statement] = {
+    def parse(input: String): Either[LigError, Iterator[Statement]] = {
         val gaze = Gaze.from(input)
         val statements: ArrayBuffer[Statement] = ArrayBuffer()
         while (!gaze.isComplete()) {
             parseStatement(gaze) match {
-                case Left(resStatement) => throw RuntimeException(resStatement.message)
+                case Left(resStatement) => return Left(resStatement)
                 case Right(resStatement) => statements.append(resStatement)
             }
         }
-        return statements.iterator
+        return Right(statements.iterator)
     }
 
     def parseStatement(gaze: Gaze[Char]): Either[LigError, Statement] = {
         val res = for {
-            _ <- gaze.attempt(whiteSpaceAndNewLineStep)
+            _ <- gaze.attempt(whiteSpaceAndNewLineStep).orElse(Right(())) //TODO this orElse should be eventually encoded in Gaze
             entity <- parseIdentifier(gaze)
             _ <- gaze.attempt(whiteSpaceStep)
             attribute <- parseIdentifier(gaze)
@@ -36,7 +36,7 @@ class LigReader {
             value <- parseValue(gaze)
             _ <- gaze.attempt(whiteSpaceStep)
             context <- parseIdentifier(gaze)
-            _ <- gaze.attempt(whiteSpaceAndNewLineStep)
+            _ <- gaze.attempt(whiteSpaceAndNewLineStep).orElse(Right(())) //TODO this orElse should be eventually encoded in Gaze
         } yield ((Statement(entity, attribute, value, context)))
         res.left.map(_ => LigError("Could not create Statement."))
     }
