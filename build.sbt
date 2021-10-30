@@ -5,59 +5,56 @@ ThisBuild / organization     := "dev.ligature"
 ThisBuild / organizationName := "ligature"
 
 val gaze = "dev.ligature" %% "gaze" % "0.1.0-SNAPSHOT"
-val fs2 = "co.fs2" %% "fs2-core" % "3.2.0"
-val munit = "org.scalameta" %% "munit" % "1.0.0-M1"
 val vertxWeb = "io.vertx" % "vertx-web" % "4.1.5"
 val vertxWebClient = "io.vertx" % "vertx-web-client" % "4.1.5"
 val gson = "com.google.code.gson" % "gson" % "2.8.6"
 
-lazy val ligature = (project in file("ligature"))
+lazy val ligature = crossProject(JSPlatform, JVMPlatform).in(file("ligature"))
   .settings(
     name := "ligature",
     scalaVersion := rcVersion,
-    libraryDependencies += fs2,
-    libraryDependencies += munit % Test,
-    testFrameworks += new TestFramework("munit.Framework"),
+    libraryDependencies += "co.fs2" %%% "fs2-core" % "3.2.0",
+    libraryDependencies += "org.scalameta" %%% "munit" % "1.0.0-M1" % Test,
   )
 
-lazy val lig = (project in file("lig"))
+lazy val lig = crossProject(JSPlatform, JVMPlatform).in(file("lig"))
   .settings(
       name := "lig",
       scalaVersion := rcVersion,
       libraryDependencies += gaze,
-      libraryDependencies += fs2,
-      libraryDependencies += munit % Test,
-      testFrameworks += new TestFramework("munit.Framework"),
+      libraryDependencies += "co.fs2" %%% "fs2-core" % "3.2.0",
+      libraryDependencies += "org.scalameta" %%% "munit" % "1.0.0-M1" % Test,
   ).dependsOn(ligature)
 
-lazy val ligatureTestSuite = (project in file("ligature-test-suite"))
-  .settings(
-    name := "ligature-test-suite",
-    scalaVersion := rcVersion,
-    libraryDependencies += fs2,
-    libraryDependencies += munit,
-  ).dependsOn(ligature)
+// lazy val ligatureTestSuite = (project in file("ligature-test-suite"))
+//   .settings(
+//     name := "ligature-test-suite",
+//     scalaVersion := rcVersion,
+//     libraryDependencies += "co.fs2" %%% "fs2-core" % "3.2.0",
+//     libraryDependencies += "org.scalameta" %%% "munit" % "1.0.0-M1",
+//   ).dependsOn(ligature)
 
-lazy val ligatureInMemory = (project in file("ligature-in-memory"))
-  .settings(
-    name := "ligature-in-memory",
-    scalaVersion := rcVersion,
-    libraryDependencies += fs2,
-    libraryDependencies += munit % Test,
-    testFrameworks += new TestFramework("munit.Framework"),
-  ).dependsOn(ligature, ligatureTestSuite % Test)
+// lazy val ligatureInMemory = (project in file("ligature-in-memory"))
+//   .settings(
+//     name := "ligature-in-memory",
+//     scalaVersion := rcVersion,
+//     libraryDependencies += "co.fs2" %%% "fs2-core" % "3.2.0",
+//     libraryDependencies += "org.scalameta" %%% "munit" % "1.0.0-M1" % Test,
+// //    testFrameworks += new TestFramework(""org.scalameta" %%% "munit" % "1.0.0-M1".Framework"),
+//   ).dependsOn(ligature, ligatureTestSuite % Test)
 
-lazy val ligatureIndexedDB = (project in file("ligature-indexeddb"))
-  .enablePlugins(ScalaJSPlugin)
-  .settings(
-    name := "ligature-indexeddb",
-    scalaVersion := rcVersion,
-    scalaJSLinkerConfig ~= { _.withModuleKind(ModuleKind.ESModule) },
-    scalaJSUseMainModuleInitializer := true,
-    libraryDependencies += fs2,
-    libraryDependencies += munit % Test,
-    testFrameworks += new TestFramework("munit.Framework"),
-  ).dependsOn(ligature, ligatureTestSuite % Test)
+// lazy val ligatureIndexedDB = (project in file("ligature-indexeddb"))
+//   .enablePlugins(ScalaJSPlugin)
+//   .settings(
+//     name := "ligature-indexeddb",
+//     scalaVersion := rcVersion,
+//     scalaJSLinkerConfig ~= { _.withModuleKind(ModuleKind.ESModule) },
+//     scalaJSUseMainModuleInitializer := true,
+
+//     libraryDependencies += "co.fs2" %%% "fs2-core" % "3.2.0",
+//     libraryDependencies += "org.scalameta" %%% "munit" % "1.0.0-M1" % Test,
+// //    testFrameworks += new TestFramework(""org.scalameta" %%% "munit" % "1.0.0-M1".Framework"),
+//   ).dependsOn(ligature, ligatureTestSuite % Test)
 
 // lazy val slonky = (project in file("slonky"))
 //   .settings(
