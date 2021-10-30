@@ -4,6 +4,7 @@
 
 package dev.ligature.testsuite
 
+import cats.effect.unsafe.implicits.global
 import dev.ligature._
 import munit._
 
@@ -19,13 +20,11 @@ abstract class LigatureTestSuite extends FunSuite {
     val entity2 = Identifier.fromString("b").getOrElse(???)
     val entity3 = Identifier.fromString("c").getOrElse(???)
 
-    // test("create and close store") {
-    //     val ligature = createLigature
-    //     val res = createLigature.instance.use { (instance: LigatureInstance)  =>
-    //         instance.allDatasets().compile.toList
-    //     }.unsafeRunSync()
-    //     assert(res.isEmpty)
-    // }
+    test("create and close store") {
+        val ligature = createLigature
+        val res = ligature.allDatasets().compile.toList.unsafeRunSync()
+        assert(res.isEmpty)
+    }
 
     // test("creating a new dataset") {
     //     val res = createLigature.instance.use { (instance: LigatureInstance) =>

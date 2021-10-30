@@ -4,6 +4,9 @@
 
 package dev.ligature
 
+import fs2.Stream
+import cats.effect.IO
+
 final case class Dataset private (val name: String) extends Ordered[Dataset] {
   private def copy(): Unit = ()
 
@@ -53,7 +56,7 @@ final case class Statement(val entity: Identifier, val attribute: Identifier, va
 /** A trait that all Ligature implementations implement. */
 trait Ligature {
   /** Returns all Datasets in a Ligature instance. */
-  def allDatasets(): Either[LigatureError, Iterator[Dataset]]
+  def allDatasets(): Stream[IO, Iterator[Dataset]]
 
   // /** Check if a given Dataset exists. */
   // def datasetExists(dataset: Dataset): Either[LigatureError, Boolean]

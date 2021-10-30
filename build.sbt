@@ -47,17 +47,29 @@ lazy val ligatureInMemory = (project in file("ligature-in-memory"))
     testFrameworks += new TestFramework("munit.Framework"),
   ).dependsOn(ligature, ligatureTestSuite % Test)
 
-lazy val slonky = (project in file("slonky"))
+lazy val ligatureIndexedDB = (project in file("ligature-indexeddb"))
+  .enablePlugins(ScalaJSPlugin)
   .settings(
-    name := "slonky",
+    name := "ligature-indexeddb",
     scalaVersion := rcVersion,
+    scalaJSLinkerConfig ~= { _.withModuleKind(ModuleKind.ESModule) },
+    scalaJSUseMainModuleInitializer := true,
     libraryDependencies += fs2,
-    libraryDependencies += vertxWeb,
-    libraryDependencies += vertxWebClient,
-    libraryDependencies += gson,
     libraryDependencies += munit % Test,
     testFrameworks += new TestFramework("munit.Framework"),
-    mainClass in (Compile, run) := Some("dev.ligature.slonky.Slonky"),
-  ).dependsOn(ligature, ligatureInMemory)
+  ).dependsOn(ligature, ligatureTestSuite % Test)
 
-addCommandAlias("run", "slonky/run")
+// lazy val slonky = (project in file("slonky"))
+//   .settings(
+//     name := "slonky",
+//     scalaVersion := rcVersion,
+//     libraryDependencies += fs2,
+//     libraryDependencies += vertxWeb,
+//     libraryDependencies += vertxWebClient,
+//     libraryDependencies += gson,
+//     libraryDependencies += munit % Test,
+//     testFrameworks += new TestFramework("munit.Framework"),
+//     mainClass in (Compile, run) := Some("dev.ligature.slonky.Slonky"),
+//   ).dependsOn(ligature, ligatureInMemory)
+
+//addCommandAlias("run", "slonky/run")
