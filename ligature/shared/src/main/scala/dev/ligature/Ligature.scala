@@ -56,7 +56,7 @@ final case class Statement(val entity: Identifier, val attribute: Identifier, va
 /** A trait that all Ligature implementations implement. */
 trait Ligature {
   /** Returns all Datasets in a Ligature instance. */
-  def allDatasets(): Stream[IO, Iterator[Dataset]]
+  def allDatasets(): Stream[IO, Dataset]
 
   // /** Check if a given Dataset exists. */
   // def datasetExists(dataset: Dataset): Either[LigatureError, Boolean]
@@ -89,8 +89,8 @@ trait Ligature {
   // def write[R](dataset: Dataset, write: (WriteTx) => R): Either[LigatureError, R]
 }
 
-// /** Represents a QueryTx within the context of a Ligature instance and a single Dataset */
-// trait QueryTx {
+/** Represents a QueryTx within the context of a Ligature instance and a single Dataset */
+trait QueryTx {
 //   /** Returns all PersistedStatements in this Dataset. */
 //   def allStatements(): Either[LigatureError, Iterator[Statement]]
 
@@ -114,10 +114,10 @@ trait Ligature {
 //   def statementForContext(
 //                            context: Identifier,
 //                          ): Either[LigatureError, Option[Statement]]
-// }
+}
 
-// /** Represents a WriteTx within the context of a Ligature instance and a single Dataset */
-// trait WriteTx {
+/** Represents a WriteTx within the context of a Ligature instance and a single Dataset */
+trait WriteTx {
 //   /** Creates a new, unique Entity within this Dataset by combining a UUID and an optional prefix.
 //    * Note: Entities are shared across named graphs in a given Dataset. */
 //   def newIdentifier(prefix: String = ""): Either[LigatureError, Identifier]
@@ -138,4 +138,4 @@ trait Ligature {
 //   /** Cancels this transaction so that none of the changes made so far will be stored.
 //    * This also closes this transaction so no other methods can be called without returning a LigatureError. */
 //   def cancel(): Either[LigatureError, Unit]
-// }
+}
