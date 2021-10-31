@@ -6,3 +6,4 @@ target/
 .bsp
 .metals
 **/metals.sbt
+.lsp
