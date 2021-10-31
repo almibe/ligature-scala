@@ -8,7 +8,7 @@ import cats.effect.unsafe.implicits.global
 import dev.ligature._
 import munit._
 
-abstract class LigatureTestSuite extends FunSuite {
+abstract class LigatureTestSuite extends CatsEffectSuite {
     def createLigature: Ligature
 
     val testDataset = Dataset.fromString("test/test").getOrElse(???)
@@ -22,8 +22,7 @@ abstract class LigatureTestSuite extends FunSuite {
 
     test("create and close store") {
         val ligature = createLigature
-        val res = ligature.allDatasets().compile.toList.unsafeRunSync()
-        assert(res.isEmpty)
+        ligature.allDatasets().compile.toList.map(it => assert(it.isEmpty))
     }
 
     // test("creating a new dataset") {

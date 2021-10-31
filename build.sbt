@@ -31,6 +31,7 @@ lazy val ligatureTestSuite = crossProject(JSPlatform, JVMPlatform).in(file("liga
     scalaVersion := rcVersion,
     libraryDependencies += "co.fs2" %%% "fs2-core" % "3.2.0",
     libraryDependencies += "org.scalameta" %%% "munit" % "1.0.0-M1",
+    libraryDependencies += "org.typelevel" %%% "munit-cats-effect-3" % "1.0.6"
   ).dependsOn(ligature)
 
 lazy val ligatureInMemory = crossProject(JSPlatform, JVMPlatform).in(file("ligature-in-memory"))
@@ -39,6 +40,7 @@ lazy val ligatureInMemory = crossProject(JSPlatform, JVMPlatform).in(file("ligat
     scalaVersion := rcVersion,
     libraryDependencies += "co.fs2" %%% "fs2-core" % "3.2.0",
     libraryDependencies += "org.scalameta" %%% "munit" % "1.0.0-M1" % Test,
+    libraryDependencies += "org.typelevel" %%% "munit-cats-effect-3" % "1.0.6"
   ).dependsOn(ligature, ligatureTestSuite % Test)
 
 // lazy val ligatureIndexedDB = (project in file("ligature-indexeddb"))

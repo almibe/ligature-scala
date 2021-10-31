@@ -4,30 +4,30 @@
 
 package dev.ligature.inmemory
 
-// import dev.ligature.{Dataset, Identifier, Ligature, LigatureError,
-//     QueryTx, Statement, Value, WriteTx}
-// import cats.effect.{IO}
-// import fs2.Stream
-// import scala.collection.immutable.TreeMap
+import dev.ligature.{Dataset, Identifier, Ligature, LigatureError,
+    QueryTx, Statement, Value, WriteTx}
+import cats.effect.{IO}
+import fs2.Stream
+import scala.collection.immutable.TreeMap
 
-// import java.util.concurrent.locks.{ReadWriteLock, ReentrantReadWriteLock}
+import java.util.concurrent.locks.{ReadWriteLock, ReentrantReadWriteLock}
 
-// protected case class DatasetStore(counter: Long, statements: Set[Statement])
+protected case class DatasetStore(counter: Long, statements: Set[Statement])
 
-// final class InMemoryLigature extends Ligature {
-//     private var store = TreeMap[Dataset, DatasetStore]()
-//     private val lock: ReadWriteLock = new ReentrantReadWriteLock()
+final class InMemoryLigature extends Ligature {
+    private var store = TreeMap[Dataset, DatasetStore]()
+    private val lock: ReadWriteLock = new ReentrantReadWriteLock()
 
-//     /** Returns all Datasets in a Ligature instance. */
-//     def allDatasets(): Stream[IO, Either[LigatureError, Dataset]] = {
-//         val l = lock.readLock()
-//         try {
-//             l.lock()
-//             Stream.emits(store.keys.toList.map(Right(_)))
-//         } finally  {
-//             l.unlock()
-//         }
-//     }
+    /** Returns all Datasets in a Ligature instance. */
+    def allDatasets(): Stream[IO, Dataset] = {
+        val l = lock.readLock()
+        try {
+            l.lock()
+            Stream.emits(store.keys.toList)
+        } finally  {
+            l.unlock()
+        }
+    }
 
 //     /** Check if a given Dataset exists. */
 //     def datasetExists(dataset: Dataset): IO[Either[LigatureError, Boolean]] = IO {
@@ -136,4 +136,4 @@ package dev.ligature.inmemory
 
 //         Resource.make(acquire)(release)
 //     }
-// }
+}
