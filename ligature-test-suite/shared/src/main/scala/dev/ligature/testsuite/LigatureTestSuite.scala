@@ -21,87 +21,77 @@ abstract class LigatureTestSuite extends CatsEffectSuite {
     val entity3 = Identifier.fromString("c").getOrElse(???)
 
     test("create and close store") {
-        val ligature = createLigature
-        ligature.allDatasets().compile.toList.map(it => assert(it.isEmpty))
+        val instance = createLigature
+        instance.allDatasets().compile.toList.map(it => assert(it.isEmpty))
     }
 
-    // test("creating a new dataset") {
-    //     val res = createLigature.instance.use { (instance: LigatureInstance) =>
-    //         for {
-    //             _ <- instance.createDataset(testDataset)
-    //             res <- instance.allDatasets().compile.toList
-    //         } yield res
-    //     }.unsafeRunSync()
-    //     assertEquals(res, List(Right(testDataset)))
-    // }
+    test("creating a new dataset") {
+        val instance = createLigature
+        val res = for {
+            _ <- instance.createDataset(testDataset)
+            res <- instance.allDatasets().compile.toList
+        } yield res
+        assertIO(res, List(testDataset))
+    }
 
-    // test("check if datasets exist") {
-    //     val res = createLigature.instance.use { (instance: LigatureInstance) =>
-    //         for {
-    //             _ <- instance.createDataset(testDataset)
-    //             exists1 <- instance.datasetExists(testDataset)
-    //             exists2 <- instance.datasetExists(testDataset2)
-    //         } yield (exists1, exists2)
-    //     }.unsafeRunSync()
-    //     assert(res._1.right.get)
-    //     assert(!res._2.right.get)
-    // }
+    test("check if datasets exist") {
+        val instance = createLigature
+        val res = for {
+            _ <- instance.createDataset(testDataset)
+            exists1 <- instance.datasetExists(testDataset)
+            exists2 <- instance.datasetExists(testDataset2)
+        } yield (exists1, exists2)
+        assertIO(res, (true, false))
+    }
 
-    // test("match datasets prefix") {
-    //     val res = createLigature.instance.use { (instance: LigatureInstance) =>
-    //         for {
-    //             _ <- instance.createDataset(testDataset)
-    //             _ <- instance.createDataset(testDataset2)
-    //             _ <- instance.createDataset(testDataset3)
-    //             res1 <- instance.matchDatasetsPrefix("test").compile.toList
-    //             res2 <- instance.matchDatasetsPrefix("test/").compile.toList
-    //             res3 <- instance.matchDatasetsPrefix("snoo").compile.toList
-    //         } yield (res1, res2, res3)
-    //     }.unsafeRunSync()
-    //     assertEquals(res._1.length, 3)
-    //     assertEquals(res._2.length, 2)
-    //     assertEquals(res._3.length, 0)
-    // }
+    test("match datasets prefix") {
+        val instance = createLigature
+        val res = for {
+            _ <- instance.createDataset(testDataset)
+            _ <- instance.createDataset(testDataset2)
+            _ <- instance.createDataset(testDataset3)
+            res1 <- instance.matchDatasetsPrefix("test").compile.toList
+            res2 <- instance.matchDatasetsPrefix("test/").compile.toList
+            res3 <- instance.matchDatasetsPrefix("snoo").compile.toList
+        } yield (res1.length, res2.length, res3.length)
+        assertIO(res, (3, 2 ,0))
+    }
 
-    // test("match datasets range") {
-    //     val res = createLigature.instance.use { (instance: LigatureInstance) =>
-    //         for {
-    //             _ <- instance.createDataset(Dataset.fromString("a").get)
-    //             _ <- instance.createDataset(Dataset.fromString("app").get)
-    //             _ <- instance.createDataset(Dataset.fromString("b").get)
-    //             _ <- instance.createDataset(Dataset.fromString("be").get)
-    //             _ <- instance.createDataset(Dataset.fromString("bee").get)
-    //             _ <- instance.createDataset(Dataset.fromString("test1/test").get)
-    //             _ <- instance.createDataset(Dataset.fromString("test2/test2").get)
-    //             _ <- instance.createDataset(Dataset.fromString("test3/test").get)
-    //             _ <- instance.createDataset(Dataset.fromString("test4").get)
-    //             _ <- instance.createDataset(Dataset.fromString("z").get)
-    //             res <- instance.allDatasets().compile.toList
-    //             res1 <- instance.matchDatasetsRange("a", "b").compile.toList
-    //             res2 <- instance.matchDatasetsRange("be", "test3").compile.toList
-    //             res3 <- instance.matchDatasetsRange("snoo", "zz").compile.toList
-    //         } yield (res1, res2, res3)
-    //     }.unsafeRunSync()
-    //     assertEquals(res._1.length, 2) //TODO check instances not just counts
-    //     assertEquals(res._2.length, 4) //TODO check instances not just counts
-    //     assertEquals(res._3.length, 5) //TODO check instances not just counts
-    // }
+    test("match datasets range") {
+        val instance = createLigature
+        val res = for {
+            _ <- instance.createDataset(Dataset.fromString("a").getOrElse(???))
+            _ <- instance.createDataset(Dataset.fromString("app").getOrElse(???))
+            _ <- instance.createDataset(Dataset.fromString("b").getOrElse(???))
+            _ <- instance.createDataset(Dataset.fromString("be").getOrElse(???))
+            _ <- instance.createDataset(Dataset.fromString("bee").getOrElse(???))
+            _ <- instance.createDataset(Dataset.fromString("test1/test").getOrElse(???))
+            _ <- instance.createDataset(Dataset.fromString("test2/test2").getOrElse(???))
+            _ <- instance.createDataset(Dataset.fromString("test3/test").getOrElse(???))
+            _ <- instance.createDataset(Dataset.fromString("test4").getOrElse(???))
+            _ <- instance.createDataset(Dataset.fromString("z").getOrElse(???))
+            res <- instance.allDatasets().compile.toList
+            res1 <- instance.matchDatasetsRange("a", "b").compile.toList
+            res2 <- instance.matchDatasetsRange("be", "test3").compile.toList
+            res3 <- instance.matchDatasetsRange("snoo", "zz").compile.toList
+        } yield (res1.length, res2.length, res3.length)
+        assertIO(res, (2, 4, 5)) //TODO check instances not just counts
+    }
 
-    // test("create and delete new dataset") {
-    //     val res = createLigature.instance.use { instance  =>
-    //         for {
-    //             _ <- instance.createDataset(testDataset)
-    //             _ <- instance.deleteDataset(testDataset)
-    //             _ <- instance.deleteDataset(testDataset2)
-    //             res <- instance.allDatasets().compile.toList
-    //         } yield res
-    //     }.unsafeRunSync()
-    //     assert(res.isEmpty)
-    // }
+    test("create and delete new dataset") {
+        val instance = createLigature
+        val res = for {
+            _ <- instance.createDataset(testDataset)
+            _ <- instance.deleteDataset(testDataset)
+            _ <- instance.deleteDataset(testDataset2)
+            res <- instance.allDatasets().compile.toList
+        } yield res
+        assertIO(res, List())
+    }
 
     // test("new datasets should be empty") {
-    //     val res = createLigature.instance.use { instance  =>
-    //         for {
+    //     val instance = createLigature
+    //     val res = for {
     //             _ <- instance.createDataset(testDataset)
     //             res <- instance.query(testDataset).use { tx =>
     //                 tx.allStatements().compile.toList

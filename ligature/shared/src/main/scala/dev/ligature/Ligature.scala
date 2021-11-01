@@ -6,6 +6,7 @@ package dev.ligature
 
 import fs2.Stream
 import cats.effect.IO
+import cats.data.EitherT
 
 final case class Dataset private (val name: String) extends Ordered[Dataset] {
   private def copy(): Unit = ()
@@ -58,35 +59,35 @@ trait Ligature {
   /** Returns all Datasets in a Ligature instance. */
   def allDatasets(): Stream[IO, Dataset]
 
-  // /** Check if a given Dataset exists. */
-  // def datasetExists(dataset: Dataset): Either[LigatureError, Boolean]
+  /** Check if a given Dataset exists. */
+  def datasetExists(dataset: Dataset): IO[Boolean]
 
-  // /** Returns all Datasets in a Ligature instance that start with the given prefix. */
-  // def matchDatasetsPrefix(
-  //                          prefix: String,
-  //                        ): Either[LigatureError, Iterator[Dataset]]
+  /** Returns all Datasets in a Ligature instance that start with the given prefix. */
+  def matchDatasetsPrefix(
+                           prefix: String,
+                         ): Stream[IO, Dataset]
 
-  // /** Returns all Datasets in a Ligature instance that are in a given range (inclusive, exclusive]. */
-  // def matchDatasetsRange(
-  //                         start: String,
-  //                         end: String,
-  //                       ): Either[LigatureError, Iterator[Dataset]]
+  /** Returns all Datasets in a Ligature instance that are in a given range (inclusive, exclusive]. */
+  def matchDatasetsRange(
+                          start: String,
+                          end: String,
+                        ): Stream[IO, Dataset]
 
-  // /** Creates a dataset with the given name.
-  //  * TODO should probably return its own error type { InvalidDataset, DatasetExists, CouldNotCreateDataset } */
-  // def createDataset(dataset: Dataset): Either[LigatureError, Unit]
+  /** Creates a dataset with the given name.
+   * TODO should probably return its own error type { InvalidDataset, DatasetExists, CouldNotCreateDataset } */
+  def createDataset(dataset: Dataset): IO[Unit]
 
-  // /** Deletes a dataset with the given name.
-  //  * TODO should probably return its own error type { InvalidDataset, CouldNotDeleteDataset } */
-  // def deleteDataset(dataset: Dataset): Either[LigatureError, Unit]
+  /** Deletes a dataset with the given name.
+   * TODO should probably return its own error type { InvalidDataset, CouldNotDeleteDataset } */
+  def deleteDataset(dataset: Dataset): IO[Unit]
 
-  // /** Initializes a QueryTx
-  //  * TODO should probably return its own error type CouldNotInitializeQueryTx */
-  // def query[R](dataset: Dataset, query: (QueryTx) => R): Either[LigatureError, R]
+  /** Initializes a QueryTx
+   * TODO should probably return its own error type CouldNotInitializeQueryTx */
+  def query[R](dataset: Dataset, query: (QueryTx) => R): IO[R]
 
-  // /** Initializes a WriteTx
-  //  * TODO should probably return its own error type CouldNotInitializeWriteTx */
-  // def write[R](dataset: Dataset, write: (WriteTx) => R): Either[LigatureError, R]
+  /** Initializes a WriteTx
+   * TODO should probably return its own error type CouldNotInitializeWriteTx */
+  def write[R](dataset: Dataset, write: (WriteTx) => R): IO[R]
 }
 
 /** Represents a QueryTx within the context of a Ligature instance and a single Dataset */
