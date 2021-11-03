@@ -11,6 +11,7 @@ import fs2.Stream
 import scala.collection.immutable.TreeMap
 
 import java.util.concurrent.locks.{ReadWriteLock, ReentrantReadWriteLock}
+import dev.ligature.WriteResult
 
 protected case class DatasetStore(counter: Long, statements: Set[Statement])
 
@@ -99,30 +100,45 @@ final class InMemoryLigature extends Ligature {
 
     /** Initializes a QueryTx
      * TODO should probably return its own error type CouldNotInitializeQueryTx */
-    def query[R](dataset: Dataset, query: (QueryTx) => R): IO[R] = {
-        ???
+    def query[R](dataset: Dataset, query: (QueryTx) => IO[R]): IO[R] = IO.defer {
+        val l = lock.readLock()
+        try {
+            var res: Option[IO[R]] = None
+            l.lock()
+            val ds = this.store.get(dataset)
+            ds match {
+                case Some(ds) => {
+                    val tx = InMemoryQueryTx(ds)
+                    query(tx)
+                }
+                case None => {
+                    return IO.raiseError(RuntimeException(""))
+                }
+            }
+        } finally {
+            l.unlock()
+        }
     }
-
-    // def query(dataset: Dataset): Resource[IO, QueryTx] = {
-    //     val l = lock.readLock()
-
-    //     val acquire: IO[InMemoryQueryTx] = IO {
-    //         l.lock()
-    //         new InMemoryQueryTx(store(dataset))
-    //     }
-
-    //     val release: QueryTx => IO[Unit] = _ => IO {
-    //         l.unlock()
-    //         ()
-    //     }
-
-    //     Resource.make(acquire)(release)
-    // }
 
     /** Initializes a WriteTx
      * TODO should probably return its own error type CouldNotInitializeWriteTx */
-    def write[R](dataset: Dataset, write: (WriteTx) => R): IO[R] = {
-        ???
+    def write(dataset: Dataset, write: (WriteTx) => IO[WriteResult]): IO[WriteResult] = { //TODO this doesn't update the store
+        val l = lock.writeLock()
+        try {
+            l.lock()
+            val ds = this.store.get(dataset)
+            ds match {
+                case Some(ds) => {
+                    val tx = InMemoryWriteTx(ds)
+                    write(tx)
+                }
+                case None => {
+                    return IO.raiseError(RuntimeException(""))
+                }
+            }
+        } finally {
+            l.unlock()
+        }
     }
 
     // def write(dataset: Dataset): Resource[IO, WriteTx] = { //TODO acquire write lock
