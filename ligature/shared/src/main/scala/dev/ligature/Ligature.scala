@@ -54,6 +54,10 @@ final case class IntegerLiteralRange(val start: Long, val end: Long) extends Ran
 
 final case class Statement(val entity: Identifier, val attribute: Identifier, val value: Value, val context: Identifier)
 
+enum WriteResult:
+  case WriteError(val message: String)
+  case WriteSuccess
+
 /** A trait that all Ligature implementations implement. */
 trait Ligature {
   /** Returns all Datasets in a Ligature instance. */
@@ -83,60 +87,60 @@ trait Ligature {
 
   /** Initializes a QueryTx
    * TODO should probably return its own error type CouldNotInitializeQueryTx */
-  def query[R](dataset: Dataset, query: (QueryTx) => R): IO[R]
+  def query[R](dataset: Dataset, query: (QueryTx) => IO[R]): IO[R]
 
   /** Initializes a WriteTx
    * TODO should probably return its own error type CouldNotInitializeWriteTx */
-  def write[R](dataset: Dataset, write: (WriteTx) => R): IO[R]
+  def write(dataset: Dataset, write: (WriteTx) => IO[WriteResult]): IO[WriteResult]
 }
 
 /** Represents a QueryTx within the context of a Ligature instance and a single Dataset */
 trait QueryTx {
-//   /** Returns all PersistedStatements in this Dataset. */
-//   def allStatements(): Either[LigatureError, Iterator[Statement]]
+  /** Returns all PersistedStatements in this Dataset. */
+  def allStatements(): Stream[IO, Statement]
 
-//   /** Returns all PersistedStatements that match the given criteria.
-//    * If a parameter is None then it matches all, so passing all Nones is the same as calling allStatements. */
-//   def matchStatements(
-//                        entity: Option[Identifier],
-//                        attribute: Option[Identifier],
-//                        value: Option[Value]
-//                      ): Either[LigatureError, Iterator[Statement]]
+  /** Returns all PersistedStatements that match the given criteria.
+   * If a parameter is None then it matches all, so passing all Nones is the same as calling allStatements. */
+  def matchStatements(
+                       entity: Option[Identifier],
+                       attribute: Option[Identifier],
+                       value: Option[Value]
+                     ): Stream[IO, Statement]
 
-//   /** Returns all PersistedStatements that match the given criteria.
-//    * If a parameter is None then it matches all. */
-//   def matchStatementsRange(
-//                             entity: Option[Identifier],
-//                             attribute: Option[Identifier],
-//                             value: Range
-//                           ): Either[LigatureError, Iterator[Statement]]
+  /** Returns all PersistedStatements that match the given criteria.
+   * If a parameter is None then it matches all. */
+  def matchStatementsRange(
+                            entity: Option[Identifier],
+                            attribute: Option[Identifier],
+                            value: Range
+                          ): Stream[IO, Statement]
 
-//   /** Returns the PersistedStatement for the given context. */
-//   def statementForContext(
-//                            context: Identifier,
-//                          ): Either[LigatureError, Option[Statement]]
+  /** Returns the PersistedStatement for the given context. */
+  def statementForContext(
+                           context: Identifier,
+                         ): EitherT[IO, LigatureError, Option[Statement]]
 }
 
 /** Represents a WriteTx within the context of a Ligature instance and a single Dataset */
 trait WriteTx {
-//   /** Creates a new, unique Entity within this Dataset by combining a UUID and an optional prefix.
-//    * Note: Entities are shared across named graphs in a given Dataset. */
-//   def newIdentifier(prefix: String = ""): Either[LigatureError, Identifier]
+  /** Creates a new, unique Entity within this Dataset by combining a UUID and an optional prefix.
+   * Note: Entities are shared across named graphs in a given Dataset. */
+  def newIdentifier(prefix: String = ""): EitherT[IO, LigatureError, Identifier]
 
-//   /** Adds a given Statement to this Dataset.
-//    * If the Statement already exists nothing happens (TODO maybe add it with a new context?).
-//    * Note: Potentially could trigger a ValidationError */
-//   def addStatement(statement: Statement): Either[LigatureError, Statement]
+  /** Adds a given Statement to this Dataset.
+   * If the Statement already exists nothing happens (TODO maybe add it with a new context?).
+   * Note: Potentially could trigger a ValidationError */
+  def addStatement(statement: Statement): EitherT[IO, LigatureError, Statement]
 
-//   /** Removes a given PersistedStatement from this Dataset.
-//    * If the PersistedStatement doesn't exist nothing happens and returns Ok(false).
-//    * This function returns Ok(true) only if the given PersistedStatement was found and removed.
-//    * Note: Potentially could trigger a ValidationError. */
-//   def removeStatement(
-//                        statement: Statement,
-//                      ): Either[LigatureError, Boolean]
+  /** Removes a given PersistedStatement from this Dataset.
+   * If the PersistedStatement doesn't exist nothing happens and returns Ok(false).
+   * This function returns Ok(true) only if the given PersistedStatement was found and removed.
+   * Note: Potentially could trigger a ValidationError. */
+  def removeStatement(
+                       statement: Statement,
+                     ): EitherT[IO, LigatureError, Boolean]
 
-//   /** Cancels this transaction so that none of the changes made so far will be stored.
-//    * This also closes this transaction so no other methods can be called without returning a LigatureError. */
-//   def cancel(): Either[LigatureError, Unit]
+  /** Cancels this transaction so that none of the changes made so far will be stored.
+   * This also closes this transaction so no other methods can be called without returning a LigatureError. */
+  def cancel(): EitherT[IO, LigatureError, Unit]
 }
