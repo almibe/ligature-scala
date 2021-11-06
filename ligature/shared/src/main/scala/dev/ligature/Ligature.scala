@@ -91,7 +91,9 @@ trait Ligature {
 
   /** Initializes a WriteTx
    * TODO should probably return its own error type CouldNotInitializeWriteTx */
-  def write(dataset: Dataset, write: (WriteTx) => IO[WriteResult]): IO[WriteResult]
+  def write(dataset: Dataset, write: (WriteTx) => IO[Unit]): IO[WriteResult]
+
+  def close(): IO[Unit]
 }
 
 /** Represents a QueryTx within the context of a Ligature instance and a single Dataset */
@@ -125,22 +127,18 @@ trait QueryTx {
 trait WriteTx {
   /** Creates a new, unique Entity within this Dataset by combining a UUID and an optional prefix.
    * Note: Entities are shared across named graphs in a given Dataset. */
-  def newIdentifier(prefix: String = ""): EitherT[IO, LigatureError, Identifier]
+  def newIdentifier(prefix: String = ""): IO[Identifier]
 
   /** Adds a given Statement to this Dataset.
    * If the Statement already exists nothing happens (TODO maybe add it with a new context?).
-   * Note: Potentially could trigger a ValidationError */
-  def addStatement(statement: Statement): EitherT[IO, LigatureError, Statement]
+   * Note: Potentially could trigger a ValidationError if the Statement's Context already exists
+   * for a different Statement. */
+  def addStatement(statement: Statement): IO[Unit]
 
   /** Removes a given PersistedStatement from this Dataset.
    * If the PersistedStatement doesn't exist nothing happens and returns Ok(false).
-   * This function returns Ok(true) only if the given PersistedStatement was found and removed.
-   * Note: Potentially could trigger a ValidationError. */
+   * This function returns Ok(true) only if the given PersistedStatement was found and removed. */
   def removeStatement(
                        statement: Statement,
-                     ): EitherT[IO, LigatureError, Boolean]
-
-  /** Cancels this transaction so that none of the changes made so far will be stored.
-   * This also closes this transaction so no other methods can be called without returning a LigatureError. */
-  def cancel(): EitherT[IO, LigatureError, Unit]
+                     ): IO[Unit]
 }
