@@ -7,6 +7,7 @@ package dev.ligature
 import fs2.Stream
 import cats.effect.IO
 import cats.data.EitherT
+import cats.effect.kernel.Resource
 
 final case class Dataset private (val name: String) extends Ordered[Dataset] {
   private def copy(): Unit = ()
@@ -87,11 +88,11 @@ trait Ligature {
 
   /** Initializes a QueryTx
    * TODO should probably return its own error type CouldNotInitializeQueryTx */
-  def query[R](dataset: Dataset, query: (QueryTx) => IO[R]): IO[R]
+  def query(dataset: Dataset): Resource[IO, QueryTx]
 
   /** Initializes a WriteTx
    * TODO should probably return its own error type CouldNotInitializeWriteTx */
-  def write(dataset: Dataset, write: (WriteTx) => IO[Unit]): IO[WriteResult]
+  def write(dataset: Dataset): Resource[IO, WriteTx] //TODO maybe switch back to WriteResult
 
   def close(): IO[Unit]
 }
