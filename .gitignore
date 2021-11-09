@@ -7,3 +7,4 @@ target/
 .metals
 **/metals.sbt
 .lsp
+.psc-ide-port

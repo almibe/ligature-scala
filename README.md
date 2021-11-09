@@ -18,3 +18,14 @@ Use `projects` to see the list of sub-projects.
 Use `project {project-name}` to switch projects.
 
 Use `test` to run tests.
+
+### Projects
+
+| Name               | Description                                                                      | JVM | JS |
+| ------------------ | -------------------------------------------------------------------------------- | --- | -- |
+| ligature           | Common data types and traits for Ligature                                        | ✅   | ✅ |
+| lig                | A simple serialization format for Ligature                                       | ✅   | ✅ |
+| ligature-in-memory | An in-memory implementation of Ligature                                          | ✅   | ✅ |
+| ligature-indexeddb | An implementation of Ligature targeting the browser using IndexedDB for storage. |     | ✅ |
+| slonky             | A JVM based server for Ligature following the ligature-http spec.                |     | ✅ |
+| wander             | A scripting language for working with Ligature.                                  | ✅   | ✅ |
