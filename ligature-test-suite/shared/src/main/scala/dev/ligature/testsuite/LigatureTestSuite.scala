@@ -95,89 +95,85 @@ abstract class LigatureTestSuite extends CatsEffectSuite {
         assertIO(res, List())
     }
 
-    // test("new datasets should be empty") {
-    //     val instance = createLigature
-    //     val res = for {
-    //         _ <- instance.createDataset(testDataset)
-    //         res <- instance.query(testDataset).use(tx => tx.allStatements().compile.toList)
-    //     } yield res
-    //     assertIO(res, List())
-    // }
+    test("new datasets should be empty") {
+        val instance = createLigature
+        val res = for {
+            _ <- instance.createDataset(testDataset)
+            res <- instance.query(testDataset).use(tx => tx.allStatements().compile.toList)
+        } yield res
+        assertIO(res, List())
+    }
 
-    // test("adding statements to datasets".only) {
-    //     val instance = createLigature
-    //     val res = for {
-    //         _ <- Console[IO].println("start")
-    //         _ <- instance.createDataset(testDataset)
-    //         _ <- Console[IO].println("start2")
-    //         _ <- instance.write(testDataset).use { tx =>
-    //             for {
-    //                 _ <- Console[IO].println("in write")
-    //                 _  <- tx.addStatement(Statement(entity1, a, entity2, context1))
-    //                 _  <- tx.addStatement(Statement(entity1, a, entity2, context2)) //dupes get added since they'll have unique contexts
-    //                 r  <- tx.addStatement(Statement(entity1, a, entity3, context3))
-    //             } yield r
-    //         }
-    //         _ <- Console[IO].println("test")
-    //         statements  <- instance.query(testDataset).use { tx =>
-    //             tx.allStatements().compile.toList
-    //         }
-    //     } yield statements.toSet
-    //     assertIO(res, Set(
-    //         Statement(entity1, a, entity2, context1),
-    //         Statement(entity1, a, entity2, context2),
-    //         Statement(entity2, a, entity3, context3)))
-    // }
+    test("adding statements to datasets") {
+        val instance = createLigature
+        val res = for {
+            _ <- instance.createDataset(testDataset)
+            _ <- instance.write(testDataset).use { tx =>
+                for {
+                    _  <- tx.addStatement(Statement(entity1, a, entity2, context1))
+                    _  <- tx.addStatement(Statement(entity1, a, entity2, context2)) //dupes get added since they'll have unique contexts
+                    r  <- tx.addStatement(Statement(entity1, a, entity3, context3))
+                } yield r
+            }
+            statements  <- instance.query(testDataset).use { tx =>
+                tx.allStatements().compile.toList
+            }
+        } yield statements.toSet
+        assertIO(res, Set(
+            Statement(entity1, a, entity2, context1),
+            Statement(entity1, a, entity2, context2),
+            Statement(entity1, a, entity3, context3)))
+    }
 
-    // test("new identifiers") {
-    //     val instance = createLigature
-    //     val res = for {
-    //         _ <- instance.createDataset(testDataset)
-    //         _ <- instance.write(testDataset, { tx =>
-    //             for {
-    //                 entity <- tx.newIdentifier("entity-")
-    //                 attribute <- tx.newIdentifier("attribute-")
-    //                 value <- tx.newIdentifier("value-")
-    //                 context <- tx.newIdentifier("context-")
-    //                 ps1  <- tx.addStatement(Statement(entity, attribute, value, context))
-    //             } yield IO(())
-    //         })
-    //         statements  <- instance.query(testDataset, { tx =>
-    //             tx.allStatements().compile.toList
-    //         })
-    //     } yield statements.head
-    //     res.map(it => {
-    //         assert(it.entity.name.startsWith("entity-"))
-    //         assert(it.attribute.name.startsWith("attribute-"))
-    //         it.value match {
-    //             case Identifier(id) => assert(id.startsWith("value-"))
-    //             case _ => assert(false)
-    //         }
-    //         assert(it.context.name.startsWith("context-"))
-    //     })
-    // }
+    test("new identifiers") {
+        val instance = createLigature
+        val res = for {
+            _ <- instance.createDataset(testDataset)
+            _ <- instance.write(testDataset).use { tx =>
+                for {
+                    entity <- tx.newIdentifier("entity-")
+                    attribute <- tx.newIdentifier("attribute-")
+                    value <- tx.newIdentifier("value-")
+                    context <- tx.newIdentifier("context-")
+                    ps1  <- tx.addStatement(Statement(entity, attribute, value, context))
+                } yield IO(())
+            }
+            statements  <- instance.query(testDataset).use { tx =>
+                tx.allStatements().compile.toList
+            }
+        } yield statements.head
+        res.map(it => {
+            assert(it.entity.name.startsWith("entity-"))
+            assert(it.attribute.name.startsWith("attribute-"))
+            it.value match {
+                case Identifier(id) => assert(id.startsWith("value-"))
+                case _ => assert(false)
+            }
+            assert(it.context.name.startsWith("context-"))
+        })
+    }
 
-    // test("removing statements from datasets") {
-    //     val res = createLigature.instance.use { instance =>
-    //         for {
-    //             _ <- instance.createDataset(testDataset)
-    //             ps2 <- instance.write(testDataset).use { tx =>
-    //                 for {
-    //                     ps1 <- tx.addStatement(Statement(entity1, a, entity2))
-    //                     ps2 <- tx.addStatement(Statement(entity3, a, entity2))
-    //                     _ <- tx.removeStatement(ps1.right.get)
-    //                     _ <- tx.removeStatement(ps1.right.get)
-    //                     //below doesn't actually remove since context is different
-    //                     _ <- tx.removeStatement(PersistedStatement(Statement(entity3, a, entity2), entity1))
-    //                 } yield ps2
-    //             }
-    //             statements <- instance.query(testDataset).use { tx =>
-    //                 tx.allStatements().compile.toList
-    //             }
-    //         } yield (ps2, statements)
-    //     }.unsafeRunSync()
-    //     assertEquals(res._2.toSet, Set(res._1))
-    // }
+    test("removing statements from datasets") {
+        val res = createLigature.instance.use { instance =>
+            for {
+                _ <- instance.createDataset(testDataset)
+                ps2 <- instance.write(testDataset).use { tx =>
+                    for {
+                        ps1 <- tx.addStatement(Statement(entity1, a, entity2))
+                        ps2 <- tx.addStatement(Statement(entity3, a, entity2))
+                        _ <- tx.removeStatement(ps1.right.get)
+                        _ <- tx.removeStatement(ps1.right.get)
+                        //below doesn't actually remove since context is different
+                        _ <- tx.removeStatement(PersistedStatement(Statement(entity3, a, entity2), entity1))
+                    } yield ps2
+                }
+                statements <- instance.query(testDataset).use { tx =>
+                    tx.allStatements().compile.toList
+                }
+            } yield (ps2, statements)
+        }.unsafeRunSync()
+        assertEquals(res._2.toSet, Set(res._1))
+    }
 
     // test("get persisted statement from context") {
     //     val res = createLigature.instance.use { instance =>

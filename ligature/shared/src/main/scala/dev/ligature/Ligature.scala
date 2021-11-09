@@ -121,7 +121,7 @@ trait QueryTx {
   /** Returns the PersistedStatement for the given context. */
   def statementForContext(
                            context: Identifier,
-                         ): EitherT[IO, LigatureError, Option[Statement]]
+                         ): IO[Option[Statement]]
 }
 
 /** Represents a WriteTx within the context of a Ligature instance and a single Dataset */

@@ -99,49 +99,41 @@ final class InMemoryLigature extends Ligature {
 
     /** Initializes a QueryTx
      * TODO should probably return its own error type CouldNotInitializeQueryTx */
-    def query(dataset: Dataset): Resource[IO, QueryTx] = ???//Resource.make(IO {
-        //     val l = lock.readLock()
-        //     l.lock()
-        //     val ds = this.store.get(dataset)
-        //     ds match {
-        //         case Some(ds) => {
-        //             val tx = InMemoryQueryTx(ds, l)
-        //             tx
-        //         }
-        //         case None => {
-        //             throw RuntimeException("")
-        //         }
-        //     }
-        // })( tx =>
-        //     IO {
-        //         tx.unlock()
-        //         ()
-        //     }
-        // )
+    def query(dataset: Dataset): Resource[IO, QueryTx] = Resource.make(IO {
+            val ds = this.store.get.get(dataset)
+            ds match {
+                case Some(ds) => {
+                    val tx = InMemoryQueryTx(ds)
+                    tx
+                }
+                case None => {
+                    throw RuntimeException("")
+                }
+            }
+        })( tx =>
+            IO.unit
+        )
 
     /** Initializes a WriteTx
      * TODO should probably return its own error type CouldNotInitializeWriteTx */
-    def write(dataset: Dataset): Resource[IO, WriteTx] = ???//Resource.make(IO {
-        //     val l = lock.writeLock()
-        //     l.lock()
-        //     val ds = this.store.get(dataset)
-        //     ds match {
-        //         case Some(ds) => {
-        //             val tx = InMemoryWriteTx(ds, l)
-        //             tx
-        //         }
-        //         case None => {
-        //             throw RuntimeException("")//WriteResult.WriteError(s"Could not write to ${dataset.name}"))
-        //         }
-        //     }
-        // })(
-        //     tx => IO {
-        //         val newStore = this.store.updated(dataset, tx.newDatasetStore())
-        //         this.store = newStore
-        //         tx.unlock()
-        //         ()
-        //     }
-        // )
+    def write(dataset: Dataset): Resource[IO, WriteTx] = Resource.make(IO {
+            val ds = this.store.get.get(dataset)
+            ds match {
+                case Some(ds) => {
+                    val tx = InMemoryWriteTx(ds)
+                    tx
+                }
+                case None => {
+                    throw RuntimeException("")//WriteResult.WriteError(s"Could not write to ${dataset.name}"))
+                }
+            }
+        })(
+            tx => IO {
+                val newStore = this.store.get.updated(dataset, tx.newDatasetStore())
+                this.store.set(newStore)
+                ()
+            }
+        )
 
     // def write(dataset: Dataset): Resource[IO, WriteTx] = { //TODO acquire write lock
     //     val l = lock.writeLock()

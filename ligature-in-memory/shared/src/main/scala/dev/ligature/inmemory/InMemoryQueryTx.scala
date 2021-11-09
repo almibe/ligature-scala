@@ -7,7 +7,6 @@ package dev.ligature.inmemory
 import cats.effect.IO
 import dev.ligature.*
 import fs2.Stream
-import cats.data.EitherT
 
 /** Represents a QueryTx within the context of a Ligature instance and a single Dataset */
 class InMemoryQueryTx(private val store: DatasetStore) extends QueryTx {
@@ -62,7 +61,7 @@ class InMemoryQueryTx(private val store: DatasetStore) extends QueryTx {
     }
 
     /** Returns the PersistedStatement for the given context. */
-    def statementForContext(context: Identifier): EitherT[IO, LigatureError, Option[Statement]] = EitherT(IO {
-        Right(store.statements.find(_.context == context))
-    })
+    def statementForContext(context: Identifier): IO[Option[Statement]] = IO {
+        store.statements.find(_.context == context)
+    }
 }
