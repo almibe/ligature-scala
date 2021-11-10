@@ -105,16 +105,16 @@ trait QueryTx {
   /** Returns all PersistedStatements that match the given criteria.
    * If a parameter is None then it matches all, so passing all Nones is the same as calling allStatements. */
   def matchStatements(
-                       entity: Option[Identifier],
-                       attribute: Option[Identifier],
-                       value: Option[Value]
+                       entity: Option[Identifier] = None,
+                       attribute: Option[Identifier] = None,
+                       value: Option[Value] = None
                      ): Stream[IO, Statement]
 
   /** Returns all PersistedStatements that match the given criteria.
    * If a parameter is None then it matches all. */
   def matchStatementsRange(
-                            entity: Option[Identifier],
-                            attribute: Option[Identifier],
+                            entity: Option[Identifier] = None,
+                            attribute: Option[Identifier] = None,
                             value: Range
                           ): Stream[IO, Statement]
 
