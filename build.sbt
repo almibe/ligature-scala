@@ -25,6 +25,14 @@ lazy val lig = crossProject(JSPlatform, JVMPlatform).in(file("lig"))
       libraryDependencies += "org.scalameta" %%% "munit" % "1.0.0-M1" % Test,
   ).dependsOn(ligature)
 
+lazy val wander = crossProject(JSPlatform, JVMPlatform).in(file("wander"))
+  .settings(
+      name := "wander",
+      scalaVersion := rcVersion,
+      libraryDependencies += "dev.ligature" %%% "gaze" % "0.1.0-SNAPSHOT",
+      libraryDependencies += "org.scalameta" %%% "munit" % "1.0.0-M1" % Test,
+  ).dependsOn(ligature, lig)
+
 lazy val ligatureTestSuite = crossProject(JSPlatform, JVMPlatform).in(file("ligature-test-suite"))
   .settings(
     name := "ligature-test-suite",
