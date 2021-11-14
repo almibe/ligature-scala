@@ -4,6 +4,6 @@
 
 package dev.ligature.wander
 
-class Wander {
-
+def parse(script: String): Script = {
+    ???
 }
