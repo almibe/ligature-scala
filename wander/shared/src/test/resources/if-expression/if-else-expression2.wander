@@ -1,0 +1,9 @@
+let x = true
+let y = false
+if (y) {
+    1
+} else if (not(x)) {
+    2
+} else {
+    3
+}
