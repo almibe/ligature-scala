@@ -4,16 +4,26 @@
 
 package dev.ligature.wander
 
+import cats.effect.IO
+import dev.ligature.{Statement, Value}
+import fs2.Stream
+
 /**
  * Represents a Value in the Wander language.
  */
-sealed class WanderValue
+enum WanderValue:
+    case LigatureValue(value: Value)
+    case BooleanValue(value: Boolean)
+    case StatementValue(value: Statement)
+    case Nothing
+    case FunctionDefinitionValue(value: FunctionDefinition)
+    case NativeFunctionValue(value: NativeFunction)
+    case ResultStream(stream: Stream[IO, WanderValue])
 
 /**
  * Represents a Name in the Wander language.
- * TODO should this be a class that extends expression and evals to the binding lookup?
  */
-opaque type Name = String
+case class Name(name: String)
 
 /**
  * Represents the result of running a script.
@@ -62,8 +72,6 @@ case class Scope(val elements: List[Element]) extends Expression {
         ???
     }
 }
-
-case object nothing extends WanderValue
 
 case class LetStatement(name: Name, expression: Expression) extends Element {
     def eval(bindings: Bindings) = {

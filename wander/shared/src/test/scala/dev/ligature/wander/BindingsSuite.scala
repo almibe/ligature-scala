@@ -4,34 +4,50 @@
 
 package dev.ligature.wander
 
+import dev.ligature.{Identifier, StringLiteral}
 import munit.FunSuite
 
 class BindingsSuite extends FunSuite {
-    val identifier = Identifier("test")
-    val identifier2 = Identifier("test2")
+    val identifier = Name("test")
+    val identifier2 = Name("test2")
 
-    test("add single value and read", () => {
-        const binding = new Binding();
-        binding.bind(identifier, "this is a test");
-        let res = binding.read(identifier);
-        expect(res).to.be.eql("this is a test");
-        expect(() => binding.read(identifier2)).to.throw();
-    })
+    val value1 = WanderValue.LigatureValue(StringLiteral("this is a test"))
+    val value2 = WanderValue.LigatureValue(StringLiteral("this is a test2"))
+    val value3 = WanderValue.LigatureValue(StringLiteral("this is a test3"))
 
-    test("test scoping", () => {
-        const binding = new Binding();
-        binding.bind(identifier, "this is a test");
-        expect(binding.read(identifier)).to.be.eql("this is a test");
 
-        binding.addScope();
-        expect(binding.read(identifier)).to.be.eql("this is a test");
-        binding.bind(identifier, "this is a test2");
-        binding.bind(identifier2, "this is a test3");
-        expect(binding.read(identifier)).to.be.eql("this is a test2");
-        expect(binding.read(identifier2)).to.be.eql("this is a test3");
+    test("add single value and read") {
+        val binding = Bindings()
+        binding.bind(identifier, value1)
+        val res = binding.read(identifier)
+        assertEquals(res, value1)
+        intercept[Error] {
+            binding.read(identifier2)
+        }
+    }
+
+    test("test scoping") {
+        val binding = Bindings()
+        binding.bind(identifier, value1)
+        assertEquals(binding.read(identifier), value1)
+
+        binding.addScope()
+        assertEquals(binding.read(identifier), value1)
+
+        binding.bind(identifier, value2)
+        binding.bind(identifier2, value3)
+        assertEquals(binding.read(identifier), value2)
+        assertEquals(binding.read(identifier2), value3)
 
         binding.removeScope()
-        expect(binding.read(identifier)).to.be.eql("this is a test");
-        expect(() => binding.read(identifier2)).to.throw();
-    })
+        assertEquals(binding.read(identifier), value1)
+
+        intercept[Error] {
+            binding.read(identifier2)
+        }
+
+        intercept[Error] {
+            binding.removeScope()
+        }
+    }
 }

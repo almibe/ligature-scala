@@ -19,7 +19,7 @@ class Bindings {
         if (this.scopes.length <= 1) {
             throw new Error("Can not remove scope.")
         }
-        this.scopes.dropRight(1)
+        this.scopes.remove(this.scopes.length-1)
     }
 
     def bind(name: Name, wanderValue: WanderValue) = {
