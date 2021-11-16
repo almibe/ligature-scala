@@ -51,18 +51,26 @@ lazy val ligatureInMemory = crossProject(JSPlatform, JVMPlatform).in(file("ligat
     libraryDependencies += "org.typelevel" %%% "munit-cats-effect-3" % "1.0.6"
   ).dependsOn(ligature, ligatureTestSuite % Test)
 
-// lazy val ligatureIndexedDB = (project in file("ligature-indexeddb"))
-//   .enablePlugins(ScalaJSPlugin)
-//   .settings(
-//     name := "ligature-indexeddb",
-//     scalaVersion := rcVersion,
-//     scalaJSLinkerConfig ~= { _.withModuleKind(ModuleKind.ESModule) },
-//     scalaJSUseMainModuleInitializer := true,
+lazy val ligatureIndexedDB = crossProject(JSPlatform).in(file("ligature-indexeddb"))
+  .enablePlugins(ScalaJSPlugin)
+  .settings(
+    name := "ligature-indexeddb",
+    scalaVersion := rcVersion,
+    scalaJSLinkerConfig ~= { _.withModuleKind(ModuleKind.ESModule) },
+    libraryDependencies += "co.fs2" %%% "fs2-core" % "3.2.0",
+    libraryDependencies += "org.scalameta" %%% "munit" % "1.0.0-M1" % Test
+  ).dependsOn(ligature, ligatureTestSuite % Test)
 
-//     libraryDependencies += "co.fs2" %%% "fs2-core" % "3.2.0",
-//     libraryDependencies += "org.scalameta" %%% "munit" % "1.0.0-M1" % Test,
-// //    testFrameworks += new TestFramework(""org.scalameta" %%% "munit" % "1.0.0-M1".Framework"),
-//   ).dependsOn(ligature, ligatureTestSuite % Test)
+lazy val ligatureLab = crossProject(JSPlatform).in(file("ligature-lab"))
+  .enablePlugins(ScalaJSPlugin)
+  .settings(
+    name := "ligature-lab",
+    scalaVersion := rcVersion,
+    scalaJSLinkerConfig ~= { _.withModuleKind(ModuleKind.ESModule) },
+    scalaJSUseMainModuleInitializer := true,
+    libraryDependencies += "co.fs2" %%% "fs2-core" % "3.2.0",
+    libraryDependencies += "org.scalameta" %%% "munit" % "1.0.0-M1" % Test
+  ).dependsOn(ligature, ligatureTestSuite % Test)
 
 // lazy val slonky = (project in file("slonky"))
 //   .settings(
