@@ -25,3 +25,4 @@ Use `test` to run tests.
 | ligature-indexeddb | An implementation of Ligature targeting the browser using IndexedDB for storage. |     | ✅ |
 | slonky             | A JVM based server for Ligature following the ligature-http spec.                |     | ✅ |
 | wander             | A scripting language for working with Ligature.                                  | ✅   | ✅ |
+| gaze               | A utility library for parsing text.                                              | ✅   | ✅ |
