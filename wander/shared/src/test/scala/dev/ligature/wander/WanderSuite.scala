@@ -4,9 +4,31 @@
 
 package dev.ligature.wander
 
-class WanderSuite {
-    //TODO read in .wander program
-    //TODO run it
-    //TODO read in .result file
-    //TODO assert results are the same
+import dev.ligature.wander.parser.parse
+import dev.ligature.wander.lexer.tokenize
+import munit.FunSuite
+import java.io.File
+import scala.io.Source
+
+class WanderSuite extends FunSuite {
+    // test("Wander Token test") {
+    //     // testData.foreach { instance =>
+    //     //     val tokens = tokenize(instance.script)
+    //     //     assertEquals(tokens, instance.tokens, s"tokens are not the same for ${instance.description}")
+    //     // }
+    // }
+
+    test("Wander AST test") {
+        testData.foreach { instance =>
+            val ast = parse(instance.script)
+            assertEquals(ast, instance.ast, s"AST values are not the same for ${instance.description}")
+        }
+    }
+
+    // test("Wander Result test") {
+    //     // testData.foreach { instance =>
+    //     //     val result = run(instance.script)
+    //     //     assertEquals(result, instance.result, s"results are not the same for ${instance.description}")
+    //     // }
+    // }
 }
