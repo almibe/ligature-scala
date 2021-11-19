@@ -46,28 +46,28 @@ class GazeSuite extends FunSuite {
         assert(gaze.isComplete())
     }
 
-    test("multiple steps succeed") {
+    test("multiple nibblers succeed") {
         val gaze = Gaze.from("5678")
-        val step5 = takeString("5")
-        val step6 = takeString("6")
-        val step7 = takeString("7")
-        val step8 = takeString("8")
-        val res = gaze.attempt(step5, step6, step7, step8)
+        val nibbler5 = takeString("5")
+        val nibbler6 = takeString("6")
+        val nibbler7 = takeString("7")
+        val nibbler8 = takeString("8")
+        val res = gaze.attempt(nibbler5, nibbler6, nibbler7, nibbler8)
         assertEquals(res, Right(List("5", "6", "7", "8")))
         assert(gaze.isComplete())
     }
 
-    test("multiple steps fail and retry") {
+    test("multiple nibblers fail and retry") {
         val gaze = Gaze.from("5678")
-        val step5 = takeString("5")
-        val step6 = takeString("6")
-        val step7 = takeString("7")
-        val step8 = takeString("8")
-        val res = gaze.attempt(step5, step6, step8)
+        val nibbler5 = takeString("5")
+        val nibbler6 = takeString("6")
+        val nibbler7 = takeString("7")
+        val nibbler8 = takeString("8")
+        val res = gaze.attempt(nibbler5, nibbler6, nibbler8)
         assertEquals(res, Left(NoMatch))
         assert(!gaze.isComplete())
 
-        val res2 = gaze.attempt(step5, step6, step7, step8)
+        val res2 = gaze.attempt(nibbler5, nibbler6, nibbler7, nibbler8)
         assertEquals(res2, Right(List("5", "6", "7", "8")))
         assert(gaze.isComplete())
     }

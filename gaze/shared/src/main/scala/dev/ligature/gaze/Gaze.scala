@@ -37,9 +37,9 @@ class Gaze[I](private val input: Vector[I]) {
         }
     }
 
-    def attempt[T, E](step: Nibbler[I, E, T]): Either[E, T] = {
+    def attempt[T, E](nibbler: Nibbler[I, E, T]): Either[E, T] = {
         val startOfThisLoop = this.offset
-        val res = step(this)
+        val res = nibbler(this)
 
         res match {
             case Right(_) => return res
@@ -50,12 +50,12 @@ class Gaze[I](private val input: Vector[I]) {
         }
     }
 
-    def attempt[T, E](steps: Nibbler[I, E, T]*): Either[E, List[T]] = {
+    def attempt[T, E](nibblers: Nibbler[I, E, T]*): Either[E, List[T]] = {
         val startOfThisLoop = this.offset
         val results: ArrayBuffer[T] = ArrayBuffer()
 
-        for(step <- steps) {
-            val res = step(this)
+        for(nibbler <- nibblers) {
+            val res = nibbler(this)
             res match {
                 case Right(res) => results.append(res)
                 case Left(e) => {
