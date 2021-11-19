@@ -52,4 +52,10 @@ class TakeStringSuite extends FunSuite {
         assertEquals(gaze.attempt(worldStep), Right("world"))
         assert(gaze.isComplete())
     }
+
+    test("map test") {
+        val gaze = Gaze.from("1")
+        val oneDigit = takeString("1").map(_.toInt)
+        assertEquals(gaze.attempt(oneDigit), Right(1))
+    }
 }

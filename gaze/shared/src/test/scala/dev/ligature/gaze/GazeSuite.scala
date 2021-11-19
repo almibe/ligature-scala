@@ -71,9 +71,4 @@ class GazeSuite extends FunSuite {
         assertEquals(res2, Right(List("5", "6", "7", "8")))
         assert(gaze.isComplete())
     }
-
-    test("map test") {
-        val gaze = Gaze.from("1")
-        ???
-    }
 }

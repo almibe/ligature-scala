@@ -5,11 +5,12 @@
 package dev.ligature.gaze
 
 import dev.ligature.gaze.Gaze
+import scala.collection.mutable.ArrayBuffer
 
 trait NoMatch
 object NoMatch extends NoMatch
 
-def takeString(toMatch: String): (gaze: Gaze[Char]) => Either[NoMatch, String] = {
+def takeString(toMatch: String): Nibbler[Char, NoMatch, String] = {
     //    let graphemes = to_match.graphemes(true).collect::<Vec<&str>>();
     val chars = toMatch.toVector
     return (gaze) => {
@@ -59,7 +60,7 @@ def takeString(toMatch: String): (gaze: Gaze[Char]) => Either[NoMatch, String] =
 //      }
 //  }
 
-def takeWhile(matcher: (toMatch: Char) => Boolean): (gaze: Gaze[Char]) => Either[NoMatch, String] = {
+def takeWhile(matcher: (toMatch: Char) => Boolean): Nibbler[Char, NoMatch, String] = {
     return (gaze: Gaze[Char]) => {
         val res = StringBuilder()
         var matched = true
@@ -99,9 +100,38 @@ def takeWhile(matcher: (toMatch: Char) => Boolean): (gaze: Gaze[Char]) => Either
     }
 }
 
-def takeCharacters(chars: Char*): (gaze: Gaze[Char]) => Either[NoMatch, String] = takeWhile { chars.contains(_) }
+def takeCharacters(chars: Char*): Nibbler[Char, NoMatch, String] = takeWhile { chars.contains(_) }
 
-// /// A Step that takes values from the String until the predicate passes.
+def takeFirst[I, O](nibblers: Nibbler[I, NoMatch, O]*): Nibbler[I, NoMatch, O] = {
+    (gaze: Gaze[I]) => {
+        var finalRes: Either[NoMatch, O] = Left(NoMatch)
+        val nibbler = nibblers.find { nibbler =>
+            finalRes = gaze.attempt(nibbler)
+            finalRes.isRight
+        }
+        finalRes
+    }
+}
+
+def repeat[I, O](nibbler: Nibbler[I, NoMatch, O]): Nibbler[I, NoMatch, List[O]] = {
+    (gaze: Gaze[I]) => {
+        val allMatches = ArrayBuffer[O]()
+        var continue = true
+        while(continue) {
+            gaze.attempt(nibbler) match {
+                case Left(_) => continue = false
+                case Right(v) => allMatches.append(v)
+            }
+        }
+        if (allMatches.isEmpty) {
+            Left(NoMatch)
+        } else {
+            Right(allMatches.toList)
+        }
+    }
+}
+
+// /// A Nibbler that takes values from the String until the predicate passes.
 // pub struct TakeUntil<'a>(pub &'a dyn Fn(&str) -> bool);
 
 // impl Tokenizer<String> for TakeUntil<'_> {
