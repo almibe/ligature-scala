@@ -5,14 +5,14 @@
 package dev.ligature.lig
 
 import scala.collection.mutable.ArrayBuffer
-import dev.ligature.gaze.{Gaze, NoMatch, Step, takeCharacters, takeString, takeWhile}
+import dev.ligature.gaze.{Gaze, NoMatch, Nibbler, takeCharacters, takeString, takeWhile}
 import dev.ligature.{Identifier, IntegerLiteral, Statement, StringLiteral, Value}
 
 case class LigError(val message: String)
 
 class LigReader {
-    private val whiteSpaceStep = takeCharacters(' ', '\t')
-    private val whiteSpaceAndNewLineStep = takeCharacters(' ', '\t', '\n')
+    private val whiteSpaceNibbler = takeCharacters(' ', '\t')
+    private val whiteSpaceAndNewLineNibbler = takeCharacters(' ', '\t', '\n')
  
     def parse(input: String): Either[LigError, Iterator[Statement]] = {
         val gaze = Gaze.from(input)
@@ -28,27 +28,27 @@ class LigReader {
 
     def parseStatement(gaze: Gaze[Char]): Either[LigError, Statement] = {
         val res = for {
-            _ <- gaze.attempt(whiteSpaceAndNewLineStep).orElse(Right(())) //TODO this orElse should be eventually encoded in Gaze
+            _ <- gaze.attempt(whiteSpaceAndNewLineNibbler).orElse(Right(())) //TODO this orElse should be eventually encoded in Gaze
             entity <- parseIdentifier(gaze)
-            _ <- gaze.attempt(whiteSpaceStep)
+            _ <- gaze.attempt(whiteSpaceNibbler)
             attribute <- parseIdentifier(gaze)
-            _ <- gaze.attempt(whiteSpaceStep)
+            _ <- gaze.attempt(whiteSpaceNibbler)
             value <- parseValue(gaze)
-            _ <- gaze.attempt(whiteSpaceStep)
+            _ <- gaze.attempt(whiteSpaceNibbler)
             context <- parseIdentifier(gaze)
-            _ <- gaze.attempt(whiteSpaceAndNewLineStep).orElse(Right(())) //TODO this orElse should be eventually encoded in Gaze
+            _ <- gaze.attempt(whiteSpaceAndNewLineNibbler).orElse(Right(())) //TODO this orElse should be eventually encoded in Gaze
         } yield ((Statement(entity, attribute, value, context)))
         res.left.map(_ => LigError("Could not create Statement."))
     }
 
     def parseIdentifier(gaze: Gaze[Char]): Either[LigError, Identifier] = {
-        val openIdentifierStep = takeString("<")
-        val closeIdentifierStep = takeString(">")
+        val openIdentifierNibbler = takeString("<")
+        val closeIdentifierNibbler = takeString(">")
 
         val id = for {
-            _ <- gaze.attempt(openIdentifierStep)
-            id <- gaze.attempt(identifierStep)
-            _ <- gaze.attempt(closeIdentifierStep)
+            _ <- gaze.attempt(openIdentifierNibbler)
+            id <- gaze.attempt(identifierNibbler)
+            _ <- gaze.attempt(closeIdentifierNibbler)
         } yield id//.left.map(_ => LigError("Could not create Identifier."))
 
         id match {
@@ -74,9 +74,9 @@ class LigReader {
     }
 
     def parseIntegerLiteral(gaze: Gaze[Char]): Either[LigError, IntegerLiteral] = {
-        val numberStep = takeCharacters(('0' to '9').toSeq*)
+        val numberNibbler = takeCharacters(('0' to '9').toSeq*)
 
-        gaze.attempt(numberStep) match {
+        gaze.attempt(numberNibbler) match {
             case Left(_) => Left(LigError("Could not parse Integer."))
             case Right(i) => Right(IntegerLiteral(i.toLong)) //TODO toLong can throw
         }
@@ -85,7 +85,7 @@ class LigReader {
     def parseStringLiteral(gaze: Gaze[Char]): Either[LigError, StringLiteral] = {
         val quote = takeString("\"")
 
-        val res = gaze.attempt(quote, stringContentStep)
+        val res = gaze.attempt(quote, stringContentNibbler)
 
         res match {
             case Left(_) => Left(LigError("Could not parse String."))
@@ -93,15 +93,15 @@ class LigReader {
         }
     }
 
-    private val identifierStep = takeWhile { c =>
+    private val identifierNibbler = takeWhile { c =>
         "[a-zA-Z0-9-._~:/?#\\[\\]@!$&'()*+,;%=]".r.matches(c.toString)
     }
 
-    private val stringContentStep = (gaze: Gaze[Char]) => {
+    private val stringContentNibbler: Nibbler[Char, NoMatch, String] = (gaze: Gaze[Char]) => {
         //Full pattern \"(([^\x00-\x1F\"\\]|\\[\"\\/bfnrt]|\\u[0-9a-fA-F]{4})*)\"
         val commandChars = 0x00.toChar to 0x1F.toChar
         val validHexChar = (c: Char) => { ( ('0' to '9' contains c) || ('a' to 'f' contains c) || ('A' to 'F' contains c) ) }
-        val hexStep = takeWhile(validHexChar)
+        val hexNibbler = takeWhile(validHexChar)
 
         var sb = StringBuilder()
         var offset = 0 //TODO delete
@@ -122,7 +122,7 @@ class LigReader {
                             case '\\' | '"' | 'b' | 'f' | 'n' | 'r' | 't' => sb.append(c)
                             case 'u' => {
                                 sb.append(c)
-                                val res = gaze.attempt(hexStep)
+                                val res = gaze.attempt(hexNibbler)
                                 res match {
                                     case Left(_) => fail = true
                                     case Right(res) => {
