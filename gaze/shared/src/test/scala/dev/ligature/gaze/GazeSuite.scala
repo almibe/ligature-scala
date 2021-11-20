@@ -45,30 +45,4 @@ class GazeSuite extends FunSuite {
         assertEquals(gaze.next(), None)
         assert(gaze.isComplete())
     }
-
-    test("multiple nibblers succeed") {
-        val gaze = Gaze.from("5678")
-        val nibbler5 = takeString("5")
-        val nibbler6 = takeString("6")
-        val nibbler7 = takeString("7")
-        val nibbler8 = takeString("8")
-        val res = gaze.attempt(nibbler5, nibbler6, nibbler7, nibbler8)
-        assertEquals(res, Right(List("5", "6", "7", "8")))
-        assert(gaze.isComplete())
-    }
-
-    test("multiple nibblers fail and retry") {
-        val gaze = Gaze.from("5678")
-        val nibbler5 = takeString("5")
-        val nibbler6 = takeString("6")
-        val nibbler7 = takeString("7")
-        val nibbler8 = takeString("8")
-        val res = gaze.attempt(nibbler5, nibbler6, nibbler8)
-        assertEquals(res, Left(NoMatch))
-        assert(!gaze.isComplete())
-
-        val res2 = gaze.attempt(nibbler5, nibbler6, nibbler7, nibbler8)
-        assertEquals(res2, Right(List("5", "6", "7", "8")))
-        assert(gaze.isComplete())
-    }
 }

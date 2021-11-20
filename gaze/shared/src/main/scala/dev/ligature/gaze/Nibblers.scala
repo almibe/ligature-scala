@@ -113,6 +113,29 @@ def takeFirst[I, O](nibblers: Nibbler[I, NoMatch, O]*): Nibbler[I, NoMatch, O] =
     }
 }
 
+def takeAll[I, O](nibblers: Nibbler[I, NoMatch, O]*): Nibbler[I, NoMatch, List[O]] = {
+    (gaze: Gaze[I]) => {
+        val results = ArrayBuffer[O]()
+        val res = nibblers.forall { nibbler =>
+            val res = gaze.attempt(nibbler)
+            res match {
+                case Right(res) => {
+                    results.append(res)
+                    true
+                }
+                case Left(e) => {
+                    false
+                }
+            }
+        }
+        if (res) {
+            Right(results.toList)
+        } else {
+            Left(NoMatch)
+        }
+    }
+}
+
 def repeat[I, O](nibbler: Nibbler[I, NoMatch, O]): Nibbler[I, NoMatch, List[O]] = {
     (gaze: Gaze[I]) => {
         val allMatches = ArrayBuffer[O]()
