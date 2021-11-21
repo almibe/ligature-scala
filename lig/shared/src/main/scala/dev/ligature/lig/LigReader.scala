@@ -5,7 +5,7 @@
 package dev.ligature.lig
 
 import scala.collection.mutable.ArrayBuffer
-import dev.ligature.gaze.{Gaze, NoMatch, Nibbler, takeAll, takeCharacters, takeString, takeWhile}
+import dev.ligature.gaze.{Gaze, NoMatch, Nibbler, between, takeAll, takeCharacters, takeString, takeWhile}
 import dev.ligature.{Identifier, IntegerLiteral, Statement, StringLiteral, Value}
 
 case class LigError(val message: String)
@@ -41,18 +41,12 @@ def parseStatement(gaze: Gaze[Char]): Either[LigError, Statement] = {
 }
 
 def parseIdentifier(gaze: Gaze[Char]): Either[LigError, Identifier] = {
-    val openIdentifierNibbler = takeString("<")
-    val closeIdentifierNibbler = takeString(">")
-
-    val id = for {
-        _ <- gaze.attempt(openIdentifierNibbler)
-        id <- gaze.attempt(identifierNibbler)
-        _ <- gaze.attempt(closeIdentifierNibbler)
-    } yield id//.left.map(_ => LigError("Could not create Identifier."))
+    val id = gaze.attempt(identifierNibbler)
 
     id match {
-        case Right(id) => createIdentifier(id)
-        case Left(_) => Left(LigError("Could not create Identifier."))
+        case Right(Right(id)) => Right(id)
+        case Right(Left(_)) => Left(LigError("Could not create Identifier."))
+        case _ => Left(LigError("Could not create Identifier."))
     }
 }
 
@@ -90,9 +84,9 @@ def parseStringLiteral(gaze: Gaze[Char]): Either[LigError, StringLiteral] = {
     }
 }
 
-val identifierNibbler = takeWhile { c =>
-    "[a-zA-Z0-9-._~:/?#\\[\\]@!$&'()*+,;%=]".r.matches(c.toString)
-}
+val identifierNibbler = between(takeString("<"), takeWhile { c =>
+         "[a-zA-Z0-9-._~:/?#\\[\\]@!$&'()*+,;%=]".r.matches(c.toString)
+    }, takeString(">")).map { idText => Identifier.fromString(idText)}
 
 val stringContentNibbler: Nibbler[Char, NoMatch, String] = (gaze: Gaze[Char]) => {
     //Full pattern \"(([^\x00-\x1F\"\\]|\\[\"\\/bfnrt]|\\u[0-9a-fA-F]{4})*)\"
