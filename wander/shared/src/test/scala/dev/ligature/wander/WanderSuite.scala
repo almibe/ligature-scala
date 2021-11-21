@@ -11,19 +11,19 @@ import java.io.File
 import scala.io.Source
 
 class WanderSuite extends FunSuite {
-    // test("Wander Token test") {
-    //     // testData.foreach { instance =>
-    //     //     val tokens = tokenize(instance.script)
-    //     //     assertEquals(tokens, instance.tokens, s"tokens are not the same for ${instance.description}")
-    //     // }
-    // }
-
-    test("Wander AST test") {
+    test("Wander Token test") {
         testData.foreach { instance =>
-            val ast = parse(instance.script)
-            assertEquals(ast, instance.ast, s"AST values are not the same for ${instance.description}")
+            val tokens = tokenize(instance.script)
+            assertEquals(tokens, Right(instance.tokens), s"tokens are not the same for ${instance.description}")
         }
     }
+
+    // test("Wander AST test") {
+    //     testData.foreach { instance =>
+    //         val ast = parse(instance.script)
+    //         assertEquals(ast, instance.ast, s"AST values are not the same for ${instance.description}")
+    //     }
+    // }
 
     // test("Wander Result test") {
     //     // testData.foreach { instance =>
