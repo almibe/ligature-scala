@@ -4,12 +4,31 @@
 
 package dev.ligature.indexeddb
 
-//import dev.ligature.Identifier
+import cats.effect.{IO, Resource}
+import dev.ligature.{Dataset, Ligature, QueryTx, WriteTx}
+import fs2.Stream
 
-object TutorialApp {
-  def main(args: Array[String]): Unit = {
-    println(s"Hello world!")
-    //val id = Identifier.fromString("hello")
-    //println(s"Hello world $id!")
-  }
+class IndexedDBLigature extends Ligature {
+  def allDatasets(): Stream[IO, Dataset] = ???
+
+  def datasetExists(dataset: Dataset): IO[Boolean] = ???
+
+  def matchDatasetsPrefix(
+                           prefix: String,
+                         ): Stream[IO, Dataset] = ???
+
+  def matchDatasetsRange(
+                          start: String,
+                          end: String,
+                        ): Stream[IO, Dataset] = ???
+
+  def createDataset(dataset: Dataset): IO[Unit] = ???
+
+  def deleteDataset(dataset: Dataset): IO[Unit] = ???
+
+  def query(dataset: Dataset): Resource[IO, QueryTx] = ???
+
+  def write(dataset: Dataset): Resource[IO, WriteTx] = ???
+
+  def close(): IO[Unit] = ???
 }
