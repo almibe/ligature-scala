@@ -4,4 +4,6 @@
 
 package dev.ligature.wander
 
+import dev.ligature.wander.parser.WanderResult
+
 def run(script: String): WanderResult = ???

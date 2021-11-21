@@ -12,8 +12,10 @@ import dev.ligature.{Identifier, IntegerLiteral}
 
 case class TestData(val description: String,
     val script: String,
-    val ast: Script, 
-    val result: WanderResult)
+    val tokens: List[Token],
+//    val ast: Script, 
+//    val result: WanderResult
+    )
 
 /*
  * This file holds a Map that contains the expected ASTs for Wander's test files.
@@ -21,34 +23,52 @@ case class TestData(val description: String,
 val testData = List(
         //primitives
         TestData(
-            description = "boolean primitive", 
+            description = "true boolean primitive", 
             script = "true",
-            ast = Script(List(BooleanValue(true))), 
-            result = ScriptResult(BooleanValue(true))),
+            tokens = List(Token("true", TokenType.Boolean)),
+//            ast = Script(List(BooleanValue(true))), 
+//            result = ScriptResult(BooleanValue(true))
+        ),
 
         TestData(
-            description = "boolean primitive", 
+            description = "false boolean primitive", 
             script = "false",
-            ast = Script(List(BooleanValue(false))), 
-            result = ScriptResult(BooleanValue(false))),
+            tokens = List(Token("false", TokenType.Boolean)),
+//            ast = Script(List(BooleanValue(false))), 
+//          result = ScriptResult(BooleanValue(false))
+        ),
+
+        TestData(
+            description = "true boolean primitive with trailing whitespace", 
+            script = "true   ",
+            tokens = List(Token("true", TokenType.Boolean), Token("   ", TokenType.Spaces)),
+//            ast = Script(List(BooleanValue(true))), 
+//            result = ScriptResult(BooleanValue(true))
+        ),
 
         TestData(
             description = "identifier",
             script = "<test>", //TODO this is wrong
-            ast = Script(List(LigatureValue(Identifier.fromString("test").getOrElse(???)))),
-            result = ScriptResult(LigatureValue(Identifier.fromString("test").getOrElse(???)))),
+            tokens = List(Token("test", TokenType.Identifier)),
+//            ast = Script(List(LigatureValue(Identifier.fromString("test").getOrElse(???)))),
+//            result = ScriptResult(LigatureValue(Identifier.fromString("test").getOrElse(???)))
+        ),
 
         TestData(
             description = "integer",
             script = "24601", //TODO this is wrong
-            ast = Script(List(LigatureValue(IntegerLiteral(24601)))),
-            result = ScriptResult(LigatureValue(IntegerLiteral(24601)))),
+            tokens = List(),
+//            ast = Script(List(LigatureValue(IntegerLiteral(24601)))),
+//            result = ScriptResult(LigatureValue(IntegerLiteral(24601)))
+        ),
 
         TestData(
             description = "negative integer",
             script = "-111", //TODO this is wrong
-            ast = Script(List(LigatureValue(IntegerLiteral(-111)))),
-            result = ScriptResult(LigatureValue(IntegerLiteral(-111)))),
+            tokens = List(),
+//            ast = Script(List(LigatureValue(IntegerLiteral(-111)))),
+//            result = ScriptResult(LigatureValue(IntegerLiteral(-111)))
+        ),
 
     // ("integer.wander" -> Script(List(
     //         valueExpression(LongLiteral.from(24601n).unsafeCoerce())

@@ -4,10 +4,8 @@
 
 package dev.ligature.wander
 
-/*
- * This file holds a Map that contains the expected ASTs for Wander's test files.
- */
-val ast = Map(
-    //primitives
-    ("boolean.wander" -> Script()),
-)
+import munit.FunSuite
+
+class GraphSuite extends FunSuite {
+  
+}

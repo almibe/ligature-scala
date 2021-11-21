@@ -2,8 +2,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at https://mozilla.org/MPL/2.0/. */
 
-package dev.ligature.wander
+package dev.ligature.wander.parser
 
+import dev.ligature.wander.Bindings
 import cats.effect.IO
 import dev.ligature.{Statement, Value}
 import fs2.Stream
@@ -11,14 +12,35 @@ import fs2.Stream
 /**
  * Represents a Value in the Wander language.
  */
-enum WanderValue:
-    case LigatureValue(value: Value)
-    case BooleanValue(value: Boolean)
-    case StatementValue(value: Statement)
-    case Nothing
-    case FunctionDefinitionValue(value: FunctionDefinition)
-    case NativeFunctionValue(value: NativeFunction)
-    case ResultStream(stream: Stream[IO, WanderValue])
+sealed trait WanderValue extends Expression
+
+case class LigatureValue(value: Value) extends WanderValue {
+    override def eval(binding: Bindings) = ???
+}
+
+case class BooleanValue(value: Boolean) extends WanderValue {
+    override def eval(binding: Bindings) = ???
+}
+
+case class StatementValue(value: Statement) extends WanderValue {
+    override def eval(binding: Bindings) = ???
+}
+
+object Nothing extends WanderValue {
+    override def eval(binding: Bindings) = ???
+}
+
+case class FunctionDefinitionValue(value: FunctionDefinition) extends WanderValue {
+    override def eval(binding: Bindings) = ???
+}
+
+case class NativeFunctionValue(value: NativeFunction) extends WanderValue {
+    override def eval(binding: Bindings) = ???
+}
+
+case class ResultStream(stream: Stream[IO, WanderValue]) extends WanderValue {
+    override def eval(binding: Bindings) = ???
+}
 
 /**
  * Represents a Name in the Wander language.
