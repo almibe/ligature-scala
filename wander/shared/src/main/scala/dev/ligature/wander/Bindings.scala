@@ -4,6 +4,7 @@
 
 package dev.ligature.wander
 
+import dev.ligature.wander.parser.{Name, WanderValue}
 import scala.collection.mutable.Map
 import scala.collection.mutable.ArrayBuffer
 import scala.collection.mutable.HashMap

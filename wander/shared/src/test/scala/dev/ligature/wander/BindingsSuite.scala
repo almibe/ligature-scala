@@ -4,6 +4,7 @@
 
 package dev.ligature.wander
 
+import dev.ligature.wander.parser.{LigatureValue, Name}
 import dev.ligature.{Identifier, StringLiteral}
 import munit.FunSuite
 
@@ -11,10 +12,9 @@ class BindingsSuite extends FunSuite {
     val identifier = Name("test")
     val identifier2 = Name("test2")
 
-    val value1 = WanderValue.LigatureValue(StringLiteral("this is a test"))
-    val value2 = WanderValue.LigatureValue(StringLiteral("this is a test2"))
-    val value3 = WanderValue.LigatureValue(StringLiteral("this is a test3"))
-
+    val value1 = LigatureValue(StringLiteral("this is a test"))
+    val value2 = LigatureValue(StringLiteral("this is a test2"))
+    val value3 = LigatureValue(StringLiteral("this is a test3"))
 
     test("add single value and read") {
         val binding = Bindings()
