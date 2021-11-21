@@ -5,7 +5,7 @@
 package dev.ligature.lig
 
 import scala.collection.mutable.ArrayBuffer
-import dev.ligature.gaze.{Gaze, NoMatch, Nibbler, takeCharacters, takeString, takeWhile}
+import dev.ligature.gaze.{Gaze, NoMatch, Nibbler, takeAll, takeCharacters, takeString, takeWhile}
 import dev.ligature.{Identifier, IntegerLiteral, Statement, StringLiteral, Value}
 
 case class LigError(val message: String)
@@ -83,9 +83,7 @@ class LigReader {
     }
 
     def parseStringLiteral(gaze: Gaze[Char]): Either[LigError, StringLiteral] = {
-        val quote = takeString("\"")
-
-        val res = gaze.attempt(quote, stringContentNibbler)
+        val res = gaze.attempt(takeAll(takeString("\""), stringContentNibbler))
 
         res match {
             case Left(_) => Left(LigError("Could not parse String."))
