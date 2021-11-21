@@ -154,6 +154,10 @@ def repeat[I, O](nibbler: Nibbler[I, NoMatch, O]): Nibbler[I, NoMatch, List[O]] 
     }
 }
 
+def between[I, O](wrapper: Nibbler[I, NoMatch, O], content: Nibbler[I, NoMatch, O]) = takeAll(wrapper, content, wrapper).map(_(1))
+
+def between[I, O](open: Nibbler[I, NoMatch, O], content: Nibbler[I, NoMatch, O], close: Nibbler[I, NoMatch, O]) = takeAll(open, content, close).map(_(1))
+
 // /// A Nibbler that takes values from the String until the predicate passes.
 // pub struct TakeUntil<'a>(pub &'a dyn Fn(&str) -> bool);
 
