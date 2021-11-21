@@ -17,12 +17,14 @@ Use `test` to run tests.
 
 ### Projects
 
-| Name               | Description                                                                      | JVM | JS |
-| ------------------ | -------------------------------------------------------------------------------- | --- | -- |
-| ligature           | Common data types and traits for Ligature                                        | ✅   | ✅ |
-| lig                | A simple serialization format for Ligature                                       | ✅   | ✅ |
-| ligature-in-memory | An in-memory implementation of Ligature                                          | ✅   | ✅ |
-| ligature-indexeddb | An implementation of Ligature targeting the browser using IndexedDB for storage. |     | ✅ |
-| slonky             | A JVM based server for Ligature following the ligature-http spec.                |     | ✅ |
-| wander             | A scripting language for working with Ligature.                                  | ✅   | ✅ |
-| gaze               | A utility library for parsing text.                                              | ✅   | ✅ |
+| Name                | Description                                                                      | JVM | JS |
+| ------------------- | -------------------------------------------------------------------------------- | --- | -- |
+| ligature            | Common data types and traits for Ligature                                        | ✅   | ✅ |
+| ligature-test-suite | A shared test suite for Ligature                                                 | ✅   | ✅ |
+| lig                 | A simple serialization format for Ligature                                       | ✅   | ✅ |
+| ligature-in-memory  | An in-memory implementation of Ligature                                          | ✅   | ✅ |
+| ligature-indexeddb  | An implementation of Ligature targeting the browser using IndexedDB for storage. |     | ✅ |
+| slonky              | A JVM based server for Ligature following the ligature-http spec.                |     | ✅ |
+| wander              | A scripting language for working with Ligature.                                  | ✅   | ✅ |
+| gaze                | A utility library for parsing text.                                              | ✅   | ✅ |
+| ligature-lab        | A simple UI for working with Ligature in the browser.                            |     | ✅ |
