@@ -10,142 +10,140 @@ import dev.ligature.{Identifier, IntegerLiteral, Statement, StringLiteral, Value
 
 case class LigError(val message: String)
 
-class LigReader {
-    private val whiteSpaceNibbler = takeCharacters(' ', '\t')
-    private val whiteSpaceAndNewLineNibbler = takeCharacters(' ', '\t', '\n')
- 
-    def parse(input: String): Either[LigError, Iterator[Statement]] = {
-        val gaze = Gaze.from(input)
-        val statements: ArrayBuffer[Statement] = ArrayBuffer()
-        while (!gaze.isComplete()) {
-            parseStatement(gaze) match {
-                case Left(resStatement) => return Left(resStatement)
-                case Right(resStatement) => statements.append(resStatement)
-            }
-        }
-        return Right(statements.iterator)
-    }
+val whiteSpaceNibbler = takeCharacters(' ', '\t')
+val whiteSpaceAndNewLineNibbler = takeCharacters(' ', '\t', '\n')
 
-    def parseStatement(gaze: Gaze[Char]): Either[LigError, Statement] = {
-        val res = for {
-            _ <- gaze.attempt(whiteSpaceAndNewLineNibbler).orElse(Right(())) //TODO this orElse should be eventually encoded in Gaze
-            entity <- parseIdentifier(gaze)
-            _ <- gaze.attempt(whiteSpaceNibbler)
-            attribute <- parseIdentifier(gaze)
-            _ <- gaze.attempt(whiteSpaceNibbler)
-            value <- parseValue(gaze)
-            _ <- gaze.attempt(whiteSpaceNibbler)
-            context <- parseIdentifier(gaze)
-            _ <- gaze.attempt(whiteSpaceAndNewLineNibbler).orElse(Right(())) //TODO this orElse should be eventually encoded in Gaze
-        } yield ((Statement(entity, attribute, value, context)))
-        res.left.map(_ => LigError("Could not create Statement."))
-    }
-
-    def parseIdentifier(gaze: Gaze[Char]): Either[LigError, Identifier] = {
-        val openIdentifierNibbler = takeString("<")
-        val closeIdentifierNibbler = takeString(">")
-
-        val id = for {
-            _ <- gaze.attempt(openIdentifierNibbler)
-            id <- gaze.attempt(identifierNibbler)
-            _ <- gaze.attempt(closeIdentifierNibbler)
-        } yield id//.left.map(_ => LigError("Could not create Identifier."))
-
-        id match {
-            case Right(id) => createIdentifier(id)
-            case Left(_) => Left(LigError("Could not create Identifier."))
+def parse(input: String): Either[LigError, Iterator[Statement]] = {
+    val gaze = Gaze.from(input)
+    val statements: ArrayBuffer[Statement] = ArrayBuffer()
+    while (!gaze.isComplete()) {
+        parseStatement(gaze) match {
+            case Left(resStatement) => return Left(resStatement)
+            case Right(resStatement) => statements.append(resStatement)
         }
     }
+    return Right(statements.iterator)
+}
 
-    def createIdentifier(id: String): Either[LigError, Identifier] =
-        Identifier.fromString(id).left.map(_ => LigError("Invalid Identifier Id - $id"))
+def parseStatement(gaze: Gaze[Char]): Either[LigError, Statement] = {
+    val res = for {
+        _ <- gaze.attempt(whiteSpaceAndNewLineNibbler).orElse(Right(())) //TODO this orElse should be eventually encoded in Gaze
+        entity <- parseIdentifier(gaze)
+        _ <- gaze.attempt(whiteSpaceNibbler)
+        attribute <- parseIdentifier(gaze)
+        _ <- gaze.attempt(whiteSpaceNibbler)
+        value <- parseValue(gaze)
+        _ <- gaze.attempt(whiteSpaceNibbler)
+        context <- parseIdentifier(gaze)
+        _ <- gaze.attempt(whiteSpaceAndNewLineNibbler).orElse(Right(())) //TODO this orElse should be eventually encoded in Gaze
+    } yield ((Statement(entity, attribute, value, context)))
+    res.left.map(_ => LigError("Could not create Statement."))
+}
 
-    def parseValue(gaze: Gaze[Char]): Either[LigError, Value] = {
-        val entityRes = parseIdentifier(gaze)
-        if (entityRes.isRight) return entityRes
+def parseIdentifier(gaze: Gaze[Char]): Either[LigError, Identifier] = {
+    val openIdentifierNibbler = takeString("<")
+    val closeIdentifierNibbler = takeString(">")
 
-        val integerRes = parseIntegerLiteral(gaze)
-        if (integerRes.isRight) return integerRes
+    val id = for {
+        _ <- gaze.attempt(openIdentifierNibbler)
+        id <- gaze.attempt(identifierNibbler)
+        _ <- gaze.attempt(closeIdentifierNibbler)
+    } yield id//.left.map(_ => LigError("Could not create Identifier."))
 
-        val stringRes = parseStringLiteral(gaze)
-        if (stringRes.isRight) return stringRes
-
-        return Left(LigError("Unsupported Value\n${gaze.remainingText()}"))
+    id match {
+        case Right(id) => createIdentifier(id)
+        case Left(_) => Left(LigError("Could not create Identifier."))
     }
+}
 
-    def parseIntegerLiteral(gaze: Gaze[Char]): Either[LigError, IntegerLiteral] = {
-        val numberNibbler = takeCharacters(('0' to '9').toSeq*)
+def createIdentifier(id: String): Either[LigError, Identifier] =
+    Identifier.fromString(id).left.map(_ => LigError("Invalid Identifier Id - $id"))
 
-        gaze.attempt(numberNibbler) match {
-            case Left(_) => Left(LigError("Could not parse Integer."))
-            case Right(i) => Right(IntegerLiteral(i.toLong)) //TODO toLong can throw
-        }
+def parseValue(gaze: Gaze[Char]): Either[LigError, Value] = {
+    val entityRes = parseIdentifier(gaze)
+    if (entityRes.isRight) return entityRes
+
+    val integerRes = parseIntegerLiteral(gaze)
+    if (integerRes.isRight) return integerRes
+
+    val stringRes = parseStringLiteral(gaze)
+    if (stringRes.isRight) return stringRes
+
+    return Left(LigError("Unsupported Value\n${gaze.remainingText()}"))
+}
+
+def parseIntegerLiteral(gaze: Gaze[Char]): Either[LigError, IntegerLiteral] = {
+    val numberNibbler = takeCharacters(('0' to '9').toSeq*)
+
+    gaze.attempt(numberNibbler) match {
+        case Left(_) => Left(LigError("Could not parse Integer."))
+        case Right(i) => Right(IntegerLiteral(i.toLong)) //TODO toLong can throw
     }
+}
 
-    def parseStringLiteral(gaze: Gaze[Char]): Either[LigError, StringLiteral] = {
-        val res = gaze.attempt(takeAll(takeString("\""), stringContentNibbler))
+def parseStringLiteral(gaze: Gaze[Char]): Either[LigError, StringLiteral] = {
+    val res = gaze.attempt(takeAll(takeString("\""), stringContentNibbler))
 
-        res match {
-            case Left(_) => Left(LigError("Could not parse String."))
-            case Right(res) => Right(StringLiteral(res(1)))
-        }
+    res match {
+        case Left(_) => Left(LigError("Could not parse String."))
+        case Right(res) => Right(StringLiteral(res(1)))
     }
+}
 
-    private val identifierNibbler = takeWhile { c =>
-        "[a-zA-Z0-9-._~:/?#\\[\\]@!$&'()*+,;%=]".r.matches(c.toString)
-    }
+val identifierNibbler = takeWhile { c =>
+    "[a-zA-Z0-9-._~:/?#\\[\\]@!$&'()*+,;%=]".r.matches(c.toString)
+}
 
-    private val stringContentNibbler: Nibbler[Char, NoMatch, String] = (gaze: Gaze[Char]) => {
-        //Full pattern \"(([^\x00-\x1F\"\\]|\\[\"\\/bfnrt]|\\u[0-9a-fA-F]{4})*)\"
-        val commandChars = 0x00.toChar to 0x1F.toChar
-        val validHexChar = (c: Char) => { ( ('0' to '9' contains c) || ('a' to 'f' contains c) || ('A' to 'F' contains c) ) }
-        val hexNibbler = takeWhile(validHexChar)
+val stringContentNibbler: Nibbler[Char, NoMatch, String] = (gaze: Gaze[Char]) => {
+    //Full pattern \"(([^\x00-\x1F\"\\]|\\[\"\\/bfnrt]|\\u[0-9a-fA-F]{4})*)\"
+    val commandChars = 0x00.toChar to 0x1F.toChar
+    val validHexChar = (c: Char) => { ( ('0' to '9' contains c) || ('a' to 'f' contains c) || ('A' to 'F' contains c) ) }
+    val hexNibbler = takeWhile(validHexChar)
 
-        var sb = StringBuilder()
-        var offset = 0 //TODO delete
-        var fail = false
-        var complete = false
-        while (!complete && !fail && gaze.peek().isDefined) {
-            val c = gaze.next().get
-            if (commandChars.contains(c)) {
-                fail = true
-            } else if (c == '"') {
-                complete = true
-            } else if (c == '\\') {
-                sb.append(c)
-                gaze.next() match {
-                    case None => fail = true
-                    case Some(c) => {
-                        c match {
-                            case '\\' | '"' | 'b' | 'f' | 'n' | 'r' | 't' => sb.append(c)
-                            case 'u' => {
-                                sb.append(c)
-                                val res = gaze.attempt(hexNibbler)
-                                res match {
-                                    case Left(_) => fail = true
-                                    case Right(res) => {
-                                        if (res.length == 4) {
-                                            sb.append(res)
-                                        } else {
-                                            fail = true
-                                        }
+    var sb = StringBuilder()
+    var offset = 0 //TODO delete
+    var fail = false
+    var complete = false
+    while (!complete && !fail && gaze.peek().isDefined) {
+        val c = gaze.next().get
+        if (commandChars.contains(c)) {
+            fail = true
+        } else if (c == '"') {
+            complete = true
+        } else if (c == '\\') {
+            sb.append(c)
+            gaze.next() match {
+                case None => fail = true
+                case Some(c) => {
+                    c match {
+                        case '\\' | '"' | 'b' | 'f' | 'n' | 'r' | 't' => sb.append(c)
+                        case 'u' => {
+                            sb.append(c)
+                            val res = gaze.attempt(hexNibbler)
+                            res match {
+                                case Left(_) => fail = true
+                                case Right(res) => {
+                                    if (res.length == 4) {
+                                        sb.append(res)
+                                    } else {
+                                        fail = true
                                     }
                                 }
                             }
-                            case _ => {
-                                fail = true
-                            }
+                        }
+                        case _ => {
+                            fail = true
                         }
                     }
                 }
-            } else {
-                sb.append(c)
             }
-        }
-        if (fail) {
-            Left(NoMatch)
         } else {
-            Right(sb.toString)
+            sb.append(c)
         }
+    }
+    if (fail) {
+        Left(NoMatch)
+    } else {
+        Right(sb.toString)
     }
 }
