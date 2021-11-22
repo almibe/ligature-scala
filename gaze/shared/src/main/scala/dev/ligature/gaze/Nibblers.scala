@@ -6,6 +6,7 @@ package dev.ligature.gaze
 
 import dev.ligature.gaze.Gaze
 import scala.collection.mutable.ArrayBuffer
+import scala.collection.mutable
 
 trait NoMatch
 object NoMatch extends NoMatch
@@ -36,6 +37,30 @@ def takeString(toMatch: String): Nibbler[Char, NoMatch, String] = {
         } else {
             Left(NoMatch)
         }
+    }
+}
+
+def takeUntil(toMatch: Char): Nibbler[Char, NoMatch, String] = {
+    return (gaze) => {
+        val result = mutable.StringBuilder()
+        var matched = false
+        while(!matched) {
+            val nextChar = gaze.peek()
+            nextChar match {
+                case Some(c) => {
+                    if (c == toMatch) {
+                        matched = true
+                    } else {
+                        gaze.next()
+                        result.append(c)
+                    }
+                }
+                case None => {
+                    matched = true
+                }
+            }
+        }
+        Right(result.toString)
     }
 }
 
@@ -157,61 +182,3 @@ def repeat[I, O](nibbler: Nibbler[I, NoMatch, O]): Nibbler[I, NoMatch, List[O]] 
 def between[I, O](wrapper: Nibbler[I, NoMatch, O], content: Nibbler[I, NoMatch, O]) = takeAll(wrapper, content, wrapper).map(_(1))
 
 def between[I, O](open: Nibbler[I, NoMatch, O], content: Nibbler[I, NoMatch, O], close: Nibbler[I, NoMatch, O]) = takeAll(open, content, close).map(_(1))
-
-// /// A Nibbler that takes values from the String until the predicate passes.
-// pub struct TakeUntil<'a>(pub &'a dyn Fn(&str) -> bool);
-
-// impl Tokenizer<String> for TakeUntil<'_> {
-//     fn attempt(&self, gaze: &mut Gaze) -> Result<String, GazeErr> {
-//         //TODO this will need to be rewritten once handle Unicode better
-//         //TODO also this should share code with TakeWhile
-//         let mut res = String::new();
-//         loop {
-//             let next_value = gaze.peek();
-//             match next_value {
-//                 None => {
-//                     return Ok(res);
-//                 }
-//                 Some(c) => {
-//                     if !self.0(c) {
-//                         res += c;
-//                         gaze.next();
-//                     } else {
-//                         return Ok(res);
-//                     }
-//                 }
-//             }
-//         }
-//     }
-// }
-
-// pub struct TakeFirst<'a, T>(pub Box<[&'a dyn Tokenizer<T>]>);
-
-// impl<T> Tokenizer<T> for TakeFirst<'_, T> {
-//     fn attempt(&self, gaze: &mut Gaze) -> Result<T, GazeErr> {
-//         for step in &*self.0 {
-//             let res = gaze.run(*step);
-//             match res {
-//                 Ok(_) => return res,
-//                 Err(_) => continue,
-//             }
-//         }
-//         Err(GazeErr::NoMatch)
-//     }
-// }
-
-// pub struct TakeAll<'a, T>(pub Box<[&'a dyn Tokenizer<T>]>);
-
-// impl<T> Tokenizer<Box<[T]>> for TakeAll<'_, T> {
-//     fn attempt(&self, gaze: &mut Gaze) -> Result<Box<[T]>, GazeErr> {
-//         let mut res: Vec<T> = Vec::new();
-//         for step in &*self.0 {
-//             let r = gaze.run(*step);
-//             match r {
-//                 Ok(r) => res.push(r),
-//                 Err(_) => return Err(GazeErr::NoMatch),
-//             }
-//         }
-//         Ok(res.into_boxed_slice())
-//     }
-// }
