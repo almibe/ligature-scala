@@ -7,11 +7,9 @@ package dev.ligature.lig
 import scala.collection.mutable.ArrayBuffer
 import dev.ligature.gaze.{Gaze, NoMatch, Nibbler, between, takeAll, takeCharacters, takeString, takeWhile}
 import dev.ligature.{Identifier, IntegerLiteral, Statement, StringLiteral, Value}
+import dev.ligature.lig.LigNibblers.*
 
 case class LigError(val message: String)
-
-val whiteSpaceNibbler = takeCharacters(' ', '\t')
-val whiteSpaceAndNewLineNibbler = takeCharacters(' ', '\t', '\n')
 
 def parse(input: String): Either[LigError, Iterator[Statement]] = {
     val gaze = Gaze.from(input)
@@ -41,7 +39,7 @@ def parseStatement(gaze: Gaze[Char]): Either[LigError, Statement] = {
 }
 
 def parseIdentifier(gaze: Gaze[Char]): Either[LigError, Identifier] = {
-    val id = gaze.attempt(identifierNibbler)
+    val id = gaze.attempt(identifierNibbler).map { idText => Identifier.fromString(idText)}
 
     id match {
         case Right(Right(id)) => Right(id)
@@ -67,8 +65,6 @@ def parseValue(gaze: Gaze[Char]): Either[LigError, Value] = {
 }
 
 def parseIntegerLiteral(gaze: Gaze[Char]): Either[LigError, IntegerLiteral] = {
-    val numberNibbler = takeCharacters(('0' to '9').toSeq*)
-
     gaze.attempt(numberNibbler) match {
         case Left(_) => Left(LigError("Could not parse Integer."))
         case Right(i) => Right(IntegerLiteral(i.toLong)) //TODO toLong can throw
@@ -81,63 +77,5 @@ def parseStringLiteral(gaze: Gaze[Char]): Either[LigError, StringLiteral] = {
     res match {
         case Left(_) => Left(LigError("Could not parse String."))
         case Right(res) => Right(StringLiteral(res(1)))
-    }
-}
-
-val identifierNibbler = between(takeString("<"), takeWhile { c =>
-         "[a-zA-Z0-9-._~:/?#\\[\\]@!$&'()*+,;%=]".r.matches(c.toString)
-    }, takeString(">")).map { idText => Identifier.fromString(idText)}
-
-val stringContentNibbler: Nibbler[Char, NoMatch, String] = (gaze: Gaze[Char]) => {
-    //Full pattern \"(([^\x00-\x1F\"\\]|\\[\"\\/bfnrt]|\\u[0-9a-fA-F]{4})*)\"
-    val commandChars = 0x00.toChar to 0x1F.toChar
-    val validHexChar = (c: Char) => { ( ('0' to '9' contains c) || ('a' to 'f' contains c) || ('A' to 'F' contains c) ) }
-    val hexNibbler = takeWhile(validHexChar)
-
-    var sb = StringBuilder()
-    var offset = 0 //TODO delete
-    var fail = false
-    var complete = false
-    while (!complete && !fail && gaze.peek().isDefined) {
-        val c = gaze.next().get
-        if (commandChars.contains(c)) {
-            fail = true
-        } else if (c == '"') {
-            complete = true
-        } else if (c == '\\') {
-            sb.append(c)
-            gaze.next() match {
-                case None => fail = true
-                case Some(c) => {
-                    c match {
-                        case '\\' | '"' | 'b' | 'f' | 'n' | 'r' | 't' => sb.append(c)
-                        case 'u' => {
-                            sb.append(c)
-                            val res = gaze.attempt(hexNibbler)
-                            res match {
-                                case Left(_) => fail = true
-                                case Right(res) => {
-                                    if (res.length == 4) {
-                                        sb.append(res)
-                                    } else {
-                                        fail = true
-                                    }
-                                }
-                            }
-                        }
-                        case _ => {
-                            fail = true
-                        }
-                    }
-                }
-            }
-        } else {
-            sb.append(c)
-        }
-    }
-    if (fail) {
-        Left(NoMatch)
-    } else {
-        Right(sb.toString)
     }
 }
