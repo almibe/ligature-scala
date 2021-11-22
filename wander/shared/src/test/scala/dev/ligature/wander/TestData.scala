@@ -48,7 +48,7 @@ val testData = List(
 
         TestData(
             description = "identifier",
-            script = "<test>", //TODO this is wrong
+            script = "<test>",
             tokens = List(Token("test", TokenType.Identifier)),
 //            ast = Script(List(LigatureValue(Identifier.fromString("test").getOrElse(???)))),
 //            result = ScriptResult(LigatureValue(Identifier.fromString("test").getOrElse(???)))
@@ -56,36 +56,49 @@ val testData = List(
 
         TestData(
             description = "integer",
-            script = "24601", //TODO this is wrong
-            tokens = List(),
+            script = "24601",
+            tokens = List(Token("24601", TokenType.Integer)),
 //            ast = Script(List(LigatureValue(IntegerLiteral(24601)))),
 //            result = ScriptResult(LigatureValue(IntegerLiteral(24601)))
         ),
 
         TestData(
             description = "negative integer",
-            script = "-111", //TODO this is wrong
-            tokens = List(),
+            script = "-111",
+            tokens = List(Token("-111", TokenType.Integer)),
 //            ast = Script(List(LigatureValue(IntegerLiteral(-111)))),
 //            result = ScriptResult(LigatureValue(IntegerLiteral(-111)))
         ),
 
-    // ("integer.wander" -> Script(List(
-    //         valueExpression(LongLiteral.from(24601n).unsafeCoerce())
-    //     )),
+//         TestData(
+//             description = "comment + nothing test",
+//             script = "#nothing   \n",
+//             tokens = List(Token("#nothing   ", TokenType.Comment), Token("\n", TokenType.NewLine)),
+// //            ast = Script(List(LigatureValue(IntegerLiteral(-111)))),
+// //            result = ScriptResult(LigatureValue(IntegerLiteral(-111)))
+//         ),
 
-    // "nothing.wander" ->
-    //     Script(List()),
+//         TestData(
+//             description = "statement",
+//             script = "<entity> <attribute> 3 <context>",
+//             tokens = List(Token("entity", TokenType.Identifier),
+//                 Token(" ", TokenType.Spaces),
+//                 Token("attribute", TokenType.Identifier),
+//                 Token(" ", TokenType.Spaces),
+//                 Token("3", TokenType.Integer),
+//                 Token(" ", TokenType.Spaces),
+//                 Token("context", TokenType.Identifier)),
+// //            ast = Script(List(LigatureValue(IntegerLiteral(-111)))),
+// //            result = ScriptResult(LigatureValue(IntegerLiteral(-111)))
+//         ),
 
-    // "statement.wander" ->
-    //     Script(List(
-    //         valueExpression(new Statement(new Entity("entity"), new Attribute("attribute"), 3.03, new Entity("context")))
-    //     )),
-
-    // "string.wander" ->
-    //     Script(List(
-    //         valueExpression("Hello")
-    //     )),
+//         TestData(
+//             description = "string",
+//             script = "\"hello world\"",
+//             tokens = List(Token("hello world", TokenType.String)),
+// //            ast = Script(List(LigatureValue(IntegerLiteral(-111)))),
+// //            result = ScriptResult(LigatureValue(IntegerLiteral(-111)))
+//         ),
 
     // //ASSIGNMENT
     // "let.wander" ->

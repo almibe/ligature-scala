@@ -4,13 +4,11 @@
 
 package dev.ligature.wander.lexer
 
-import dev.ligature.gaze.{Gaze, takeFirst, takeString, takeWhile, repeat}
-import dev.ligature.lig.identifierNibbler
+import dev.ligature.gaze.{Gaze, takeAll, takeFirst, takeString, takeUntil, takeWhile, repeat}
+import dev.ligature.lig.LigNibblers
 
 enum TokenType:
-    case Boolean
-    case Spaces
-    case Identifier
+    case Boolean, Spaces, Identifier, Integer, Comment, NewLine, String
 
 case class Token(val content: String, val tokenType: TokenType)
 
@@ -24,10 +22,18 @@ def tokenize(input: String): Either[TokenizeError, List[Token]] = {
   }
 }
 
+val stringTokenNib = LigNibblers.stringNibbler.map(results => Token(results(0), TokenType.String))
+
+val newLineTokenNib = takeString("\n").map(Token(_, TokenType.NewLine))
+
+val commentTokenNib = takeAll(takeString("#"), takeUntil('\n')).map(results => Token(results.mkString, TokenType.Comment))
+
 val booleanTokenNib = takeFirst(takeString("true"), takeString("false")).map(Token(_, TokenType.Boolean))
 
-val spacesNib = takeWhile(_ == ' ').map(Token(_, TokenType.Spaces))
+val integerTokenNib = LigNibblers.numberNibbler.map(Token(_, TokenType.Integer))
 
-val identifierNib = identifierNib.map()
+val spacesTokenNib = takeWhile(_ == ' ').map(Token(_, TokenType.Spaces))
 
-val tokensNib = repeat(takeFirst(spacesNib, booleanTokenNib))
+val identifierTokenNib = LigNibblers.identifierNibbler.map(Token(_, TokenType.Identifier))
+
+val tokensNib = repeat(takeFirst(spacesTokenNib, booleanTokenNib, integerTokenNib, newLineTokenNib, identifierTokenNib, stringTokenNib, commentTokenNib))
