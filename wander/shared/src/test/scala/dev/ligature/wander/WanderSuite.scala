@@ -7,23 +7,25 @@ package dev.ligature.wander
 import dev.ligature.wander.parser.parse
 import dev.ligature.wander.lexer.tokenize
 import munit.FunSuite
-import java.io.File
-import scala.io.Source
 
 class WanderSuite extends FunSuite {
-    test("Wander Token test") {
-        testData.foreach { instance =>
+    primitivesTestData.foreach { instance =>
+        test(s"Lexing -- ${instance.description}") {
             val tokens = tokenize(instance.script)
             assertEquals(tokens, Right(instance.tokens), s"tokens are not the same for ${instance.description}")
         }
-    }
 
-    // test("Wander AST test") {
-    //     testData.foreach { instance =>
-    //         val ast = parse(instance.script)
-    //         assertEquals(ast, instance.ast, s"AST values are not the same for ${instance.description}")
-    //     }
-    // }
+        test(s"Parsing -- ${instance.description}") {
+            val tokens = tokenize(instance.script)
+            tokens match {
+                case Left(err) => fail(s"tokenizer failed - ${err.message}")
+                case Right(tokens) => {
+                    val ast = parse(tokens)
+                    assertEquals(ast, instance.ast, s"AST values are not the same for ${instance.description}")
+                }
+            }
+        }
+    }
 
     // test("Wander Result test") {
     //     // testData.foreach { instance =>

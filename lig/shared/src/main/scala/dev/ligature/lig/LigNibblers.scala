@@ -5,19 +5,17 @@
 package dev.ligature.lig
 
 import scala.collection.mutable.ArrayBuffer
-import dev.ligature.gaze.{Gaze, NoMatch, Nibbler, between, takeAll, takeCharacters, takeString, takeWhile}
+import dev.ligature.gaze.{Gaze, NoMatch, Nibbler, between, takeAll, takeCharacters, takeString, takeUntil, takeWhile}
 import dev.ligature.{Identifier, IntegerLiteral, Statement, StringLiteral, Value}
 
 object LigNibblers {
     val whiteSpaceNibbler = takeCharacters(' ', '\t')
     val whiteSpaceAndNewLineNibbler = takeCharacters(' ', '\t', '\n')
-    val numberNibbler = takeCharacters(('0' to '9').toSeq*)
+    val numberNibbler = takeCharacters((('0' to '9').toList.appended('-')).toSeq*)
 
     val identifierNibbler = between(takeString("<"), takeWhile { c =>
             "[a-zA-Z0-9-._~:/?#\\[\\]@!$&'()*+,;%=]".r.matches(c.toString)
         }, takeString(">"))
-
-    val stringNibbler = takeAll(takeString("\""), stringContentNibbler) //TODO should be a between but stringContentNibbler consumes the last " currently
 
     val stringContentNibbler: Nibbler[Char, NoMatch, String] = (gaze: Gaze[Char]) => {
         //Full pattern \"(([^\x00-\x1F\"\\]|\\[\"\\/bfnrt]|\\u[0-9a-fA-F]{4})*)\"
@@ -72,4 +70,6 @@ object LigNibblers {
             Right(sb.toString)
         }
     }
+
+    val stringNibbler = takeAll(takeString("\""), stringContentNibbler) //TODO should be a between but stringContentNibbler consumes the last " currently
 }

@@ -22,7 +22,7 @@ def tokenize(input: String): Either[TokenizeError, List[Token]] = {
   }
 }
 
-val stringTokenNib = LigNibblers.stringNibbler.map(results => Token(results(0), TokenType.String))
+val stringTokenNib = LigNibblers.stringNibbler.map(results => Token(results(1), TokenType.String))
 
 val newLineTokenNib = takeString("\n").map(Token(_, TokenType.NewLine))
 
