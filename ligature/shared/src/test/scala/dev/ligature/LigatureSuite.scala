@@ -8,7 +8,7 @@ import munit.FunSuite
 
 class LigatureSuite extends FunSuite {
   test("valid Dataset names") {
-    //TODO add more tests
+    // TODO add more tests
     val oks = List(
       "t",
       "T",
@@ -22,7 +22,8 @@ class LigatureSuite extends FunSuite {
       "_test",
       "__test__",
       "test/_test",
-      "test3/test")
+      "test3/test"
+    )
     val errs = List(
       "",
       "/",
@@ -33,19 +34,26 @@ class LigatureSuite extends FunSuite {
       "test//test",
       "test test",
       "test/ /test",
-      " test")
+      " test"
+    )
 
-    for(ok <- oks) {
-      assertEquals(Dataset.fromString(ok).getOrElse(throw RuntimeException(s"Invalid Dataset $ok")).name, ok)
+    for (ok <- oks) {
+      assertEquals(
+        Dataset
+          .fromString(ok)
+          .getOrElse(throw RuntimeException(s"Invalid Dataset $ok"))
+          .name,
+        ok
+      )
     }
 
-    for(err <- errs) {
+    for (err <- errs) {
       assertEquals(Dataset.fromString(err).isLeft, true)
     }
   }
 
   test("valid Identifier names") {
-    //TODO add more tests
+    // TODO add more tests
     val oks = List(
       "test",
       "test_test_test",
@@ -61,20 +69,22 @@ class LigatureSuite extends FunSuite {
       "test!",
       "/_/_",
       "test//test",
-      "HELLO")
+      "HELLO"
+    )
 
-    val errs = List(
-      "",
-      "this is a test",
-      "test test",
-      "test/ /test",
-      " test")
+    val errs = List("", "this is a test", "test test", "test/ /test", " test")
 
-    for(ok <- oks) {
-      assertEquals(Identifier.fromString(ok).getOrElse(throw RuntimeException(s"Invalid Identifier $ok")).name, ok)
+    for (ok <- oks) {
+      assertEquals(
+        Identifier
+          .fromString(ok)
+          .getOrElse(throw RuntimeException(s"Invalid Identifier $ok"))
+          .name,
+        ok
+      )
     }
 
-    for(err <- errs) {
+    for (err <- errs) {
       assertEquals(Identifier.fromString(err).isLeft, true)
     }
   }
