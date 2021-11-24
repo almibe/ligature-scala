@@ -7,68 +7,68 @@ package dev.ligature.gaze
 import scala.collection.mutable.ArrayBuffer
 
 object Gaze {
-    def from(text: String): Gaze[Char] = { //TODO eventually handle unicode better and make this Gaze[String]
-        return new Gaze(text.toVector)
-    }
+  def from(text: String): Gaze[Char] = { // TODO eventually handle unicode better and make this Gaze[String]
+    return new Gaze(text.toVector)
+  }
 }
 
 class Gaze[I](private val input: Vector[I]) {
-    private var offset: Int = 0
+  private var offset: Int = 0
 
-    def isComplete(): Boolean = {
-        return this.offset >= this.input.length
+  def isComplete(): Boolean = {
+    return this.offset >= this.input.length
+  }
+
+  def peek(): Option[I] = {
+    if (this.isComplete()) {
+      return None
+    } else {
+      return Some(this.input(this.offset))
     }
+  }
 
-    def peek(): Option[I] = {
-        if (this.isComplete()) {
-            return None
-        } else {
-            return Some(this.input(this.offset))
-        }
+  def next(): Option[I] = {
+    if (this.isComplete()) {
+      return None
+    } else {
+      val next = Some(this.input(this.offset))
+      this.offset += 1
+      return next
     }
+  }
 
-    def next(): Option[I] = {
-        if (this.isComplete()) {
-            return None
-        } else {
-            val next = Some(this.input(this.offset))
-            this.offset += 1
-            return next
-        }
+  def attempt[T, E](nibbler: Nibbler[I, E, T]): Either[E, T] = {
+    val startOfThisLoop = this.offset
+    val res = nibbler(this)
+
+    res match {
+      case Right(_) => return res
+      case Left(_) => {
+        this.offset = startOfThisLoop
+        return res
+      }
     }
-
-    def attempt[T, E](nibbler: Nibbler[I, E, T]): Either[E, T] = {
-        val startOfThisLoop = this.offset
-        val res = nibbler(this)
-
-        res match {
-            case Right(_) => return res
-            case Left(_) => {
-                this.offset = startOfThisLoop
-                return res
-            }
-        }
-    }
+  }
 }
 
 abstract class Nibbler[I, E, O] {
-    def apply(gaze: Gaze[I]): Either[E,O]
+  def apply(gaze: Gaze[I]): Either[E, O]
 
-    final def map[NO](f: O => NO): Nibbler[I, E, NO] = {
-        (gaze: Gaze[I]) => {
-            this.apply(gaze) match {
-                case Left(err) => Left(err)
-                case Right(value) => Right(f(value))
-            }
-        }
+  final def map[NO](f: O => NO): Nibbler[I, E, NO] = { (gaze: Gaze[I]) =>
+    {
+      this.apply(gaze) match {
+        case Left(err)    => Left(err)
+        case Right(value) => Right(f(value))
+      }
     }
+  }
 
-    final def as[NO](value: NO): Nibbler[I, E, NO] = {
-        (gaze: Gaze[I]) => {
-            this.apply(gaze) match {
-                case Left(err) => Left(err)
-                case Right(_) => Right(value)
-            }
-        }
+  final def as[NO](value: NO): Nibbler[I, E, NO] = { (gaze: Gaze[I]) =>
+    {
+      this.apply(gaze) match {
+        case Left(err) => Left(err)
+        case Right(_)  => Right(value)
+      }
     }
+  }
 }
