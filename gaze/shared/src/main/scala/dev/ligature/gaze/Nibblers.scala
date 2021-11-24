@@ -7,6 +7,7 @@ package dev.ligature.gaze
 import dev.ligature.gaze.Gaze
 import scala.collection.mutable.ArrayBuffer
 import scala.collection.mutable
+import dev.ligature.gaze.NoMatch
 
 trait NoMatch
 object NoMatch extends NoMatch
@@ -64,6 +65,36 @@ def takeUntil(toMatch: Char): Nibbler[Char, NoMatch, String] = {
   }
 }
 
+def filter[I, O](
+    predicate: (item: I) => Boolean,
+    nibbler: Nibbler[I, NoMatch, O]
+): Nibbler[I, NoMatch, Option[O]] = { (gaze: Gaze[I]) =>
+  {
+    var matched = false
+    var result: Either[NoMatch, Option[O]] = Left(NoMatch)
+    while (!matched) {
+      gaze.peek() match {
+        case None => {
+          matched = true
+          result = Right(None)
+        }
+        case Some(value) => {
+          if (predicate(value)) {
+            matched = true
+            gaze.attempt(nibbler) match {
+              case Left(_)      => result = Left(NoMatch)
+              case Right(value) => result = Right(Some(value))
+            }
+          } else {
+            gaze.next()
+          }
+        }
+      }
+    }
+    result
+  }
+}
+
 //  pub fn ignore_all<'a>(
 //      to_match: Vec<&'a str>, //TODO maybe make this an array instead of Vec
 //  ) -> impl Fn(&mut Gaze<&'a str>) -> Result<(), NoMatch> {
@@ -86,7 +117,7 @@ def takeUntil(toMatch: Char): Nibbler[Char, NoMatch, String] = {
 //  }
 
 def takeWhile(
-    matcher: (toMatch: Char) => Boolean
+    predicate: (toMatch: Char) => Boolean
 ): Nibbler[Char, NoMatch, String] = {
   return (gaze: Gaze[Char]) => {
     val res = StringBuilder()
@@ -97,7 +128,7 @@ def takeWhile(
 
       peek match {
         case Some(c) => {
-          if (matcher(c)) {
+          if (predicate(c)) {
             gaze.next();
             res += c;
           } else if (res.length == 0) {
@@ -129,6 +160,22 @@ def takeWhile(
 
 def takeCharacters(chars: Char*): Nibbler[Char, NoMatch, String] = takeWhile {
   chars.contains(_)
+}
+
+def matchNext[I](predicate: I => Boolean): Nibbler[I, NoMatch, I] = {
+  (gaze: Gaze[I]) =>
+    {
+      gaze.next() match {
+        case None => Left(NoMatch)
+        case Some(value) => {
+          if (predicate(value)) {
+            Right(value)
+          } else {
+            Left(NoMatch)
+          }
+        }
+      }
+    }
 }
 
 def takeFirst[I, O](
