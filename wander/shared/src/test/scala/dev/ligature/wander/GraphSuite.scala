@@ -6,6 +6,4 @@ package dev.ligature.wander
 
 import munit.FunSuite
 
-class GraphSuite extends FunSuite {
-  
-}
+class GraphSuite extends FunSuite {}
