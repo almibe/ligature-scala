@@ -4,8 +4,16 @@
 
 package dev.ligature.inmemory
 
-import dev.ligature.{Dataset, Identifier, Ligature, LigatureError,
-    QueryTx, Statement, Value, WriteTx}
+import dev.ligature.{
+  Dataset,
+  Identifier,
+  Ligature,
+  LigatureError,
+  QueryTx,
+  Statement,
+  Value,
+  WriteTx
+}
 import cats.effect.{IO}
 import fs2.Stream
 import scala.collection.immutable.TreeMap
@@ -18,144 +26,154 @@ import java.util.concurrent.atomic.AtomicReference
 protected case class DatasetStore(counter: Long, statements: Set[Statement])
 
 final class InMemoryLigature extends Ligature {
-    private val store = AtomicReference(TreeMap[Dataset, DatasetStore]())
+  private val store = AtomicReference(TreeMap[Dataset, DatasetStore]())
 
-    /** Returns all Datasets in a Ligature instance. */
-    def allDatasets(): Stream[IO, Dataset] = Stream.evalSeq {
-        for {
-            ref <- IO(store)
-        } yield ref.get.keys.toSeq
+  /** Returns all Datasets in a Ligature instance. */
+  def allDatasets(): Stream[IO, Dataset] = Stream.evalSeq {
+    for {
+      ref <- IO(store)
+    } yield ref.get.keys.toSeq
+  }
+
+  /** Check if a given Dataset exists. */
+  def datasetExists(dataset: Dataset): IO[Boolean] = {
+    for {
+      ref <- IO(store)
+    } yield ref.get.contains(dataset)
+  }
+
+  /** Returns all Datasets in a Ligature instance that start with the given
+    * prefix.
+    */
+  def matchDatasetsPrefix(prefix: String): Stream[IO, Dataset] =
+    Stream.evalSeq {
+      for {
+        ref <- IO(store)
+      } yield ref.get.keys.filter(_.name.startsWith(prefix)).toSeq
     }
 
-    /** Check if a given Dataset exists. */
-    def datasetExists(dataset: Dataset): IO[Boolean] = {
-        for {
-            ref <- IO(store)
-        } yield ref.get.contains(dataset)
+  /** Returns all Datasets in a Ligature instance that are in a given range
+    * (inclusive, exclusive].
+    */
+  def matchDatasetsRange(start: String, end: String): Stream[IO, Dataset] =
+    Stream.evalSeq {
+      for {
+        ref <- IO(store)
+      } yield ref.get.keys.filter(k => k.name >= start && k.name < end).toSeq
     }
 
-    /** Returns all Datasets in a Ligature instance that start with the given prefix. */
-    def matchDatasetsPrefix(prefix: String): Stream[IO, Dataset] = Stream.evalSeq {
-        for {
-            ref <- IO(store)
-        } yield ref.get.keys.filter(_.name.startsWith(prefix)).toSeq
+  /** Creates a dataset with the given name. TODO should probably return its own
+    * error type { InvalidDataset, DatasetExists, CouldNotCreateDataset }
+    */
+  def createDataset(dataset: Dataset): IO[Unit] =
+    for {
+      atomRef <- IO(store)
+      ref <- IO(store.get)
+      // _ <- ref.modify(s => (s + (dataset -> DatasetStore(0L, Set())), ())) //TODO this needs to check if Dataset already exists
+      _ <- IO {
+        atomRef.set(ref + (dataset -> DatasetStore(0L, Set())))
+      }
+    } yield ()
+  // if (store.contains(dataset)) { //todo should lock before reading
+  //     Right(())
+  // } else {
+  //     val l = lock.writeLock()
+  //     try {
+  //         l.lock()
+  //         val newStore = store + (dataset -> DatasetStore(0L, Set()))
+  //         store = newStore
+  //         Right(())
+  //     } finally {
+  //         l.unlock()
+  //     }
+  // }
+
+  /** Deletes a dataset with the given name. TODO should probably return its own
+    * error type { InvalidDataset, CouldNotDeleteDataset }
+    */
+  def deleteDataset(dataset: Dataset): IO[Unit] =
+    for {
+      atomRef <- IO(store)
+      ref <- IO(store.get)
+      _ <- IO {
+        atomRef.set(ref.removed(dataset))
+      }
+    } yield ()
+  // val l = lock.writeLock()
+  // try {
+  //     l.lock()
+  //     if (store.contains(dataset)) {
+  //         val newStore = store - dataset
+  //         store = newStore
+  //         IO(Right(()))
+  //     } else {
+  //         IO(Right(()))
+  //     }
+  // } finally {
+  //     l.unlock()
+  // }
+
+  /** Initializes a QueryTx TODO should probably return its own error type
+    * CouldNotInitializeQueryTx
+    */
+  def query(dataset: Dataset): Resource[IO, QueryTx] = Resource.make(IO {
+    val ds = this.store.get.get(dataset)
+    ds match {
+      case Some(ds) => {
+        val tx = InMemoryQueryTx(ds)
+        tx
+      }
+      case None => {
+        throw RuntimeException("")
+      }
     }
+  })(tx => IO.unit)
 
-    /** Returns all Datasets in a Ligature instance that are in a given range (inclusive, exclusive]. */
-    def matchDatasetsRange(start: String, end: String): Stream[IO, Dataset] = Stream.evalSeq {
-        for {
-            ref <- IO(store)
-        } yield ref.get.keys.filter(k => k.name >= start && k.name < end).toSeq
+  /** Initializes a WriteTx TODO should probably return its own error type
+    * CouldNotInitializeWriteTx
+    */
+  def write(dataset: Dataset): Resource[IO, WriteTx] = Resource.make(IO {
+    val ds = this.store.get.get(dataset)
+    ds match {
+      case Some(ds) => {
+        val tx = InMemoryWriteTx(ds)
+        tx
+      }
+      case None => {
+        throw RuntimeException(
+          ""
+        ) // WriteResult.WriteError(s"Could not write to ${dataset.name}"))
+      }
     }
-
-    /** Creates a dataset with the given name.
-     * TODO should probably return its own error type { InvalidDataset, DatasetExists, CouldNotCreateDataset } */
-    def createDataset(dataset: Dataset): IO[Unit] =
-        for {
-            atomRef <- IO(store)
-            ref <- IO(store.get)
-            //_ <- ref.modify(s => (s + (dataset -> DatasetStore(0L, Set())), ())) //TODO this needs to check if Dataset already exists
-            _ <- IO {
-                atomRef.set(ref + (dataset -> DatasetStore(0L, Set()))) 
-            }
-        } yield ()
-        // if (store.contains(dataset)) { //todo should lock before reading
-        //     Right(())
-        // } else {
-        //     val l = lock.writeLock()
-        //     try {
-        //         l.lock()
-        //         val newStore = store + (dataset -> DatasetStore(0L, Set()))
-        //         store = newStore
-        //         Right(())
-        //     } finally {
-        //         l.unlock()
-        //     }
-        // }
-
-    /** Deletes a dataset with the given name.
-     * TODO should probably return its own error type { InvalidDataset, CouldNotDeleteDataset } */
-    def deleteDataset(dataset: Dataset): IO[Unit] = 
-        for {
-            atomRef <- IO(store)
-            ref <- IO(store.get)
-            _ <- IO {
-                atomRef.set(ref.removed(dataset))
-            }
-        } yield ()
-        // val l = lock.writeLock()
-        // try {
-        //     l.lock()
-        //     if (store.contains(dataset)) {
-        //         val newStore = store - dataset
-        //         store = newStore
-        //         IO(Right(()))
-        //     } else {
-        //         IO(Right(()))
-        //     }
-        // } finally {
-        //     l.unlock()
-        // }
-
-    /** Initializes a QueryTx
-     * TODO should probably return its own error type CouldNotInitializeQueryTx */
-    def query(dataset: Dataset): Resource[IO, QueryTx] = Resource.make(IO {
-            val ds = this.store.get.get(dataset)
-            ds match {
-                case Some(ds) => {
-                    val tx = InMemoryQueryTx(ds)
-                    tx
-                }
-                case None => {
-                    throw RuntimeException("")
-                }
-            }
-        })( tx =>
-            IO.unit
-        )
-
-    /** Initializes a WriteTx
-     * TODO should probably return its own error type CouldNotInitializeWriteTx */
-    def write(dataset: Dataset): Resource[IO, WriteTx] = Resource.make(IO {
-            val ds = this.store.get.get(dataset)
-            ds match {
-                case Some(ds) => {
-                    val tx = InMemoryWriteTx(ds)
-                    tx
-                }
-                case None => {
-                    throw RuntimeException("")//WriteResult.WriteError(s"Could not write to ${dataset.name}"))
-                }
-            }
-        })(
-            tx => IO {
-                val newStore = this.store.get.updated(dataset, tx.newDatasetStore())
-                this.store.set(newStore)
-                ()
-            }
-        )
-
-    // def write(dataset: Dataset): Resource[IO, WriteTx] = { //TODO acquire write lock
-    //     val l = lock.writeLock()
-
-    //     val acquire: IO[InMemoryWriteTx] = IO {
-    //         l.lock()
-    //         new InMemoryWriteTx(store(dataset))
-    //     }
-
-    //     val release: InMemoryWriteTx => IO[Unit] = writeTx => IO {
-    //         if (!writeTx.isCanceled()) {
-    //             val newStore = this.store.updated(dataset, writeTx.newDatasetStore())
-    //             this.store = newStore
-    //         }
-    //         l.unlock()
-    //         ()
-    //     }
-
-    //     Resource.make(acquire)(release)
-    // }
-
-    def close(): IO[Unit] = {
-        ???
+  })(tx =>
+    IO {
+      val newStore = this.store.get.updated(dataset, tx.newDatasetStore())
+      this.store.set(newStore)
+      ()
     }
+  )
+
+  // def write(dataset: Dataset): Resource[IO, WriteTx] = { //TODO acquire write lock
+  //     val l = lock.writeLock()
+
+  //     val acquire: IO[InMemoryWriteTx] = IO {
+  //         l.lock()
+  //         new InMemoryWriteTx(store(dataset))
+  //     }
+
+  //     val release: InMemoryWriteTx => IO[Unit] = writeTx => IO {
+  //         if (!writeTx.isCanceled()) {
+  //             val newStore = this.store.updated(dataset, writeTx.newDatasetStore())
+  //             this.store = newStore
+  //         }
+  //         l.unlock()
+  //         ()
+  //     }
+
+  //     Resource.make(acquire)(release)
+  // }
+
+  def close(): IO[Unit] = {
+    ???
+  }
 }
