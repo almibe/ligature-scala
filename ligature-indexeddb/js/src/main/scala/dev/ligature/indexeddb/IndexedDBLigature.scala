@@ -14,13 +14,13 @@ class IndexedDBLigature extends Ligature {
   def datasetExists(dataset: Dataset): IO[Boolean] = ???
 
   def matchDatasetsPrefix(
-                           prefix: String,
-                         ): Stream[IO, Dataset] = ???
+      prefix: String
+  ): Stream[IO, Dataset] = ???
 
   def matchDatasetsRange(
-                          start: String,
-                          end: String,
-                        ): Stream[IO, Dataset] = ???
+      start: String,
+      end: String
+  ): Stream[IO, Dataset] = ???
 
   def createDataset(dataset: Dataset): IO[Unit] = ???
 
