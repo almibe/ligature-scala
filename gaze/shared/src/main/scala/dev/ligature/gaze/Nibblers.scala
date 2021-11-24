@@ -95,27 +95,6 @@ def filter[I, O](
   }
 }
 
-//  pub fn ignore_all<'a>(
-//      to_match: Vec<&'a str>, //TODO maybe make this an array instead of Vec
-//  ) -> impl Fn(&mut Gaze<&'a str>) -> Result<(), NoMatch> {
-//      move |gaze: &mut Gaze<&'a str>| -> Result<(), NoMatch> {
-//          while !gaze.is_complete() {
-//              let peek = gaze.peek();
-//              match peek {
-//                  Some(peek) => {
-//                      if to_match.contains(&peek) {
-//                          gaze.next();
-//                      } else {
-//                          return Ok(());
-//                      }
-//                  }
-//                  None => return Ok(()),
-//              }
-//          }
-//          Ok(())
-//      }
-//  }
-
 def takeWhile(
     predicate: (toMatch: Char) => Boolean
 ): Nibbler[Char, NoMatch, String] = {
