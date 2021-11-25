@@ -201,13 +201,15 @@ def repeat[I, O](
   {
     val allMatches = ArrayBuffer[O]()
     var continue = true
-    while (continue) {
+    while (!gaze.isComplete() && continue) {
       gaze.attempt(nibbler) match {
         case Left(_)  => continue = false
         case Right(v) => allMatches.append(v)
       }
     }
-    if (allMatches.isEmpty) {
+    if (gaze.isComplete()) {
+      Right(allMatches.toList)
+    } else if(allMatches.isEmpty) {
       Left(NoMatch)
     } else {
       Right(allMatches.toList)
