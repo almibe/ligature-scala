@@ -86,28 +86,28 @@ val primitivesTestData = List(
     ast = Script(List()),
     result = Right(ScriptResult(Nothing))
   ),
-  TestInstance(
-    description = "statement",
-    script = "<entity> <attribute> 3 <context>",
-    tokens = List(
-      Token("entity", TokenType.Identifier),
-      Token(" ", TokenType.Spaces),
-      Token("attribute", TokenType.Identifier),
-      Token(" ", TokenType.Spaces),
-      Token("3", TokenType.Integer),
-      Token(" ", TokenType.Spaces),
-      Token("context", TokenType.Identifier)
-    ),
-    ast = Script(
-      List(
-        LigatureValue(Identifier.fromString("entity").getOrElse(???)),
-        LigatureValue(Identifier.fromString("attribute").getOrElse(???)),
-        LigatureValue(IntegerLiteral(3)),
-        LigatureValue(Identifier.fromString("context").getOrElse(???))
-      )
-    ),
-    result = Right(ScriptResult(LigatureValue(IntegerLiteral(5))))
-  ),
+  // TestInstance(
+  //   description = "statement",
+  //   script = "<entity> <attribute> 3 <context>",
+  //   tokens = List(
+  //     Token("entity", TokenType.Identifier),
+  //     Token(" ", TokenType.Spaces),
+  //     Token("attribute", TokenType.Identifier),
+  //     Token(" ", TokenType.Spaces),
+  //     Token("3", TokenType.Integer),
+  //     Token(" ", TokenType.Spaces),
+  //     Token("context", TokenType.Identifier)
+  //   ),
+  //   ast = Script(
+  //     List(
+  //       LigatureValue(Identifier.fromString("entity").getOrElse(???)),
+  //       LigatureValue(Identifier.fromString("attribute").getOrElse(???)),
+  //       LigatureValue(IntegerLiteral(3)),
+  //       LigatureValue(Identifier.fromString("context").getOrElse(???))
+  //     )
+  //   ),
+  //   result = Right(ScriptResult(LigatureValue(IntegerLiteral(5))))
+  // ),
   TestInstance(
     description = "string",
     script = "\"hello world\" ",

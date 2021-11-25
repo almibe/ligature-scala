@@ -14,11 +14,15 @@ import fs2.Stream
 sealed trait WanderValue extends Expression
 
 case class LigatureValue(value: Value) extends WanderValue {
-  override def eval(binding: Bindings) = ???
+  override def eval(binding: Bindings) = Right(
+    ScriptResult(LigatureValue(value))
+  )
 }
 
 case class BooleanValue(value: Boolean) extends WanderValue {
-  override def eval(binding: Bindings) = ???
+  override def eval(binding: Bindings) = Right(
+    ScriptResult(BooleanValue(value))
+  )
 }
 
 case class StatementValue(value: Statement) extends WanderValue {
@@ -26,7 +30,7 @@ case class StatementValue(value: Statement) extends WanderValue {
 }
 
 object Nothing extends WanderValue {
-  override def eval(binding: Bindings) = ???
+  override def eval(binding: Bindings) = Right(ScriptResult(Nothing))
 }
 
 case class FunctionDefinitionValue(value: FunctionDefinition)
@@ -74,8 +78,12 @@ case class NativeFunction(
 /** Represents a full script that can be eval'd.
   */
 case class Script(val elements: List[Element]) {
-  def eval(bindings: Bindings) = {
-    ???
+  def eval(bindings: Bindings): Either[ScriptError, ScriptResult] = {
+    var result: Either[ScriptError, ScriptResult] = Right(ScriptResult(Nothing))
+    elements.foreach { element =>
+      result = element.eval(bindings)
+    }
+    result
   }
 }
 
