@@ -33,12 +33,14 @@ class WanderSuite extends FunSuite {
         }
       }
     }
-  }
 
-  // test("Wander Result test") {
-  //     // testData.foreach { instance =>
-  //     //     val result = run(instance.script)
-  //     //     assertEquals(result, instance.result, s"results are not the same for ${instance.description}")
-  //     // }
-  // }
+    test(s"Interpreting -- ${instance.description}") {
+      val result = run(instance.script)
+      assertEquals(
+        result,
+        instance.result,
+        s"results are not the same for ${instance.description}"
+      )
+    }
+  }
 }

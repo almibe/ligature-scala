@@ -23,7 +23,7 @@ def parse(script: Seq[Token]): Either[String, Script] = {
   val gaze = Gaze(script.toVector)
   val res = gaze.attempt(scriptNib)
   res match {
-    case Left(err)    => Left("NoMatch")
+    case Left(err)  => Left("NoMatch")
     case Right(res) => Right(Script(res.filter(_.isDefined).map(_.get)))
   }
 }

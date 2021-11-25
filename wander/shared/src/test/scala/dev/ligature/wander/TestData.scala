@@ -6,12 +6,13 @@ package dev.ligature.wander
 
 import dev.ligature.wander.lexer.Token
 import dev.ligature.wander.parser.{
+  Nothing,
   Script,
-  WanderResult,
   BooleanValue,
-  LigatureValue
+  LigatureValue,
+  ScriptResult,
+  ScriptError
 }
-import dev.ligature.wander.parser.WanderResult.*
 import dev.ligature.wander.lexer.TokenType
 import dev.ligature.{Identifier, IntegerLiteral, StringLiteral}
 
@@ -24,8 +25,8 @@ case class TestInstance(
     val description: String,
     val script: String,
     val tokens: List[Token],
-    val ast: Script
-//    val result: WanderResult
+    val ast: Script,
+    val result: Either[ScriptError, ScriptResult]
 )
 
 val primitivesTestData = List(
@@ -33,45 +34,47 @@ val primitivesTestData = List(
     description = "true boolean primitive",
     script = "true",
     tokens = List(Token("true", TokenType.Boolean)),
-    ast = Script(List(BooleanValue(true)))
-//            result = ScriptResult(BooleanValue(true))
+    ast = Script(List(BooleanValue(true))),
+    result = Right(ScriptResult(BooleanValue(true)))
   ),
   TestInstance(
     description = "false boolean primitive",
     script = "false",
     tokens = List(Token("false", TokenType.Boolean)),
-    ast = Script(List(BooleanValue(false)))
-//          result = ScriptResult(BooleanValue(false))
+    ast = Script(List(BooleanValue(false))),
+    result = Right(ScriptResult(BooleanValue(false)))
   ),
   TestInstance(
     description = "true boolean primitive with trailing whitespace",
     script = "true   ",
     tokens =
       List(Token("true", TokenType.Boolean), Token("   ", TokenType.Spaces)),
-    ast = Script(List(BooleanValue(true)))
-//            result = ScriptResult(BooleanValue(true))
+    ast = Script(List(BooleanValue(true))),
+    result = Right(ScriptResult(BooleanValue(true)))
   ),
   TestInstance(
     description = "identifier",
     script = "<test>",
     tokens = List(Token("test", TokenType.Identifier)),
     ast =
-      Script(List(LigatureValue(Identifier.fromString("test").getOrElse(???))))
-//            result = ScriptResult(LigatureValue(Identifier.fromString("test").getOrElse(???)))
+      Script(List(LigatureValue(Identifier.fromString("test").getOrElse(???)))),
+    result = Right(
+      ScriptResult(LigatureValue(Identifier.fromString("test").getOrElse(???)))
+    )
   ),
   TestInstance(
     description = "integer",
     script = "24601",
     tokens = List(Token("24601", TokenType.Integer)),
-    ast = Script(List(LigatureValue(IntegerLiteral(24601))))
-//            result = ScriptResult(LigatureValue(IntegerLiteral(24601)))
+    ast = Script(List(LigatureValue(IntegerLiteral(24601)))),
+    result = Right(ScriptResult(LigatureValue(IntegerLiteral(24601))))
   ),
   TestInstance(
     description = "negative integer",
     script = "-111",
     tokens = List(Token("-111", TokenType.Integer)),
-    ast = Script(List(LigatureValue(IntegerLiteral(-111))))
-//            result = ScriptResult(LigatureValue(IntegerLiteral(-111)))
+    ast = Script(List(LigatureValue(IntegerLiteral(-111)))),
+    result = Right(ScriptResult(LigatureValue(IntegerLiteral(-111))))
   ),
   TestInstance(
     description = "comment + nothing test",
@@ -80,8 +83,8 @@ val primitivesTestData = List(
       Token("#nothing   ", TokenType.Comment),
       Token("\n", TokenType.NewLine)
     ),
-    ast = Script(List())
-//            result = ScriptResult(LigatureValue(IntegerLiteral(-111)))
+    ast = Script(List()),
+    result = Right(ScriptResult(Nothing))
   ),
   TestInstance(
     description = "statement",
@@ -95,11 +98,15 @@ val primitivesTestData = List(
       Token(" ", TokenType.Spaces),
       Token("context", TokenType.Identifier)
     ),
-    ast = Script(List(
-      LigatureValue(Identifier.fromString("entity").getOrElse(???)),
-      LigatureValue(Identifier.fromString("attribute").getOrElse(???)),
-      LigatureValue(IntegerLiteral(3)),
-      LigatureValue(Identifier.fromString("context").getOrElse(???))))
+    ast = Script(
+      List(
+        LigatureValue(Identifier.fromString("entity").getOrElse(???)),
+        LigatureValue(Identifier.fromString("attribute").getOrElse(???)),
+        LigatureValue(IntegerLiteral(3)),
+        LigatureValue(Identifier.fromString("context").getOrElse(???))
+      )
+    ),
+    result = Right(ScriptResult(LigatureValue(IntegerLiteral(5))))
   ),
   TestInstance(
     description = "string",
@@ -108,8 +115,8 @@ val primitivesTestData = List(
       Token("hello world", TokenType.String),
       Token(" ", TokenType.Spaces)
     ),
-    ast = Script(List(LigatureValue(StringLiteral("hello world"))))
-//            result = ScriptResult(LigatureValue(IntegerLiteral(-111)))
+    ast = Script(List(LigatureValue(StringLiteral("hello world")))),
+    result = Right(ScriptResult(LigatureValue(StringLiteral("hello world"))))
   )
 )
 

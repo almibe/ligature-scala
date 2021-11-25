@@ -46,17 +46,13 @@ case class ResultStream(stream: Stream[IO, WanderValue]) extends WanderValue {
   */
 case class Name(name: String)
 
-/** Represents the result of running a script.
-  */
-enum WanderResult {
-  case ScriptError(message: String)
-  case ScriptResult(result: WanderValue)
-}
+case class ScriptError(message: String)
+case class ScriptResult(result: WanderValue)
 
 /** Represents the union of Statements and Expressions
   */
 sealed trait Element {
-  def eval(bindings: Bindings): WanderResult
+  def eval(bindings: Bindings): Either[ScriptError, ScriptResult]
 }
 
 /** An element of a Wander program that can be evaluated for a value.
@@ -72,7 +68,7 @@ case class FunctionDefinition(parameters: List[String], body: List[Element])
   */
 case class NativeFunction(
     parameters: List[String],
-    body: (bindings: List[Bindings]) => WanderResult
+    body: (bindings: List[Bindings]) => Either[ScriptError, ScriptResult]
 )
 
 /** Represents a full script that can be eval'd.
