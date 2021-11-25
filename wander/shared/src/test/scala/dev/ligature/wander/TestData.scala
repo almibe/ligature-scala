@@ -13,7 +13,7 @@ import dev.ligature.wander.parser.{
 }
 import dev.ligature.wander.parser.WanderResult.*
 import dev.ligature.wander.lexer.TokenType
-import dev.ligature.{Identifier, IntegerLiteral}
+import dev.ligature.{Identifier, IntegerLiteral, StringLiteral}
 
 case class TestData(
     val category: String,
@@ -80,7 +80,7 @@ val primitivesTestData = List(
       Token("#nothing   ", TokenType.Comment),
       Token("\n", TokenType.NewLine)
     ),
-    ast = Script(List(LigatureValue(IntegerLiteral(-111))))
+    ast = Script(List())
 //            result = ScriptResult(LigatureValue(IntegerLiteral(-111)))
   ),
   TestInstance(
@@ -95,8 +95,11 @@ val primitivesTestData = List(
       Token(" ", TokenType.Spaces),
       Token("context", TokenType.Identifier)
     ),
-    ast = Script(List(LigatureValue(IntegerLiteral(-111))))
-//            result = ScriptResult(LigatureValue(IntegerLiteral(-111)))
+    ast = Script(List(
+      LigatureValue(Identifier.fromString("entity").getOrElse(???)),
+      LigatureValue(Identifier.fromString("attribute").getOrElse(???)),
+      LigatureValue(IntegerLiteral(3)),
+      LigatureValue(Identifier.fromString("context").getOrElse(???))))
   ),
   TestInstance(
     description = "string",
@@ -105,7 +108,7 @@ val primitivesTestData = List(
       Token("hello world", TokenType.String),
       Token(" ", TokenType.Spaces)
     ),
-    ast = Script(List(LigatureValue(IntegerLiteral(-111))))
+    ast = Script(List(LigatureValue(StringLiteral("hello world"))))
 //            result = ScriptResult(LigatureValue(IntegerLiteral(-111)))
   )
 )

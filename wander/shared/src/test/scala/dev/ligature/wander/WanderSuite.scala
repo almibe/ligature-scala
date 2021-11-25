@@ -27,7 +27,7 @@ class WanderSuite extends FunSuite {
           val ast = parse(tokens)
           assertEquals(
             ast,
-            instance.ast,
+            Right(instance.ast),
             s"AST values are not the same for ${instance.description}"
           )
         }
