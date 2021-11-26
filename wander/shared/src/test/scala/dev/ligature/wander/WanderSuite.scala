@@ -9,38 +9,42 @@ import dev.ligature.wander.lexer.tokenize
 import munit.FunSuite
 
 class WanderSuite extends FunSuite {
-  primitivesTestData.foreach { instance =>
-    test(s"Lexing -- ${instance.description}") {
-      val tokens = tokenize(instance.script)
-      assertEquals(
-        tokens,
-        Right(instance.tokens),
-        s"tokens are not the same for ${instance.description}"
-      )
-    }
+  testData.foreach { testGroup =>
+    testGroup.testInstances.foreach { instance =>
+      test(s"Lexing -- ${testGroup.category} -- ${instance.description}") {
+        val tokens = tokenize(instance.script)
+        assertEquals(
+          tokens,
+          Right(instance.tokens),
+          s"tokens are not the same for ${instance.description}"
+        )
+      }
 
-    test(s"Parsing -- ${instance.description}") {
-      val tokens = tokenize(instance.script)
-      tokens match {
-        case Left(err) => fail(s"tokenizer failed - ${err.message}")
-        case Right(tokens) => {
-          val ast = parse(tokens)
-          assertEquals(
-            ast,
-            Right(instance.ast),
-            s"AST values are not the same for ${instance.description}"
-          )
+      test(s"Parsing -- ${testGroup.category} -- ${instance.description}") {
+        val tokens = tokenize(instance.script)
+        tokens match {
+          case Left(err) => fail(s"tokenizer failed - ${err.message}")
+          case Right(tokens) => {
+            val ast = parse(tokens)
+            assertEquals(
+              ast,
+              Right(instance.ast),
+              s"AST values are not the same for ${instance.description}"
+            )
+          }
         }
       }
-    }
 
-    test(s"Interpreting -- ${instance.description}") {
-      val result = run(instance.script)
-      assertEquals(
-        result,
-        instance.result,
-        s"results are not the same for ${instance.description}"
-      )
+      test(
+        s"Interpreting -- ${testGroup.category} -- ${instance.description}"
+      ) {
+        val result = run(instance.script)
+        assertEquals(
+          result,
+          instance.result,
+          s"results are not the same for ${instance.description}"
+        )
+      }
     }
   }
 }

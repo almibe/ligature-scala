@@ -220,7 +220,7 @@ val testData = List(
     testInstances = primitivesTestData
   ),
   TestData(
-    category = "assignment",
+    category = "Assignment",
     testInstances = assignmentTestData
   )
 )
