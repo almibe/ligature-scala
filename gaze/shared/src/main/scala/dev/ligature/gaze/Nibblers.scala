@@ -209,7 +209,7 @@ def repeat[I, O](
     }
     if (gaze.isComplete()) {
       Right(allMatches.toList)
-    } else if(allMatches.isEmpty) {
+    } else if (allMatches.isEmpty) {
       Left(NoMatch)
     } else {
       Right(allMatches.toList)
