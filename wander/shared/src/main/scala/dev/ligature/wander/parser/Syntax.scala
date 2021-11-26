@@ -15,13 +15,13 @@ sealed trait WanderValue extends Expression
 
 case class LigatureValue(value: Value) extends WanderValue {
   override def eval(binding: Bindings) = Right(
-    ScriptResult(LigatureValue(value))
+    LigatureValue(value)
   )
 }
 
 case class BooleanValue(value: Boolean) extends WanderValue {
   override def eval(binding: Bindings) = Right(
-    ScriptResult(BooleanValue(value))
+    BooleanValue(value)
   )
 }
 
@@ -30,7 +30,7 @@ case class StatementValue(value: Statement) extends WanderValue {
 }
 
 object Nothing extends WanderValue {
-  override def eval(binding: Bindings) = Right(ScriptResult(Nothing))
+  override def eval(binding: Bindings) = Right(Nothing)
 }
 
 case class FunctionDefinitionValue(value: FunctionDefinition)
@@ -56,7 +56,20 @@ case class ScriptResult(result: WanderValue)
 /** Represents the union of Statements and Expressions
   */
 sealed trait Element {
-  def eval(bindings: Bindings): Either[ScriptError, ScriptResult]
+  def eval(bindings: Bindings): Either[ScriptError, WanderValue]
+}
+
+case class LetStatement(name: Name, expression: Expression) extends Element {
+  override def eval(bindings: Bindings) = {
+    val result = this.expression.eval(bindings)
+    result match {
+      case Left(_) => return result
+      case Right(value) => {
+        bindings.bind(this.name, value)
+        return Right(Nothing)
+      }
+    }
+  }
 }
 
 /** An element of a Wander program that can be evaluated for a value.
@@ -79,11 +92,11 @@ case class NativeFunction(
   */
 case class Script(val elements: List[Element]) {
   def eval(bindings: Bindings): Either[ScriptError, ScriptResult] = {
-    var result: Either[ScriptError, ScriptResult] = Right(ScriptResult(Nothing))
+    var result: Either[ScriptError, WanderValue] = Right(Nothing)
     elements.foreach { element =>
       result = element.eval(bindings)
     }
-    result
+    result.map(ScriptResult(_))
   }
 }
 
@@ -91,12 +104,6 @@ case class Script(val elements: List[Element]) {
   * bindings.
   */
 case class Scope(val elements: List[Element]) extends Expression {
-  def eval(bindings: Bindings) = {
-    ???
-  }
-}
-
-case class LetStatement(name: Name, expression: Expression) extends Element {
   def eval(bindings: Bindings) = {
     ???
   }

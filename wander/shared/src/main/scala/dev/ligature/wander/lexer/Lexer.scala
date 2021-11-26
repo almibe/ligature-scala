@@ -16,7 +16,8 @@ import dev.ligature.gaze.{
 import dev.ligature.lig.LigNibblers
 
 enum TokenType:
-  case Boolean, Spaces, Identifier, Integer, Comment, NewLine, String
+  case Boolean, Spaces, Identifier, Integer, Comment, NewLine, String,
+  LetKeyword, EqualSign, Name
 
 case class Token(val content: String, val tokenType: TokenType)
 

@@ -120,12 +120,37 @@ val primitivesTestData = List(
   )
 )
 
-// val assignmentTestData = List(
-//     TestInstance(
-//         description = "basic let",
-//         script = "let x = 5",
-//         tokens = List()
-//     ),
+val assignmentTestData = List(
+  TestInstance(
+    description = "basic let",
+    script = "let x = 5",
+    tokens = List(
+      Token("let", TokenType.LetKeyword),
+      Token(" ", TokenType.Spaces),
+      Token("x", TokenType.Name),
+      Token(" ", TokenType.Spaces),
+      Token("=", TokenType.EqualSign),
+      Token(" ", TokenType.Spaces),
+      Token("5", TokenType.Integer)
+    ),
+    ast = Script(List()),
+    result = Right(ScriptResult(Nothing))
+  ),
+  TestInstance(
+    description = "make sure keyword parser is greedy",
+    script = "let trued = true",
+    tokens = List(
+      Token("let", TokenType.LetKeyword),
+      Token(" ", TokenType.Spaces),
+      Token("trued", TokenType.Name),
+      Token(" ", TokenType.Spaces),
+      Token("=", TokenType.EqualSign),
+      Token(" ", TokenType.Spaces),
+      Token("true", TokenType.Boolean)
+    ),
+    ast = Script(List()),
+    result = Right(ScriptResult(Nothing))
+  )
 
 //     TestInstance(
 //         description = "let with result"
@@ -161,7 +186,7 @@ val primitivesTestData = List(
 //             referenceExpression(identifier('x'))
 //         ))
 //     )),
-//)
+)
 
 val functionTestData = List(
   // //FUNCTIONS
@@ -193,5 +218,9 @@ val testData = List(
   TestData(
     category = "Primitives",
     testInstances = primitivesTestData
+  ),
+  TestData(
+    category = "assignment",
+    testInstances = assignmentTestData
   )
 )
