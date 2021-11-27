@@ -7,12 +7,8 @@ package dev.ligature.gaze
 import dev.ligature.gaze.Gaze
 import scala.collection.mutable.ArrayBuffer
 import scala.collection.mutable
-import dev.ligature.gaze.NoMatch
 
-trait NoMatch
-object NoMatch extends NoMatch
-
-def takeString(toMatch: String): Nibbler[Char, NoMatch, String] = {
+def takeString(toMatch: String): Nibbler[Char, String] = {
   //    let graphemes = to_match.graphemes(true).collect::<Vec<&str>>();
   val chars = toMatch.toVector
   return (gaze) => {
@@ -34,14 +30,14 @@ def takeString(toMatch: String): Nibbler[Char, NoMatch, String] = {
       }
     }
     if (matched) {
-      Right(toMatch)
+      Some(toMatch)
     } else {
-      Left(NoMatch)
+      None
     }
   }
 }
 
-def takeUntil(toMatch: Char): Nibbler[Char, NoMatch, String] = {
+def takeUntil(toMatch: Char): Nibbler[Char, String] = {
   return (gaze) => {
     val result = mutable.StringBuilder()
     var matched = false
@@ -61,29 +57,29 @@ def takeUntil(toMatch: Char): Nibbler[Char, NoMatch, String] = {
         }
       }
     }
-    Right(result.toString)
+    Some(result.toString)
   }
 }
 
 def filter[I, O](
     predicate: (item: I) => Boolean,
-    nibbler: Nibbler[I, NoMatch, O]
-): Nibbler[I, NoMatch, Option[O]] = { (gaze: Gaze[I]) =>
+    nibbler: Nibbler[I, O]
+): Nibbler[I, O] = { (gaze: Gaze[I]) =>
   {
     var matched = false
-    var result: Either[NoMatch, Option[O]] = Left(NoMatch)
+    var result: Option[O] = None
     while (!matched) {
       gaze.peek() match {
         case None => {
           matched = true
-          result = Right(None)
+          result = None
         }
         case Some(value) => {
           if (predicate(value)) {
             matched = true
             gaze.attempt(nibbler) match {
-              case Left(_)      => result = Left(NoMatch)
-              case Right(value) => result = Right(Some(value))
+              case None      => result = None
+              case Some(value) => result = Some(value)
             }
           } else {
             gaze.next()
@@ -97,7 +93,7 @@ def filter[I, O](
 
 def takeWhile(
     predicate: (toMatch: Char) => Boolean
-): Nibbler[Char, NoMatch, String] = {
+): Nibbler[Char, String] = {
   return (gaze: Gaze[Char]) => {
     val res = StringBuilder()
     var matched = true
@@ -115,7 +111,7 @@ def takeWhile(
             continue = false
           } else {
             continue = false
-            // return Right(res);
+            // return Some(res);
           }
         }
         case None => {
@@ -124,33 +120,39 @@ def takeWhile(
             continue = false
           } else {
             continue = false
-            // return Right(res);
+            // return Some(res);
           }
         }
       }
     }
     if (matched) {
-      Right(res.toString())
+      Some(res.toString())
     } else {
-      Left(NoMatch)
+      None
     }
   }
 }
 
-def takeCharacters(chars: Char*): Nibbler[Char, NoMatch, String] = takeWhile {
+def optional[I](nibbler: Nibbler[I, I]): Nibbler[I, Option[I]] = {
+  (gaze: Gaze[I]) => {
+    ???
+  }
+}
+
+def takeCharacters(chars: Char*): Nibbler[Char, String] = takeWhile {
   chars.contains(_)
 }
 
-def matchNext[I](predicate: I => Boolean): Nibbler[I, NoMatch, I] = {
+def matchNext[I](predicate: I => Boolean): Nibbler[I, I] = {
   (gaze: Gaze[I]) =>
     {
       gaze.next() match {
-        case None => Left(NoMatch)
+        case None => None
         case Some(value) => {
           if (predicate(value)) {
-            Right(value)
+            Some(value)
           } else {
-            Left(NoMatch)
+            None
           }
         }
       }
@@ -158,72 +160,72 @@ def matchNext[I](predicate: I => Boolean): Nibbler[I, NoMatch, I] = {
 }
 
 def takeFirst[I, O](
-    nibblers: Nibbler[I, NoMatch, O]*
-): Nibbler[I, NoMatch, O] = { (gaze: Gaze[I]) =>
+    nibblers: Nibbler[I, O]*
+): Nibbler[I, O] = { (gaze: Gaze[I]) =>
   {
-    var finalRes: Either[NoMatch, O] = Left(NoMatch)
+    var finalRes: Option[O] = None
     val nibbler = nibblers.find { nibbler =>
       finalRes = gaze.attempt(nibbler)
-      finalRes.isRight
+      finalRes.isDefined
     }
     finalRes
   }
 }
 
 def takeAll[I, O](
-    nibblers: Nibbler[I, NoMatch, O]*
-): Nibbler[I, NoMatch, List[O]] = { (gaze: Gaze[I]) =>
+    nibblers: Nibbler[I, O]*
+): Nibbler[I, List[O]] = { (gaze: Gaze[I]) =>
   {
     val results = ArrayBuffer[O]()
     val res = nibblers.forall { nibbler =>
       val res = gaze.attempt(nibbler)
       res match {
-        case Right(res) => {
+        case Some(res) => {
           results.append(res)
           true
         }
-        case Left(e) => {
+        case None => {
           false
         }
       }
     }
     if (res) {
-      Right(results.toList)
+      Some(results.toList)
     } else {
-      Left(NoMatch)
+      None
     }
   }
 }
 
 def repeat[I, O](
-    nibbler: Nibbler[I, NoMatch, O]
-): Nibbler[I, NoMatch, List[O]] = { (gaze: Gaze[I]) =>
+    nibbler: Nibbler[I, O]
+): Nibbler[I, List[O]] = { (gaze: Gaze[I]) =>
   {
     val allMatches = ArrayBuffer[O]()
     var continue = true
     while (!gaze.isComplete() && continue) {
       gaze.attempt(nibbler) match {
-        case Left(_)  => continue = false
-        case Right(v) => allMatches.append(v)
+        case None  => continue = false
+        case Some(v) => allMatches.append(v)
       }
     }
     if (gaze.isComplete()) {
-      Right(allMatches.toList)
+      Some(allMatches.toList)
     } else if (allMatches.isEmpty) {
-      Left(NoMatch)
+      None
     } else {
-      Right(allMatches.toList)
+      Some(allMatches.toList)
     }
   }
 }
 
 def between[I, O](
-    wrapper: Nibbler[I, NoMatch, O],
-    content: Nibbler[I, NoMatch, O]
+    wrapper: Nibbler[I, O],
+    content: Nibbler[I, O]
 ) = takeAll(wrapper, content, wrapper).map(_(1))
 
 def between[I, O](
-    open: Nibbler[I, NoMatch, O],
-    content: Nibbler[I, NoMatch, O],
-    close: Nibbler[I, NoMatch, O]
+    open: Nibbler[I, O],
+    content: Nibbler[I, O],
+    close: Nibbler[I, O]
 ) = takeAll(open, content, close).map(_(1))

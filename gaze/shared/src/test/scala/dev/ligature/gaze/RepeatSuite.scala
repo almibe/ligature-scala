@@ -11,22 +11,22 @@ class RepeatSuite extends FunSuite {
 
   test("empty repeat test") {
     val gaze = Gaze.from("")
-    assertEquals(gaze.attempt(repeatHello), Left(NoMatch))
+    assertEquals(gaze.attempt(repeatHello), None)
   }
 
   test("one match repeat test") {
     val gaze = Gaze.from("hello")
-    assertEquals(gaze.attempt(repeatHello), Right(List("hello")))
+    assertEquals(gaze.attempt(repeatHello), Some(List("hello")))
   }
 
   test("two match repeat test") {
     val gaze = Gaze.from("hellohello")
-    assertEquals(gaze.attempt(repeatHello), Right(List("hello", "hello")))
+    assertEquals(gaze.attempt(repeatHello), Some(List("hello", "hello")))
   }
 
   test("two match repeat test with remaining text") {
     val gaze = Gaze.from("hellohellohell")
-    assertEquals(gaze.attempt(repeatHello), Right(List("hello", "hello")))
+    assertEquals(gaze.attempt(repeatHello), Some(List("hello", "hello")))
     assert(!gaze.isComplete())
   }
 }

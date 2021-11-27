@@ -6,10 +6,12 @@ package dev.ligature.gaze
 
 import munit.FunSuite
 
-class FilterSuite extends FunSuite {
-  test("filter numbers test") {
-    val gaze = Gaze.from("12341234hello")
-    val filterNibbler = filter((c: Char) => !c.isDigit, takeString("hello"))
-    assertEquals(gaze.attempt(filterNibbler), Some("hello"))
+class OptionSuite extends FunSuite {
+  val ello = takeString("ello")
+  val optionalHello = takeAll(optional(takeString("h")), takeString("ello"))
+
+  test("empty repeat test") {
+    val gaze = Gaze.from("hello")
+    assertEquals(gaze.attempt(repeatHello), None)
   }
 }

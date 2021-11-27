@@ -37,13 +37,13 @@ class Gaze[I](private val input: Vector[I]) {
     }
   }
 
-  def attempt[T, E](nibbler: Nibbler[I, E, T]): Either[E, T] = {
+  def attempt[O](nibbler: Nibbler[I, O]): Option[O] = {
     val startOfThisLoop = this.offset
     val res = nibbler(this)
 
     res match {
-      case Right(_) => return res
-      case Left(_) => {
+      case Some(_) => return res
+      case None => {
         this.offset = startOfThisLoop
         return res
       }
@@ -51,23 +51,23 @@ class Gaze[I](private val input: Vector[I]) {
   }
 }
 
-abstract class Nibbler[I, E, O] {
-  def apply(gaze: Gaze[I]): Either[E, O]
+abstract class Nibbler[I, O] {
+  def apply(gaze: Gaze[I]): Option[O]
 
-  final def map[NO](f: O => NO): Nibbler[I, E, NO] = { (gaze: Gaze[I]) =>
+  final def map[NO](f: O => NO): Nibbler[I, NO] = { (gaze: Gaze[I]) =>
     {
       this.apply(gaze) match {
-        case Left(err)    => Left(err)
-        case Right(value) => Right(f(value))
+        case None    => None
+        case Some(value) => Some(f(value))
       }
     }
   }
 
-  final def as[NO](value: NO): Nibbler[I, E, NO] = { (gaze: Gaze[I]) =>
+  final def as[NO](value: NO): Nibbler[I, NO] = { (gaze: Gaze[I]) =>
     {
       this.apply(gaze) match {
-        case Left(err) => Left(err)
-        case Right(_)  => Right(value)
+        case None => None
+        case Some(_)  => Some(value)
       }
     }
   }

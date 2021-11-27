@@ -15,7 +15,7 @@ class TakeAllSuite extends FunSuite {
     val nibbler8 = takeString("8")
     val takeAllNib = takeAll(nibbler5, nibbler6, nibbler7, nibbler8)
     val res = gaze.attempt(takeAllNib)
-    assertEquals(res, Right(List("5", "6", "7", "8")))
+    assertEquals(res, Some(List("5", "6", "7", "8")))
     assert(gaze.isComplete())
   }
 
@@ -28,12 +28,12 @@ class TakeAllSuite extends FunSuite {
 
     val takeAllFail = takeAll(nibbler5, nibbler6, nibbler8)
     val res = gaze.attempt(takeAllFail)
-    assertEquals(res, Left(NoMatch))
+    assertEquals(res, None)
     assert(!gaze.isComplete())
 
     val takeAllSucceed = takeAll(nibbler5, nibbler6, nibbler7, nibbler8)
     val res2 = gaze.attempt(takeAllSucceed)
-    assertEquals(res2, Right(List("5", "6", "7", "8")))
+    assertEquals(res2, Some(List("5", "6", "7", "8")))
     assert(gaze.isComplete())
   }
 }
