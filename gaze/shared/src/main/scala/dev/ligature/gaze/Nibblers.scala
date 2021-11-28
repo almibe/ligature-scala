@@ -8,63 +8,71 @@ import dev.ligature.gaze.Gaze
 import scala.collection.mutable.ArrayBuffer
 import scala.collection.mutable
 
-def take[I](toMatch: I): Nibbler[I] = {
-  ???
+/**
+ * A Nibbler that takes a single item.
+ */
+def take[I](toMatch: I): Nibbler[I, I] = {
+  (gaze) => {
+    gaze.next() match {
+      case Some(i) => if (toMatch == i) { Some(List(toMatch)) } else { None }
+      case None => None
+    }
+  }
 }
 
-// def takeString(toMatch: String): Nibbler[Char] = {
-//   //    let graphemes = to_match.graphemes(true).collect::<Vec<&str>>();
-//   val chars = toMatch.toVector
-//   return (gaze) => {
-//     var offset = 0
-//     var matched = true
-//     while (matched && offset < chars.length) {
-//       val nextChar = gaze.next()
-//       nextChar match {
-//         case Some(c) => {
-//           if (chars(offset) == c) {
-//             offset += 1;
-//           } else {
-//             matched = false
-//           }
-//         }
-//         case None => {
-//           matched = false
-//         }
-//       }
-//     }
-//     if (matched) {
-//       Some(chars)
-//     } else {
-//       None
-//     }
-//   }
-// }
+def takeAll[I](
+    nibblers: Nibbler[I, I]*
+): Nibbler[I, I] = { (gaze: Gaze[I]) =>
+  {
+    val results = ArrayBuffer[I]()
+    val res = nibblers.forall { nibbler =>
+      val res = gaze.attempt(nibbler)
+      res match {
+        case Some(res) => {
+          results.appendAll(res)
+          true
+        }
+        case None => {
+          false
+        }
+      }
+    }
+    if (res) {
+      Some(results.toList)
+    } else {
+      None
+    }
+  }
+}
 
-// def takeAll[I](
-//     nibblers: Nibbler[I]*
-// ): Nibbler[I] = { (gaze: Gaze[I]) =>
-//   {
-//     val results = ArrayBuffer[I]()
-//     val res = nibblers.forall { nibbler =>
-//       val res = gaze.attempt(nibbler)
-//       res match {
-//         case Some(res) => {
-//           results.append(res)
-//           true
-//         }
-//         case None => {
-//           false
-//         }
-//       }
-//     }
-//     if (res) {
-//       Some(results.toList)
-//     } else {
-//       None
-//     }
-//   }
-// }
+def takeString(toMatch: String): Nibbler[Char, Char] = {
+  //    let graphemes = to_match.graphemes(true).collect::<Vec<&str>>();
+  val chars = toMatch.toVector
+  return (gaze) => {
+    var offset = 0
+    var matched = true
+    while (matched && offset < chars.length) {
+      val nextChar = gaze.next()
+      nextChar match {
+        case Some(c) => {
+          if (chars(offset) == c) {
+            offset += 1;
+          } else {
+            matched = false
+          }
+        }
+        case None => {
+          matched = false
+        }
+      }
+    }
+    if (matched) {
+      Some(chars)
+    } else {
+      None
+    }
+  }
+}
 
 // def takeUntil(toMatch: Char): Nibbler[Char] = {
 //   return (gaze) => {
