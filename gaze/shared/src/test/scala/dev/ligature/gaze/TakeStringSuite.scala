@@ -39,7 +39,7 @@ class TakeStringSuite extends FunSuite {
       val nres = gaze.attempt(fiveStep)
       nres match {
         case Some(m) => res.appendAll(m)
-        case None  => throw new Error("Should not happen")
+        case None    => throw new Error("Should not happen")
       }
     }
     assertEquals(res.toList, List('5', '5', '5', '5', '5'))

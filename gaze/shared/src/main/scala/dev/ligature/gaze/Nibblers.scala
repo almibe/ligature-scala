@@ -8,13 +8,14 @@ import dev.ligature.gaze.Gaze
 import scala.collection.mutable.ArrayBuffer
 import scala.collection.mutable
 
-/**
- * A Nibbler that takes a single item.
- */
-def take[I](toMatch: I): Nibbler[I, I] = {
-  (gaze) => {
+/** A Nibbler that takes a single item.
+  */
+def take[I](toMatch: I): Nibbler[I, I] = { (gaze) =>
+  {
     gaze.next() match {
-      case Some(i) => if (toMatch == i) { Some(List(toMatch)) } else { None }
+      case Some(i) =>
+        if (toMatch == i) { Some(List(toMatch)) }
+        else { None }
       case None => None
     }
   }
@@ -140,7 +141,7 @@ def filter[I](
           if (predicate(value)) {
             matched = true
             gaze.attempt(nibbler) match {
-              case None      => result = None
+              case None        => result = None
               case Some(value) => result = Some(value)
             }
           } else {
@@ -193,11 +194,11 @@ def takeWhile[I](
   }
 }
 
-def optional[I](nibbler: Nibbler[I, I]): Nibbler[I, I] = {
-  (gaze: Gaze[I]) => {
+def optional[I](nibbler: Nibbler[I, I]): Nibbler[I, I] = { (gaze: Gaze[I]) =>
+  {
     gaze.attempt(nibbler) match {
       case res: Some[_] => res
-      case None => Some(Seq())
+      case None         => Some(Seq())
     }
   }
 }
@@ -227,7 +228,7 @@ def repeat[I](
     var continue = true
     while (!gaze.isComplete() && continue) {
       gaze.attempt(nibbler) match {
-        case None  => continue = false
+        case None    => continue = false
         case Some(v) => allMatches.appendAll(v)
       }
     }

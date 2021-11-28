@@ -23,7 +23,7 @@ class TakeUntilSuite extends FunSuite {
     assertEquals(gaze2.attempt(takeNewLine), Some(Seq('\n')))
     assert(gaze2.isComplete())
 
-    assertEquals(gaze3.attempt(nibbler), Some(Seq(' ', ' ' ,' ' ,' ')))
+    assertEquals(gaze3.attempt(nibbler), Some(Seq(' ', ' ', ' ', ' ')))
 
     assertEquals(gaze4.attempt(nibbler), Some(Seq('1', '2', '3')))
     assert(!gaze4.isComplete())

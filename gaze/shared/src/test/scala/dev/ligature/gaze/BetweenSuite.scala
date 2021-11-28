@@ -19,6 +19,9 @@ class BetweenSuite extends FunSuite {
 
   test("angle bracket test") {
     val gaze = Gaze.from("<hello>")
-    assertEquals(gaze.attempt(between(open, content, close)), Some("hello".toSeq))
+    assertEquals(
+      gaze.attempt(between(open, content, close)),
+      Some("hello".toSeq)
+    )
   }
 }

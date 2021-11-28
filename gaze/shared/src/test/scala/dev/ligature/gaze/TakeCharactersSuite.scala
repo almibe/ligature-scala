@@ -42,7 +42,7 @@ class TakeCharactersSuite extends FunSuite {
     val gaze = Gaze.from("55555")
     val res = gaze.attempt(fiveStep) match {
       case Some(m) => m.mkString.toInt
-      case None  => throw new Error("Should not happen")
+      case None    => throw new Error("Should not happen")
     }
     assertEquals(res, 55555)
   }

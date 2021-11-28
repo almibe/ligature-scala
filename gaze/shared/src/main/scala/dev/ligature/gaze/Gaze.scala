@@ -57,7 +57,7 @@ abstract class Nibbler[I, O] {
   final def map[NO](f: Seq[O] => Seq[NO]): Nibbler[I, NO] = { (gaze: Gaze[I]) =>
     {
       this.apply(gaze) match {
-        case None    => None
+        case None        => None
         case Some(value) => Some(f(value))
       }
     }
@@ -66,8 +66,8 @@ abstract class Nibbler[I, O] {
   final def as[NO](value: NO): Nibbler[I, NO] = { (gaze: Gaze[I]) =>
     {
       this.apply(gaze) match {
-        case None => None
-        case Some(_)  => Some(List(value))
+        case None    => None
+        case Some(_) => Some(List(value))
       }
     }
   }
