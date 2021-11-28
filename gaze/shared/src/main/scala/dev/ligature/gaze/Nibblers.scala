@@ -74,34 +74,34 @@ def takeString(toMatch: String): Nibbler[Char, Char] = {
   }
 }
 
-// def takeUntil(toMatch: Char): Nibbler[Char] = {
-//   return (gaze) => {
-//     val result = mutable.StringBuilder()
-//     var matched = false
-//     while (!matched) {
-//       val nextChar = gaze.peek()
-//       nextChar match {
-//         case Some(c) => {
-//           if (c == toMatch) {
-//             matched = true
-//           } else {
-//             gaze.next()
-//             result.append(c)
-//           }
-//         }
-//         case None => {
-//           matched = true
-//         }
-//       }
-//     }
-//     Some(result.toString)
-//   }
-// }
+def takeUntil[I](toMatch: I): Nibbler[I, I] = {
+  return (gaze) => {
+    val result = ArrayBuffer[I]()
+    var matched = false
+    while (!matched) {
+      val next = gaze.peek()
+      next match {
+        case Some(v) => {
+          if (v == toMatch) {
+            matched = true
+          } else {
+            gaze.next()
+            result.append(v)
+          }
+        }
+        case None => {
+          matched = true
+        }
+      }
+    }
+    Some(result.toSeq)
+  }
+}
 
 // def filter[I](
 //     predicate: (item: I) => Boolean,
-//     nibbler: Nibbler[I]
-// ): Nibbler[I] = { (gaze: Gaze[I]) =>
+//     nibbler: Nibbler[I, I]
+// ): Nibbler[I, I] = { (gaze: Gaze[I]) =>
 //   {
 //     var matched = false
 //     var result: Option[I] = None
@@ -128,47 +128,45 @@ def takeString(toMatch: String): Nibbler[Char, Char] = {
 //   }
 // }
 
-// def takeWhile(
-//     predicate: (toMatch: Char) => Boolean
-// ): Nibbler[Char, String] = {
-//   return (gaze: Gaze[Char]) => {
-//     val res = StringBuilder()
-//     var matched = true
-//     var continue = true
-//     while (continue) {
-//       val peek = gaze.peek();
+def takeWhile[I](
+    predicate: (toMatch: I) => Boolean
+): Nibbler[I, I] = {
+  return (gaze: Gaze[I]) => {
+    val res = ArrayBuffer[I]()
+    var matched = true
+    var continue = true
+    while (continue) {
+      val peek = gaze.peek();
 
-//       peek match {
-//         case Some(c) => {
-//           if (predicate(c)) {
-//             gaze.next();
-//             res += c;
-//           } else if (res.length == 0) {
-//             matched = false
-//             continue = false
-//           } else {
-//             continue = false
-//             // return Some(res);
-//           }
-//         }
-//         case None => {
-//           if (res.length == 0) {
-//             matched = false
-//             continue = false
-//           } else {
-//             continue = false
-//             // return Some(res);
-//           }
-//         }
-//       }
-//     }
-//     if (matched) {
-//       Some(res.toString())
-//     } else {
-//       None
-//     }
-//   }
-// }
+      peek match {
+        case Some(c) => {
+          if (predicate(c)) {
+            gaze.next();
+            res += c;
+          } else if (res.length == 0) {
+            matched = false
+            continue = false
+          } else {
+            continue = false
+          }
+        }
+        case None => {
+          if (res.length == 0) {
+            matched = false
+            continue = false
+          } else {
+            continue = false
+          }
+        }
+      }
+    }
+    if (matched) {
+      Some(res.toSeq)
+    } else {
+      None
+    }
+  }
+}
 
 // def optional[I](nibbler: Nibbler[I, I]): Nibbler[I, Option[I]] = {
 //   (gaze: Gaze[I]) => {
@@ -176,9 +174,9 @@ def takeString(toMatch: String): Nibbler[Char, Char] = {
 //   }
 // }
 
-// def takeCharacters(chars: Char*): Nibbler[Char, String] = takeWhile {
-//   chars.contains(_)
-// }
+def takeCharacters(chars: Char*): Nibbler[Char, Char] = takeWhile {
+  chars.contains(_)
+}
 
 // def matchNext[I](predicate: I => Boolean): Nibbler[I, I] = {
 //   (gaze: Gaze[I]) =>
