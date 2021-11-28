@@ -37,7 +37,7 @@ class Gaze[I](private val input: Vector[I]) {
     }
   }
 
-  def attempt[O](nibbler: Nibbler[I, O]): Option[O] = {
+  def attempt(nibbler: Nibbler[I]): Option[Seq[I]] = {
     val startOfThisLoop = this.offset
     val res = nibbler(this)
 
@@ -51,24 +51,24 @@ class Gaze[I](private val input: Vector[I]) {
   }
 }
 
-abstract class Nibbler[I, O] {
-  def apply(gaze: Gaze[I]): Option[O]
+abstract class Nibbler[I] {
+  def apply(gaze: Gaze[I]): Option[Seq[I]]
 
-  final def map[NO](f: O => NO): Nibbler[I, NO] = { (gaze: Gaze[I]) =>
-    {
-      this.apply(gaze) match {
-        case None    => None
-        case Some(value) => Some(f(value))
-      }
-    }
-  }
+  // final def map[O](f: I => O): Nibbler[O] = { (gaze: Gaze[I]) =>
+  //   {
+  //     this.apply(gaze) match {
+  //       case None    => None
+  //       case Some(value) => Some(value.map(f))
+  //     }
+  //   }
+  // }
 
-  final def as[NO](value: NO): Nibbler[I, NO] = { (gaze: Gaze[I]) =>
-    {
-      this.apply(gaze) match {
-        case None => None
-        case Some(_)  => Some(value)
-      }
-    }
-  }
+  // final def as[O](value: O): Nibbler[O] = { (gaze: Gaze[I]) =>
+  //   {
+  //     this.apply(gaze) match {
+  //       case None => None
+  //       case Some(_)  => Some(List(value))
+  //     }
+  //   }
+  // }
 }

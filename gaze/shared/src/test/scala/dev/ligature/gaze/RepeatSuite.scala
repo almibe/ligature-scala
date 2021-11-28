@@ -7,26 +7,26 @@ package dev.ligature.gaze
 import munit.FunSuite
 
 class RepeatSuite extends FunSuite {
-  val repeatHello = repeat(takeString("hello"))
+  // val repeatHello = repeat(takeString("hello"))
 
-  test("empty repeat test") {
-    val gaze = Gaze.from("")
-    assertEquals(gaze.attempt(repeatHello), None)
-  }
+  // test("empty repeat test") {
+  //   val gaze = Gaze.from("")
+  //   assertEquals(gaze.attempt(repeatHello), None)
+  // }
 
-  test("one match repeat test") {
-    val gaze = Gaze.from("hello")
-    assertEquals(gaze.attempt(repeatHello), Some(List("hello")))
-  }
+  // test("one match repeat test") {
+  //   val gaze = Gaze.from("hello")
+  //   assertEquals(gaze.attempt(repeatHello), Some(List("hello")))
+  // }
 
-  test("two match repeat test") {
-    val gaze = Gaze.from("hellohello")
-    assertEquals(gaze.attempt(repeatHello), Some(List("hello", "hello")))
-  }
+  // test("two match repeat test") {
+  //   val gaze = Gaze.from("hellohello")
+  //   assertEquals(gaze.attempt(repeatHello), Some(List("hello", "hello")))
+  // }
 
-  test("two match repeat test with remaining text") {
-    val gaze = Gaze.from("hellohellohell")
-    assertEquals(gaze.attempt(repeatHello), Some(List("hello", "hello")))
-    assert(!gaze.isComplete())
-  }
+  // test("two match repeat test with remaining text") {
+  //   val gaze = Gaze.from("hellohellohell")
+  //   assertEquals(gaze.attempt(repeatHello), Some(List("hello", "hello")))
+  //   assert(!gaze.isComplete())
+  // }
 }
