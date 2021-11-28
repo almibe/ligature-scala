@@ -123,35 +123,35 @@ def takeUntil[I](toMatch: I): Nibbler[I, I] = {
   }
 }
 
-// def filter[I](
-//     predicate: (item: I) => Boolean,
-//     nibbler: Nibbler[I, I]
-// ): Nibbler[I, I] = { (gaze: Gaze[I]) =>
-//   {
-//     var matched = false
-//     var result: Option[I] = None
-//     while (!matched) {
-//       gaze.peek() match {
-//         case None => {
-//           matched = true
-//           result = None
-//         }
-//         case Some(value) => {
-//           if (predicate(value)) {
-//             matched = true
-//             gaze.attempt(nibbler) match {
-//               case None      => result = None
-//               case Some(value) => result = Some(value)
-//             }
-//           } else {
-//             gaze.next()
-//           }
-//         }
-//       }
-//     }
-//     result
-//   }
-// }
+def filter[I](
+    predicate: (item: I) => Boolean,
+    nibbler: Nibbler[I, I]
+): Nibbler[I, I] = { (gaze: Gaze[I]) =>
+  {
+    var matched = false
+    var result: Option[Seq[I]] = None
+    while (!matched) {
+      gaze.peek() match {
+        case None => {
+          matched = true
+          result = None
+        }
+        case Some(value) => {
+          if (predicate(value)) {
+            matched = true
+            gaze.attempt(nibbler) match {
+              case None      => result = None
+              case Some(value) => result = Some(value)
+            }
+          } else {
+            gaze.next()
+          }
+        }
+      }
+    }
+    result
+  }
+}
 
 def takeWhile[I](
     predicate: (toMatch: I) => Boolean
@@ -193,11 +193,14 @@ def takeWhile[I](
   }
 }
 
-// def optional[I](nibbler: Nibbler[I, I]): Nibbler[I, Option[I]] = {
-//   (gaze: Gaze[I]) => {
-//     ???
-//   }
-// }
+def optional[I](nibbler: Nibbler[I, I]): Nibbler[I, I] = {
+  (gaze: Gaze[I]) => {
+    gaze.attempt(nibbler) match {
+      case res: Some[_] => res
+      case None => Some(Seq())
+    }
+  }
+}
 
 def takeCharacters(chars: Char*): Nibbler[Char, Char] = takeWhile {
   chars.contains(_)
