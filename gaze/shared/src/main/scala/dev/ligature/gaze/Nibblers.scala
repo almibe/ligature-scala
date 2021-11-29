@@ -137,34 +137,6 @@ def takeUntil[I](toMatch: I): Nibbler[I, I] = {
   }
 }
 
-def filter[I, O](
-    predicate: (item: I) => Boolean,
-    nibbler: Nibbler[I, O]
-): Nibbler[I, O] = { (gaze: Gaze[I]) =>
-  {
-    var continue = true
-    var results = ArrayBuffer[O]()
-    while (continue) {
-      gaze.peek() match {
-        case None => {
-          continue = false
-        }
-        case Some(value) => {
-          if (predicate(value)) {
-            gaze.attempt(nibbler) match {
-              case None        => continue = false
-              case Some(value) => results.appendAll(value)
-            }
-          } else {
-            gaze.next()
-          }
-        }
-      }
-    }
-    Some(results.toSeq)
-  }
-}
-
 def takeWhile[I](
     predicate: (toMatch: I) => Boolean
 ): Nibbler[I, I] = {
