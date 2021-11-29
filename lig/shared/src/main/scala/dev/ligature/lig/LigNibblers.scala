@@ -7,7 +7,6 @@ package dev.ligature.lig
 import scala.collection.mutable.ArrayBuffer
 import dev.ligature.gaze.{
   Gaze,
-  NoMatch,
   Nibbler,
   between,
   takeAll,
@@ -37,7 +36,7 @@ object LigNibblers {
     takeString(">")
   )
 
-  val stringContentNibbler: Nibbler[Char, NoMatch, String] =
+  val stringContentNibbler: Nibbler[Char, Char] =
     (gaze: Gaze[Char]) => {
       // Full pattern \"(([^\x00-\x1F\"\\]|\\[\"\\/bfnrt]|\\u[0-9a-fA-F]{4})*)\"
       val commandChars = 0x00.toChar to 0x1f.toChar
@@ -46,7 +45,7 @@ object LigNibblers {
       }
       val hexNibbler = takeWhile(validHexChar)
 
-      var sb = StringBuilder()
+      var sb = ArrayBuffer[Char]()
       var offset = 0 // TODO delete
       var fail = false
       var complete = false
@@ -67,10 +66,10 @@ object LigNibblers {
                   sb.append(c)
                   val res = gaze.attempt(hexNibbler)
                   res match {
-                    case Left(_) => fail = true
-                    case Right(res) => {
+                    case None => fail = true
+                    case Some(res) => {
                       if (res.length == 4) {
-                        sb.append(res)
+                        sb.appendAll(res)
                       } else {
                         fail = true
                       }
@@ -88,9 +87,9 @@ object LigNibblers {
         }
       }
       if (fail) {
-        Left(NoMatch)
+        None
       } else {
-        Right(sb.toString)
+        Some(sb.toSeq)
       }
     }
 

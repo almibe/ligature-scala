@@ -7,10 +7,11 @@ package dev.ligature.lig
 import scala.collection.mutable.ArrayBuffer
 import dev.ligature.gaze.{
   Gaze,
-  NoMatch,
   Nibbler,
   between,
+  optional,
   takeAll,
+  takeAllGrouped,
   takeCharacters,
   takeString,
   takeWhile
@@ -29,47 +30,46 @@ case class LigError(val message: String)
 def parse(input: String): Either[LigError, Iterator[Statement]] = {
   val gaze = Gaze.from(input)
   val statements: ArrayBuffer[Statement] = ArrayBuffer()
-  while (!gaze.isComplete()) {
+  var continue = true
+  while (continue && !gaze.isComplete()) {
     parseStatement(gaze) match {
       case Left(resStatement)  => return Left(resStatement)
       case Right(resStatement) => statements.append(resStatement)
+    }
+    val check = gaze.attempt(optional(whiteSpaceAndNewLineNibbler))
+    if (check.isDefined && !gaze.isComplete()) {
+      continue = true
+    } else {
+      continue = false
     }
   }
   return Right(statements.iterator)
 }
 
 def parseStatement(gaze: Gaze[Char]): Either[LigError, Statement] = {
-  val res = for {
+  for {
     _ <- gaze
-      .attempt(whiteSpaceAndNewLineNibbler)
-      .orElse(
-        Right(())
-      ) // TODO this orElse should be eventually encoded in Gaze
+      .attempt(optional(whiteSpaceAndNewLineNibbler))
+      .toRight(LigError(""))
     entity <- parseIdentifier(gaze)
-    _ <- gaze.attempt(whiteSpaceNibbler)
+    _ <- gaze.attempt(whiteSpaceNibbler).toRight(LigError(""))
     attribute <- parseIdentifier(gaze)
-    _ <- gaze.attempt(whiteSpaceNibbler)
+    _ <- gaze.attempt(whiteSpaceNibbler).toRight(LigError(""))
     value <- parseValue(gaze)
-    _ <- gaze.attempt(whiteSpaceNibbler)
+    _ <- gaze.attempt(whiteSpaceNibbler).toRight(LigError(""))
     context <- parseIdentifier(gaze)
-    _ <- gaze
-      .attempt(whiteSpaceAndNewLineNibbler)
-      .orElse(
-        Right(())
-      ) // TODO this orElse should be eventually encoded in Gaze
-  } yield ((Statement(entity, attribute, value, context)))
-  res.left.map(_ => LigError("Could not create Statement."))
+  } yield (Statement(entity, attribute, value, context))
 }
 
 def parseIdentifier(gaze: Gaze[Char]): Either[LigError, Identifier] = {
   val id = gaze.attempt(identifierNibbler).map { idText =>
-    Identifier.fromString(idText)
+    createIdentifier(idText.mkString)
   }
 
   id match {
-    case Right(Right(id)) => Right(id)
-    case Right(Left(_))   => Left(LigError("Could not create Identifier."))
-    case _                => Left(LigError("Could not create Identifier."))
+    case Some(Right(id)) => Right(id)
+    case Some(Left(err)) => Left(err)
+    case _               => Left(LigError("Could not match Identifier."))
   }
 }
 
@@ -94,16 +94,17 @@ def parseValue(gaze: Gaze[Char]): Either[LigError, Value] = {
 
 def parseIntegerLiteral(gaze: Gaze[Char]): Either[LigError, IntegerLiteral] = {
   gaze.attempt(numberNibbler) match {
-    case Left(_)  => Left(LigError("Could not parse Integer."))
-    case Right(i) => Right(IntegerLiteral(i.toLong)) // TODO toLong can throw
+    case None => Left(LigError("Could not parse Integer."))
+    case Some(i) =>
+      Right(IntegerLiteral(i.mkString.toLong)) // TODO toLong can throw
   }
 }
 
 def parseStringLiteral(gaze: Gaze[Char]): Either[LigError, StringLiteral] = {
-  val res = gaze.attempt(takeAll(takeString("\""), stringContentNibbler))
+  val res = gaze.attempt(takeAllGrouped(takeString("\""), stringContentNibbler))
 
   res match {
-    case Left(_)    => Left(LigError("Could not parse String."))
-    case Right(res) => Right(StringLiteral(res(1)))
+    case None      => Left(LigError("Could not parse String."))
+    case Some(res) => Right(StringLiteral(res(1).mkString))
   }
 }
