@@ -12,4 +12,10 @@ class FilterSuite extends FunSuite {
     val filterNibbler = filter((c: Char) => !c.isDigit, takeString("hello"))
     assertEquals(gaze.attempt(filterNibbler), Some("hello".toSeq))
   }
+
+  test("filter all numbers test") {
+    val gaze = Gaze.from("12341234hello12342343hello234234234")
+    val filterNibbler = filter((c: Char) => !c.isDigit, takeString("hello"))
+    assertEquals(gaze.attempt(filterNibbler), Some("hellohello".toSeq))
+  }
 }

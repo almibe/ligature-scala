@@ -34,11 +34,11 @@ def takeCond[I](cond: (I) => Boolean): Nibbler[I, I] = { (gaze) =>
   }
 }
 
-def takeAll[I](
-    nibblers: Nibbler[I, I]*
-): Nibbler[I, I] = { (gaze: Gaze[I]) =>
+def takeAll[I, O](
+    nibblers: Nibbler[I, O]*
+): Nibbler[I, O] = { (gaze: Gaze[I]) =>
   {
-    val results = ArrayBuffer[I]()
+    val results = ArrayBuffer[O]()
     val res = nibblers.forall { nibbler =>
       val res = gaze.attempt(nibbler)
       res match {
@@ -142,20 +142,18 @@ def filter[I, O](
     nibbler: Nibbler[I, O]
 ): Nibbler[I, O] = { (gaze: Gaze[I]) =>
   {
-    var matched = false
-    var result: Option[Seq[O]] = None
-    while (!matched) {
+    var continue = true
+    var results = ArrayBuffer[O]()
+    while (continue) {
       gaze.peek() match {
         case None => {
-          matched = true
-          result = None
+          continue = false
         }
         case Some(value) => {
           if (predicate(value)) {
-            matched = true
             gaze.attempt(nibbler) match {
-              case None        => result = None
-              case Some(value) => result = Some(value)
+              case None        => continue = false
+              case Some(value) => results.appendAll(value)
             }
           } else {
             gaze.next()
@@ -163,7 +161,7 @@ def filter[I, O](
         }
       }
     }
-    result
+    Some(results.toSeq)
   }
 }
 
@@ -207,7 +205,7 @@ def takeWhile[I](
   }
 }
 
-def optional[I](nibbler: Nibbler[I, I]): Nibbler[I, I] = { (gaze: Gaze[I]) =>
+def optional[I, O](nibbler: Nibbler[I, O]): Nibbler[I, O] = { (gaze: Gaze[I]) =>
   {
     gaze.attempt(nibbler) match {
       case res: Some[_] => res
