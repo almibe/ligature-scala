@@ -6,6 +6,7 @@ package dev.ligature.wander
 
 import dev.ligature.wander.lexer.Token
 import dev.ligature.wander.parser.{
+  Name,
   Nothing,
   Script,
   BooleanValue,
@@ -15,6 +16,7 @@ import dev.ligature.wander.parser.{
 }
 import dev.ligature.wander.lexer.TokenType
 import dev.ligature.{Identifier, IntegerLiteral, StringLiteral}
+import dev.ligature.wander.parser.LetStatement
 
 case class TestData(
     val category: String,
@@ -133,24 +135,24 @@ val assignmentTestData = List(
       Token(" ", TokenType.Spaces),
       Token("5", TokenType.Integer)
     ),
-    ast = Script(List()),
+    ast = Script(List(LetStatement(Name("x"), LigatureValue(IntegerLiteral(5))))),
     result = Right(ScriptResult(Nothing))
   ),
-  TestInstance(
-    description = "make sure keyword parser is greedy",
-    script = "let trued = true",
-    tokens = List(
-      Token("let", TokenType.LetKeyword),
-      Token(" ", TokenType.Spaces),
-      Token("trued", TokenType.Name),
-      Token(" ", TokenType.Spaces),
-      Token("=", TokenType.EqualSign),
-      Token(" ", TokenType.Spaces),
-      Token("true", TokenType.Boolean)
-    ),
-    ast = Script(List()),
-    result = Right(ScriptResult(Nothing))
-  )
+  // TestInstance(
+  //   description = "make sure keyword parser is greedy",
+  //   script = "let trued = true",
+  //   tokens = List(
+  //     Token("let", TokenType.LetKeyword),
+  //     Token(" ", TokenType.Spaces),
+  //     Token("trued", TokenType.Name),
+  //     Token(" ", TokenType.Spaces),
+  //     Token("=", TokenType.EqualSign),
+  //     Token(" ", TokenType.Spaces),
+  //     Token("true", TokenType.Boolean)
+  //   ),
+  //   ast = Script(List()),
+  //   result = Right(ScriptResult(Nothing))
+  // )
 
 //     TestInstance(
 //         description = "let with result"

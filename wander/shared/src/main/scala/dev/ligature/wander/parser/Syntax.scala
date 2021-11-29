@@ -90,7 +90,7 @@ case class NativeFunction(
 
 /** Represents a full script that can be eval'd.
   */
-case class Script(val elements: List[Element]) {
+case class Script(val elements: Seq[Element]) {
   def eval(bindings: Bindings): Either[ScriptError, ScriptResult] = {
     var result: Either[ScriptError, WanderValue] = Right(Nothing)
     elements.foreach { element =>

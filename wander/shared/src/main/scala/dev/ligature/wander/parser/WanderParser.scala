@@ -7,10 +7,10 @@ package dev.ligature.wander.parser
 import dev.ligature.gaze.{
   Gaze,
   Nibbler,
-  NoMatch,
   filter,
-  matchNext,
+  take,
   takeAll,
+  takeCond,
   takeFirst,
   takeString,
   repeat
@@ -23,28 +23,28 @@ def parse(script: Seq[Token]): Either[String, Script] = {
   val gaze = Gaze(script.toVector)
   val res = gaze.attempt(scriptNib)
   res match {
-    case Left(err)  => Left("NoMatch")
-    case Right(res) => Right(Script(res.filter(_.isDefined).map(_.get)))
+    case None  => Left("NoMatch")
+    case Some(res) => Right(Script(res))//.filter(_.isDefined).map(_.get)))
   }
 }
 
-val booleanNib: Nibbler[Token, NoMatch, Expression] = matchNext[Token] {
+val booleanNib: Nibbler[Token, Expression] = takeCond[Token] {
   _.tokenType == TokenType.Boolean
-}.map { (token: Token) => BooleanValue(token.content.toBoolean) }
+}.map { token => Seq(BooleanValue(token(0).content.toBoolean)) }
 
-val identifierNib: Nibbler[Token, NoMatch, Expression] = matchNext[Token] {
+val identifierNib: Nibbler[Token, Expression] = takeCond[Token] {
   _.tokenType == TokenType.Identifier
-}.map { (token: Token) =>
-  LigatureValue(Identifier.fromString(token.content).getOrElse(???))
+}.map { token =>
+  Seq(LigatureValue(Identifier.fromString(token(0).content).getOrElse(???)))
 }
 
-val integerNib: Nibbler[Token, NoMatch, Expression] = matchNext[Token] {
+val integerNib: Nibbler[Token, Expression] = takeCond[Token] {
   _.tokenType == TokenType.Integer
-}.map { (token: Token) => LigatureValue(IntegerLiteral(token.content.toInt)) }
+}.map { token => Seq(LigatureValue(IntegerLiteral(token(0).content.toInt))) }
 
-val stringNib: Nibbler[Token, NoMatch, Expression] = matchNext[Token] {
+val stringNib: Nibbler[Token, Expression] = takeCond[Token] {
   _.tokenType == TokenType.String
-}.map { (token: Token) => LigatureValue(StringLiteral(token.content)) }
+}.map { token => Seq(LigatureValue(StringLiteral(token(0).content))) }
 
 val expressionNib = takeFirst(identifierNib, stringNib, integerNib, booleanNib)
 

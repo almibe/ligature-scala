@@ -137,13 +137,13 @@ def takeUntil[I](toMatch: I): Nibbler[I, I] = {
   }
 }
 
-def filter[I](
+def filter[I, O](
     predicate: (item: I) => Boolean,
-    nibbler: Nibbler[I, I]
-): Nibbler[I, I] = { (gaze: Gaze[I]) =>
+    nibbler: Nibbler[I, O]
+): Nibbler[I, O] = { (gaze: Gaze[I]) =>
   {
     var matched = false
-    var result: Option[Seq[I]] = None
+    var result: Option[Seq[O]] = None
     while (!matched) {
       gaze.peek() match {
         case None => {

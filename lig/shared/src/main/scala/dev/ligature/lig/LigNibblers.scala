@@ -10,6 +10,7 @@ import dev.ligature.gaze.{
   Nibbler,
   between,
   takeAll,
+  takeAllGrouped,
   takeCharacters,
   takeString,
   takeUntil,
@@ -93,7 +94,7 @@ object LigNibblers {
       }
     }
 
-  val stringNibbler = takeAll(
+  val stringNibbler = takeAllGrouped(
     takeString("\""),
     stringContentNibbler
   ) // TODO should be a between but stringContentNibbler consumes the last " currently
