@@ -12,7 +12,7 @@ object Gaze {
   }
 }
 
-class Gaze[I](private val input: Vector[I]) {
+class Gaze[+I](private val input: Vector[I]) {
   private var offset: Int = 0
 
   def isComplete(): Boolean = {
@@ -51,7 +51,7 @@ class Gaze[I](private val input: Vector[I]) {
   }
 }
 
-abstract class Nibbler[I, O] {
+abstract class Nibbler[-I, +O] {
   def apply(gaze: Gaze[I]): Option[Seq[O]]
 
   final def map[NO](f: Seq[O] => Seq[NO]): Nibbler[I, NO] = { (gaze: Gaze[I]) =>
