@@ -7,6 +7,7 @@ package dev.ligature.wander.lexer
 import dev.ligature.gaze.{
   Gaze,
   Nibbler,
+  optional,
   take,
   takeAll,
   takeCond,
@@ -29,32 +30,30 @@ case class TokenizeError(message: String)
 def tokenize(input: String): Either[TokenizeError, Seq[Token]] = {
   val gaze = Gaze.from(input)
   gaze.attempt(tokensNib) match {
-    case None  => Left(TokenizeError("Error"))
+    case None      => Left(TokenizeError("Error"))
     case Some(res) => Right(res)
   }
 }
 
 val stringTokenNib =
-  LigNibblers.stringNibbler.map(results => Seq(Token(results(1).mkString, TokenType.String)))
+  LigNibblers.stringNibbler.map(results =>
+    Seq(Token(results(1).mkString, TokenType.String))
+  )
 
-val newLineTokenNib = takeString("\n").map(res => Seq(Token(res.mkString, TokenType.NewLine)))
+val newLineTokenNib =
+  takeString("\n").map(res => Seq(Token(res.mkString, TokenType.NewLine)))
 
 val commentTokenNib = takeAll(takeString("#"), takeUntil('\n')).map(results =>
   Seq(Token(results.mkString, TokenType.Comment))
 )
-
-// val booleanTokenNib = takeFirst(takeString("true"), takeString("false")).map(
-//   Token(_, TokenType.Boolean)
-// )
 
 /** This nibbler matches both names and keywords. After the initial match all
   * keywords are checked and if none match and name is returned.
   */
 val nameTokenNib = takeAll(
   takeCond { (c: Char) => c.isLetter || c == '_' },
-  takeWhile[Char] { (c: Char) => c.isLetter || c.isDigit || c == '_' }
+  optional(takeWhile[Char] { (c: Char) => c.isLetter || c.isDigit || c == '_' })
 )
-//  .map(_.mkString)
   .map { value =>
     value.mkString match {
       case "true"        => Seq(Token("true", TokenType.Boolean))
@@ -64,14 +63,21 @@ val nameTokenNib = takeAll(
     }
   }
 
-val equalSignTokenNib = takeString("=").map(res => Seq(Token(res.mkString, TokenType.EqualSign)))
+val equalSignTokenNib =
+  takeString("=").map(res => Seq(Token(res.mkString, TokenType.EqualSign)))
 
-val integerTokenNib = LigNibblers.numberNibbler.map(res => Seq(Token(res.mkString, TokenType.Integer)))
+val integerTokenNib = LigNibblers.numberNibbler.map(res =>
+  Seq(Token(res.mkString, TokenType.Integer))
+)
 
-val spacesTokenNib = takeWhile[Char](_ == ' ').map(res => Seq(Token(res.mkString, TokenType.Spaces)))
+val spacesTokenNib = takeWhile[Char](_ == ' ').map(res =>
+  Seq(Token(res.mkString, TokenType.Spaces))
+)
 
 val identifierTokenNib =
-  LigNibblers.identifierNibbler.map(res => Seq(Token(res.mkString, TokenType.Identifier)))
+  LigNibblers.identifierNibbler.map(res =>
+    Seq(Token(res.mkString, TokenType.Identifier))
+  )
 
 val tokensNib: Nibbler[Char, Token] = repeat(
   takeFirst(

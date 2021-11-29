@@ -135,9 +135,10 @@ val assignmentTestData = List(
       Token(" ", TokenType.Spaces),
       Token("5", TokenType.Integer)
     ),
-    ast = Script(List(LetStatement(Name("x"), LigatureValue(IntegerLiteral(5))))),
+    ast =
+      Script(List(LetStatement(Name("x"), LigatureValue(IntegerLiteral(5))))),
     result = Right(ScriptResult(Nothing))
-  ),
+  )
   // TestInstance(
   //   description = "make sure keyword parser is greedy",
   //   script = "let trued = true",

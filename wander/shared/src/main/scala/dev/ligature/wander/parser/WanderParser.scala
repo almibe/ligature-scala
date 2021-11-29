@@ -8,6 +8,7 @@ import dev.ligature.gaze.{
   Gaze,
   Nibbler,
   filter,
+  optional,
   take,
   takeAll,
   takeCond,
@@ -20,11 +21,20 @@ import dev.ligature.wander.lexer.Token
 import dev.ligature.wander.lexer.TokenType
 
 def parse(script: Seq[Token]): Either[String, Script] = {
+  val tempVec = script.toVector
   val gaze = Gaze(script.toVector)
   val res = gaze.attempt(scriptNib)
   res match {
-    case None  => Left("NoMatch")
-    case Some(res) => Right(Script(res))//.filter(_.isDefined).map(_.get)))
+    case None => {
+      if (gaze.isComplete()) {
+        Right(Script(Seq()))
+      } else {
+        println(s"err - $tempVec")
+        Left("NoMatch")
+      }
+    }
+    // TODO some case also needs to check if gaze is complete
+    case Some(res) => Right(Script(res)) // .filter(_.isDefined).map(_.get)))
   }
 }
 
@@ -48,13 +58,40 @@ val stringNib: Nibbler[Token, Expression] = takeCond[Token] {
 
 val expressionNib = takeFirst(identifierNib, stringNib, integerNib, booleanNib)
 
-val elementNib = takeFirst(expressionNib)
+val nameNib = takeCond[Token] {
+  _.tokenType == TokenType.Name
+}.map { token =>
+  Seq(Name(token(0).content))
+}
 
-val scriptNib = repeat(
-  filter(
-    { (token: Token) =>
-      token.tokenType != TokenType.Comment && token.tokenType != TokenType.Spaces && token.tokenType != TokenType.NewLine
-    },
-    elementNib
+val equalSignNib = takeCond[Token] { _.tokenType == TokenType.EqualSign }.map {
+  token => Seq(EqualSign)
+}
+
+val letKeywordNib = takeCond[Token] { _.tokenType == TokenType.LetKeyword }.map {
+  token => Seq(LetKeyword)
+}
+
+val letStatementNib: Nibbler[Token, LetStatement] = {
+  (gaze) => {
+    for {
+      _ <- gaze.attempt(letKeywordNib)
+      name <- gaze.attempt(nameNib)
+      _ <- gaze.attempt(equalSignNib)
+      expression <- gaze.attempt(expressionNib)
+    } yield Seq(LetStatement(name(0), expression(0)))
+  }
+}
+
+val elementNib = takeFirst(expressionNib, letStatementNib)
+
+val scriptNib = optional(
+  repeat(
+    filter(
+      { (token: Token) =>
+        token.tokenType != TokenType.Comment && token.tokenType != TokenType.Spaces && token.tokenType != TokenType.NewLine
+      },
+      elementNib
+    )
   )
 )

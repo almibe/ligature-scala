@@ -46,9 +46,23 @@ case class ResultStream(stream: Stream[IO, WanderValue]) extends WanderValue {
   override def eval(binding: Bindings) = ???
 }
 
+object EqualSign extends Element {
+  override def eval(binding: Bindings) = Left(
+    ScriptError("Cannot eval equal sign.")
+  )
+}
+
+object LetKeyword extends Element {
+  override def eval(binding: Bindings) = Left(
+    ScriptError("Cannot eval ley keyword.")
+  )
+}
+
 /** Represents a Name in the Wander language.
   */
-case class Name(name: String)
+final case class Name(name: String) extends Element {
+  override def eval(binding: Bindings) = Right(binding.read(this))
+}
 
 case class ScriptError(message: String)
 case class ScriptResult(result: WanderValue)
