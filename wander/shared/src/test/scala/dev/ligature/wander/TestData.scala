@@ -155,26 +155,28 @@ val assignmentTestData = List(
     result = Right(ScriptResult(Nothing))
   ),
   TestInstance(
-      description = "let with result",
-      script = """let hello = 5
+    description = "let with result",
+    script = """let hello = 5
               |hello""".stripMargin,
-      tokens = List(
-        Token("let", TokenType.LetKeyword),
-        Token(" ", TokenType.Spaces),
-        Token("hello", TokenType.Name),
-        Token(" ", TokenType.Spaces),
-        Token("=", TokenType.EqualSign),
-        Token(" ", TokenType.Spaces),
-        Token("5", TokenType.Integer),
-        Token("\n", TokenType.NewLine),
-        Token("name", TokenType.Name)
-      ),
-      ast = Script(List(
+    tokens = List(
+      Token("let", TokenType.LetKeyword),
+      Token(" ", TokenType.Spaces),
+      Token("hello", TokenType.Name),
+      Token(" ", TokenType.Spaces),
+      Token("=", TokenType.EqualSign),
+      Token(" ", TokenType.Spaces),
+      Token("5", TokenType.Integer),
+      Token("\n", TokenType.NewLine),
+      Token("hello", TokenType.Name)
+    ),
+    ast = Script(
+      List(
         LetStatement(Name("hello"), LigatureValue(IntegerLiteral(5))),
         Name("hello")
-      )),
-      result = Right(ScriptResult(LigatureValue(IntegerLiteral(5))))
-  ),
+      )
+    ),
+    result = Right(ScriptResult(LigatureValue(IntegerLiteral(5))))
+  )
 
 // "let.wander" ->
 //     Script(List(

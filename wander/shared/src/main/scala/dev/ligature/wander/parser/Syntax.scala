@@ -60,7 +60,7 @@ object LetKeyword extends Element {
 
 /** Represents a Name in the Wander language.
   */
-final case class Name(name: String) extends Element {
+final case class Name(name: String) extends Expression {
   override def eval(binding: Bindings) = Right(binding.read(this))
 }
 

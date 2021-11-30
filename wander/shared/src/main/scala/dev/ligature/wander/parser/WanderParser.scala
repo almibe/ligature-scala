@@ -56,13 +56,14 @@ val stringNib: Nibbler[Token, Expression] = takeCond[Token] {
   _.tokenType == TokenType.String
 }.map { token => Seq(LigatureValue(StringLiteral(token(0).content))) }
 
-val expressionNib = takeFirst(identifierNib, stringNib, integerNib, booleanNib)
-
 val nameNib = takeCond[Token] {
   _.tokenType == TokenType.Name
 }.map { token =>
   Seq(Name(token(0).content))
 }
+
+val expressionNib =
+  takeFirst(nameNib, identifierNib, stringNib, integerNib, booleanNib)
 
 val equalSignNib = takeCond[Token] { _.tokenType == TokenType.EqualSign }.map {
   token => Seq(EqualSign)
