@@ -212,15 +212,53 @@ val assignmentTestData = List(
       )
     ),
     result = Right(ScriptResult(LigatureValue(IntegerLiteral(7))))
-  )
+  ),
 
-// "block.wander" ->
-//     Script(List(
-//         scope(List(
-//             letStatement(identifier("x"), valueExpression(7n)),
-//             referenceExpression(identifier('x'))
-//         ))
-//     )),
+  TestInstance(
+    description = "scope shadowing",
+    script = """let x = 5
+               |{
+               |  let x = 7
+               |  x
+               |}""".stripMargin,
+    tokens = List(
+      Token("let", TokenType.LetKeyword),
+      Token(" ", TokenType.Spaces),
+      Token("x", TokenType.Name),
+      Token(" ", TokenType.Spaces),
+      Token("=", TokenType.EqualSign),
+      Token(" ", TokenType.Spaces),
+      Token("5", TokenType.Integer),
+      Token("\n", TokenType.NewLine),
+      Token("{", TokenType.OpenBrace),
+      Token("\n", TokenType.NewLine),
+      Token("  ", TokenType.Spaces),
+      Token("let", TokenType.LetKeyword),
+      Token(" ", TokenType.Spaces),
+      Token("x", TokenType.Name),
+      Token(" ", TokenType.Spaces),
+      Token("=", TokenType.EqualSign),
+      Token(" ", TokenType.Spaces),
+      Token("7", TokenType.Integer),
+      Token("\n", TokenType.NewLine),
+      Token("  ", TokenType.Spaces),
+      Token("x", TokenType.Name),
+      Token("\n", TokenType.NewLine),
+      Token("}", TokenType.CloseBrace)
+    ),
+    ast = Script(
+      List(
+        LetStatement(Name("x"), LigatureValue(IntegerLiteral(5))),
+        Scope(
+          List(
+            LetStatement(Name("x"), LigatureValue(IntegerLiteral(7))),
+            Name("x")
+          )
+        )
+      )
+    ),
+    result = Right(ScriptResult(LigatureValue(IntegerLiteral(7))))
+  )
 
 // "block-shadow.wander" ->
 //     Script(List(

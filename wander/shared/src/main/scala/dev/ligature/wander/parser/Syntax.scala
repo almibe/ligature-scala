@@ -131,10 +131,12 @@ case class Script(val elements: Seq[Element]) {
   */
 case class Scope(val elements: List[Element]) extends Expression {
   def eval(bindings: Bindings) = {
+    bindings.addScope()
     var result: Either[ScriptError, WanderValue] = Right(Nothing)
     elements.foreach { element =>
       result = element.eval(bindings)
     }
+    bindings.removeScope()
     result
   }
 }
