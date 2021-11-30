@@ -213,7 +213,6 @@ val assignmentTestData = List(
     ),
     result = Right(ScriptResult(LigatureValue(IntegerLiteral(7))))
   ),
-
   TestInstance(
     description = "scope shadowing",
     script = """let x = 5
@@ -259,18 +258,49 @@ val assignmentTestData = List(
     ),
     result = Right(ScriptResult(LigatureValue(IntegerLiteral(7))))
   )
-
-// "block-shadow.wander" ->
-//     Script(List(
-//         letStatement(identifier("x"), valueExpression(5n)),
-//         scope(List(
-//             letStatement(identifier("x"), valueExpression(7n)),
-//             referenceExpression(identifier('x'))
-//         ))
-//     )),
 )
 
 val functionTestData = List(
+  TestInstance(
+    description = "function0 def",
+    script = """let f = () -> { 5 }
+               |f()""".stripMargin,
+    tokens = List(
+      Token("let", TokenType.LetKeyword),
+      Token(" ", TokenType.Spaces),
+      Token("f", TokenType.Name),
+      Token(" ", TokenType.Spaces),
+      Token("=", TokenType.EqualSign),
+      Token(" ", TokenType.Spaces),
+      Token("(", TokenType.OpenParen),
+      Token(")", TokenType.CloseParen),
+      Token(" ", TokenType.Spaces),
+      Token("->", TokenType.Arrow),
+      Token(" ", TokenType.Spaces),
+      Token("{", TokenType.OpenBrace),
+      Token(" ", TokenType.Spaces),
+      Token("5", TokenType.Integer),
+      Token(" ", TokenType.Spaces),
+      Token("}", TokenType.CloseBrace),
+      Token("\n", TokenType.NewLine),
+      Token("f", TokenType.Name),
+      Token("(", TokenType.OpenParen),
+      Token(")", TokenType.CloseParen)
+    ),
+    ast = Script(
+      List(
+        LetStatement(Name("x"), LigatureValue(IntegerLiteral(5))),
+        Scope(
+          List(
+            LetStatement(Name("x"), LigatureValue(IntegerLiteral(7))),
+            Name("x")
+          )
+        )
+      )
+    ),
+    result = Right(ScriptResult(LigatureValue(IntegerLiteral(7))))
+  )
+
   // //FUNCTIONS
   // "function0-def.wander" ->
   //     Script(List(
@@ -304,5 +334,9 @@ val testData = List(
   TestData(
     category = "Assignment",
     testInstances = assignmentTestData
+  ),
+  TestData(
+    category = "Functions",
+    testInstances = functionTestData
   )
 )

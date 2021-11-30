@@ -64,6 +64,24 @@ object CloseBrace extends Element {
   )
 }
 
+object OpenParen extends Element {
+  override def eval(binding: Bindings) = Left(
+    ScriptError("Cannot eval open paren.")
+  )
+}
+
+object CloseParen extends Element {
+  override def eval(binding: Bindings) = Left(
+    ScriptError("Cannot eval close paren.")
+  )
+}
+
+object Arrow extends Element {
+  override def eval(binding: Bindings) = Left(
+    ScriptError("Cannot eval arrow.")
+  )
+}
+
 object LetKeyword extends Element {
   override def eval(binding: Bindings) = Left(
     ScriptError("Cannot eval ley keyword.")
@@ -102,10 +120,6 @@ case class LetStatement(name: Name, expression: Expression) extends Element {
   */
 sealed trait Expression extends Element
 
-/** Holds a reference to a function defined in Wander.
-  */
-case class FunctionDefinition(parameters: List[String], body: List[Element])
-
 /** Holds a reference to a function defined in Scala that can be called from
   * Wander.
   */
@@ -138,6 +152,14 @@ case class Scope(val elements: List[Element]) extends Expression {
     }
     bindings.removeScope()
     result
+  }
+}
+
+/** Holds a reference to a function defined in Wander.
+  */
+case class FunctionDefinition(parameters: List[String], body: Scope) extends Expression {
+  override def eval(binding: Bindings) = {
+    ???
   }
 }
 
