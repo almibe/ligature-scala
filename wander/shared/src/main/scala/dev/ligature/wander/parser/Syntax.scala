@@ -52,6 +52,18 @@ object EqualSign extends Element {
   )
 }
 
+object OpenBrace extends Element {
+  override def eval(binding: Bindings) = Left(
+    ScriptError("Cannot eval open brace.")
+  )
+}
+
+object CloseBrace extends Element {
+  override def eval(binding: Bindings) = Left(
+    ScriptError("Cannot eval close brace.")
+  )
+}
+
 object LetKeyword extends Element {
   override def eval(binding: Bindings) = Left(
     ScriptError("Cannot eval ley keyword.")
@@ -119,7 +131,11 @@ case class Script(val elements: Seq[Element]) {
   */
 case class Scope(val elements: List[Element]) extends Expression {
   def eval(bindings: Bindings) = {
-    ???
+    var result: Either[ScriptError, WanderValue] = Right(Nothing)
+    elements.foreach { element =>
+      result = element.eval(bindings)
+    }
+    result
   }
 }
 

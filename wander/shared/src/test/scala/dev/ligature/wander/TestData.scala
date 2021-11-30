@@ -8,6 +8,7 @@ import dev.ligature.wander.lexer.Token
 import dev.ligature.wander.parser.{
   Name,
   Nothing,
+  Scope,
   Script,
   BooleanValue,
   LigatureValue,
@@ -176,18 +177,42 @@ val assignmentTestData = List(
       )
     ),
     result = Right(ScriptResult(LigatureValue(IntegerLiteral(5))))
+  ),
+  TestInstance(
+    description = "basic scope",
+    script = """{
+               |  let x = 7
+               |  x
+               |}""".stripMargin,
+    tokens = List(
+      Token("{", TokenType.OpenBrace),
+      Token("\n", TokenType.NewLine),
+      Token("  ", TokenType.Spaces),
+      Token("let", TokenType.LetKeyword),
+      Token(" ", TokenType.Spaces),
+      Token("x", TokenType.Name),
+      Token(" ", TokenType.Spaces),
+      Token("=", TokenType.EqualSign),
+      Token(" ", TokenType.Spaces),
+      Token("7", TokenType.Integer),
+      Token("\n", TokenType.NewLine),
+      Token("  ", TokenType.Spaces),
+      Token("x", TokenType.Name),
+      Token("\n", TokenType.NewLine),
+      Token("}", TokenType.CloseBrace)
+    ),
+    ast = Script(
+      List(
+        Scope(
+          List(
+            LetStatement(Name("x"), LigatureValue(IntegerLiteral(7))),
+            Name("x")
+          )
+        )
+      )
+    ),
+    result = Right(ScriptResult(LigatureValue(IntegerLiteral(7))))
   )
-
-// "let.wander" ->
-//     Script(List(
-//         letStatement(identifier("x"), valueExpression(5n))
-//     )),
-
-// "let-res.wander" ->
-//     Script(List(
-//         letStatement(identifier("hello"), valueExpression(5n)),
-//         referenceExpression(identifier("hello"))
-//     )),
 
 // "block.wander" ->
 //     Script(List(

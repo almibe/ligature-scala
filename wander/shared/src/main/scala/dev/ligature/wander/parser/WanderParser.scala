@@ -62,8 +62,24 @@ val nameNib = takeCond[Token] {
   Seq(Name(token(0).content))
 }
 
+val openBraceNib = takeCond[Token] { _.tokenType == TokenType.OpenBrace }.map {
+  token => Seq(OpenBrace)
+}
+
+val closeBraceNib = takeCond[Token] { _.tokenType == TokenType.CloseBrace }.map {
+  token => Seq(CloseBrace)
+}
+
+val scopeNib: Nibbler[Token, Scope] = { (gaze) =>
+  for {
+    _ <- gaze.attempt(openBraceNib)
+    expression <- gaze.attempt(optional(repeat(elementNib)))
+    _ <- gaze.attempt(closeBraceNib)
+  } yield Seq(Scope(expression.toList))
+}
+
 val expressionNib =
-  takeFirst(nameNib, identifierNib, stringNib, integerNib, booleanNib)
+  takeFirst(nameNib, scopeNib, identifierNib, stringNib, integerNib, booleanNib)
 
 val equalSignNib = takeCond[Token] { _.tokenType == TokenType.EqualSign }.map {
   token => Seq(EqualSign)

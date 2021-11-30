@@ -21,7 +21,7 @@ import dev.ligature.lig.LigNibblers
 
 enum TokenType:
   case Boolean, Spaces, Identifier, Integer, Comment, NewLine, String,
-  LetKeyword, EqualSign, Name
+  LetKeyword, EqualSign, Name, OpenBrace, CloseBrace
 
 case class Token(val content: String, val tokenType: TokenType)
 
@@ -66,6 +66,12 @@ val nameTokenNib = takeAll(
 val equalSignTokenNib =
   takeString("=").map(res => Seq(Token(res.mkString, TokenType.EqualSign)))
 
+val openBraceTokenNib =
+  takeString("{").map(res => Seq(Token(res.mkString, TokenType.OpenBrace)))
+
+val closeBraceTokenNib =
+  takeString("}").map(res => Seq(Token(res.mkString, TokenType.CloseBrace)))
+
 val integerTokenNib = LigNibblers.numberNibbler.map(res =>
   Seq(Token(res.mkString, TokenType.Integer))
 )
@@ -86,6 +92,8 @@ val tokensNib: Nibbler[Char, Token] = repeat(
     integerTokenNib,
     newLineTokenNib,
     identifierTokenNib,
+    openBraceTokenNib,
+    closeBraceTokenNib,
     stringTokenNib,
     commentTokenNib,
     equalSignTokenNib
