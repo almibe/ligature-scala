@@ -7,7 +7,6 @@ package dev.ligature.wander.parser
 import dev.ligature.gaze.{
   Gaze,
   Nibbler,
-  filter,
   optional,
   take,
   takeAll,
@@ -21,15 +20,16 @@ import dev.ligature.wander.lexer.Token
 import dev.ligature.wander.lexer.TokenType
 
 def parse(script: Seq[Token]): Either[String, Script] = {
-  val tempVec = script.toVector
-  val gaze = Gaze(script.toVector)
+  val filteredInput = script.filter { (token: Token) =>
+    token.tokenType != TokenType.Comment && token.tokenType != TokenType.Spaces && token.tokenType != TokenType.NewLine
+  }.toVector
+  val gaze = Gaze(filteredInput.toVector)
   val res = gaze.attempt(scriptNib)
   res match {
     case None => {
       if (gaze.isComplete()) {
         Right(Script(Seq()))
       } else {
-        println(s"err - $tempVec")
         Left("NoMatch")
       }
     }
@@ -68,12 +68,13 @@ val equalSignNib = takeCond[Token] { _.tokenType == TokenType.EqualSign }.map {
   token => Seq(EqualSign)
 }
 
-val letKeywordNib = takeCond[Token] { _.tokenType == TokenType.LetKeyword }.map {
-  token => Seq(LetKeyword)
-}
+val letKeywordNib =
+  takeCond[Token] { _.tokenType == TokenType.LetKeyword }.map { token =>
+    Seq(LetKeyword)
+  }
 
-val letStatementNib: Nibbler[Token, LetStatement] = {
-  (gaze) => {
+val letStatementNib: Nibbler[Token, LetStatement] = { (gaze) =>
+  {
     for {
       _ <- gaze.attempt(letKeywordNib)
       name <- gaze.attempt(nameNib)
@@ -85,13 +86,9 @@ val letStatementNib: Nibbler[Token, LetStatement] = {
 
 val elementNib = takeFirst(expressionNib, letStatementNib)
 
-val scriptNib = optional(
-  repeat(
-    filter(
-      { (token: Token) =>
-        token.tokenType != TokenType.Comment && token.tokenType != TokenType.Spaces && token.tokenType != TokenType.NewLine
-      },
+val scriptNib =
+  optional(
+    repeat(
       elementNib
     )
   )
-)
