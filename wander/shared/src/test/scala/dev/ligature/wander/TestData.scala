@@ -11,13 +11,17 @@ import dev.ligature.wander.parser.{
   Scope,
   Script,
   BooleanValue,
+  LetStatement,
+  FunctionCall,
+  FunctionDefinition,
   LigatureValue,
+  Parameter,
   ScriptResult,
-  ScriptError
+  ScriptError,
+  WanderValue
 }
 import dev.ligature.wander.lexer.TokenType
 import dev.ligature.{Identifier, IntegerLiteral, StringLiteral}
-import dev.ligature.wander.parser.LetStatement
 
 case class TestData(
     val category: String,
@@ -289,30 +293,72 @@ val functionTestData = List(
     ),
     ast = Script(
       List(
-        LetStatement(Name("x"), LigatureValue(IntegerLiteral(5))),
-        Scope(
+        LetStatement(
+          Name("f"),
+          FunctionDefinition(
+            List(),
+            Scope(List(LigatureValue(IntegerLiteral(5))))
+          )
+        ),
+        FunctionCall(Name("f"), List())
+      )
+    ),
+    result = Right(ScriptResult(LigatureValue(IntegerLiteral(5))))
+  ),
+  TestInstance(
+    description = "function1 def",
+    script = """let identity = (value) -> {
+               |  value
+               |}
+               |identity(<testEntity>)""".stripMargin,
+    tokens = List(
+      Token("let", TokenType.LetKeyword),
+      Token(" ", TokenType.Spaces),
+      Token("identity", TokenType.Name),
+      Token(" ", TokenType.Spaces),
+      Token("=", TokenType.EqualSign),
+      Token(" ", TokenType.Spaces),
+      Token("(", TokenType.OpenParen),
+      Token("value", TokenType.Name),
+      Token(")", TokenType.CloseParen),
+      Token(" ", TokenType.Spaces),
+      Token("->", TokenType.Arrow),
+      Token(" ", TokenType.Spaces),
+      Token("{", TokenType.OpenBrace),
+      Token("\n", TokenType.NewLine),
+      Token("  ", TokenType.Spaces),
+      Token("value", TokenType.Name),
+      Token("\n", TokenType.NewLine),
+      Token("}", TokenType.CloseBrace),
+      Token("\n", TokenType.NewLine),
+      Token("identity", TokenType.Name),
+      Token("(", TokenType.OpenParen),
+      Token("testEntity", TokenType.Identifier),
+      Token(")", TokenType.CloseParen)
+    ),
+    ast = Script(
+      List(
+        LetStatement(
+          Name("identity"),
+          FunctionDefinition(
+            List(Parameter(Name("value"))),
+            Scope(List(Name("value")))
+          )
+        ),
+        FunctionCall(
+          Name("identity"),
           List(
-            LetStatement(Name("x"), LigatureValue(IntegerLiteral(7))),
-            Name("x")
+            LigatureValue(Identifier.fromString("testEntity").getOrElse(???))
           )
         )
       )
     ),
-    result = Right(ScriptResult(LigatureValue(IntegerLiteral(7))))
+    result = Right(
+      ScriptResult(
+        LigatureValue(Identifier.fromString("testEntity").getOrElse(???))
+      )
+    )
   )
-
-  // //FUNCTIONS
-  // "function0-def.wander" ->
-  //     Script(List(
-  //         letStatement(identifier("f"), valueExpression(functionDefinition(List(), List(valueExpression(5n))))),
-  //         functionCall(identifier("f"), List())
-  //     )),
-
-  // "function1-def.wander" ->
-  //     Script(List(
-  //         letStatement(identifier("identity"), valueExpression(functionDefinition(List("value"), List(referenceExpression(identifier("value")))))),
-  //         functionCall(identifier("identity"), List(valueExpression(new Entity("testEntity"))))
-  //     )),
 )
 
 val booleanExpression = List(
