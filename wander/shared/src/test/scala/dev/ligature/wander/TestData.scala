@@ -15,6 +15,7 @@ import dev.ligature.wander.parser.{
   FunctionCall,
   FunctionDefinition,
   LigatureValue,
+  Parameter,
   ScriptResult,
   ScriptError,
   WanderValue
@@ -302,14 +303,62 @@ val functionTestData = List(
         FunctionCall(Name("f"), List())
       )
     ),
-    result = Right(ScriptResult(LigatureValue(IntegerLiteral(7))))
+    result = Right(ScriptResult(LigatureValue(IntegerLiteral(5))))
+  ),
+  TestInstance(
+    description = "function1 def",
+    script = """let identity = (value) -> {
+               |  value
+               |}
+               |identity(<testEntity>)""".stripMargin,
+    tokens = List(
+      Token("let", TokenType.LetKeyword),
+      Token(" ", TokenType.Spaces),
+      Token("identity", TokenType.Name),
+      Token(" ", TokenType.Spaces),
+      Token("=", TokenType.EqualSign),
+      Token(" ", TokenType.Spaces),
+      Token("(", TokenType.OpenParen),
+      Token("value", TokenType.Name),
+      Token(")", TokenType.CloseParen),
+      Token(" ", TokenType.Spaces),
+      Token("->", TokenType.Arrow),
+      Token(" ", TokenType.Spaces),
+      Token("{", TokenType.OpenBrace),
+      Token("\n", TokenType.NewLine),
+      Token("  ", TokenType.Spaces),
+      Token("value", TokenType.Name),
+      Token("\n", TokenType.NewLine),
+      Token("}", TokenType.CloseBrace),
+      Token("\n", TokenType.NewLine),
+      Token("identity", TokenType.Name),
+      Token("(", TokenType.OpenParen),
+      Token("testEntity", TokenType.Identifier),
+      Token(")", TokenType.CloseParen)
+    ),
+    ast = Script(
+      List(
+        LetStatement(
+          Name("identity"),
+          FunctionDefinition(
+            List(Parameter(Name("value"))),
+            Scope(List(Name("value")))
+          )
+        ),
+        FunctionCall(
+          Name("identity"),
+          List(
+            LigatureValue(Identifier.fromString("testEntity").getOrElse(???))
+          )
+        )
+      )
+    ),
+    result = Right(
+      ScriptResult(
+        LigatureValue(Identifier.fromString("testEntity").getOrElse(???))
+      )
+    )
   )
-
-  // "function1-def.wander" ->
-  //     Script(List(
-  //         letStatement(identifier("identity"), valueExpression(functionDefinition(List("value"), List(referenceExpression(identifier("value")))))),
-  //         functionCall(identifier("identity"), List(valueExpression(new Entity("testEntity"))))
-  //     )),
 )
 
 val booleanExpression = List(

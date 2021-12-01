@@ -1,4 +1,0 @@
-let identity = (value) -> {
-    value
-}
-identity(<testEntity>)
