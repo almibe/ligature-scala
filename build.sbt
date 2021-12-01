@@ -13,7 +13,7 @@ lazy val ligature = crossProject(JSPlatform, JVMPlatform)
   .settings(
     name := "ligature",
     scalaVersion := rcVersion,
-    libraryDependencies += "co.fs2" %%% "fs2-core" % "3.2.0",
+    libraryDependencies += "co.fs2" %%% "fs2-core" % "3.2.2",
     libraryDependencies += "org.scalameta" %%% "munit" % "1.0.0-M1" % Test
   )
 
@@ -30,7 +30,7 @@ lazy val lig = crossProject(JSPlatform, JVMPlatform)
   .settings(
     name := "lig",
     scalaVersion := rcVersion,
-    libraryDependencies += "co.fs2" %%% "fs2-core" % "3.2.0",
+    libraryDependencies += "co.fs2" %%% "fs2-core" % "3.2.2",
     libraryDependencies += "org.scalameta" %%% "munit" % "1.0.0-M1" % Test
   )
   .dependsOn(ligature, gaze)
@@ -49,7 +49,7 @@ lazy val ligatureTestSuite = crossProject(JSPlatform, JVMPlatform)
   .settings(
     name := "ligature-test-suite",
     scalaVersion := rcVersion,
-    libraryDependencies += "co.fs2" %%% "fs2-core" % "3.2.0",
+    libraryDependencies += "co.fs2" %%% "fs2-core" % "3.2.2",
     libraryDependencies += "org.scalameta" %%% "munit" % "1.0.0-M1",
     libraryDependencies += "org.typelevel" %%% "munit-cats-effect-3" % "1.0.6"
   )
@@ -60,7 +60,7 @@ lazy val ligatureInMemory = crossProject(JSPlatform, JVMPlatform)
   .settings(
     name := "ligature-in-memory",
     scalaVersion := rcVersion,
-    libraryDependencies += "co.fs2" %%% "fs2-core" % "3.2.0",
+    libraryDependencies += "co.fs2" %%% "fs2-core" % "3.2.2",
     libraryDependencies += "org.scalameta" %%% "munit" % "1.0.0-M1" % Test,
     libraryDependencies += "org.typelevel" %%% "munit-cats-effect-3" % "1.0.6"
   )
@@ -73,7 +73,7 @@ lazy val ligatureIndexedDB = crossProject(JSPlatform)
     name := "ligature-indexeddb",
     scalaVersion := rcVersion,
     scalaJSLinkerConfig ~= { _.withModuleKind(ModuleKind.ESModule) },
-    libraryDependencies += "co.fs2" %%% "fs2-core" % "3.2.0",
+    libraryDependencies += "co.fs2" %%% "fs2-core" % "3.2.2",
     libraryDependencies += "org.scalameta" %%% "munit" % "1.0.0-M1" % Test
   )
   .dependsOn(ligature, ligatureTestSuite % Test)
@@ -86,7 +86,7 @@ lazy val ligatureLab = crossProject(JSPlatform)
     scalaVersion := rcVersion,
     scalaJSLinkerConfig ~= { _.withModuleKind(ModuleKind.ESModule) },
     scalaJSUseMainModuleInitializer := true,
-    libraryDependencies += "co.fs2" %%% "fs2-core" % "3.2.0",
+    libraryDependencies += "co.fs2" %%% "fs2-core" % "3.2.2",
     libraryDependencies += "org.scalameta" %%% "munit" % "1.0.0-M1" % Test
   )
   .dependsOn(ligature, ligatureTestSuite % Test)
