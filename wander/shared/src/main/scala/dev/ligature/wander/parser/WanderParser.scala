@@ -66,20 +66,22 @@ val openBraceNib = takeCond[Token] { _.tokenType == TokenType.OpenBrace }.map {
   token => Seq(OpenBrace)
 }
 
-val closeBraceNib = takeCond[Token] { _.tokenType == TokenType.CloseBrace }.map {
-  token => Seq(CloseBrace)
-}
+val closeBraceNib =
+  takeCond[Token] { _.tokenType == TokenType.CloseBrace }.map { token =>
+    Seq(CloseBrace)
+  }
 
 val openParenNib = takeCond[Token] { _.tokenType == TokenType.OpenParen }.map {
   token => Seq(OpenParen)
 }
 
-val closeParenNib = takeCond[Token] { _.tokenType == TokenType.CloseParen }.map {
-  token => Seq(CloseParen)
-}
+val closeParenNib =
+  takeCond[Token] { _.tokenType == TokenType.CloseParen }.map { token =>
+    Seq(CloseParen)
+  }
 
-val arrowNib = takeCond[Token] { _.tokenType == TokenType.Arrow }.map {
-  token => Seq(Arrow)
+val arrowNib = takeCond[Token] { _.tokenType == TokenType.Arrow }.map { token =>
+  Seq(Arrow)
 }
 
 val scopeNib: Nibbler[Token, Scope] = { (gaze) =>
@@ -100,7 +102,15 @@ val functionDefinitionNib: Nibbler[Token, FunctionDefinition] = { (gaze) =>
 }
 
 val expressionNib =
-  takeFirst(nameNib, scopeNib, identifierNib, functionDefinitionNib, stringNib, integerNib, booleanNib)
+  takeFirst(
+    nameNib,
+    scopeNib,
+    identifierNib,
+    functionDefinitionNib,
+    stringNib,
+    integerNib,
+    booleanNib
+  )
 
 val equalSignNib = takeCond[Token] { _.tokenType == TokenType.EqualSign }.map {
   token => Seq(EqualSign)

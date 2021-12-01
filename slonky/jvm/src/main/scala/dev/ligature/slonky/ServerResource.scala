@@ -31,8 +31,14 @@ class ServerResource {
   private def acquire(ligature: LigatureInstance, port: Int): IO[HttpServer] = {
     start(ligature, port)
   }
-  private val release: HttpServer => IO[Unit] = server => IO { vertx.close(); () } //TODO I should probably map the close Future to an IO[Unit]
-  def instance(ligature: LigatureInstance, port: Int = 4444): Resource[IO, HttpServer] = {
+  private val release: HttpServer => IO[Unit] = server =>
+    IO {
+      vertx.close(); ()
+    } // TODO I should probably map the close Future to an IO[Unit]
+  def instance(
+      ligature: LigatureInstance,
+      port: Int = 4444
+  ): Resource[IO, HttpServer] = {
     Resource.make(acquire(ligature, port))(release)
   }
 
@@ -45,10 +51,14 @@ class ServerResource {
     router.post().handler(BodyHandler.create()).handler { rc =>
       val body = rc.getBodyAsString
       if (body == null) { // create new dataset
-        //TODO maybe create a removePrefix("/") method instead of tail?
-        ligature.createDataset(Dataset.fromString(rc.normalizedPath().tail).getOrElse { ??? }).unsafeRunAsync { res =>
-          rc.response.end
-        }
+        // TODO maybe create a removePrefix("/") method instead of tail?
+        ligature
+          .createDataset(
+            Dataset.fromString(rc.normalizedPath().tail).getOrElse { ??? }
+          )
+          .unsafeRunAsync { res =>
+            rc.response.end
+          }
       } else { // add statement to dataset
         val statementJson = JsonParser.parseString(body).getAsJsonObject
 
@@ -59,7 +69,8 @@ class ServerResource {
           Entity(entityJson.getAsString)
         }
 
-        val attribute = Attribute.fromString(statementJson.get("attribute").getAsString)
+        val attribute =
+          Attribute.fromString(statementJson.get("attribute").getAsString)
 
         val valueJson = statementJson.get("value")
         val valueJsonType = statementJson.get("value-type").getAsString
@@ -71,13 +82,13 @@ class ServerResource {
               Entity(valueJson.getAsString)
             }
           }
-          case "StringLiteral" => StringLiteral(valueJson.getAsString)
+          case "StringLiteral"  => StringLiteral(valueJson.getAsString)
           case "IntegerLiteral" => IntegerLiteral(valueJson.getAsString.toLong)
-          case "FloatLiteral" => FloatLiteral(valueJson.getAsString.toDouble)
+          case "FloatLiteral"   => FloatLiteral(valueJson.getAsString.toDouble)
           case _ => throw RuntimeException(s"Bad value-type $valueJsonType")
         }
 
-        //TODO post to event bus to add Statement
+        // TODO post to event bus to add Statement
         // GlobalScope.launch(vertx.dispatcher()) {
         //   val dataset = Dataset(rc.normalizedPath().removePrefix("/"))
         //   ligature.write(dataset) { tx ->
@@ -93,29 +104,37 @@ class ServerResource {
     router.delete().handler(BodyHandler.create()).handler { rc =>
       val body = rc.getBodyAsString()
       if (body == null) {
-        ligature.deleteDataset(Dataset.fromString(rc.normalizedPath().tail).getOrElse {???}).unsafeRunAsync { _ =>
-          rc.response.send
-        }
+        ligature
+          .deleteDataset(
+            Dataset.fromString(rc.normalizedPath().tail).getOrElse { ??? }
+          )
+          .unsafeRunAsync { _ =>
+            rc.response.send
+          }
       } else {
         val statementJson = JsonParser.parseString(body).getAsJsonObject()
 
         val entity = Entity(statementJson.get("entity").getAsString())
-        val attribute = Attribute.fromString(statementJson.get("attribute").getAsString()).get //TODO error handling
+        val attribute = Attribute
+          .fromString(statementJson.get("attribute").getAsString())
+          .get // TODO error handling
         val valueJson = statementJson.get("value")
         val valueJsonType = statementJson.get("value-type").getAsString()
         val value: Value = valueJsonType match {
-          case "Entity" => Entity(valueJson.getAsString())
+          case "Entity"        => Entity(valueJson.getAsString())
           case "StringLiteral" => StringLiteral(valueJson.getAsString())
-          case "IntegerLiteral" => IntegerLiteral(valueJson.getAsString().toLong)
+          case "IntegerLiteral" =>
+            IntegerLiteral(valueJson.getAsString().toLong)
           case "FloatLiteral" => FloatLiteral(valueJson.getAsString().toDouble)
           case _ => throw RuntimeException("Bad value-type $valueJsonType")
         }
 
         val context = Entity(statementJson.get("context").getAsString())
 
-        val statement = PersistedStatement(Statement(entity, attribute, value), context)
+        val statement =
+          PersistedStatement(Statement(entity, attribute, value), context)
 
-        //TODO post to event bus to remove statement
+        // TODO post to event bus to remove statement
         // GlobalScope.launch(vertx.dispatcher()) {
         //     val dataset = Dataset(rc.normalizedPath().removePrefix("/"))
         //     ligature.write(dataset) { tx =>
@@ -127,25 +146,43 @@ class ServerResource {
     }
     router.get().handler { rc =>
       val path = rc.normalizedPath()
-      if (path == "/") { //handle Datasets
+      if (path == "/") { // handle Datasets
         val prefix = rc.queryParam("prefix")
         val rangeStart = rc.queryParam("start")
         val rangeEnd = rc.queryParam("end")
         if (prefix.size == 1 && rangeStart.isEmpty() && rangeEnd.isEmpty()) {
-          ligature.matchDatasetsPrefix(prefix.asScala.head).map { _.getOrElse {???}.name }.compile.toList.unsafeRunAsync { res =>
-            rc.response.end(gson.toJson(res.getOrElse {???}.asJava))
-          }
-        } else if (prefix.isEmpty() && rangeStart.size == 1 && rangeEnd.size == 1) {
-          ligature.matchDatasetsRange(rangeStart.get(0), rangeEnd.get(0)).map { _.getOrElse {???}.name }.compile.toList.unsafeRunAsync { res =>
-            rc.response.end(gson.toJson(res.getOrElse {???}.asJava))
-          }
-        } else { //TODO make sure that pathParams are empty + other checks
-          ligature.allDatasets().map { _.getOrElse {???}.name }.compile.toList.unsafeRunAsync { res =>
-            rc.response.end(gson.toJson(res.getOrElse {???}.asJava))
-          }
+          ligature
+            .matchDatasetsPrefix(prefix.asScala.head)
+            .map { _.getOrElse { ??? }.name }
+            .compile
+            .toList
+            .unsafeRunAsync { res =>
+              rc.response.end(gson.toJson(res.getOrElse { ??? }.asJava))
+            }
+        } else if (
+          prefix.isEmpty() && rangeStart.size == 1 && rangeEnd.size == 1
+        ) {
+          ligature
+            .matchDatasetsRange(rangeStart.get(0), rangeEnd.get(0))
+            .map { _.getOrElse { ??? }.name }
+            .compile
+            .toList
+            .unsafeRunAsync { res =>
+              rc.response.end(gson.toJson(res.getOrElse { ??? }.asJava))
+            }
+        } else { // TODO make sure that pathParams are empty + other checks
+          ligature
+            .allDatasets()
+            .map { _.getOrElse { ??? }.name }
+            .compile
+            .toList
+            .unsafeRunAsync { res =>
+              rc.response.end(gson.toJson(res.getOrElse { ??? }.asJava))
+            }
         }
-      } else { //handle Statements within a given Dataset
-        val dataset = Dataset.fromString(path.stripPrefix("/")).get //TODO error handling
+      } else { // handle Statements within a given Dataset
+        val dataset =
+          Dataset.fromString(path.stripPrefix("/")).get // TODO error handling
         val entity = rc.queryParam("entity").asScala.toList
         val attribute = rc.queryParam("attribute").asScala.toList
         val value = rc.queryParam("value").asScala.toList
@@ -156,13 +193,20 @@ class ServerResource {
         val oneOrZero = { (x: Int) => x == 1 || x == 0 }
         val bothOneOrZero = { (x: Int, y: Int) => oneOrZero(x) || oneOrZero(y) }
 
-        if (entity.isEmpty && attribute.isEmpty && value.isEmpty && valueType.isEmpty && valueStart.isEmpty && valueEnd.isEmpty) {
-          //get all statements
-          ligature.query(Dataset.fromString(rc.normalizedPath().tail).getOrElse {???}).use { tx =>
-            tx.allStatements().compile.toList
-          }.unsafeRunAsync { res =>
-            rc.response.end(gson.toJson(res.getOrElse {???}.asJava))
-          }
+        if (
+          entity.isEmpty && attribute.isEmpty && value.isEmpty && valueType.isEmpty && valueStart.isEmpty && valueEnd.isEmpty
+        ) {
+          // get all statements
+          ligature
+            .query(Dataset.fromString(rc.normalizedPath().tail).getOrElse {
+              ???
+            })
+            .use { tx =>
+              tx.allStatements().compile.toList
+            }
+            .unsafeRunAsync { res =>
+              rc.response.end(gson.toJson(res.getOrElse { ??? }.asJava))
+            }
           // GlobalScope.launch(vertx.dispatcher()) {
           //   val res = JsonArray()
           //   ligature.query(dataset) { tx =>
@@ -172,13 +216,21 @@ class ServerResource {
           //   }
           //   rc.response().send(res.toString())
           // }
-        } else if (oneOrZero(entity.size) && oneOrZero(attribute.size) && bothOneOrZero(value.size, valueType.size) && valueStart.isEmpty && valueEnd.isEmpty) {
-          //handle simple match
+        } else if (
+          oneOrZero(entity.size) && oneOrZero(attribute.size) && bothOneOrZero(
+            value.size,
+            valueType.size
+          ) && valueStart.isEmpty && valueEnd.isEmpty
+        ) {
+          // handle simple match
           val entityRes: Option[Entity] = entity.headOption.map { Entity(_) }
-          val attributeRes: Option[Attribute] = attribute.headOption.map { Attribute.fromString(_).get } //TODO error handling
-          val valueRes: Option[Value] = value.headOption.map { deserializeValue(_, valueType.head) }
+          val attributeRes: Option[Attribute] = attribute.headOption.map {
+            Attribute.fromString(_).get
+          } // TODO error handling
+          val valueRes: Option[Value] =
+            value.headOption.map { deserializeValue(_, valueType.head) }
 
-          //TODO post to event bus to match statements
+          // TODO post to event bus to match statements
           // GlobalScope.launch(vertx.dispatcher()) {
           //   val res = JsonArray()
           //   ligature.query(dataset) { tx ->
@@ -188,13 +240,23 @@ class ServerResource {
           //   }
           //   rc.response().send(res.toString())
           // }
-        } else if (oneOrZero(entity.size) && oneOrZero(attribute.size) && value.isEmpty && valueType.size == 1 && valueStart.size == 1 && valueEnd.size == 1) {
-          //handle range match
+        } else if (
+          oneOrZero(entity.size) && oneOrZero(
+            attribute.size
+          ) && value.isEmpty && valueType.size == 1 && valueStart.size == 1 && valueEnd.size == 1
+        ) {
+          // handle range match
           val entityRes: Option[Entity] = entity.headOption.map { Entity(_) }
-          val attributeRes: Option[Attribute] = attribute.headOption.map { Attribute.fromString(_).get } //TODO error handling
-          val valueRangeRes: Range = deserializeValueRange(valueStart.head, valueEnd.head, valueType.head)
+          val attributeRes: Option[Attribute] = attribute.headOption.map {
+            Attribute.fromString(_).get
+          } // TODO error handling
+          val valueRangeRes: Range = deserializeValueRange(
+            valueStart.head,
+            valueEnd.head,
+            valueType.head
+          )
 
-          //TODO post to event bus to match statements w/ ranges
+          // TODO post to event bus to match statements w/ ranges
           // GlobalScope.launch(vertx.dispatcher()) {
           //   val res = JsonArray()
           //   ligature.query(dataset) { tx ->
@@ -224,34 +286,40 @@ class ServerResource {
 
   def serializeValue(value: Value): String =
     value match {
-      case Entity(name) => name
-      case StringLiteral(value) => value
-      case FloatLiteral(value) => value.toString()
+      case Entity(name)          => name
+      case StringLiteral(value)  => value
+      case FloatLiteral(value)   => value.toString()
       case IntegerLiteral(value) => value.toString()
     }
 
-  def serializeValueType(value: Value): String  =
+  def serializeValueType(value: Value): String =
     value match {
-      case Entity(_) => "Entity"
-      case StringLiteral(_) => "StringLiteral"
-      case FloatLiteral(_) => "FloatLiteral"
+      case Entity(_)         => "Entity"
+      case StringLiteral(_)  => "StringLiteral"
+      case FloatLiteral(_)   => "FloatLiteral"
       case IntegerLiteral(_) => "IntegerLiteral"
     }
 
   def deserializeValue(value: String, valueType: String): Value =
     valueType match {
-      case "Entity" => Entity(value)
-      case "StringLiteral" => StringLiteral(value)
-      case "FloatLiteral" => FloatLiteral(value.toDouble)
+      case "Entity"         => Entity(value)
+      case "StringLiteral"  => StringLiteral(value)
+      case "FloatLiteral"   => FloatLiteral(value.toDouble)
       case "IntegerLiteral" => IntegerLiteral(value.toLong)
       case _ => throw RuntimeException(s"Illegal value type $valueType")
     }
 
-  def deserializeValueRange(valueStart: String, valueEnd: String, valueType: String): Range =
+  def deserializeValueRange(
+      valueStart: String,
+      valueEnd: String,
+      valueType: String
+  ): Range =
     valueType match {
       case "StringLiteral" => StringLiteralRange(valueStart, valueEnd)
-      case "FloatLiteral" => FloatLiteralRange(valueStart.toDouble, valueEnd.toDouble)
-      case "IntegerLiteral" => IntegerLiteralRange(valueStart.toLong, valueEnd.toLong)
+      case "FloatLiteral" =>
+        FloatLiteralRange(valueStart.toDouble, valueEnd.toDouble)
+      case "IntegerLiteral" =>
+        IntegerLiteralRange(valueStart.toLong, valueEnd.toLong)
       case _ => throw RuntimeException(s"Illegal value type $valueType")
     }
 }

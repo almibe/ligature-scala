@@ -13,12 +13,12 @@ import scala.jdk.FutureConverters._
 
 object Slonky extends IOApp {
   override def run(args: List[String]): IO[ExitCode] = {
-    val ligature = InMemoryLigature() //TODO should eventually not be hardcoded
+    val ligature = InMemoryLigature() // TODO should eventually not be hardcoded
     val port = 5678
 
     runServer(port, ligature) { _ =>
       for {
-        _   <- IO.never
+        _ <- IO.never
         res <- IO(ExitCode.Success)
       } yield res
     }
@@ -26,10 +26,10 @@ object Slonky extends IOApp {
 }
 
 def runServer[T](port: Int, ligature: Ligature)(fn: (Unit) => IO[T]): IO[T] = {
-    (for {
-        ligature <- ligature.instance
-        server   <- ServerResource().instance(ligature, port)
-    } yield ())
+  (for {
+    ligature <- ligature.instance
+    server <- ServerResource().instance(ligature, port)
+  } yield ())
     .use(fn)
 }
 

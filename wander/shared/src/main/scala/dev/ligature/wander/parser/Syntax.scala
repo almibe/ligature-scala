@@ -157,7 +157,8 @@ case class Scope(val elements: List[Element]) extends Expression {
 
 /** Holds a reference to a function defined in Wander.
   */
-case class FunctionDefinition(parameters: List[String], body: Scope) extends Expression {
+case class FunctionDefinition(parameters: List[String], body: Scope)
+    extends Expression {
   override def eval(binding: Bindings) = {
     ???
   }

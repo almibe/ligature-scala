@@ -7,6 +7,5 @@ package dev.ligature.slonky
 import dev.ligature.*
 import io.vertx.core.AbstractVerticle
 
-class LigatureVerticle(private val ligature: LigatureInstance) extends AbstractVerticle {
-
-}
+class LigatureVerticle(private val ligature: LigatureInstance)
+    extends AbstractVerticle {}
