@@ -157,9 +157,10 @@ case class Scope(val elements: List[Element]) extends Expression {
 
 /** Holds a reference to a function defined in Wander.
   */
-case class FunctionDefinition(parameters: List[String], body: Scope) extends Expression {
+case class FunctionDefinition(parameters: List[String], body: Scope)
+    extends WanderValue {
   override def eval(binding: Bindings) = {
-    ???
+    Right(this)
   }
 }
 
@@ -201,6 +202,10 @@ case class Else(val body: Expression) {
 case class FunctionCall(val name: Name, val parameters: List[Expression])
     extends Expression {
   def eval(bindings: Bindings) = {
-    ???
+    val func = bindings.read(name)
+    func match {
+      case FunctionDefinition(args, scope) => ???
+      case _ => Left(ScriptError(s"${name.name} is not a function."))
+    }
   }
 }

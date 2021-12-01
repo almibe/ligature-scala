@@ -16,8 +16,7 @@ import dev.ligature.gaze.{
   repeat
 }
 import dev.ligature.{IntegerLiteral, Identifier, StringLiteral}
-import dev.ligature.wander.lexer.Token
-import dev.ligature.wander.lexer.TokenType
+import dev.ligature.wander.lexer.{Token, TokenType}
 
 def parse(script: Seq[Token]): Either[String, Script] = {
   val filteredInput = script.filter { (token: Token) =>
@@ -66,20 +65,22 @@ val openBraceNib = takeCond[Token] { _.tokenType == TokenType.OpenBrace }.map {
   token => Seq(OpenBrace)
 }
 
-val closeBraceNib = takeCond[Token] { _.tokenType == TokenType.CloseBrace }.map {
-  token => Seq(CloseBrace)
-}
+val closeBraceNib =
+  takeCond[Token] { _.tokenType == TokenType.CloseBrace }.map { token =>
+    Seq(CloseBrace)
+  }
 
 val openParenNib = takeCond[Token] { _.tokenType == TokenType.OpenParen }.map {
   token => Seq(OpenParen)
 }
 
-val closeParenNib = takeCond[Token] { _.tokenType == TokenType.CloseParen }.map {
-  token => Seq(CloseParen)
-}
+val closeParenNib =
+  takeCond[Token] { _.tokenType == TokenType.CloseParen }.map { token =>
+    Seq(CloseParen)
+  }
 
-val arrowNib = takeCond[Token] { _.tokenType == TokenType.Arrow }.map {
-  token => Seq(Arrow)
+val arrowNib = takeCond[Token] { _.tokenType == TokenType.Arrow }.map { token =>
+  Seq(Arrow)
 }
 
 val scopeNib: Nibbler[Token, Scope] = { (gaze) =>
@@ -99,8 +100,25 @@ val functionDefinitionNib: Nibbler[Token, FunctionDefinition] = { (gaze) =>
   } yield Seq(FunctionDefinition(List(), body(0)))
 }
 
+val functionCallNib: Nibbler[Token, FunctionCall] = { (gaze) =>
+  for {
+    name <- gaze.attempt(nameNib)
+    _ <- gaze.attempt(openParenNib)
+    _ <- gaze.attempt(closeParenNib)
+  } yield Seq(FunctionCall(name(0), List()))
+}
+
 val expressionNib =
-  takeFirst(nameNib, scopeNib, identifierNib, functionDefinitionNib, stringNib, integerNib, booleanNib)
+  takeFirst(
+    functionCallNib,
+    nameNib,
+    scopeNib,
+    identifierNib,
+    functionDefinitionNib,
+    stringNib,
+    integerNib,
+    booleanNib
+  )
 
 val equalSignNib = takeCond[Token] { _.tokenType == TokenType.EqualSign }.map {
   token => Seq(EqualSign)

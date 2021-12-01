@@ -11,13 +11,16 @@ import dev.ligature.wander.parser.{
   Scope,
   Script,
   BooleanValue,
+  LetStatement,
+  FunctionCall,
+  FunctionDefinition,
   LigatureValue,
   ScriptResult,
-  ScriptError
+  ScriptError,
+  WanderValue
 }
 import dev.ligature.wander.lexer.TokenType
 import dev.ligature.{Identifier, IntegerLiteral, StringLiteral}
-import dev.ligature.wander.parser.LetStatement
 
 case class TestData(
     val category: String,
@@ -289,24 +292,18 @@ val functionTestData = List(
     ),
     ast = Script(
       List(
-        LetStatement(Name("x"), LigatureValue(IntegerLiteral(5))),
-        Scope(
-          List(
-            LetStatement(Name("x"), LigatureValue(IntegerLiteral(7))),
-            Name("x")
+        LetStatement(
+          Name("f"),
+          FunctionDefinition(
+            List(),
+            Scope(List(LigatureValue(IntegerLiteral(5))))
           )
-        )
+        ),
+        FunctionCall(Name("f"), List())
       )
     ),
     result = Right(ScriptResult(LigatureValue(IntegerLiteral(7))))
   )
-
-  // //FUNCTIONS
-  // "function0-def.wander" ->
-  //     Script(List(
-  //         letStatement(identifier("f"), valueExpression(functionDefinition(List(), List(valueExpression(5n))))),
-  //         functionCall(identifier("f"), List())
-  //     )),
 
   // "function1-def.wander" ->
   //     Script(List(
