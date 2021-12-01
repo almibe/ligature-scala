@@ -91,21 +91,27 @@ val scopeNib: Nibbler[Token, Scope] = { (gaze) =>
   } yield Seq(Scope(expression.toList))
 }
 
+val parameterNib: Nibbler[Token, Parameter] = { (gaze) => 
+  gaze.attempt(nameNib).map{ name => name.map(name => Parameter(name)) }  
+}
+
 val functionDefinitionNib: Nibbler[Token, FunctionDefinition] = { (gaze) =>
   for {
     _ <- gaze.attempt(openParenNib)
+    parameters <- gaze.attempt(optional(repeat(parameterNib)))
     _ <- gaze.attempt(closeParenNib)
     _ <- gaze.attempt(arrowNib)
     body <- gaze.attempt(scopeNib)
-  } yield Seq(FunctionDefinition(List(), body(0)))
+  } yield Seq(FunctionDefinition(parameters.toList, body(0)))
 }
 
 val functionCallNib: Nibbler[Token, FunctionCall] = { (gaze) =>
   for {
     name <- gaze.attempt(nameNib)
     _ <- gaze.attempt(openParenNib)
+    parameters <- gaze.attempt(optional(repeat(expressionNib)))
     _ <- gaze.attempt(closeParenNib)
-  } yield Seq(FunctionCall(name(0), List()))
+  } yield Seq(FunctionCall(name(0), parameters.toList))
 }
 
 val expressionNib =

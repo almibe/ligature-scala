@@ -166,6 +166,35 @@ case class FunctionDefinition(parameters: List[Parameter], body: Scope)
   }
 }
 
+case class FunctionCall(val name: Name, val parameters: List[Expression])
+    extends Expression {
+  def eval(bindings: Bindings) = {
+    val func = bindings.read(name)
+    func match {
+      case FunctionDefinition(args, scope) => {
+        updateBindings(bindings, args)
+        val res = scope.eval(bindings)
+        bindings.removeScope()
+        res
+      }
+      case _ => Left(ScriptError(s"${name.name} is not a function."))
+    }
+  }
+
+  def updateBindings(binding: Bindings, args: List[Parameter]) = {
+    if (args.length == parameters.length) {
+      binding.addScope()
+      for (i <- args.indices) {
+        val arg = args(i)
+        val param = parameters(i)
+        binding.bind(arg.name, param.eval(binding).getOrElse(???))
+      }
+    } else {
+      throw RuntimeException(s"Argument number ${args.length} != Parameter number ${parameters.length}")
+    }
+  }
+}
+
 case class ValueExpression(val value: WanderValue) extends Expression {
   def eval(bindings: Bindings) = {
     ???
@@ -198,19 +227,5 @@ case class ElseIf(val condition: Expression, val body: Expression) {
 case class Else(val body: Expression) {
   def eval(bindings: Bindings) = {
     ???
-  }
-}
-
-case class FunctionCall(val name: Name, val parameters: List[Expression])
-    extends Expression {
-  def eval(bindings: Bindings) = {
-    val func = bindings.read(name)
-    func match {
-      case FunctionDefinition(args, scope) => {
-        // TODO update bindings from args
-        scope.eval(bindings)
-      }
-      case _ => Left(ScriptError(s"${name.name} is not a function."))
-    }
   }
 }
