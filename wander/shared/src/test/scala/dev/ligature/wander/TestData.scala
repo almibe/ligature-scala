@@ -358,6 +358,133 @@ val functionTestData = List(
         LigatureValue(Identifier.fromString("testEntity").getOrElse(???))
       )
     )
+  ),
+  TestInstance(
+    description = "function2 def",
+    script = """let second = (value1 value2) -> {
+               |  value2
+               |}
+               |second(<testEntity> "hello")""".stripMargin,
+    tokens = List(
+      Token("let", TokenType.LetKeyword),
+      Token(" ", TokenType.Spaces),
+      Token("second", TokenType.Name),
+      Token(" ", TokenType.Spaces),
+      Token("=", TokenType.EqualSign),
+      Token(" ", TokenType.Spaces),
+      Token("(", TokenType.OpenParen),
+      Token("value1", TokenType.Name),
+      Token(" ", TokenType.Spaces),
+      Token("value2", TokenType.Name),
+      Token(")", TokenType.CloseParen),
+      Token(" ", TokenType.Spaces),
+      Token("->", TokenType.Arrow),
+      Token(" ", TokenType.Spaces),
+      Token("{", TokenType.OpenBrace),
+      Token("\n", TokenType.NewLine),
+      Token("  ", TokenType.Spaces),
+      Token("value2", TokenType.Name),
+      Token("\n", TokenType.NewLine),
+      Token("}", TokenType.CloseBrace),
+      Token("\n", TokenType.NewLine),
+      Token("second", TokenType.Name),
+      Token("(", TokenType.OpenParen),
+      Token("testEntity", TokenType.Identifier),
+      Token(" ", TokenType.Spaces),
+      Token("hello", TokenType.String),
+      Token(")", TokenType.CloseParen)
+    ),
+    ast = Script(
+      List(
+        LetStatement(
+          Name("second"),
+          FunctionDefinition(
+            List(Parameter(Name("value1")), Parameter(Name("value2"))),
+            Scope(List(Name("value2")))
+          )
+        ),
+        FunctionCall(
+          Name("second"),
+          List(
+            LigatureValue(Identifier.fromString("testEntity").getOrElse(???)),
+            LigatureValue(StringLiteral("hello"))
+          )
+        )
+      )
+    ),
+    result = Right(
+      ScriptResult(
+        LigatureValue(StringLiteral("hello"))
+      )
+    )
+  ),
+  TestInstance(
+    description = "function3 def",
+    script = """let middle = (value1 value2 value3) -> {
+               |  value2
+               |}
+               |middle(<testEntity> "hello" 24601)""".stripMargin,
+    tokens = List(
+      Token("let", TokenType.LetKeyword),
+      Token(" ", TokenType.Spaces),
+      Token("middle", TokenType.Name),
+      Token(" ", TokenType.Spaces),
+      Token("=", TokenType.EqualSign),
+      Token(" ", TokenType.Spaces),
+      Token("(", TokenType.OpenParen),
+      Token("value1", TokenType.Name),
+      Token(" ", TokenType.Spaces),
+      Token("value2", TokenType.Name),
+      Token(" ", TokenType.Spaces),
+      Token("value3", TokenType.Name),
+      Token(")", TokenType.CloseParen),
+      Token(" ", TokenType.Spaces),
+      Token("->", TokenType.Arrow),
+      Token(" ", TokenType.Spaces),
+      Token("{", TokenType.OpenBrace),
+      Token("\n", TokenType.NewLine),
+      Token("  ", TokenType.Spaces),
+      Token("value2", TokenType.Name),
+      Token("\n", TokenType.NewLine),
+      Token("}", TokenType.CloseBrace),
+      Token("\n", TokenType.NewLine),
+      Token("middle", TokenType.Name),
+      Token("(", TokenType.OpenParen),
+      Token("testEntity", TokenType.Identifier),
+      Token(" ", TokenType.Spaces),
+      Token("hello", TokenType.String),
+      Token(" ", TokenType.Spaces),
+      Token("24601", TokenType.Integer),
+      Token(")", TokenType.CloseParen)
+    ),
+    ast = Script(
+      List(
+        LetStatement(
+          Name("middle"),
+          FunctionDefinition(
+            List(
+              Parameter(Name("value1")),
+              Parameter(Name("value2")),
+              Parameter(Name("value3"))
+            ),
+            Scope(List(Name("value2")))
+          )
+        ),
+        FunctionCall(
+          Name("middle"),
+          List(
+            LigatureValue(Identifier.fromString("testEntity").getOrElse(???)),
+            LigatureValue(StringLiteral("hello")),
+            LigatureValue(IntegerLiteral(24601))
+          )
+        )
+      )
+    ),
+    result = Right(
+      ScriptResult(
+        LigatureValue(StringLiteral("hello"))
+      )
+    )
   )
 )
 
@@ -368,6 +495,8 @@ val booleanExpression = List(
   //         functionCall(identifier("not"), List(valueExpression(true)))
   //     ))
 )
+
+val ifExpression = List()
 
 val errorsExpression = List(
 )
@@ -385,4 +514,7 @@ val testData = List(
     category = "Functions",
     testInstances = functionTestData
   )
+  // TODO add boolean functions
+  // TODO add if expressions
+  // TODO add error cases
 )
