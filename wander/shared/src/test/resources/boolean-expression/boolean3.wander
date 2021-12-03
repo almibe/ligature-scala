@@ -1,4 +1,0 @@
-let t = not(or(false, false))
-let f = false
-let res = or(t, and(f, false))
-res
