@@ -611,8 +611,39 @@ val ifExpression = List(
       )
     ),
     result = Right(ScriptResult(LigatureValue(IntegerLiteral(7))))
+  ),
+  TestInstance(
+    description = "if false",
+    script = "if and(false true) { 24601 }",
+    tokens = List(
+      Token("if", TokenType.IfKeyword),
+      Token(" ", TokenType.Spaces),
+      Token("and", TokenType.Name),
+      Token("(", TokenType.OpenParen),
+      Token("false", TokenType.Boolean),
+      Token(" ", TokenType.Spaces),
+      Token("true", TokenType.Boolean),
+      Token(")", TokenType.CloseParen),
+      Token(" ", TokenType.Spaces),
+      Token("{", TokenType.OpenBrace),
+      Token(" ", TokenType.Spaces),
+      Token("24601", TokenType.Integer),
+      Token(" ", TokenType.Spaces),
+      Token("}", TokenType.CloseBrace)
+    ),
+    ast = Script(
+      List(
+        IfExpression(
+          FunctionCall(
+            Name("and"),
+            List(BooleanValue(false), BooleanValue(true))
+          ),
+          Scope(List(LigatureValue(IntegerLiteral(24601))))
+        )
+      )
+    ),
+    result = Right(ScriptResult(Nothing))
   )
-  // TODO add if-false
   // TODO add if-else-expression
   // TODO add if-else-expression2
 )

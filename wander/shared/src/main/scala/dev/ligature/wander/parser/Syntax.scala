@@ -227,7 +227,25 @@ case class IfExpression(
     `else`: Option[Else] = None
 ) extends Expression {
   def eval(bindings: Bindings) = {
-    ???
+    val res = condition.eval(bindings) match {
+      case Right(BooleanValue(res)) => res
+      case Left(err)                => return Left(err)
+      case _ =>
+        return Left(
+          ScriptError("Conditions in if expression must return BooleanValue.")
+        )
+    }
+    if (res) {
+      body.eval(bindings)
+    } else {
+      for (elseIf <- elseIfs) {
+        // TODO handle else ifs
+      }
+      `else` match {
+        case Some(e) => ??? // TODO handle else
+        case None    => Right(Nothing)
+      }
+    }
   }
 }
 
