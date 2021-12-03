@@ -20,7 +20,7 @@ class BindingsSuite extends FunSuite {
     val binding = Bindings()
     binding.bind(identifier, value1)
     val res = binding.read(identifier)
-    assertEquals(res, value1)
+    assertEquals(res, Right(value1))
     intercept[Error] {
       binding.read(identifier2)
     }
@@ -29,25 +29,21 @@ class BindingsSuite extends FunSuite {
   test("test scoping") {
     val binding = Bindings()
     binding.bind(identifier, value1)
-    assertEquals(binding.read(identifier), value1)
+    assertEquals(binding.read(identifier), Right(value1))
 
     binding.addScope()
-    assertEquals(binding.read(identifier), value1)
+    assertEquals(binding.read(identifier), Right(value1))
 
     binding.bind(identifier, value2)
     binding.bind(identifier2, value3)
-    assertEquals(binding.read(identifier), value2)
-    assertEquals(binding.read(identifier2), value3)
+    assertEquals(binding.read(identifier), Right(value2))
+    assertEquals(binding.read(identifier2), Right(value3))
 
     binding.removeScope()
-    assertEquals(binding.read(identifier), value1)
+    assertEquals(binding.read(identifier), Right(value1))
 
-    intercept[Error] {
-      binding.read(identifier2)
-    }
+    assert(binding.read(identifier2).isLeft)
 
-    intercept[Error] {
-      binding.removeScope()
-    }
+    assert(binding.removeScope().isLeft)
   }
 }

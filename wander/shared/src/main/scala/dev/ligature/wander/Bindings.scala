@@ -4,7 +4,7 @@
 
 package dev.ligature.wander
 
-import dev.ligature.wander.parser.{Name, WanderValue}
+import dev.ligature.wander.parser.{Name, ScriptError, WanderValue}
 import scala.collection.mutable.Map
 import scala.collection.mutable.ArrayBuffer
 import scala.collection.mutable.HashMap
@@ -18,31 +18,34 @@ class Bindings {
     this.scopes.append(HashMap())
   }
 
-  def removeScope() = {
+  def removeScope(): Either[ScriptError, Unit] = {
     if (this.scopes.length <= 1) {
-      throw new Error("Can not remove scope.")
+      Left(ScriptError("Can not remove scope."))
+    } else {
+      this.scopes.remove(this.scopes.length - 1)
+      Right(())
     }
-    this.scopes.remove(this.scopes.length - 1)
   }
 
-  def bind(name: Name, wanderValue: WanderValue) = {
+  def bind(name: Name, wanderValue: WanderValue): Either[ScriptError, Unit] = {
     val currentScope = this.scopes.last
     if (currentScope.contains(name)) {
-      throw new Error(s"${name} is already bound in current scope.")
+      Left(ScriptError(s"${name} is already bound in current scope."))
     } else {
       currentScope += (name -> wanderValue)
+      Right(())
     }
   }
 
-  def read(name: Name): WanderValue = {
+  def read(name: Name): Either[ScriptError, WanderValue] = {
     var currentScopeOffset = this.scopes.length - 1
     while (currentScopeOffset >= 0) {
       val currentScope = this.scopes(currentScopeOffset)
       if (currentScope.contains(name)) {
-        return currentScope(name)
+        return Right(currentScope(name))
       }
       currentScopeOffset -= 1
     }
-    throw new Error(s"Could not find ${name} in scope.");
+    Left(ScriptError(s"Could not find ${name} in scope."))
   }
 }
