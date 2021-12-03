@@ -115,12 +115,37 @@ val elseKeywordNib =
     Seq(LetKeyword)
   }
 
+val elseIfExpressionNib: Nibbler[Token, ElseIf] = { (gaze) =>
+  for {
+    _ <- gaze.attempt(elseKeywordNib)
+    _ <- gaze.attempt(ifKeywordNib)
+    condition <- gaze.attempt(expressionNib)
+    body <- gaze.attempt(expressionNib)
+  } yield Seq(ElseIf(condition(0), body(0)))
+}
+
+val elseExpressionNib: Nibbler[Token, Else] = { (gaze) =>
+  for {
+    _ <- gaze.attempt(elseKeywordNib)
+    body <- gaze.attempt(expressionNib)
+  } yield Seq(Else(body(0)))
+}
+
 val ifExpressionNib: Nibbler[Token, IfExpression] = { (gaze) =>
   for {
     _ <- gaze.attempt(ifKeywordNib)
     condition <- gaze.attempt(expressionNib)
     body <- gaze.attempt(expressionNib)
-  } yield Seq(IfExpression(condition(0), body(0)))
+    elseIfs <- gaze.attempt(optional(repeat(elseIfExpressionNib)))
+    `else` <- gaze.attempt(optional(elseExpressionNib))
+  } yield Seq(
+    IfExpression(
+      condition(0),
+      body(0),
+      elseIfs.toList,
+      `else`.toList.find(_ => true)
+    )
+  )
 }
 
 val functionCallNib: Nibbler[Token, FunctionCall] = { (gaze) =>

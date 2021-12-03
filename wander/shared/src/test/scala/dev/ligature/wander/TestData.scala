@@ -643,7 +643,42 @@ val ifExpression = List(
       )
     ),
     result = Right(ScriptResult(Nothing))
+  ),
+  TestInstance(
+    description = "if else",
+    script = """let x = true
+               |let y = false
+               |if y {
+               |    1
+               |} else if x {
+               |    2
+               |} else if false {
+               |    3    
+               |} else {
+               |    4
+               |}""".stripMargin,
+    tokens = null,
+    ast = Script(
+      List(
+        LetStatement(Name("x"), BooleanValue(true)),
+        LetStatement(Name("y"), BooleanValue(false)),
+        IfExpression(
+          Name("y"),
+          Scope(List(LigatureValue(IntegerLiteral(1)))),
+          List(
+            ElseIf(Name("x"), Scope(List(LigatureValue(IntegerLiteral(2))))),
+            ElseIf(
+              BooleanValue(false),
+              Scope(List(LigatureValue(IntegerLiteral(3))))
+            )
+          ),
+          Some(Else(Scope(List(LigatureValue(IntegerLiteral(4))))))
+        )
+      )
+    ),
+    result = Right(ScriptResult(LigatureValue(IntegerLiteral(2))))
   )
+
   // TODO add if-else-expression
   // TODO add if-else-expression2
 )
