@@ -677,10 +677,22 @@ val ifExpression = List(
       )
     ),
     result = Right(ScriptResult(LigatureValue(IntegerLiteral(2))))
+  ),
+  TestInstance(
+    description = "else",
+    script = """let x = true
+               |let y = false
+               |if y {
+               |    1
+               |} else if not(x) {
+               |    2
+               |} else {
+               |    3
+               |}""".stripMargin,
+    tokens = null,
+    ast = null,
+    result = Right(ScriptResult(LigatureValue(IntegerLiteral(3))))
   )
-
-  // TODO add if-else-expression
-  // TODO add if-else-expression2
 )
 
 val errorsExpression = List()

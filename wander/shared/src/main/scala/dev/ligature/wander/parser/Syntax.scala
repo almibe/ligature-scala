@@ -254,7 +254,7 @@ case class IfExpression(
         }
       }
       `else` match {
-        case Some(e) => ??? // TODO handle else
+        case Some(e) => e.body.eval(bindings)
         case None    => Right(Nothing)
       }
     }
