@@ -22,7 +22,7 @@ import dev.ligature.lig.LigNibblers
 enum TokenType:
   case Boolean, Spaces, Identifier, Integer, Comment, NewLine, String,
   LetKeyword, EqualSign, Name, OpenBrace, CloseBrace, OpenParen, CloseParen,
-  Arrow
+  Arrow, IfKeyword, ElseKeyword
 
 case class Token(val content: String, val tokenType: TokenType)
 
@@ -57,9 +57,11 @@ val nameTokenNib = takeAll(
 )
   .map { value =>
     value.mkString match {
+      case "let"         => Seq(Token("let", TokenType.LetKeyword))
+      case "if"          => Seq(Token("if", TokenType.IfKeyword))
+      case "else"        => Seq(Token("else", TokenType.ElseKeyword))
       case "true"        => Seq(Token("true", TokenType.Boolean))
       case "false"       => Seq(Token("false", TokenType.Boolean))
-      case "let"         => Seq(Token("let", TokenType.LetKeyword))
       case value: String => Seq(Token(value, TokenType.Name))
     }
   }

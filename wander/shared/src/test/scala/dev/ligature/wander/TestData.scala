@@ -13,6 +13,9 @@ import dev.ligature.wander.parser.{
   BooleanValue,
   LetStatement,
   FunctionCall,
+  IfExpression,
+  ElseIf,
+  Else,
   FunctionDefinition,
   LigatureValue,
   Parameter,
@@ -581,7 +584,38 @@ val booleanExpression = List(
   )
 )
 
-val ifExpression = List()
+val ifExpression = List(
+  TestInstance(
+    description = "if true",
+    script = """if true {
+               |  7
+               |}""".stripMargin,
+    tokens = List(
+      Token("if", TokenType.IfKeyword),
+      Token(" ", TokenType.Spaces),
+      Token("true", TokenType.Boolean),
+      Token(" ", TokenType.Spaces),
+      Token("{", TokenType.OpenBrace),
+      Token("\n", TokenType.NewLine),
+      Token("  ", TokenType.Spaces),
+      Token("7", TokenType.Integer),
+      Token("\n", TokenType.NewLine),
+      Token("}", TokenType.CloseBrace)
+    ),
+    ast = Script(
+      List(
+        IfExpression(
+          BooleanValue(true),
+          Scope(List(LigatureValue(IntegerLiteral(7))))
+        )
+      )
+    ),
+    result = Right(ScriptResult(LigatureValue(IntegerLiteral(7))))
+  )
+  // TODO add if-false
+  // TODO add if-else-expression
+  // TODO add if-else-expression2
+)
 
 val errorsExpression = List()
 
@@ -601,6 +635,10 @@ val testData = List(
   TestData(
     category = "Boolean Functions",
     testInstances = booleanExpression
+  ),
+  TestData(
+    category = "If Expressions",
+    testInstances = ifExpression
   )
   // TODO add if expressions
   // TODO add error cases

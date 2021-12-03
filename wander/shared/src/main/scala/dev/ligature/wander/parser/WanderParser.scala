@@ -105,6 +105,24 @@ val functionDefinitionNib: Nibbler[Token, FunctionDefinition] = { (gaze) =>
   } yield Seq(FunctionDefinition(parameters.toList, body(0)))
 }
 
+val ifKeywordNib =
+  takeCond[Token] { _.tokenType == TokenType.IfKeyword }.map { token =>
+    Seq(LetKeyword)
+  }
+
+val elseKeywordNib =
+  takeCond[Token] { _.tokenType == TokenType.ElseKeyword }.map { token =>
+    Seq(LetKeyword)
+  }
+
+val ifExpressionNib: Nibbler[Token, IfExpression] = { (gaze) =>
+  for {
+    _ <- gaze.attempt(ifKeywordNib)
+    condition <- gaze.attempt(expressionNib)
+    body <- gaze.attempt(expressionNib)
+  } yield Seq(IfExpression(condition(0), body(0)))
+}
+
 val functionCallNib: Nibbler[Token, FunctionCall] = { (gaze) =>
   for {
     name <- gaze.attempt(nameNib)
@@ -116,6 +134,7 @@ val functionCallNib: Nibbler[Token, FunctionCall] = { (gaze) =>
 
 val expressionNib =
   takeFirst(
+    ifExpressionNib,
     functionCallNib,
     nameNib,
     scopeNib,

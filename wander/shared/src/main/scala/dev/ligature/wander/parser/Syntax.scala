@@ -223,8 +223,8 @@ case class ReferenceExpression(val name: Name) extends Expression {
 case class IfExpression(
     val condition: Expression,
     body: Expression,
-    elseIfs: List[ElseIf],
-    `else`: Option[Else]
+    elseIfs: List[ElseIf] = List(),
+    `else`: Option[Else] = None
 ) extends Expression {
   def eval(bindings: Bindings) = {
     ???
