@@ -11,26 +11,30 @@ import munit.FunSuite
 class WanderSuite extends FunSuite {
   testData.foreach { testGroup =>
     testGroup.testInstances.foreach { instance =>
-      test(s"Lexing -- ${testGroup.category} -- ${instance.description}") {
-        val tokens = tokenize(instance.script)
-        assertEquals(
-          tokens,
-          Right(instance.tokens),
-          s"tokens are not the same for ${instance.description}"
-        )
+      if (instance.tokens != null) {
+        test(s"Lexing -- ${testGroup.category} -- ${instance.description}") {
+          val tokens = tokenize(instance.script)
+          assertEquals(
+            tokens,
+            Right(instance.tokens),
+            s"tokens are not the same for ${instance.description}"
+          )
+        }
       }
 
-      test(s"Parsing -- ${testGroup.category} -- ${instance.description}") {
-        val tokens = tokenize(instance.script)
-        tokens match {
-          case Left(err) => fail(s"tokenizer failed - ${err.message}")
-          case Right(tokens) => {
-            val ast = parse(tokens)
-            assertEquals(
-              ast,
-              Right(instance.ast),
-              s"AST values are not the same for ${instance.description}"
-            )
+      if (instance.ast != null) {
+        test(s"Parsing -- ${testGroup.category} -- ${instance.description}") {
+          val tokens = tokenize(instance.script)
+          tokens match {
+            case Left(err) => fail(s"tokenizer failed - ${err.message}")
+            case Right(tokens) => {
+              val ast = parse(tokens)
+              assertEquals(
+                ast,
+                Right(instance.ast),
+                s"AST values are not the same for ${instance.description}"
+              )
+            }
           }
         }
       }

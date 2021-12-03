@@ -51,33 +51,47 @@ def common(): Bindings = {
       (bindings: Bindings) => {
         bindings.read(Name("bool")) match {
           case Right(b: BooleanValue) => Right(BooleanValue(!b.value))
-          case _               => Left(ScriptError("not requires a Boolean"))
+          case _ => Left(ScriptError("not requires a Boolean"))
         }
       }
     )
   )
 
-  stdLib.bind(Name("and"), NativeFunction(List(Parameter(Name("boolLeft")), Parameter(Name("boolRight"))), (bindings: Bindings) => {
-    for {
-      left <- bindings.read(Name("boolLeft"))
-      right <- bindings.read(Name("boolRight"))
-      res <- (left, right) match {
-        case (l: BooleanValue, r: BooleanValue) => Right(BooleanValue(l.value && r.value))
-        case _ => Left(ScriptError("and requires two booleans"))
+  stdLib.bind(
+    Name("and"),
+    NativeFunction(
+      List(Parameter(Name("boolLeft")), Parameter(Name("boolRight"))),
+      (bindings: Bindings) => {
+        for {
+          left <- bindings.read(Name("boolLeft"))
+          right <- bindings.read(Name("boolRight"))
+          res <- (left, right) match {
+            case (l: BooleanValue, r: BooleanValue) =>
+              Right(BooleanValue(l.value && r.value))
+            case _ => Left(ScriptError("and requires two booleans"))
+          }
+        } yield res
       }
-    } yield res
-  }))
+    )
+  )
 
-  stdLib.bind(Name("or"), NativeFunction(List(Parameter(Name("boolLeft")), Parameter(Name("boolRight"))), (bindings: Bindings) => {
-    for {
-      left <- bindings.read(Name("boolLeft"))
-      right <- bindings.read(Name("boolRight"))
-      res <- (left, right) match {
-        case (l: BooleanValue, r: BooleanValue) => Right(BooleanValue(l.value || r.value))
-        case _ => Left(ScriptError("or requires two booleans"))
+  stdLib.bind(
+    Name("or"),
+    NativeFunction(
+      List(Parameter(Name("boolLeft")), Parameter(Name("boolRight"))),
+      (bindings: Bindings) => {
+        for {
+          left <- bindings.read(Name("boolLeft"))
+          right <- bindings.read(Name("boolRight"))
+          res <- (left, right) match {
+            case (l: BooleanValue, r: BooleanValue) =>
+              Right(BooleanValue(l.value || r.value))
+            case _ => Left(ScriptError("or requires two booleans"))
+          }
+        } yield res
       }
-    } yield res
-  }))
+    )
+  )
 
   // class RangeResultStream implements ResultStream<bigint> {
   //     readonly start: bigint

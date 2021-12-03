@@ -509,14 +509,30 @@ val booleanExpression = List(
     description = "boolean1 test",
     script = "or(true and(false false))",
     tokens = List(
-      Token("not", TokenType.Name),
+      Token("or", TokenType.Name),
       Token("(", TokenType.OpenParen),
       Token("true", TokenType.Boolean),
+      Token(" ", TokenType.Spaces),
+      Token("and", TokenType.Name),
+      Token("(", TokenType.OpenParen),
+      Token("false", TokenType.Boolean),
+      Token(" ", TokenType.Spaces),
+      Token("false", TokenType.Boolean),
+      Token(")", TokenType.CloseParen),
       Token(")", TokenType.CloseParen)
     ),
     ast = Script(
       List(
-        FunctionCall(Name("not"), List(BooleanValue(true)))
+        FunctionCall(
+          Name("or"),
+          List(
+            BooleanValue(true),
+            FunctionCall(
+              Name("and"),
+              List(BooleanValue(false), BooleanValue(false))
+            )
+          )
+        )
       )
     ),
     result = Right(ScriptResult(BooleanValue(true)))
@@ -525,35 +541,42 @@ val booleanExpression = List(
     description = "boolean2 test",
     script = "and(or(true false) false)",
     tokens = List(
-      Token("not", TokenType.Name),
+      Token("and", TokenType.Name),
+      Token("(", TokenType.OpenParen),
+      Token("or", TokenType.Name),
       Token("(", TokenType.OpenParen),
       Token("true", TokenType.Boolean),
+      Token(" ", TokenType.Spaces),
+      Token("false", TokenType.Boolean),
+      Token(")", TokenType.CloseParen),
+      Token(" ", TokenType.Spaces),
+      Token("false", TokenType.Boolean),
       Token(")", TokenType.CloseParen)
     ),
     ast = Script(
       List(
-        FunctionCall(Name("not"), List(BooleanValue(true)))
+        FunctionCall(
+          Name("and"),
+          List(
+            FunctionCall(
+              Name("or"),
+              List(BooleanValue(true), BooleanValue(false))
+            ),
+            BooleanValue(false)
+          )
+        )
       )
     ),
     result = Right(ScriptResult(BooleanValue(false)))
   ),
   TestInstance(
     description = "boolean3 test with variables",
-    script = """let t = not(or(false, false))
+    script = """let t = not(or(false false))
                |let f = false
-               |let res = or(t, and(f, false))
+               |let res = or(t and(f false))
                |res""".stripMargin,
-    tokens = List(
-      Token("not", TokenType.Name),
-      Token("(", TokenType.OpenParen),
-      Token("true", TokenType.Boolean),
-      Token(")", TokenType.CloseParen)
-    ),
-    ast = Script(
-      List(
-        FunctionCall(Name("not"), List(BooleanValue(true)))
-      )
-    ),
+    tokens = null,
+    ast = null,
     result = Right(ScriptResult(BooleanValue(true)))
   )
 )
