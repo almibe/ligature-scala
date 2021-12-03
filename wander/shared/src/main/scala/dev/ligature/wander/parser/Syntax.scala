@@ -8,6 +8,7 @@ import dev.ligature.wander.Bindings
 import cats.effect.IO
 import dev.ligature.{Statement, Value}
 import fs2.Stream
+import scala.util.Success
 
 /** Represents a Value in the Wander language.
   */
@@ -84,14 +85,14 @@ object Arrow extends Element {
 
 object LetKeyword extends Element {
   override def eval(binding: Bindings) = Left(
-    ScriptError("Cannot eval ley keyword.")
+    ScriptError("Cannot eval let keyword.")
   )
 }
 
 /** Represents a Name in the Wander language.
   */
 final case class Name(name: String) extends Expression {
-  override def eval(binding: Bindings) = Right(binding.read(this))
+  override def eval(binding: Bindings) = binding.read(this)
 }
 
 case class ScriptError(message: String)
@@ -124,9 +125,13 @@ sealed trait Expression extends Element
   * Wander.
   */
 case class NativeFunction(
-    parameters: List[String],
-    body: (bindings: List[Bindings]) => Either[ScriptError, ScriptResult]
-)
+    parameters: List[Parameter],
+    body: (bindings: Bindings) => Either[ScriptError, WanderValue]
+) extends WanderValue {
+  override def eval(binding: Bindings): Either[ScriptError, WanderValue] = {
+    body(binding)
+  }
+}
 
 /** Represents a full script that can be eval'd.
   */
@@ -171,9 +176,15 @@ case class FunctionCall(val name: Name, val parameters: List[Expression])
   def eval(bindings: Bindings) = {
     val func = bindings.read(name)
     func match {
-      case FunctionDefinition(args, scope) => {
-        updateBindings(bindings, args)
-        val res = scope.eval(bindings)
+      case Right(fd: FunctionDefinition) => {
+        updateBindings(bindings, fd.parameters)
+        val res = fd.body.eval(bindings)
+        bindings.removeScope()
+        res
+      }
+      case Right(nf: NativeFunction) => {
+        updateBindings(bindings, nf.parameters)
+        val res = nf.body(bindings)
         bindings.removeScope()
         res
       }
@@ -190,7 +201,9 @@ case class FunctionCall(val name: Name, val parameters: List[Expression])
         binding.bind(arg.name, param.eval(binding).getOrElse(???))
       }
     } else {
-      throw RuntimeException(s"Argument number ${args.length} != Parameter number ${parameters.length}")
+      throw RuntimeException(
+        s"Argument number ${args.length} != Parameter number ${parameters.length}"
+      )
     }
   }
 }

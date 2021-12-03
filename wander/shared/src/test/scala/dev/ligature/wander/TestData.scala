@@ -489,17 +489,78 @@ val functionTestData = List(
 )
 
 val booleanExpression = List(
-  // //BOOLEAN-EXPRESSION
-  // "not.wander" ->
-  //     Script(List(
-  //         functionCall(identifier("not"), List(valueExpression(true)))
-  //     ))
+  TestInstance(
+    description = "not function",
+    script = "not(true)",
+    tokens = List(
+      Token("not", TokenType.Name),
+      Token("(", TokenType.OpenParen),
+      Token("true", TokenType.Boolean),
+      Token(")", TokenType.CloseParen)
+    ),
+    ast = Script(
+      List(
+        FunctionCall(Name("not"), List(BooleanValue(true)))
+      )
+    ),
+    result = Right(ScriptResult(BooleanValue(false)))
+  ),
+  TestInstance(
+    description = "boolean1 test",
+    script = "or(true and(false false))",
+    tokens = List(
+      Token("not", TokenType.Name),
+      Token("(", TokenType.OpenParen),
+      Token("true", TokenType.Boolean),
+      Token(")", TokenType.CloseParen)
+    ),
+    ast = Script(
+      List(
+        FunctionCall(Name("not"), List(BooleanValue(true)))
+      )
+    ),
+    result = Right(ScriptResult(BooleanValue(true)))
+  ),
+  TestInstance(
+    description = "boolean2 test",
+    script = "and(or(true false) false)",
+    tokens = List(
+      Token("not", TokenType.Name),
+      Token("(", TokenType.OpenParen),
+      Token("true", TokenType.Boolean),
+      Token(")", TokenType.CloseParen)
+    ),
+    ast = Script(
+      List(
+        FunctionCall(Name("not"), List(BooleanValue(true)))
+      )
+    ),
+    result = Right(ScriptResult(BooleanValue(false)))
+  ),
+  TestInstance(
+    description = "boolean3 test with variables",
+    script = """let t = not(or(false, false))
+               |let f = false
+               |let res = or(t, and(f, false))
+               |res""".stripMargin,
+    tokens = List(
+      Token("not", TokenType.Name),
+      Token("(", TokenType.OpenParen),
+      Token("true", TokenType.Boolean),
+      Token(")", TokenType.CloseParen)
+    ),
+    ast = Script(
+      List(
+        FunctionCall(Name("not"), List(BooleanValue(true)))
+      )
+    ),
+    result = Right(ScriptResult(BooleanValue(true)))
+  )
 )
 
 val ifExpression = List()
 
-val errorsExpression = List(
-)
+val errorsExpression = List()
 
 val testData = List(
   TestData(
@@ -513,8 +574,11 @@ val testData = List(
   TestData(
     category = "Functions",
     testInstances = functionTestData
+  ),
+  TestData(
+    category = "Boolean Functions",
+    testInstances = booleanExpression
   )
-  // TODO add boolean functions
   // TODO add if expressions
   // TODO add error cases
 )

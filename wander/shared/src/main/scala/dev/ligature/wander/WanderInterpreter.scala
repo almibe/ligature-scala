@@ -25,7 +25,7 @@ def run(script: String): Either[ScriptError, ScriptResult] = {
 }
 
 def interpret(script: Script): Either[ScriptError, ScriptResult] = {
-  val bindings = Bindings()
+  val bindings = common()
   var result: Either[ScriptError, ScriptResult] = Right(ScriptResult(Nothing))
   script.eval(bindings)
 }
