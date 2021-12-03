@@ -718,6 +718,5 @@ val testData = List(
     category = "If Expressions",
     testInstances = ifExpression
   )
-  // TODO add if expressions
   // TODO add error cases
 )
