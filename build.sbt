@@ -51,7 +51,7 @@ lazy val ligatureTestSuite = crossProject(JSPlatform, JVMPlatform)
     scalaVersion := rcVersion,
     libraryDependencies += "co.fs2" %%% "fs2-core" % "3.2.2",
     libraryDependencies += "org.scalameta" %%% "munit" % "1.0.0-M1",
-    libraryDependencies += "org.typelevel" %%% "munit-cats-effect-3" % "1.0.6"
+    libraryDependencies += "org.typelevel" %%% "munit-cats-effect-3" % "1.0.7"
   )
   .dependsOn(ligature)
 
@@ -62,7 +62,7 @@ lazy val ligatureInMemory = crossProject(JSPlatform, JVMPlatform)
     scalaVersion := rcVersion,
     libraryDependencies += "co.fs2" %%% "fs2-core" % "3.2.2",
     libraryDependencies += "org.scalameta" %%% "munit" % "1.0.0-M1" % Test,
-    libraryDependencies += "org.typelevel" %%% "munit-cats-effect-3" % "1.0.6"
+    libraryDependencies += "org.typelevel" %%% "munit-cats-effect-3" % "1.0.7"
   )
   .dependsOn(ligature, ligatureTestSuite % Test)
 
