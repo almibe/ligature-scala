@@ -3,3 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 package dev.ligature.lab
+
+import munit.FunSuite
+
+class LigatureLabSuite extends FunSuite {}
