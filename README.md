@@ -13,7 +13,6 @@ An implementation of [Ligature knowledge graph](https://github.com/almibe/ligatu
 | gaze                | A utility library for parsing text.                                              | ✅   | ✅ |
 | slonky              | A JVM based server for Ligature following the ligature-http spec.                | ✅   |   |
 | ligature-indexeddb  | An implementation of Ligature targeting the browser using IndexedDB for storage. |     | ✅ |
-| ligature-lab        | A simple UI for working with Ligature in the browser.                            |     | ✅ |
 
 ## Building
 This project requires sbt to build.
@@ -35,11 +34,6 @@ Use `test` to run tests.
 
 Use `scalafmtAll` to format code.
 
-### Project Specific Notes
+### JavaScript Notes
 
-#### ligature-lab
-
-ligature-lab is a web ui project that uses ligature in the browser.
-Building it is a little bit different than other projects since it is exclusively and Scala.js project.
-To build the project switch to the `ligature-lab` project by typing `project ligatureLabJS` in the SBT command line.
-Then type `fastLinkJS` and open the index.html file that is located in the root of the ligature-lab project.
+...
