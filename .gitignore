@@ -8,3 +8,4 @@ target/
 **/metals.sbt
 .lsp
 .psc-ide-port
+index.js

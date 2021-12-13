@@ -78,6 +78,17 @@ lazy val ligatureIndexedDB = crossProject(JSPlatform)
   )
   .dependsOn(ligature, ligatureTestSuite % Test)
 
+lazy val ligatureJS = crossProject(JSPlatform)
+  .in(file("ligature-js"))
+  .enablePlugins(ScalaJSPlugin)
+  .jsSettings(
+    name := "ligature-js",
+    scalaVersion := rcVersion,
+    scalaJSLinkerConfig ~= { _.withModuleKind(ModuleKind.ESModule) },
+    libraryDependencies += "org.scalameta" %%% "munit" % "1.0.0-M1" % Test
+  )
+  .dependsOn(ligature, wander, ligatureTestSuite % Test)
+
 // lazy val slonky = (project in file("slonky"))
 //   .settings(
 //     name := "slonky",
