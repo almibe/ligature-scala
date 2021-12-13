@@ -13,23 +13,13 @@ import dev.ligature.wander.parser.{
   ScriptError,
   WanderValue
 }
+import dev.ligature.wander.ExecutionMode.*
 
-enum ExecutionScope:
-  case Instance, ReadTx, WriteTx
-
-def stdLib(scope: ExecutionScope): Bindings = {
-  val stdLib = common()
-
-  // if (scope.scopeType == "Instance") {
-  //     instanceScope(scope, stdLib)
-  // } else if (scope.scopeType == "ReadTx") {
-  //     readScope(scope, stdLib)
-  // } else if (scope.scopeType == "WriteTx") {
-  //     writeScope(scope, stdLib)
-  // }
-
-  return stdLib
-}
+def createStandardBindings(scope: ExecutionMode): Bindings =
+  scope match {
+    case StandAloneMode => common()
+    case _ => throw Error(s"${scope} not supported yet")
+  }
 
 def common(): Bindings = {
   val stdLib = Bindings()
