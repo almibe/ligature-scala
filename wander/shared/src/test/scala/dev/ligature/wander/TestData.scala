@@ -28,6 +28,7 @@ import dev.ligature.{Identifier, IntegerLiteral, StringLiteral}
 
 case class TestData(
     val category: String,
+    val executionMode: ExecutionMode,
     val testInstances: List[TestInstance]
 )
 
@@ -96,28 +97,6 @@ val primitivesTestData = List(
     ast = Script(List()),
     result = Right(ScriptResult(Nothing))
   ),
-  // TestInstance(
-  //   description = "statement",
-  //   script = "<entity> <attribute> 3 <context>",
-  //   tokens = List(
-  //     Token("entity", TokenType.Identifier),
-  //     Token(" ", TokenType.Spaces),
-  //     Token("attribute", TokenType.Identifier),
-  //     Token(" ", TokenType.Spaces),
-  //     Token("3", TokenType.Integer),
-  //     Token(" ", TokenType.Spaces),
-  //     Token("context", TokenType.Identifier)
-  //   ),
-  //   ast = Script(
-  //     List(
-  //       LigatureValue(Identifier.fromString("entity").getOrElse(???)),
-  //       LigatureValue(Identifier.fromString("attribute").getOrElse(???)),
-  //       LigatureValue(IntegerLiteral(3)),
-  //       LigatureValue(Identifier.fromString("context").getOrElse(???))
-  //     )
-  //   ),
-  //   result = Right(ScriptResult(LigatureValue(IntegerLiteral(5))))
-  // ),
   TestInstance(
     description = "string",
     script = "\"hello world\" ",
@@ -700,22 +679,27 @@ val errorsExpression = List()
 val testData = List(
   TestData(
     category = "Primitives",
+    executionMode = ExecutionMode.StandAloneMode,
     testInstances = primitivesTestData
   ),
   TestData(
     category = "Assignment",
+        executionMode = ExecutionMode.StandAloneMode,
     testInstances = assignmentTestData
   ),
   TestData(
     category = "Functions",
+    executionMode = ExecutionMode.StandAloneMode,
     testInstances = functionTestData
   ),
   TestData(
     category = "Boolean Functions",
+    executionMode = ExecutionMode.StandAloneMode,
     testInstances = booleanExpression
   ),
   TestData(
     category = "If Expressions",
+    executionMode = ExecutionMode.StandAloneMode,
     testInstances = ifExpression
   )
   // TODO add error cases
