@@ -6,8 +6,9 @@ package dev.ligature.js
 
 import dev.ligature.wander.{run => wanderRun}
 import scala.scalajs.js.annotation.JSExportTopLevel
+import dev.ligature.wander.ExecutionMode
 
 @JSExportTopLevel("run")
 def run(script: String): String = {
-  wanderRun(script).toString
+  wanderRun(script, ExecutionMode.StandAloneMode).toString
 }

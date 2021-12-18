@@ -13,37 +13,39 @@ import dev.ligature.wander.parser.{
   ScriptResult
 }
 import dev.ligature.wander.lexer.TokenizeError
-import dev.ligature.Dataset
+import dev.ligature.{Dataset, Ligature}
 
-/**
- * This enum contains all of the modes that a Wander script can be ran in
- */
+/** This enum contains all of the modes that a Wander script can be ran in
+  */
 enum ExecutionMode:
-  /**
-   * In StandAloneMode you have no references to a Ligature instance are available.
-   * You only have access to the core standard library for Wander.
-   */
+  /** In StandAloneMode you have no references to a Ligature instance are
+    * available. You only have access to the core standard library for Wander.
+    */
   case StandAloneMode
-  /**
-   * In Instance mode you have access to an entire Ligature instance.
-   * You can add Datasets, remove Datasets, run transactions against specific Datasets, etc.
-   */
-  case InstanceMode
-  /**
-   * In Dataset mode you have complete control over a single Dataset.
-   * This allows you to run queries and write transactions against a single Dataset.
-   */
-  case DatasetMode(val dataset: Dataset)
-  /**
-   * ReadMode allows you to perform read actions with a single Dataset.
-   */
-  case ReadMode(val dataset: Dataset)
-  /**
-   * WriteMode allows you to perform write actions with a single Dataset.
-   */
-  case WriteMode(val dataset: Dataset)
 
-def run(script: String, executionMode: ExecutionMode): Either[ScriptError, ScriptResult] = {
+  /** In Instance mode you have access to an entire Ligature instance. You can
+    * add Datasets, remove Datasets, run transactions against specific Datasets,
+    * etc.
+    */
+  case InstanceMode(val ligature: Ligature)
+
+  /** In Dataset mode you have complete control over a single Dataset. This
+    * allows you to run queries and write transactions against a single Dataset.
+    */
+  case DatasetMode(val ligature: Ligature, val dataset: Dataset)
+
+  /** ReadMode allows you to perform read actions with a single Dataset.
+    */
+  case ReadMode(val ligature: Ligature, val dataset: Dataset)
+
+  /** WriteMode allows you to perform write actions with a single Dataset.
+    */
+  case WriteMode(val ligature: Ligature, val dataset: Dataset)
+
+def run(
+    script: String,
+    executionMode: ExecutionMode
+): Either[ScriptError, ScriptResult] = {
   for {
     tokens <- tokenize(script).left.map { (e: TokenizeError) =>
       ScriptError(e.message)
@@ -53,8 +55,11 @@ def run(script: String, executionMode: ExecutionMode): Either[ScriptError, Scrip
   } yield result
 }
 
-def interpret(script: Script, executionMode: ExecutionMode): Either[ScriptError, ScriptResult] = {
-  val bindings = createStandardBindings(executionMode)//common()
+def interpret(
+    script: Script,
+    executionMode: ExecutionMode
+): Either[ScriptError, ScriptResult] = {
+  val bindings = createStandardBindings(executionMode)
   var result: Either[ScriptError, ScriptResult] = Right(ScriptResult(Nothing))
   script.eval(bindings)
 }

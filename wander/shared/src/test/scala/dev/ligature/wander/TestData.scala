@@ -684,7 +684,7 @@ val testData = List(
   ),
   TestData(
     category = "Assignment",
-        executionMode = ExecutionMode.StandAloneMode,
+    executionMode = ExecutionMode.StandAloneMode,
     testInstances = assignmentTestData
   ),
   TestData(

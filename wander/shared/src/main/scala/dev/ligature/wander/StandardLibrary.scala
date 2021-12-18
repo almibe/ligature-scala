@@ -14,11 +14,16 @@ import dev.ligature.wander.parser.{
   WanderValue
 }
 import dev.ligature.wander.ExecutionMode.*
+import dev.ligature.Ligature
 
 def createStandardBindings(scope: ExecutionMode): Bindings =
+  val bindings = common()
   scope match {
-    case StandAloneMode => common()
-    case _ => throw Error(s"${scope} not supported yet")
+    case StandAloneMode  => bindings
+    case _: InstanceMode => instanceModeBindings(bindings)
+    case _: DatasetMode  => datasetModeBindings(bindings)
+    case _: ReadMode     => readModeBindings(bindings)
+    case _: WriteMode    => writeModeBindings(bindings)
   }
 
 def common(): Bindings = {
@@ -117,6 +122,7 @@ def common(): Bindings = {
   return stdLib;
 }
 
+def instanceModeBindings(bindings: Bindings): Bindings = {
 // function instanceScope(scope: ExecutionScope, bindings: Bindings) {
 //     // allDatasets(): Promise<Array<Dataset>>;
 //     bindings.bind(Name("allDatasets"), NativeFunction([], (_bindings: Bindings) => {
@@ -151,6 +157,21 @@ def common(): Bindings = {
 //         return TODO()
 //     }))
 // }
+
+  bindings
+}
+
+def datasetModeBindings(bindings: Bindings): Bindings = {
+  ???
+}
+
+def readModeBindings(bindings: Bindings): Bindings = {
+  ???
+}
+
+def writeModeBindings(bindings: Bindings): Bindings = {
+  ???
+}
 
 // function readScope(scope: ExecutionScope, bindings: Bindings) {
 //     //      allStatements(): Promise<Array<Statement>>
