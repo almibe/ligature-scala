@@ -126,8 +126,9 @@ sealed trait Expression extends Element
   */
 case class NativeFunction(
     parameters: List[Parameter],
-    body: (bindings: Bindings) => Either[ScriptError, WanderValue]
-) extends WanderValue {
+    body: (bindings: Bindings) => Either[ScriptError, WanderValue],
+    output: WanderType = null
+) extends WanderValue { // TODO eventually remove the default null value
   override def eval(binding: Bindings): Either[ScriptError, WanderValue] = {
     body(binding)
   }
@@ -160,11 +161,25 @@ case class Scope(val elements: List[Element]) extends Expression {
   }
 }
 
-case class Parameter(val name: Name) //TODO eventually add types here
+enum WanderType {
+  case Boolean
+  case String
+  case Integer
+  case Function(parameters: List[Parameter], output: WanderType)
+}
+
+case class Parameter(
+    val name: Name,
+    val parameterType: WanderType = null
+) //TODO eventually remove the default null value
 
 /** Holds a reference to a function defined in Wander.
   */
-case class FunctionDefinition(parameters: List[Parameter], body: Scope)
+case class FunctionDefinition(
+    parameters: List[Parameter],
+    body: Scope,
+    output: WanderType = null
+) //TODO eventually remove the default null value
     extends WanderValue {
   override def eval(binding: Bindings) = {
     Right(this)
