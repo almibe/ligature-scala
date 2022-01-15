@@ -27,8 +27,6 @@ def writeStatement(statement: Statement): String =
     .append(writeIdentifier(statement.attribute))
     .append(' ')
     .append(writeValue(statement.value))
-    .append(' ')
-    .append(writeIdentifier(statement.context))
     .toString()
 
 def writeIdentifier(identifier: Identifier): String = s"<${identifier.name}>"

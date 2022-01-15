@@ -60,8 +60,7 @@ class LigSuite extends FunSuite {
     val statement = Statement(
       identifier("e1"),
       identifier("a1"),
-      identifier("e2"),
-      identifier("context")
+      identifier("e2")
     )
     val lines = write(List(statement).iterator)
     val resStatements = parse(lines)
@@ -73,20 +72,17 @@ class LigSuite extends FunSuite {
       Statement(
         identifier("e1"),
         identifier("a1"),
-        identifier("e2"),
-        identifier("context")
+        identifier("e2")
       ),
       Statement(
         identifier("e2"),
         identifier("a2"),
-        StringLiteral("string literal"),
-        identifier("context2")
+        StringLiteral("string literal")
       ),
       Statement(
         identifier("e2"),
         identifier("a3"),
-        IntegerLiteral(Long.MaxValue),
-        identifier("context3")
+        IntegerLiteral(Long.MaxValue)
       )
     )
     val lines = write(statements.iterator)

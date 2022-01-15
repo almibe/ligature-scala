@@ -32,6 +32,7 @@ def parse(input: String): Either[LigError, Iterator[Statement]] = {
   val statements: ArrayBuffer[Statement] = ArrayBuffer()
   var continue = true
   while (continue && !gaze.isComplete()) {
+    gaze.attempt(optional(whiteSpaceAndNewLineNibbler))
     parseStatement(gaze) match {
       case Left(resStatement)  => return Left(resStatement)
       case Right(resStatement) => statements.append(resStatement)
@@ -50,15 +51,14 @@ def parseStatement(gaze: Gaze[Char]): Either[LigError, Statement] = {
   for {
     _ <- gaze
       .attempt(optional(whiteSpaceAndNewLineNibbler))
-      .toRight(LigError(""))
+      .toRight(LigError("Error parsing optional whitespace before Statement"))
     entity <- parseIdentifier(gaze)
-    _ <- gaze.attempt(whiteSpaceNibbler).toRight(LigError(""))
+    _ <- gaze.attempt(whiteSpaceNibbler).toRight(LigError("Error parsing whitespace after Entity"))
     attribute <- parseIdentifier(gaze)
-    _ <- gaze.attempt(whiteSpaceNibbler).toRight(LigError(""))
+    _ <- gaze.attempt(whiteSpaceNibbler).toRight(LigError("Error parsing whitespace after Attribute"))
     value <- parseValue(gaze)
-    _ <- gaze.attempt(whiteSpaceNibbler).toRight(LigError(""))
-    context <- parseIdentifier(gaze)
-  } yield (Statement(entity, attribute, value, context))
+    //_ <- gaze.attempt(whiteSpaceNibbler).toRight(LigError(""))
+  } yield (Statement(entity, attribute, value))
 }
 
 def parseIdentifier(gaze: Gaze[Char]): Either[LigError, Identifier] = {
