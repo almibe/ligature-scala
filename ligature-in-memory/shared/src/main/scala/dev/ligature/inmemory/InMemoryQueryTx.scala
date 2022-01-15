@@ -67,9 +67,4 @@ class InMemoryQueryTx(private val store: DatasetStore) extends QueryTx {
     }
     res
   }
-
-  /** Returns the PersistedStatement for the given context. */
-  def statementForContext(context: Identifier): IO[Option[Statement]] = IO {
-    store.statements.find(_.context == context)
-  }
 }
