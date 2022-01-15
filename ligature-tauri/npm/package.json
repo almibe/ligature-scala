@@ -1,0 +1,19 @@
+{
+  "name": "@ligature/ligature-tauri",
+  "version": "0.1.0",
+  "description": "An interface for ligature-scala and Tauri.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/almibe/ligature-scala.git"
+  },
+  "author": "Alex Michael Berry <alexmiberry@gmail.com>",
+  "license": "MPL-2.0",
+  "bugs": {
+    "url": "https://github.com/almibe/ligature-scala/issues"
+  },
+  "homepage": "https://github.com/almibe/ligature-scala#readme"
+}
