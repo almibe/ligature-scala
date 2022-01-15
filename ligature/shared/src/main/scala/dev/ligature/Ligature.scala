@@ -58,8 +58,7 @@ final case class IntegerLiteralRange(val start: Long, val end: Long)
 final case class Statement(
     val entity: Identifier,
     val attribute: Identifier,
-    val value: Value,
-    val context: Identifier
+    val value: Value
 )
 
 enum WriteResult:
@@ -141,11 +140,6 @@ trait QueryTx {
       attribute: Option[Identifier] = None,
       value: Range
   ): Stream[IO, Statement]
-
-  /** Returns the PersistedStatement for the given context. */
-  def statementForContext(
-      context: Identifier
-  ): IO[Option[Statement]]
 }
 
 /** Represents a WriteTx within the context of a Ligature instance and a single
@@ -160,9 +154,7 @@ trait WriteTx {
   def newIdentifier(prefix: String = ""): IO[Identifier]
 
   /** Adds a given Statement to this Dataset. If the Statement already exists
-    * nothing happens (TODO maybe add it with a new context?). Note: Potentially
-    * could trigger a ValidationError if the Statement's Context already exists
-    * for a different Statement.
+    * nothing happens.
     */
   def addStatement(statement: Statement): IO[Unit]
 
