@@ -22,14 +22,6 @@ abstract class LigatureTestSuite extends CatsEffectSuite {
   val entity1 = Identifier.fromString("a").getOrElse(???)
   val entity2 = Identifier.fromString("b").getOrElse(???)
   val entity3 = Identifier.fromString("c").getOrElse(???)
-  val context1 = Identifier.fromString("context1").getOrElse(???)
-  val context2 = Identifier.fromString("context2").getOrElse(???)
-  val context3 = Identifier.fromString("context3").getOrElse(???)
-  val context4 = Identifier.fromString("context4").getOrElse(???)
-  val context5 = Identifier.fromString("context5").getOrElse(???)
-  val context6 = Identifier.fromString("context6").getOrElse(???)
-  val context7 = Identifier.fromString("context7").getOrElse(???)
-  val context8 = Identifier.fromString("context8").getOrElse(???)
 
   test("create and close store") {
     val instance = createLigature
@@ -123,11 +115,9 @@ abstract class LigatureTestSuite extends CatsEffectSuite {
       _ <- instance.createDataset(testDataset)
       _ <- instance.write(testDataset).use { tx =>
         for {
-          _ <- tx.addStatement(Statement(entity1, a, entity2, context1))
-          _ <- tx.addStatement(
-            Statement(entity1, a, entity2, context2)
-          ) // dupes get added since they'll have unique contexts
-          r <- tx.addStatement(Statement(entity1, a, entity3, context3))
+          _ <- tx.addStatement(Statement(entity1, a, entity2))
+          _ <- tx.addStatement(Statement(entity1, a, entity2)) //dupe
+          r <- tx.addStatement(Statement(entity1, a, entity3))
         } yield r
       }
       statements <- instance.query(testDataset).use { tx =>
@@ -137,9 +127,8 @@ abstract class LigatureTestSuite extends CatsEffectSuite {
     assertIO(
       res,
       Set(
-        Statement(entity1, a, entity2, context1),
-        Statement(entity1, a, entity2, context2),
-        Statement(entity1, a, entity3, context3)
+        Statement(entity1, a, entity2),
+        Statement(entity1, a, entity3)
       )
     )
   }
@@ -153,8 +142,7 @@ abstract class LigatureTestSuite extends CatsEffectSuite {
           entity <- tx.newIdentifier("entity-")
           attribute <- tx.newIdentifier("attribute-")
           value <- tx.newIdentifier("value-")
-          context <- tx.newIdentifier("context-")
-          ps1 <- tx.addStatement(Statement(entity, attribute, value, context))
+          ps1 <- tx.addStatement(Statement(entity, attribute, value))
         } yield IO(())
       }
       statements <- instance.query(testDataset).use { tx =>
@@ -168,7 +156,6 @@ abstract class LigatureTestSuite extends CatsEffectSuite {
         case Identifier(id) => assert(id.startsWith("value-"))
         case _              => assert(false)
       }
-      assert(it.context.name.startsWith("context-"))
     })
   }
 
@@ -178,39 +165,18 @@ abstract class LigatureTestSuite extends CatsEffectSuite {
       _ <- instance.createDataset(testDataset)
       ps2 <- instance.write(testDataset).use { tx =>
         for {
-          _ <- tx.addStatement(Statement(entity1, a, entity2, context1))
-          _ <- tx.addStatement(Statement(entity3, a, entity2, context2))
-          _ <- tx.removeStatement(Statement(entity1, a, entity2, context1))
-          _ <- tx.removeStatement(Statement(entity1, a, entity2, context1))
-          // below doesn't actually remove since context is different
-          _ <- tx.removeStatement(Statement(entity3, a, entity2, entity1))
+          _ <- tx.addStatement(Statement(entity1, a, entity2))
+          _ <- tx.addStatement(Statement(entity3, a, entity2))
+          _ <- tx.removeStatement(Statement(entity1, a, entity2))
+          _ <- tx.removeStatement(Statement(entity1, a, entity2))
         } yield ()
       }
       statements <- instance.query(testDataset).use { tx =>
         tx.allStatements().compile.toList
       }
     } yield statements
-    assertIO(res, List(Statement(entity3, a, entity2, context2)))
+    assertIO(res, List(Statement(entity3, a, entity2)))
   }
-
-  test("get statement from context") {
-    val instance = createLigature
-    val res = for {
-      _ <- instance.createDataset(testDataset)
-      ps <- instance.write(testDataset).use { tx =>
-        for {
-          _ <- tx.addStatement(Statement(entity1, a, entity2, context1))
-          _ <- tx.addStatement(Statement(entity2, a, entity3, context2))
-        } yield ()
-      }
-      res <- instance.query(testDataset).use { tx =>
-        tx.statementForContext(context2)
-      }
-    } yield res
-    assertIO(res, Some(Statement(entity2, a, entity3, context2)))
-  }
-
-  // TODO add test to assert contexts are unique for a dataset
 
   // test("allow canceling WriteTx by throwing exception") {
   //     val res = createLigature.instance.use { instance  =>
@@ -245,13 +211,13 @@ abstract class LigatureTestSuite extends CatsEffectSuite {
       _ <- instance.write(testDataset).use { tx =>
         for {
           _ <- tx.addStatement(
-            Statement(entity1, a, StringLiteral("Hello"), context1)
+            Statement(entity1, a, StringLiteral("Hello"))
           )
-          _ <- tx.addStatement(Statement(entity2, a, entity1, context2))
-          _ <- tx.addStatement(Statement(entity2, a, entity3, context3))
-          _ <- tx.addStatement(Statement(entity3, b, entity2, context4))
+          _ <- tx.addStatement(Statement(entity2, a, entity1))
+          _ <- tx.addStatement(Statement(entity2, a, entity3))
+          _ <- tx.addStatement(Statement(entity3, b, entity2))
           _ <- tx.addStatement(
-            Statement(entity3, b, StringLiteral("Hello"), context5)
+            Statement(entity3, b, StringLiteral("Hello"))
           )
         } yield ()
       }
@@ -274,32 +240,32 @@ abstract class LigatureTestSuite extends CatsEffectSuite {
       assertEquals(
         all,
         Set(
-          Statement(entity1, a, StringLiteral("Hello"), context1),
-          Statement(entity2, a, entity1, context2),
-          Statement(entity2, a, entity3, context3),
-          Statement(entity3, b, entity2, context4),
-          Statement(entity3, b, StringLiteral("Hello"), context5)
+          Statement(entity1, a, StringLiteral("Hello")),
+          Statement(entity2, a, entity1),
+          Statement(entity2, a, entity3),
+          Statement(entity3, b, entity2),
+          Statement(entity3, b, StringLiteral("Hello"))
         )
       )
       assertEquals(
         as,
         Set(
-          Statement(entity1, a, StringLiteral("Hello"), context1),
-          Statement(entity2, a, entity1, context2),
-          Statement(entity2, a, entity3, context3)
+          Statement(entity1, a, StringLiteral("Hello")),
+          Statement(entity2, a, entity1),
+          Statement(entity2, a, entity3)
         )
       )
       assertEquals(
         hellos,
         Set(
-          Statement(entity1, a, StringLiteral("Hello"), context1),
-          Statement(entity3, b, StringLiteral("Hello"), context5)
+          Statement(entity1, a, StringLiteral("Hello")),
+          Statement(entity3, b, StringLiteral("Hello"))
         )
       )
       assertEquals(
         helloa,
         Set(
-          Statement(entity1, a, StringLiteral("Hello"), context1)
+          Statement(entity1, a, StringLiteral("Hello"))
         )
       )
     })
@@ -311,21 +277,21 @@ abstract class LigatureTestSuite extends CatsEffectSuite {
       _ <- instance.createDataset(testDataset)
       _ <- instance.write(testDataset).use { tx =>
         for {
-          _ <- tx.addStatement(Statement(entity1, a, entity2, context1))
+          _ <- tx.addStatement(Statement(entity1, a, entity2))
           _ <- tx
-            .addStatement(Statement(entity1, b, StringLiteral("add"), context2))
+            .addStatement(Statement(entity1, b, StringLiteral("add")))
           _ <- tx
-            .addStatement(Statement(entity1, a, IntegerLiteral(5L), context3))
+            .addStatement(Statement(entity1, a, IntegerLiteral(5L)))
           _ <- tx
-            .addStatement(Statement(entity2, a, IntegerLiteral(3L), context4))
+            .addStatement(Statement(entity2, a, IntegerLiteral(3L)))
           _ <- tx.addStatement(
-            Statement(entity2, a, StringLiteral("divide"), context5)
+            Statement(entity2, a, StringLiteral("divide"))
           )
-          _ <- tx.addStatement(Statement(entity2, b, entity3, context6))
+          _ <- tx.addStatement(Statement(entity2, b, entity3))
           _ <- tx
-            .addStatement(Statement(entity3, a, IntegerLiteral(7L), context7))
+            .addStatement(Statement(entity3, a, IntegerLiteral(7L)))
           _ <- tx.addStatement(
-            Statement(entity3, b, StringLiteral("decimal"), context8)
+            Statement(entity3, b, StringLiteral("decimal"))
           )
         } yield ()
       }
@@ -350,20 +316,20 @@ abstract class LigatureTestSuite extends CatsEffectSuite {
       assertEquals(
         res1,
         Set(
-          Statement(entity1, b, StringLiteral("add"), context2)
+          Statement(entity1, b, StringLiteral("add"))
         )
       )
       assertEquals(
         res2,
         Set(
-          Statement(entity2, a, IntegerLiteral(3L), context4),
-          Statement(entity1, a, IntegerLiteral(5L), context3)
+          Statement(entity2, a, IntegerLiteral(3L)),
+          Statement(entity1, a, IntegerLiteral(5L))
         )
       )
       assertEquals(
         res3,
         Set(
-          Statement(entity3, b, StringLiteral("decimal"), context8)
+          Statement(entity3, b, StringLiteral("decimal"))
         )
       )
     })
