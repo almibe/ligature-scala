@@ -12,11 +12,6 @@ class LigSuite extends FunSuite {
   val testIdentifier = Identifier.fromString("test").getOrElse { ??? }
   def identifier(id: String) = Identifier.fromString(id).getOrElse { ??? }
 
-  test("write identifiers") {
-    val res = writeIdentifier(testIdentifier)
-    assertEquals(res, "<test>")
-  }
-
   test("parse identifiers") {
     val test = "<test>"
     val identifier = parseIdentifier(Gaze.from(test))
@@ -32,22 +27,10 @@ class LigSuite extends FunSuite {
     )
   }
 
-  test("write IntegerLiteral") {
-    val test = IntegerLiteral(3535)
-    val res = writeValue(test)
-    assertEquals(res, "3535")
-  }
-
   test("parse IntegerLiteral") {
     val test = "3452345"
     val res = parseIntegerLiteral(Gaze.from(test))
     assertEquals(res, Right(IntegerLiteral(3452345)))
-  }
-
-  test("write StringLiteral") {
-    val test = StringLiteral("3535 55Hello")
-    val res = writeValue(test)
-    assertEquals(res, "\"3535 55Hello\"")
   }
 
   test("parse StringLiteral") {
