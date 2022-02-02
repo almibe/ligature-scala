@@ -7,7 +7,8 @@ An implementation of [Ligature knowledge graph](https://github.com/almibe/ligatu
 | ------------------- | -------------------------------------------------------------------------------- | --- | -- |
 | ligature            | Common data types and traits for Ligature                                        | ✅   | ✅ |
 | ligature-test-suite | A shared test suite for Ligature                                                 | ✅   | ✅ |
-| lig                 | A simple serialization format for Ligature                                       | ✅   | ✅ |
+| idgen               | A basic, unsecure implementation of nanoid for use with Ligature                 | ✅   | ✅ |
+| lig                 | A simple serialization format as well as DLig an input format for Ligature       | ✅   | ✅ |
 | ligature-in-memory  | An in-memory implementation of Ligature                                          | ✅   | ✅ |
 | wander              | A scripting language for working with Ligature.                                  | ✅   | ✅ |
 | gaze                | A utility library for parsing text.                                              | ✅   | ✅ |
@@ -33,6 +34,10 @@ Use `compile` to compile code.
 Use `test` to run tests.
 
 Use `scalafmtAll` to format code.
+
+### Credits
+
+The idgen package contains a Scala port of https://github.com/aventrix/jnanoid.
 
 ### JavaScript Notes
 
