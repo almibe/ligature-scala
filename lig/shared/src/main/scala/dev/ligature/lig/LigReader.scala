@@ -27,7 +27,7 @@ import dev.ligature.lig.LigNibblers.*
 
 case class LigError(val message: String)
 
-def parse(input: String): Either[LigError, Iterator[Statement]] = {
+def read(input: String): Either[LigError, List[Statement]] = {
   val gaze = Gaze.from(input)
   val statements: ArrayBuffer[Statement] = ArrayBuffer()
   var continue = true
@@ -44,7 +44,7 @@ def parse(input: String): Either[LigError, Iterator[Statement]] = {
       continue = false
     }
   }
-  return Right(statements.iterator)
+  return Right(statements.toList)
 }
 
 def parseStatement(gaze: Gaze[Char]): Either[LigError, Statement] = {

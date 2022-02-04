@@ -8,7 +8,7 @@ import munit.FunSuite
 import dev.ligature.{Identifier, IntegerLiteral, Statement, StringLiteral}
 import dev.ligature.gaze.Gaze
 
-class LigSuite extends CommonSuite(parse) {
+class LigSuite extends CommonSuite(read) {
   test("parse identifiers") {
     val test = "<test>"
     val identifier = parseIdentifier(Gaze.from(test))

@@ -9,7 +9,7 @@ import dev.ligature.{Identifier, IntegerLiteral, Statement, StringLiteral}
 import dev.ligature.gaze.Gaze
 import dev.ligature.lig.CommonSuite
 
-class DLigSuite extends CommonSuite(parse) {
+class DLigSuite extends CommonSuite(readDLig) {
   test("id gen") {
     val input = parseIdentifier(Gaze.from("{}")).getOrElse(???)
     val resultRegEx = "[0-9_-a-fA-F]{12}".r

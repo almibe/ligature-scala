@@ -12,7 +12,7 @@ import dev.ligature.dlig.DLigError
 /**
  * This test suite contains code that is used by both Lig and DLig.
  */
-abstract class CommonSuite[E](val parse: (input: String) => Either[E, Iterator[Statement]]) extends FunSuite { 
+abstract class CommonSuite[E](val parse: (input: String) => Either[E, List[Statement]]) extends FunSuite { 
   val testIdentifier = Identifier.fromString("test").getOrElse { ??? }
   def identifier(id: String) = Identifier.fromString(id).getOrElse { ??? }
 
@@ -24,7 +24,7 @@ abstract class CommonSuite[E](val parse: (input: String) => Either[E, Iterator[S
     )
     val lines = write(List(statement).iterator)
     val resStatements = parse(lines)
-    assertEquals(List(statement), resStatements.getOrElse(???).toList)
+    assertEquals(List(statement), resStatements.getOrElse(???))
   }
 
   test("list of Statements with Literal Values") {
@@ -47,6 +47,6 @@ abstract class CommonSuite[E](val parse: (input: String) => Either[E, Iterator[S
     )
     val lines = write(statements.iterator)
     val resStatements = parse(lines)
-    assertEquals(statements, resStatements.getOrElse(???).toList)
+    assertEquals(statements, resStatements.getOrElse(???))
   }
 }
