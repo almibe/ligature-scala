@@ -14,7 +14,7 @@ import dev.ligature.gaze.{
   takeCharacters,
   takeString,
   takeUntil,
-  takeWhile
+  takeWhile 
 }
 import dev.ligature.{
   Identifier,
