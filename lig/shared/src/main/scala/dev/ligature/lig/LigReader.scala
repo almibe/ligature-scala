@@ -61,7 +61,7 @@ def parseStatement(gaze: Gaze[Char]): Either[LigError, Statement] = {
       .attempt(whiteSpaceNibbler)
       .toRight(LigError("Error parsing whitespace after Attribute"))
     value <- parseValue(gaze)
-    // _ <- gaze.attempt(whiteSpaceNibbler).toRight(LigError(""))
+    _ <- gaze.attempt(optional(whiteSpaceAndNewLineNibbler)).toRight(LigError(""))
   } yield (Statement(entity, attribute, value))
 }
 
@@ -93,7 +93,7 @@ def parseValue(gaze: Gaze[Char]): Either[LigError, Value] = {
   val stringRes = parseStringLiteral(gaze)
   if (stringRes.isRight) return stringRes
 
-  return Left(LigError("Unsupported Value\n${gaze.remainingText()}"))
+  return Left(LigError("Unsupported Value."))
 }
 
 def parseIntegerLiteral(gaze: Gaze[Char]): Either[LigError, IntegerLiteral] = {

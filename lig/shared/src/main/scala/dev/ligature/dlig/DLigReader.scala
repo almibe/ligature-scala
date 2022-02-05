@@ -30,7 +30,9 @@ import dev.ligature.lig.LigNibblers.{
   whiteSpaceNibbler
 }
 import dev.ligature.lig.{
-  createIdentifier
+  createIdentifier,
+  parseIntegerLiteral,
+  parseStringLiteral
 }
 import dev.ligature.idgen.genId
 import scala.collection.mutable.HashMap
@@ -106,7 +108,7 @@ def parseDLigStatements(gaze: Gaze[Char], prefixes: Map[String, String]): Either
   val statements = ArrayBuffer[Statement]()
   while (!gaze.isComplete()) {
     parseDLigStatement(gaze, prefixes) match {
-      case Left(err) => Left(err)
+      case Left(err) => return Left(err)
       case Right(statement) => statements.addOne(statement)
     }
   }
@@ -127,7 +129,7 @@ def parseDLigStatement(gaze: Gaze[Char], prefixes: Map[String, String]): Either[
       .attempt(whiteSpaceNibbler)
       .toRight(DLigError("Error parsing whitespace after Attribute"))
     value <- parseValue(gaze, prefixes).left.map(err => DLigError(err.message))
-    // _ <- gaze.attempt(whiteSpaceNibbler).toRight(LigError(""))
+    _ <- gaze.attempt(optional(whiteSpaceAndNewLineNibbler)).toRight(DLigError(""))
   } yield (Statement(entity, attribute, value))
 }
 
@@ -135,7 +137,7 @@ def parseIdentifier(gaze: Gaze[Char], prefixes: Map[String, String]): Either[DLi
   //attempt regular identifier
   val id = gaze.attempt(DLigNibblers.identifierNibbler)
   if (id.isDefined) {
-    Identifier.fromString(id.mkString) match {
+    Identifier.fromString(id.get.mkString) match {
       case Right(id) => return Right(id)
       case Left(err) => return Left(DLigError(err.message))
     }
@@ -221,5 +223,14 @@ def handlePrefixedGenId(input: Seq[Seq[Char]], prefixes: Map[String, String]): E
 }
 
 def parseValue(gaze: Gaze[Char], prefixes: Map[String, String]): Either[DLigError, Value] = {
-  ???
+  val entityRes = parseIdentifier(gaze, prefixes)
+  if (entityRes.isRight) return entityRes
+
+  val integerRes = parseIntegerLiteral(gaze)
+  if (integerRes.isRight) return integerRes.left.map(err => DLigError(err.message))
+
+  val stringRes = parseStringLiteral(gaze)
+  if (stringRes.isRight) return stringRes.left.map(err => DLigError(err.message))
+
+  return Left(DLigError("Unsupported Value."))
 }

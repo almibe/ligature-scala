@@ -24,7 +24,10 @@ abstract class CommonSuite[E](val parse: (input: String) => Either[E, List[State
     )
     val lines = write(List(statement).iterator)
     val resStatements = parse(lines)
-    assertEquals(List(statement), resStatements.getOrElse(???))
+    resStatements match {
+      case Right(statements) => assertEquals(statements, List(statement))
+      case Left(err) => fail("failed", clues(err))
+    }
   }
 
   test("list of Statements with Literal Values") {
@@ -47,6 +50,9 @@ abstract class CommonSuite[E](val parse: (input: String) => Either[E, List[State
     )
     val lines = write(statements.iterator)
     val resStatements = parse(lines)
-    assertEquals(statements, resStatements.getOrElse(???))
+    resStatements match {
+      case Right(res) => assertEquals(res, statements)
+      case Left(err) => fail("failed", clues(err))
+    }
   }
 }
