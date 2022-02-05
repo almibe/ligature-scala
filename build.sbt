@@ -41,7 +41,7 @@ lazy val lig = crossProject(JSPlatform, JVMPlatform)
     libraryDependencies += "co.fs2" %%% "fs2-core" % "3.2.3",
     libraryDependencies += "org.scalameta" %%% "munit" % "1.0.0-M1" % Test
   )
-  .dependsOn(ligature, gaze)
+  .dependsOn(ligature, gaze, idgen)
 
 lazy val wander = crossProject(JSPlatform, JVMPlatform)
   .in(file("wander"))

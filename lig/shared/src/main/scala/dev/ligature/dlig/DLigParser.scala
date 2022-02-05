@@ -32,6 +32,7 @@ import dev.ligature.lig.LigNibblers.{
 import dev.ligature.lig.{
   createIdentifier
 }
+import dev.ligature.idgen.genId
 import scala.collection.mutable.HashMap
 
 case class DLigError(val message: String)
@@ -179,7 +180,18 @@ def parseIdentifier(gaze: Gaze[Char], prefixes: Map[String, String]): Either[DLi
 }
 
 def handleIdGenId(input: String): Either[DLigError, Identifier] = {
-  ???
+  val itr = input.toCharArray.iterator
+  val sb = StringBuilder()
+  while (itr.hasNext) {
+    itr.next match {
+      case c: Char if c == '{' => {
+        itr.next //eat }, TODO should probably assert here
+        sb.append(genId())
+      }
+      case c: Char => { sb.append(c) }
+    }
+  }
+  Identifier.fromString(sb.toString).left.map(err => DLigError(err.message))
 }
 
 def handlePrefixedId(input: Seq[Seq[Char]], prefixes: Map[String, String]): Either[DLigError, Identifier] = {
