@@ -10,35 +10,6 @@ import dev.ligature.gaze.Gaze
 import dev.ligature.lig.CommonSuite
 
 class DLigSuite extends CommonSuite(readDLig) {
-  test("id gen") {
-    val input = parseIdentifier(Gaze.from("{}")).getOrElse(???)
-    val resultRegEx = "[0-9_-a-fA-F]{12}".r
-    assert(resultRegEx.matches(input.name))
-  }
-
-  test("id gen as entity") {
-    val input = "<{}>"
-    val resultRegEx = "[0-9_-a-fA-F]{12}".r
-    ???
-  }
-
-  test("id gen with prefix") {
-    val input = "<this:is:a/prefix{}>"
-    val resultRegEx = "<this:is:a/prefix[0-9_-a-fA-F]{12}>".r
-    ???
-  }
-
-  test("id gen in infix") {
-    val input = "<this{}is:a/infix>"
-    val resultRegEx = "<this[0-9_-a-fA-F]{12}:is:a/infix>".r
-    ???
-  }
-
-  test("id gen in postfix") {
-    val input = "<this::is:a/postfix/{}>"
-    val resultRegEx = "<this::is:a/postfix[0-9_-a-fA-F]{12}>".r
-    ???
-  }
 
   test("copy character test with entity and attribute") {
     val input = "<e> <a> 234\n^^ 432"
