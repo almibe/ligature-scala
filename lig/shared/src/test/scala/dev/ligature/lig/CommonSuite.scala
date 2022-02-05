@@ -9,10 +9,11 @@ import dev.ligature.{Identifier, IntegerLiteral, Statement, StringLiteral}
 import dev.ligature.gaze.Gaze
 import dev.ligature.dlig.DLigError
 
-/**
- * This test suite contains code that is used by both Lig and DLig.
- */
-abstract class CommonSuite[E](val parse: (input: String) => Either[E, List[Statement]]) extends FunSuite { 
+/** This test suite contains code that is used by both Lig and DLig.
+  */
+abstract class CommonSuite[E](
+    val parse: (input: String) => Either[E, List[Statement]]
+) extends FunSuite {
   val testIdentifier = Identifier.fromString("test").getOrElse { ??? }
   def identifier(id: String) = Identifier.fromString(id).getOrElse { ??? }
 
@@ -26,7 +27,7 @@ abstract class CommonSuite[E](val parse: (input: String) => Either[E, List[State
     val resStatements = parse(lines)
     resStatements match {
       case Right(statements) => assertEquals(statements, List(statement))
-      case Left(err) => fail("failed", clues(err))
+      case Left(err)         => fail("failed", clues(err))
     }
   }
 
@@ -52,7 +53,7 @@ abstract class CommonSuite[E](val parse: (input: String) => Either[E, List[State
     val resStatements = parse(lines)
     resStatements match {
       case Right(res) => assertEquals(res, statements)
-      case Left(err) => fail("failed", clues(err))
+      case Left(err)  => fail("failed", clues(err))
     }
   }
 }

@@ -41,7 +41,7 @@ case class DLigError(val message: String)
 
 def readDLig(input: String): Either[DLigError, List[Statement]] = {
   val gaze = Gaze.from(input)
-  //val model: ArrayBuffer[DLigModel] = ArrayBuffer()
+  // val model: ArrayBuffer[DLigModel] = ArrayBuffer()
   for {
     prefixes <- parsePrefixes(gaze)
     statements <- parseDLigStatements(gaze, prefixes)
@@ -67,7 +67,7 @@ def parsePrefixes(gaze: Gaze[Char]): Either[DLigError, Map[String, String]] = {
   val result = HashMap[String, String]()
   while (!gaze.isComplete()) {
     parsePrefix(gaze) match {
-      case Left(err) => return Left(err)
+      case Left(err)   => return Left(err)
       case Right(None) => return Right(result.toMap)
       case Right(Some(pair)) => {
         if (result.contains(pair._1)) {
@@ -82,18 +82,22 @@ def parsePrefixes(gaze: Gaze[Char]): Either[DLigError, Map[String, String]] = {
 }
 
 //TODO: this function never returns an Error so if there is a malformed prefix it won't be caught until we try to read a Statement
-def parsePrefix(gaze: Gaze[Char]): Either[DLigError, Option[(String, String)]] = {
-  val parseResult = gaze.attempt(takeAllGrouped(
-    takeString("prefix"),
-    whiteSpaceNibbler,
-    DLigNibblers.prefixNameNibbler,
-    whiteSpaceNibbler,
-    takeString("="),
-    whiteSpaceNibbler,
-    takeWhile { c =>
-      "[a-zA-Z0-9-._~:/?#\\[\\]@!$&'()*+,;%=]".r.matches(c.toString)
-    }
-  ))
+def parsePrefix(
+    gaze: Gaze[Char]
+): Either[DLigError, Option[(String, String)]] = {
+  val parseResult = gaze.attempt(
+    takeAllGrouped(
+      takeString("prefix"),
+      whiteSpaceNibbler,
+      DLigNibblers.prefixNameNibbler,
+      whiteSpaceNibbler,
+      takeString("="),
+      whiteSpaceNibbler,
+      takeWhile { c =>
+        "[a-zA-Z0-9-._~:/?#\\[\\]@!$&'()*+,;%=]".r.matches(c.toString)
+      }
+    )
+  )
   parseResult match {
     case None => Right(None)
     case Some(p) => {
@@ -104,18 +108,24 @@ def parsePrefix(gaze: Gaze[Char]): Either[DLigError, Option[(String, String)]] =
   }
 }
 
-def parseDLigStatements(gaze: Gaze[Char], prefixes: Map[String, String]): Either[DLigError, List[Statement]] = {
+def parseDLigStatements(
+    gaze: Gaze[Char],
+    prefixes: Map[String, String]
+): Either[DLigError, List[Statement]] = {
   val statements = ArrayBuffer[Statement]()
   while (!gaze.isComplete()) {
     parseDLigStatement(gaze, prefixes) match {
-      case Left(err) => return Left(err)
+      case Left(err)        => return Left(err)
       case Right(statement) => statements.addOne(statement)
     }
   }
   return Right(statements.toList)
 }
 
-def parseDLigStatement(gaze: Gaze[Char], prefixes: Map[String, String]): Either[DLigError, Statement] = {
+def parseDLigStatement(
+    gaze: Gaze[Char],
+    prefixes: Map[String, String]
+): Either[DLigError, Statement] = {
   for {
     _ <- gaze
       .attempt(optional(whiteSpaceAndNewLineNibbler))
@@ -129,12 +139,17 @@ def parseDLigStatement(gaze: Gaze[Char], prefixes: Map[String, String]): Either[
       .attempt(whiteSpaceNibbler)
       .toRight(DLigError("Error parsing whitespace after Attribute"))
     value <- parseValue(gaze, prefixes).left.map(err => DLigError(err.message))
-    _ <- gaze.attempt(optional(whiteSpaceAndNewLineNibbler)).toRight(DLigError(""))
+    _ <- gaze
+      .attempt(optional(whiteSpaceAndNewLineNibbler))
+      .toRight(DLigError(""))
   } yield (Statement(entity, attribute, value))
 }
 
-def parseIdentifier(gaze: Gaze[Char], prefixes: Map[String, String]): Either[DLigError, Identifier] = {
-  //attempt regular identifier
+def parseIdentifier(
+    gaze: Gaze[Char],
+    prefixes: Map[String, String]
+): Either[DLigError, Identifier] = {
+  // attempt regular identifier
   val id = gaze.attempt(DLigNibblers.identifierNibbler)
   if (id.isDefined) {
     Identifier.fromString(id.get.mkString) match {
@@ -142,35 +157,58 @@ def parseIdentifier(gaze: Gaze[Char], prefixes: Map[String, String]): Either[DLi
       case Left(err) => return Left(DLigError(err.message))
     }
   }
-  //attempt identifier with gen id
-  val idGenId = gaze.attempt(between(
-    takeString("<"),
-    repeat(takeFirst(takeWhile(c => "[a-zA-Z0-9-._~:/?#\\[\\]@!$&'()*+,;%=]".r.matches(c.toString)), takeString("{}"))),
-    takeString(">")))
+  // attempt identifier with gen id
+  val idGenId = gaze.attempt(
+    between(
+      takeString("<"),
+      repeat(
+        takeFirst(
+          takeWhile(c =>
+            "[a-zA-Z0-9-._~:/?#\\[\\]@!$&'()*+,;%=]".r.matches(c.toString)
+          ),
+          takeString("{}")
+        )
+      ),
+      takeString(">")
+    )
+  )
   if (idGenId.isDefined) {
     handleIdGenId(idGenId.get.mkString) match {
       case Right(id) => return Right(id)
       case Left(err) => return Left(err)
     }
   }
-  //attempt prefixed identifier
-  val prefixedId = gaze.attempt(takeAllGrouped(
-    DLigNibblers.prefixNameNibbler,
-    takeString(":"),
-    takeWhile(c => "[a-zA-Z0-9-._~:/?#\\[\\]@!$&'()*+,;%=]".r.matches(c.toString))
-  ))
+  // attempt prefixed identifier
+  val prefixedId = gaze.attempt(
+    takeAllGrouped(
+      DLigNibblers.prefixNameNibbler,
+      takeString(":"),
+      takeWhile(c =>
+        "[a-zA-Z0-9-._~:/?#\\[\\]@!$&'()*+,;%=]".r.matches(c.toString)
+      )
+    )
+  )
   if (prefixedId.isDefined) {
     handlePrefixedId(prefixedId.get, prefixes) match {
       case Right(id) => return Right(id)
       case Left(err) => return Left(err)
     }
   }
-  //attempt prefixed identifier with gen id
-  val prefixedGenId = gaze.attempt(takeAllGrouped(
-    DLigNibblers.prefixNameNibbler,
-    takeString(":"),
-    repeat(takeFirst(takeWhile(c => "[a-zA-Z0-9-._~:/?#\\[\\]@!$&'()*+,;%=]".r.matches(c.toString)), takeString("{}")))
-  ))
+  // attempt prefixed identifier with gen id
+  val prefixedGenId = gaze.attempt(
+    takeAllGrouped(
+      DLigNibblers.prefixNameNibbler,
+      takeString(":"),
+      repeat(
+        takeFirst(
+          takeWhile(c =>
+            "[a-zA-Z0-9-._~:/?#\\[\\]@!$&'()*+,;%=]".r.matches(c.toString)
+          ),
+          takeString("{}")
+        )
+      )
+    )
+  )
   if (prefixedGenId.isDefined) {
     handlePrefixedGenId(prefixedGenId.get, prefixes) match {
       case Right(id) => return Right(id)
@@ -191,7 +229,7 @@ def genIdId(input: String): String = {
   while (itr.hasNext) {
     itr.next match {
       case c: Char if c == '{' => {
-        itr.next //eat }, TODO should probably assert here
+        itr.next // eat }, TODO should probably assert here
         sb.append(genId())
       }
       case c: Char => { sb.append(c) }
@@ -200,37 +238,54 @@ def genIdId(input: String): String = {
   sb.toString
 }
 
-def handlePrefixedId(input: Seq[Seq[Char]], prefixes: Map[String, String]): Either[DLigError, Identifier] = {
+def handlePrefixedId(
+    input: Seq[Seq[Char]],
+    prefixes: Map[String, String]
+): Either[DLigError, Identifier] = {
   val prefixName = input(0).mkString
   prefixes.get(prefixName) match {
     case None => Left(DLigError(s"Prefix Name $prefixName, Doesn't Exist."))
     case Some(prefixValue) => {
       val postfix = input(2).mkString
-      Identifier.fromString(prefixValue + postfix).left.map(err => DLigError(err.message))
+      Identifier
+        .fromString(prefixValue + postfix)
+        .left
+        .map(err => DLigError(err.message))
     }
   }
 }
 
-def handlePrefixedGenId(input: Seq[Seq[Char]], prefixes: Map[String, String]): Either[DLigError, Identifier] = {
+def handlePrefixedGenId(
+    input: Seq[Seq[Char]],
+    prefixes: Map[String, String]
+): Either[DLigError, Identifier] = {
   val prefixName = input(0).mkString
   prefixes.get(prefixName) match {
     case None => Left(DLigError(s"Prefix Name $prefixName, Doesn't Exist."))
     case Some(prefixValue) => {
       val postfix = input(2).mkString
-      Identifier.fromString(genIdId(prefixValue + postfix)).left.map(err => DLigError(err.message))
+      Identifier
+        .fromString(genIdId(prefixValue + postfix))
+        .left
+        .map(err => DLigError(err.message))
     }
   }
 }
 
-def parseValue(gaze: Gaze[Char], prefixes: Map[String, String]): Either[DLigError, Value] = {
+def parseValue(
+    gaze: Gaze[Char],
+    prefixes: Map[String, String]
+): Either[DLigError, Value] = {
   val entityRes = parseIdentifier(gaze, prefixes)
   if (entityRes.isRight) return entityRes
 
   val integerRes = parseIntegerLiteral(gaze)
-  if (integerRes.isRight) return integerRes.left.map(err => DLigError(err.message))
+  if (integerRes.isRight)
+    return integerRes.left.map(err => DLigError(err.message))
 
   val stringRes = parseStringLiteral(gaze)
-  if (stringRes.isRight) return stringRes.left.map(err => DLigError(err.message))
+  if (stringRes.isRight)
+    return stringRes.left.map(err => DLigError(err.message))
 
   return Left(DLigError("Unsupported Value."))
 }

@@ -25,15 +25,19 @@ import dev.ligature.{
 }
 import dev.ligature.lig.LigNibblers
 
-private val validPrefixName = (('a' to 'z') ++ ('A' to 'Z') ++ ('0' to '9')).toList.appended('_')
+private val validPrefixName =
+  (('a' to 'z') ++ ('A' to 'Z') ++ ('0' to '9')).toList.appended('_')
 
 object DLigNibblers {
-  val prefixNameNibbler = takeCharacters(validPrefixName:_*) // matches _a-zA-Z0-9, TODO probably shouldn't make names that start with numbers
-  val copyNibbler = takeString("^") //matches ^
+  val prefixNameNibbler = takeCharacters(
+    validPrefixName: _*
+  ) // matches _a-zA-Z0-9, TODO probably shouldn't make names that start with numbers
+  val copyNibbler = takeString("^") // matches ^
 
-  val identifierNibbler = LigNibblers.identifierNibbler //NOTE: use LigNibblers.identifier for matching regular identifier
-  val idGenNibbler = takeString("{}") //matches {}
-  //val identifierIdGenNibbler = ??? //matches <{}> <prefix:{}> <{}:postfix> <pre:{}:post> etc
-  //val prefixedIdentifierNibbler = ??? //matches prefix:value:after:prefix
-  //val prefixedIdGenNibbler = ??? // matches prefix:value:after:prefix:{}
+  val identifierNibbler =
+    LigNibblers.identifierNibbler // NOTE: use LigNibblers.identifier for matching regular identifier
+  val idGenNibbler = takeString("{}") // matches {}
+  // val identifierIdGenNibbler = ??? //matches <{}> <prefix:{}> <{}:postfix> <pre:{}:post> etc
+  // val prefixedIdentifierNibbler = ??? //matches prefix:value:after:prefix
+  // val prefixedIdGenNibbler = ??? // matches prefix:value:after:prefix:{}
 }

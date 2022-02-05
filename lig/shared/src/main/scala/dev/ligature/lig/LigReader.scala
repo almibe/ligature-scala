@@ -61,7 +61,9 @@ def parseStatement(gaze: Gaze[Char]): Either[LigError, Statement] = {
       .attempt(whiteSpaceNibbler)
       .toRight(LigError("Error parsing whitespace after Attribute"))
     value <- parseValue(gaze)
-    _ <- gaze.attempt(optional(whiteSpaceAndNewLineNibbler)).toRight(LigError(""))
+    _ <- gaze
+      .attempt(optional(whiteSpaceAndNewLineNibbler))
+      .toRight(LigError(""))
   } yield (Statement(entity, attribute, value))
 }
 
