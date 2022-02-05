@@ -24,35 +24,46 @@ class DLigSuite extends CommonSuite(readDLig) {
     }
   }
 
-  // test("error copy character test") {
-  //   val input = "<this:is:an:error> <a> ^"
-  //   ???
-  // }
+  test("error copy character test") {
+    val input = "<this:is:an:error> <a> ^"
+    val res = readDLig(input)
+    assert(res.isLeft)
+  }
 
-  // test("copy character test with attribute and value") {
-  //   val input = "<e> <a> <v>\n<e2> ^^"
-  //   val result = Array(
-  //     Statement(Identifier.fromString("e").getOrElse(???), Identifier.fromString("a").getOrElse(???), IntegerLiteral(234)),
-  //     Statement(Identifier.fromString("e2").getOrElse(???), Identifier.fromString("a").getOrElse(???), IntegerLiteral(234))
-  //   )
-  //   ???
-  // }
+  test("copy character test with attribute and value") {
+    val input = "<e> <a> 234\n<e2> ^ ^"
+    val expected = List(
+      Statement(Identifier.fromString("e").getOrElse(???), Identifier.fromString("a").getOrElse(???), IntegerLiteral(234)),
+      Statement(Identifier.fromString("e2").getOrElse(???), Identifier.fromString("a").getOrElse(???), IntegerLiteral(234))
+    )
+    val result = readDLig(input)
+    result match {
+      case Right(statements) => assertEquals(statements, expected)
+      case Left(err)         => fail("failed", clues(err))
+    }
+  }
 
-  // test("prefix error test") {
-  //   val input = "prefix x = this:\nx x:is:a x:prefix"
-  //   ???
-  // }
+  test("prefix error test") {
+    val input = "prefix x = this:\nx x:is:a x:prefix"
+    val result = readDLig(input)
+    assert(result.isLeft)
+  }
 
-  // test("error prefix test") {
-  //   val input = "x x:is:an x:error"
-  //   ???
-  // }
+  test("error prefix test") {
+    val input = "x x:is:an x:error"
+    val result = readDLig(input)
+    assert(result.isLeft)
+  }
 
   // test("complex prefix test") {
   //   val input = "prefix x = this:\nx:{} x:{}is:a x:prefix{}"
-  //   val result = Array(
-  //     Statement(Identifier.fromString("e").getOrElse(???), Identifier.fromString("a").getOrElse(???), IntegerLiteral(234)),
-  //   )
-  //   ???
+  //   val result = readDLig(input)
+  //   result match {
+  //     case Right(statements) => {
+  //       assertEquals(statements.length, 1)
+  //       //TODO add more checks
+  //     }
+  //     case Left(err)         => fail("failed", clues(err))
+  //   }
   // }
 }
