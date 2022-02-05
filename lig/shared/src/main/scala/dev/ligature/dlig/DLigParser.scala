@@ -180,6 +180,10 @@ def parseIdentifier(gaze: Gaze[Char], prefixes: Map[String, String]): Either[DLi
 }
 
 def handleIdGenId(input: String): Either[DLigError, Identifier] = {
+  Identifier.fromString(genIdId(input)).left.map(err => DLigError(err.message))
+}
+
+def genIdId(input: String): String = {
   val itr = input.toCharArray.iterator
   val sb = StringBuilder()
   while (itr.hasNext) {
@@ -191,15 +195,29 @@ def handleIdGenId(input: String): Either[DLigError, Identifier] = {
       case c: Char => { sb.append(c) }
     }
   }
-  Identifier.fromString(sb.toString).left.map(err => DLigError(err.message))
+  sb.toString
 }
 
 def handlePrefixedId(input: Seq[Seq[Char]], prefixes: Map[String, String]): Either[DLigError, Identifier] = {
-  ???
+  val prefixName = input(0).mkString
+  prefixes.get(prefixName) match {
+    case None => Left(DLigError(s"Prefix Name $prefixName, Doesn't Exist."))
+    case Some(prefixValue) => {
+      val postfix = input(2).mkString
+      Identifier.fromString(prefixValue + postfix).left.map(err => DLigError(err.message))
+    }
+  }
 }
 
 def handlePrefixedGenId(input: Seq[Seq[Char]], prefixes: Map[String, String]): Either[DLigError, Identifier] = {
-  ???
+  val prefixName = input(0).mkString
+  prefixes.get(prefixName) match {
+    case None => Left(DLigError(s"Prefix Name $prefixName, Doesn't Exist."))
+    case Some(prefixValue) => {
+      val postfix = input(2).mkString
+      Identifier.fromString(genIdId(prefixValue + postfix)).left.map(err => DLigError(err.message))
+    }
+  }
 }
 
 def parseValue(gaze: Gaze[Char], prefixes: Map[String, String]): Either[DLigError, Value] = {

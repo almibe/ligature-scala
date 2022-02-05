@@ -9,12 +9,7 @@ import dev.ligature.{Identifier, IntegerLiteral, Statement, StringLiteral}
 import dev.ligature.gaze.Gaze
 import dev.ligature.lig.CommonSuite
 
-class DLigParserSuite extends FunSuite {
-  test("basic prefix") {
-    val res = parsePrefix(Gaze.from("prefix name = prefixed:identifier:")).getOrElse(???).get
-    assertEquals(res, ("name", "prefixed:identifier:"))
-  }
-  
+class DLigParserSuite extends FunSuite {  
   test("id gen") {
     val input = parseIdentifier(Gaze.from("<{}>"), Map()).getOrElse(???)
     val resultRegEx = "[0-9_\\-a-fA-F]{12}".r
@@ -37,5 +32,15 @@ class DLigParserSuite extends FunSuite {
     val input = parseIdentifier(Gaze.from("<this::is:a/postfix/{}>"), Map()).getOrElse(???)
     val resultRegEx = "this::is:a/postfix/[0-9_\\-a-fA-F]{12}".r
     assert(resultRegEx.matches(input.name))
+  }
+
+  test("basic prefix definition") {
+    val res = parsePrefix(Gaze.from("prefix name = prefixed:identifier:")).getOrElse(???).get
+    assertEquals(res, ("name", "prefixed:identifier:"))
+  }
+
+  test("prefixed id") {
+    val input = parseIdentifier(Gaze.from("prefix:world"), Map("prefix" -> "hello:")).getOrElse(???)
+    assertEquals(input.name, "hello:world")
   }
 }
