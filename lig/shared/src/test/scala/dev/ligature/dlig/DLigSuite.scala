@@ -11,15 +11,18 @@ import dev.ligature.lig.CommonSuite
 
 class DLigSuite extends CommonSuite(readDLig) {
 
-  // test("copy character test with entity and attribute") {
-  //   val input = "<e> <a> 234\n^^ 432"
-  //   val expected = Right(List(
-  //     Statement(Identifier.fromString("e").getOrElse(???), Identifier.fromString("a").getOrElse(???), IntegerLiteral(234)),
-  //     Statement(Identifier.fromString("e").getOrElse(???), Identifier.fromString("a").getOrElse(???), IntegerLiteral(432))
-  //   ))
-  //   val res = readDLig(input)
-  //   assertEquals(expected, res)
-  // }
+  test("copy character test with entity and attribute") {
+    val input = "<e> <a> 234\n^ ^ 432"
+    val expected = List(
+      Statement(Identifier.fromString("e").getOrElse(???), Identifier.fromString("a").getOrElse(???), IntegerLiteral(234)),
+      Statement(Identifier.fromString("e").getOrElse(???), Identifier.fromString("a").getOrElse(???), IntegerLiteral(432))
+    )
+    val res = readDLig(input)
+    res match {
+      case Right(statements) => assertEquals(statements, expected)
+      case Left(err)         => fail("failed", clues(err))
+    }
+  }
 
   // test("error copy character test") {
   //   val input = "<this:is:an:error> <a> ^"
