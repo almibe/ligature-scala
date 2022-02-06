@@ -18,21 +18,24 @@ class DLigParserSuite extends FunSuite {
 
   test("id gen with prefix") {
     val input =
-      parseIdentifier(Gaze.from("<this:is:a/prefix{}>"), Map(), None).getOrElse(???)
+      parseIdentifier(Gaze.from("<this:is:a/prefix{}>"), Map(), None)
+        .getOrElse(???)
     val resultRegEx = "this:is:a/prefix[0-9_\\-a-fA-F]{12}".r
     assert(resultRegEx.matches(input.name))
   }
 
   test("id gen in infix") {
     val input =
-      parseIdentifier(Gaze.from("<this{}is:a/infix>"), Map(), None).getOrElse(???)
+      parseIdentifier(Gaze.from("<this{}is:a/infix>"), Map(), None)
+        .getOrElse(???)
     val resultRegEx = "this[0-9_\\-a-fA-F]{12}is:a/infix".r
     assert(resultRegEx.matches(input.name))
   }
 
   test("id gen in postfix") {
-    val input = parseIdentifier(Gaze.from("<this::is:a/postfix/{}>"), Map(), None)
-      .getOrElse(???)
+    val input =
+      parseIdentifier(Gaze.from("<this::is:a/postfix/{}>"), Map(), None)
+        .getOrElse(???)
     val resultRegEx = "this::is:a/postfix/[0-9_\\-a-fA-F]{12}".r
     assert(resultRegEx.matches(input.name))
   }
@@ -46,7 +49,11 @@ class DLigParserSuite extends FunSuite {
 
   test("prefixed id") {
     val input =
-      parseIdentifier(Gaze.from("prefix:world"), Map("prefix" -> "hello:"), None)
+      parseIdentifier(
+        Gaze.from("prefix:world"),
+        Map("prefix" -> "hello:"),
+        None
+      )
         .getOrElse(???)
     assertEquals(input.name, "hello:world")
   }

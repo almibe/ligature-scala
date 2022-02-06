@@ -116,7 +116,7 @@ def parseDLigStatements(
   var lastStatement: Option[Statement] = None
   while (!gaze.isComplete()) {
     parseDLigStatement(gaze, prefixes, lastStatement) match {
-      case Left(err)        => return Left(err)
+      case Left(err) => return Left(err)
       case Right(statement) => {
         lastStatement = Some(statement)
         statements.addOne(statement)
@@ -152,21 +152,21 @@ def parseDLigStatement(
 
 def lastEntity(lastStatement: Option[Statement]): Option[Identifier] = {
   lastStatement match {
-    case None => None
+    case None            => None
     case Some(statement) => Some(statement.entity)
   }
 }
 
 def lastAttribute(lastStatement: Option[Statement]): Option[Identifier] = {
   lastStatement match {
-    case None => None
+    case None            => None
     case Some(statement) => Some(statement.attribute)
   }
 }
 
 def lastValue(lastStatement: Option[Statement]): Option[Value] = {
   lastStatement match {
-    case None => None
+    case None            => None
     case Some(statement) => Some(statement.value)
   }
 }
@@ -180,19 +180,13 @@ def parseIdentifier(
   val copyChar = gaze.attempt(DLigNibblers.copyNibbler)
   if (copyChar.isDefined) {
     lastIdentifier match {
-      case None => return Left(DLigError("Can't Use Copy Character Without Existing Instance."))
+      case None =>
+        return Left(
+          DLigError("Can't Use Copy Character Without Existing Instance.")
+        )
       case Some(id) => return Right(id)
     }
   }
-  // attempt regular identifier
-  val id = gaze.attempt(DLigNibblers.identifierNibbler)
-  if (id.isDefined) {
-    Identifier.fromString(id.get.mkString) match {
-      case Right(id) => return Right(id)
-      case Left(err) => return Left(DLigError(err.message))
-    }
-  }
-  // attempt identifier with gen id
   val idGenId = gaze.attempt(
     between(
       takeString("<"),
@@ -213,23 +207,6 @@ def parseIdentifier(
       case Left(err) => return Left(err)
     }
   }
-  // attempt prefixed identifier
-  val prefixedId = gaze.attempt(
-    takeAllGrouped(
-      DLigNibblers.prefixNameNibbler,
-      takeString(":"),
-      takeWhile(c =>
-        "[a-zA-Z0-9-._~:/?#\\[\\]@!$&'()*+,;%=]".r.matches(c.toString)
-      )
-    )
-  )
-  if (prefixedId.isDefined) {
-    handlePrefixedId(prefixedId.get, prefixes) match {
-      case Right(id) => return Right(id)
-      case Left(err) => return Left(err)
-    }
-  }
-  // attempt prefixed identifier with gen id
   val prefixedGenId = gaze.attempt(
     takeAllGrouped(
       DLigNibblers.prefixNameNibbler,
@@ -316,12 +293,19 @@ def parseValue(
   val copyChar = gaze.attempt(DLigNibblers.copyNibbler)
   if (copyChar.isDefined) {
     lastValue match {
-      case None => return Left(DLigError("Can't Use Copy Character Without Existing Instance."))
+      case None =>
+        return Left(
+          DLigError("Can't Use Copy Character Without Existing Instance.")
+        )
       case Some(id) => return Right(id)
     }
   }
 
-  val entityRes = parseIdentifier(gaze, prefixes, None) //can be None since copy character has been checked for
+  val entityRes = parseIdentifier(
+    gaze,
+    prefixes,
+    None
+  ) // can be None since copy character has been checked for
   if (entityRes.isRight) return entityRes
 
   val integerRes = parseIntegerLiteral(gaze)

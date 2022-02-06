@@ -14,8 +14,16 @@ class DLigSuite extends CommonSuite(readDLig) {
   test("copy character test with entity and attribute") {
     val input = "<e> <a> 234\n^ ^ 432"
     val expected = List(
-      Statement(Identifier.fromString("e").getOrElse(???), Identifier.fromString("a").getOrElse(???), IntegerLiteral(234)),
-      Statement(Identifier.fromString("e").getOrElse(???), Identifier.fromString("a").getOrElse(???), IntegerLiteral(432))
+      Statement(
+        Identifier.fromString("e").getOrElse(???),
+        Identifier.fromString("a").getOrElse(???),
+        IntegerLiteral(234)
+      ),
+      Statement(
+        Identifier.fromString("e").getOrElse(???),
+        Identifier.fromString("a").getOrElse(???),
+        IntegerLiteral(432)
+      )
     )
     val res = readDLig(input)
     res match {
@@ -33,8 +41,16 @@ class DLigSuite extends CommonSuite(readDLig) {
   test("copy character test with attribute and value") {
     val input = "<e> <a> 234\n<e2> ^ ^"
     val expected = List(
-      Statement(Identifier.fromString("e").getOrElse(???), Identifier.fromString("a").getOrElse(???), IntegerLiteral(234)),
-      Statement(Identifier.fromString("e2").getOrElse(???), Identifier.fromString("a").getOrElse(???), IntegerLiteral(234))
+      Statement(
+        Identifier.fromString("e").getOrElse(???),
+        Identifier.fromString("a").getOrElse(???),
+        IntegerLiteral(234)
+      ),
+      Statement(
+        Identifier.fromString("e2").getOrElse(???),
+        Identifier.fromString("a").getOrElse(???),
+        IntegerLiteral(234)
+      )
     )
     val result = readDLig(input)
     result match {
@@ -55,15 +71,58 @@ class DLigSuite extends CommonSuite(readDLig) {
     assert(result.isLeft)
   }
 
-  // test("complex prefix test") {
-  //   val input = "prefix x = this:\nx:{} x:{}is:a x:prefix{}"
-  //   val result = readDLig(input)
-  //   result match {
-  //     case Right(statements) => {
-  //       assertEquals(statements.length, 1)
-  //       //TODO add more checks
-  //     }
-  //     case Left(err)         => fail("failed", clues(err))
-  //   }
-  // }
+  test("basic prefix test") {
+    val input = "prefix x = this:\nx:hello x:cruel x:world"
+    val result = readDLig(input)
+    result match {
+      case Right(statements) => {
+        assertEquals(statements.length, 1)
+        assertEquals(
+          statements(0).entity,
+          Identifier.fromString("this:hello").getOrElse(???)
+        )
+        assertEquals(
+          statements(0).attribute,
+          Identifier.fromString("this:cruel").getOrElse(???)
+        )
+        assertEquals(
+          statements(0).value,
+          Identifier.fromString("this:world").getOrElse(???)
+        )
+      }
+      case Left(err) => fail("failed", clues(err))
+    }
+  }
+
+  test("entity gen id prefix test") {
+    val input = "prefix x = this:\nx:hello{} x:cruel x:world"
+    val result = readDLig(input)
+    result match {
+      case Right(statements) => {
+        assertEquals(statements.length, 1)
+//        assertEquals(statements(0).entity, Identifier.fromString("this:hello").getOrElse(???))
+        assertEquals(
+          statements(0).attribute,
+          Identifier.fromString("this:cruel").getOrElse(???)
+        )
+        assertEquals(
+          statements(0).value,
+          Identifier.fromString("this:world").getOrElse(???)
+        )
+      }
+      case Left(err) => fail("failed", clues(err))
+    }
+  }
+
+  test("complex prefix test") {
+    val input = "prefix x = this:\nx:{} x:{}is:a x:prefix{}"
+    val result = readDLig(input)
+    result match {
+      case Right(statements) => {
+        assertEquals(statements.length, 1)
+        // TODO add more checks
+      }
+      case Left(err) => fail("failed", clues(err))
+    }
+  }
 }
