@@ -8,14 +8,19 @@ import dev.ligature.wander.parser.{Name, ScriptError, WanderValue}
 import scala.collection.mutable.Map
 import scala.collection.mutable.ArrayBuffer
 import scala.collection.mutable.HashMap
+import dev.ligature.wander.parser.FunctionDefinition
+
+case class Scope(val variables: Map[Name, WanderValue], val functions: Map[Name, ArrayBuffer[FunctionDefinition]])
 
 class Bindings {
-  private val scopes: ArrayBuffer[Map[Name, WanderValue]] = ArrayBuffer(
-    HashMap()
+  private def createScope(): Scope = Scope(Map(), Map())
+
+  private val scopes: ArrayBuffer[Scope] = ArrayBuffer(
+    createScope()
   )
 
   def addScope() = {
-    this.scopes.append(HashMap())
+    this.scopes.append(createScope())
   }
 
   def removeScope(): Either[ScriptError, Unit] = {
@@ -27,22 +32,43 @@ class Bindings {
     }
   }
 
-  def bind(name: Name, wanderValue: WanderValue): Either[ScriptError, Unit] = {
+  def bindVariable(name: Name, wanderValue: WanderValue): Either[ScriptError, Unit] = {
     val currentScope = this.scopes.last
-    if (currentScope.contains(name)) {
+    if (currentScope.variables.contains(name) || currentScope.functions.contains(name)) {
       Left(ScriptError(s"${name} is already bound in current scope."))
     } else {
-      currentScope += (name -> wanderValue)
+      currentScope.variables += (name -> wanderValue)
       Right(())
     }
+  }
+
+  def bindFunction(name: Name, functionDefinition: FunctionDefinition): Either[ScriptError, Unit] = {
+    val currentScope = this.scopes.last
+    if (currentScope.variables.contains(name) || duplicateFunction(name, functionDefinition)) {
+      Left(ScriptError(s"${name} is already bound in current scope."))
+    } else {
+      if (currentScope.functions.contains(name)) {
+        currentScope.functions.get(name).get.append(functionDefinition)
+        Right(())
+      } else {
+        currentScope.functions += (name -> ArrayBuffer(functionDefinition))
+        Right(())
+      }
+    }
+  }
+
+  private def duplicateFunction(name: Name, functionDefinition: FunctionDefinition): Boolean = {
+    ???
   }
 
   def read(name: Name): Either[ScriptError, WanderValue] = {
     var currentScopeOffset = this.scopes.length - 1
     while (currentScopeOffset >= 0) {
       val currentScope = this.scopes(currentScopeOffset)
-      if (currentScope.contains(name)) {
-        return Right(currentScope(name))
+      if (currentScope.variables.contains(name)) {
+        return Right(currentScope.variables(name))
+      } else if (currentScope.functions.contains(name)) {
+        ???
       }
       currentScopeOffset -= 1
     }

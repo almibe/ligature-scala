@@ -29,7 +29,7 @@ def createStandardBindings(scope: ExecutionMode): Bindings =
 def common(): Bindings = {
   val stdLib = Bindings()
 
-  stdLib.bind(
+  stdLib.bindFunction(
     Name("log"),
     NativeFunction(
       List(Parameter(Name("message"))),
@@ -39,7 +39,7 @@ def common(): Bindings = {
     )
   )
 
-  stdLib.bind(
+  stdLib.bindFunction(
     Name("not"),
     NativeFunction(
       List(Parameter(Name("bool"))),
@@ -52,7 +52,7 @@ def common(): Bindings = {
     )
   )
 
-  stdLib.bind(
+  stdLib.bindFunction(
     Name("and"),
     NativeFunction(
       List(Parameter(Name("boolLeft")), Parameter(Name("boolRight"))),
@@ -70,7 +70,7 @@ def common(): Bindings = {
     )
   )
 
-  stdLib.bind(
+  stdLib.bindFunction(
     Name("or"),
     NativeFunction(
       List(Parameter(Name("boolLeft")), Parameter(Name("boolRight"))),

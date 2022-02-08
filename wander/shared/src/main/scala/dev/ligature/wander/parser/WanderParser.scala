@@ -95,14 +95,14 @@ val parameterNib: Nibbler[Token, Parameter] = { (gaze) =>
   gaze.attempt(nameNib).map { name => name.map(name => Parameter(name)) }
 }
 
-val functionDefinitionNib: Nibbler[Token, FunctionDefinition] = { (gaze) =>
+val wanderFunctionNib: Nibbler[Token, FunctionDefinition] = { (gaze) =>
   for {
     _ <- gaze.attempt(openParenNib)
     parameters <- gaze.attempt(optional(repeat(parameterNib)))
     _ <- gaze.attempt(closeParenNib)
     _ <- gaze.attempt(arrowNib)
     body <- gaze.attempt(scopeNib)
-  } yield Seq(FunctionDefinition(parameters.toList, body(0)))
+  } yield Seq(WanderFunction(parameters.toList, body(0)))
 }
 
 val ifKeywordNib =
@@ -164,7 +164,7 @@ val expressionNib =
     nameNib,
     scopeNib,
     identifierNib,
-    functionDefinitionNib,
+    wanderFunctionNib,
     stringNib,
     integerNib,
     booleanNib

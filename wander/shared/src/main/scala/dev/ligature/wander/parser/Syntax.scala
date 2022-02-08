@@ -14,6 +14,8 @@ import scala.util.Success
   */
 sealed trait WanderValue extends Expression
 
+sealed trait FunctionDefinition extends WanderValue
+
 case class LigatureValue(value: Value) extends WanderValue {
   override def eval(binding: Bindings) = Right(
     LigatureValue(value)
@@ -32,15 +34,6 @@ case class StatementValue(value: Statement) extends WanderValue {
 
 object Nothing extends WanderValue {
   override def eval(binding: Bindings) = Right(Nothing)
-}
-
-case class FunctionDefinitionValue(value: FunctionDefinition)
-    extends WanderValue {
-  override def eval(binding: Bindings) = ???
-}
-
-case class NativeFunctionValue(value: NativeFunction) extends WanderValue {
-  override def eval(binding: Bindings) = ???
 }
 
 case class ResultStream(stream: Stream[IO, WanderValue]) extends WanderValue {
@@ -110,7 +103,7 @@ case class LetStatement(name: Name, expression: Expression) extends Element {
     result match {
       case Left(_) => return result
       case Right(value) => {
-        bindings.bind(this.name, value)
+        bindings.bindVariable(this.name, value)
         return Right(Nothing)
       }
     }
@@ -128,7 +121,7 @@ case class NativeFunction(
     parameters: List[Parameter],
     body: (bindings: Bindings) => Either[ScriptError, WanderValue],
     output: WanderType = null
-) extends WanderValue { // TODO eventually remove the default null value
+) extends FunctionDefinition { // TODO eventually remove the default null value
   override def eval(binding: Bindings): Either[ScriptError, WanderValue] = {
     body(binding)
   }
@@ -175,12 +168,12 @@ case class Parameter(
 
 /** Holds a reference to a function defined in Wander.
   */
-case class FunctionDefinition(
+case class WanderFunction(
     parameters: List[Parameter],
     body: Scope,
     output: WanderType = null
 ) //TODO eventually remove the default null value
-    extends WanderValue {
+    extends FunctionDefinition {
   override def eval(binding: Bindings) = {
     Right(this)
   }
@@ -191,14 +184,14 @@ case class FunctionCall(val name: Name, val parameters: List[Expression])
   def eval(bindings: Bindings) = {
     val func = bindings.read(name)
     func match {
-      case Right(fd: FunctionDefinition) => {
-        updateBindings(bindings, fd.parameters)
-        val res = fd.body.eval(bindings)
+      case Right(wf: WanderFunction) => {
+        updateFunctionCallBindings(bindings, wf.parameters)
+        val res = wf.body.eval(bindings)
         bindings.removeScope()
         res
       }
       case Right(nf: NativeFunction) => {
-        updateBindings(bindings, nf.parameters)
+        updateFunctionCallBindings(bindings, nf.parameters)
         val res = nf.body(bindings)
         bindings.removeScope()
         res
@@ -207,13 +200,13 @@ case class FunctionCall(val name: Name, val parameters: List[Expression])
     }
   }
 
-  def updateBindings(binding: Bindings, args: List[Parameter]) = {
+  def updateFunctionCallBindings(binding: Bindings, args: List[Parameter]) = {
     if (args.length == parameters.length) {
       binding.addScope()
       for (i <- args.indices) {
         val arg = args(i)
         val param = parameters(i)
-        binding.bind(arg.name, param.eval(binding).getOrElse(???))
+        binding.bindVariable(arg.name, param.eval(binding).getOrElse(???))
       }
     } else {
       throw RuntimeException(
