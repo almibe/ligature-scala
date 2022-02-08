@@ -10,7 +10,10 @@ import scala.collection.mutable.ArrayBuffer
 import scala.collection.mutable.HashMap
 import dev.ligature.wander.parser.FunctionDefinition
 
-case class Scope(val variables: Map[Name, WanderValue], val functions: Map[Name, ArrayBuffer[FunctionDefinition]])
+case class Scope(
+    val variables: Map[Name, WanderValue],
+    val functions: Map[Name, ArrayBuffer[FunctionDefinition]]
+)
 
 class Bindings {
   private def createScope(): Scope = Scope(Map(), Map())
@@ -32,9 +35,15 @@ class Bindings {
     }
   }
 
-  def bindVariable(name: Name, wanderValue: WanderValue): Either[ScriptError, Unit] = {
+  def bindVariable(
+      name: Name,
+      wanderValue: WanderValue
+  ): Either[ScriptError, Unit] = {
     val currentScope = this.scopes.last
-    if (currentScope.variables.contains(name) || currentScope.functions.contains(name)) {
+    if (
+      currentScope.variables
+        .contains(name) || currentScope.functions.contains(name)
+    ) {
       Left(ScriptError(s"${name} is already bound in current scope."))
     } else {
       currentScope.variables += (name -> wanderValue)
@@ -42,9 +51,15 @@ class Bindings {
     }
   }
 
-  def bindFunction(name: Name, functionDefinition: FunctionDefinition): Either[ScriptError, Unit] = {
+  def bindFunction(
+      name: Name,
+      functionDefinition: FunctionDefinition
+  ): Either[ScriptError, Unit] = {
     val currentScope = this.scopes.last
-    if (currentScope.variables.contains(name) || duplicateFunction(name, functionDefinition)) {
+    if (
+      currentScope.variables
+        .contains(name) || duplicateFunction(name, functionDefinition)
+    ) {
       Left(ScriptError(s"${name} is already bound in current scope."))
     } else {
       if (currentScope.functions.contains(name)) {
@@ -57,7 +72,10 @@ class Bindings {
     }
   }
 
-  private def duplicateFunction(name: Name, functionDefinition: FunctionDefinition): Boolean = {
+  private def duplicateFunction(
+      name: Name,
+      functionDefinition: FunctionDefinition
+  ): Boolean = {
     ???
   }
 
