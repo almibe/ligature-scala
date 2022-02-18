@@ -17,14 +17,6 @@ case class Bindings(val scopes: List[Scope] = List(Scope(Map(), Map()))) {
     Bindings(this.scopes.appended(Scope(Map(), Map())))
   }
 
-  def removeScope(): Either[ScriptError, Bindings] = {
-    if (this.scopes.length <= 1) {
-      Left(ScriptError("Can not remove scope."))
-    } else {
-      Right(Bindings(this.scopes.dropRight(1)))
-    }
-  }
-
   def bindVariable(
       name: Name,
       wanderValue: WanderValue
