@@ -33,6 +33,14 @@ lazy val idgen = crossProject(JSPlatform, JVMPlatform)
     libraryDependencies += "org.scalameta" %%% "munit" % "1.0.0-M1" % Test
   )
 
+lazy val ligatureRepl = crossProject(JVMPlatform)
+  .in(file("ligature-repl"))
+  .settings(
+    name := "ligature-repl",
+    scalaVersion := rcVersion,
+    libraryDependencies += "org.scalameta" %%% "munit" % "1.0.0-M1" % Test
+  )
+
 lazy val lig = crossProject(JSPlatform, JVMPlatform)
   .in(file("lig"))
   .settings(
