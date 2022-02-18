@@ -5,40 +5,30 @@
 package dev.ligature.wander
 
 import dev.ligature.wander.parser.{Name, ScriptError, WanderValue}
-import scala.collection.mutable.Map
-import scala.collection.mutable.ArrayBuffer
-import scala.collection.mutable.HashMap
 import dev.ligature.wander.parser.FunctionDefinition
 
 case class Scope(
     val variables: Map[Name, WanderValue],
-    val functions: Map[Name, ArrayBuffer[FunctionDefinition]]
+    val functions: Map[Name, List[FunctionDefinition]]
 )
 
-class Bindings {
-  private def createScope(): Scope = Scope(Map(), Map())
-
-  private val scopes: ArrayBuffer[Scope] = ArrayBuffer(
-    createScope()
-  )
-
-  def addScope() = {
-    this.scopes.append(createScope())
+case class Bindings(val scopes: List[Scope] = List(Scope(Map(), Map()))) {
+  def addScope(): Bindings = {
+    Bindings(this.scopes.appended(Scope(Map(), Map())))
   }
 
-  def removeScope(): Either[ScriptError, Unit] = {
+  def removeScope(): Either[ScriptError, Bindings] = {
     if (this.scopes.length <= 1) {
       Left(ScriptError("Can not remove scope."))
     } else {
-      this.scopes.remove(this.scopes.length - 1)
-      Right(())
+      Right(Bindings(this.scopes.dropRight(1)))
     }
   }
 
   def bindVariable(
       name: Name,
       wanderValue: WanderValue
-  ): Either[ScriptError, Unit] = {
+  ): Either[ScriptError, Bindings] = {
     val currentScope = this.scopes.last
     if (
       currentScope.variables
@@ -46,15 +36,18 @@ class Bindings {
     ) {
       Left(ScriptError(s"${name} is already bound in current scope."))
     } else {
-      currentScope.variables += (name -> wanderValue)
-      Right(())
+      val newVariables = currentScope.variables + (name -> wanderValue)
+      val oldScope = this.scopes.dropRight(1)
+      Right(
+        Bindings(oldScope.appended(Scope(newVariables, currentScope.functions)))
+      )
     }
   }
 
   def bindFunction(
       name: Name,
       functionDefinition: FunctionDefinition
-  ): Either[ScriptError, Unit] = {
+  ): Either[ScriptError, Bindings] = {
     val currentScope = this.scopes.last
     if (
       currentScope.variables
@@ -63,11 +56,18 @@ class Bindings {
       Left(ScriptError(s"${name} is already bound in current scope."))
     } else {
       if (currentScope.functions.contains(name)) {
-        currentScope.functions.get(name).get.append(functionDefinition)
-        Right(())
+        val newFunctionList = currentScope.functions.get(name).get.appended(functionDefinition)
+        val newFunctions = currentScope.functions.updated(name, newFunctionList)
+        val oldScope = this.scopes.dropRight(1)
+        Right(
+          Bindings(oldScope.appended(Scope(currentScope.variables, newFunctions)))
+        )
       } else {
-        currentScope.functions += (name -> ArrayBuffer(functionDefinition))
-        Right(())
+        val newFunctions = currentScope.functions.updated(name, List(functionDefinition))
+        val oldScope = this.scopes.dropRight(1)
+        Right(
+          Bindings(oldScope.appended(Scope(currentScope.variables, newFunctions)))
+        )
       }
     }
   }
@@ -76,7 +76,16 @@ class Bindings {
       name: Name,
       functionDefinition: FunctionDefinition
   ): Boolean = {
-    ???
+    val currentScope = this.scopes.last
+    if (currentScope.functions.contains(name)) {
+      val functions = currentScope.functions.get(name).get
+      val dupe = functions.find { f =>
+        functionDefinition.parameters == f.parameters
+      }
+      dupe.isDefined
+    } else {
+      return false
+    }
   }
 
   def read(name: Name): Either[ScriptError, WanderValue] = {
@@ -93,3 +102,5 @@ class Bindings {
     Left(ScriptError(s"Could not find ${name} in scope."))
   }
 }
+
+//def createFunctionDelegate()
