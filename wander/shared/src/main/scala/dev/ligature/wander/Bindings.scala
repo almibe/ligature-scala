@@ -13,7 +13,7 @@ case class Scope(
 )
 
 case class Bindings(val scopes: List[Scope] = List(Scope(Map(), Map()))) {
-  def addScope(): Bindings = {
+  def newScope(): Bindings = {
     Bindings(this.scopes.appended(Scope(Map(), Map())))
   }
 
