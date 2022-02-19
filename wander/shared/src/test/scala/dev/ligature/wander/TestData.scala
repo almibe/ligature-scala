@@ -16,7 +16,7 @@ import dev.ligature.wander.parser.{
   IfExpression,
   ElseIf,
   Else,
-  FunctionDefinition,
+  WanderFunction,
   LigatureValue,
   Parameter,
   ScriptResult,
@@ -277,7 +277,7 @@ val functionTestData = List(
       List(
         LetStatement(
           Name("f"),
-          FunctionDefinition(
+          WanderFunction(
             List(),
             Scope(List(LigatureValue(IntegerLiteral(5))))
           )
@@ -322,7 +322,7 @@ val functionTestData = List(
       List(
         LetStatement(
           Name("identity"),
-          FunctionDefinition(
+          WanderFunction(
             List(Parameter(Name("value"))),
             Scope(List(Name("value")))
           )
@@ -380,7 +380,7 @@ val functionTestData = List(
       List(
         LetStatement(
           Name("second"),
-          FunctionDefinition(
+          WanderFunction(
             List(Parameter(Name("value1")), Parameter(Name("value2"))),
             Scope(List(Name("value2")))
           )
@@ -443,7 +443,7 @@ val functionTestData = List(
       List(
         LetStatement(
           Name("middle"),
-          FunctionDefinition(
+          WanderFunction(
             List(
               Parameter(Name("value1")),
               Parameter(Name("value2")),
