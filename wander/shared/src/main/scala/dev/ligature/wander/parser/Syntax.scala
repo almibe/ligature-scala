@@ -213,9 +213,9 @@ case class FunctionCall(val name: Name, val parameters: List[Expression])
     val func = bindings.read(name)
     func match {
       case Right(wf: WanderFunction) => {
-        val functioncallBindings =
+        val functionCallBindings =
           updateFunctionCallBindings(bindings, wf.parameters)
-        wf.body.eval(functioncallBindings) match {
+        wf.body.eval(functionCallBindings) match {
           case left: Left[ScriptError, EvalResult] => left
           case Right(value) => Right(EvalResult(bindings, value.result))
         }
@@ -240,7 +240,7 @@ case class FunctionCall(val name: Name, val parameters: List[Expression])
         val arg = args(i)
         val param = parameters(i)
         val paramRes = param.eval(currentBindings).getOrElse(???)
-        bindings.bindVariable(arg.name, paramRes.result) match {
+        currentBindings.bindVariable(arg.name, paramRes.result) match {
           case Left(err)    => Left(err)
           case Right(value) => currentBindings = value
         }
