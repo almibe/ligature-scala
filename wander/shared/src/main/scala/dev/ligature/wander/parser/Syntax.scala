@@ -33,7 +33,7 @@ case class EvalResult(bindings: Bindings, result: WanderValue)
 final case class Name(name: String) extends Expression {
   override def eval(bindings: Bindings) = {
     bindings.read(this) match {
-      case Left(err) => Left(err)
+      case Left(err)    => Left(err)
       case Right(value) => Right(EvalResult(bindings, value))
     }
   }
@@ -109,7 +109,6 @@ object LetKeyword extends Element {
   )
 }
 
-
 case class LetStatement(name: Name, expression: Expression) extends Element {
   override def eval(bindings: Bindings) = {
     val result = this.expression.eval(bindings)
@@ -117,7 +116,7 @@ case class LetStatement(name: Name, expression: Expression) extends Element {
       case Left(_) => return result
       case Right(value) => {
         bindings.bindVariable(this.name, value.result) match {
-          case Left(err) => Left(err)
+          case Left(err)          => Left(err)
           case Right(newBindings) => Right(EvalResult(newBindings, Nothing))
         }
       }
@@ -214,7 +213,8 @@ case class FunctionCall(val name: Name, val parameters: List[Expression])
     val func = bindings.read(name)
     func match {
       case Right(wf: WanderFunction) => {
-        val functioncallBindings = updateFunctionCallBindings(bindings, wf.parameters)
+        val functioncallBindings =
+          updateFunctionCallBindings(bindings, wf.parameters)
         wf.body.eval(functioncallBindings) match {
           case left: Left[ScriptError, EvalResult] => left
           case Right(value) => Right(EvalResult(bindings, value.result))
@@ -229,8 +229,11 @@ case class FunctionCall(val name: Name, val parameters: List[Expression])
     }
   }
 
-  //TODO: this function should probably return an Either instead of throwing an exception
-  def updateFunctionCallBindings(bindings: Bindings, args: List[Parameter]): Bindings = {
+  // TODO: this function should probably return an Either instead of throwing an exception
+  def updateFunctionCallBindings(
+      bindings: Bindings,
+      args: List[Parameter]
+  ): Bindings = {
     if (args.length == parameters.length) {
       var currentBindings = bindings.newScope()
       for (i <- args.indices) {
@@ -238,7 +241,7 @@ case class FunctionCall(val name: Name, val parameters: List[Expression])
         val param = parameters(i)
         val paramRes = param.eval(currentBindings).getOrElse(???)
         bindings.bindVariable(arg.name, paramRes.result) match {
-          case Left(err) => Left(err)
+          case Left(err)    => Left(err)
           case Right(value) => currentBindings = value
         }
       }
@@ -266,7 +269,7 @@ case class IfExpression(
   def eval(bindings: Bindings) = {
     val res = condition.eval(bindings) match {
       case Right(EvalResult(_, BooleanValue(res))) => res
-      case Left(err)                => return Left(err)
+      case Left(err)                               => return Left(err)
       case _ =>
         return Left(
           ScriptError("Conditions in if expression must return BooleanValue.")
@@ -278,7 +281,7 @@ case class IfExpression(
       for (elseIf <- elseIfs) {
         val res = elseIf.condition.eval(bindings) match {
           case Right(EvalResult(_, BooleanValue(res))) => res
-          case Left(err)                => return Left(err)
+          case Left(err)                               => return Left(err)
           case _ =>
             return Left(
               ScriptError(

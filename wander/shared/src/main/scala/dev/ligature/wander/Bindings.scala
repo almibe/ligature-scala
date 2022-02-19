@@ -48,17 +48,23 @@ case class Bindings(val scopes: List[Scope] = List(Scope(Map(), Map()))) {
       Left(ScriptError(s"${name} is already bound in current scope."))
     } else {
       if (currentScope.functions.contains(name)) {
-        val newFunctionList = currentScope.functions.get(name).get.appended(functionDefinition)
+        val newFunctionList =
+          currentScope.functions.get(name).get.appended(functionDefinition)
         val newFunctions = currentScope.functions.updated(name, newFunctionList)
         val oldScope = this.scopes.dropRight(1)
         Right(
-          Bindings(oldScope.appended(Scope(currentScope.variables, newFunctions)))
+          Bindings(
+            oldScope.appended(Scope(currentScope.variables, newFunctions))
+          )
         )
       } else {
-        val newFunctions = currentScope.functions.updated(name, List(functionDefinition))
+        val newFunctions =
+          currentScope.functions.updated(name, List(functionDefinition))
         val oldScope = this.scopes.dropRight(1)
         Right(
-          Bindings(oldScope.appended(Scope(currentScope.variables, newFunctions)))
+          Bindings(
+            oldScope.appended(Scope(currentScope.variables, newFunctions))
+          )
         )
       }
     }
