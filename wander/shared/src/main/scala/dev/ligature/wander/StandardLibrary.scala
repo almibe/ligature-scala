@@ -27,9 +27,9 @@ def createStandardBindings(scope: ExecutionMode): Bindings =
   }
 
 def common(): Bindings = {
-  val stdLib = Bindings()
+  var stdLib = Bindings()
 
-  stdLib.bindFunction(
+  stdLib = stdLib.bindVariable(
     Name("log"),
     NativeFunction(
       List(Parameter(Name("message"))),
@@ -37,22 +37,22 @@ def common(): Bindings = {
         ???
       }
     )
-  )
+  ).getOrElse(???)
 
-  stdLib.bindFunction(
+  stdLib = stdLib.bindVariable(
     Name("not"),
     NativeFunction(
       List(Parameter(Name("bool"))),
       (bindings: Bindings) => {
         bindings.read(Name("bool")) match {
           case Right(b: BooleanValue) => Right(BooleanValue(!b.value))
-          case _ => Left(ScriptError("not requires a Boolean"))
+          case _ => Left(ScriptError(s"not requires a Boolean, received ${bindings.read(Name("bool"))}"))
         }
       }
     )
-  )
+  ).getOrElse(???)
 
-  stdLib.bindFunction(
+  stdLib = stdLib.bindVariable(
     Name("and"),
     NativeFunction(
       List(Parameter(Name("boolLeft")), Parameter(Name("boolRight"))),
@@ -68,9 +68,9 @@ def common(): Bindings = {
         } yield res
       }
     )
-  )
+  ).getOrElse(???)
 
-  stdLib.bindFunction(
+  stdLib = stdLib.bindVariable(
     Name("or"),
     NativeFunction(
       List(Parameter(Name("boolLeft")), Parameter(Name("boolRight"))),
@@ -86,7 +86,7 @@ def common(): Bindings = {
         } yield res
       }
     )
-  )
+  ).getOrElse(???)
 
   // class RangeResultStream implements ResultStream<bigint> {
   //     readonly start: bigint

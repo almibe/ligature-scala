@@ -6,6 +6,7 @@ package dev.ligature.wander
 
 import dev.ligature.wander.parser.{Name, ScriptError, WanderValue}
 import dev.ligature.wander.parser.FunctionDefinition
+import dev.ligature.wander.parser.NativeFunction
 
 case class Scope(
     val variables: Map[Name, WanderValue],
@@ -101,4 +102,7 @@ case class Bindings(val scopes: List[Scope] = List(Scope(Map(), Map()))) {
   }
 }
 
-//def createFunctionDelegate()
+//TODO this function will probably be used once I allow for ad-hoc polymorphism with functions.
+def createFunctionDelegate(): NativeFunction = {
+  ???
+}

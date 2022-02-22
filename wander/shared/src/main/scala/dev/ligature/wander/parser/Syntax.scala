@@ -221,8 +221,8 @@ case class FunctionCall(val name: Name, val parameters: List[Expression])
         }
       }
       case Right(nf: NativeFunction) => {
-        updateFunctionCallBindings(bindings, nf.parameters)
-        val res = nf.body(bindings)
+        val functionCallBindings = updateFunctionCallBindings(bindings, nf.parameters)
+        val res = nf.body(functionCallBindings)
         res.map(EvalResult(bindings, _))
       }
       case _ => Left(ScriptError(s"${name.name} is not a function."))
@@ -254,6 +254,7 @@ case class FunctionCall(val name: Name, val parameters: List[Expression])
   }
 }
 
+//TODO is this needed?
 case class ReferenceExpression(val name: Name) extends Expression {
   def eval(bindings: Bindings) = {
     ???
@@ -302,13 +303,13 @@ case class IfExpression(
 }
 
 case class ElseIf(val condition: Expression, val body: Expression) {
-  def eval(bindings: Bindings) = {
+  def eval(bindings: Bindings) = { //TODO is this needed?
     ???
   }
 }
 
 case class Else(val body: Expression) {
-  def eval(bindings: Bindings) = {
+  def eval(bindings: Bindings) = { //TODO is this needed?
     ???
   }
 }
