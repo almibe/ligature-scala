@@ -38,6 +38,8 @@ lazy val ligatureRepl = crossProject(JVMPlatform)
   .settings(
     name := "ligature-repl",
     scalaVersion := rcVersion,
+    libraryDependencies += "org.jline" % "jline-terminal-jansi" % "3.21.0",
+    libraryDependencies += "org.jline" % "jline-reader" % "3.21.0",
     libraryDependencies += "org.scalameta" %%% "munit" % "1.0.0-M1" % Test
   )
 
