@@ -1,10 +1,6 @@
 # ligature-scala
-An implementation of [Ligature knowledge graph](https://github.com/almibe/ligature-specification) library written in Scala for the JVM/JS.
-
-## Status
-
-This project is currently not being worked on.
-See https://github.com/almibe/ligature-rs for the implementation I'm currently focusing on.
+An implementation of [Ligature knowledge graph](https://ligature.dev) library written in Scala for the JVM/JS.
+See additional documentation [here](https://github.com/almibe/ligature-documentation).
 
 ### Projects
 
@@ -12,7 +8,7 @@ See https://github.com/almibe/ligature-rs for the implementation I'm currently f
 | ------------------- | -------------------------------------------------------------------------------- | --- | -- |
 | ligature            | Common data types and traits for Ligature                                        | ✅   | ✅ |
 | ligature-test-suite | A shared test suite for Ligature                                                 | ✅   | ✅ |
-| idgen               | A basic, unsecure implementation of nanoid for use with Ligature                 | ✅   | ✅ |
+| idgen               | A basic, unsecure, implementation of nanoid for use with Ligature                 | ✅   | ✅ |
 | lig                 | A simple serialization format as well as DLig an input format for Ligature       | ✅   | ✅ |
 | ligature-in-memory  | An in-memory implementation of Ligature                                          | ✅   | ✅ |
 | wander              | A scripting language for working with Ligature.                                  | ✅   | ✅ |
@@ -39,6 +35,13 @@ Use `compile` to compile code.
 Use `test` to run tests.
 
 Use `scalafmtAll` to format code.
+
+### Running the REPL
+
+Sometimes running the Ligature REPL from the sbt shell causes issues.
+So I'd recommend running it outside of the sbt shell like this from your normal terminal.
+
+`sbt ligatureReplJVM/run`
 
 ### Credits
 
