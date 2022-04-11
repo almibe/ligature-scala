@@ -4,35 +4,24 @@
 
 package dev.ligature.slonky
 
-import cats.effect.{IO, IOApp, ExitCode}
-import cats.effect.unsafe.implicits.global
-import dev.ligature.Ligature
-import dev.ligature.inmemory.InMemoryLigature
-import io.vertx.core.Future
-import scala.jdk.FutureConverters._
+import io.vertx.core.Vertx
+import io.vertx.core.http.HttpServer
+import io.vertx.ext.web.Router
+import io.vertx.ext.web.handler.BodyHandler
+import io.vertx.core.AbstractVerticle
+import io.vertx.core.Handler
 
-object Slonky extends IOApp {
-  override def run(args: List[String]): IO[ExitCode] = {
-    val ligature = InMemoryLigature() // TODO should eventually not be hardcoded
-    val port = 5678
+object Slonky {
+  def main(args: Array[String]): Unit = {
+    val vertx = Vertx.vertx
+    val server = vertx.createHttpServer()
+    val router = Router.router(vertx)
 
-    runServer(port, ligature) { _ =>
-      for {
-        _ <- IO.never
-        res <- IO(ExitCode.Success)
-      } yield res
-    }
+    router.route().handler(ctx => {
+      val response = ctx.response()
+      response.putHeader("content-type", "text/plain")
+      response.end("Hello World from Vert.x-Web!")
+    })
+    server.requestHandler(router).listen(8080)
   }
-}
-
-def runServer[T](port: Int, ligature: Ligature)(fn: (Unit) => IO[T]): IO[T] = {
-  (for {
-    ligature <- ligature.instance
-    server <- ServerResource().instance(ligature, port)
-  } yield ())
-    .use(fn)
-}
-
-def toIO[T](in: () => Future[T]): IO[T] = {
-  IO.fromFuture[T](IO(in().toCompletionStage.asScala))
 }

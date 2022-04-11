@@ -36,6 +36,18 @@ Use `test` to run tests.
 
 Use `scalafmtAll` to format code.
 
+### Running the Server
+
+The server can be ran using the `serve` command.
+
+`sbt serve`
+
+If you are using the interaction shell, I recommend using
+
+`reStart`
+
+This will let you reload the server whenever you want by repeating the command.
+
 ### Running the REPL
 
 Sometimes running the Ligature REPL from the sbt shell causes issues.
