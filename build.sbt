@@ -113,21 +113,24 @@ lazy val ligatureJS = crossProject(JSPlatform)
   .dependsOn(ligature, wander, ligatureTestSuite % Test)
   .disablePlugins(RevolverPlugin)
 
-lazy val slonky = crossProject(JVMPlatform)
-  .in(file("slonky"))
+
+val http4sVersion = "1.0.0-M32"
+
+lazy val ligatureHttp = crossProject(JVMPlatform)
+  .in(file("ligature-http"))
   .settings(
-    name := "slonky",
+    name := "ligature-http",
     scalaVersion := scala3Version,
     libraryDependencies += "co.fs2" %%% "fs2-core" % "3.2.7",
-    libraryDependencies += "io.vertx" % "vertx-web" % "4.2.6",
-    libraryDependencies += "io.vertx" % "vertx-web-client" % "4.2.6",
-    libraryDependencies += "io.vertx" % "vertx-web-templ-handlebars" % "4.2.6",
+    libraryDependencies += "org.http4s" %% "http4s-dsl" % http4sVersion,
+    libraryDependencies += "org.http4s" %% "http4s-ember-server" % http4sVersion,
+    libraryDependencies += "org.http4s" %% "http4s-ember-client" % http4sVersion,
     libraryDependencies += "com.google.code.gson" % "gson" % "2.8.6",
     libraryDependencies += "org.scalameta" %%% "munit" % "1.0.0-M3" % Test,
     testFrameworks += new TestFramework("munit.Framework"),
-    mainClass in (Compile, run) := Some("dev.ligature.slonky.Slonky"),
+    mainClass in (Compile, run) := Some("dev.ligature.http.LigatureHttp"),
   ).dependsOn(ligature, ligatureInMemory)
 
-addCommandAlias("serve", "slonkyJVM/run")
+addCommandAlias("serve", "ligature-httpJVM/run")
 
 disablePlugins(RevolverPlugin)
