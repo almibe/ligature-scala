@@ -24,13 +24,12 @@
 
 package dev.ligature.idgen
 
-import scala.language.postfixOps
-//import java.security.SecureRandom
-//import java.util.Random
-import scala.util.Random
+import java.lang.RuntimeException
+import java.security.SecureRandom
+import java.util.Random
 
 //NOTE: Just using scala.util.Random for now since Scala.js doesn't support SecureRandom yet.
-//private val DEFAULT_NUMBER_GENERATOR = new SecureRandom()
+//private val DEFAULT_NUMBER_GENERATOR = SecureRandom()
 private val DEFAULT_NUMBER_GENERATOR = Random()
 
 /**
@@ -56,7 +55,7 @@ private val DEFAULT_SIZE = 21
  *
  * @return A randomly generated NanoId String.
  */
-def randomNanoId(): String = randomNanoId(DEFAULT_NUMBER_GENERATOR, DEFAULT_ALPHABET, DEFAULT_SIZE)
+fun randomNanoId(): String = randomNanoId(DEFAULT_NUMBER_GENERATOR, DEFAULT_ALPHABET, DEFAULT_SIZE)
 
 /**
  * Static factory to retrieve a NanoId String.
@@ -68,39 +67,39 @@ def randomNanoId(): String = randomNanoId(DEFAULT_NUMBER_GENERATOR, DEFAULT_ALPH
  * @param size     The number of symbols in the NanoId String.
  * @return A randomly generated NanoId String.
  */
-def randomNanoId(random: Random, alphabet: Array[Char], size: Int): String = {
+fun randomNanoId(random: Random, alphabet: CharArray, size: Int): String {
     if (random == null) {
-        throw new IllegalArgumentException("random cannot be null.")
+        throw IllegalArgumentException("random cannot be null.")
     }
 
     if (alphabet == null) {
-        throw new IllegalArgumentException("alphabet cannot be null.")
+        throw IllegalArgumentException("alphabet cannot be null.")
     }
 
-    if (alphabet.length == 0 || alphabet.length >= 256) {
-        throw new IllegalArgumentException("alphabet must contain between 1 and 255 symbols.")
+    if (alphabet.size == 0 || alphabet.size >= 256) {
+        throw IllegalArgumentException("alphabet must contain between 1 and 255 symbols.")
     }
 
     if (size <= 0) {
-        throw new IllegalArgumentException("size must be greater than zero.")
+        throw IllegalArgumentException("size must be greater than zero.")
     }
 
-    val mask: Int = (2 << Math.floor(Math.log(alphabet.length - 1) / Math.log(2)).toInt) - 1
-    val step: Int = Math.ceil(1.6 * mask * size / alphabet.length).toInt
+    val mask: Int = (2 shl Math.floor(Math.log(alphabet.size.toDouble() - 1.0) / Math.log(2.toDouble())).toInt()) - 1
+    val step: Int = Math.ceil(1.6 * mask * size / alphabet.size).toInt()
     val idBuilder = StringBuilder()
 
     while (true) {
-        val bytes = new Array[Byte](step)
+        val bytes = ByteArray(step)
         random.nextBytes(bytes)
-        for ( i <- 0 to step) {
-            val alphabetIndex = bytes(i) & mask
-            if (alphabetIndex < alphabet.length) {
-                idBuilder.append(alphabet(alphabetIndex))
-                if (idBuilder.length() == size) {
+        for ( i in 0..step) {
+            val alphabetIndex = bytes[i].toInt() and mask
+            if (alphabetIndex < alphabet.size) {
+                idBuilder.append(alphabet[alphabetIndex])
+                if (idBuilder.length == size) {
                     return idBuilder.toString()
                 }
             }
         }
     }
-    ??? //should never reach
+    throw RuntimeException("should never reach")
 }

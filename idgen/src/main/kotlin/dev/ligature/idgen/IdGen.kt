@@ -4,10 +4,10 @@
 
 package dev.ligature.idgen
 
-private val ID_GENERATOR = new scala.util.Random()
+import java.security.SecureRandom
+
+private val ID_GENERATOR = SecureRandom()
 private val ID_ALPHABET = "_-0123456789abcdefABCDEF".toCharArray()
 private val ID_SIZE = 12
 
-def genId(): String = {
-  randomNanoId(ID_GENERATOR, ID_ALPHABET, ID_SIZE)
-}
+fun genId(): String = randomNanoId(ID_GENERATOR, ID_ALPHABET, ID_SIZE)

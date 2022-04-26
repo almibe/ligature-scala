@@ -4,13 +4,13 @@
 
 package dev.ligature.idgen
 
-import munit.FunSuite
+import io.kotest.core.spec.style.FunSpec
 
-class IDGenSuite extends FunSuite {
+class IDGenSuite : FunSpec({
   test("check ids") {
-    val regEx = "[0-9a-zA-Z_-]{12}".r
+    val regEx = Regex("[0-9a-zA-Z_-]{12}")
     val id = genId()
     println("***" + id)
     assert(regEx.matches(id))
   }
-}
+})

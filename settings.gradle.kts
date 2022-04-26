@@ -8,4 +8,4 @@
  */
 
 rootProject.name = "ligature"
-include("app", "list", "utilities")
+include("app", "list", "utilities", "idgen")
