@@ -41,45 +41,18 @@ object LigatureHttp extends IOApp {
       .default[IO]
       .withHost(ipv4"0.0.0.0")
       .withPort(port"8080")
-      .withHttpApp(testApp)
+      .withHttpApp(helloWorldService)
       .build
       .use(_ => IO.never)
       .as(ExitCode.Success)
   }
 
-  val testApp = HttpApp((req: Request[IO]) => 
-     for {
-       res <- req.body.through(fs2.text.uft8Decode)
-       res2 <- res.compile.drain
-     } yield Response[IO](res2))
-//    IO {
-//    println("test")
-//    Response[IO]()
-  })
+  val helloWorldService = HttpRoutes
+    .of[IO] { case GET -> Root / "hello" / name =>
+      Ok(s"Hello, $name.")
+    }
+    .orNotFound
 
-  // val helloWorldService = HttpRoutes
-  //   .of[IO] { 
-  //     case res @ GET -> Root / "hello" / name => {
-  //       for {
-  //         body <- res.bodyText
-  //       } yield Ok(body)
-  //     }
-  //     case GET -> Root / "datasets" => Ok("[]")
-  //     case POST -> Root / "datasets" / datasetName => ???
-  //     case DELETE -> Root / "datasets" / datasetName => ???
-  //     case GET -> Root / "datasets" / datasetName / "statements" => ???
-  //     case POST -> Root / "datasets" / datasetName / "statements" => ???
-  //     case DELETE -> Root / "datasets" / datasetName / "statements" => ???
-  //     case POST -> Root / "datasets" / datasetName / "wander" => ???
-  //   }
-  //   .orNotFound
-
-  // val datasetsRoute = HttpRoutes
-  //   .of[IO] {
-  //   }
-  //   .orNotFound
-
-  // val routes = helloWorldService <+> datasetsRoute
 }
 
 //     //TODO get all Datasets (with optional prefix)
