@@ -13,7 +13,7 @@ See additional documentation [here](https://github.com/almibe/ligature-documenta
 | ligature-in-memory  | An in-memory implementation of Ligature                                          | ✅   | ✅ |
 | wander              | A scripting language for working with Ligature.                                  | ✅   | ✅ |
 | gaze                | A utility library for parsing text.                                              | ✅   | ✅ |
-| slonky              | A JVM based server for Ligature following the ligature-http spec.                | ✅   |   |
+| ligature-http       | A JVM based server for Ligature following the ligature-http spec.                | ✅   |   |
 | ligature-indexeddb  | An implementation of Ligature targeting the browser using IndexedDB for storage. |     | ✅ |
 
 ## Building

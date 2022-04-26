@@ -4,15 +4,54 @@
 
 package dev.ligature.http
 
-import cats.effect.IO
-import cats.effect.unsafe.implicits.global
+import java.lang.IllegalArgumentException;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith
+import io.vertx.junit5.VertxExtension
+import io.vertx.junit5.VertxTestContext
+import io.vertx.Vertx
+import java.util.concurrent.TimeUnit
 
-import com.google.gson.*
-import com.google.gson.annotations.SerializedName
-import dev.ligature.inmemory.InMemoryLigature
-import munit._
+@ExtendWith(VertxExtension.getClass)
+class BTest {
+  val vertx = Vertx.vertx();
 
-class LigatureHttpSuite extends FunSuite() {
+  @Test
+  def start_http_server() = {
+    val testContext = new VertxTestContext();
+
+    vertx.createHttpServer()
+      .requestHandler(req -> req.response().end())
+      .listen(16969)
+      .onComplete(testContext.succeedingThenComplete())
+
+    assert(testContext.awaitCompletion(5, TimeUnit.SECONDS))
+    if (testContext.failed()) {
+      throw testContext.causeOfFailure();
+    }
+  }
+}
+
+
+// class MathToolsTest {
+//     @Test
+//     def testConvertToDecimalSuccess() = {
+//         val result = 4 + 5
+//         Assertions.assertEquals(9, result);
+//     }
+// }
+
+
+// import cats.effect.IO
+// import cats.effect.unsafe.implicits.global
+
+// import com.google.gson.*
+// import com.google.gson.annotations.SerializedName
+// import dev.ligature.inmemory.InMemoryLigature
+// import munit._
+
+// class LigatureHttpSuite extends FunSuite() {
   // val port = 4444
   // val local = "localhost"
   // // below means that server + client have different vertx instances, but this isn't be an issue
@@ -272,4 +311,4 @@ class LigatureHttpSuite extends FunSuite() {
   // //                 JsonParser.parseString(expected).asJsonArray
   // //     }
   // // }
-}
+//}
