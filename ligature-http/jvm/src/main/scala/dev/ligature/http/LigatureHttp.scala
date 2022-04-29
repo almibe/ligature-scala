@@ -41,52 +41,71 @@ object LigatureHttp extends IOApp {
       .default[IO]
       .withHost(ipv4"0.0.0.0")
       .withPort(port"8080")
-      .withHttpApp(helloWorldService)
+      .withHttpApp(routes)
       .build
       .use(_ => IO.never)
       .as(ExitCode.Success)
   }
 
-  val helloWorldService = HttpRoutes
-    .of[IO] { case GET -> Root / "hello" / name =>
-      Ok(s"Hello, $name.")
+  val routes = HttpRoutes
+    .of[IO] {
+//    case req @ GET -> Root / "hello" / name => {
+//      for {
+//        body <- req.bodyText.compile.string
+//        res <- Ok(body.toUpperCase)
+//      } yield res
+//    }
+      case GET -> Root / "datasets"                => getDatasets()
+      case POST -> Root / "datasets" / datasetName => addDataset(datasetName)
+      case DELETE -> Root / "datasets" / datasetName =>
+        deleteDataset(datasetName)
+      case GET -> Root / "datasets" / datasetName / "statements" =>
+        getAllStatements(datasetName)
+      case req @ POST -> Root / "datasets" / datasetName / "statements" =>
+        addStatements(datasetName, req)
+      case req @ DELETE -> Root / "datasets" / datasetName / "statements" =>
+        deleteStatements(datasetName, req)
+      case req @ POST -> Root / "datasets" / datasetName / "wander" =>
+        runWanderQuery(datasetName, req)
     }
     .orNotFound
 
+  def getDatasets(): IO[Response[IO]] = {
+    //val datasetsStream = ligature.allDatasets()
+    Ok("[]")
+  }
+
+  def addDataset(datasetName: String): IO[Response[IO]] = {
+    val dataset = Dataset.fromString(datasetName)
+    ???
+  }
+
+  def deleteDataset(datasetName: String): IO[Response[IO]] = {
+    ???
+  }
+
+  def getAllStatements(datasetName: String): IO[Response[IO]] = {
+    ???
+  }
+
+  def addStatements(
+      datasetName: String,
+      request: Request[IO]
+  ): IO[Response[IO]] = {
+    ???
+  }
+
+  def deleteStatements(
+      datasetName: String,
+      request: Request[IO]
+  ): IO[Response[IO]] = {
+    ???
+  }
+
+  def runWanderQuery(
+      datasetName: String,
+      request: Request[IO]
+  ): IO[Response[IO]] = {
+    ???
+  }
 }
-
-//     //TODO get all Datasets (with optional prefix)
-//     router.route(HttpMethod.GET, "/datasets/").handler(ctx => {
-//       val response = ctx.response()
-//       response.putHeader("content-type", "application/json")
-//       response.end(JsonArray().toString)
-//     })
-
-//     //TODO create Dataset
-//     router.route(HttpMethod.POST, "/datasets/:datasetName").handler(ctx => {
-//       ???
-//     })
-
-//     //TODO delete Dataset
-//     router.route(HttpMethod.DELETE, "/datasets/:datasetName").handler(ctx => {
-//       ???
-//     })
-
-//     //TODO add Statements to Dataset
-//     router.route(HttpMethod.POST, "/datasets/:datasetName/statements").handler(ctx => {
-//       ???
-//     })
-
-//     //TODO delete Statements from Dataset
-//     router.route(HttpMethod.DELETE, "/datasets/:datasetName/statements").handler(ctx => {
-//       ???
-//     })
-
-//     //TODO query Dataset
-//     router.route(HttpMethod.POST, "/datasets/:datasetName/wander").handler(ctx => {
-//       ???
-//     })
-
-//     server.requestHandler(router).listen(8080)
-//   }
-// }
