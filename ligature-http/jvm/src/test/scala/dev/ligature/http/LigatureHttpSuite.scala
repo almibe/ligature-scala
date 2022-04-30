@@ -4,6 +4,8 @@
 
 package dev.ligature.http
 
+import dev.ligature.Dataset
+
 import cats.effect.IO
 import cats.effect.unsafe.implicits.global
 
@@ -12,37 +14,27 @@ import com.google.gson.annotations.SerializedName
 import dev.ligature.inmemory.InMemoryLigature
 import munit._
 
-class LigatureHttpSuite extends FunSuite() {
-  // val port = 4444
-  // val local = "localhost"
-  // // below means that server + client have different vertx instances, but this isn't be an issue
-  // val client = WebClient.create(Vertx.vertx())
-  // val gson = GsonBuilder().serializeNulls().create()
-  // val createLigature =
-  //   () => InMemoryLigature() // TODO should this be hard coded?
+import org.http4s._
+import org.http4s.client.dsl.io._
+import org.http4s.dsl.io._
+import org.http4s.syntax.all._
 
-  // test("Datasets should initially be empty") {
-  //   val res = runServer(port, createLigature()) { _ =>
-  //     toIO(() => client.get(port, local, "").send)
-  //   }.unsafeRunSync()
-  //   assertEquals(
-  //     JsonParser.parseString(res.bodyAsString()).getAsJsonArray,
-  //     JsonArray()
-  //   )
-  // }
+import munit.Clue.generate
 
-  // test("Add Datasets") {
-  //   val res = runServer(port, createLigature()) { _ =>
-  //     for {
-  //       _ <- toIO(() => client.post(port, local, "/testDataset").send())
-  //       res <- toIO(() => client.get(port, local, "").send())
-  //     } yield res
-  //   }.unsafeRunSync()
-  //   assertEquals(
-  //     JsonParser.parseString(res.bodyAsString()).getAsJsonArray,
-  //     JsonParser.parseString("[\"testDataset\"]").getAsJsonArray
-  //   )
-  // }
+class LigatureHttpSuite extends FunSuite {
+
+  test("Datasets should initially be empty") {
+    val response = LigatureHttp.routes.run(Request(method = Method.GET, uri = uri"/datasets")).unsafeRunSync()
+    val res = response.bodyText.compile.string.unsafeRunSync()
+    assertEquals(res, "[]")
+  }
+
+   test("Add Datasets") {
+     LigatureHttp.routes.run(Request(method = Method.POST, uri = uri"/datasets/new")).unsafeRunSync()
+     val response = LigatureHttp.routes.run(Request(method = Method.GET, uri = uri"/datasets")).unsafeRunSync()
+     val res = response.bodyText.compile.string.unsafeRunSync()
+     assertEquals(res, "[\"new\"]")
+   }
 
   // test("Query Datasets w/ prefix") {
   //   val writes = List("test/test1", "test/test2", "test3/test")

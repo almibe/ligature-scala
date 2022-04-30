@@ -76,7 +76,14 @@ object LigatureHttp extends IOApp {
   }
 
   def addDataset(datasetName: String): IO[Response[IO]] = {
-    val dataset = Dataset.fromString(datasetName)
+    Dataset.fromString(datasetName) match {
+      Right (dataset) => {
+
+      }
+      Left (error) => {
+
+      }
+    }
     ???
   }
 
