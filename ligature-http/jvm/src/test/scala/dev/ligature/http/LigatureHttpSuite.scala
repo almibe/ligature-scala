@@ -9,6 +9,8 @@ import dev.ligature.Dataset
 import cats.effect.IO
 import cats.effect.unsafe.implicits.global
 
+import fs2.Stream
+
 import com.google.gson.*
 import com.google.gson.annotations.SerializedName
 import dev.ligature.inmemory.InMemoryLigature
@@ -24,14 +26,16 @@ import munit.Clue.generate
 class LigatureHttpSuite extends FunSuite {
 
   test("Datasets should initially be empty") {
-    val response = LigatureHttp.routes.run(Request(method = Method.GET, uri = uri"/datasets")).unsafeRunSync()
+    val instance = LigatureHttp()
+    val response = instance.routes.run(Request(method = Method.GET, uri = uri"/datasets")).unsafeRunSync()
     val res = response.bodyText.compile.string.unsafeRunSync()
     assertEquals(res, "[]")
   }
 
    test("Add Datasets") {
-     LigatureHttp.routes.run(Request(method = Method.POST, uri = uri"/datasets/new")).unsafeRunSync()
-     val response = LigatureHttp.routes.run(Request(method = Method.GET, uri = uri"/datasets")).unsafeRunSync()
+     val instance = LigatureHttp()
+     instance.routes.run(Request(method = Method.POST, uri = uri"/datasets/new")).unsafeRunSync()
+     val response = instance.routes.run(Request(method = Method.GET, uri = uri"/datasets")).unsafeRunSync()
      val res = response.bodyText.compile.string.unsafeRunSync()
      assertEquals(res, "[\"new\"]")
    }
@@ -73,67 +77,62 @@ class LigatureHttpSuite extends FunSuite {
   //   )
   // }
 
-  // test("Delete Datasets") {
-  //   val writes = List("test", "test1/test1", "test2/test2", "test3/test")
-  //     .map { ds => toIO(() => client.post(port, local, s"/$ds").send()) }
-  //     .reduce(_ >> _)
-  //   val res = runServer(port, createLigature()) { _ =>
-  //     for {
-  //       _ <- writes
-  //       _ <- toIO(() => client.delete(port, local, "/test2/test2").send())
-  //       res <- toIO(() => client.get(port, local, "").send())
-  //     } yield res
-  //   }.unsafeRunSync()
-  //   assertEquals(
-  //     JsonParser.parseString(res.bodyAsString()).getAsJsonArray,
-  //     JsonParser
-  //       .parseString("[\"test\",\"test1/test1\",\"test3/test\"]")
-  //       .getAsJsonArray
-  //   )
-  // }
+   test("Delete Datasets") {
+     val instance = LigatureHttp()
+     instance.routes.run(Request(method = Method.POST, uri = uri"/datasets/new2")).unsafeRunSync()
+     instance.routes.run(Request(method = Method.POST, uri = uri"/datasets/new3")).unsafeRunSync()
+     instance.routes.run(Request(method = Method.DELETE, uri = uri"/datasets/new3")).unsafeRunSync()
+     val response = instance.routes.run(Request(method = Method.GET, uri = uri"/datasets")).unsafeRunSync()
+     val res = response.bodyText.compile.string.unsafeRunSync()
+     assertEquals(res, "[\"new2\"]")
+   }
 
-  // test("Statements in new Dataset should start empty") {
-  //   val res = runServer(port, createLigature()) { _ =>
-  //     for {
-  //       _ <- toIO(() => client.post(port, local, "/testDataset").send())
-  //       res <- toIO(() => client.get(port, local, "/testDataset").send())
-  //     } yield res
-  //   }.unsafeRunSync()
-  //   assertEquals(
-  //     JsonParser.parseString(res.bodyAsString()).getAsJsonArray,
-  //     JsonArray()
-  //   )
-  // }
+   test("Statements in new Dataset should start empty") {
+     val instance = LigatureHttp()
+     instance.routes.run(Request(method = Method.POST, uri = uri"/datasets/new")).unsafeRunSync()
+     val response = instance.routes.run(Request(method = Method.GET, uri = uri"/datasets/new/statements")).unsafeRunSync()
+     val res = response.bodyText.compile.string.unsafeRunSync()
+     assertEquals(res, "")
+   }
 
-  // test("Add Statements") {
-  //   val input = List(
-  //     AtomicApiStatement("1", "attribute", "2", "Entity", "stat1/"),
-  //     AtomicApiStatement("3", "attribute", "1", "Entity", "stat2/"),
-  //     AtomicApiStatement("4", "attribute2", "Hello", "StringLiteral", "stat3/"),
-  //     AtomicApiStatement("5", "attribute3", "3453", "IntegerLiteral", "stat4/"),
-  //     AtomicApiStatement("1", "attribute4", "4.2", "FloatLiteral", "stat5/")
-  //   )
+   test("Add a single Statement") {
+     val instance = LigatureHttp()
+     instance.routes.run(Request(method = Method.POST, uri = uri"/datasets/new")).unsafeRunSync()
+     instance.routes.run(Request(method = Method.POST, uri = uri"/datasets/new/statements").withEntity("<a> <b> <c>")).unsafeRunSync()
+     val response = instance.routes.run(Request(method = Method.GET, uri = uri"/datasets/new/statements")).unsafeRunSync()
+     val res = response.bodyText.compile.string.unsafeRunSync()
+     assertEquals(res, "<a> <b> <c>")
 
-  //   awaitResult < HttpResponse < Buffer >> {
-  //     h -> // create Dataset
-  //       client.post(port, local, "/testDataset").send(h)
-  //   }
-  //   input.forEach {
-  //     statement ->
-  //     val res = awaitResult < HttpResponse < Buffer >> {
-  //       h -> // add Statement
-  //         client
-  //           .post(port, local, "/testDataset")
-  //           .sendBuffer(Buffer.buffer(gson.toJson(statement)), h)
-  //     }
-  //   }
-  //   val res = awaitResult < HttpResponse < Buffer >> {
-  //     h -> // get all Statements
-  //       client.get(port, local, "/testDataset").send(h)
-  //   }
-  //   JsonParser.parseString(res.bodyAsString()).asJsonArray shouldBe
-  //     JsonParser.parseString(expected).asJsonArray
-  // }
+//     val input = List(
+//       AtomicApiStatement("1", "attribute", "2", "Entity", "stat1/"),
+//       AtomicApiStatement("3", "attribute", "1", "Entity", "stat2/"),
+//       AtomicApiStatement("4", "attribute2", "Hello", "StringLiteral", "stat3/"),
+//       AtomicApiStatement("5", "attribute3", "3453", "IntegerLiteral", "stat4/"),
+//       AtomicApiStatement("1", "attribute4", "4.2", "FloatLiteral", "stat5/")
+//     )
+//
+//     awaitResult < HttpResponse < Buffer >> {
+//       h -> // create Dataset
+//         client.post(port, local, "/testDataset").send(h)
+//     }
+//     input.forEach {
+//       statement ->
+//       val res = awaitResult < HttpResponse < Buffer >> {
+//         h -> // add Statement
+//           client
+//             .post(port, local, "/testDataset")
+//             .sendBuffer(Buffer.buffer(gson.toJson(statement)), h)
+//       }
+//     }
+//     val res = awaitResult < HttpResponse < Buffer >> {
+//       h -> // get all Statements
+//         client.get(port, local, "/testDataset").send(h)
+//     }
+//     JsonParser.parseString(res.bodyAsString()).asJsonArray shouldBe
+//       JsonParser.parseString(expected).asJsonArray
+   }
+
+//TODO add test for adding multiple Statements
 
   // //     test("Match Statements") {
   // //         val input = listOf(

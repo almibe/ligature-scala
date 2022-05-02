@@ -4,27 +4,26 @@
 
 package dev.ligature.http
 
-import cats.effect._, org.http4s._, org.http4s.dsl.io._
-import cats.syntax.all._
-import com.comcast.ip4s._
-import org.http4s.ember.server._
-import org.http4s.implicits._
+import cats.effect.*
+import org.http4s.*
+import org.http4s.dsl.io.*
+import cats.syntax.all.*
+import com.comcast.ip4s.*
+import org.http4s.ember.server.*
+import org.http4s.implicits.*
 import org.http4s.server.Router
-import scala.concurrent.duration._
+
+import scala.concurrent.duration.*
 import org.http4s.HttpRoutes
-import org.http4s.dsl.io._
-
+import org.http4s.dsl.io.*
 import dev.ligature.inmemory.InMemoryLigature
-import dev.ligature.Ligature
+import dev.ligature.{Dataset, Ligature, Statement}
 
-object LigatureHttp extends IOApp {
-  // NOTE: for now while developing I'm just using a hard coded in-memory instance of Ligature.
-  // Eventually I'll probably flip this dependency and each implementation of Ligature will call into Ligature-HTTP.
-  val ligature = InMemoryLigature()
-
+object MainLigatureHttp extends IOApp {
   def run(args: List[String]): IO[ExitCode] = {
     if (args.length == 1 && args(0) == "--local") { // currently only supports --local mode
-      startLocal()
+      val instance = LigatureHttp()
+      instance.startLocal()
     } else {
       IO {
         println("Could not start application.")
@@ -35,8 +34,14 @@ object LigatureHttp extends IOApp {
       }
     }
   }
+}
 
-  private def startLocal(): IO[ExitCode] = {
+class LigatureHttp {
+  // NOTE: for now while developing I'm just using a hard coded in-memory instance of Ligature.
+  // Eventually I'll probably flip this dependency and each implementation of Ligature will call into Ligature-HTTP.
+  val ligature: InMemoryLigature = InMemoryLigature()
+
+  private[http] def startLocal(): IO[ExitCode] = {
     EmberServerBuilder
       .default[IO]
       .withHost(ipv4"0.0.0.0")
@@ -49,12 +54,6 @@ object LigatureHttp extends IOApp {
 
   val routes = HttpRoutes
     .of[IO] {
-//    case req @ GET -> Root / "hello" / name => {
-//      for {
-//        body <- req.bodyText.compile.string
-//        res <- Ok(body.toUpperCase)
-//      } yield res
-//    }
       case GET -> Root / "datasets"                => getDatasets()
       case POST -> Root / "datasets" / datasetName => addDataset(datasetName)
       case DELETE -> Root / "datasets" / datasetName =>
@@ -71,35 +70,71 @@ object LigatureHttp extends IOApp {
     .orNotFound
 
   def getDatasets(): IO[Response[IO]] = {
-    //val datasetsStream = ligature.allDatasets()
-    Ok("[]")
+    for {
+      out <- ligature.allDatasets().map(ds => s"\"${ds.name}\"").intersperse(",").compile.string
+      res <- Ok(s"[${out}]")
+    } yield res
   }
 
   def addDataset(datasetName: String): IO[Response[IO]] = {
     Dataset.fromString(datasetName) match {
-      Right (dataset) => {
-
+      case Right(dataset) => {
+        for {
+          _ <- ligature.createDataset(dataset)
+          res <- Ok("Dataset added.")
+        } yield res
       }
-      Left (error) => {
-
+      case Left(error) => {
+        BadRequest(error.message)
       }
     }
-    ???
   }
 
   def deleteDataset(datasetName: String): IO[Response[IO]] = {
-    ???
+    Dataset.fromString(datasetName) match {
+      case Right(dataset) => {
+        for {
+          _ <- ligature.deleteDataset(dataset)
+          res <- Ok("Dataset deleted.")
+        } yield res
+      }
+      case Left(error) => {
+        BadRequest(error.message)
+      }
+    }
   }
 
   def getAllStatements(datasetName: String): IO[Response[IO]] = {
-    ???
+    Dataset.fromString(datasetName) match {
+      case Right(dataset) => {
+        for {
+          list <- ligature.query(dataset).use[List[Statement]] { qx => qx.allStatements().compile.toList }
+          tempRes <- Ok("temp")
+        } yield tempRes
+      }
+      case Left(error) => {
+        BadRequest(error.message)
+      }
+    }
   }
 
   def addStatements(
       datasetName: String,
       request: Request[IO]
   ): IO[Response[IO]] = {
-    ???
+    Dataset.fromString(datasetName) match {
+      case Right(dataset) => {
+        for {
+          body <- request.bodyText.compile.string
+
+          list <- ligature.query(dataset).use[List[Statement]] { qx => qx.allStatements().compile.toList }
+          tempRes <- Ok("temp")
+        } yield tempRes
+      }
+      case Left(error) => {
+        BadRequest(error.message)
+      }
+    }
   }
 
   def deleteStatements(
