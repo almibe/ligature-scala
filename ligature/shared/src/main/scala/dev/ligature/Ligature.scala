@@ -9,7 +9,10 @@ import cats.effect.IO
 import cats.data.EitherT
 import cats.effect.kernel.Resource
 
-final case class Dataset private (val name: String) extends Ordered[Dataset] {
+import scala.annotation.unused
+
+final case class Dataset private (name: String) extends Ordered[Dataset] {
+  @unused
   private def copy(): Unit = ()
 
   override def compare(that: Dataset): Int = this.name.compare(that.name)
@@ -27,7 +30,8 @@ object Dataset {
   }
 }
 
-final case class Identifier private (val name: String) extends Value {
+final case class Identifier private (name: String) extends Value {
+  @unused
   private def copy(): Unit = ()
 }
 
@@ -43,22 +47,22 @@ object Identifier {
   }
 }
 
-final case class LigatureError(val message: String)
+final case class LigatureError(message: String)
 
 sealed trait Value
-final case class StringLiteral(val value: String) extends Value
-final case class IntegerLiteral(val value: Long) extends Value
+final case class StringLiteral(value: String) extends Value
+final case class IntegerLiteral(value: Long) extends Value
 
 sealed trait Range
-final case class StringLiteralRange(val start: String, val end: String)
+final case class StringLiteralRange(start: String, end: String)
     extends Range
-final case class IntegerLiteralRange(val start: Long, val end: Long)
+final case class IntegerLiteralRange(start: Long, end: Long)
     extends Range
 
 final case class Statement(
-    val entity: Identifier,
-    val attribute: Identifier,
-    val value: Value
+    entity: Identifier,
+    attribute: Identifier,
+    value: Value
 )
 
 enum WriteResult:
