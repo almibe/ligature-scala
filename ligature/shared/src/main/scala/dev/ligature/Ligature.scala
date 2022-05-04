@@ -54,10 +54,8 @@ final case class StringLiteral(value: String) extends Value
 final case class IntegerLiteral(value: Long) extends Value
 
 sealed trait Range
-final case class StringLiteralRange(start: String, end: String)
-    extends Range
-final case class IntegerLiteralRange(start: Long, end: Long)
-    extends Range
+final case class StringLiteralRange(start: String, end: String) extends Range
+final case class IntegerLiteralRange(start: Long, end: Long) extends Range
 
 final case class Statement(
     entity: Identifier,

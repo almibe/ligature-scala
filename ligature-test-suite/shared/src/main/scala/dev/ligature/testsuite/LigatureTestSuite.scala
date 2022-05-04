@@ -116,7 +116,7 @@ abstract class LigatureTestSuite extends CatsEffectSuite {
       _ <- instance.write(testDataset).use { tx =>
         for {
           _ <- tx.addStatement(Statement(entity1, a, entity2))
-          _ <- tx.addStatement(Statement(entity1, a, entity2)) //dupe
+          _ <- tx.addStatement(Statement(entity1, a, entity2)) // dupe
           r <- tx.addStatement(Statement(entity1, a, entity3))
         } yield r
       }

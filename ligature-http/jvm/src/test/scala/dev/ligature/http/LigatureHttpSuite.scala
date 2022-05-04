@@ -25,7 +25,7 @@ import dev.ligature.inmemory.InMemoryLigature
 import munit.Clue.generate
 
 class LigatureHttpSuite extends FunSuite {
-  def createInstance() = LigatureHttp(InMemoryLigature()) //hard-coded for now
+  def createInstance() = LigatureHttp(InMemoryLigature()) // hard-coded for now
 
   test("Datasets should initially be empty") {
     val instance = createInstance()
@@ -125,7 +125,11 @@ class LigatureHttpSuite extends FunSuite {
         Request(method = Method.POST, uri = uri"/datasets/new/statements")
           .withEntity("<a> <b> <c>")
       )
-      .unsafeRunSync().bodyText.compile.string.unsafeRunSync()
+      .unsafeRunSync()
+      .bodyText
+      .compile
+      .string
+      .unsafeRunSync()
     assertEquals(writeResponse, "")
     val response = instance.routes
       .run(Request(method = Method.GET, uri = uri"/datasets/new/statements"))
