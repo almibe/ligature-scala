@@ -20,25 +20,33 @@ import org.http4s._
 import org.http4s.client.dsl.io._
 import org.http4s.dsl.io._
 import org.http4s.syntax.all._
+import dev.ligature.inmemory.InMemoryLigature
 
 import munit.Clue.generate
 
 class LigatureHttpSuite extends FunSuite {
+  def createInstance() = LigatureHttp(InMemoryLigature()) //hard-coded for now
 
   test("Datasets should initially be empty") {
-    val instance = LigatureHttp()
-    val response = instance.routes.run(Request(method = Method.GET, uri = uri"/datasets")).unsafeRunSync()
+    val instance = createInstance()
+    val response = instance.routes
+      .run(Request(method = Method.GET, uri = uri"/datasets"))
+      .unsafeRunSync()
     val res = response.bodyText.compile.string.unsafeRunSync()
     assertEquals(res, "[]")
   }
 
-   test("Add Datasets") {
-     val instance = LigatureHttp()
-     instance.routes.run(Request(method = Method.POST, uri = uri"/datasets/new")).unsafeRunSync()
-     val response = instance.routes.run(Request(method = Method.GET, uri = uri"/datasets")).unsafeRunSync()
-     val res = response.bodyText.compile.string.unsafeRunSync()
-     assertEquals(res, "[\"new\"]")
-   }
+  test("Add Datasets") {
+    val instance = createInstance()
+    instance.routes
+      .run(Request(method = Method.POST, uri = uri"/datasets/new"))
+      .unsafeRunSync()
+    val response = instance.routes
+      .run(Request(method = Method.GET, uri = uri"/datasets"))
+      .unsafeRunSync()
+    val res = response.bodyText.compile.string.unsafeRunSync()
+    assertEquals(res, "[\"new\"]")
+  }
 
   // test("Query Datasets w/ prefix") {
   //   val writes = List("test/test1", "test/test2", "test3/test")
@@ -77,31 +85,53 @@ class LigatureHttpSuite extends FunSuite {
   //   )
   // }
 
-   test("Delete Datasets") {
-     val instance = LigatureHttp()
-     instance.routes.run(Request(method = Method.POST, uri = uri"/datasets/new2")).unsafeRunSync()
-     instance.routes.run(Request(method = Method.POST, uri = uri"/datasets/new3")).unsafeRunSync()
-     instance.routes.run(Request(method = Method.DELETE, uri = uri"/datasets/new3")).unsafeRunSync()
-     val response = instance.routes.run(Request(method = Method.GET, uri = uri"/datasets")).unsafeRunSync()
-     val res = response.bodyText.compile.string.unsafeRunSync()
-     assertEquals(res, "[\"new2\"]")
-   }
+  test("Delete Datasets") {
+    val instance = createInstance()
+    instance.routes
+      .run(Request(method = Method.POST, uri = uri"/datasets/new2"))
+      .unsafeRunSync()
+    instance.routes
+      .run(Request(method = Method.POST, uri = uri"/datasets/new3"))
+      .unsafeRunSync()
+    instance.routes
+      .run(Request(method = Method.DELETE, uri = uri"/datasets/new3"))
+      .unsafeRunSync()
+    val response = instance.routes
+      .run(Request(method = Method.GET, uri = uri"/datasets"))
+      .unsafeRunSync()
+    val res = response.bodyText.compile.string.unsafeRunSync()
+    assertEquals(res, "[\"new2\"]")
+  }
 
-   test("Statements in new Dataset should start empty") {
-     val instance = LigatureHttp()
-     instance.routes.run(Request(method = Method.POST, uri = uri"/datasets/new")).unsafeRunSync()
-     val response = instance.routes.run(Request(method = Method.GET, uri = uri"/datasets/new/statements")).unsafeRunSync()
-     val res = response.bodyText.compile.string.unsafeRunSync()
-     assertEquals(res, "")
-   }
+  test("Statements in new Dataset should start empty") {
+    val instance = createInstance()
+    instance.routes
+      .run(Request(method = Method.POST, uri = uri"/datasets/new"))
+      .unsafeRunSync()
+    val response = instance.routes
+      .run(Request(method = Method.GET, uri = uri"/datasets/new/statements"))
+      .unsafeRunSync()
+    val res = response.bodyText.compile.string.unsafeRunSync()
+    assertEquals(res, "")
+  }
 
-   test("Add a single Statement") {
-     val instance = LigatureHttp()
-     instance.routes.run(Request(method = Method.POST, uri = uri"/datasets/new")).unsafeRunSync()
-     instance.routes.run(Request(method = Method.POST, uri = uri"/datasets/new/statements").withEntity("<a> <b> <c>")).unsafeRunSync()
-     val response = instance.routes.run(Request(method = Method.GET, uri = uri"/datasets/new/statements")).unsafeRunSync()
-     val res = response.bodyText.compile.string.unsafeRunSync()
-     assertEquals(res, "<a> <b> <c>")
+  test("Add a single Statement") {
+    val instance = createInstance()
+    instance.routes
+      .run(Request(method = Method.POST, uri = uri"/datasets/new"))
+      .unsafeRunSync()
+    val writeResponse = instance.routes
+      .run(
+        Request(method = Method.POST, uri = uri"/datasets/new/statements")
+          .withEntity("<a> <b> <c>")
+      )
+      .unsafeRunSync().bodyText.compile.string.unsafeRunSync()
+    assertEquals(writeResponse, "")
+    val response = instance.routes
+      .run(Request(method = Method.GET, uri = uri"/datasets/new/statements"))
+      .unsafeRunSync()
+    val res = response.bodyText.compile.string.unsafeRunSync()
+    assertEquals(res, "<a> <b> <c>\n")
 
 //     val input = List(
 //       AtomicApiStatement("1", "attribute", "2", "Entity", "stat1/"),
@@ -130,7 +160,7 @@ class LigatureHttpSuite extends FunSuite {
 //     }
 //     JsonParser.parseString(res.bodyAsString()).asJsonArray shouldBe
 //       JsonParser.parseString(expected).asJsonArray
-   }
+  }
 
 //TODO add test for adding multiple Statements
 

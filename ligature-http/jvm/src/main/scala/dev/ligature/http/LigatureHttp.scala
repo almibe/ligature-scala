@@ -17,12 +17,14 @@ import scala.concurrent.duration.*
 import org.http4s.HttpRoutes
 import org.http4s.dsl.io.*
 import dev.ligature.inmemory.InMemoryLigature
-import dev.ligature.{Dataset, Ligature, Statement}
+import dev.ligature.{Dataset, Identifier, Ligature, Statement}
+import dev.ligature.dlig.{DLigError, readDLig}
+import dev.ligature.lig.write
 
 object MainLigatureHttp extends IOApp {
   def run(args: List[String]): IO[ExitCode] = {
     if (args.length == 1 && args(0) == "--local") { // currently only supports --local mode
-      val instance = LigatureHttp()
+      val instance = LigatureHttp(InMemoryLigature()) //hard-coded InMemory version for now
       instance.startLocal()
     } else {
       IO {
@@ -36,11 +38,7 @@ object MainLigatureHttp extends IOApp {
   }
 }
 
-class LigatureHttp {
-  // NOTE: for now while developing I'm just using a hard coded in-memory instance of Ligature.
-  // Eventually I'll probably flip this dependency and each implementation of Ligature will call into Ligature-HTTP.
-  val ligature: InMemoryLigature = InMemoryLigature()
-
+class LigatureHttp(val ligature: Ligature) {
   private[http] def startLocal(): IO[ExitCode] = {
     EmberServerBuilder
       .default[IO]
@@ -71,7 +69,12 @@ class LigatureHttp {
 
   def getDatasets(): IO[Response[IO]] = {
     for {
-      out <- ligature.allDatasets().map(ds => s"\"${ds.name}\"").intersperse(",").compile.string
+      out <- ligature
+        .allDatasets()
+        .map(ds => s"\"${ds.name}\"")
+        .intersperse(",")
+        .compile
+        .string
       res <- Ok(s"[${out}]")
     } yield res
   }
@@ -107,10 +110,10 @@ class LigatureHttp {
   def getAllStatements(datasetName: String): IO[Response[IO]] = {
     Dataset.fromString(datasetName) match {
       case Right(dataset) => {
-        for {
-          list <- ligature.query(dataset).use[List[Statement]] { qx => qx.allStatements().compile.toList }
-          tempRes <- Ok("temp")
-        } yield tempRes
+        val statements: IO[String] = ligature.query(dataset).use[List[Statement]] { qx =>
+          qx.allStatements().compile.toList
+        }.map((statements: List[Statement]) => write(statements.iterator))
+        Ok(statements)
       }
       case Left(error) => {
         BadRequest(error.message)
@@ -122,19 +125,44 @@ class LigatureHttp {
       datasetName: String,
       request: Request[IO]
   ): IO[Response[IO]] = {
-    Dataset.fromString(datasetName) match {
-      case Right(dataset) => {
-        for {
-          body <- request.bodyText.compile.string
+    val idealResult: Either[IO[String], IO[Unit]] = Right(
+      ligature.write(Dataset.fromString("new").getOrElse(???)).use { tx =>
+        tx.addStatement(Statement(Identifier.fromString("a").getOrElse(???),
+          Identifier.fromString("b").getOrElse(???),
+          Identifier.fromString("c").getOrElse(???)))}.map(_ => ())
+    )
 
-          list <- ligature.query(dataset).use[List[Statement]] { qx => qx.allStatements().compile.toList }
-          tempRes <- Ok("temp")
-        } yield tempRes
-      }
-      case Left(error) => {
-        BadRequest(error.message)
-      }
+    idealResult match {
+      case Right(_) => Ok()
+      case Left(errorRes) => BadRequest(errorRes)
     }
+//    Dataset.fromString(datasetName) match {
+//      case Right(dataset) => {
+//        val bodyText: IO[String] = request.bodyText.compile.string
+//        val statements: IO[Either[DLigError, List[Statement]]] =
+//          bodyText.map(readDLig(_))
+//        val t = statements.flatMap(statements => {
+//          statements match {
+//            case Right(statementList) => Response(s"Adding ${statementList.length}")
+//            case Left(error)          => BadRequest(error.message)
+//          }
+//        })
+        // Ok("temp")
+        // statements.fla
+//        request.bodyText.fla
+//        for {
+//          bodyText <- request.bodyText
+//          statements <- readDLig(bodyText)
+//          _ <- ligature.write(dataset).use[Unit] { wx =>
+//            IO { statements.foreach(statement => wx.addStatement(statement)) }
+//          }
+//          tempRes <- Ok("temp")
+//        } yield tempRes
+//      }
+//      case Left(error) => {
+//        BadRequest(error.message)
+//      }
+//    }
   }
 
   def deleteStatements(
