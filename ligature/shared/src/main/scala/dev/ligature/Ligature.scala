@@ -54,10 +54,8 @@ final case class StringLiteral(value: String) extends Value
 final case class IntegerLiteral(value: Long) extends Value
 
 sealed trait Range
-final case class StringLiteralRange(start: String, end: String)
-    extends Range
-final case class IntegerLiteralRange(start: Long, end: Long)
-    extends Range
+final case class StringLiteralRange(start: String, end: String) extends Range
+final case class IntegerLiteralRange(start: Long, end: Long) extends Range
 
 final case class Statement(
     entity: Identifier,
@@ -106,14 +104,15 @@ trait Ligature {
   /** Initializes a QueryTx TODO should probably return its own error type
     * CouldNotInitializeQueryTx
     */
-  def query(dataset: Dataset): Resource[IO, QueryTx]
+  def query[T](dataset: Dataset, fn: QueryTx => IO[T]): IO[T]
 
-  /** Initializes a WriteTx TODO should probably return its own error type
-    * CouldNotInitializeWriteTx
+  /** Initializes a WriteTx TODO should probably return IO[Either] w/ its own
+    * error type CouldNotInitializeWriteTx
     */
-  def write(
-      dataset: Dataset
-  ): Resource[IO, WriteTx] // TODO maybe switch back to WriteResult
+  def write[T](
+      dataset: Dataset,
+      fn: WriteTx => IO[WriteResult]
+  ): IO[WriteResult]
 
   def close(): IO[Unit]
 }
