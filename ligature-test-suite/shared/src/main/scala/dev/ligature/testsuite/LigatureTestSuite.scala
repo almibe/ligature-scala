@@ -103,8 +103,7 @@ abstract class LigatureTestSuite extends CatsEffectSuite {
     val res = for {
       _ <- instance.createDataset(testDataset)
       res <- instance
-        .query(testDataset)
-        .use(tx => tx.allStatements().compile.toList)
+        .query(testDataset) { tx => tx.allStatements().compile.toList }
     } yield res
     assertIO(res, List())
   }
@@ -113,14 +112,14 @@ abstract class LigatureTestSuite extends CatsEffectSuite {
     val instance = createLigature
     val res = for {
       _ <- instance.createDataset(testDataset)
-      _ <- instance.write(testDataset).use { tx =>
+      _ <- instance.write(testDataset) { tx =>
         for {
           _ <- tx.addStatement(Statement(entity1, a, entity2))
           _ <- tx.addStatement(Statement(entity1, a, entity2)) //dupe
-          r <- tx.addStatement(Statement(entity1, a, entity3))
-        } yield r
+          _ <- tx.addStatement(Statement(entity1, a, entity3))
+        } yield IO.unit
       }
-      statements <- instance.query(testDataset).use { tx =>
+      statements <- instance.query(testDataset) { tx =>
         tx.allStatements().compile.toList
       }
     } yield statements.toSet
@@ -137,15 +136,15 @@ abstract class LigatureTestSuite extends CatsEffectSuite {
     val instance = createLigature
     val res = for {
       _ <- instance.createDataset(testDataset)
-      _ <- instance.write(testDataset).use { tx =>
+      _ <- instance.write(testDataset) { tx =>
         for {
           entity <- tx.newIdentifier("entity-")
           attribute <- tx.newIdentifier("attribute-")
           value <- tx.newIdentifier("value-")
-          ps1 <- tx.addStatement(Statement(entity, attribute, value))
-        } yield IO(())
+          _ <- tx.addStatement(Statement(entity, attribute, value))
+        } yield IO.unit
       }
-      statements <- instance.query(testDataset).use { tx =>
+      statements <- instance.query(testDataset) { tx =>
         tx.allStatements().compile.toList
       }
     } yield statements.head
@@ -163,7 +162,7 @@ abstract class LigatureTestSuite extends CatsEffectSuite {
     val instance = createLigature
     val res = for {
       _ <- instance.createDataset(testDataset)
-      ps2 <- instance.write(testDataset).use { tx =>
+      ps2 <- instance.write(testDataset) { tx =>
         for {
           _ <- tx.addStatement(Statement(entity1, a, entity2))
           _ <- tx.addStatement(Statement(entity3, a, entity2))
@@ -171,7 +170,7 @@ abstract class LigatureTestSuite extends CatsEffectSuite {
           _ <- tx.removeStatement(Statement(entity1, a, entity2))
         } yield ()
       }
-      statements <- instance.query(testDataset).use { tx =>
+      statements <- instance.query(testDataset) { tx =>
         tx.allStatements().compile.toList
       }
     } yield statements
@@ -208,7 +207,7 @@ abstract class LigatureTestSuite extends CatsEffectSuite {
     val instance = createLigature
     val res = for {
       _ <- instance.createDataset(testDataset)
-      _ <- instance.write(testDataset).use { tx =>
+      _ <- instance.write(testDataset) { tx =>
         for {
           _ <- tx.addStatement(
             Statement(entity1, a, StringLiteral("Hello"))
@@ -221,7 +220,7 @@ abstract class LigatureTestSuite extends CatsEffectSuite {
           )
         } yield ()
       }
-      res <- instance.query(testDataset).use { tx =>
+      res <- instance.query(testDataset) { tx =>
         for {
           all <- tx.matchStatements().compile.toList
           as <- tx.matchStatements(None, Some(a)).compile.toList
@@ -275,7 +274,7 @@ abstract class LigatureTestSuite extends CatsEffectSuite {
     val instance = createLigature
     val res = for {
       _ <- instance.createDataset(testDataset)
-      _ <- instance.write(testDataset).use { tx =>
+      _ <- instance.write(testDataset) { tx =>
         for {
           _ <- tx.addStatement(Statement(entity1, a, entity2))
           _ <- tx
@@ -295,7 +294,7 @@ abstract class LigatureTestSuite extends CatsEffectSuite {
           )
         } yield ()
       }
-      res <- instance.query(testDataset).use { tx =>
+      res <- instance.query(testDataset) { tx =>
         for {
           res1 <- tx
             .matchStatementsRange(None, None, StringLiteralRange("a", "dd"))

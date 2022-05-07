@@ -4,6 +4,7 @@
 
 package dev.ligature.http
 
+import cats.data.EitherT
 import cats.effect.*
 import org.http4s.*
 import org.http4s.dsl.io.*
@@ -125,6 +126,16 @@ class LigatureHttp(val ligature: Ligature) {
       datasetName: String,
       request: Request[IO]
   ): IO[Response[IO]] = {
+    val res = for {
+      ds <- EitherT(IO(Dataset.fromString(datasetName)))
+      body <- EitherT.right(request.bodyText.compile.string)
+      statements <- EitherT(IO(readDLig(body)))
+      res <- EitherT.right(ligature.write(ds).use { tx =>
+        tx.addStatement(statements.head) //TODO just adding one for now
+        IO("hello")
+      })
+    } yield ds.name + res
+
     val idealResult: Either[IO[String], IO[Unit]] = Right(
       ligature.write(Dataset.fromString("new").getOrElse(???)).use { tx =>
         tx.addStatement(Statement(Identifier.fromString("a").getOrElse(???),
