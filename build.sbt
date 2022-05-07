@@ -113,6 +113,7 @@ lazy val ligatureJS = crossProject(JSPlatform)
   .dependsOn(ligature, wander, ligatureTestSuite % Test)
   .disablePlugins(RevolverPlugin)
 
+
 val http4sVersion = "1.0.0-M32"
 
 lazy val ligatureHttp = crossProject(JVMPlatform)
@@ -127,9 +128,8 @@ lazy val ligatureHttp = crossProject(JVMPlatform)
     libraryDependencies += "com.google.code.gson" % "gson" % "2.8.6",
     libraryDependencies += "org.scalameta" %%% "munit" % "1.0.0-M3" % Test,
     testFrameworks += new TestFramework("munit.Framework"),
-    Compile / run / mainClass := Some("dev.ligature.http.MainLigatureHttp")
-  )
-  .dependsOn(ligature, lig, wander, ligatureInMemory)
+    Compile / run / mainClass := Some("dev.ligature.http.MainLigatureHttp"),
+  ).dependsOn(ligature, lig, wander, ligatureInMemory)
 
 addCommandAlias("serve", "ligature-httpJVM/run")
 

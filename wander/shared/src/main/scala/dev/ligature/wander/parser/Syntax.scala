@@ -221,8 +221,7 @@ case class FunctionCall(val name: Name, val parameters: List[Expression])
         }
       }
       case Right(nf: NativeFunction) => {
-        val functionCallBindings =
-          updateFunctionCallBindings(bindings, nf.parameters)
+        val functionCallBindings = updateFunctionCallBindings(bindings, nf.parameters)
         val res = nf.body(functionCallBindings)
         res.map(EvalResult(bindings, _))
       }
@@ -304,13 +303,13 @@ case class IfExpression(
 }
 
 case class ElseIf(val condition: Expression, val body: Expression) {
-  def eval(bindings: Bindings) = { // TODO is this needed?
+  def eval(bindings: Bindings) = { //TODO is this needed?
     ???
   }
 }
 
 case class Else(val body: Expression) {
-  def eval(bindings: Bindings) = { // TODO is this needed?
+  def eval(bindings: Bindings) = { //TODO is this needed?
     ???
   }
 }

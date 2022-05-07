@@ -24,9 +24,7 @@ import dev.ligature.lig.write
 object MainLigatureHttp extends IOApp {
   def run(args: List[String]): IO[ExitCode] = {
     if (args.length == 1 && args(0) == "--local") { // currently only supports --local mode
-      val instance = LigatureHttp(
-        InMemoryLigature()
-      ) // hard-coded InMemory version for now
+      val instance = LigatureHttp(InMemoryLigature()) //hard-coded InMemory version for now
       instance.startLocal()
     } else {
       IO {
@@ -112,12 +110,9 @@ class LigatureHttp(val ligature: Ligature) {
   def getAllStatements(datasetName: String): IO[Response[IO]] = {
     Dataset.fromString(datasetName) match {
       case Right(dataset) => {
-        val statements: IO[String] = ligature
-          .query(dataset)
-          .use[List[Statement]] { qx =>
-            qx.allStatements().compile.toList
-          }
-          .map((statements: List[Statement]) => write(statements.iterator))
+        val statements: IO[String] = ligature.query(dataset).use[List[Statement]] { qx =>
+          qx.allStatements().compile.toList
+        }.map((statements: List[Statement]) => write(statements.iterator))
         Ok(statements)
       }
       case Left(error) => {
@@ -131,22 +126,14 @@ class LigatureHttp(val ligature: Ligature) {
       request: Request[IO]
   ): IO[Response[IO]] = {
     val idealResult: Either[IO[String], IO[Unit]] = Right(
-      ligature
-        .write(Dataset.fromString("new").getOrElse(???))
-        .use { tx =>
-          tx.addStatement(
-            Statement(
-              Identifier.fromString("a").getOrElse(???),
-              Identifier.fromString("b").getOrElse(???),
-              Identifier.fromString("c").getOrElse(???)
-            )
-          )
-        }
-        .map(_ => ())
+      ligature.write(Dataset.fromString("new").getOrElse(???)).use { tx =>
+        tx.addStatement(Statement(Identifier.fromString("a").getOrElse(???),
+          Identifier.fromString("b").getOrElse(???),
+          Identifier.fromString("c").getOrElse(???)))}.map(_ => ())
     )
 
     idealResult match {
-      case Right(_)       => Ok()
+      case Right(_) => Ok()
       case Left(errorRes) => BadRequest(errorRes)
     }
 //    Dataset.fromString(datasetName) match {
@@ -160,8 +147,8 @@ class LigatureHttp(val ligature: Ligature) {
 //            case Left(error)          => BadRequest(error.message)
 //          }
 //        })
-    // Ok("temp")
-    // statements.fla
+        // Ok("temp")
+        // statements.fla
 //        request.bodyText.fla
 //        for {
 //          bodyText <- request.bodyText
