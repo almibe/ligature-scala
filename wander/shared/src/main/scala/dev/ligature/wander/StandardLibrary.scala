@@ -29,64 +29,77 @@ def createStandardBindings(scope: ExecutionMode): Bindings =
 def common(): Bindings = {
   var stdLib = Bindings()
 
-  stdLib = stdLib.bindVariable(
-    Name("log"),
-    NativeFunction(
-      List(Parameter(Name("message"))),
-      (binding: Bindings) => {
-        ???
-      }
-    )
-  ).getOrElse(???)
-
-  stdLib = stdLib.bindVariable(
-    Name("not"),
-    NativeFunction(
-      List(Parameter(Name("bool"))),
-      (bindings: Bindings) => {
-        bindings.read(Name("bool")) match {
-          case Right(b: BooleanValue) => Right(BooleanValue(!b.value))
-          case _ => Left(ScriptError(s"not requires a Boolean, received ${bindings.read(Name("bool"))}"))
+  stdLib = stdLib
+    .bindVariable(
+      Name("log"),
+      NativeFunction(
+        List(Parameter(Name("message"))),
+        (binding: Bindings) => {
+          ???
         }
-      }
+      )
     )
-  ).getOrElse(???)
+    .getOrElse(???)
 
-  stdLib = stdLib.bindVariable(
-    Name("and"),
-    NativeFunction(
-      List(Parameter(Name("boolLeft")), Parameter(Name("boolRight"))),
-      (bindings: Bindings) => {
-        for {
-          left <- bindings.read(Name("boolLeft"))
-          right <- bindings.read(Name("boolRight"))
-          res <- (left, right) match {
-            case (l: BooleanValue, r: BooleanValue) =>
-              Right(BooleanValue(l.value && r.value))
-            case _ => Left(ScriptError("and requires two booleans"))
+  stdLib = stdLib
+    .bindVariable(
+      Name("not"),
+      NativeFunction(
+        List(Parameter(Name("bool"))),
+        (bindings: Bindings) => {
+          bindings.read(Name("bool")) match {
+            case Right(b: BooleanValue) => Right(BooleanValue(!b.value))
+            case _ =>
+              Left(
+                ScriptError(
+                  s"not requires a Boolean, received ${bindings.read(Name("bool"))}"
+                )
+              )
           }
-        } yield res
-      }
+        }
+      )
     )
-  ).getOrElse(???)
+    .getOrElse(???)
 
-  stdLib = stdLib.bindVariable(
-    Name("or"),
-    NativeFunction(
-      List(Parameter(Name("boolLeft")), Parameter(Name("boolRight"))),
-      (bindings: Bindings) => {
-        for {
-          left <- bindings.read(Name("boolLeft"))
-          right <- bindings.read(Name("boolRight"))
-          res <- (left, right) match {
-            case (l: BooleanValue, r: BooleanValue) =>
-              Right(BooleanValue(l.value || r.value))
-            case _ => Left(ScriptError("or requires two booleans"))
-          }
-        } yield res
-      }
+  stdLib = stdLib
+    .bindVariable(
+      Name("and"),
+      NativeFunction(
+        List(Parameter(Name("boolLeft")), Parameter(Name("boolRight"))),
+        (bindings: Bindings) => {
+          for {
+            left <- bindings.read(Name("boolLeft"))
+            right <- bindings.read(Name("boolRight"))
+            res <- (left, right) match {
+              case (l: BooleanValue, r: BooleanValue) =>
+                Right(BooleanValue(l.value && r.value))
+              case _ => Left(ScriptError("and requires two booleans"))
+            }
+          } yield res
+        }
+      )
     )
-  ).getOrElse(???)
+    .getOrElse(???)
+
+  stdLib = stdLib
+    .bindVariable(
+      Name("or"),
+      NativeFunction(
+        List(Parameter(Name("boolLeft")), Parameter(Name("boolRight"))),
+        (bindings: Bindings) => {
+          for {
+            left <- bindings.read(Name("boolLeft"))
+            right <- bindings.read(Name("boolRight"))
+            res <- (left, right) match {
+              case (l: BooleanValue, r: BooleanValue) =>
+                Right(BooleanValue(l.value || r.value))
+              case _ => Left(ScriptError("or requires two booleans"))
+            }
+          } yield res
+        }
+      )
+    )
+    .getOrElse(???)
 
   // class RangeResultStream implements ResultStream<bigint> {
   //     readonly start: bigint

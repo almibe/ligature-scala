@@ -25,7 +25,9 @@ import dev.ligature.lig.write
 object MainLigatureHttp extends IOApp {
   def run(args: List[String]): IO[ExitCode] = {
     if (args.length == 1 && args(0) == "--local") { // currently only supports --local mode
-      val instance = LigatureHttp(InMemoryLigature()) //hard-coded InMemory version for now
+      val instance = LigatureHttp(
+        InMemoryLigature()
+      ) // hard-coded InMemory version for now
       instance.startLocal()
     } else {
       IO {
@@ -111,9 +113,11 @@ class LigatureHttp(val ligature: Ligature) {
   def getAllStatements(datasetName: String): IO[Response[IO]] = {
     Dataset.fromString(datasetName) match {
       case Right(dataset) => {
-        val statements: IO[String] = ligature.query(dataset) { qx =>
-          qx.allStatements().compile.toList
-        }.map((statements: List[Statement]) => write(statements.iterator))
+        val statements: IO[String] = ligature
+          .query(dataset) { qx =>
+            qx.allStatements().compile.toList
+          }
+          .map((statements: List[Statement]) => write(statements.iterator))
         Ok(statements)
       }
       case Left(error) => {
@@ -131,11 +135,15 @@ class LigatureHttp(val ligature: Ligature) {
         val body: IO[String] = request.bodyText.compile.string
         body.map(readDLig).flatMap {
           case Right(statements) => {
-            ligature.write(dataset) { tx =>
-              statements.map(statement => tx.addStatement(statement)).sequence_
-            }.flatMap { _ =>
-              Ok()
-            }
+            ligature
+              .write(dataset) { tx =>
+                statements
+                  .map(statement => tx.addStatement(statement))
+                  .sequence_
+              }
+              .flatMap { _ =>
+                Ok()
+              }
           }
           case Left(err) => BadRequest(err.message)
         }
