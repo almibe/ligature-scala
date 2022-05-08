@@ -105,7 +105,8 @@ trait Ligature {
   /** Initializes a WriteTx TODO should probably return IO[Either] w/ its own
     * error type CouldNotInitializeWriteTx
     */
-  def write(dataset: Dataset)(fn: WriteTx => IO[Unit]): IO[Unit]
+  def write(dataset: Dataset)
+           (fn: WriteTx => IO[Unit]): IO[Unit]
 
   def close(): IO[Unit]
 }
