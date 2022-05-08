@@ -4,25 +4,20 @@
 
 package dev.ligature.http
 
-import dev.ligature.Dataset
-
+import dev.ligature.{Dataset, Statement}
+import dev.ligature.dlig.readDLig
 import cats.effect.IO
 import cats.effect.unsafe.implicits.global
-
 import fs2.Stream
-
 import com.google.gson.*
 import com.google.gson.annotations.SerializedName
 import dev.ligature.inmemory.InMemoryLigature
-import munit._
-
-import org.http4s._
-import org.http4s.client.dsl.io._
-import org.http4s.dsl.io._
-import org.http4s.syntax.all._
+import munit.*
+import org.http4s.*
+import org.http4s.client.dsl.io.*
+import org.http4s.dsl.io.*
+import org.http4s.syntax.all.*
 import dev.ligature.inmemory.InMemoryLigature
-
-import munit.Clue.generate
 
 class LigatureHttpSuite extends FunSuite {
   def createInstance() = LigatureHttp(InMemoryLigature()) //hard-coded for now
@@ -132,122 +127,35 @@ class LigatureHttpSuite extends FunSuite {
       .unsafeRunSync()
     val res = response.bodyText.compile.string.unsafeRunSync()
     assertEquals(res, "<a> <b> <c>\n")
-
-//     val input = List(
-//       AtomicApiStatement("1", "attribute", "2", "Entity", "stat1/"),
-//       AtomicApiStatement("3", "attribute", "1", "Entity", "stat2/"),
-//       AtomicApiStatement("4", "attribute2", "Hello", "StringLiteral", "stat3/"),
-//       AtomicApiStatement("5", "attribute3", "3453", "IntegerLiteral", "stat4/"),
-//       AtomicApiStatement("1", "attribute4", "4.2", "FloatLiteral", "stat5/")
-//     )
-//
-//     awaitResult < HttpResponse < Buffer >> {
-//       h -> // create Dataset
-//         client.post(port, local, "/testDataset").send(h)
-//     }
-//     input.forEach {
-//       statement ->
-//       val res = awaitResult < HttpResponse < Buffer >> {
-//         h -> // add Statement
-//           client
-//             .post(port, local, "/testDataset")
-//             .sendBuffer(Buffer.buffer(gson.toJson(statement)), h)
-//       }
-//     }
-//     val res = awaitResult < HttpResponse < Buffer >> {
-//       h -> // get all Statements
-//         client.get(port, local, "/testDataset").send(h)
-//     }
-//     JsonParser.parseString(res.bodyAsString()).asJsonArray shouldBe
-//       JsonParser.parseString(expected).asJsonArray
   }
 
-//TODO add test for adding multiple Statements
+  test("Add multiple Statements") {
+    val instance = createInstance()
+    val statements =
+      """
+        |<1> <attribute> <2>
+        |<3> <attribute> <1>
+        |<4> <attribute2> "Hello"
+        |<5> <attribute3> 3453
+        |<1> <attribute3> <1>
+        |""".stripMargin
+    instance.routes
+      .run(Request(method = Method.POST, uri = uri"/datasets/new"))
+      .unsafeRunSync()
+    val writeResponse = instance.routes
+      .run(
+        Request(method = Method.POST, uri = uri"/datasets/new/statements")
+          .withEntity(statements)
+      )
+      .unsafeRunSync().bodyText.compile.string.unsafeRunSync()
+    assertEquals(writeResponse, "")
+    val response = instance.routes
+      .run(Request(method = Method.GET, uri = uri"/datasets/new/statements"))
+      .unsafeRunSync()
+    val res = response.bodyText.compile.string.unsafeRunSync()
 
-  // //     test("Match Statements") {
-  // //         val input = listOf(
-  // //             AtomicApiStatement(null, "attribute", null, "Entity"),
-  // //             AtomicApiStatement(null, "attribute", "1", "Entity"),
-  // //             AtomicApiStatement(null, "attribute2", "Hello", "StringLiteral"),
-  // //             AtomicApiStatement(null, "attribute3", "3453", "IntegerLiteral"),
-  // //             AtomicApiStatement("1", "attribute4", "4.2", "FloatLiteral"),
-  // //         )
-
-  // //         val expected1 = gson.toJson(listOf(
-  // //             AtomicApiPersistedStatement("1", "attribute", "2", "Entity", "3"),
-  // //             AtomicApiPersistedStatement("1", "attribute4", "4.2", "FloatLiteral", "10"),
-  // //         ))
-  // //         val expected2 = gson.toJson(listOf(
-  // //             AtomicApiPersistedStatement("1", "attribute", "2", "Entity", "3"),
-  // //             AtomicApiPersistedStatement("4", "attribute", "1", "Entity", "5"),
-  // //         ))
-  // //         val expected3 = gson.toJson(listOf(
-  // //             AtomicApiPersistedStatement("8", "attribute3", "3453", "IntegerLiteral", "9"),
-  // //         ))
-
-  // //         awaitResult<HttpResponse<Buffer>> { h -> //create Dataset
-  // //             client.post(port, local, "/testDataset").send(h)
-  // //         }
-  // //         input.forEach { statement ->
-  // //             awaitResult<HttpResponse<Buffer>> { h -> //add Statement
-  // //                 client.post(port, local, "/testDataset").sendBuffer(Buffer.buffer(gson.toJson(statement)), h)
-  // //             }
-  // //         }
-
-  // //         val res1 = awaitResult<HttpResponse<Buffer>> { h -> //get all Statements
-  // //             client.get(port, local, "/testDataset?entity=1").send(h)
-  // //         }
-  // //         val res2 = awaitResult<HttpResponse<Buffer>> { h -> //get all Statements
-  // //             client.get(port, local, "/testDataset?attribute=attribute").send(h)
-  // //         }
-  // //         val res3 = awaitResult<HttpResponse<Buffer>> { h -> //get all Statements
-  // //             client.get(port, local, "/testDataset?entity=8&value=3453&value-type=IntegerLiteral&context=9").send(h)
-  // //         }
-  // //         JsonParser.parseString(res1.bodyAsString()).asJsonArray shouldBe
-  // //                 JsonParser.parseString(expected1).asJsonArray
-  // //         JsonParser.parseString(res2.bodyAsString()).asJsonArray shouldBe
-  // //                 JsonParser.parseString(expected2).asJsonArray
-  // //         JsonParser.parseString(res3.bodyAsString()).asJsonArray shouldBe
-  // //                 JsonParser.parseString(expected3).asJsonArray
-  // //     }
-
-  // //     test("Match Statements with ranges") {
-  // //         val input = listOf(
-  // //             AtomicApiStatement(null, "attribute", "1", "IntegerLiteral"),
-  // //             AtomicApiStatement(null, "attribute", "2", "IntegerLiteral"),
-  // //             AtomicApiStatement(null, "attribute", "3", "IntegerLiteral"),
-  // //             AtomicApiStatement(null, "attribute", "4.2", "FloatLiteral"),
-  // //             AtomicApiStatement(null, "attribute", "4.3", "FloatLiteral"),
-  // //         )
-
-  // //         val expected1 = gson.toJson(listOf(
-  // //             AtomicApiPersistedStatement("1", "attribute", "1", "IntegerLiteral", "2"),
-  // //             AtomicApiPersistedStatement("3", "attribute", "2", "IntegerLiteral", "4"),
-  // //         ))
-  // //         val expected2 = gson.toJson(listOf(
-  // //             AtomicApiPersistedStatement("7", "attribute", "4.2", "FloatLiteral", "8"),
-  // //         ))
-
-  // //         awaitResult<HttpResponse<Buffer>> { h -> //create Dataset
-  // //             client.post(port, local, "/testDataset").send(h)
-  // //         }
-  // //         input.forEach { statement ->
-  // //             awaitResult<HttpResponse<Buffer>> { h -> //add Statement
-  // //                 client.post(port, local, "/testDataset").sendBuffer(Buffer.buffer(gson.toJson(statement)), h)
-  // //             }
-  // //         }
-
-  // //         val res1 = awaitResult<HttpResponse<Buffer>> { h -> //get all Statements
-  // //             client.get(port, local, "/testDataset?value-start=1&value-end=3&value-type=IntegerLiteral").send(h)
-  // //         }
-  // //         val res2 = awaitResult<HttpResponse<Buffer>> { h -> //get all Statements
-  // //             client.get(port, local, "/testDataset?value-start=4.1&value-end=4.3&value-type=FloatLiteral").send(h)
-  // //         }
-  // //        JsonParser.parseString(res1.bodyAsString()).asJsonArray shouldBe
-  // //                 JsonParser.parseString(expected1).asJsonArray
-  // //         JsonParser.parseString(res2.bodyAsString()).asJsonArray shouldBe
-  // //                 JsonParser.parseString(expected2).asJsonArray
-  // //     }
+    assertEquals(dligToSet(res), dligToSet(statements))
+  }
 
   // //     test("Delete Statements") {
   // //         val input = listOf(
@@ -293,4 +201,8 @@ class LigatureHttpSuite extends FunSuite {
   // //                 JsonParser.parseString(expected).asJsonArray
   // //     }
   // // }
+}
+
+def dligToSet(input: String): Set[Statement] = {
+  readDLig(input).getOrElse(???).toSet
 }
