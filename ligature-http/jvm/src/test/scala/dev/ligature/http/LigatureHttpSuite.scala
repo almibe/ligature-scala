@@ -4,25 +4,20 @@
 
 package dev.ligature.http
 
-import dev.ligature.Dataset
-
+import dev.ligature.{Dataset, Statement}
+import dev.ligature.dlig.readDLig
 import cats.effect.IO
 import cats.effect.unsafe.implicits.global
-
 import fs2.Stream
-
 import com.google.gson.*
 import com.google.gson.annotations.SerializedName
 import dev.ligature.inmemory.InMemoryLigature
-import munit._
-
-import org.http4s._
-import org.http4s.client.dsl.io._
-import org.http4s.dsl.io._
-import org.http4s.syntax.all._
+import munit.*
+import org.http4s.*
+import org.http4s.client.dsl.io.*
+import org.http4s.dsl.io.*
+import org.http4s.syntax.all.*
 import dev.ligature.inmemory.InMemoryLigature
-
-import munit.Clue.generate
 
 class LigatureHttpSuite extends FunSuite {
   def createInstance() = LigatureHttp(InMemoryLigature()) //hard-coded for now
@@ -132,37 +127,35 @@ class LigatureHttpSuite extends FunSuite {
       .unsafeRunSync()
     val res = response.bodyText.compile.string.unsafeRunSync()
     assertEquals(res, "<a> <b> <c>\n")
-
-//     val input = List(
-//       AtomicApiStatement("1", "attribute", "2", "Entity", "stat1/"),
-//       AtomicApiStatement("3", "attribute", "1", "Entity", "stat2/"),
-//       AtomicApiStatement("4", "attribute2", "Hello", "StringLiteral", "stat3/"),
-//       AtomicApiStatement("5", "attribute3", "3453", "IntegerLiteral", "stat4/"),
-//       AtomicApiStatement("1", "attribute4", "4.2", "FloatLiteral", "stat5/")
-//     )
-//
-//     awaitResult < HttpResponse < Buffer >> {
-//       h -> // create Dataset
-//         client.post(port, local, "/testDataset").send(h)
-//     }
-//     input.forEach {
-//       statement ->
-//       val res = awaitResult < HttpResponse < Buffer >> {
-//         h -> // add Statement
-//           client
-//             .post(port, local, "/testDataset")
-//             .sendBuffer(Buffer.buffer(gson.toJson(statement)), h)
-//       }
-//     }
-//     val res = awaitResult < HttpResponse < Buffer >> {
-//       h -> // get all Statements
-//         client.get(port, local, "/testDataset").send(h)
-//     }
-//     JsonParser.parseString(res.bodyAsString()).asJsonArray shouldBe
-//       JsonParser.parseString(expected).asJsonArray
   }
 
-//TODO add test for adding multiple Statements
+  test("Add multiple Statements") {
+    val instance = createInstance()
+    val statements =
+      """
+        |<1> <attribute> <2>
+        |<3> <attribute> <1>
+        |<4> <attribute2> "Hello"
+        |<5> <attribute3> 3453
+        |<1> <attribute3> <1>
+        |""".stripMargin
+    instance.routes
+      .run(Request(method = Method.POST, uri = uri"/datasets/new"))
+      .unsafeRunSync()
+    val writeResponse = instance.routes
+      .run(
+        Request(method = Method.POST, uri = uri"/datasets/new/statements")
+          .withEntity(statements)
+      )
+      .unsafeRunSync().bodyText.compile.string.unsafeRunSync()
+    assertEquals(writeResponse, "")
+    val response = instance.routes
+      .run(Request(method = Method.GET, uri = uri"/datasets/new/statements"))
+      .unsafeRunSync()
+    val res = response.bodyText.compile.string.unsafeRunSync()
+
+    assertEquals(dligToSet(res), dligToSet(statements))
+  }
 
   // //     test("Match Statements") {
   // //         val input = listOf(
@@ -293,4 +286,8 @@ class LigatureHttpSuite extends FunSuite {
   // //                 JsonParser.parseString(expected).asJsonArray
   // //     }
   // // }
+}
+
+def dligToSet(input: String): Set[Statement] = {
+  readDLig(input).getOrElse(???).toSet
 }
