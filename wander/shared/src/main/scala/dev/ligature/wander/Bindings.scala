@@ -9,11 +9,11 @@ import dev.ligature.wander.parser.FunctionDefinition
 import dev.ligature.wander.parser.NativeFunction
 
 case class Scope(
-    val variables: Map[Name, WanderValue],
-    val functions: Map[Name, List[FunctionDefinition]]
+    variables: Map[Name, WanderValue],
+    functions: Map[Name, List[FunctionDefinition]]
 )
 
-case class Bindings(val scopes: List[Scope] = List(Scope(Map(), Map()))) {
+case class Bindings(scopes: List[Scope] = List(Scope(Map(), Map()))) {
   def newScope(): Bindings = {
     Bindings(this.scopes.appended(Scope(Map(), Map())))
   }
@@ -77,13 +77,13 @@ case class Bindings(val scopes: List[Scope] = List(Scope(Map(), Map()))) {
   ): Boolean = {
     val currentScope = this.scopes.last
     if (currentScope.functions.contains(name)) {
-      val functions = currentScope.functions.get(name).get
+      val functions = currentScope.functions(name)
       val dupe = functions.find { f =>
         functionDefinition.parameters == f.parameters
       }
       dupe.isDefined
     } else {
-      return false
+      false
     }
   }
 

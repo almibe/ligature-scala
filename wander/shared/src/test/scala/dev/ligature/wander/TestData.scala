@@ -5,39 +5,22 @@
 package dev.ligature.wander
 
 import dev.ligature.wander.lexer.Token
-import dev.ligature.wander.parser.{
-  Name,
-  Nothing,
-  Scope,
-  Script,
-  BooleanValue,
-  LetStatement,
-  FunctionCall,
-  IfExpression,
-  ElseIf,
-  Else,
-  WanderFunction,
-  LigatureValue,
-  Parameter,
-  ScriptResult,
-  ScriptError,
-  WanderValue
-}
+import dev.ligature.wander.parser.{BooleanValue, Else, ElseIf, FunctionCall, IfExpression, LetStatement, LigatureValue, Name, Nothing, Parameter, Scope, Script, ScriptError, ScriptResult, WanderFunction, WanderValue}
 import dev.ligature.wander.lexer.TokenType
-import dev.ligature.{Identifier, IntegerLiteral, StringLiteral}
+import dev.ligature.{Dataset, Identifier, IntegerLiteral, StringLiteral}
 
 case class TestData(
-    val category: String,
-    val executionMode: ExecutionMode,
-    val testInstances: List[TestInstance]
+    category: String,
+    dataset: Dataset,
+    testInstances: List[TestInstance]
 )
 
 case class TestInstance(
-    val description: String,
-    val script: String,
-    val tokens: List[Token],
-    val ast: Script,
-    val result: Either[ScriptError, ScriptResult]
+    description: String,
+    script: String,
+    tokens: List[Token],
+    ast: Script,
+    result: Either[ScriptError, ScriptResult]
 )
 
 val primitivesTestData = List(
@@ -679,27 +662,27 @@ val errorsExpression = List()
 val testData = List(
   TestData(
     category = "Primitives",
-    executionMode = ExecutionMode.StandAloneMode,
+    dataset = Dataset.fromString("test").getOrElse(???),
     testInstances = primitivesTestData
   ),
   TestData(
     category = "Assignment",
-    executionMode = ExecutionMode.StandAloneMode,
+    dataset = Dataset.fromString("test").getOrElse(???),
     testInstances = assignmentTestData
   ),
   TestData(
     category = "Functions",
-    executionMode = ExecutionMode.StandAloneMode,
+    dataset = Dataset.fromString("test").getOrElse(???),
     testInstances = functionTestData
   ),
   TestData(
     category = "Boolean Functions",
-    executionMode = ExecutionMode.StandAloneMode,
+    dataset = Dataset.fromString("test").getOrElse(???),
     testInstances = booleanExpression
   ),
   TestData(
     category = "If Expressions",
-    executionMode = ExecutionMode.StandAloneMode,
+    dataset = Dataset.fromString("test").getOrElse(???),
     testInstances = ifExpression
   )
   // TODO add error cases

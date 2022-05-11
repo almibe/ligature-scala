@@ -9,9 +9,16 @@ import dev.ligature.wander.lexer.tokenize
 import munit.FunSuite
 
 class WanderSuite extends FunSuite {
+  val testLexer = true
+  val testParser = false
+  val testInterpreter = false
+  val testOnly: Set[String] = Set() //if set is empty all tests will run
+  def runTest(description: String): Boolean =
+    testOnly.isEmpty || testOnly.contains(description)
+
   testData.foreach { testGroup =>
     testGroup.testInstances.foreach { instance =>
-      if (instance.tokens != null) {
+      if (testLexer && instance.tokens != null && runTest(instance.description)) {
         test(s"Lexing -- ${testGroup.category} -- ${instance.description}") {
           val tokens = tokenize(instance.script)
           assertEquals(
@@ -22,7 +29,7 @@ class WanderSuite extends FunSuite {
         }
       }
 
-      if (instance.ast != null) {
+      if (testParser && instance.ast != null && runTest(instance.description)) {
         test(s"Parsing -- ${testGroup.category} -- ${instance.description}") {
           val tokens = tokenize(instance.script)
           tokens match {
@@ -39,15 +46,17 @@ class WanderSuite extends FunSuite {
         }
       }
 
-      test(
-        s"Interpreting -- ${testGroup.category} -- ${instance.description}"
-      ) {
-        val result = run(instance.script, testGroup.executionMode)
-        assertEquals(
-          result,
-          instance.result,
-          s"results are not the same for ${instance.description}"
-        )
+      if (testInterpreter && runTest(instance.description)) {
+        test(
+          s"Interpreting -- ${testGroup.category} -- ${instance.description}"
+        ) {
+          val result = run(instance.script, testGroup.dataset)
+          assertEquals(
+            result,
+            instance.result,
+            s"results are not the same for ${instance.description}"
+          )
+        }
       }
     }
   }

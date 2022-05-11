@@ -4,6 +4,7 @@
 
 package dev.ligature.http
 
+import cats.data.EitherT
 import cats.effect.*
 import org.http4s.*
 import org.http4s.dsl.io.*
@@ -17,14 +18,17 @@ import scala.concurrent.duration.*
 import org.http4s.HttpRoutes
 import org.http4s.dsl.io.*
 import dev.ligature.inmemory.InMemoryLigature
-import dev.ligature.{Dataset, Identifier, Ligature, Statement}
+import dev.ligature.{Dataset, Identifier, Ligature, LigatureError, Statement}
 import dev.ligature.dlig.{DLigError, readDLig}
 import dev.ligature.lig.write
+import dev.ligature.wander.run
 
 object MainLigatureHttp extends IOApp {
   def run(args: List[String]): IO[ExitCode] = {
     if (args.length == 1 && args(0) == "--local") { // currently only supports --local mode
-      val instance = LigatureHttp(InMemoryLigature()) //hard-coded InMemory version for now
+      val instance = LigatureHttp(
+        InMemoryLigature()
+      ) // hard-coded InMemory version for now
       instance.startLocal()
     } else {
       IO {
@@ -110,9 +114,11 @@ class LigatureHttp(val ligature: Ligature) {
   def getAllStatements(datasetName: String): IO[Response[IO]] = {
     Dataset.fromString(datasetName) match {
       case Right(dataset) => {
-        val statements: IO[String] = ligature.query(dataset).use[List[Statement]] { qx =>
-          qx.allStatements().compile.toList
-        }.map((statements: List[Statement]) => write(statements.iterator))
+        val statements: IO[String] = ligature
+          .query(dataset) { qx =>
+            qx.allStatements().compile.toList
+          }
+          .map((statements: List[Statement]) => write(statements.iterator))
         Ok(statements)
       }
       case Left(error) => {
@@ -125,57 +131,75 @@ class LigatureHttp(val ligature: Ligature) {
       datasetName: String,
       request: Request[IO]
   ): IO[Response[IO]] = {
-    val idealResult: Either[IO[String], IO[Unit]] = Right(
-      ligature.write(Dataset.fromString("new").getOrElse(???)).use { tx =>
-        tx.addStatement(Statement(Identifier.fromString("a").getOrElse(???),
-          Identifier.fromString("b").getOrElse(???),
-          Identifier.fromString("c").getOrElse(???)))}.map(_ => ())
-    )
-
-    idealResult match {
-      case Right(_) => Ok()
-      case Left(errorRes) => BadRequest(errorRes)
+    Dataset.fromString(datasetName) match {
+      case Right(dataset) => {
+        val body: IO[String] = request.bodyText.compile.string
+        body.map(readDLig).flatMap {
+          case Right(statements) => {
+            ligature
+              .write(dataset) { tx =>
+                statements
+                  .map(statement => tx.addStatement(statement))
+                  .sequence_
+              }
+              .flatMap { _ =>
+                Ok()
+              }
+          }
+          case Left(err) => BadRequest(err.message)
+        }
+      }
+      case Left(err) => {
+        BadRequest(err.message)
+      }
     }
-//    Dataset.fromString(datasetName) match {
-//      case Right(dataset) => {
-//        val bodyText: IO[String] = request.bodyText.compile.string
-//        val statements: IO[Either[DLigError, List[Statement]]] =
-//          bodyText.map(readDLig(_))
-//        val t = statements.flatMap(statements => {
-//          statements match {
-//            case Right(statementList) => Response(s"Adding ${statementList.length}")
-//            case Left(error)          => BadRequest(error.message)
-//          }
-//        })
-        // Ok("temp")
-        // statements.fla
-//        request.bodyText.fla
-//        for {
-//          bodyText <- request.bodyText
-//          statements <- readDLig(bodyText)
-//          _ <- ligature.write(dataset).use[Unit] { wx =>
-//            IO { statements.foreach(statement => wx.addStatement(statement)) }
-//          }
-//          tempRes <- Ok("temp")
-//        } yield tempRes
-//      }
-//      case Left(error) => {
-//        BadRequest(error.message)
-//      }
-//    }
   }
 
   def deleteStatements(
       datasetName: String,
       request: Request[IO]
   ): IO[Response[IO]] = {
-    ???
+    Dataset.fromString(datasetName) match {
+      case Right(dataset) => {
+        val body: IO[String] = request.bodyText.compile.string
+        body.map(readDLig).flatMap {
+          case Right(statements) => {
+            ligature
+              .write(dataset) { tx =>
+                statements
+                  .map(statement => tx.removeStatement(statement))
+                  .sequence_
+              }
+              .flatMap { _ =>
+                Ok()
+              }
+          }
+          case Left(err) => BadRequest(err.message)
+        }
+      }
+      case Left(err) => {
+        BadRequest(err.message)
+      }
+    }
   }
 
   def runWanderQuery(
       datasetName: String,
       request: Request[IO]
   ): IO[Response[IO]] = {
-    ???
+    Dataset.fromString(datasetName) match {
+      case Right(dataset) => {
+        val body: IO[String] = request.bodyText.compile.string
+        body.map(script => run(script, dataset)).flatMap {
+          case Right(result) => {
+            Ok(result.toString)
+          }
+          case Left(err) => BadRequest(err.message)
+        }
+      }
+      case Left(err) => {
+        BadRequest(err.message)
+      }
+    }
   }
 }
