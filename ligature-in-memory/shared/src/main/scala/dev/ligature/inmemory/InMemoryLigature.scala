@@ -119,13 +119,11 @@ final class InMemoryLigature extends Ligature {
     IO {
       val ds = this.store.get.get(dataset)
       ds match {
-        case Some(ds) => {
+        case Some(ds) =>
           val tx = InMemoryQueryTx(ds)
           tx
-        }
-        case None => {
+        case None =>
           throw RuntimeException("")
-        }
       }
     }.bracket(tx => fn(tx))(_ => IO.unit)
 
@@ -136,19 +134,17 @@ final class InMemoryLigature extends Ligature {
     IO {
       val ds = this.store.get.get(dataset)
       ds match {
-        case Some(ds) => {
+        case Some(ds) =>
           val tx = InMemoryWriteTx(ds)
           tx
-        }
-        case None => {
+        case None =>
           throw RuntimeException(
             ""
           ) // WriteResult.WriteError(s"Could not write to ${dataset.name}"))
-        }
       }
     }.bracket(tx => fn(tx))(tx =>
       IO {
-        val newStore = this.store.get.updated(dataset, tx.newDatasetStore())
+        val newStore = this.store.get.updated(dataset, tx.modifiedDatasetStore())
         this.store.set(newStore)
         ()
       }
@@ -175,6 +171,6 @@ final class InMemoryLigature extends Ligature {
   // }
 
   def close(): IO[Unit] = {
-    ???
+    IO.unit
   }
 }

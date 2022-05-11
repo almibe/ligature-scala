@@ -64,5 +64,5 @@ class InMemoryWriteTx(private val store: DatasetStore) extends WriteTx {
   /** Returns the DatasetStore that has been modified by this WriteTx. Used in
     * the release method of the Resource[IO, WriteTx].
     */
-  private[inmemory] def newDatasetStore(): DatasetStore = newDatasetStore
+  private[inmemory] def modifiedDatasetStore(): DatasetStore = newDatasetStore
 }
