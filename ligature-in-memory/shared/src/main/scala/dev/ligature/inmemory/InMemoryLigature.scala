@@ -14,11 +14,10 @@ import dev.ligature.{
   Value,
   WriteTx
 }
-import cats.effect.{IO}
+import cats.effect.IO
 import fs2.Stream
 import scala.collection.immutable.TreeMap
 
-import dev.ligature.WriteResult
 import cats.effect.kernel.Resource
 import cats.effect.kernel.Ref
 import java.util.concurrent.atomic.AtomicReference
@@ -116,42 +115,44 @@ final class InMemoryLigature extends Ligature {
   /** Initializes a QueryTx TODO should probably return its own error type
     * CouldNotInitializeQueryTx
     */
-  def query(dataset: Dataset): Resource[IO, QueryTx] = Resource.make(IO {
-    val ds = this.store.get.get(dataset)
-    ds match {
-      case Some(ds) => {
-        val tx = InMemoryQueryTx(ds)
-        tx
+  def query[T](dataset: Dataset)(fn: QueryTx => IO[T]): IO[T] =
+    IO {
+      val ds = this.store.get.get(dataset)
+      ds match {
+        case Some(ds) => {
+          val tx = InMemoryQueryTx(ds)
+          tx
+        }
+        case None => {
+          throw RuntimeException("")
+        }
       }
-      case None => {
-        throw RuntimeException("")
-      }
-    }
-  })(tx => IO.unit)
+    }.bracket(tx => fn(tx))(_ => IO.unit)
 
   /** Initializes a WriteTx TODO should probably return its own error type
     * CouldNotInitializeWriteTx
     */
-  def write(dataset: Dataset): Resource[IO, WriteTx] = Resource.make(IO {
-    val ds = this.store.get.get(dataset)
-    ds match {
-      case Some(ds) => {
-        val tx = InMemoryWriteTx(ds)
-        tx
-      }
-      case None => {
-        throw RuntimeException(
-          ""
-        ) // WriteResult.WriteError(s"Could not write to ${dataset.name}"))
-      }
-    }
-  })(tx =>
+  def write(dataset: Dataset)(fn: WriteTx => IO[Unit]): IO[Unit] =
     IO {
-      val newStore = this.store.get.updated(dataset, tx.newDatasetStore())
-      this.store.set(newStore)
-      ()
-    }
-  )
+      val ds = this.store.get.get(dataset)
+      ds match {
+        case Some(ds) => {
+          val tx = InMemoryWriteTx(ds)
+          tx
+        }
+        case None => {
+          throw RuntimeException(
+            ""
+          ) // WriteResult.WriteError(s"Could not write to ${dataset.name}"))
+        }
+      }
+    }.bracket(tx => fn(tx))(tx =>
+      IO {
+        val newStore = this.store.get.updated(dataset, tx.newDatasetStore())
+        this.store.set(newStore)
+        ()
+      }
+    )
 
   // def write(dataset: Dataset): Resource[IO, WriteTx] = { //TODO acquire write lock
   //     val l = lock.writeLock()

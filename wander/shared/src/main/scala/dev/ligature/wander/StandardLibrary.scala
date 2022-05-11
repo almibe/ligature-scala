@@ -13,18 +13,12 @@ import dev.ligature.wander.parser.{
   ScriptError,
   WanderValue
 }
-import dev.ligature.wander.ExecutionMode.*
-import dev.ligature.Ligature
+import dev.ligature.{Ligature, Dataset}
 
-def createStandardBindings(scope: ExecutionMode): Bindings =
+def createStandardBindings(dataset: Dataset): Bindings = {
   val bindings = common()
-  scope match {
-    case StandAloneMode  => bindings
-    case _: InstanceMode => instanceModeBindings(bindings)
-    case _: DatasetMode  => datasetModeBindings(bindings)
-    case _: ReadMode     => readModeBindings(bindings)
-    case _: WriteMode    => writeModeBindings(bindings)
-  }
+  datasetModeBindings(bindings, dataset)
+}
 
 def common(): Bindings = {
   var stdLib = Bindings()
@@ -119,59 +113,51 @@ def common(): Bindings = {
   // //     return RangeResultStream(start, stop)
   // // }))
 
-  return stdLib;
+  stdLib
 }
 
-def instanceModeBindings(bindings: Bindings): Bindings = {
-// function instanceScope(scope: ExecutionScope, bindings: Bindings) {
-//     // allDatasets(): Promise<Array<Dataset>>;
-//     bindings.bind(Name("allDatasets"), NativeFunction([], (_bindings: Bindings) => {
-//         return TODO()
-//     }))
-//     // datasetExists(dataset: Dataset): Promise<boolean>;
-//     bindings.bind(Name("datasetExists"), NativeFunction(["dataset"], (_bindings: Bindings) => {
-//         return TODO()
-//     }))
-//     // matchDatasetPrefix(prefix: string): Promise<Array<Dataset>>;
-//     bindings.bind(Name("matchDatasetPrefix"), NativeFunction(["prefix"], (_bindings: Bindings) => {
-//         return TODO()
-//     }))
-//     // matchDatasetRange(start: string, end: string): Promise<Array<Dataset>>;
-//     bindings.bind(Name("matchDatasetRange"), NativeFunction(["start", "end"], (_bindings: Bindings) => {
-//         return TODO()
-//     }))
-//     // createDataset(dataset: Dataset): Promise<Dataset>;
-//     bindings.bind(Name("createDataset"), NativeFunction(["dataset"], (_bindings: Bindings) => {
-//         return TODO()
-//     }))
-//     // deleteDataset(dataset: Dataset): Promise<Dataset>;
-//     bindings.bind(Name("deleteDataset"), NativeFunction(["dataset"], (_bindings: Bindings) => {
-//         return TODO()
-//     }))
-//     // query<T>(dataset: Dataset, fn: (readTx: ReadTx) => Promise<T>): Promise<T>;
-//     bindings.bind(Name("query"), NativeFunction(["dataset", "fn"], (_bindings: Bindings) => {
-//         return TODO()
-//     }))
-//     // write<T>(dataset: Dataset, fn: (writeTx: WriteTx) => Promise<T>): Promise<T>;
-//     bindings.bind(Name("write"), NativeFunction(["dataset", "fn"], (_bindings: Bindings) => {
-//         return TODO()
-//     }))
-// }
-
+def datasetModeBindings(bindings: Bindings, dataset: Dataset): Bindings = {
   bindings
 }
 
-def datasetModeBindings(bindings: Bindings): Bindings = {
-  ???
-}
-
-def readModeBindings(bindings: Bindings): Bindings = {
-  ???
-}
-
-def writeModeBindings(bindings: Bindings): Bindings = {
-  ???
-}
+//def instanceModeBindings(bindings: Bindings): Bindings = {
+//// function instanceScope(scope: ExecutionScope, bindings: Bindings) {
+////     // allDatasets(): Promise<Array<Dataset>>;
+////     bindings.bind(Name("allDatasets"), NativeFunction([], (_bindings: Bindings) => {
+////         return TODO()
+////     }))
+////     // datasetExists(dataset: Dataset): Promise<boolean>;
+////     bindings.bind(Name("datasetExists"), NativeFunction(["dataset"], (_bindings: Bindings) => {
+////         return TODO()
+////     }))
+////     // matchDatasetPrefix(prefix: string): Promise<Array<Dataset>>;
+////     bindings.bind(Name("matchDatasetPrefix"), NativeFunction(["prefix"], (_bindings: Bindings) => {
+////         return TODO()
+////     }))
+////     // matchDatasetRange(start: string, end: string): Promise<Array<Dataset>>;
+////     bindings.bind(Name("matchDatasetRange"), NativeFunction(["start", "end"], (_bindings: Bindings) => {
+////         return TODO()
+////     }))
+////     // createDataset(dataset: Dataset): Promise<Dataset>;
+////     bindings.bind(Name("createDataset"), NativeFunction(["dataset"], (_bindings: Bindings) => {
+////         return TODO()
+////     }))
+////     // deleteDataset(dataset: Dataset): Promise<Dataset>;
+////     bindings.bind(Name("deleteDataset"), NativeFunction(["dataset"], (_bindings: Bindings) => {
+////         return TODO()
+////     }))
+////     // query<T>(dataset: Dataset, fn: (readTx: ReadTx) => Promise<T>): Promise<T>;
+////     bindings.bind(Name("query"), NativeFunction(["dataset", "fn"], (_bindings: Bindings) => {
+////         return TODO()
+////     }))
+////     // write<T>(dataset: Dataset, fn: (writeTx: WriteTx) => Promise<T>): Promise<T>;
+////     bindings.bind(Name("write"), NativeFunction(["dataset", "fn"], (_bindings: Bindings) => {
+////         return TODO()
+////     }))
+//// }
+//
+//  bindings
+//}
 
 // function readScope(scope: ExecutionScope, bindings: Bindings) {
 //     //      allStatements(): Promise<Array<Statement>>

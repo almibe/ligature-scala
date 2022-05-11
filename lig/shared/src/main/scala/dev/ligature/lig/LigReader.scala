@@ -25,7 +25,7 @@ import dev.ligature.{
 }
 import dev.ligature.lig.LigNibblers.*
 
-case class LigError(val message: String)
+case class LigError(message: String)
 
 def read(input: String): Either[LigError, List[Statement]] = {
   val gaze = Gaze.from(input)
@@ -44,7 +44,7 @@ def read(input: String): Either[LigError, List[Statement]] = {
       continue = false
     }
   }
-  return Right(statements.toList)
+  Right(statements.toList)
 }
 
 def parseStatement(gaze: Gaze[Char]): Either[LigError, Statement] = {
@@ -64,7 +64,7 @@ def parseStatement(gaze: Gaze[Char]): Either[LigError, Statement] = {
     _ <- gaze
       .attempt(optional(whiteSpaceAndNewLineNibbler))
       .toRight(LigError(""))
-  } yield (Statement(entity, attribute, value))
+  } yield Statement(entity, attribute, value)
 }
 
 def parseIdentifier(gaze: Gaze[Char]): Either[LigError, Identifier] = {
@@ -95,7 +95,7 @@ def parseValue(gaze: Gaze[Char]): Either[LigError, Value] = {
   val stringRes = parseStringLiteral(gaze)
   if (stringRes.isRight) return stringRes
 
-  return Left(LigError("Unsupported Value."))
+  Left(LigError("Unsupported Value."))
 }
 
 def parseIntegerLiteral(gaze: Gaze[Char]): Either[LigError, IntegerLiteral] = {
