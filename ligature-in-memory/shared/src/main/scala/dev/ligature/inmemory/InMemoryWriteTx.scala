@@ -14,8 +14,8 @@ import java.util.concurrent.locks.Lock
   * Dataset
   */
 class InMemoryWriteTx(private val store: DatasetStore) extends WriteTx {
-  private var _isCanceled = false
-  private var _newDatasetStore = store.copy()
+  private var isCanceled = false
+  private var newDatasetStore = store.copy()
 
   /** Creates a new, unique Entity within this Dataset. */
   override def newIdentifier(prefix: String): IO[Identifier] = IO.defer {
@@ -24,7 +24,7 @@ class InMemoryWriteTx(private val store: DatasetStore) extends WriteTx {
       case Right(id) => IO(id)
       case Left(_) =>
         IO.raiseError(
-          RuntimeException(s"Illegal Identifier Prefix - ${prefix}")
+          RuntimeException(s"Illegal Identifier Prefix - $prefix")
         )
     }
   }
@@ -39,8 +39,8 @@ class InMemoryWriteTx(private val store: DatasetStore) extends WriteTx {
     * could trigger a ValidationError
     */
   override def addStatement(statement: Statement): IO[Unit] = IO {
-    _newDatasetStore = _newDatasetStore.copy(statements =
-      _newDatasetStore.statements + statement
+    newDatasetStore = newDatasetStore.copy(statements =
+      newDatasetStore.statements + statement
     )
     ()
   }
@@ -51,9 +51,9 @@ class InMemoryWriteTx(private val store: DatasetStore) extends WriteTx {
     * Potentially could trigger a ValidationError.
     */
   def removeStatement(persistedStatement: Statement): IO[Unit] = IO {
-    if (_newDatasetStore.statements.contains(persistedStatement)) {
-      _newDatasetStore = _newDatasetStore.copy(statements =
-        _newDatasetStore.statements.excl(persistedStatement)
+    if (newDatasetStore.statements.contains(persistedStatement)) {
+      newDatasetStore = newDatasetStore.copy(statements =
+        newDatasetStore.statements.excl(persistedStatement)
       )
       ()
     } else {
@@ -64,5 +64,5 @@ class InMemoryWriteTx(private val store: DatasetStore) extends WriteTx {
   /** Returns the DatasetStore that has been modified by this WriteTx. Used in
     * the release method of the Resource[IO, WriteTx].
     */
-  private[inmemory] def newDatasetStore(): DatasetStore = _newDatasetStore
+  private[inmemory] def newDatasetStore(): DatasetStore = newDatasetStore
 }
