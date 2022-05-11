@@ -157,50 +157,73 @@ class LigatureHttpSuite extends FunSuite {
     assertEquals(dligToSet(res), dligToSet(statements))
   }
 
-  // //     test("Delete Statements") {
-  // //         val input = listOf(
-  // //             AtomicApiStatement(null, "attribute", null, "Entity"),
-  // //             AtomicApiStatement(null, "attribute", "1", "Entity"),
-  // //             AtomicApiStatement(null, "attribute2", "Hello", "StringLiteral"),
-  // //             AtomicApiStatement(null, "attribute3", "3453", "IntegerLiteral"),
-  // //             AtomicApiStatement("1", "attribute4", "4.2", "FloatLiteral"),
-  // //         )
+  test("Delete Statements") {
+    val instance = createInstance()
+    val addStatements =
+      """
+        |<1> <attribute> <2>
+        |<3> <attribute> <1>
+        |<4> <attribute2> "Hello"
+        |<5> <attribute3> 3453
+        |<1> <attribute3> <1>
+        |""".stripMargin
 
-  // //         val toDelete = listOf(
-  // //             AtomicApiPersistedStatement("1", "attribute", "2", "Entity", "3"),
-  // //             AtomicApiPersistedStatement("4", "attribute", "1", "Entity", "5"),
-  // //             AtomicApiPersistedStatement("6", "attribute2", "Hello", "StringLiteral", "98"), //doesn't match
-  // //             AtomicApiPersistedStatement("8", "attribute3", "3454", "IntegerLiteral", "9"), //doesn't match
-  // //             AtomicApiPersistedStatement("2", "attribute4", "4.2", "FloatLiteral", "10"), //doesn't match
-  // //         )
+    val deleteStatements = //includes a dupe and a statement that doesn't exist
+      """
+        |<1> <attribute> <2>
+        |<6> <attribute3> 3453
+        |<1> <attribute3> <1>
+        |<1> <attribute> <2>
+        |""".stripMargin
 
-  // //         val out = listOf(
-  // //             AtomicApiPersistedStatement("6", "attribute2", "Hello", "StringLiteral", "7"), //doesn't match
-  // //             AtomicApiPersistedStatement("8", "attribute3", "3453", "IntegerLiteral", "9"), //doesn't match
-  // //             AtomicApiPersistedStatement("1", "attribute4", "4.2", "FloatLiteral", "10"), //doesn't match
-  // //         )
-  // //         val expected = gson.toJson(out)
+    val resultStatements =
+      """
+        |<3> <attribute> <1>
+        |<4> <attribute2> "Hello"
+        |<5> <attribute3> 3453
+        |""".stripMargin
 
-  // //         awaitResult<HttpResponse<Buffer>> { h -> //create Dataset
-  // //             client.post(port, local, "/testDataset").send(h)
-  // //         }
-  // //         input.forEach { statement ->
-  // //             awaitResult<HttpResponse<Buffer>> { h -> //add Statement
-  // //                 client.post(port, local, "/testDataset").sendBuffer(Buffer.buffer(gson.toJson(statement)), h)
-  // //             }
-  // //         }
-  // //         toDelete.forEach { statement ->
-  // //             awaitResult<HttpResponse<Buffer>> { h -> //add Statement
-  // //                 client.delete(port, local, "/testDataset").sendBuffer(Buffer.buffer(gson.toJson(statement)), h)
-  // //             }
-  // //         }
-  // //         val res = awaitResult<HttpResponse<Buffer>> { h -> //get all Statements
-  // //             client.get(port, local, "/testDataset").send(h)
-  // //         }
-  // //         JsonParser.parseString(res.bodyAsString()).asJsonArray shouldBe
-  // //                 JsonParser.parseString(expected).asJsonArray
-  // //     }
-  // // }
+    instance.routes
+      .run(Request(method = Method.POST, uri = uri"/datasets/new"))
+      .unsafeRunSync()
+
+    val writeResponse = instance.routes
+      .run(
+        Request(method = Method.POST, uri = uri"/datasets/new/statements")
+          .withEntity(addStatements)
+      )
+      .unsafeRunSync().bodyText.compile.string.unsafeRunSync()
+    assertEquals(writeResponse, "")
+
+    val deleteResponse = instance.routes
+      .run(
+        Request(method = Method.DELETE, uri = uri"/datasets/new/statements")
+          .withEntity(deleteStatements)
+      )
+      .unsafeRunSync().bodyText.compile.string.unsafeRunSync()
+    assertEquals(deleteResponse, "")
+
+    val response = instance.routes
+      .run(Request(method = Method.GET, uri = uri"/datasets/new/statements"))
+      .unsafeRunSync()
+    val res = response.bodyText.compile.string.unsafeRunSync()
+
+    assertEquals(dligToSet(res), dligToSet(resultStatements))
+  }
+
+  test("Run Wander") {
+    val instance = createInstance()
+    instance.routes
+      .run(Request(method = Method.POST, uri = uri"/datasets/new"))
+      .unsafeRunSync()
+    val writeResponse = instance.routes
+      .run(
+        Request(method = Method.POST, uri = uri"/datasets/new/wander")
+          .withEntity("and(true true")
+      )
+      .unsafeRunSync().bodyText.compile.string.unsafeRunSync()
+    assertEquals(writeResponse, "true")
+  }
 }
 
 def dligToSet(input: String): Set[Statement] = {
