@@ -5,7 +5,24 @@
 package dev.ligature.wander
 
 import dev.ligature.wander.lexer.Token
-import dev.ligature.wander.parser.{BooleanValue, Else, ElseIf, FunctionCall, IfExpression, LetStatement, LigatureValue, Name, Nothing, Parameter, Scope, Script, ScriptError, ScriptResult, WanderFunction, WanderValue}
+import dev.ligature.wander.parser.{
+  BooleanValue,
+  Else,
+  ElseIf,
+  FunctionCall,
+  IfExpression,
+  LetStatement,
+  LigatureValue,
+  Name,
+  Nothing,
+  Parameter,
+  Scope,
+  Script,
+  ScriptError,
+  ScriptResult,
+  WanderFunction,
+  WanderValue
+}
 import dev.ligature.wander.lexer.TokenType
 import dev.ligature.{Dataset, Identifier, IntegerLiteral, StringLiteral}
 

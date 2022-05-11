@@ -12,13 +12,15 @@ class WanderSuite extends FunSuite {
   val testLexer = true
   val testParser = false
   val testInterpreter = false
-  val testOnly: Set[String] = Set() //if set is empty all tests will run
+  val testOnly: Set[String] = Set() // if set is empty all tests will run
   def runTest(description: String): Boolean =
     testOnly.isEmpty || testOnly.contains(description)
 
   testData.foreach { testGroup =>
     testGroup.testInstances.foreach { instance =>
-      if (testLexer && instance.tokens != null && runTest(instance.description)) {
+      if (
+        testLexer && instance.tokens != null && runTest(instance.description)
+      ) {
         test(s"Lexing -- ${testGroup.category} -- ${instance.description}") {
           val tokens = tokenize(instance.script)
           assertEquals(
