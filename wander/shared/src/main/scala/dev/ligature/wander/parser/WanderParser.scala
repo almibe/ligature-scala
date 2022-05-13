@@ -22,16 +22,15 @@ def parse(script: Seq[Token]): Either[String, Script] = {
   val filteredInput = script.filter { (token: Token) =>
     token.tokenType != TokenType.Comment && token.tokenType != TokenType.Spaces && token.tokenType != TokenType.NewLine
   }.toVector
-  val gaze = Gaze(filteredInput.toVector)
+  val gaze = Gaze(filteredInput)
   val res = gaze.attempt(scriptNib)
   res match {
-    case None => {
+    case None =>
       if (gaze.isComplete()) {
         Right(Script(Seq()))
       } else {
         Left("NoMatch")
       }
-    }
     // TODO some case also needs to check if gaze is complete
     case Some(res) => Right(Script(res)) // .filter(_.isDefined).map(_.get)))
   }
@@ -39,26 +38,26 @@ def parse(script: Seq[Token]): Either[String, Script] = {
 
 val booleanNib: Nibbler[Token, Expression] = takeCond[Token] {
   _.tokenType == TokenType.Boolean
-}.map { token => Seq(BooleanValue(token(0).content.toBoolean)) }
+}.map { token => Seq(BooleanValue(token.head.content.toBoolean)) }
 
 val identifierNib: Nibbler[Token, Expression] = takeCond[Token] {
   _.tokenType == TokenType.Identifier
 }.map { token =>
-  Seq(LigatureValue(Identifier.fromString(token(0).content).getOrElse(???)))
+  Seq(LigatureValue(Identifier.fromString(token.head.content).getOrElse(???)))
 }
 
 val integerNib: Nibbler[Token, Expression] = takeCond[Token] {
   _.tokenType == TokenType.Integer
-}.map { token => Seq(LigatureValue(IntegerLiteral(token(0).content.toInt))) }
+}.map { token => Seq(LigatureValue(IntegerLiteral(token.head.content.toInt))) }
 
 val stringNib: Nibbler[Token, Expression] = takeCond[Token] {
   _.tokenType == TokenType.String
-}.map { token => Seq(LigatureValue(StringLiteral(token(0).content))) }
+}.map { token => Seq(LigatureValue(StringLiteral(token.head.content))) }
 
 val nameNib = takeCond[Token] {
   _.tokenType == TokenType.Name
 }.map { token =>
-  Seq(Name(token(0).content))
+  Seq(Name(token.head.content))
 }
 
 val openBraceNib = takeCond[Token] { _.tokenType == TokenType.OpenBrace }.map {
@@ -66,24 +65,24 @@ val openBraceNib = takeCond[Token] { _.tokenType == TokenType.OpenBrace }.map {
 }
 
 val closeBraceNib =
-  takeCond[Token] { _.tokenType == TokenType.CloseBrace }.map { token =>
+  takeCond[Token] { _.tokenType == TokenType.CloseBrace }.map { _ =>
     Seq(CloseBrace)
   }
 
 val openParenNib = takeCond[Token] { _.tokenType == TokenType.OpenParen }.map {
-  token => Seq(OpenParen)
+  _ => Seq(OpenParen)
 }
 
 val closeParenNib =
-  takeCond[Token] { _.tokenType == TokenType.CloseParen }.map { token =>
+  takeCond[Token] { _.tokenType == TokenType.CloseParen }.map { _ =>
     Seq(CloseParen)
   }
 
-val arrowNib = takeCond[Token] { _.tokenType == TokenType.Arrow }.map { token =>
+val arrowNib = takeCond[Token] { _.tokenType == TokenType.Arrow }.map { _ =>
   Seq(Arrow)
 }
 
-val scopeNib: Nibbler[Token, Scope] = { (gaze) =>
+val scopeNib: Nibbler[Token, Scope] = { gaze =>
   for {
     _ <- gaze.attempt(openBraceNib)
     expression <- gaze.attempt(optional(repeat(elementNib)))
@@ -91,47 +90,47 @@ val scopeNib: Nibbler[Token, Scope] = { (gaze) =>
   } yield Seq(Scope(expression.toList))
 }
 
-val parameterNib: Nibbler[Token, Parameter] = { (gaze) =>
+val parameterNib: Nibbler[Token, Parameter] = { gaze =>
   gaze.attempt(nameNib).map { name => name.map(name => Parameter(name)) }
 }
 
-val wanderFunctionNib: Nibbler[Token, FunctionDefinition] = { (gaze) =>
+val wanderFunctionNib: Nibbler[Token, FunctionDefinition] = { gaze =>
   for {
     _ <- gaze.attempt(openParenNib)
     parameters <- gaze.attempt(optional(repeat(parameterNib)))
     _ <- gaze.attempt(closeParenNib)
     _ <- gaze.attempt(arrowNib)
     body <- gaze.attempt(scopeNib)
-  } yield Seq(WanderFunction(parameters.toList, body(0)))
+  } yield Seq(WanderFunction(parameters.toList, body.head))
 }
 
 val ifKeywordNib =
-  takeCond[Token] { _.tokenType == TokenType.IfKeyword }.map { token =>
+  takeCond[Token] { _.tokenType == TokenType.IfKeyword }.map { _ =>
     Seq(LetKeyword)
   }
 
 val elseKeywordNib =
-  takeCond[Token] { _.tokenType == TokenType.ElseKeyword }.map { token =>
+  takeCond[Token] { _.tokenType == TokenType.ElseKeyword }.map { _ =>
     Seq(LetKeyword)
   }
 
-val elseIfExpressionNib: Nibbler[Token, ElseIf] = { (gaze) =>
+val elseIfExpressionNib: Nibbler[Token, ElseIf] = { gaze =>
   for {
     _ <- gaze.attempt(elseKeywordNib)
     _ <- gaze.attempt(ifKeywordNib)
     condition <- gaze.attempt(expressionNib)
     body <- gaze.attempt(expressionNib)
-  } yield Seq(ElseIf(condition(0), body(0)))
+  } yield Seq(ElseIf(condition.head, body.head))
 }
 
-val elseExpressionNib: Nibbler[Token, Else] = { (gaze) =>
+val elseExpressionNib: Nibbler[Token, Else] = { gaze =>
   for {
     _ <- gaze.attempt(elseKeywordNib)
     body <- gaze.attempt(expressionNib)
-  } yield Seq(Else(body(0)))
+  } yield Seq(Else(body.head))
 }
 
-val ifExpressionNib: Nibbler[Token, IfExpression] = { (gaze) =>
+val ifExpressionNib: Nibbler[Token, IfExpression] = { gaze =>
   for {
     _ <- gaze.attempt(ifKeywordNib)
     condition <- gaze.attempt(expressionNib)
@@ -140,21 +139,21 @@ val ifExpressionNib: Nibbler[Token, IfExpression] = { (gaze) =>
     `else` <- gaze.attempt(optional(elseExpressionNib))
   } yield Seq(
     IfExpression(
-      condition(0),
-      body(0),
+      condition.head,
+      body.head,
       elseIfs.toList,
       `else`.toList.find(_ => true)
     )
   )
 }
 
-val functionCallNib: Nibbler[Token, FunctionCall] = { (gaze) =>
+val functionCallNib: Nibbler[Token, FunctionCall] = { gaze =>
   for {
     name <- gaze.attempt(nameNib)
     _ <- gaze.attempt(openParenNib)
     parameters <- gaze.attempt(optional(repeat(expressionNib)))
     _ <- gaze.attempt(closeParenNib)
-  } yield Seq(FunctionCall(name(0), parameters.toList))
+  } yield Seq(FunctionCall(name.head, parameters.toList))
 }
 
 val expressionNib =
@@ -171,22 +170,22 @@ val expressionNib =
   )
 
 val equalSignNib = takeCond[Token] { _.tokenType == TokenType.EqualSign }.map {
-  token => Seq(EqualSign)
+  _ => Seq(EqualSign)
 }
 
 val letKeywordNib =
-  takeCond[Token] { _.tokenType == TokenType.LetKeyword }.map { token =>
+  takeCond[Token] { _.tokenType == TokenType.LetKeyword }.map { _ =>
     Seq(LetKeyword)
   }
 
-val letStatementNib: Nibbler[Token, LetStatement] = { (gaze) =>
+val letStatementNib: Nibbler[Token, LetStatement] = { gaze =>
   {
     for {
       _ <- gaze.attempt(letKeywordNib)
       name <- gaze.attempt(nameNib)
       _ <- gaze.attempt(equalSignNib)
       expression <- gaze.attempt(expressionNib)
-    } yield Seq(LetStatement(name(0), expression(0)))
+    } yield Seq(LetStatement(name.head, expression.head))
   }
 }
 

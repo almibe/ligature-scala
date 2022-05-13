@@ -27,7 +27,7 @@ case class Bindings(scopes: List[Scope] = List(Scope(Map(), Map()))) {
       currentScope.variables
         .contains(name) || currentScope.functions.contains(name)
     ) {
-      Left(ScriptError(s"${name} is already bound in current scope."))
+      Left(ScriptError(s"$name is already bound in current scope."))
     } else {
       val newVariables = currentScope.variables + (name -> wanderValue)
       val oldScope = this.scopes.dropRight(1)
@@ -46,11 +46,11 @@ case class Bindings(scopes: List[Scope] = List(Scope(Map(), Map()))) {
       currentScope.variables
         .contains(name) || duplicateFunction(name, functionDefinition)
     ) {
-      Left(ScriptError(s"${name} is already bound in current scope."))
+      Left(ScriptError(s"$name is already bound in current scope."))
     } else {
       if (currentScope.functions.contains(name)) {
         val newFunctionList =
-          currentScope.functions.get(name).get.appended(functionDefinition)
+          currentScope.functions(name).appended(functionDefinition)
         val newFunctions = currentScope.functions.updated(name, newFunctionList)
         val oldScope = this.scopes.dropRight(1)
         Right(
@@ -98,7 +98,7 @@ case class Bindings(scopes: List[Scope] = List(Scope(Map(), Map()))) {
       }
       currentScopeOffset -= 1
     }
-    Left(ScriptError(s"Could not find ${name} in scope."))
+    Left(ScriptError(s"Could not find $name in scope."))
   }
 }
 

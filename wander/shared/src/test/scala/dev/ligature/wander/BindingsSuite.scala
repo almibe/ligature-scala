@@ -9,12 +9,12 @@ import dev.ligature.{Identifier, StringLiteral}
 import munit.FunSuite
 
 class BindingsSuite extends FunSuite {
-  val identifier = Name("test")
-  val identifier2 = Name("test2")
+  private val identifier = Name("test")
+  private val identifier2 = Name("test2")
 
-  val value1 = LigatureValue(StringLiteral("this is a test"))
-  val value2 = LigatureValue(StringLiteral("this is a test2"))
-  val value3 = LigatureValue(StringLiteral("this is a test3"))
+  private val value1 = LigatureValue(StringLiteral("this is a test"))
+  private val value2 = LigatureValue(StringLiteral("this is a test2"))
+  private val value3 = LigatureValue(StringLiteral("this is a test3"))
 
   test("add single value and read") {
     val binding = Bindings()

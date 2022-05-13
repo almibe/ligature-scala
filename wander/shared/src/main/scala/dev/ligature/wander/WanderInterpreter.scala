@@ -23,7 +23,7 @@ def run(
     tokens <- tokenize(script).left.map { (e: TokenizeError) =>
       ScriptError(e.message)
     }
-    script <- parse(tokens).left.map(ScriptError(_))
+    script <- parse(tokens).left.map(ScriptError)
     result <- interpret(script, dataset)
   } yield result
 }
@@ -33,6 +33,5 @@ def interpret(
     dataset: Dataset
 ): Either[ScriptError, ScriptResult] = {
   val bindings = createStandardBindings(dataset)
-  var result: Either[ScriptError, ScriptResult] = Right(ScriptResult(Nothing))
   script.eval(bindings)
 }

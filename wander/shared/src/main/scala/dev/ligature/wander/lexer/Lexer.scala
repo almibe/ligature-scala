@@ -24,7 +24,7 @@ enum TokenType:
   LetKeyword, EqualSign, Name, OpenBrace, CloseBrace, OpenParen, CloseParen,
   Arrow, IfKeyword, ElseKeyword
 
-case class Token(val content: String, val tokenType: TokenType)
+case class Token(content: String, tokenType: TokenType)
 
 case class TokenizeError(message: String)
 
