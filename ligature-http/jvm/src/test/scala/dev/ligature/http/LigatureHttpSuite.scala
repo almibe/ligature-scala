@@ -235,7 +235,7 @@ class LigatureHttpSuite extends FunSuite {
     val writeResponse = instance.routes
       .run(
         Request(method = Method.POST, uri = uri"/datasets/new/wander")
-          .withEntity("and(true true")
+          .withEntity("and(true true)")
       )
       .unsafeRunSync()
       .bodyText
