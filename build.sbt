@@ -10,7 +10,7 @@ lazy val ligature = crossProject(JSPlatform, JVMPlatform)
     name := "ligature",
     scalaVersion := scala3Version,
     libraryDependencies += "co.fs2" %%% "fs2-core" % "3.2.7",
-    libraryDependencies += "org.scalameta" %%% "munit" % "1.0.0-M3" % Test
+    libraryDependencies += "org.scalameta" %%% "munit" % "1.0.0-M4" % Test
   )
   .disablePlugins(RevolverPlugin)
 
@@ -19,7 +19,7 @@ lazy val gaze = crossProject(JSPlatform, JVMPlatform)
   .settings(
     name := "gaze",
     scalaVersion := scala3Version,
-    libraryDependencies += "org.scalameta" %%% "munit" % "1.0.0-M3" % Test
+    libraryDependencies += "org.scalameta" %%% "munit" % "1.0.0-M4" % Test
   )
   .disablePlugins(RevolverPlugin)
 
@@ -28,7 +28,7 @@ lazy val idgen = crossProject(JSPlatform, JVMPlatform)
   .settings(
     name := "idgen",
     scalaVersion := scala3Version,
-    libraryDependencies += "org.scalameta" %%% "munit" % "1.0.0-M3" % Test
+    libraryDependencies += "org.scalameta" %%% "munit" % "1.0.0-M4" % Test
   )
   .disablePlugins(RevolverPlugin)
 
@@ -39,7 +39,7 @@ lazy val ligatureRepl = crossProject(JVMPlatform)
     scalaVersion := scala3Version,
     libraryDependencies += "org.jline" % "jline-terminal-jansi" % "3.21.0",
     libraryDependencies += "org.jline" % "jline-reader" % "3.21.0",
-    libraryDependencies += "org.scalameta" %%% "munit" % "1.0.0-M3" % Test
+    libraryDependencies += "org.scalameta" %%% "munit" % "1.0.0-M4" % Test
   )
   .disablePlugins(RevolverPlugin)
 
@@ -49,7 +49,7 @@ lazy val lig = crossProject(JSPlatform, JVMPlatform)
     name := "lig",
     scalaVersion := scala3Version,
     libraryDependencies += "co.fs2" %%% "fs2-core" % "3.2.7",
-    libraryDependencies += "org.scalameta" %%% "munit" % "1.0.0-M3" % Test
+    libraryDependencies += "org.scalameta" %%% "munit" % "1.0.0-M4" % Test
   )
   .dependsOn(ligature, gaze, idgen)
   .disablePlugins(RevolverPlugin)
@@ -59,7 +59,7 @@ lazy val wander = crossProject(JSPlatform, JVMPlatform)
   .settings(
     name := "wander",
     scalaVersion := scala3Version,
-    libraryDependencies += "org.scalameta" %%% "munit" % "1.0.0-M3" % Test
+    libraryDependencies += "org.scalameta" %%% "munit" % "1.0.0-M4" % Test
   )
   .dependsOn(ligature, lig, gaze)
   .disablePlugins(RevolverPlugin)
@@ -70,7 +70,7 @@ lazy val ligatureTestSuite = crossProject(JSPlatform, JVMPlatform)
     name := "ligature-test-suite",
     scalaVersion := scala3Version,
     libraryDependencies += "co.fs2" %%% "fs2-core" % "3.2.7",
-    libraryDependencies += "org.scalameta" %%% "munit" % "1.0.0-M3",
+    libraryDependencies += "org.scalameta" %%% "munit" % "1.0.0-M4",
     libraryDependencies += "org.typelevel" %%% "munit-cats-effect-3" % "1.0.7"
   )
   .dependsOn(ligature)
@@ -82,7 +82,7 @@ lazy val ligatureInMemory = crossProject(JSPlatform, JVMPlatform)
     name := "ligature-in-memory",
     scalaVersion := scala3Version,
     libraryDependencies += "co.fs2" %%% "fs2-core" % "3.2.7",
-    libraryDependencies += "org.scalameta" %%% "munit" % "1.0.0-M3" % Test,
+    libraryDependencies += "org.scalameta" %%% "munit" % "1.0.0-M4" % Test,
     libraryDependencies += "org.typelevel" %%% "munit-cats-effect-3" % "1.0.7"
   )
   .dependsOn(ligature, ligatureTestSuite % Test)
@@ -96,7 +96,7 @@ lazy val ligatureIndexedDB = crossProject(JSPlatform)
     scalaVersion := scala3Version,
     scalaJSLinkerConfig ~= { _.withModuleKind(ModuleKind.ESModule) },
     libraryDependencies += "co.fs2" %%% "fs2-core" % "3.2.7",
-    libraryDependencies += "org.scalameta" %%% "munit" % "1.0.0-M3" % Test
+    libraryDependencies += "org.scalameta" %%% "munit" % "1.0.0-M4" % Test
   )
   .dependsOn(ligature, ligatureTestSuite % Test)
   .disablePlugins(RevolverPlugin)
@@ -108,7 +108,7 @@ lazy val ligatureJS = crossProject(JSPlatform)
     name := "ligature-js",
     scalaVersion := scala3Version,
     scalaJSLinkerConfig ~= { _.withModuleKind(ModuleKind.ESModule) },
-    libraryDependencies += "org.scalameta" %%% "munit" % "1.0.0-M3" % Test
+    libraryDependencies += "org.scalameta" %%% "munit" % "1.0.0-M4" % Test
   )
   .dependsOn(ligature, wander, ligatureTestSuite % Test)
   .disablePlugins(RevolverPlugin)
@@ -125,7 +125,7 @@ lazy val ligatureHttp = crossProject(JVMPlatform)
     libraryDependencies += "org.http4s" %% "http4s-ember-server" % http4sVersion,
     libraryDependencies += "org.http4s" %% "http4s-ember-client" % http4sVersion,
     libraryDependencies += "com.google.code.gson" % "gson" % "2.9.0",
-    libraryDependencies += "org.scalameta" %%% "munit" % "1.0.0-M3" % Test,
+    libraryDependencies += "org.scalameta" %%% "munit" % "1.0.0-M4" % Test,
     testFrameworks += new TestFramework("munit.Framework"),
     Compile / run / mainClass := Some("dev.ligature.http.MainLigatureHttp")
   )
