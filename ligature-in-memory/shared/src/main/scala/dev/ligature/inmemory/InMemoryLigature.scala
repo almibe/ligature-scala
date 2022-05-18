@@ -144,7 +144,8 @@ final class InMemoryLigature extends Ligature {
       }
     }.bracket(tx => fn(tx))(tx =>
       IO {
-        val newStore = this.store.get.updated(dataset, tx.modifiedDatasetStore())
+        val newStore =
+          this.store.get.updated(dataset, tx.modifiedDatasetStore())
         this.store.set(newStore)
         ()
       }
