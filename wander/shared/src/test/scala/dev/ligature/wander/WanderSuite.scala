@@ -10,9 +10,10 @@ import munit.FunSuite
 
 class WanderSuite extends FunSuite {
   val testLexer = true
-  val testParser = false
-  val testInterpreter = false
+  val testParser = true
+  val testInterpreter = true
   val testOnly: Set[String] = Set() // if set is empty all tests will run
+
   def runTest(description: String): Boolean =
     testOnly.isEmpty || testOnly.contains(description)
 

@@ -23,7 +23,7 @@ def run(
     tokens <- tokenize(script).left.map { (e: TokenizeError) =>
       ScriptError(e.message)
     }
-    script <- parse(tokens).left.map(ScriptError)
+    script <- parse(tokens).left.map(ScriptError(_))
     result <- interpret(script, dataset)
   } yield result
 }
