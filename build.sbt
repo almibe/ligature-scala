@@ -32,17 +32,6 @@ lazy val idgen = crossProject(JSPlatform, JVMPlatform)
   )
   .disablePlugins(RevolverPlugin)
 
-lazy val ligatureRepl = crossProject(JVMPlatform)
-  .in(file("ligature-repl"))
-  .settings(
-    name := "ligature-repl",
-    scalaVersion := scala3Version,
-    libraryDependencies += "org.jline" % "jline-terminal-jansi" % "3.21.0",
-    libraryDependencies += "org.jline" % "jline-reader" % "3.21.0",
-    libraryDependencies += "org.scalameta" %%% "munit" % "1.0.0-M4" % Test
-  )
-  .disablePlugins(RevolverPlugin)
-
 lazy val lig = crossProject(JSPlatform, JVMPlatform)
   .in(file("lig"))
   .settings(
