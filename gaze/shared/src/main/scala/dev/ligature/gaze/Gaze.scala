@@ -37,6 +37,23 @@ class Gaze[+I](private val input: Vector[I]) {
     }
   }
 
+  //TODO needs tests
+  def check[O](nibbler: Nibbler[I, O]): Option[Seq[O]] = {
+    val startOfThisLoop = this.offset
+    val res = nibbler(this)
+
+    res match {
+      case Some(_) => {
+        this.offset = startOfThisLoop
+        return res
+      }
+      case None => {
+        this.offset = startOfThisLoop
+        return res
+      }
+    }
+  }
+  
   def attempt[O](nibbler: Nibbler[I, O]): Option[Seq[O]] = {
     val startOfThisLoop = this.offset
     val res = nibbler(this)

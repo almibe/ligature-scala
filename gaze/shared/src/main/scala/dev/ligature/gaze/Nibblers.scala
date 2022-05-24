@@ -137,6 +137,33 @@ def takeUntil[I](toMatch: I): Nibbler[I, I] = {
   }
 }
 
+//TODO needs tests
+def takeUntil[I](toMatch: Nibbler[I, I]): Nibbler[I, I] = {
+  return (gaze) => {
+    val result = ArrayBuffer[I]()
+    var matched = false
+    while (!matched) {
+      val next = gaze.peek()
+      next match {
+        case Some(v) => {
+          val check = gaze.check(toMatch)
+          check match {
+            case Some(_) => matched = true
+            case None => {
+              gaze.next()
+              result.append(v)
+            }
+          }
+        }
+        case None => {
+          matched = true
+        }
+      }
+    }
+    Some(result.toSeq)
+  }
+}
+
 def takeWhile[I](
     predicate: (toMatch: I) => Boolean
 ): Nibbler[I, I] = {

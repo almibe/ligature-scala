@@ -42,9 +42,9 @@ val stringTokenNib =
   )
 
 val newLineTokenNib =
-  takeString("\n").map(res => Seq(Token(res.mkString, TokenType.NewLine)))
+  takeFirst(takeString("\n"), takeString("\r\n")).map(res => Seq(Token(res.mkString, TokenType.NewLine)))
 
-val commentTokenNib = takeAll(takeString("#"), takeUntil('\n')).map(results =>
+val commentTokenNib = takeAll(takeString("#"), takeUntil(takeFirst(takeString("\n"), takeString("\r\n")))).map(results =>
   Seq(Token(results.mkString, TokenType.Comment))
 )
 
