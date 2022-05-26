@@ -56,9 +56,9 @@ val testData = List(
     testInstances = assignmentTestData
   ),
   TestData(
-    category = "Functions",
+    category = "Closures",
     dataset = Dataset.fromString("test").getOrElse(???),
-    testInstances = functionTestData
+    testInstances = closureTestData
   ),
   TestData(
     category = "Boolean Functions",

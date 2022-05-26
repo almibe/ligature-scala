@@ -9,8 +9,8 @@ import dev.ligature.wander.parser.parse
 import dev.ligature.wander.lexer.tokenize
 
 @main def hello() = {
-  val input = """let hello = 5
-                |hello""".stripMargin
+  val input = """let hello = () -> Integer { 5 }
+                |hello()""".stripMargin
   val tokens = tokenize(input)
   val ast = parse(tokens.getOrElse(???))
   val result = run(input, Dataset.fromString("test").getOrElse(???))

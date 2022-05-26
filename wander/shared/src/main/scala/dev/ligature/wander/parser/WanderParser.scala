@@ -29,10 +29,15 @@ def parse(script: Seq[Token]): Either[String, Script] = {
       if (gaze.isComplete()) {
         Right(Script(Seq()))
       } else {
-        Left("NoMatch")
+        Left("No Match")
       }
     // TODO some case also needs to check if gaze is complete
-    case Some(res) => Right(Script(res)) // .filter(_.isDefined).map(_.get)))
+    case Some(res) =>
+      if (gaze.isComplete()) {
+        Right(Script(res)) // .filter(_.isDefined).map(_.get)))
+      } else {
+        Left("No Match")
+      }
   }
 }
 
@@ -100,9 +105,12 @@ val wanderFunctionNib: Nibbler[Token, FunctionDefinition] = { gaze =>
     parameters <- gaze.attempt(optional(repeat(parameterNib)))
     _ <- gaze.attempt(closeParenNib)
     _ <- gaze.attempt(arrowNib)
+    returnType <- gaze.attempt(typeNib)
     body <- gaze.attempt(scopeNib)
-  } yield Seq(WanderFunction(parameters.toList, body.head))
+  } yield Seq(WanderFunction(parameters.toList, returnType.head, body.head))
 }
+
+val typeNib: Nibbler[Token, WanderType] = take(Token("Integer", TokenType.Name)).map {_ => List(WanderType.Integer)}
 
 val ifKeywordNib =
   takeCond[Token] { _.tokenType == TokenType.IfKeyword }.map { _ =>

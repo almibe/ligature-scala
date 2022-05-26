@@ -198,8 +198,8 @@ case class Parameter(
   */
 case class WanderFunction(
     override val parameters: List[Parameter],
-    body: Scope,
-    output: WanderType = null
+    output: WanderType,
+    body: Scope
 ) //TODO eventually remove the default null value
     extends FunctionDefinition(parameters) {
   override def eval(bindings: Bindings) = {

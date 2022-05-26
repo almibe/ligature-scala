@@ -21,7 +21,7 @@ import dev.ligature.lig.LigNibblers
 
 enum TokenType:
   case Boolean, Spaces, Identifier, Integer, Comment, NewLine, String,
-    LetKeyword, EqualSign, Name, OpenBrace, CloseBrace, OpenParen, CloseParen,
+    LetKeyword, EqualSign, Name, OpenBrace, CloseBrace, Colon, OpenParen, CloseParen,
     Arrow, IfKeyword, ElseKeyword
 
 case class Token(content: String, tokenType: TokenType)
