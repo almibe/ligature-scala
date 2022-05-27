@@ -206,8 +206,7 @@ case class WanderFunction(
     override val parameters: List[Parameter],
     output: WanderType,
     body: Scope
-)
-    extends FunctionDefinition(parameters) {
+) extends FunctionDefinition(parameters) {
   override def eval(bindings: Bindings) = {
     Right(EvalResult(bindings, this))
   }

@@ -6,7 +6,16 @@ package dev.ligature.wander
 
 import dev.ligature.IntegerLiteral
 import dev.ligature.wander.lexer.{Token, TokenType}
-import dev.ligature.wander.parser.{BooleanValue, LetStatement, LigatureValue, Name, Nothing, Scope, Script, ScriptResult}
+import dev.ligature.wander.parser.{
+  BooleanValue,
+  LetStatement,
+  LigatureValue,
+  Name,
+  Nothing,
+  Scope,
+  Script,
+  ScriptResult
+}
 
 val assignmentTestData = List(
   TestInstance(

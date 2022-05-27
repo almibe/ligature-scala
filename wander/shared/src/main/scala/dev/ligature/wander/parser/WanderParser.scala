@@ -101,7 +101,9 @@ val scopeNib: Nibbler[Token, Scope] = { gaze =>
 
 val parameterNib: Nibbler[Token, Parameter] = { gaze =>
   for {
-    name <- gaze.attempt(nameNib)//.map { name => name.map(name => Parameter(name)) }
+    name <- gaze.attempt(
+      nameNib
+    ) // .map { name => name.map(name => Parameter(name)) }
     _ <- gaze.attempt(colonNib)
     typeName <- gaze.attempt(typeNib)
   } yield Seq(Parameter(name.head, typeName.head))
@@ -119,8 +121,10 @@ val wanderFunctionNib: Nibbler[Token, FunctionDefinition] = { gaze =>
 }
 
 val typeNib: Nibbler[Token, WanderType] = takeFirst(
-  take(Token("Integer", TokenType.Name)).map {_ => List(WanderType.Integer)},
-  take(Token("Identifier", TokenType.Name)). map {_ => List(WanderType.Identifier) }
+  take(Token("Integer", TokenType.Name)).map { _ => List(WanderType.Integer) },
+  take(Token("Identifier", TokenType.Name)).map { _ =>
+    List(WanderType.Identifier)
+  }
 )
 
 val ifKeywordNib =

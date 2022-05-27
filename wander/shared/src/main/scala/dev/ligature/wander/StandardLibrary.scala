@@ -60,7 +60,10 @@ def common(): Bindings = {
     .bindVariable(
       Name("and"),
       NativeFunction(
-        List(Parameter(Name("boolLeft"), WanderType.Boolean), Parameter(Name("boolRight"), WanderType.Boolean)),
+        List(
+          Parameter(Name("boolLeft"), WanderType.Boolean),
+          Parameter(Name("boolRight"), WanderType.Boolean)
+        ),
         (bindings: Bindings) => {
           for {
             left <- bindings.read(Name("boolLeft"))
@@ -80,7 +83,10 @@ def common(): Bindings = {
     .bindVariable(
       Name("or"),
       NativeFunction(
-        List(Parameter(Name("boolLeft"), WanderType.Boolean), Parameter(Name("boolRight"), WanderType.Boolean)),
+        List(
+          Parameter(Name("boolLeft"), WanderType.Boolean),
+          Parameter(Name("boolRight"), WanderType.Boolean)
+        ),
         (bindings: Bindings) => {
           for {
             left <- bindings.read(Name("boolLeft"))

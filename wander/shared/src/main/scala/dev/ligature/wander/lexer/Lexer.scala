@@ -21,7 +21,8 @@ import dev.ligature.lig.LigNibblers
 
 enum TokenType:
   case Boolean, Spaces, Identifier, Integer, Comment, NewLine, String,
-    LetKeyword, EqualSign, Name, OpenBrace, CloseBrace, Colon, OpenParen, CloseParen,
+    LetKeyword, EqualSign, Name, OpenBrace, CloseBrace, Colon, OpenParen,
+    CloseParen,
     Arrow, IfKeyword, ElseKeyword
 
 case class Token(content: String, tokenType: TokenType)
@@ -31,7 +32,7 @@ case class TokenizeError(message: String)
 def tokenize(input: String): Either[TokenizeError, Seq[Token]] = {
   val gaze = Gaze.from(input)
   gaze.attempt(tokensNib) match {
-    case None      =>
+    case None =>
       if (gaze.isComplete()) {
         Right(List())
       } else {
@@ -52,11 +53,14 @@ val stringTokenNib =
   )
 
 val newLineTokenNib =
-  takeFirst(takeString("\n"), takeString("\r\n")).map(res => Seq(Token(res.mkString, TokenType.NewLine)))
+  takeFirst(takeString("\n"), takeString("\r\n")).map(res =>
+    Seq(Token(res.mkString, TokenType.NewLine))
+  )
 
-val commentTokenNib = takeAll(takeString("#"), takeUntil(takeFirst(takeString("\n"), takeString("\r\n")))).map(results =>
-  Seq(Token(results.mkString, TokenType.Comment))
-)
+val commentTokenNib = takeAll(
+  takeString("#"),
+  takeUntil(takeFirst(takeString("\n"), takeString("\r\n")))
+).map(results => Seq(Token(results.mkString, TokenType.Comment)))
 
 /** This nibbler matches both names and keywords. After the initial match all
   * keywords are checked and if none match and name is returned.

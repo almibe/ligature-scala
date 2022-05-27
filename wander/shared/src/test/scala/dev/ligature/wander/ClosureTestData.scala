@@ -6,7 +6,17 @@ package dev.ligature.wander
 
 import dev.ligature.{Identifier, IntegerLiteral, StringLiteral}
 import dev.ligature.wander.lexer.{Token, TokenType}
-import dev.ligature.wander.parser.{FunctionCall, LetStatement, LigatureValue, Name, Parameter, Scope, Script, ScriptResult, WanderFunction}
+import dev.ligature.wander.parser.{
+  FunctionCall,
+  LetStatement,
+  LigatureValue,
+  Name,
+  Parameter,
+  Scope,
+  Script,
+  ScriptResult,
+  WanderFunction
+}
 import dev.ligature.wander.parser.WanderType
 
 val closureTestData = List(
@@ -167,7 +177,7 @@ val closureTestData = List(
         LigatureValue(Identifier.fromString("testEntity").getOrElse(???))
       )
     )
-  ),
+  )
 //TODO add test with function1 w/ super type
 //  TestInstance(
 //    description = "function2 def",
