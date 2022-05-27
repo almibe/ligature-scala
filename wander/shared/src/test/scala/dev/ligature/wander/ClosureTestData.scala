@@ -111,7 +111,7 @@ val closureTestData = List(
   ),
   TestInstance(
     description = "function1 def exact type",
-    script = """let identity = (identifier: Identifier): Identifier -> {
+    script = """let identity = (identifier:Identifier) -> Identifier {
                |  identifier
                |}
                |identity(<testEntity>)""".stripMargin,
@@ -123,15 +123,19 @@ val closureTestData = List(
       Token("=", TokenType.EqualSign),
       Token(" ", TokenType.Spaces),
       Token("(", TokenType.OpenParen),
-      Token("value", TokenType.Name),
+      Token("identifier", TokenType.Name),
+      Token(":", TokenType.Colon),
+      Token("Identifier", TokenType.Name),
       Token(")", TokenType.CloseParen),
       Token(" ", TokenType.Spaces),
       Token("->", TokenType.Arrow),
       Token(" ", TokenType.Spaces),
+      Token("Identifier", TokenType.Name),
+      Token(" ", TokenType.Spaces),
       Token("{", TokenType.OpenBrace),
       Token(newLine, TokenType.NewLine),
       Token("  ", TokenType.Spaces),
-      Token("value", TokenType.Name),
+      Token("identifier", TokenType.Name),
       Token(newLine, TokenType.NewLine),
       Token("}", TokenType.CloseBrace),
       Token(newLine, TokenType.NewLine),
@@ -145,8 +149,9 @@ val closureTestData = List(
         LetStatement(
           Name("identity"),
           WanderFunction(
-            List(Parameter(Name("value"))),
-            Scope(List(Name("value")))
+            List(Parameter(Name("identifier"), WanderType.Identifier)),
+            WanderType.Identifier,
+            Scope(List(Name("identifier")))
           )
         ),
         FunctionCall(

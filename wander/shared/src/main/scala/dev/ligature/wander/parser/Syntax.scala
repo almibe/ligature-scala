@@ -103,6 +103,12 @@ object Arrow extends Element {
   )
 }
 
+object Colon extends Element {
+  override def eval(binding: Bindings) = Left(
+    ScriptError("Cannot eval colon.")
+  )
+}
+
 object LetKeyword extends Element {
   override def eval(binding: Bindings) = Left(
     ScriptError("Cannot eval let keyword.")
@@ -190,9 +196,9 @@ enum WanderType {
 }
 
 case class Parameter(
-    val name: Name,
-    val parameterType: WanderType = null
-) //TODO eventually remove the default null value
+    name: Name,
+    parameterType: WanderType
+)
 
 /** Holds a reference to a function defined in Wander.
   */
@@ -200,7 +206,7 @@ case class WanderFunction(
     override val parameters: List[Parameter],
     output: WanderType,
     body: Scope
-) //TODO eventually remove the default null value
+)
     extends FunctionDefinition(parameters) {
   override def eval(bindings: Bindings) = {
     Right(EvalResult(bindings, this))

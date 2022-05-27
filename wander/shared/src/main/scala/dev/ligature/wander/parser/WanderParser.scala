@@ -66,7 +66,7 @@ val nameNib = takeCond[Token] {
 }
 
 val openBraceNib = takeCond[Token] { _.tokenType == TokenType.OpenBrace }.map {
-  token => Seq(OpenBrace)
+  _ => Seq(OpenBrace)
 }
 
 val closeBraceNib =
@@ -84,6 +84,10 @@ val closeParenNib =
   }
 
 val arrowNib = takeCond[Token] { _.tokenType == TokenType.Arrow }.map { _ =>
+  Seq(Colon)
+}
+
+val colonNib = takeCond[Token] { _.tokenType == TokenType.Colon }.map { _ =>
   Seq(Arrow)
 }
 
@@ -96,7 +100,11 @@ val scopeNib: Nibbler[Token, Scope] = { gaze =>
 }
 
 val parameterNib: Nibbler[Token, Parameter] = { gaze =>
-  gaze.attempt(nameNib).map { name => name.map(name => Parameter(name)) }
+  for {
+    name <- gaze.attempt(nameNib)//.map { name => name.map(name => Parameter(name)) }
+    _ <- gaze.attempt(colonNib)
+    typeName <- gaze.attempt(typeNib)
+  } yield Seq(Parameter(name.head, typeName.head))
 }
 
 val wanderFunctionNib: Nibbler[Token, FunctionDefinition] = { gaze =>
@@ -110,7 +118,10 @@ val wanderFunctionNib: Nibbler[Token, FunctionDefinition] = { gaze =>
   } yield Seq(WanderFunction(parameters.toList, returnType.head, body.head))
 }
 
-val typeNib: Nibbler[Token, WanderType] = take(Token("Integer", TokenType.Name)).map {_ => List(WanderType.Integer)}
+val typeNib: Nibbler[Token, WanderType] = takeFirst(
+  take(Token("Integer", TokenType.Name)).map {_ => List(WanderType.Integer)},
+  take(Token("Identifier", TokenType.Name)). map {_ => List(WanderType.Identifier) }
+)
 
 val ifKeywordNib =
   takeCond[Token] { _.tokenType == TokenType.IfKeyword }.map { _ =>

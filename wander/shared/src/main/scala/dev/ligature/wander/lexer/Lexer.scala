@@ -31,8 +31,18 @@ case class TokenizeError(message: String)
 def tokenize(input: String): Either[TokenizeError, Seq[Token]] = {
   val gaze = Gaze.from(input)
   gaze.attempt(tokensNib) match {
-    case None      => Left(TokenizeError("Error"))
-    case Some(res) => Right(res)
+    case None      =>
+      if (gaze.isComplete()) {
+        Right(List())
+      } else {
+        Left(TokenizeError("Error"))
+      }
+    case Some(res) =>
+      if (gaze.isComplete()) {
+        Right(res)
+      } else {
+        Left(TokenizeError("Error"))
+      }
   }
 }
 
@@ -69,6 +79,9 @@ val nameTokenNib = takeAll(
 val equalSignTokenNib =
   takeString("=").map(res => Seq(Token(res.mkString, TokenType.EqualSign)))
 
+val colonTokenNib =
+  takeString(":").map(res => Seq(Token(res.mkString, TokenType.Colon)))
+
 val openBraceTokenNib =
   takeString("{").map(res => Seq(Token(res.mkString, TokenType.OpenBrace)))
 
@@ -101,6 +114,7 @@ val tokensNib: Nibbler[Char, Token] = repeat(
   takeFirst(
     spacesTokenNib,
     nameTokenNib,
+    colonTokenNib,
     openParenTokenNib,
     closeParenTokenNib,
     arrowTokenNib,

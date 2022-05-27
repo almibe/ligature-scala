@@ -14,6 +14,7 @@ import dev.ligature.wander.parser.{
   WanderValue
 }
 import dev.ligature.{Ligature, Dataset}
+import dev.ligature.wander.parser.WanderType
 
 def createStandardBindings(dataset: Dataset): Bindings = {
   val bindings = common()
@@ -27,7 +28,7 @@ def common(): Bindings = {
     .bindVariable(
       Name("log"),
       NativeFunction(
-        List(Parameter(Name("message"))),
+        List(Parameter(Name("message"), WanderType.String)),
         (binding: Bindings) => {
           ???
         }
@@ -39,7 +40,7 @@ def common(): Bindings = {
     .bindVariable(
       Name("not"),
       NativeFunction(
-        List(Parameter(Name("bool"))),
+        List(Parameter(Name("bool"), WanderType.Boolean)),
         (bindings: Bindings) => {
           bindings.read(Name("bool")) match {
             case Right(b: BooleanValue) => Right(BooleanValue(!b.value))
@@ -59,7 +60,7 @@ def common(): Bindings = {
     .bindVariable(
       Name("and"),
       NativeFunction(
-        List(Parameter(Name("boolLeft")), Parameter(Name("boolRight"))),
+        List(Parameter(Name("boolLeft"), WanderType.Boolean), Parameter(Name("boolRight"), WanderType.Boolean)),
         (bindings: Bindings) => {
           for {
             left <- bindings.read(Name("boolLeft"))
@@ -79,7 +80,7 @@ def common(): Bindings = {
     .bindVariable(
       Name("or"),
       NativeFunction(
-        List(Parameter(Name("boolLeft")), Parameter(Name("boolRight"))),
+        List(Parameter(Name("boolLeft"), WanderType.Boolean), Parameter(Name("boolRight"), WanderType.Boolean)),
         (bindings: Bindings) => {
           for {
             left <- bindings.read(Name("boolLeft"))
