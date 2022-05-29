@@ -52,9 +52,12 @@ val stringTokenNib =
     Seq(Token(results(1).mkString, TokenType.String))
   )
 
+//NOTE: New lines are hard coded as \n because sometimes on Windows
+//the two types of new lines get mixed up in the codebase between the editor and Scalafmt.
+//Not ideal, but it works consistently at least.
 val newLineTokenNib =
   takeFirst(takeString("\n"), takeString("\r\n")).map(res =>
-    Seq(Token(res.mkString, TokenType.NewLine))
+    Seq(Token("\n", TokenType.NewLine))
   )
 
 val commentTokenNib = takeAll(

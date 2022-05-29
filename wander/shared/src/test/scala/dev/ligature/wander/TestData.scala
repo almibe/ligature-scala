@@ -42,7 +42,10 @@ case class TestInstance(
 
 val errorsExpression = List()
 
-val newLine = sys.props("line.separator")
+//NOTE: New lines are hard coded as \n because sometimes on Windows
+//the two types of new lines get mixed up in the codebase between the editor and Scalafmt.
+//Not ideal, but it works consistently at least.
+val newLine = "\n" //sys.props("line.separator")
 
 val testData = List(
   TestData(
