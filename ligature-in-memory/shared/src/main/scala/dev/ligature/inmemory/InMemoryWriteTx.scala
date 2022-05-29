@@ -49,7 +49,7 @@ class InMemoryWriteTx(private val store: DatasetStore) extends WriteTx {
     * Ok(true) only if the given Statement was found and removed. Note:
     * Potentially could trigger a ValidationError.
     */
-  def removeStatement(persistedStatement: Statement): IO[Unit] = IO {
+  override def removeStatement(persistedStatement: Statement): IO[Unit] = IO {
     if (newDatasetStore.statements.contains(persistedStatement)) {
       newDatasetStore = newDatasetStore.copy(statements =
         newDatasetStore.statements.excl(persistedStatement)

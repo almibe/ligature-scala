@@ -28,14 +28,14 @@ final class InMemoryLigature extends Ligature {
   private val store = AtomicReference(TreeMap[Dataset, DatasetStore]())
 
   /** Returns all Datasets in a Ligature instance. */
-  def allDatasets(): Stream[IO, Dataset] = Stream.evalSeq {
+  override def allDatasets(): Stream[IO, Dataset] = Stream.evalSeq {
     for {
       ref <- IO(store)
     } yield ref.get.keys.toSeq
   }
 
   /** Check if a given Dataset exists. */
-  def datasetExists(dataset: Dataset): IO[Boolean] = {
+  override def datasetExists(dataset: Dataset): IO[Boolean] = {
     for {
       ref <- IO(store)
     } yield ref.get.contains(dataset)
@@ -44,7 +44,7 @@ final class InMemoryLigature extends Ligature {
   /** Returns all Datasets in a Ligature instance that start with the given
     * prefix.
     */
-  def matchDatasetsPrefix(prefix: String): Stream[IO, Dataset] =
+  override def matchDatasetsPrefix(prefix: String): Stream[IO, Dataset] =
     Stream.evalSeq {
       for {
         ref <- IO(store)
@@ -54,7 +54,7 @@ final class InMemoryLigature extends Ligature {
   /** Returns all Datasets in a Ligature instance that are in a given range
     * (inclusive, exclusive].
     */
-  def matchDatasetsRange(start: String, end: String): Stream[IO, Dataset] =
+  override def matchDatasetsRange(start: String, end: String): Stream[IO, Dataset] =
     Stream.evalSeq {
       for {
         ref <- IO(store)
@@ -64,7 +64,7 @@ final class InMemoryLigature extends Ligature {
   /** Creates a dataset with the given name. TODO should probably return its own
     * error type { InvalidDataset, DatasetExists, CouldNotCreateDataset }
     */
-  def createDataset(dataset: Dataset): IO[Unit] =
+  override def createDataset(dataset: Dataset): IO[Unit] =
     for {
       atomRef <- IO(store)
       ref <- IO(store.get)
@@ -90,7 +90,7 @@ final class InMemoryLigature extends Ligature {
   /** Deletes a dataset with the given name. TODO should probably return its own
     * error type { InvalidDataset, CouldNotDeleteDataset }
     */
-  def deleteDataset(dataset: Dataset): IO[Unit] =
+  override def deleteDataset(dataset: Dataset): IO[Unit] =
     for {
       atomRef <- IO(store)
       ref <- IO(store.get)
@@ -115,7 +115,7 @@ final class InMemoryLigature extends Ligature {
   /** Initializes a QueryTx TODO should probably return its own error type
     * CouldNotInitializeQueryTx
     */
-  def query[T](dataset: Dataset)(fn: QueryTx => IO[T]): IO[T] =
+  override def query[T](dataset: Dataset)(fn: QueryTx => IO[T]): IO[T] =
     IO {
       val ds = this.store.get.get(dataset)
       ds match {
@@ -130,7 +130,7 @@ final class InMemoryLigature extends Ligature {
   /** Initializes a WriteTx TODO should probably return its own error type
     * CouldNotInitializeWriteTx
     */
-  def write(dataset: Dataset)(fn: WriteTx => IO[Unit]): IO[Unit] =
+  override def write(dataset: Dataset)(fn: WriteTx => IO[Unit]): IO[Unit] =
     IO {
       val ds = this.store.get.get(dataset)
       ds match {
@@ -171,7 +171,7 @@ final class InMemoryLigature extends Ligature {
   //     Resource.make(acquire)(release)
   // }
 
-  def close(): IO[Unit] = {
+  override def close(): IO[Unit] = {
     IO.unit
   }
 }

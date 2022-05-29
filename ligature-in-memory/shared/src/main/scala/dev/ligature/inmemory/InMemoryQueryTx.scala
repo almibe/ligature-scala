@@ -14,7 +14,7 @@ import fs2.Stream
 class InMemoryQueryTx(private val store: DatasetStore) extends QueryTx {
 
   /** Returns all PersistedStatements in this Dataset. */
-  def allStatements(): Stream[IO, Statement] = {
+  override def allStatements(): Stream[IO, Statement] = {
     Stream.emits(store.statements.toSeq)
   }
 
@@ -22,7 +22,7 @@ class InMemoryQueryTx(private val store: DatasetStore) extends QueryTx {
     * parameter is None then it matches all, so passing all Nones is the same as
     * calling allStatements.
     */
-  def matchStatements(
+  override def matchStatements(
       entity: Option[Identifier],
       attribute: Option[Identifier],
       value: Option[Value]
@@ -43,7 +43,7 @@ class InMemoryQueryTx(private val store: DatasetStore) extends QueryTx {
   /** Returns all PersistedStatements that match the given criteria. If a
     * parameter is None then it matches all.
     */
-  def matchStatementsRange(
+  override def matchStatementsRange(
       entity: Option[Identifier],
       attribute: Option[Identifier],
       range: dev.ligature.Range
