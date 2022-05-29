@@ -15,7 +15,6 @@ See additional documentation [here](https://github.com/almibe/ligature-documenta
 | wander              | A scripting language for working with Ligature.                                  | ✅   | ✅ |
 | gaze                | A utility library for parsing text.                                              | ✅   | ✅ |
 | ligature-http       | A JVM based server for Ligature following the ligature-http spec.                | ✅   |   |
-| ligature-indexeddb  | An implementation of Ligature targeting the browser using IndexedDB for storage. |     | ✅ |
 
 ## Building
 This project requires sbt to build.

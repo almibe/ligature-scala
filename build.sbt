@@ -90,19 +90,6 @@ lazy val ligatureLmdb = crossProject(JVMPlatform)
   .dependsOn(ligature, ligatureTestSuite % Test)
   .disablePlugins(RevolverPlugin)
 
-lazy val ligatureIndexedDB = crossProject(JSPlatform)
-  .in(file("ligature-indexeddb"))
-  .enablePlugins(ScalaJSPlugin)
-  .settings(
-    name := "ligature-indexeddb",
-    scalaVersion := scala3Version,
-    scalaJSLinkerConfig ~= { _.withModuleKind(ModuleKind.ESModule) },
-    libraryDependencies += "co.fs2" %%% "fs2-core" % "3.2.7",
-    libraryDependencies += "org.scalameta" %%% "munit" % "1.0.0-M4" % Test
-  )
-  .dependsOn(ligature, ligatureTestSuite % Test)
-  .disablePlugins(RevolverPlugin)
-
 lazy val ligatureJS = crossProject(JSPlatform)
   .in(file("ligature-js"))
   .enablePlugins(ScalaJSPlugin)
