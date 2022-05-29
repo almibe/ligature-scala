@@ -11,9 +11,10 @@ See additional documentation [here](https://github.com/almibe/ligature-documenta
 | idgen               | A basic, unsecure, implementation of nanoid for use with Ligature                 | ✅   | ✅ |
 | lig                 | A simple serialization format as well as DLig an input format for Ligature       | ✅   | ✅ |
 | ligature-in-memory  | An in-memory implementation of Ligature                                          | ✅   | ✅ |
+| ligature-lmdb       | An implementation of Ligature using LMDB for persistence.                        | ✅   |   |
 | wander              | A scripting language for working with Ligature.                                  | ✅   | ✅ |
 | gaze                | A utility library for parsing text.                                              | ✅   | ✅ |
-| slonky              | A JVM based server for Ligature following the ligature-http spec.                | ✅   |   |
+| ligature-http       | A JVM based server for Ligature following the ligature-http spec.                | ✅   |   |
 | ligature-indexeddb  | An implementation of Ligature targeting the browser using IndexedDB for storage. |     | ✅ |
 
 ## Building
