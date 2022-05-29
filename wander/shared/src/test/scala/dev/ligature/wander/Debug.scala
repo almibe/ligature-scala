@@ -8,9 +8,9 @@ import dev.ligature.Dataset
 import dev.ligature.wander.parser.parse
 import dev.ligature.wander.lexer.tokenize
 
-@main def hello() = {
-  val input = """let identity = (identifier:Identifier) -> Identifier {
-                |  identifier
+@main def wanderDebug() = {
+  val input = """let identity = (value:Value) -> Value {
+                |  value
                 |}
                 |identity(<testEntity>)""".stripMargin
   println("Input")
