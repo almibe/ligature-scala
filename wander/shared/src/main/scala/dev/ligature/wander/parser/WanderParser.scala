@@ -124,7 +124,8 @@ val typeNib: Nibbler[Token, WanderType] = takeFirst(
   take(Token("Integer", TokenType.Name)).map { _ => List(WanderType.Integer) },
   take(Token("Identifier", TokenType.Name)).map { _ =>
     List(WanderType.Identifier)
-  }
+  },
+  take(Token("Value", TokenType.Name)).map { _ => List(WanderType.Value) }
 )
 
 val ifKeywordNib =
