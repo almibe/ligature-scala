@@ -6,7 +6,7 @@ package dev.ligature.inmemory
 
 import cats.effect.IO
 import dev.ligature._
-import java.util.UUID
+import dev.ligature.idgen.genId
 import cats.data.EitherT
 import java.util.concurrent.locks.Lock
 
@@ -20,7 +20,7 @@ class InMemoryWriteTx(private val store: DatasetStore) extends WriteTx {
   /** Creates a new, unique Entity within this Dataset. */
   override def newIdentifier(prefix: String): IO[Identifier] = IO.defer {
     // TODO needs to assert that the generated Id is unique within this Dataset
-    Identifier.fromString(prefix + UUID.randomUUID()) match {
+    Identifier.fromString(prefix + genId()) match {
       case Right(id) => IO(id)
       case Left(_) =>
         IO.raiseError(
@@ -32,7 +32,7 @@ class InMemoryWriteTx(private val store: DatasetStore) extends WriteTx {
   private def newAnonymousEntityInternal(
       prefix: String = ""
   ): Either[LigatureError, Identifier] =
-    Identifier.fromString(prefix + UUID.randomUUID())
+    Identifier.fromString(prefix + genId())
 
   /** Adds a given Statement to this Dataset. If the Statement already exists
     * nothing happens (TODO maybe add it with a new context?). Note: Potentially

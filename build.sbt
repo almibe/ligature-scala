@@ -74,7 +74,7 @@ lazy val ligatureInMemory = crossProject(JSPlatform, JVMPlatform)
     name := "ligature-in-memory",
     scalaVersion := scala3Version,
   )
-  .dependsOn(ligature, ligatureTestSuite % Test)
+  .dependsOn(ligature, idgen, ligatureTestSuite % Test)
   .disablePlugins(RevolverPlugin)
 
 lazy val ligatureLmdb = crossProject(JVMPlatform)
@@ -87,9 +87,10 @@ lazy val ligatureLmdb = crossProject(JVMPlatform)
       libraryDependencies += "org.scalameta" %%% "munit" % munitVersion % Test,
       libraryDependencies += "org.typelevel" %%% "munit-cats-effect-3" % "1.0.7"
   )
-  .dependsOn(ligature, ligatureTestSuite % Test)
+  .dependsOn(ligature, idgen, ligatureTestSuite % Test)
   .disablePlugins(RevolverPlugin)
 
+//TODO: test is broken for this project so I'm leaving it out for now, see #249
 //lazy val ligatureJS = crossProject(JSPlatform)
 //  .in(file("ligature-js"))
 //  .enablePlugins(ScalaJSPlugin)
