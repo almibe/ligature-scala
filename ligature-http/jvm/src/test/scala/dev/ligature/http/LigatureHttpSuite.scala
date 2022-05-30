@@ -244,7 +244,7 @@ class LigatureHttpSuite extends FunSuite {
   //      .unsafeRunSync()
   //    assertEquals(writeResponse, "true")
   //  }
-  //}
+  // }
 
   def dligToSet(input: String): Set[Statement] = {
     readDLig(input).getOrElse(???).toSet

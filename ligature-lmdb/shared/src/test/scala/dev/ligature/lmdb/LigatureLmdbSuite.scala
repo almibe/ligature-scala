@@ -6,6 +6,6 @@ package dev.ligature.lmdb
 
 import dev.ligature.testsuite.LigatureTestSuite
 
-class LigatureLmdbSpec { //extends LigatureTestSuite() {
-  //override def createLigature = LmdbLigature()
+class LigatureLmdbSpec { // extends LigatureTestSuite() {
+  // override def createLigature = LmdbLigature()
 }
