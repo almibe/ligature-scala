@@ -54,7 +54,10 @@ final class InMemoryLigature extends Ligature {
   /** Returns all Datasets in a Ligature instance that are in a given range
     * (inclusive, exclusive].
     */
-  override def matchDatasetsRange(start: String, end: String): Stream[IO, Dataset] =
+  override def matchDatasetsRange(
+      start: String,
+      end: String
+  ): Stream[IO, Dataset] =
     Stream.evalSeq {
       for {
         ref <- IO(store)

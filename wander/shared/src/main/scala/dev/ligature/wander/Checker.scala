@@ -7,8 +7,7 @@ package dev.ligature.wander
 import dev.ligature.wander.parser.Script
 
 case class TypeError(message: String)
-object Ok
 
-def typeCheck(script: Script): Either[List[TypeError], Ok] = {
+def typeCheck(script: Script): Either[List[TypeError], Unit] = {
   ???
 }

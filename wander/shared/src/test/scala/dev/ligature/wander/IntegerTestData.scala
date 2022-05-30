@@ -4,6 +4,4 @@
 
 package dev.ligature.wander
 
-class IntegerTestData {
-
-}
+class IntegerTestData {}

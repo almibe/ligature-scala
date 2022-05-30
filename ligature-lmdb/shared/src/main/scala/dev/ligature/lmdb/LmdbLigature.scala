@@ -48,7 +48,7 @@ final class LmdbLigature(dbFile: File) extends Ligature {
     */
   def matchDatasetsPrefix(prefix: String): Stream[IO, Dataset] =
     ???
-    
+
   /** Returns all Datasets in a Ligature instance that are in a given range
     * (inclusive, exclusive].
     */
@@ -78,6 +78,6 @@ final class LmdbLigature(dbFile: File) extends Ligature {
     */
   def write(dataset: Dataset)(fn: WriteTx => IO[Unit]): IO[Unit] =
     ???
-  
+
   def close(): IO[Unit] = ???
 }
