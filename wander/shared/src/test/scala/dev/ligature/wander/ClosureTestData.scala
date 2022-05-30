@@ -354,7 +354,7 @@ val closureTestData = List(
         LigatureValue(StringLiteral("hello"))
       )
     )
-  ),
+  )
 //  TestInstance(
 //    description = "function vararg",
 //    script = """let head = (values:Value*) -> Value {
