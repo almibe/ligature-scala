@@ -90,17 +90,16 @@ lazy val ligatureLmdb = crossProject(JVMPlatform)
   .dependsOn(ligature, ligatureTestSuite % Test)
   .disablePlugins(RevolverPlugin)
 
-lazy val ligatureJS = crossProject(JSPlatform)
-  .in(file("ligature-js"))
-  .enablePlugins(ScalaJSPlugin)
-  .jsSettings(
-    name := "ligature-js",
-    scalaVersion := scala3Version,
-    scalaJSLinkerConfig ~= { _.withModuleKind(ModuleKind.ESModule) },
-    libraryDependencies += "org.scalameta" %%% "munit" % munitVersion % Test
-  )
-  .dependsOn(ligature, wander, ligatureTestSuite % Test)
-  .disablePlugins(RevolverPlugin)
+//lazy val ligatureJS = crossProject(JSPlatform)
+//  .in(file("ligature-js"))
+//  .enablePlugins(ScalaJSPlugin)
+//  .jsSettings(
+//    name := "ligature-js",
+//    scalaVersion := scala3Version,
+//    scalaJSLinkerConfig ~= { _.withModuleKind(ModuleKind.ESModule) },
+//  )
+//  .dependsOn(ligature, wander)
+//  .disablePlugins(RevolverPlugin)
 
 val http4sVersion = "1.0.0-M32"
 
