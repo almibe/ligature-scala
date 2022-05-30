@@ -227,25 +227,26 @@ class LigatureHttpSuite extends FunSuite {
     assertEquals(dligToSet(res), dligToSet(resultStatements))
   }
 
-//  test("Run Wander") {
-//    val instance = createInstance()
-//    instance.routes
-//      .run(Request(method = Method.POST, uri = uri"/datasets/new"))
-//      .unsafeRunSync()
-//    val writeResponse = instance.routes
-//      .run(
-//        Request(method = Method.POST, uri = uri"/datasets/new/wander")
-//          .withEntity("and(true true)")
-//      )
-//      .unsafeRunSync()
-//      .bodyText
-//      .compile
-//      .string
-//      .unsafeRunSync()
-//    assertEquals(writeResponse, "true")
-//  }
-//}
+  //  test("Run Wander") {
+  //    val instance = createInstance()
+  //    instance.routes
+  //      .run(Request(method = Method.POST, uri = uri"/datasets/new"))
+  //      .unsafeRunSync()
+  //    val writeResponse = instance.routes
+  //      .run(
+  //        Request(method = Method.POST, uri = uri"/datasets/new/wander")
+  //          .withEntity("and(true true)")
+  //      )
+  //      .unsafeRunSync()
+  //      .bodyText
+  //      .compile
+  //      .string
+  //      .unsafeRunSync()
+  //    assertEquals(writeResponse, "true")
+  //  }
+  //}
 
-def dligToSet(input: String): Set[Statement] = {
-  readDLig(input).getOrElse(???).toSet
+  def dligToSet(input: String): Set[Statement] = {
+    readDLig(input).getOrElse(???).toSet
+  }
 }
