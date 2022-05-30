@@ -355,81 +355,81 @@ val closureTestData = List(
       )
     )
   ),
-  TestInstance(
-    description = "function vararg",
-    script = """let head = (values:Value*) -> Value {
-               |  value2
-               |}
-               |middle(<testEntity> "hello" 24601)""".stripMargin,
-    tokens = List(
-      Token("let", TokenType.LetKeyword),
-      Token(" ", TokenType.Spaces),
-      Token("middle", TokenType.Name),
-      Token(" ", TokenType.Spaces),
-      Token("=", TokenType.EqualSign),
-      Token(" ", TokenType.Spaces),
-      Token("(", TokenType.OpenParen),
-      Token("value1", TokenType.Name),
-      Token(":", TokenType.Colon),
-      Token("Value", TokenType.Name),
-      Token(" ", TokenType.Spaces),
-      Token("value2", TokenType.Name),
-      Token(":", TokenType.Colon),
-      Token("Value", TokenType.Name),
-      Token(" ", TokenType.Spaces),
-      Token("value3", TokenType.Name),
-      Token(":", TokenType.Colon),
-      Token("Value", TokenType.Name),
-      Token(")", TokenType.CloseParen),
-      Token(" ", TokenType.Spaces),
-      Token("->", TokenType.Arrow),
-      Token(" ", TokenType.Spaces),
-      Token("Value", TokenType.Name),
-      Token(" ", TokenType.Spaces),
-      Token("{", TokenType.OpenBrace),
-      Token(newLine, TokenType.NewLine),
-      Token("  ", TokenType.Spaces),
-      Token("value2", TokenType.Name),
-      Token(newLine, TokenType.NewLine),
-      Token("}", TokenType.CloseBrace),
-      Token(newLine, TokenType.NewLine),
-      Token("middle", TokenType.Name),
-      Token("(", TokenType.OpenParen),
-      Token("testEntity", TokenType.Identifier),
-      Token(" ", TokenType.Spaces),
-      Token("hello", TokenType.String),
-      Token(" ", TokenType.Spaces),
-      Token("24601", TokenType.Integer),
-      Token(")", TokenType.CloseParen)
-    ),
-    ast = Script(
-      List(
-        LetStatement(
-          Name("middle"),
-          WanderFunction(
-            List(
-              Parameter(Name("value1"), WanderType.Value),
-              Parameter(Name("value2"), WanderType.Value),
-              Parameter(Name("value3"), WanderType.Value)
-            ),
-            WanderType.Value,
-            Scope(List(Name("value2")))
-          )
-        ),
-        FunctionCall(
-          Name("middle"),
-          List(
-            LigatureValue(Identifier.fromString("testEntity").getOrElse(???)),
-            LigatureValue(StringLiteral("hello")),
-            LigatureValue(IntegerLiteral(24601))
-          )
-        )
-      )
-    ),
-    result = Right(
-      ScriptResult(
-        LigatureValue(StringLiteral("hello"))
-      )
-    )
-  )
+//  TestInstance(
+//    description = "function vararg",
+//    script = """let head = (values:Value*) -> Value {
+//               |  value2
+//               |}
+//               |middle(<testEntity> "hello" 24601)""".stripMargin,
+//    tokens = List(
+//      Token("let", TokenType.LetKeyword),
+//      Token(" ", TokenType.Spaces),
+//      Token("middle", TokenType.Name),
+//      Token(" ", TokenType.Spaces),
+//      Token("=", TokenType.EqualSign),
+//      Token(" ", TokenType.Spaces),
+//      Token("(", TokenType.OpenParen),
+//      Token("value1", TokenType.Name),
+//      Token(":", TokenType.Colon),
+//      Token("Value", TokenType.Name),
+//      Token(" ", TokenType.Spaces),
+//      Token("value2", TokenType.Name),
+//      Token(":", TokenType.Colon),
+//      Token("Value", TokenType.Name),
+//      Token(" ", TokenType.Spaces),
+//      Token("value3", TokenType.Name),
+//      Token(":", TokenType.Colon),
+//      Token("Value", TokenType.Name),
+//      Token(")", TokenType.CloseParen),
+//      Token(" ", TokenType.Spaces),
+//      Token("->", TokenType.Arrow),
+//      Token(" ", TokenType.Spaces),
+//      Token("Value", TokenType.Name),
+//      Token(" ", TokenType.Spaces),
+//      Token("{", TokenType.OpenBrace),
+//      Token(newLine, TokenType.NewLine),
+//      Token("  ", TokenType.Spaces),
+//      Token("value2", TokenType.Name),
+//      Token(newLine, TokenType.NewLine),
+//      Token("}", TokenType.CloseBrace),
+//      Token(newLine, TokenType.NewLine),
+//      Token("middle", TokenType.Name),
+//      Token("(", TokenType.OpenParen),
+//      Token("testEntity", TokenType.Identifier),
+//      Token(" ", TokenType.Spaces),
+//      Token("hello", TokenType.String),
+//      Token(" ", TokenType.Spaces),
+//      Token("24601", TokenType.Integer),
+//      Token(")", TokenType.CloseParen)
+//    ),
+//    ast = Script(
+//      List(
+//        LetStatement(
+//          Name("middle"),
+//          WanderFunction(
+//            List(
+//              Parameter(Name("value1"), WanderType.Value),
+//              Parameter(Name("value2"), WanderType.Value),
+//              Parameter(Name("value3"), WanderType.Value)
+//            ),
+//            WanderType.Value,
+//            Scope(List(Name("value2")))
+//          )
+//        ),
+//        FunctionCall(
+//          Name("middle"),
+//          List(
+//            LigatureValue(Identifier.fromString("testEntity").getOrElse(???)),
+//            LigatureValue(StringLiteral("hello")),
+//            LigatureValue(IntegerLiteral(24601))
+//          )
+//        )
+//      )
+//    ),
+//    result = Right(
+//      ScriptResult(
+//        LigatureValue(StringLiteral("hello"))
+//      )
+//    )
+//  )
 )
