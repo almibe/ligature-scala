@@ -35,49 +35,62 @@ final class LmdbLigature(dbFile: File) extends Ligature {
 
   /** Returns all Datasets in a Ligature instance. */
   override def allDatasets(): Stream[IO, Dataset] = {
+    //read all keys from datasetNameDB
     ???
   }
 
   /** Check if a given Dataset exists. */
-  def datasetExists(dataset: Dataset): IO[Boolean] = {
+  override def datasetExists(dataset: Dataset): IO[Boolean] = IO {
+    //check if key exists in datasetNameDB
     ???
   }
 
   /** Returns all Datasets in a Ligature instance that start with the given
     * prefix.
     */
-  def matchDatasetsPrefix(prefix: String): Stream[IO, Dataset] =
+  override def matchDatasetsPrefix(prefix: String): Stream[IO, Dataset] =
+    //read cursor in datasetNamesDB
     ???
 
   /** Returns all Datasets in a Ligature instance that are in a given range
     * (inclusive, exclusive].
     */
-  def matchDatasetsRange(start: String, end: String): Stream[IO, Dataset] =
+  override def matchDatasetsRange(start: String, end: String): Stream[IO, Dataset] =
+    //read cursor in datasetNamesDB
     ???
 
   /** Creates a dataset with the given name. TODO should probably return its own
     * error type { InvalidDataset, DatasetExists, CouldNotCreateDataset }
     */
-  def createDataset(dataset: Dataset): IO[Unit] =
+  override def createDataset(dataset: Dataset): IO[Unit] =
+    //check if dataset exists
+    //get next id
+    //store dataset in datasetNamesDB
     ???
 
   /** Deletes a dataset with the given name. TODO should probably return its own
     * error type { InvalidDataset, CouldNotDeleteDataset }
     */
-  def deleteDataset(dataset: Dataset): IO[Unit] =
+  override def deleteDataset(dataset: Dataset): IO[Unit] =
+    //check if dataset exists
+    //remove datasetName
+    //remove all Statements in Dataset
     ???
 
   /** Initializes a QueryTx TODO should probably return its own error type
     * CouldNotInitializeQueryTx
     */
-  def query[T](dataset: Dataset)(fn: QueryTx => IO[T]): IO[T] =
+  override def query[T](dataset: Dataset)(fn: QueryTx => IO[T]): IO[T] =
     ???
 
   /** Initializes a WriteTx TODO should probably return its own error type
     * CouldNotInitializeWriteTx
     */
-  def write(dataset: Dataset)(fn: WriteTx => IO[Unit]): IO[Unit] =
+  override def write(dataset: Dataset)(fn: WriteTx => IO[Unit]): IO[Unit] =
     ???
 
-  def close(): IO[Unit] = ???
+  override def close(): IO[Unit] = IO {
+    env.close()
+    ()
+  }
 }
