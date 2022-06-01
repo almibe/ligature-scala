@@ -8,7 +8,6 @@ import cats.effect.IO
 import dev.ligature._
 import dev.ligature.idgen.genId
 import cats.data.EitherT
-import java.util.concurrent.locks.Lock
 
 /** Represents a WriteTx within the context of a Ligature instance and a single
   * Dataset
