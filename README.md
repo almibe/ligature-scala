@@ -11,9 +11,9 @@ See additional documentation [here](https://github.com/almibe/ligature-documenta
 | idgen               | A basic, unsecure, implementation of nanoid for use with Ligature                 | ✅   | ✅ |
 | lig                 | A simple serialization format as well as DLig an input format for Ligature       | ✅   | ✅ |
 | ligature-in-memory  | An in-memory implementation of Ligature                                          | ✅   | ✅ |
-| ligature-lmdb       | An implementation of Ligature using LMDB for persistence.                        | ✅   |   |
+| ligature-xodus      | An implementation of Ligature using LMDB for persistence.                        | ✅   |   |
 | wander              | A scripting language for working with Ligature.                                  | ✅   | ✅ |
-| gaze                | A utility library for parsing text.                                              | ✅   | ✅ |
+| gaze                | A utility library for parsing text/data structures.                              | ✅   | ✅ |
 | ligature-http       | A JVM based server for Ligature following the ligature-http spec.                | ✅   |   |
 
 ## Building
@@ -47,13 +47,6 @@ If you are using the interaction shell, I recommend using
 `reStart`
 
 This will let you reload the server whenever you want by repeating the command.
-
-### Running the REPL
-
-Sometimes running the Ligature REPL from the sbt shell causes issues.
-So I'd recommend running it outside of the sbt shell like this from your normal terminal.
-
-`sbt ligatureReplJVM/run`
 
 ### Credits
 

@@ -77,26 +77,26 @@ lazy val ligatureInMemory = crossProject(JSPlatform, JVMPlatform)
   .dependsOn(ligature, idgen, ligatureTestSuite % Test)
   .disablePlugins(RevolverPlugin)
 
-lazy val ligatureLmdb = crossProject(JVMPlatform)
-  .in(file("ligature-lmdb"))
-  .settings(
-      name := "ligature-lmdb",
-      scalaVersion := scala3Version,
-      libraryDependencies += "co.fs2" %%% "fs2-core" % fs2Version,
-      libraryDependencies += "org.lmdbjava" % "lmdbjava" % "0.8.2",
-      libraryDependencies += "org.scalameta" %%% "munit" % munitVersion % Test,
-      libraryDependencies += "org.typelevel" %%% "munit-cats-effect-3" % "1.0.7"
-  )
-  .dependsOn(ligature, idgen, ligatureTestSuite % Test)
-  .disablePlugins(RevolverPlugin)
+//lazy val ligatureLmdb = crossProject(JVMPlatform)
+//  .in(file("ligature-lmdb"))
+//  .settings(
+//      name := "ligature-lmdb",
+//      scalaVersion := scala3Version,
+//      libraryDependencies += "co.fs2" %%% "fs2-core" % fs2Version,
+//      libraryDependencies += "org.lmdbjava" % "lmdbjava" % "0.8.2",
+//      libraryDependencies += "org.scalameta" %%% "munit" % munitVersion % Test,
+//      libraryDependencies += "org.typelevel" %%% "munit-cats-effect-3" % "1.0.7"
+//  )
+//  .dependsOn(ligature, idgen, ligatureTestSuite % Test)
+//  .disablePlugins(RevolverPlugin)
 
-lazy val ligatureArcadeDB = crossProject(JVMPlatform)
-  .in(file("ligature-arcadedb"))
+lazy val ligatureXodus = crossProject(JVMPlatform)
+  .in(file("ligature-xodus"))
   .settings(
-    name := "ligature-arcadedb",
+    name := "ligature-xodus",
     scalaVersion := scala3Version,
     libraryDependencies += "co.fs2" %%% "fs2-core" % fs2Version,
-    libraryDependencies += "com.arcadedb" % "arcadedb-engine" % "22.1.3",
+    libraryDependencies += "org.jetbrains.xodus" % "xodus-environment" % "2.0.1",
     libraryDependencies += "org.scalameta" %%% "munit" % munitVersion % Test,
     libraryDependencies += "org.typelevel" %%% "munit-cats-effect-3" % "1.0.7"
   )

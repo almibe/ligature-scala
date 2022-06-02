@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at https://mozilla.org/MPL/2.0/. */
 
-package dev.ligature.arcadedb
+package dev.ligature.xodus
 
 import cats.effect.IO
 import dev.ligature.*
@@ -11,7 +11,7 @@ import fs2.Stream
 /** Represents a QueryTx within the context of a Ligature instance and a single
   * Dataset
   */
-class ArcadeDBQueryTx() extends QueryTx {
+class XodusQueryTx() extends QueryTx {
 
   /** Returns all PersistedStatements in this Dataset. */
   def allStatements(): Stream[IO, Statement] = ???

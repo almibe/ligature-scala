@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at https://mozilla.org/MPL/2.0/. */
 
-package dev.ligature.arcadedb
+package dev.ligature.xodus
 
 import cats.effect.IO
 import dev.ligature._
@@ -13,7 +13,7 @@ import java.util.concurrent.locks.Lock
 /** Represents a WriteTx within the context of a Ligature instance and a single
   * Dataset
   */
-class ArcadeDBWriteTx() extends WriteTx {
+class XodusWriteTx() extends WriteTx {
 
   /** Creates a new, unique Entity within this Dataset. */
   override def newIdentifier(prefix: String): IO[Identifier] = ???

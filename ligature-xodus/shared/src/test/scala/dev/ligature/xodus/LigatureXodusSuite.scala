@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-package dev.ligature.lmdb
+package dev.ligature.xodus
 
 import dev.ligature.Ligature
 import dev.ligature.testsuite.LigatureTestSuite
@@ -32,7 +32,7 @@ class LigatureLmdbSpec extends LigatureTestSuite() {
   }
 
   override def createLigature = {
-    ligatureInstance = LmdbLigature(path.toFile())
+    ligatureInstance = XodusLigature(path.toFile())
     ligatureInstance
   }
 }
