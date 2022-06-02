@@ -19,6 +19,23 @@ import scala.jdk.CollectionConverters._
 final class XodusLigature(dbDirectory: File) extends Ligature {
   private val environment = Environments.newInstance(dbDirectory, new EnvironmentConfig())
 
+  enum Store(val storeName: String):
+    case countersStore extends Store("Counters")
+    case datasetToIdStore extends Store("DatasetToID")
+    case idToDatasetStore extends Store("IDToDataset")
+    case eavStore extends Store("EAV")
+    case evaStore extends Store("EVA")
+    case aevStore extends Store("AEV")
+    case aveStore extends Store("AVE")
+    case veaStore extends Store("VEA")
+    case vaeStore extends Store("VAE")
+    case identifierToIdStore extends Store("IdentifierToID")
+    case IdToIdentifierStore extends Store("IDToIdentifier")
+    case stringToIdStore extends Store("StringToID")
+    case IdToStringStore extends Store("IDToString")
+    case bytesToIdStore extends Store("BytesToID")
+    case IdToBytesStore extends Store("IDToBytes")
+
   /** Returns all Datasets in a Ligature instance. */
   override def allDatasets(): Stream[IO, Dataset] = Stream.emits {
     val tc: TransactionalComputable[java.util.List[String]] = tx => environment.getAllStoreNames(tx)

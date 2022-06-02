@@ -9,7 +9,7 @@ import dev.ligature.testsuite.LigatureTestSuite
 import java.nio.file._
 import java.io.File
 
-class LigatureLmdbSpec extends LigatureTestSuite() {
+class LigatureXodusSpec extends LigatureTestSuite() {
   var path: Path = null
   var ligatureInstance: Ligature = null
 
@@ -28,11 +28,11 @@ class LigatureLmdbSpec extends LigatureTestSuite() {
     }
 
     ligatureInstance.close().unsafeRunSync()
-    deleteRecursively(path.toFile())
+    deleteRecursively(path.toFile)
   }
 
-  override def createLigature = {
-    ligatureInstance = XodusLigature(path.toFile())
+  override def createLigature: Ligature = {
+    ligatureInstance = XodusLigature(path.toFile)
     ligatureInstance
   }
 }
