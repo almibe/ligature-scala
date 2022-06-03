@@ -18,22 +18,9 @@ import dev.ligature.gaze.{
   takeFirst,
   repeat
 }
-import dev.ligature.{
-  Identifier,
-  IntegerLiteral,
-  Statement,
-  StringLiteral,
-  Value
-}
-import dev.ligature.lig.LigNibblers.{
-  whiteSpaceAndNewLineNibbler,
-  whiteSpaceNibbler
-}
-import dev.ligature.lig.{
-  createIdentifier,
-  parseIntegerLiteral,
-  parseStringLiteral
-}
+import dev.ligature.{Identifier, IntegerLiteral, Statement, StringLiteral, Value}
+import dev.ligature.lig.LigNibblers.{whiteSpaceAndNewLineNibbler, whiteSpaceNibbler}
+import dev.ligature.lig.{createIdentifier, parseIntegerLiteral, parseStringLiteral}
 import dev.ligature.idgen.genId
 import scala.collection.mutable.HashMap
 
@@ -65,19 +52,17 @@ def readDLig(input: String): Either[DLigError, List[Statement]] = {
 
 def parsePrefixes(gaze: Gaze[Char]): Either[DLigError, Map[String, String]] = {
   val result = HashMap[String, String]()
-  while (!gaze.isComplete()) {
+  while (!gaze.isComplete())
     parsePrefix(gaze) match {
       case Left(err)   => return Left(err)
       case Right(None) => return Right(result.toMap)
-      case Right(Some(pair)) => {
+      case Right(Some(pair)) =>
         if (result.contains(pair._1)) {
           return Left(DLigError(s"Duplicate Prefix Name: ${pair._1}"))
         } else {
           result.addOne(pair)
         }
-      }
     }
-  }
   return Right(result.toMap)
 }
 
@@ -100,11 +85,10 @@ def parsePrefix(
   )
   parseResult match {
     case None => Right(None)
-    case Some(p) => {
+    case Some(p) =>
       val prefixName = p(2).mkString
       val prefixValue = p(6).mkString
       Right(Some((prefixName, prefixValue)))
-    }
   }
 }
 
@@ -114,15 +98,13 @@ def parseDLigStatements(
 ): Either[DLigError, List[Statement]] = {
   val statements = ArrayBuffer[Statement]()
   var lastStatement: Option[Statement] = None
-  while (!gaze.isComplete()) {
+  while (!gaze.isComplete())
     parseDLigStatement(gaze, prefixes, lastStatement) match {
       case Left(err) => return Left(err)
-      case Right(statement) => {
+      case Right(statement) =>
         lastStatement = Some(statement)
         statements.addOne(statement)
-      }
     }
-  }
   return Right(statements.toList)
 }
 
@@ -130,7 +112,7 @@ def parseDLigStatement(
     gaze: Gaze[Char],
     prefixes: Map[String, String],
     lastStatement: Option[Statement]
-): Either[DLigError, Statement] = {
+): Either[DLigError, Statement] =
   for {
     _ <- gaze
       .attempt(optional(whiteSpaceAndNewLineNibbler))
@@ -147,29 +129,25 @@ def parseDLigStatement(
     _ <- gaze
       .attempt(optional(whiteSpaceAndNewLineNibbler))
       .toRight(DLigError(""))
-  } yield (Statement(entity, attribute, value))
-}
+  } yield Statement(entity, attribute, value)
 
-def lastEntity(lastStatement: Option[Statement]): Option[Identifier] = {
+def lastEntity(lastStatement: Option[Statement]): Option[Identifier] =
   lastStatement match {
     case None            => None
     case Some(statement) => Some(statement.entity)
   }
-}
 
-def lastAttribute(lastStatement: Option[Statement]): Option[Identifier] = {
+def lastAttribute(lastStatement: Option[Statement]): Option[Identifier] =
   lastStatement match {
     case None            => None
     case Some(statement) => Some(statement.attribute)
   }
-}
 
-def lastValue(lastStatement: Option[Statement]): Option[Value] = {
+def lastValue(lastStatement: Option[Statement]): Option[Value] =
   lastStatement match {
     case None            => None
     case Some(statement) => Some(statement.value)
   }
-}
 
 def parseIdentifier(
     gaze: Gaze[Char],
@@ -192,9 +170,7 @@ def parseIdentifier(
       takeString("<"),
       repeat(
         takeFirst(
-          takeWhile(c =>
-            "[a-zA-Z0-9-._~:/?#\\[\\]@!$&'()*+,;%=]".r.matches(c.toString)
-          ),
+          takeWhile(c => "[a-zA-Z0-9-._~:/?#\\[\\]@!$&'()*+,;%=]".r.matches(c.toString)),
           takeString("{}")
         )
       ),
@@ -213,9 +189,7 @@ def parseIdentifier(
       takeString(":"),
       repeat(
         takeFirst(
-          takeWhile(c =>
-            "[a-zA-Z0-9-._~:/?#\\[\\]@!$&'()*+,;%=]".r.matches(c.toString)
-          ),
+          takeWhile(c => "[a-zA-Z0-9-._~:/?#\\[\\]@!$&'()*+,;%=]".r.matches(c.toString)),
           takeString("{}")
         )
       )
@@ -231,22 +205,19 @@ def parseIdentifier(
   return Left(DLigError("Could not match Identifier."))
 }
 
-def handleIdGenId(input: String): Either[DLigError, Identifier] = {
+def handleIdGenId(input: String): Either[DLigError, Identifier] =
   Identifier.fromString(genIdId(input)).left.map(err => DLigError(err.message))
-}
 
 def genIdId(input: String): String = {
   val itr = input.toCharArray.iterator
   val sb = StringBuilder()
-  while (itr.hasNext) {
+  while (itr.hasNext)
     itr.next match {
-      case c: Char if c == '{' => {
+      case c: Char if c == '{' =>
         itr.next // eat }, TODO should probably assert here
         sb.append(genId())
-      }
-      case c: Char => { sb.append(c) }
+      case c: Char => sb.append(c)
     }
-  }
   sb.toString
 }
 
@@ -257,13 +228,12 @@ def handlePrefixedId(
   val prefixName = input(0).mkString
   prefixes.get(prefixName) match {
     case None => Left(DLigError(s"Prefix Name $prefixName, Doesn't Exist."))
-    case Some(prefixValue) => {
+    case Some(prefixValue) =>
       val postfix = input(2).mkString
       Identifier
         .fromString(prefixValue + postfix)
         .left
         .map(err => DLigError(err.message))
-    }
   }
 }
 
@@ -274,13 +244,12 @@ def handlePrefixedGenId(
   val prefixName = input(0).mkString
   prefixes.get(prefixName) match {
     case None => Left(DLigError(s"Prefix Name $prefixName, Doesn't Exist."))
-    case Some(prefixValue) => {
+    case Some(prefixValue) =>
       val postfix = input(2).mkString
       Identifier
         .fromString(genIdId(prefixValue + postfix))
         .left
         .map(err => DLigError(err.message))
-    }
   }
 }
 

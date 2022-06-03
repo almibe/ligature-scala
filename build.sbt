@@ -63,7 +63,7 @@ lazy val ligatureTestSuite = crossProject(JSPlatform, JVMPlatform)
     scalaVersion := scala3Version,
     libraryDependencies += "co.fs2" %%% "fs2-core" % fs2Version,
     libraryDependencies += "org.scalameta" %%% "munit" % munitVersion % Test,
-    libraryDependencies += "org.typelevel" %%% "munit-cats-effect-3" % "1.0.7"
+    libraryDependencies += "org.typelevel" %%% "munit-cats-effect-3" % "1.0.7" % Test
   )
   .dependsOn(ligature)
   .disablePlugins(RevolverPlugin)
@@ -97,8 +97,9 @@ lazy val ligatureXodus = crossProject(JVMPlatform)
     scalaVersion := scala3Version,
     libraryDependencies += "co.fs2" %%% "fs2-core" % fs2Version,
     libraryDependencies += "org.jetbrains.xodus" % "xodus-environment" % "2.0.1",
+    libraryDependencies += "org.scodec" % "scodec-core_3" % "2.1.0",
     libraryDependencies += "org.scalameta" %%% "munit" % munitVersion % Test,
-    libraryDependencies += "org.typelevel" %%% "munit-cats-effect-3" % "1.0.7"
+    libraryDependencies += "org.typelevel" %%% "munit-cats-effect-3" % "1.0.7" % Test
   )
   .dependsOn(ligature, idgen, ligatureTestSuite % Test)
   .disablePlugins(RevolverPlugin)

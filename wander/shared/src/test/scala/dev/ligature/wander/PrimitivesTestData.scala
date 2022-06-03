@@ -6,13 +6,7 @@ package dev.ligature.wander
 
 import dev.ligature.{Identifier, IntegerLiteral, StringLiteral}
 import dev.ligature.wander.lexer.{Token, TokenType}
-import dev.ligature.wander.parser.{
-  BooleanValue,
-  LigatureValue,
-  Nothing,
-  Script,
-  ScriptResult
-}
+import dev.ligature.wander.parser.{BooleanValue, LigatureValue, Nothing, Script, ScriptResult}
 
 val primitivesTestData = List(
   TestInstance(
@@ -32,8 +26,7 @@ val primitivesTestData = List(
   TestInstance(
     description = "true boolean primitive with trailing whitespace",
     script = "true   ",
-    tokens =
-      List(Token("true", TokenType.Boolean), Token("   ", TokenType.Spaces)),
+    tokens = List(Token("true", TokenType.Boolean), Token("   ", TokenType.Spaces)),
     ast = Script(List(BooleanValue(true))),
     result = Right(ScriptResult(BooleanValue(true)))
   ),
@@ -41,8 +34,7 @@ val primitivesTestData = List(
     description = "identifier",
     script = "<test>",
     tokens = List(Token("test", TokenType.Identifier)),
-    ast =
-      Script(List(LigatureValue(Identifier.fromString("test").getOrElse(???)))),
+    ast = Script(List(LigatureValue(Identifier.fromString("test").getOrElse(???)))),
     result = Right(
       ScriptResult(LigatureValue(Identifier.fromString("test").getOrElse(???)))
     )

@@ -246,7 +246,6 @@ class LigatureHttpSuite extends FunSuite {
   //  }
   // }
 
-  def dligToSet(input: String): Set[Statement] = {
+  def dligToSet(input: String): Set[Statement] =
     readDLig(input).getOrElse(???).toSet
-  }
 }

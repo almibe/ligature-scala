@@ -16,13 +16,7 @@ import dev.ligature.gaze.{
   takeUntil,
   takeWhile
 }
-import dev.ligature.{
-  Identifier,
-  IntegerLiteral,
-  Statement,
-  StringLiteral,
-  Value
-}
+import dev.ligature.{Identifier, IntegerLiteral, Statement, StringLiteral, Value}
 import dev.ligature.lig.LigNibblers
 
 private val validPrefixName =

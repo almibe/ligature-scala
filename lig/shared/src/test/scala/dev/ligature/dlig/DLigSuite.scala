@@ -75,7 +75,7 @@ class DLigSuite extends CommonSuite(readDLig) {
     val input = "prefix x = this:\nx:hello x:cruel x:world"
     val result = readDLig(input)
     result match {
-      case Right(statements) => {
+      case Right(statements) =>
         assertEquals(statements.length, 1)
         assertEquals(
           statements(0).entity,
@@ -89,7 +89,6 @@ class DLigSuite extends CommonSuite(readDLig) {
           statements(0).value,
           Identifier.fromString("this:world").getOrElse(???)
         )
-      }
       case Left(err) => fail("failed", clues(err))
     }
   }
@@ -98,7 +97,7 @@ class DLigSuite extends CommonSuite(readDLig) {
     val input = "prefix x = this:\nx:hello{} x:cruel x:world"
     val result = readDLig(input)
     result match {
-      case Right(statements) => {
+      case Right(statements) =>
         assertEquals(statements.length, 1)
 //        assertEquals(statements(0).entity, Identifier.fromString("this:hello").getOrElse(???))
         assertEquals(
@@ -109,7 +108,6 @@ class DLigSuite extends CommonSuite(readDLig) {
           statements(0).value,
           Identifier.fromString("this:world").getOrElse(???)
         )
-      }
       case Left(err) => fail("failed", clues(err))
     }
   }
@@ -118,10 +116,9 @@ class DLigSuite extends CommonSuite(readDLig) {
     val input = "prefix x = this:\nx:{} x:{}is:a x:prefix{}"
     val result = readDLig(input)
     result match {
-      case Right(statements) => {
+      case Right(statements) =>
         assertEquals(statements.length, 1)
-        // TODO add more checks
-      }
+      // TODO add more checks
       case Left(err) => fail("failed", clues(err))
     }
   }

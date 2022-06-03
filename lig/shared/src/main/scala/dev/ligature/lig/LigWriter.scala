@@ -4,13 +4,7 @@
 
 package dev.ligature.lig
 
-import dev.ligature.{
-  Identifier,
-  IntegerLiteral,
-  Statement,
-  StringLiteral,
-  Value
-}
+import dev.ligature.{Identifier, IntegerLiteral, Statement, StringLiteral, Value}
 
 def write(statements: Iterator[Statement]): String = {
   val sb = StringBuilder()

@@ -5,13 +5,7 @@
 package dev.ligature.wander
 
 import dev.ligature.wander.lexer.{Token, TokenType}
-import dev.ligature.wander.parser.{
-  BooleanValue,
-  FunctionCall,
-  Name,
-  Script,
-  ScriptResult
-}
+import dev.ligature.wander.parser.{BooleanValue, FunctionCall, Name, Script, ScriptResult}
 
 val booleanExpression = List(
   TestInstance(

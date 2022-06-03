@@ -5,20 +5,14 @@
 package dev.ligature.wander
 
 import dev.ligature.wander.lexer.tokenize
-import dev.ligature.wander.parser.{
-  parse,
-  Nothing,
-  Script,
-  ScriptError,
-  ScriptResult
-}
+import dev.ligature.wander.parser.{parse, Nothing, Script, ScriptError, ScriptResult}
 import dev.ligature.wander.lexer.TokenizeError
 import dev.ligature.{Dataset, Ligature}
 
 def run(
     script: String,
     dataset: Dataset
-): Either[ScriptError, ScriptResult] = {
+): Either[ScriptError, ScriptResult] =
   for {
     tokens <- tokenize(script).left.map { (e: TokenizeError) =>
       ScriptError(e.message)
@@ -26,7 +20,6 @@ def run(
     script <- parse(tokens).left.map(ScriptError(_))
     result <- interpret(script, dataset)
   } yield result
-}
 
 def interpret(
     script: Script,

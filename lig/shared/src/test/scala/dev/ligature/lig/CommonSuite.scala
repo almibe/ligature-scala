@@ -14,8 +14,8 @@ import dev.ligature.dlig.DLigError
 abstract class CommonSuite[E](
     val parse: (input: String) => Either[E, List[Statement]]
 ) extends FunSuite {
-  val testIdentifier = Identifier.fromString("test").getOrElse { ??? }
-  def identifier(id: String) = Identifier.fromString(id).getOrElse { ??? }
+  val testIdentifier = Identifier.fromString("test").getOrElse(???)
+  def identifier(id: String) = Identifier.fromString(id).getOrElse(???)
 
   test("basic Statement with all Entities") {
     val statement = Statement(

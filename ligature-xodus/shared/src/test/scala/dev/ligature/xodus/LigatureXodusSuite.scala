@@ -9,13 +9,12 @@ import dev.ligature.testsuite.LigatureTestSuite
 import java.nio.file._
 import java.io.File
 
-class LigatureXodusSpec extends LigatureTestSuite() {
+class LigatureXodusSpec extends LigatureTestSuite {
   var path: Path = null
   var ligatureInstance: Ligature = null
 
-  override def beforeEach(context: BeforeEach): Unit = {
+  override def beforeEach(context: BeforeEach): Unit =
     path = Files.createTempDirectory("LigatureLMDBTest")
-  }
 
   override def afterEach(context: AfterEach): Unit = {
     def deleteRecursively(file: File): Unit = {

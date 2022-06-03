@@ -19,9 +19,7 @@ class WanderSuite extends FunSuite {
 
   testData.foreach { testGroup =>
     testGroup.testInstances.foreach { instance =>
-      if (
-        testLexer && instance.tokens != null && runTest(instance.description)
-      ) {
+      if (testLexer && instance.tokens != null && runTest(instance.description)) {
         test(s"Lexing -- ${testGroup.category} -- ${instance.description}") {
           val tokens = tokenize(instance.script)
           assertEquals(
@@ -37,14 +35,13 @@ class WanderSuite extends FunSuite {
           val tokens = tokenize(instance.script)
           tokens match {
             case Left(err) => fail(s"tokenizer failed - ${err.message}")
-            case Right(tokens) => {
+            case Right(tokens) =>
               val ast = parse(tokens)
               assertEquals(
                 ast,
                 Right(instance.ast),
                 s"AST values are not the same for ${instance.description}"
               )
-            }
           }
         }
       }

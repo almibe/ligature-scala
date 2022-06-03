@@ -29,9 +29,7 @@ def common(): Bindings = {
       Name("log"),
       NativeFunction(
         List(Parameter(Name("message"), WanderType.String)),
-        (binding: Bindings) => {
-          ???
-        }
+        (binding: Bindings) => ???
       )
     )
     .getOrElse(???)
@@ -41,7 +39,7 @@ def common(): Bindings = {
       Name("not"),
       NativeFunction(
         List(Parameter(Name("bool"), WanderType.Boolean)),
-        (bindings: Bindings) => {
+        (bindings: Bindings) =>
           bindings.read(Name("bool")) match {
             case Right(b: BooleanValue) => Right(BooleanValue(!b.value))
             case _ =>
@@ -51,7 +49,6 @@ def common(): Bindings = {
                 )
               )
           }
-        }
       )
     )
     .getOrElse(???)
@@ -64,7 +61,7 @@ def common(): Bindings = {
           Parameter(Name("boolLeft"), WanderType.Boolean),
           Parameter(Name("boolRight"), WanderType.Boolean)
         ),
-        (bindings: Bindings) => {
+        (bindings: Bindings) =>
           for {
             left <- bindings.read(Name("boolLeft"))
             right <- bindings.read(Name("boolRight"))
@@ -74,7 +71,6 @@ def common(): Bindings = {
               case _ => Left(ScriptError("and requires two booleans"))
             }
           } yield res
-        }
       )
     )
     .getOrElse(???)
@@ -87,7 +83,7 @@ def common(): Bindings = {
           Parameter(Name("boolLeft"), WanderType.Boolean),
           Parameter(Name("boolRight"), WanderType.Boolean)
         ),
-        (bindings: Bindings) => {
+        (bindings: Bindings) =>
           for {
             left <- bindings.read(Name("boolLeft"))
             right <- bindings.read(Name("boolRight"))
@@ -97,7 +93,6 @@ def common(): Bindings = {
               case _ => Left(ScriptError("or requires two booleans"))
             }
           } yield res
-        }
       )
     )
     .getOrElse(???)
@@ -136,9 +131,8 @@ def common(): Bindings = {
   stdLib
 }
 
-def datasetModeBindings(bindings: Bindings, dataset: Dataset): Bindings = {
+def datasetModeBindings(bindings: Bindings, dataset: Dataset): Bindings =
   bindings
-}
 
 //def instanceModeBindings(bindings: Bindings): Bindings = {
 //// function instanceScope(scope: ExecutionScope, bindings: Bindings) {

@@ -14,9 +14,8 @@ case class Scope(
 )
 
 case class Bindings(scopes: List[Scope] = List(Scope(Map(), Map()))) {
-  def newScope(): Bindings = {
+  def newScope(): Bindings =
     Bindings(this.scopes.appended(Scope(Map(), Map())))
-  }
 
   def bindVariable(
       name: Name,
@@ -103,6 +102,5 @@ case class Bindings(scopes: List[Scope] = List(Scope(Map(), Map()))) {
 }
 
 //TODO this function will probably be used once I allow for ad-hoc polymorphism with functions.
-def createFunctionDelegate(): NativeFunction = {
+def createFunctionDelegate(): NativeFunction =
   ???
-}

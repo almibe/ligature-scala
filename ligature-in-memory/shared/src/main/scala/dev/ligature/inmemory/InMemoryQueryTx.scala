@@ -14,9 +14,8 @@ import fs2.Stream
 class InMemoryQueryTx(private val store: DatasetStore) extends QueryTx {
 
   /** Returns all PersistedStatements in this Dataset. */
-  override def allStatements(): Stream[IO, Statement] = {
+  override def allStatements(): Stream[IO, Statement] =
     Stream.emits(store.statements.toSeq)
-  }
 
   /** Returns all PersistedStatements that match the given criteria. If a
     * parameter is None then it matches all, so passing all Nones is the same as

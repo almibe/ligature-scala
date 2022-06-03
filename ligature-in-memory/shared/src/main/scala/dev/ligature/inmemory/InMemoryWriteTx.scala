@@ -38,8 +38,7 @@ class InMemoryWriteTx(private val store: DatasetStore) extends WriteTx {
     * could trigger a ValidationError
     */
   override def addStatement(statement: Statement): IO[Unit] = IO {
-    newDatasetStore =
-      newDatasetStore.copy(statements = newDatasetStore.statements + statement)
+    newDatasetStore = newDatasetStore.copy(statements = newDatasetStore.statements + statement)
     ()
   }
 
@@ -50,9 +49,8 @@ class InMemoryWriteTx(private val store: DatasetStore) extends WriteTx {
     */
   override def removeStatement(persistedStatement: Statement): IO[Unit] = IO {
     if (newDatasetStore.statements.contains(persistedStatement)) {
-      newDatasetStore = newDatasetStore.copy(statements =
-        newDatasetStore.statements.excl(persistedStatement)
-      )
+      newDatasetStore =
+        newDatasetStore.copy(statements = newDatasetStore.statements.excl(persistedStatement))
       ()
     } else {
       ()

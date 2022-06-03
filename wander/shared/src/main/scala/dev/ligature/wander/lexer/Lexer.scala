@@ -48,17 +48,13 @@ def tokenize(input: String): Either[TokenizeError, Seq[Token]] = {
 }
 
 val stringTokenNib =
-  LigNibblers.stringNibbler.map(results =>
-    Seq(Token(results(1).mkString, TokenType.String))
-  )
+  LigNibblers.stringNibbler.map(results => Seq(Token(results(1).mkString, TokenType.String)))
 
 //NOTE: New lines are hard coded as \n because sometimes on Windows
 //the two types of new lines get mixed up in the codebase between the editor and Scalafmt.
 //Not ideal, but it works consistently at least.
 val newLineTokenNib =
-  takeFirst(takeString("\n"), takeString("\r\n")).map(res =>
-    Seq(Token("\n", TokenType.NewLine))
-  )
+  takeFirst(takeString("\n"), takeString("\r\n")).map(res => Seq(Token("\n", TokenType.NewLine)))
 
 val commentTokenNib = takeAll(
   takeString("#"),
@@ -69,8 +65,8 @@ val commentTokenNib = takeAll(
   * keywords are checked and if none match and name is returned.
   */
 val nameTokenNib = takeAll(
-  takeCond { (c: Char) => c.isLetter || c == '_' },
-  optional(takeWhile[Char] { (c: Char) => c.isLetter || c.isDigit || c == '_' })
+  takeCond((c: Char) => c.isLetter || c == '_'),
+  optional(takeWhile[Char]((c: Char) => c.isLetter || c.isDigit || c == '_'))
 )
   .map { value =>
     value.mkString match {
@@ -104,18 +100,14 @@ val closeParenTokenNib =
 val arrowTokenNib =
   takeString("->").map(res => Seq(Token(res.mkString, TokenType.Arrow)))
 
-val integerTokenNib = LigNibblers.numberNibbler.map(res =>
-  Seq(Token(res.mkString, TokenType.Integer))
-)
+val integerTokenNib =
+  LigNibblers.numberNibbler.map(res => Seq(Token(res.mkString, TokenType.Integer)))
 
-val spacesTokenNib = takeWhile[Char](_ == ' ').map(res =>
-  Seq(Token(res.mkString, TokenType.Spaces))
-)
+val spacesTokenNib =
+  takeWhile[Char](_ == ' ').map(res => Seq(Token(res.mkString, TokenType.Spaces)))
 
 val identifierTokenNib =
-  LigNibblers.identifierNibbler.map(res =>
-    Seq(Token(res.mkString, TokenType.Identifier))
-  )
+  LigNibblers.identifierNibbler.map(res => Seq(Token(res.mkString, TokenType.Identifier)))
 
 val tokensNib: Nibbler[Char, Token] = repeat(
   takeFirst(

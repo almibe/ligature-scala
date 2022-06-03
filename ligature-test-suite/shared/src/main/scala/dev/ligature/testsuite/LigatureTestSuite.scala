@@ -103,7 +103,7 @@ abstract class LigatureTestSuite extends CatsEffectSuite {
     val res = for {
       _ <- instance.createDataset(testDataset)
       res <- instance
-        .query(testDataset) { tx => tx.allStatements().compile.toList }
+        .query(testDataset)(tx => tx.allStatements().compile.toList)
     } yield res
     assertIO(res, List())
   }
@@ -148,14 +148,14 @@ abstract class LigatureTestSuite extends CatsEffectSuite {
         tx.allStatements().compile.toList
       }
     } yield statements.head
-    res.map(it => {
+    res.map { it =>
       assert(it.entity.name.startsWith("entity-"))
       assert(it.attribute.name.startsWith("attribute-"))
       it.value match {
         case Identifier(id) => assert(id.startsWith("value-"))
         case _              => assert(false)
       }
-    })
+    }
   }
 
   test("removing statements from datasets") {
@@ -235,7 +235,7 @@ abstract class LigatureTestSuite extends CatsEffectSuite {
         } yield (all.toSet, as.toSet, hellos.toSet, helloa.toSet)
       }
     } yield res
-    res.map((all, as, hellos, helloa) => {
+    res.map { (all, as, hellos, helloa) =>
       assertEquals(
         all,
         Set(
@@ -267,7 +267,7 @@ abstract class LigatureTestSuite extends CatsEffectSuite {
           Statement(entity1, a, StringLiteral("Hello"))
         )
       )
-    })
+    }
   }
 
   test("matching statements with literals and ranges in datasets") {
@@ -311,7 +311,7 @@ abstract class LigatureTestSuite extends CatsEffectSuite {
         } yield (res1.toSet, res2.toSet, res3.toSet)
       }
     } yield res
-    res.map((res1, res2, res3) => {
+    res.map { (res1, res2, res3) =>
       assertEquals(
         res1,
         Set(
@@ -331,6 +331,6 @@ abstract class LigatureTestSuite extends CatsEffectSuite {
           Statement(entity3, b, StringLiteral("decimal"))
         )
       )
-    })
+    }
   }
 }

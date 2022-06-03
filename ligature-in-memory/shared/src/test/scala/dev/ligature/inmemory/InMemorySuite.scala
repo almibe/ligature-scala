@@ -6,6 +6,6 @@ package dev.ligature.inmemory
 
 import dev.ligature.testsuite.LigatureTestSuite
 
-class LigatureInMemorySpec extends LigatureTestSuite() {
+class LigatureInMemorySpec extends LigatureTestSuite {
   override def createLigature = InMemoryLigature()
 }

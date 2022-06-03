@@ -16,13 +16,7 @@ import dev.ligature.gaze.{
   takeString,
   takeWhile
 }
-import dev.ligature.{
-  Identifier,
-  IntegerLiteral,
-  Statement,
-  StringLiteral,
-  Value
-}
+import dev.ligature.{Identifier, IntegerLiteral, Statement, StringLiteral, Value}
 import dev.ligature.lig.LigNibblers.*
 
 case class LigError(message: String)
@@ -47,7 +41,7 @@ def read(input: String): Either[LigError, List[Statement]] = {
   Right(statements.toList)
 }
 
-def parseStatement(gaze: Gaze[Char]): Either[LigError, Statement] = {
+def parseStatement(gaze: Gaze[Char]): Either[LigError, Statement] =
   for {
     _ <- gaze
       .attempt(optional(whiteSpaceAndNewLineNibbler))
@@ -65,7 +59,6 @@ def parseStatement(gaze: Gaze[Char]): Either[LigError, Statement] = {
       .attempt(optional(whiteSpaceAndNewLineNibbler))
       .toRight(LigError(""))
   } yield Statement(entity, attribute, value)
-}
 
 def parseIdentifier(gaze: Gaze[Char]): Either[LigError, Identifier] = {
   val id = gaze.attempt(identifierNibbler).map { idText =>
@@ -98,13 +91,12 @@ def parseValue(gaze: Gaze[Char]): Either[LigError, Value] = {
   Left(LigError("Unsupported Value."))
 }
 
-def parseIntegerLiteral(gaze: Gaze[Char]): Either[LigError, IntegerLiteral] = {
+def parseIntegerLiteral(gaze: Gaze[Char]): Either[LigError, IntegerLiteral] =
   gaze.attempt(numberNibbler) match {
     case None => Left(LigError("Could not parse Integer."))
     case Some(i) =>
       Right(IntegerLiteral(i.mkString.toLong)) // TODO toLong can throw
   }
-}
 
 def parseStringLiteral(gaze: Gaze[Char]): Either[LigError, StringLiteral] = {
   val res = gaze.attempt(takeAllGrouped(takeString("\""), stringContentNibbler))

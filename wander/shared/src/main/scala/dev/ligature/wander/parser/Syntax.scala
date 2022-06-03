@@ -31,16 +31,14 @@ case class EvalResult(bindings: Bindings, result: WanderValue)
 /** Represents a Name in the Wander language.
   */
 final case class Name(name: String) extends Expression {
-  override def eval(bindings: Bindings) = {
+  override def eval(bindings: Bindings) =
     bindings.read(this) match {
       case Left(err)    => Left(err)
       case Right(value) => Right(EvalResult(bindings, value))
     }
-  }
 }
 
-sealed trait FunctionDefinition(val parameters: List[Parameter])
-    extends WanderValue
+sealed trait FunctionDefinition(val parameters: List[Parameter]) extends WanderValue
 
 case class LigatureValue(value: Value) extends WanderValue {
   override def eval(bindings: Bindings) = Right(
@@ -120,12 +118,11 @@ case class LetStatement(name: Name, expression: Expression) extends Element {
     val result = this.expression.eval(bindings)
     result match {
       case Left(_) => return result
-      case Right(value) => {
+      case Right(value) =>
         bindings.bindVariable(this.name, value.result) match {
           case Left(err)          => Left(err)
           case Right(newBindings) => Right(EvalResult(newBindings, Nothing))
         }
-      }
     }
   }
 }
@@ -138,13 +135,12 @@ case class NativeFunction(
     body: (bindings: Bindings) => Either[ScriptError, WanderValue],
     output: WanderType = null
 ) extends FunctionDefinition(parameters) { // TODO eventually remove the default null value
-  override def eval(binding: Bindings) = {
+  override def eval(binding: Bindings) =
     // body(binding) match {
     //   case Left(err) => Left(err)
     //   case Right(res) => Right(EvalResult(binding, res))
     // }
     Right(EvalResult(binding, this))
-  }
 }
 
 /** Represents a full script that can be eval'd.
@@ -156,10 +152,9 @@ case class Script(val elements: Seq[Element]) {
     elements.foreach { element =>
       element.eval(currentBindings) match {
         case Left(err) => return Left(err)
-        case Right(res) => {
+        case Right(res) =>
           result = res.result
           currentBindings = res.bindings
-        }
       }
     }
     Right(ScriptResult(result))
@@ -176,10 +171,9 @@ case class Scope(val elements: List[Element]) extends Expression {
     elements.foreach { element =>
       element.eval(currentBindings) match {
         case Left(err) => return Left(err)
-        case Right(res) => {
+        case Right(res) =>
           result = res.result
           currentBindings = res.bindings
-        }
       }
     }
     Right(EvalResult(bindings, result))
@@ -207,30 +201,26 @@ case class WanderFunction(
     output: WanderType,
     body: Scope
 ) extends FunctionDefinition(parameters) {
-  override def eval(bindings: Bindings) = {
+  override def eval(bindings: Bindings) =
     Right(EvalResult(bindings, this))
-  }
 }
 
-case class FunctionCall(val name: Name, val parameters: List[Expression])
-    extends Expression {
+case class FunctionCall(val name: Name, val parameters: List[Expression]) extends Expression {
   def eval(bindings: Bindings) = {
     val func = bindings.read(name)
     func match {
-      case Right(wf: WanderFunction) => {
+      case Right(wf: WanderFunction) =>
         val functionCallBindings =
           updateFunctionCallBindings(bindings, wf.parameters)
         wf.body.eval(functionCallBindings) match {
           case left: Left[ScriptError, EvalResult] => left
-          case Right(value) => Right(EvalResult(bindings, value.result))
+          case Right(value)                        => Right(EvalResult(bindings, value.result))
         }
-      }
-      case Right(nf: NativeFunction) => {
+      case Right(nf: NativeFunction) =>
         val functionCallBindings =
           updateFunctionCallBindings(bindings, nf.parameters)
         val res = nf.body(functionCallBindings)
         res.map(EvalResult(bindings, _))
-      }
       case _ => Left(ScriptError(s"${name.name} is not a function."))
     }
   }
@@ -239,7 +229,7 @@ case class FunctionCall(val name: Name, val parameters: List[Expression])
   def updateFunctionCallBindings(
       bindings: Bindings,
       args: List[Parameter]
-  ): Bindings = {
+  ): Bindings =
     if (args.length == parameters.length) {
       var currentBindings = bindings.newScope()
       for (i <- args.indices) {
@@ -257,14 +247,12 @@ case class FunctionCall(val name: Name, val parameters: List[Expression])
         s"Argument number ${args.length} != Parameter number ${parameters.length}"
       )
     }
-  }
 }
 
 //TODO is this needed?
 case class ReferenceExpression(val name: Name) extends Expression {
-  def eval(bindings: Bindings) = {
+  def eval(bindings: Bindings) =
     ???
-  }
 }
 
 case class IfExpression(
@@ -309,13 +297,11 @@ case class IfExpression(
 }
 
 case class ElseIf(val condition: Expression, val body: Expression) {
-  def eval(bindings: Bindings) = { // TODO is this needed?
+  def eval(bindings: Bindings) = // TODO is this needed?
     ???
-  }
 }
 
 case class Else(val body: Expression) {
-  def eval(bindings: Bindings) = { // TODO is this needed?
+  def eval(bindings: Bindings) = // TODO is this needed?
     ???
-  }
 }

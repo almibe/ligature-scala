@@ -37,7 +37,7 @@ class LigatureSuite extends FunSuite {
       " test"
     )
 
-    for (ok <- oks) {
+    for (ok <- oks)
       assertEquals(
         Dataset
           .fromString(ok)
@@ -45,11 +45,9 @@ class LigatureSuite extends FunSuite {
           .name,
         ok
       )
-    }
 
-    for (err <- errs) {
+    for (err <- errs)
       assertEquals(Dataset.fromString(err).isLeft, true)
-    }
   }
 
   test("valid Identifier names") {
@@ -74,7 +72,7 @@ class LigatureSuite extends FunSuite {
 
     val errs = List("", "this is a test", "test test", "test/ /test", " test")
 
-    for (ok <- oks) {
+    for (ok <- oks)
       assertEquals(
         Identifier
           .fromString(ok)
@@ -82,10 +80,8 @@ class LigatureSuite extends FunSuite {
           .name,
         ok
       )
-    }
 
-    for (err <- errs) {
+    for (err <- errs)
       assertEquals(Identifier.fromString(err).isLeft, true)
-    }
   }
 }

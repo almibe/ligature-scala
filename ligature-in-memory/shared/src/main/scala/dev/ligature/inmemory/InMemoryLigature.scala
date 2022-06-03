@@ -35,11 +35,10 @@ final class InMemoryLigature extends Ligature {
   }
 
   /** Check if a given Dataset exists. */
-  override def datasetExists(dataset: Dataset): IO[Boolean] = {
+  override def datasetExists(dataset: Dataset): IO[Boolean] =
     for {
       ref <- IO(store)
     } yield ref.get.contains(dataset)
-  }
 
   /** Returns all Datasets in a Ligature instance that start with the given
     * prefix.
@@ -174,7 +173,6 @@ final class InMemoryLigature extends Ligature {
   //     Resource.make(acquire)(release)
   // }
 
-  override def close(): IO[Unit] = {
+  override def close(): IO[Unit] =
     IO.unit
-  }
 }

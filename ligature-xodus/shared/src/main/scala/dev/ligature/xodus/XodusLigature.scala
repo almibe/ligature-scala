@@ -4,7 +4,16 @@
 
 package dev.ligature.xodus
 
-import dev.ligature.{Dataset, Identifier, Ligature, LigatureError, QueryTx, Statement, Value, WriteTx}
+import dev.ligature.{
+  Dataset,
+  Identifier,
+  Ligature,
+  LigatureError,
+  QueryTx,
+  Statement,
+  Value,
+  WriteTx
+}
 import cats.effect.IO
 import fs2.Stream
 
@@ -14,11 +23,19 @@ import cats.effect.kernel.Resource
 import cats.effect.kernel.Ref
 
 import java.io.File
-import jetbrains.exodus.env.{EnvironmentConfig, Environments, ReadonlyTransaction, Transaction, TransactionalComputable, Store, StoreConfig}
+import jetbrains.exodus.env.{
+  EnvironmentConfig,
+  Environments,
+  ReadonlyTransaction,
+  Transaction,
+  TransactionalComputable,
+  Store,
+  StoreConfig
+}
 import scala.jdk.CollectionConverters._
 
 final class XodusLigature(dbDirectory: File) extends Ligature {
-  private val environment = Environments.newInstance(dbDirectory, new EnvironmentConfig())
+  private val environment = Environments.newInstance(dbDirectory, new EnvironmentConfig)
   setupStores()
 
   enum LigatureStore(val storeName: String):
@@ -38,26 +55,21 @@ final class XodusLigature(dbDirectory: File) extends Ligature {
     case BytesToIdStore extends LigatureStore("BytesToID")
     case IdToBytesStore extends LigatureStore("IDToBytes")
 
-  /**
-   * This method is ran once at the start to make sure all Stores exist.
-   * This is done so that Stores can be opened in readonly mode.
-   * TODO: This method could probably check if the Environment exists and check the status of the Environment first.
-   */
+  /** This method is ran once at the start to make sure all Stores exist.
+    * This is done so that Stores can be opened in readonly mode.
+    * TODO: This method could probably check if the Environment exists and check the status of the Environment first.
+    */
   private def setupStores(): Unit = {
-    val tc: TransactionalComputable[Unit] = tx => {
-      LigatureStore.values.foreach(openStore(tx, _))
-    }
+    val tc: TransactionalComputable[Unit] = tx => LigatureStore.values.foreach(openStore(tx, _))
     environment.computeInTransaction(tc)
   }
 
-  /**
-   * Used to uniformly open Stores.
-   * This is mainly so that StoreConfigs can be consistent.
-   * Right now all stores use the same config but that is likely to change.
-   */
-  private def openStore(tx: Transaction, store: LigatureStore): Store = {
+  /** Used to uniformly open Stores.
+    * This is mainly so that StoreConfigs can be consistent.
+    * Right now all stores use the same config but that is likely to change.
+    */
+  private def openStore(tx: Transaction, store: LigatureStore): Store =
     environment.openStore(store.storeName, StoreConfig.WITHOUT_DUPLICATES, tx)
-  }
 
   /** Returns all Datasets in a Ligature instance. */
   override def allDatasets(): Stream[IO, Dataset] = Stream.emits {
@@ -65,10 +77,9 @@ final class XodusLigature(dbDirectory: File) extends Ligature {
       val datasetToIdStore = openStore(tx, LigatureStore.DatasetToIdStore)
       val datasetsCursor = datasetToIdStore.openCursor(tx)
       val datasets: ListBuffer[String] = ListBuffer()
-      while (datasetsCursor.getNext) {
+      while (datasetsCursor.getNext)
         datasets.append(datasetsCursor.getKey.toString)
-      }
-      datasetsCursor.close() //TODO should use bracket
+      datasetsCursor.close() // TODO should use bracket
       datasets.toList
     }
     environment.computeInReadonlyTransaction(tc).map(Dataset.fromString(_).getOrElse(???))
@@ -79,7 +90,7 @@ final class XodusLigature(dbDirectory: File) extends Ligature {
     val tc: TransactionalComputable[Boolean] = tx => {
       val datasetToIdStore = openStore(tx, LigatureStore.DatasetToIdStore)
       ???
-      //datasetToIdStore.get(tx, )
+      // datasetToIdStore.get(tx, )
     }
     environment.computeInReadonlyTransaction(tc)
   }
@@ -88,28 +99,28 @@ final class XodusLigature(dbDirectory: File) extends Ligature {
     * prefix.
     */
   override def matchDatasetsPrefix(prefix: String): Stream[IO, Dataset] =
-    //read cursor in datasetNamesDB
+    // read cursor in datasetNamesDB
     ???
 
   /** Returns all Datasets in a Ligature instance that are in a given range
     * (inclusive, exclusive].
     */
   override def matchDatasetsRange(start: String, end: String): Stream[IO, Dataset] =
-    //read cursor in datasetNamesDB
+    // read cursor in datasetNamesDB
     ???
 
   /** Creates a dataset with the given name. TODO should probably return its own
     * error type { InvalidDataset, DatasetExists, CouldNotCreateDataset }
     */
   override def createDataset(dataset: Dataset): IO[Unit] = IO {
-    //TODO open DatasetToIdStore
-    //TODO check if Dataset exists if so return
-    //TODO if not open IdToDatasetStore and CounterStore
-    //TODO get next id
+    // TODO open DatasetToIdStore
+    // TODO check if Dataset exists if so return
+    // TODO if not open IdToDatasetStore and CounterStore
+    // TODO get next id
     val tc: TransactionalComputable[Unit] = tx => {
       val datasetToIdStore = openStore(tx, LigatureStore.DatasetToIdStore)
       ???
-      //datasetToIdStore.get(tx, )
+      // datasetToIdStore.get(tx, )
     }
     environment.computeInTransaction(tc)
   }
@@ -118,9 +129,9 @@ final class XodusLigature(dbDirectory: File) extends Ligature {
     * error type { InvalidDataset, CouldNotDeleteDataset }
     */
   override def deleteDataset(dataset: Dataset): IO[Unit] =
-    //check if dataset exists
-    //remove datasetName
-    //remove all Statements in Dataset
+    // check if dataset exists
+    // remove datasetName
+    // remove all Statements in Dataset
     ???
 
   /** Initializes a QueryTx TODO should probably return its own error type

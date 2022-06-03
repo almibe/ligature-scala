@@ -6,10 +6,10 @@ package dev.ligature.gaze
 
 import munit.FunSuite
 
-private val fiveStep = takeWhile[Char] { _ == '5' }
-private val eatAllStep = takeWhile[Char] { _ => true }
-private val spaceStep = takeWhile[Char] { c => c == ' ' || c == '\t' }
-private val digitStep = takeWhile[Char] { _.isDigit }
+private val fiveStep = takeWhile[Char](_ == '5')
+private val eatAllStep = takeWhile[Char](_ => true)
+private val spaceStep = takeWhile[Char](c => c == ' ' || c == '\t')
+private val digitStep = takeWhile[Char](_.isDigit)
 
 class TakeWhileSuite extends FunSuite {
   test("empty input") {

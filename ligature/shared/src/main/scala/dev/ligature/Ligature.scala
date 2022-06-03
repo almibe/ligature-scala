@@ -21,13 +21,12 @@ final case class Dataset private (name: String) extends Ordered[Dataset] {
 object Dataset {
   private val pattern = "^([a-zA-Z_][a-zA-Z0-9_]*)(/[a-zA-Z_][a-zA-Z0-9_]*)*$".r
 
-  def fromString(name: String): Either[LigatureError, Dataset] = {
+  def fromString(name: String): Either[LigatureError, Dataset] =
     if (pattern.matches(name)) {
       Right(Dataset(name))
     } else {
       Left(LigatureError(s"Could not make Dataset from $name"))
     }
-  }
 }
 
 final case class Identifier private (name: String) extends Value {
@@ -38,13 +37,12 @@ final case class Identifier private (name: String) extends Value {
 object Identifier {
   private val pattern = "^[a-zA-Z0-9-._~:/?#\\[\\]@!$&'()*+,;%=]+$".r
 
-  def fromString(name: String): Either[LigatureError, Identifier] = {
+  def fromString(name: String): Either[LigatureError, Identifier] =
     if (pattern.matches(name)) {
       Right(Identifier(name))
     } else {
       Left(LigatureError(s"Invalid Identifier $name"))
     }
-  }
 }
 
 final case class LigatureError(message: String)
