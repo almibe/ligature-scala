@@ -4,16 +4,7 @@
 
 package dev.ligature.xodus
 
-import dev.ligature.{
-  Dataset,
-  Identifier,
-  Ligature,
-  LigatureError,
-  QueryTx,
-  Statement,
-  Value,
-  WriteTx
-}
+import dev.ligature.{Dataset, Identifier, Ligature, LigatureError, QueryTx, Statement, Value, WriteTx}
 import cats.effect.IO
 import fs2.Stream
 
@@ -21,18 +12,13 @@ import scala.collection.immutable.TreeMap
 import scala.collection.mutable.ListBuffer
 import cats.effect.kernel.Resource
 import cats.effect.kernel.Ref
+import jetbrains.exodus.ByteIterable
 
 import java.io.File
-import jetbrains.exodus.env.{
-  EnvironmentConfig,
-  Environments,
-  ReadonlyTransaction,
-  Transaction,
-  TransactionalComputable,
-  Store,
-  StoreConfig
-}
-import scala.jdk.CollectionConverters._
+import jetbrains.exodus.env.{EnvironmentConfig, Environments, ReadonlyTransaction, Store, StoreConfig, Transaction, TransactionalComputable}
+import jetbrains.exodus.bindings.{LongBinding, StringBinding}
+
+import scala.jdk.CollectionConverters.*
 
 final class XodusLigature(dbDirectory: File) extends Ligature {
   private val environment = Environments.newInstance(dbDirectory, new EnvironmentConfig)
@@ -57,11 +43,22 @@ final class XodusLigature(dbDirectory: File) extends Ligature {
 
   /** This method is ran once at the start to make sure all Stores exist.
     * This is done so that Stores can be opened in readonly mode.
+   *  It also checks and initializes Counters
     * TODO: This method could probably check if the Environment exists and check the status of the Environment first.
     */
   private def setupStores(): Unit = {
-    val tc: TransactionalComputable[Unit] = tx => LigatureStore.values.foreach(openStore(tx, _))
-    environment.computeInTransaction(tc)
+    //create all Stores
+    val createStoresTC: TransactionalComputable[Unit] = tx => LigatureStore.values.foreach(openStore(tx, _))
+    environment.computeInTransaction(createStoresTC)
+    //set up counters -- for now it's just a single counter
+    val checkCountersTC: TransactionalComputable[Unit] = tx => {
+      val counterStore = openStore(tx, LigatureStore.CountersStore)
+      val currentCount = counterStore.get(tx, StringBinding.stringToEntry("counter"))
+      if (currentCount == null) {
+        counterStore.put(tx, StringBinding.stringToEntry("counter"), LongBinding.longToEntry(0))
+      }
+    }
+    environment.computeInTransaction(checkCountersTC)
   }
 
   /** Used to uniformly open Stores.
@@ -71,6 +68,18 @@ final class XodusLigature(dbDirectory: File) extends Ligature {
   private def openStore(tx: Transaction, store: LigatureStore): Store =
     environment.openStore(store.storeName, StoreConfig.WITHOUT_DUPLICATES, tx)
 
+  /**
+   * Computes the next ID.
+   * Right now IDs are shared between all Stores but that might change.
+   * Also, right now IDs are positive Long values and that might also change.
+   */
+  private def nextID(tx: Transaction): ByteIterable = {
+    val counterStore = openStore(tx, LigatureStore.CountersStore)
+    val nextCount = LongBinding.entryToLong(counterStore.get(tx, StringBinding.stringToEntry("counter"))) + 1L
+    counterStore.put(tx, StringBinding.stringToEntry("counter"), LongBinding.longToEntry(nextCount))
+    LongBinding.longToEntry(nextCount)
+  }
+
   /** Returns all Datasets in a Ligature instance. */
   override def allDatasets(): Stream[IO, Dataset] = Stream.emits {
     val tc: TransactionalComputable[List[String]] = tx => {
@@ -78,7 +87,7 @@ final class XodusLigature(dbDirectory: File) extends Ligature {
       val datasetsCursor = datasetToIdStore.openCursor(tx)
       val datasets: ListBuffer[String] = ListBuffer()
       while (datasetsCursor.getNext)
-        datasets.append(datasetsCursor.getKey.toString)
+        datasets.append(StringBinding.entryToString(datasetsCursor.getKey))
       datasetsCursor.close() // TODO should use bracket
       datasets.toList
     }
@@ -89,8 +98,8 @@ final class XodusLigature(dbDirectory: File) extends Ligature {
   override def datasetExists(dataset: Dataset): IO[Boolean] = IO {
     val tc: TransactionalComputable[Boolean] = tx => {
       val datasetToIdStore = openStore(tx, LigatureStore.DatasetToIdStore)
-      ???
-      // datasetToIdStore.get(tx, )
+      val res = datasetToIdStore.get(tx, StringBinding.stringToEntry(dataset.name))
+      res != null
     }
     environment.computeInReadonlyTransaction(tc)
   }
@@ -99,6 +108,7 @@ final class XodusLigature(dbDirectory: File) extends Ligature {
     * prefix.
     */
   override def matchDatasetsPrefix(prefix: String): Stream[IO, Dataset] =
+
     // read cursor in datasetNamesDB
     ???
 
@@ -113,14 +123,18 @@ final class XodusLigature(dbDirectory: File) extends Ligature {
     * error type { InvalidDataset, DatasetExists, CouldNotCreateDataset }
     */
   override def createDataset(dataset: Dataset): IO[Unit] = IO {
-    // TODO open DatasetToIdStore
-    // TODO check if Dataset exists if so return
-    // TODO if not open IdToDatasetStore and CounterStore
-    // TODO get next id
     val tc: TransactionalComputable[Unit] = tx => {
+      val nameEntry = StringBinding.stringToEntry(dataset.name)
       val datasetToIdStore = openStore(tx, LigatureStore.DatasetToIdStore)
-      ???
-      // datasetToIdStore.get(tx, )
+      val datasetExists = datasetToIdStore.get(tx, nameEntry)
+      if (datasetExists == null) {
+        val nextId = nextID(tx)
+        val idToDatasetStore = openStore(tx, LigatureStore.IdToDatasetStore)
+        datasetToIdStore.put(tx, nameEntry, nextId)
+        idToDatasetStore.putRight(tx, nextId, nameEntry)
+      } else {
+        ()
+      }
     }
     environment.computeInTransaction(tc)
   }
