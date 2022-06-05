@@ -4,7 +4,16 @@
 
 package dev.ligature.xodus
 
-import dev.ligature.{Dataset, Identifier, Ligature, LigatureError, QueryTx, Statement, Value, WriteTx}
+import dev.ligature.{
+  Dataset,
+  Identifier,
+  Ligature,
+  LigatureError,
+  QueryTx,
+  Statement,
+  Value,
+  WriteTx
+}
 import cats.effect.IO
 import fs2.Stream
 
@@ -15,7 +24,15 @@ import cats.effect.kernel.Ref
 import jetbrains.exodus.ByteIterable
 
 import java.io.File
-import jetbrains.exodus.env.{EnvironmentConfig, Environments, ReadonlyTransaction, Store, StoreConfig, Transaction, TransactionalComputable}
+import jetbrains.exodus.env.{
+  EnvironmentConfig,
+  Environments,
+  ReadonlyTransaction,
+  Store,
+  StoreConfig,
+  Transaction,
+  TransactionalComputable
+}
 import jetbrains.exodus.bindings.{LongBinding, StringBinding}
 
 import scala.jdk.CollectionConverters.*
@@ -43,14 +60,15 @@ final class XodusLigature(dbDirectory: File) extends Ligature {
 
   /** This method is ran once at the start to make sure all Stores exist.
     * This is done so that Stores can be opened in readonly mode.
-   *  It also checks and initializes Counters
+    *  It also checks and initializes Counters
     * TODO: This method could probably check if the Environment exists and check the status of the Environment first.
     */
   private def setupStores(): Unit = {
-    //create all Stores
-    val createStoresTC: TransactionalComputable[Unit] = tx => LigatureStore.values.foreach(openStore(tx, _))
+    // create all Stores
+    val createStoresTC: TransactionalComputable[Unit] = tx =>
+      LigatureStore.values.foreach(openStore(tx, _))
     environment.computeInTransaction(createStoresTC)
-    //set up counters -- for now it's just a single counter
+    // set up counters -- for now it's just a single counter
     val checkCountersTC: TransactionalComputable[Unit] = tx => {
       val counterStore = openStore(tx, LigatureStore.CountersStore)
       val currentCount = counterStore.get(tx, StringBinding.stringToEntry("counter"))
@@ -68,14 +86,14 @@ final class XodusLigature(dbDirectory: File) extends Ligature {
   private def openStore(tx: Transaction, store: LigatureStore): Store =
     environment.openStore(store.storeName, StoreConfig.WITHOUT_DUPLICATES, tx)
 
-  /**
-   * Computes the next ID.
-   * Right now IDs are shared between all Stores but that might change.
-   * Also, right now IDs are positive Long values and that might also change.
-   */
+  /** Computes the next ID.
+    * Right now IDs are shared between all Stores but that might change.
+    * Also, right now IDs are positive Long values and that might also change.
+    */
   private def nextID(tx: Transaction): ByteIterable = {
     val counterStore = openStore(tx, LigatureStore.CountersStore)
-    val nextCount = LongBinding.entryToLong(counterStore.get(tx, StringBinding.stringToEntry("counter"))) + 1L
+    val nextCount =
+      LongBinding.entryToLong(counterStore.get(tx, StringBinding.stringToEntry("counter"))) + 1L
     counterStore.put(tx, StringBinding.stringToEntry("counter"), LongBinding.longToEntry(nextCount))
     LongBinding.longToEntry(nextCount)
   }
@@ -108,7 +126,6 @@ final class XodusLigature(dbDirectory: File) extends Ligature {
     * prefix.
     */
   override def matchDatasetsPrefix(prefix: String): Stream[IO, Dataset] =
-
     // read cursor in datasetNamesDB
     ???
 
