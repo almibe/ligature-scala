@@ -62,8 +62,7 @@ lazy val ligatureTestSuite = crossProject(JSPlatform, JVMPlatform)
     name := "ligature-test-suite",
     scalaVersion := scala3Version,
     libraryDependencies += "co.fs2" %%% "fs2-core" % fs2Version,
-    libraryDependencies += "org.scalameta" %%% "munit" % munitVersion % Test,
-    libraryDependencies += "org.typelevel" %%% "munit-cats-effect-3" % "1.0.7" % Test
+    libraryDependencies += "org.typelevel" %%% "munit-cats-effect-3" % "1.0.7"
   )
   .dependsOn(ligature)
   .disablePlugins(RevolverPlugin)
