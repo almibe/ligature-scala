@@ -5,15 +5,18 @@
 package dev.ligature.xodus
 
 import cats.effect.IO
-import dev.ligature._
+import dev.ligature.*
+
 import java.util.UUID
 import cats.data.EitherT
+import jetbrains.exodus.env.Transaction
+
 import java.util.concurrent.locks.Lock
 
 /** Represents a WriteTx within the context of a Ligature instance and a single
   * Dataset
   */
-class XodusWriteTx() extends WriteTx {
+class XodusWriteTx(private val tx: Transaction) extends WriteTx {
 
   /** Creates a new, unique Entity within this Dataset. */
   override def newIdentifier(prefix: String): IO[Identifier] = ???

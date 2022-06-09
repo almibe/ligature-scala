@@ -7,16 +7,17 @@ package dev.ligature.xodus
 import cats.effect.IO
 import dev.ligature.*
 import fs2.Stream
+import jetbrains.exodus.env.Transaction
 
 /** Represents a QueryTx within the context of a Ligature instance and a single
   * Dataset
   */
-class XodusQueryTx() extends QueryTx {
+class XodusQueryTx(private val tx: Transaction) extends QueryTx {
 
-  /** Returns all PersistedStatements in this Dataset. */
-  def allStatements(): Stream[IO, Statement] = ???
+  /** Returns all Statements in this Dataset. */
+  def allStatements(): Stream[IO, Statement] = Stream.empty
 
-  /** Returns all PersistedStatements that match the given criteria. If a
+  /** Returns all Statements that match the given criteria. If a
     * parameter is None then it matches all, so passing all Nones is the same as
     * calling allStatements.
     */

@@ -18,7 +18,7 @@ import cats.effect.IO
 import fs2.Stream
 
 import scala.collection.immutable.TreeMap
-import scala.collection.mutable.ListBuffer
+import scala.collection.mutable.{ArrayBuffer, ListBuffer}
 import cats.effect.kernel.Resource
 import cats.effect.kernel.Ref
 import jetbrains.exodus.ByteIterable
@@ -31,7 +31,8 @@ import jetbrains.exodus.env.{
   Store,
   StoreConfig,
   Transaction,
-  TransactionalComputable
+  TransactionalComputable,
+  TransactionalExecutable
 }
 import jetbrains.exodus.bindings.{LongBinding, StringBinding}
 
@@ -125,22 +126,53 @@ final class XodusLigature(dbDirectory: File) extends Ligature {
   /** Returns all Datasets in a Ligature instance that start with the given
     * prefix.
     */
-  override def matchDatasetsPrefix(prefix: String): Stream[IO, Dataset] =
-    // read cursor in datasetNamesDB
-    ???
+  override def matchDatasetsPrefix(prefix: String): Stream[IO, Dataset] = Stream.emits {
+    val tc: TransactionalComputable[Seq[Dataset]] = tx => {
+      val results: ArrayBuffer[Dataset] = ArrayBuffer()
+      val cursor = openStore(tx, LigatureStore.DatasetToIdStore).openCursor(tx)
+      val prefixBytes = StringBinding.stringToEntry(prefix)
+      cursor.getSearchKeyRange(prefixBytes)
+      var r = cursor.getKey
+      var continue = true
+      while (continue && r != null && StringBinding.entryToString(r).startsWith(prefix)) {
+        results.append(Dataset.fromString(StringBinding.entryToString(r)).getOrElse(???))
+        continue = cursor.getNext
+        r = cursor.getKey
+      }
+      results.toSeq
+    }
+    environment.computeInReadonlyTransaction(tc)
+  }
 
   /** Returns all Datasets in a Ligature instance that are in a given range
     * (inclusive, exclusive].
     */
-  override def matchDatasetsRange(start: String, end: String): Stream[IO, Dataset] =
-    // read cursor in datasetNamesDB
-    ???
+  override def matchDatasetsRange(start: String, end: String): Stream[IO, Dataset] = Stream.emits {
+    val tc: TransactionalComputable[Seq[Dataset]] = tx => {
+      val results: ArrayBuffer[Dataset] = ArrayBuffer()
+      val cursor = openStore(tx, LigatureStore.DatasetToIdStore).openCursor(tx)
+      val prefixBytes = StringBinding.stringToEntry(start)
+      cursor.getSearchKeyRange(prefixBytes)
+      var r = cursor.getKey
+      var continue = true
+      while (continue && r != null && stringInRange(StringBinding.entryToString(r), start, end)) {
+        results.append(Dataset.fromString(StringBinding.entryToString(r)).getOrElse(???))
+        continue = cursor.getNext
+        r = cursor.getKey
+      }
+      results.toSeq
+    }
+    environment.computeInReadonlyTransaction(tc)
+  }
+
+  private def stringInRange(toTest: String, start: String, end: String): Boolean =
+    toTest.compareTo(start) >= 0 && toTest.compareTo(end) < 0
 
   /** Creates a dataset with the given name. TODO should probably return its own
     * error type { InvalidDataset, DatasetExists, CouldNotCreateDataset }
     */
   override def createDataset(dataset: Dataset): IO[Unit] = IO {
-    val tc: TransactionalComputable[Unit] = tx => {
+    val tc: TransactionalExecutable = tx => {
       val nameEntry = StringBinding.stringToEntry(dataset.name)
       val datasetToIdStore = openStore(tx, LigatureStore.DatasetToIdStore)
       val datasetExists = datasetToIdStore.get(tx, nameEntry)
@@ -149,33 +181,55 @@ final class XodusLigature(dbDirectory: File) extends Ligature {
         val idToDatasetStore = openStore(tx, LigatureStore.IdToDatasetStore)
         datasetToIdStore.put(tx, nameEntry, nextId)
         idToDatasetStore.putRight(tx, nextId, nameEntry)
+        tx.commit()
       } else {
         ()
       }
     }
-    environment.computeInTransaction(tc)
+    environment.executeInTransaction(tc)
   }
 
   /** Deletes a dataset with the given name. TODO should probably return its own
     * error type { InvalidDataset, CouldNotDeleteDataset }
     */
-  override def deleteDataset(dataset: Dataset): IO[Unit] =
-    // check if dataset exists
-    // remove datasetName
-    // remove all Statements in Dataset
-    ???
+  override def deleteDataset(dataset: Dataset): IO[Unit] = IO {
+    val tc: TransactionalExecutable = tx => {
+      val nameEntry = StringBinding.stringToEntry(dataset.name)
+      val datasetToIdStore = openStore(tx, LigatureStore.DatasetToIdStore)
+      val datasetId = datasetToIdStore.get(tx, nameEntry)
+      if (datasetId != null) {
+        val idToDatasetStore = openStore(tx, LigatureStore.IdToDatasetStore)
+        datasetToIdStore.delete(tx, nameEntry)
+        idToDatasetStore.delete(tx, datasetId)
+        // TODO remove all statements
+        tx.commit()
+      } else {
+        ()
+      }
+    }
+    environment.executeInTransaction(tc)
+  }
 
   /** Initializes a QueryTx TODO should probably return its own error type
     * CouldNotInitializeQueryTx
     */
   override def query[T](dataset: Dataset)(fn: QueryTx => IO[T]): IO[T] =
-    ???
+    IO { //TODO rewrite with TransactionComputable
+      environment.beginReadonlyTransaction()
+    }.bracket { tx => IO.defer {
+      val queryTx = XodusQueryTx(tx)
+      fn(queryTx)
+    }} { tx => IO.defer {
+      if (!tx.isFinished) {
+        tx.abort()
+      }
+      IO.unit
+    }}
 
   /** Initializes a WriteTx TODO should probably return its own error type
     * CouldNotInitializeWriteTx
     */
-  override def write(dataset: Dataset)(fn: WriteTx => IO[Unit]): IO[Unit] =
-    ???
+  override def write(dataset: Dataset)(fn: WriteTx => IO[Unit]): IO[Unit] = ???
 
   override def close(): IO[Unit] = IO {
     environment.close()
