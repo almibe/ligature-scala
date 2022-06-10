@@ -44,7 +44,7 @@ class XodusQueryTx(private val tx: Transaction, private val xodusOperations: Xod
       var continue = eavCursor.getSearchKeyRange(datasetIdResult) != null
       while (continue) {
         val statement = eavCursor.getKey
-        if (datasetIdResult == statement.subIterable(0, datasetResult.getLength)) {
+        if (datasetIdResult == statement.subIterable(0, datasetIdResult.getLength)) {
           output.append(readStatement(statement))
           eavCursor.getNext
         } else {

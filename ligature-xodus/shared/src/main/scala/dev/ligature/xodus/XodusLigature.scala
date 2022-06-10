@@ -224,7 +224,7 @@ final class XodusLigature(dbDirectory: File) extends Ligature with XodusOperatio
   /** Initializes a QueryTx TODO should probably return its own error type
     * CouldNotInitializeQueryTx
     */
-  override def query[T](dataset: Dataset, fn: QueryTx => IO[T]): IO[T] =
+  override def query[T](dataset: Dataset)(fn: QueryTx => IO[T]): IO[T] =
     IO { //TODO rewrite with TransactionComputable
       environment.beginReadonlyTransaction()
     }.bracket { tx => IO.defer {
@@ -240,7 +240,7 @@ final class XodusLigature(dbDirectory: File) extends Ligature with XodusOperatio
   /** Initializes a WriteTx TODO should probably return its own error type
     * CouldNotInitializeWriteTx
     */
-  override def write(dataset: Dataset, fn: WriteTx => IO[Unit]): IO[Unit] = IO {
+  override def write(dataset: Dataset)(fn: WriteTx => IO[Unit]): IO[Unit] = IO {
     val te: TransactionalExecutable = tx => {
       val writeTx = XodusWriteTx(tx, this, dataset)
       fn(writeTx)

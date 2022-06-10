@@ -117,7 +117,7 @@ final class InMemoryLigature extends Ligature {
   /** Initializes a QueryTx TODO should probably return its own error type
     * CouldNotInitializeQueryTx
     */
-  override def query[T](dataset: Dataset, fn: QueryTx => IO[T]): IO[T] =
+  override def query[T](dataset: Dataset)(fn: QueryTx => IO[T]): IO[T] =
     IO {
       val ds = this.store.get.get(dataset)
       ds match {
@@ -132,7 +132,7 @@ final class InMemoryLigature extends Ligature {
   /** Initializes a WriteTx TODO should probably return its own error type
     * CouldNotInitializeWriteTx
     */
-  override def write(dataset: Dataset, fn: WriteTx => IO[Unit]): IO[Unit] =
+  override def write(dataset: Dataset)(fn: WriteTx => IO[Unit]): IO[Unit] =
     IO {
       val ds = this.store.get.get(dataset)
       ds match {
