@@ -98,12 +98,12 @@ trait Ligature {
   /** Initializes a QueryTx TODO should probably return its own error type
     * CouldNotInitializeQueryTx
     */
-  def query[T](dataset: Dataset)(fn: QueryTx => IO[T]): IO[T]
+  def query[T](dataset: Dataset, fn: QueryTx => IO[T]): IO[T]
 
   /** Initializes a WriteTx TODO should probably return IO[Either] w/ its own
     * error type CouldNotInitializeWriteTx
     */
-  def write(dataset: Dataset)(fn: WriteTx => IO[Unit]): IO[Unit]
+  def write(dataset: Dataset, fn: WriteTx => IO[Unit]): IO[Unit]
 
   def close(): IO[Unit]
 }
