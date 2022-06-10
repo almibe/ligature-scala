@@ -47,6 +47,15 @@ abstract class LigatureTestSuite extends CatsEffectSuite {
     assertIO(res, (true, false))
   }
 
+  test("match datasets prefix exact") {
+    val instance = createLigature
+    val res = for {
+      _ <- instance.createDataset(testDataset)
+      res1 <- instance.matchDatasetsPrefix("test/test").compile.toList
+    } yield (res1.length)
+    assertIO(res, (1))
+  }
+
   test("match datasets prefix") {
     val instance = createLigature
     val res = for {
@@ -132,205 +141,205 @@ abstract class LigatureTestSuite extends CatsEffectSuite {
     )
   }
 
-  test("new identifiers") {
-    val instance = createLigature
-    val res = for {
-      _ <- instance.createDataset(testDataset)
-      _ <- instance.write(testDataset) { tx =>
-        for {
-          entity <- tx.newIdentifier("entity-")
-          attribute <- tx.newIdentifier("attribute-")
-          value <- tx.newIdentifier("value-")
-          _ <- tx.addStatement(Statement(entity, attribute, value))
-        } yield IO.unit
-      }
-      statements <- instance.query(testDataset) { tx =>
-        tx.allStatements().compile.toList
-      }
-    } yield statements.head
-    res.map { it =>
-      assert(it.entity.name.startsWith("entity-"))
-      assert(it.attribute.name.startsWith("attribute-"))
-      it.value match {
-        case Identifier(id) => assert(id.startsWith("value-"))
-        case _              => assert(false)
-      }
-    }
-  }
-
-  test("removing statements from datasets") {
-    val instance = createLigature
-    val res = for {
-      _ <- instance.createDataset(testDataset)
-      ps2 <- instance.write(testDataset) { tx =>
-        for {
-          _ <- tx.addStatement(Statement(entity1, a, entity2))
-          _ <- tx.addStatement(Statement(entity3, a, entity2))
-          _ <- tx.removeStatement(Statement(entity1, a, entity2))
-          _ <- tx.removeStatement(Statement(entity1, a, entity2))
-        } yield ()
-      }
-      statements <- instance.query(testDataset) { tx =>
-        tx.allStatements().compile.toList
-      }
-    } yield statements
-    assertIO(res, List(Statement(entity3, a, entity2)))
-  }
-
-  // test("allow canceling WriteTx by throwing exception") {
-  //     val res = createLigature.instance.use { instance  =>
-  //         for {
-  //             _ <- instance.createDataset(testDataset)
-  //             _ <- instance.write(testDataset).use { tx =>
-  //                 for {
-  //                     _ <- tx.addStatement(Statement(entity1, a, entity2))
-  //                     _ <- tx.cancel()
-  //                 } yield ()
-  //             }
-  //             _ <- instance.write(testDataset).use { tx =>
-  //                 for {
-  //                     _ <- tx.addStatement(Statement(entity2, a, entity3))
-  //                     _ <- tx.addStatement(Statement(entity3, a, entity2))
-  //                 } yield ()
-  //             }
-  //             statements <- instance.query(testDataset).use { tx =>
-  //                 tx.allStatements().compile.toList
-  //             }
-  //         } yield statements
-  //     }.unsafeRunSync().map(_.right.get).map(_.statement).toSet
-  //     assertEquals(res, Set(
-  //         Statement(entity2, a, entity3),
-  //         Statement(entity3, a, entity2)))
-  // }
-
-  test("matching statements in datasets") {
-    val instance = createLigature
-    val res = for {
-      _ <- instance.createDataset(testDataset)
-      _ <- instance.write(testDataset) { tx =>
-        for {
-          _ <- tx.addStatement(
-            Statement(entity1, a, StringLiteral("Hello"))
-          )
-          _ <- tx.addStatement(Statement(entity2, a, entity1))
-          _ <- tx.addStatement(Statement(entity2, a, entity3))
-          _ <- tx.addStatement(Statement(entity3, b, entity2))
-          _ <- tx.addStatement(
-            Statement(entity3, b, StringLiteral("Hello"))
-          )
-        } yield ()
-      }
-      res <- instance.query(testDataset) { tx =>
-        for {
-          all <- tx.matchStatements().compile.toList
-          as <- tx.matchStatements(None, Some(a)).compile.toList
-          hellos <- tx
-            .matchStatements(None, None, Some(StringLiteral("Hello")))
-            .compile
-            .toList
-          helloa <- tx
-            .matchStatements(None, Some(a), Some(StringLiteral("Hello")))
-            .compile
-            .toList
-        } yield (all.toSet, as.toSet, hellos.toSet, helloa.toSet)
-      }
-    } yield res
-    res.map { (all, as, hellos, helloa) =>
-      assertEquals(
-        all,
-        Set(
-          Statement(entity1, a, StringLiteral("Hello")),
-          Statement(entity2, a, entity1),
-          Statement(entity2, a, entity3),
-          Statement(entity3, b, entity2),
-          Statement(entity3, b, StringLiteral("Hello"))
-        )
-      )
-      assertEquals(
-        as,
-        Set(
-          Statement(entity1, a, StringLiteral("Hello")),
-          Statement(entity2, a, entity1),
-          Statement(entity2, a, entity3)
-        )
-      )
-      assertEquals(
-        hellos,
-        Set(
-          Statement(entity1, a, StringLiteral("Hello")),
-          Statement(entity3, b, StringLiteral("Hello"))
-        )
-      )
-      assertEquals(
-        helloa,
-        Set(
-          Statement(entity1, a, StringLiteral("Hello"))
-        )
-      )
-    }
-  }
-
-  test("matching statements with literals and ranges in datasets") {
-    val instance = createLigature
-    val res = for {
-      _ <- instance.createDataset(testDataset)
-      _ <- instance.write(testDataset) { tx =>
-        for {
-          _ <- tx.addStatement(Statement(entity1, a, entity2))
-          _ <- tx
-            .addStatement(Statement(entity1, b, StringLiteral("add")))
-          _ <- tx
-            .addStatement(Statement(entity1, a, IntegerLiteral(5L)))
-          _ <- tx
-            .addStatement(Statement(entity2, a, IntegerLiteral(3L)))
-          _ <- tx.addStatement(
-            Statement(entity2, a, StringLiteral("divide"))
-          )
-          _ <- tx.addStatement(Statement(entity2, b, entity3))
-          _ <- tx
-            .addStatement(Statement(entity3, a, IntegerLiteral(7L)))
-          _ <- tx.addStatement(
-            Statement(entity3, b, StringLiteral("decimal"))
-          )
-        } yield ()
-      }
-      res <- instance.query(testDataset) { tx =>
-        for {
-          res1 <- tx
-            .matchStatementsRange(None, None, StringLiteralRange("a", "dd"))
-            .compile
-            .toList
-          res2 <- tx
-            .matchStatementsRange(None, None, IntegerLiteralRange(3, 6))
-            .compile
-            .toList
-          res3 <- tx
-            .matchStatementsRange(None, Some(b), StringLiteralRange("ae", "df"))
-            .compile
-            .toList
-        } yield (res1.toSet, res2.toSet, res3.toSet)
-      }
-    } yield res
-    res.map { (res1, res2, res3) =>
-      assertEquals(
-        res1,
-        Set(
-          Statement(entity1, b, StringLiteral("add"))
-        )
-      )
-      assertEquals(
-        res2,
-        Set(
-          Statement(entity2, a, IntegerLiteral(3L)),
-          Statement(entity1, a, IntegerLiteral(5L))
-        )
-      )
-      assertEquals(
-        res3,
-        Set(
-          Statement(entity3, b, StringLiteral("decimal"))
-        )
-      )
-    }
-  }
+//  test("new identifiers") {
+//    val instance = createLigature
+//    val res = for {
+//      _ <- instance.createDataset(testDataset)
+//      _ <- instance.write(testDataset) { tx =>
+//        for {
+//          entity <- tx.newIdentifier("entity-")
+//          attribute <- tx.newIdentifier("attribute-")
+//          value <- tx.newIdentifier("value-")
+//          _ <- tx.addStatement(Statement(entity, attribute, value))
+//        } yield IO.unit
+//      }
+//      statements <- instance.query(testDataset) { tx =>
+//        tx.allStatements().compile.toList
+//      }
+//    } yield statements.head
+//    res.map { it =>
+//      assert(it.entity.name.startsWith("entity-"))
+//      assert(it.attribute.name.startsWith("attribute-"))
+//      it.value match {
+//        case Identifier(id) => assert(id.startsWith("value-"))
+//        case _              => assert(false)
+//      }
+//    }
+//  }
+//
+//  test("removing statements from datasets") {
+//    val instance = createLigature
+//    val res = for {
+//      _ <- instance.createDataset(testDataset)
+//      ps2 <- instance.write(testDataset) { tx =>
+//        for {
+//          _ <- tx.addStatement(Statement(entity1, a, entity2))
+//          _ <- tx.addStatement(Statement(entity3, a, entity2))
+//          _ <- tx.removeStatement(Statement(entity1, a, entity2))
+//          _ <- tx.removeStatement(Statement(entity1, a, entity2))
+//        } yield ()
+//      }
+//      statements <- instance.query(testDataset) { tx =>
+//        tx.allStatements().compile.toList
+//      }
+//    } yield statements
+//    assertIO(res, List(Statement(entity3, a, entity2)))
+//  }
+//
+//  // test("allow canceling WriteTx by throwing exception") {
+//  //     val res = createLigature.instance.use { instance  =>
+//  //         for {
+//  //             _ <- instance.createDataset(testDataset)
+//  //             _ <- instance.write(testDataset).use { tx =>
+//  //                 for {
+//  //                     _ <- tx.addStatement(Statement(entity1, a, entity2))
+//  //                     _ <- tx.cancel()
+//  //                 } yield ()
+//  //             }
+//  //             _ <- instance.write(testDataset).use { tx =>
+//  //                 for {
+//  //                     _ <- tx.addStatement(Statement(entity2, a, entity3))
+//  //                     _ <- tx.addStatement(Statement(entity3, a, entity2))
+//  //                 } yield ()
+//  //             }
+//  //             statements <- instance.query(testDataset).use { tx =>
+//  //                 tx.allStatements().compile.toList
+//  //             }
+//  //         } yield statements
+//  //     }.unsafeRunSync().map(_.right.get).map(_.statement).toSet
+//  //     assertEquals(res, Set(
+//  //         Statement(entity2, a, entity3),
+//  //         Statement(entity3, a, entity2)))
+//  // }
+//
+//  test("matching statements in datasets") {
+//    val instance = createLigature
+//    val res = for {
+//      _ <- instance.createDataset(testDataset)
+//      _ <- instance.write(testDataset) { tx =>
+//        for {
+//          _ <- tx.addStatement(
+//            Statement(entity1, a, StringLiteral("Hello"))
+//          )
+//          _ <- tx.addStatement(Statement(entity2, a, entity1))
+//          _ <- tx.addStatement(Statement(entity2, a, entity3))
+//          _ <- tx.addStatement(Statement(entity3, b, entity2))
+//          _ <- tx.addStatement(
+//            Statement(entity3, b, StringLiteral("Hello"))
+//          )
+//        } yield ()
+//      }
+//      res <- instance.query(testDataset) { tx =>
+//        for {
+//          all <- tx.matchStatements().compile.toList
+//          as <- tx.matchStatements(None, Some(a)).compile.toList
+//          hellos <- tx
+//            .matchStatements(None, None, Some(StringLiteral("Hello")))
+//            .compile
+//            .toList
+//          helloa <- tx
+//            .matchStatements(None, Some(a), Some(StringLiteral("Hello")))
+//            .compile
+//            .toList
+//        } yield (all.toSet, as.toSet, hellos.toSet, helloa.toSet)
+//      }
+//    } yield res
+//    res.map { (all, as, hellos, helloa) =>
+//      assertEquals(
+//        all,
+//        Set(
+//          Statement(entity1, a, StringLiteral("Hello")),
+//          Statement(entity2, a, entity1),
+//          Statement(entity2, a, entity3),
+//          Statement(entity3, b, entity2),
+//          Statement(entity3, b, StringLiteral("Hello"))
+//        )
+//      )
+//      assertEquals(
+//        as,
+//        Set(
+//          Statement(entity1, a, StringLiteral("Hello")),
+//          Statement(entity2, a, entity1),
+//          Statement(entity2, a, entity3)
+//        )
+//      )
+//      assertEquals(
+//        hellos,
+//        Set(
+//          Statement(entity1, a, StringLiteral("Hello")),
+//          Statement(entity3, b, StringLiteral("Hello"))
+//        )
+//      )
+//      assertEquals(
+//        helloa,
+//        Set(
+//          Statement(entity1, a, StringLiteral("Hello"))
+//        )
+//      )
+//    }
+//  }
+//
+//  test("matching statements with literals and ranges in datasets") {
+//    val instance = createLigature
+//    val res = for {
+//      _ <- instance.createDataset(testDataset)
+//      _ <- instance.write(testDataset) { tx =>
+//        for {
+//          _ <- tx.addStatement(Statement(entity1, a, entity2))
+//          _ <- tx
+//            .addStatement(Statement(entity1, b, StringLiteral("add")))
+//          _ <- tx
+//            .addStatement(Statement(entity1, a, IntegerLiteral(5L)))
+//          _ <- tx
+//            .addStatement(Statement(entity2, a, IntegerLiteral(3L)))
+//          _ <- tx.addStatement(
+//            Statement(entity2, a, StringLiteral("divide"))
+//          )
+//          _ <- tx.addStatement(Statement(entity2, b, entity3))
+//          _ <- tx
+//            .addStatement(Statement(entity3, a, IntegerLiteral(7L)))
+//          _ <- tx.addStatement(
+//            Statement(entity3, b, StringLiteral("decimal"))
+//          )
+//        } yield ()
+//      }
+//      res <- instance.query(testDataset) { tx =>
+//        for {
+//          res1 <- tx
+//            .matchStatementsRange(None, None, StringLiteralRange("a", "dd"))
+//            .compile
+//            .toList
+//          res2 <- tx
+//            .matchStatementsRange(None, None, IntegerLiteralRange(3, 6))
+//            .compile
+//            .toList
+//          res3 <- tx
+//            .matchStatementsRange(None, Some(b), StringLiteralRange("ae", "df"))
+//            .compile
+//            .toList
+//        } yield (res1.toSet, res2.toSet, res3.toSet)
+//      }
+//    } yield res
+//    res.map { (res1, res2, res3) =>
+//      assertEquals(
+//        res1,
+//        Set(
+//          Statement(entity1, b, StringLiteral("add"))
+//        )
+//      )
+//      assertEquals(
+//        res2,
+//        Set(
+//          Statement(entity2, a, IntegerLiteral(3L)),
+//          Statement(entity1, a, IntegerLiteral(5L))
+//        )
+//      )
+//      assertEquals(
+//        res3,
+//        Set(
+//          Statement(entity3, b, StringLiteral("decimal"))
+//        )
+//      )
+//    }
+//  }
 }
