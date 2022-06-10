@@ -124,14 +124,21 @@ final class XodusLigature(dbDirectory: File) extends Ligature with XodusOperatio
     environment.computeInReadonlyTransaction(tc).map(Dataset.fromString(_).getOrElse(???))
   }
 
-  /** Check if a given Dataset exists. */
-  override def datasetExists(dataset: Dataset): IO[Boolean] = IO {
-    val tc: TransactionalComputable[Boolean] = tx => {
+  private def fetchDatasetID(dataset: Dataset): Option[ByteIterable] = {
+    val tc: TransactionalComputable[Option[ByteIterable]] = tx => {
       val datasetToIdStore = openStore(tx, LigatureStore.DatasetToIdStore)
       val res = datasetToIdStore.get(tx, StringBinding.stringToEntry(dataset.name))
-      res != null
+      res match {
+        case null                => None
+        case bytes: ByteIterable => Some(bytes)
+      }
     }
     environment.computeInReadonlyTransaction(tc)
+  }
+
+  /** Check if a given Dataset exists. */
+  override def datasetExists(dataset: Dataset): IO[Boolean] = IO {
+    fetchDatasetID(dataset).isDefined
   }
 
   /** Returns all Datasets in a Ligature instance that start with the given
@@ -212,7 +219,7 @@ final class XodusLigature(dbDirectory: File) extends Ligature with XodusOperatio
         val idToDatasetStore = openStore(tx, LigatureStore.IdToDatasetStore)
         datasetToIdStore.delete(tx, nameEntry)
         idToDatasetStore.delete(tx, datasetId)
-        // TODO remove all statements
+        deleteAllStatements(datasetId)
         tx.commit()
       } else {
         ()
@@ -221,32 +228,75 @@ final class XodusLigature(dbDirectory: File) extends Ligature with XodusOperatio
     environment.executeInTransaction(tc)
   }
 
+  private def deleteAllStatements(tx: Transaction, datasetId: ByteIterable) =
+    // TODO handle eav
+    val eavCursor = openStore(tx, LigatureStore.EAVStore).openCursor(tx)
+    var continue = eavCursor.getSearchKeyRange(datasetId) != null
+    while (continue) {
+      val key = eavCursor.getKey
+      if (key.subIterable(0, 8) == datasetId) {
+        eavCursor.deleteCurrent()
+        continue = eavCursor.getNext
+      } else {
+        continue = false
+      }
+    }
+
+    // TODO handle eva
+    // TODO handle aev
+    // TODO handle ave
+    // TODO handle vea
+    // TODO handle vae
+    ???
+
   /** Initializes a QueryTx TODO should probably return its own error type
     * CouldNotInitializeQueryTx
     */
   override def query[T](dataset: Dataset)(fn: QueryTx => IO[T]): IO[T] =
-    IO { //TODO rewrite with TransactionComputable
+    IO {
       environment.beginReadonlyTransaction()
-    }.bracket { tx => IO.defer {
-      val queryTx = XodusQueryTx(tx, this, dataset)
-      fn(queryTx)
-    }} { tx => IO.defer {
-      if (!tx.isFinished) {
-        tx.abort()
+    }.bracket { tx =>
+      IO.defer {
+        fetchDatasetID(dataset) match {
+          case None => ???
+          case Some(datasetId) =>
+            val queryTx = XodusQueryTx(tx, this, datasetId)
+            fn(queryTx)
+        }
       }
-      IO.unit
-    }}
+    } { tx =>
+      IO.defer {
+        if (!tx.isFinished) {
+          tx.abort()
+        }
+        IO.unit
+      }
+    }
 
   /** Initializes a WriteTx TODO should probably return its own error type
     * CouldNotInitializeWriteTx
     */
-  override def write(dataset: Dataset)(fn: WriteTx => IO[Unit]): IO[Unit] = IO {
-    val te: TransactionalExecutable = tx => {
-      val writeTx = XodusWriteTx(tx, this, dataset)
-      fn(writeTx)
+  // TODO try rewriting to use bracket, like query does
+  override def write(dataset: Dataset)(fn: WriteTx => IO[Unit]): IO[Unit] =
+    IO { // TODO rewrite with TransactionComputable
+      environment.beginTransaction()
+    }.bracket { tx =>
+      IO.defer {
+        fetchDatasetID(dataset) match {
+          case None => ???
+          case Some(datasetId) =>
+            val writeTx = XodusWriteTx(tx, this, datasetId)
+            fn(writeTx)
+        }
+      }
+    } { tx =>
+      IO.defer {
+        if (!tx.isFinished) {
+          tx.abort()
+        }
+        IO.unit
+      }
     }
-    environment.executeInTransaction(te)
-  }
 
   override def close(): IO[Unit] = IO {
     environment.close()

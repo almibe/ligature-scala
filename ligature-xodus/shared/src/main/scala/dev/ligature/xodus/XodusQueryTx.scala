@@ -16,40 +16,46 @@ import scala.collection.mutable.ArrayBuffer
 /** Represents a QueryTx within the context of a Ligature instance and a single
   * Dataset
   */
-class XodusQueryTx(private val tx: Transaction, private val xodusOperations: XodusOperations, private val dataset: Dataset) extends QueryTx {
+class XodusQueryTx(
+    private val tx: Transaction,
+    private val xodusOperations: XodusOperations,
+    private val datasetID: ByteIterable
+) extends QueryTx {
+
+  private def lookupIdentifier(iterable: ByteIterable): Identifier =
+    ???
+
+  private def constructValue(valueTypeId: ByteIterable, valueContent: ByteIterable): Value =
+    ???
 
   private def readStatement(bytes: ByteIterable): Statement = {
-    val idToIdentifierStore = xodusOperations.openStore(tx, LigatureStore.IdToIdentifierStore)
-    //ignore dataset id [8]
-    //read entity id [8]
-    val entityID = bytes.subIterable(8,8)
+    // ignore dataset id [8]
+    val entityID = bytes.subIterable(8, 8)
+    val entity = lookupIdentifier(entityID)
 
-    //look up entity
-    //read attribute id [8]
-    //look up attribute
-    //get value type [1]
-    //read value [8]
-    //construct Statement
-    ???
+    val attributeID = bytes.subIterable(16, 8)
+    val attribute = lookupIdentifier(attributeID)
+
+    val valueTypeId = bytes.subIterable(24, 1)
+    val valueContent = bytes.subIterable(25, 8)
+    val value = constructValue(valueTypeId, valueContent)
+
+    Statement(entity, attribute, value)
   }
 
   /** Returns all Statements in this Dataset. */
   override def allStatements(): Stream[IO, Statement] = Stream.emits {
     val output: ArrayBuffer[Statement] = ArrayBuffer()
-    val datasetToIdStore = xodusOperations.openStore(tx, LigatureStore.DatasetToIdStore)
-    val datasetIdResult = datasetToIdStore.get(tx, StringBinding.stringToEntry(dataset.name))
-    if (datasetIdResult != null) {
-      val eavStore = xodusOperations.openStore(tx, LigatureStore.AEVStore)
-      val eavCursor = eavStore.openCursor(tx)
-      var continue = eavCursor.getSearchKeyRange(datasetIdResult) != null
-      while (continue) {
-        val statement = eavCursor.getKey
-        if (datasetIdResult == statement.subIterable(0, datasetIdResult.getLength)) {
-          output.append(readStatement(statement))
-          eavCursor.getNext
-        } else {
-          continue = false
-        }
+    val eavStore = xodusOperations.openStore(tx, LigatureStore.EAVStore)
+    val eavCursor = eavStore.openCursor(tx)
+    var continue = eavCursor.getSearchKeyRange(datasetID) != null
+    while (continue) {
+      val statement = eavCursor.getKey
+      if (datasetID == statement.subIterable(0, datasetID.getLength)) {
+        output.append(readStatement(statement))
+        continue = eavCursor.getNext
+      } else {
+        continue = false
       }
     }
     output
@@ -65,7 +71,7 @@ class XodusQueryTx(private val tx: Transaction, private val xodusOperations: Xod
       value: Option[Value]
   ): Stream[IO, Statement] = ???
 
-  /** Returns all PersistedStatements that match the given criteria. If a
+  /** Returns all Statements that match the given criteria. If a
     * parameter is None then it matches all.
     */
   override def matchStatementsRange(
