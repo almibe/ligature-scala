@@ -16,7 +16,7 @@ import java.util.concurrent.locks.Lock
 /** Represents a WriteTx within the context of a Ligature instance and a single
   * Dataset
   */
-class XodusWriteTx(private val tx: Transaction) extends WriteTx {
+class XodusWriteTx(private val tx: Transaction, private val xodusOperations: XodusOperations, private val dataset: Dataset) extends WriteTx {
 
   /** Creates a new, unique Entity within this Dataset. */
   override def newIdentifier(prefix: String): IO[Identifier] = ???

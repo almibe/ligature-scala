@@ -38,26 +38,37 @@ import jetbrains.exodus.bindings.{LongBinding, StringBinding}
 
 import scala.jdk.CollectionConverters.*
 
-final class XodusLigature(dbDirectory: File) extends Ligature {
+trait XodusOperations {
+  def openStore(tx: Transaction, store: LigatureStore): Store
+  def nextID(tx: Transaction): ByteIterable
+}
+
+enum LigatureStore(val storeName: String):
+  case CountersStore extends LigatureStore("Counters")
+  case DatasetToIdStore extends LigatureStore("DatasetToID")
+  case IdToDatasetStore extends LigatureStore("IDToDataset")
+  case EAVStore extends LigatureStore("EAV")
+  case EVAStore extends LigatureStore("EVA")
+  case AEVStore extends LigatureStore("AEV")
+  case AVEStore extends LigatureStore("AVE")
+  case VEAStore extends LigatureStore("VEA")
+  case VAEStore extends LigatureStore("VAE")
+  case IdentifierToIdStore extends LigatureStore("IdentifierToID")
+  case IdToIdentifierStore extends LigatureStore("IDToIdentifier")
+  case StringToIdStore extends LigatureStore("StringToID")
+  case IdToStringStore extends LigatureStore("IDToString")
+  case BytesToIdStore extends LigatureStore("BytesToID")
+  case IdToBytesStore extends LigatureStore("IDToBytes")
+
+enum LigatureValueType(val id: Byte):
+  case Identifier extends LigatureValueType(0)
+  case Integer extends LigatureValueType(1)
+  case String extends LigatureValueType(2)
+  case Bytes extends LigatureValueType(3)
+
+final class XodusLigature(dbDirectory: File) extends Ligature with XodusOperations {
   private val environment = Environments.newInstance(dbDirectory, new EnvironmentConfig)
   setupStores()
-
-  enum LigatureStore(val storeName: String):
-    case CountersStore extends LigatureStore("Counters")
-    case DatasetToIdStore extends LigatureStore("DatasetToID")
-    case IdToDatasetStore extends LigatureStore("IDToDataset")
-    case EAVStore extends LigatureStore("EAV")
-    case EVAStore extends LigatureStore("EVA")
-    case AEVStore extends LigatureStore("AEV")
-    case AVEStore extends LigatureStore("AVE")
-    case VEAStore extends LigatureStore("VEA")
-    case VAEStore extends LigatureStore("VAE")
-    case IdentifierToIdStore extends LigatureStore("IdentifierToID")
-    case IdToIdentifierStore extends LigatureStore("IDToIdentifier")
-    case StringToIdStore extends LigatureStore("StringToID")
-    case IdToStringStore extends LigatureStore("IDToString")
-    case BytesToIdStore extends LigatureStore("BytesToID")
-    case IdToBytesStore extends LigatureStore("IDToBytes")
 
   /** This method is ran once at the start to make sure all Stores exist.
     * This is done so that Stores can be opened in readonly mode.
@@ -84,14 +95,14 @@ final class XodusLigature(dbDirectory: File) extends Ligature {
     * This is mainly so that StoreConfigs can be consistent.
     * Right now all stores use the same config but that is likely to change.
     */
-  private def openStore(tx: Transaction, store: LigatureStore): Store =
+  override def openStore(tx: Transaction, store: LigatureStore): Store =
     environment.openStore(store.storeName, StoreConfig.WITHOUT_DUPLICATES, tx)
 
   /** Computes the next ID.
     * Right now IDs are shared between all Stores but that might change.
     * Also, right now IDs are positive Long values and that might also change.
     */
-  private def nextID(tx: Transaction): ByteIterable = {
+  override def nextID(tx: Transaction): ByteIterable = {
     val counterStore = openStore(tx, LigatureStore.CountersStore)
     val nextCount =
       LongBinding.entryToLong(counterStore.get(tx, StringBinding.stringToEntry("counter"))) + 1L
@@ -213,11 +224,11 @@ final class XodusLigature(dbDirectory: File) extends Ligature {
   /** Initializes a QueryTx TODO should probably return its own error type
     * CouldNotInitializeQueryTx
     */
-  override def query[T](dataset: Dataset)(fn: QueryTx => IO[T]): IO[T] =
+  override def query[T](dataset: Dataset, fn: QueryTx => IO[T]): IO[T] =
     IO { //TODO rewrite with TransactionComputable
       environment.beginReadonlyTransaction()
     }.bracket { tx => IO.defer {
-      val queryTx = XodusQueryTx(tx)
+      val queryTx = XodusQueryTx(tx, this, dataset)
       fn(queryTx)
     }} { tx => IO.defer {
       if (!tx.isFinished) {
@@ -229,7 +240,13 @@ final class XodusLigature(dbDirectory: File) extends Ligature {
   /** Initializes a WriteTx TODO should probably return its own error type
     * CouldNotInitializeWriteTx
     */
-  override def write(dataset: Dataset)(fn: WriteTx => IO[Unit]): IO[Unit] = ???
+  override def write(dataset: Dataset, fn: WriteTx => IO[Unit]): IO[Unit] = IO {
+    val te: TransactionalExecutable = tx => {
+      val writeTx = XodusWriteTx(tx, this, dataset)
+      fn(writeTx)
+    }
+    environment.executeInTransaction(te)
+  }
 
   override def close(): IO[Unit] = IO {
     environment.close()
