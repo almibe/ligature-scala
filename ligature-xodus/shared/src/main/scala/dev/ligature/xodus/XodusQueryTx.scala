@@ -43,9 +43,9 @@ class XodusQueryTx(
   private def constructValue(valueTypeId: Byte, valueContent: ByteIterable): Value =
     LigatureValueType.getValueType(valueTypeId) match {
       case LigatureValueType.Identifier => lookupIdentifier(valueContent)
-      case LigatureValueType.Integer => IntegerLiteral(LongBinding.entryToLong(valueContent))
-      case LigatureValueType.String => lookupStringLiteral(valueContent)
-      case LigatureValueType.Bytes => ???
+      case LigatureValueType.Integer    => IntegerLiteral(LongBinding.entryToLong(valueContent))
+      case LigatureValueType.String     => lookupStringLiteral(valueContent)
+      case LigatureValueType.Bytes      => ???
     }
 
   private def readStatement(bytes: ByteIterable): Statement = {

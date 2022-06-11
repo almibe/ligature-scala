@@ -69,9 +69,9 @@ enum LigatureValueType(val id: Byte):
 object LigatureValueType:
   def getValueType(id: Byte): LigatureValueType = id match
     case LigatureValueType.Identifier.id => LigatureValueType.Identifier
-    case LigatureValueType.Integer.id => LigatureValueType.Integer
-    case LigatureValueType.String.id => LigatureValueType.String
-    case LigatureValueType.Bytes.id => LigatureValueType.Bytes
+    case LigatureValueType.Integer.id    => LigatureValueType.Integer
+    case LigatureValueType.String.id     => LigatureValueType.String
+    case LigatureValueType.Bytes.id      => LigatureValueType.Bytes
 
 final class XodusLigature(dbDirectory: File) extends Ligature with XodusOperations {
   private val environment = Environments.newInstance(dbDirectory, new EnvironmentConfig)
