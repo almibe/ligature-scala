@@ -6,9 +6,8 @@ package dev.ligature.xodus
 
 import cats.effect.IO
 import dev.ligature.*
-
-import jetbrains.exodus.{ArrayByteIterable, ByteIterable}
-import jetbrains.exodus.bindings.{BooleanBinding, StringBinding}
+import jetbrains.exodus.{ArrayByteIterable, ByteIterable, CompoundByteIterable}
+import jetbrains.exodus.bindings.{BooleanBinding, ByteBinding, LongBinding, StringBinding}
 import jetbrains.exodus.env.Transaction
 
 /** Represents a WriteTx within the context of a Ligature instance and a single
@@ -60,12 +59,28 @@ class XodusWriteTx(
   private def encodeValue(value: Value): ByteIterable =
     value match {
       case identifier: Identifier =>
-        val id = lookupOrCreateIdentifier(identifier)
-        ???
+        val temp = CompoundByteIterable(
+          Array(
+            ByteBinding.byteToEntry(LigatureValueType.Identifier.id),
+            lookupOrCreateIdentifier(identifier)
+          )
+        )
+        temp
       case stringLiteral: StringLiteral =>
-        lookupOrCreateStringLiteral(stringLiteral)
+        CompoundByteIterable(
+          Array(
+            ByteBinding.byteToEntry(LigatureValueType.String.id),
+            lookupOrCreateStringLiteral(stringLiteral)
+          )
+        )
       case integerLiteral: IntegerLiteral =>
-        ???
+        CompoundByteIterable(
+          Array(
+            ByteBinding.byteToEntry(LigatureValueType.Integer.id),
+            LongBinding.longToEntry(integerLiteral.value)
+          )
+        )
+      // TODO Bytes
     }
 
   private def statementExists(
