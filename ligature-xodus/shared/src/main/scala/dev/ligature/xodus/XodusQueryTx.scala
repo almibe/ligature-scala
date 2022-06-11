@@ -8,7 +8,7 @@ import cats.effect.IO
 import dev.ligature.*
 import fs2.Stream
 import jetbrains.exodus.ByteIterable
-import jetbrains.exodus.bindings.{LongBinding, StringBinding}
+import jetbrains.exodus.bindings.{ByteBinding, LongBinding, StringBinding}
 import jetbrains.exodus.env.Transaction
 
 import scala.collection.mutable.ArrayBuffer
@@ -56,7 +56,7 @@ class XodusQueryTx(
     val attributeID = bytes.subIterable(16, 8)
     val attribute = lookupIdentifier(attributeID)
 
-    val valueTypeId = bytes.subIterable(24, 1).getBytesUnsafe()(0)
+    val valueTypeId = ByteBinding.entryToByte(bytes.subIterable(24, 1))
     val valueContent = bytes.subIterable(25, 8)
     val value = constructValue(valueTypeId, valueContent)
 
