@@ -66,6 +66,13 @@ enum LigatureValueType(val id: Byte):
   case String extends LigatureValueType(2)
   case Bytes extends LigatureValueType(3)
 
+object LigatureValueType:
+  def getValueType(id: Byte): LigatureValueType = id match
+    case LigatureValueType.Identifier.id => LigatureValueType.Identifier
+    case LigatureValueType.Integer.id => LigatureValueType.Integer
+    case LigatureValueType.String.id => LigatureValueType.String
+    case LigatureValueType.Bytes.id => LigatureValueType.Bytes
+
 final class XodusLigature(dbDirectory: File) extends Ligature with XodusOperations {
   private val environment = Environments.newInstance(dbDirectory, new EnvironmentConfig)
   setupStores()
@@ -219,7 +226,7 @@ final class XodusLigature(dbDirectory: File) extends Ligature with XodusOperatio
         val idToDatasetStore = openStore(tx, LigatureStore.IdToDatasetStore)
         datasetToIdStore.delete(tx, nameEntry)
         idToDatasetStore.delete(tx, datasetId)
-        deleteAllStatements(datasetId)
+        deleteAllStatements(tx, datasetId)
         tx.commit()
       } else {
         ()
@@ -292,7 +299,7 @@ final class XodusLigature(dbDirectory: File) extends Ligature with XodusOperatio
     } { tx =>
       IO.defer {
         if (!tx.isFinished) {
-          tx.abort()
+          tx.commit()
         }
         IO.unit
       }

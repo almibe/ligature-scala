@@ -59,9 +59,16 @@ class XodusWriteTx(
     */
   private def encodeValue(value: Value): ByteIterable =
     value match {
-      case identifier: Identifier         => lookupOrCreateIdentifier(identifier)
-      case stringLiteral: StringLiteral   => lookupOrCreateStringLiteral(stringLiteral)
-      case integerLiteral: IntegerLiteral => ???
+      case identifier: Identifier         => {
+        val id = lookupOrCreateIdentifier(identifier)
+        ???
+      }
+      case stringLiteral: StringLiteral   => {
+        lookupOrCreateStringLiteral(stringLiteral)
+      }
+      case integerLiteral: IntegerLiteral => {
+        ???
+      }
     }
 
   private def statementExists(
@@ -83,10 +90,10 @@ class XodusWriteTx(
       attribute: ByteIterable,
       value: ByteIterable
   ): Unit = {
-    val d = datasetID.getBytesUnsafe
-    val e = entity.getBytesUnsafe
-    val a = attribute.getBytesUnsafe
-    val v = value.getBytesUnsafe
+    val d = datasetID.getBytesUnsafe.slice(0,8)
+    val e = entity.getBytesUnsafe.slice(0,8)
+    val a = attribute.getBytesUnsafe.slice(0,8)
+    val v = value.getBytesUnsafe.slice(0,9)
     // EAV
     val eavStore = xodusOperations.openStore(tx, LigatureStore.EAVStore)
     eavStore.put(tx, ArrayByteIterable(d ++ e ++ a ++ v), BooleanBinding.booleanToEntry(true))

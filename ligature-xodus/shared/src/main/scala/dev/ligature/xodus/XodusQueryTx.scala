@@ -8,7 +8,7 @@ import cats.effect.IO
 import dev.ligature.*
 import fs2.Stream
 import jetbrains.exodus.ByteIterable
-import jetbrains.exodus.bindings.StringBinding
+import jetbrains.exodus.bindings.{LongBinding, StringBinding}
 import jetbrains.exodus.env.Transaction
 
 import scala.collection.mutable.ArrayBuffer
@@ -22,11 +22,31 @@ class XodusQueryTx(
     private val datasetID: ByteIterable
 ) extends QueryTx {
 
-  private def lookupIdentifier(iterable: ByteIterable): Identifier =
-    ???
+  private def lookupIdentifier(internalIdentifier: ByteIterable): Identifier =
+    val idToIdentifierStore = xodusOperations.openStore(tx, LigatureStore.IdToIdentifierStore)
+    val result = idToIdentifierStore.get(tx, internalIdentifier)
+    if (result != null) {
+      Identifier.fromString(StringBinding.entryToString(result)).getOrElse(???)
+    } else {
+      ???
+    }
 
-  private def constructValue(valueTypeId: ByteIterable, valueContent: ByteIterable): Value =
-    ???
+  private def lookupStringLiteral(internalIdentifier: ByteIterable): StringLiteral =
+    val idToStringStore = xodusOperations.openStore(tx, LigatureStore.IdToStringStore)
+    val result = idToStringStore.get(tx, internalIdentifier)
+    if (result != null) {
+      StringLiteral(StringBinding.entryToString(result))
+    } else {
+      ???
+    }
+
+  private def constructValue(valueTypeId: Byte, valueContent: ByteIterable): Value =
+    LigatureValueType.getValueType(valueTypeId) match {
+      case LigatureValueType.Identifier => lookupIdentifier(valueContent)
+      case LigatureValueType.Integer => IntegerLiteral(LongBinding.entryToLong(valueContent))
+      case LigatureValueType.String => lookupStringLiteral(valueContent)
+      case LigatureValueType.Bytes => ???
+    }
 
   private def readStatement(bytes: ByteIterable): Statement = {
     // ignore dataset id [8]
@@ -36,7 +56,7 @@ class XodusQueryTx(
     val attributeID = bytes.subIterable(16, 8)
     val attribute = lookupIdentifier(attributeID)
 
-    val valueTypeId = bytes.subIterable(24, 1)
+    val valueTypeId = bytes.subIterable(24, 1).getBytesUnsafe()(0)
     val valueContent = bytes.subIterable(25, 8)
     val value = constructValue(valueTypeId, valueContent)
 
