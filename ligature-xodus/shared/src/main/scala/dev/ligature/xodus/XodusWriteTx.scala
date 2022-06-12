@@ -27,9 +27,11 @@ class XodusWriteTx(
       identifierResult
     } else {
       val internalId = xodusOperations.nextID(tx)
+      val internalIdWithDataset = CompoundByteIterable(Array(datasetID, internalId))
+      val encodedNameWithDataset = CompoundByteIterable(Array(datasetID, encodedName))
       val idToIdentifierStore = xodusOperations.openStore(tx, LigatureStore.IdToIdentifierStore)
-      identifierToIdStore.put(tx, encodedName, internalId)
-      idToIdentifierStore.put(tx, internalId, encodedName)
+      identifierToIdStore.put(tx, encodedNameWithDataset, internalId)
+      idToIdentifierStore.put(tx, internalIdWithDataset, encodedName)
       internalId
     }
 
@@ -42,9 +44,11 @@ class XodusWriteTx(
       result
     } else {
       val internalId = xodusOperations.nextID(tx)
+      val internalIdWithDataset = CompoundByteIterable(Array(datasetID, internalId))
+      val encodedStringWithDataset = CompoundByteIterable(Array(datasetID, encodedString))
       val idToStringStore = xodusOperations.openStore(tx, LigatureStore.IdToStringStore)
-      stringToIdStore.put(tx, encodedString, internalId)
-      idToStringStore.put(tx, internalId, encodedString)
+      stringToIdStore.put(tx, encodedStringWithDataset, internalId)
+      idToStringStore.put(tx, internalIdWithDataset, encodedString)
       internalId
     }
 

@@ -7,7 +7,7 @@ package dev.ligature.xodus
 import cats.effect.IO
 import dev.ligature.*
 import fs2.Stream
-import jetbrains.exodus.ByteIterable
+import jetbrains.exodus.{ByteIterable, CompoundByteIterable}
 import jetbrains.exodus.bindings.{ByteBinding, LongBinding, StringBinding}
 import jetbrains.exodus.env.Transaction
 
@@ -24,7 +24,7 @@ class XodusQueryTx(
 
   private def lookupIdentifier(internalIdentifier: ByteIterable): Identifier =
     val idToIdentifierStore = xodusOperations.openStore(tx, LigatureStore.IdToIdentifierStore)
-    val result = idToIdentifierStore.get(tx, internalIdentifier)
+    val result = idToIdentifierStore.get(tx, CompoundByteIterable(Array(datasetID, internalIdentifier)))
     if (result != null) {
       Identifier.fromString(StringBinding.entryToString(result)).getOrElse(???)
     } else {
@@ -33,7 +33,7 @@ class XodusQueryTx(
 
   private def lookupStringLiteral(internalIdentifier: ByteIterable): StringLiteral =
     val idToStringStore = xodusOperations.openStore(tx, LigatureStore.IdToStringStore)
-    val result = idToStringStore.get(tx, internalIdentifier)
+    val result = idToStringStore.get(tx, CompoundByteIterable(Array(datasetID, internalIdentifier)))
     if (result != null) {
       StringLiteral(StringBinding.entryToString(result))
     } else {
