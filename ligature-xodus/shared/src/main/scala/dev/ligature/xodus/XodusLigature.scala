@@ -246,7 +246,13 @@ final class XodusLigature(dbDirectory: File) extends Ligature with XodusOperatio
       LigatureStore.AEVStore,
       LigatureStore.AVEStore,
       LigatureStore.VEAStore,
-      LigatureStore.VAEStore
+      LigatureStore.VAEStore,
+      LigatureStore.IdentifierToIdStore,
+      LigatureStore.IdToIdentifierStore,
+      LigatureStore.StringToIdStore,
+      LigatureStore.IdToStringStore,
+      LigatureStore.BytesToIdStore,
+      LigatureStore.IdToBytesStore
     )
     stores.foreach { store =>
       val cursor = openStore(tx, store).openCursor(tx)

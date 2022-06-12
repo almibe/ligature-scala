@@ -24,7 +24,8 @@ class XodusQueryTx(
 
   private def lookupIdentifier(internalIdentifier: ByteIterable): Identifier =
     val idToIdentifierStore = xodusOperations.openStore(tx, LigatureStore.IdToIdentifierStore)
-    val result = idToIdentifierStore.get(tx, CompoundByteIterable(Array(datasetID, internalIdentifier)))
+    val result =
+      idToIdentifierStore.get(tx, CompoundByteIterable(Array(datasetID, internalIdentifier)))
     if (result != null) {
       Identifier.fromString(StringBinding.entryToString(result)).getOrElse(???)
     } else {
