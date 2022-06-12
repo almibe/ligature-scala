@@ -6,7 +6,7 @@ package dev.ligature.xodus
 
 import cats.effect.IO
 import dev.ligature.*
-import jetbrains.exodus.{ArrayByteIterable, ByteIterable, CompoundByteIterable}
+import jetbrains.exodus.{ByteIterable, CompoundByteIterable}
 import jetbrains.exodus.bindings.{BooleanBinding, ByteBinding, LongBinding, StringBinding}
 import jetbrains.exodus.env.Transaction
 
@@ -89,12 +89,8 @@ class XodusWriteTx(
       value: ByteIterable
   ): Boolean = {
     val eavStore = xodusOperations.openStore(tx, LigatureStore.EAVStore)
-    val encodedStatement =
-      datasetID.getBytesUnsafe
-        ++ entity.getBytesUnsafe
-        ++ attribute.getBytesUnsafe
-        ++ value.getBytesUnsafe
-    eavStore.get(tx, ArrayByteIterable(encodedStatement)) != null
+    val encodedStatement = CompoundByteIterable(Array(datasetID, entity, attribute, value))
+    eavStore.get(tx, encodedStatement) != null
   }
 
   private def storeStatement(
@@ -102,28 +98,28 @@ class XodusWriteTx(
       attribute: ByteIterable,
       value: ByteIterable
   ): Unit = {
-    val d = datasetID.getBytesUnsafe.slice(0, 8)
-    val e = entity.getBytesUnsafe.slice(0, 8)
-    val a = attribute.getBytesUnsafe.slice(0, 8)
-    val v = value.getBytesUnsafe.slice(0, 9)
+    val d = datasetID
+    val e = entity
+    val a = attribute
+    val v = value
     // EAV
     val eavStore = xodusOperations.openStore(tx, LigatureStore.EAVStore)
-    eavStore.put(tx, ArrayByteIterable(d ++ e ++ a ++ v), BooleanBinding.booleanToEntry(true))
+    eavStore.put(tx, CompoundByteIterable(Array(d, e, a, v)), BooleanBinding.booleanToEntry(true))
     // EVA
     val evaStore = xodusOperations.openStore(tx, LigatureStore.EVAStore)
-    evaStore.put(tx, ArrayByteIterable(d ++ e ++ v ++ a), BooleanBinding.booleanToEntry(true))
+    evaStore.put(tx, CompoundByteIterable(Array(d, e, v, a)), BooleanBinding.booleanToEntry(true))
     // AEV
     val aevStore = xodusOperations.openStore(tx, LigatureStore.AEVStore)
-    aevStore.put(tx, ArrayByteIterable(d ++ a ++ e ++ v), BooleanBinding.booleanToEntry(true))
+    aevStore.put(tx, CompoundByteIterable(Array(d, a, e, v)), BooleanBinding.booleanToEntry(true))
     // AVE
     val aveStore = xodusOperations.openStore(tx, LigatureStore.AVEStore)
-    aveStore.put(tx, ArrayByteIterable(d ++ a ++ v ++ e), BooleanBinding.booleanToEntry(true))
+    aveStore.put(tx, CompoundByteIterable(Array(d, a, v, e)), BooleanBinding.booleanToEntry(true))
     // VEA
     val veaStore = xodusOperations.openStore(tx, LigatureStore.VEAStore)
-    veaStore.put(tx, ArrayByteIterable(d ++ v ++ e ++ a), BooleanBinding.booleanToEntry(true))
+    veaStore.put(tx, CompoundByteIterable(Array(d, v, e, a)), BooleanBinding.booleanToEntry(true))
     // VAE
     val vaeStore = xodusOperations.openStore(tx, LigatureStore.VAEStore)
-    vaeStore.put(tx, ArrayByteIterable(d ++ v ++ a ++ e), BooleanBinding.booleanToEntry(true))
+    vaeStore.put(tx, CompoundByteIterable(Array(d, v, a, e)), BooleanBinding.booleanToEntry(true))
   }
 
   /** Creates a new, unique Entity within this Dataset. */
