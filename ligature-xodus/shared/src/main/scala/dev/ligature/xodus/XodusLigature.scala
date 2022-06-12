@@ -235,26 +235,32 @@ final class XodusLigature(dbDirectory: File) extends Ligature with XodusOperatio
     environment.executeInTransaction(tc)
   }
 
+  /** This method iterates through all of the index stores and removes all Statements
+    * in a given Dataset.
+    * TODO this method also needs to clean up all Identifiers, Strings, and Bytes
+    */
   private def deleteAllStatements(tx: Transaction, datasetId: ByteIterable) =
-    // TODO handle eav
-    val eavCursor = openStore(tx, LigatureStore.EAVStore).openCursor(tx)
-    var continue = eavCursor.getSearchKeyRange(datasetId) != null
-    while (continue) {
-      val key = eavCursor.getKey
-      if (key.subIterable(0, 8) == datasetId) {
-        eavCursor.deleteCurrent()
-        continue = eavCursor.getNext
-      } else {
-        continue = false
+    val stores = List(
+      LigatureStore.EAVStore,
+      LigatureStore.EVAStore,
+      LigatureStore.AEVStore,
+      LigatureStore.AVEStore,
+      LigatureStore.VEAStore,
+      LigatureStore.VAEStore
+    )
+    stores.foreach { store =>
+      val cursor = openStore(tx, store).openCursor(tx)
+      var continue = cursor.getSearchKeyRange(datasetId) != null
+      while (continue) {
+        val key = cursor.getKey
+        if (key.subIterable(0, 8) == datasetId) {
+          cursor.deleteCurrent()
+          continue = cursor.getNext
+        } else {
+          continue = false
+        }
       }
     }
-
-    // TODO handle eva
-    // TODO handle aev
-    // TODO handle ave
-    // TODO handle vea
-    // TODO handle vae
-    ???
 
   /** Initializes a QueryTx TODO should probably return its own error type
     * CouldNotInitializeQueryTx
