@@ -141,51 +141,51 @@ abstract class LigatureTestSuite extends CatsEffectSuite {
     )
   }
 
-//  test("new identifiers") {
-//    val instance = createLigature
-//    val res = for {
-//      _ <- instance.createDataset(testDataset)
-//      _ <- instance.write(testDataset) { tx =>
-//        for {
-//          entity <- tx.newIdentifier("entity-")
-//          attribute <- tx.newIdentifier("attribute-")
-//          value <- tx.newIdentifier("value-")
-//          _ <- tx.addStatement(Statement(entity, attribute, value))
-//        } yield IO.unit
-//      }
-//      statements <- instance.query(testDataset) { tx =>
-//        tx.allStatements().compile.toList
-//      }
-//    } yield statements.head
-//    res.map { it =>
-//      assert(it.entity.name.startsWith("entity-"))
-//      assert(it.attribute.name.startsWith("attribute-"))
-//      it.value match {
-//        case Identifier(id) => assert(id.startsWith("value-"))
-//        case _              => assert(false)
-//      }
-//    }
-//  }
-//
-//  test("removing statements from datasets") {
-//    val instance = createLigature
-//    val res = for {
-//      _ <- instance.createDataset(testDataset)
-//      ps2 <- instance.write(testDataset) { tx =>
-//        for {
-//          _ <- tx.addStatement(Statement(entity1, a, entity2))
-//          _ <- tx.addStatement(Statement(entity3, a, entity2))
-//          _ <- tx.removeStatement(Statement(entity1, a, entity2))
-//          _ <- tx.removeStatement(Statement(entity1, a, entity2))
-//        } yield ()
-//      }
-//      statements <- instance.query(testDataset) { tx =>
-//        tx.allStatements().compile.toList
-//      }
-//    } yield statements
-//    assertIO(res, List(Statement(entity3, a, entity2)))
-//  }
-//
+  test("new identifiers") {
+    val instance = createLigature
+    val res = for {
+      _ <- instance.createDataset(testDataset)
+      _ <- instance.write(testDataset) { tx =>
+        for {
+          entity <- tx.newIdentifier("entity-")
+          attribute <- tx.newIdentifier("attribute-")
+          value <- tx.newIdentifier("value-")
+          _ <- tx.addStatement(Statement(entity, attribute, value))
+        } yield IO.unit
+      }
+      statements <- instance.query(testDataset) { tx =>
+        tx.allStatements().compile.toList
+      }
+    } yield statements.head
+    res.map { it =>
+      assert(it.entity.name.startsWith("entity-"))
+      assert(it.attribute.name.startsWith("attribute-"))
+      it.value match {
+        case Identifier(id) => assert(id.startsWith("value-"))
+        case _              => assert(false)
+      }
+    }
+  }
+
+  test("removing statements from datasets") {
+    val instance = createLigature
+    val res = for {
+      _ <- instance.createDataset(testDataset)
+      ps2 <- instance.write(testDataset) { tx =>
+        for {
+          _ <- tx.addStatement(Statement(entity1, a, entity2))
+          _ <- tx.addStatement(Statement(entity3, a, entity2))
+          _ <- tx.removeStatement(Statement(entity1, a, entity2))
+          _ <- tx.removeStatement(Statement(entity1, a, entity2))
+        } yield ()
+      }
+      statements <- instance.query(testDataset) { tx =>
+        tx.allStatements().compile.toList
+      }
+    } yield statements
+    assertIO(res, List(Statement(entity3, a, entity2)))
+  }
+
 //  // test("allow canceling WriteTx by throwing exception") {
 //  //     val res = createLigature.instance.use { instance  =>
 //  //         for {

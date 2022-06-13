@@ -6,9 +6,11 @@ package dev.ligature.xodus
 
 import cats.effect.IO
 import dev.ligature.*
+import dev.ligature.idgen.genId
 import jetbrains.exodus.{ByteIterable, CompoundByteIterable}
 import jetbrains.exodus.bindings.{BooleanBinding, ByteBinding, LongBinding, StringBinding}
 import jetbrains.exodus.env.Transaction
+import jetbrains.exodus.util.IdGenerator
 
 /** Represents a WriteTx within the context of a Ligature instance and a single
   * Dataset
@@ -126,8 +128,22 @@ class XodusWriteTx(
     vaeStore.put(tx, CompoundByteIterable(Array(d, v, a, e)), BooleanBinding.booleanToEntry(true))
   }
 
-  /** Creates a new, unique Entity within this Dataset. */
-  override def newIdentifier(prefix: String): IO[Identifier] = ???
+  /** Returns an ID that doesn't exist within this Dataset.
+    */
+  override def newIdentifier(prefix: String): IO[Identifier] = IO {
+    var newIdentifier = Identifier.fromString(s"$prefix${genId()}").getOrElse(???)
+    var encodedIdentifier = StringBinding.stringToEntry(newIdentifier.name)
+    var exists = true
+    val store = xodusOperations.openStore(tx, LigatureStore.IdentifierToIdStore)
+    while (exists) {
+      exists = store.get(tx, encodedIdentifier) != null
+      if (exists) {
+        newIdentifier = Identifier.fromString(s"$prefix${genId()}").getOrElse(???)
+        encodedIdentifier = StringBinding.stringToEntry(newIdentifier.name)
+      }
+    }
+    newIdentifier
+  }
 
   /** Adds a given Statement to this Dataset. If the Statement already exists
     * nothing happens (TODO maybe add it with a new context?). Note: Potentially
@@ -149,5 +165,6 @@ class XodusWriteTx(
     * Ok(true) only if the given Statement was found and removed. Note:
     * Potentially could trigger a ValidationError.
     */
-  def removeStatement(persistedStatement: Statement): IO[Unit] = ???
+  def removeStatement(persistedStatement: Statement): IO[Unit] =
+    ???
 }
