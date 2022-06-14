@@ -278,13 +278,21 @@ class XodusWriteTx(
 
       if (aveResult == null) {
         val veaStore = xodusOperations.openStore(tx, LigatureStore.VEAStore)
-        val veaResult = veaStore.get(tx, CompoundByteIterable(Array(datasetID, ByteBinding.byteToEntry(LigatureValueType.Identifier.id), id)))
+        val veaResult = veaStore.get(
+          tx,
+          CompoundByteIterable(
+            Array(datasetID, ByteBinding.byteToEntry(LigatureValueType.Identifier.id), id)
+          )
+        )
 
         if (veaResult == null) {
           val idToIdentifierStore = xodusOperations.openStore(tx, LigatureStore.IdToIdentifierStore)
           val identifierToIdStore = xodusOperations.openStore(tx, LigatureStore.IdentifierToIdStore)
           idToIdentifierStore.delete(tx, CompoundByteIterable(Array(datasetID, id)))
-          identifierToIdStore.delete(tx, CompoundByteIterable(Array(datasetID, StringBinding.stringToEntry(identifier.name))))
+          identifierToIdStore.delete(
+            tx,
+            CompoundByteIterable(Array(datasetID, StringBinding.stringToEntry(identifier.name)))
+          )
         }
       }
     }
