@@ -171,7 +171,7 @@ abstract class LigatureTestSuite extends CatsEffectSuite {
     val instance = createLigature
     val res = for {
       _ <- instance.createDataset(testDataset)
-      ps2 <- instance.write(testDataset) { tx =>
+      _ <- instance.write(testDataset) { tx =>
         for {
           _ <- tx.addStatement(Statement(entity1, a, entity2))
           _ <- tx.addStatement(Statement(entity3, a, entity2))

@@ -21,21 +21,36 @@ class XodusWriteTx(
     private val datasetID: ByteIterable
 ) extends WriteTx {
 
-  private def lookupOrCreateIdentifier(identifier: Identifier): ByteIterable =
+  private def lookupIdentifier(identifier: Identifier): Option[ByteIterable] =
     val identifierToIdStore = xodusOperations.openStore(tx, LigatureStore.IdentifierToIdStore)
+    val encodedName = CompoundByteIterable(
+      Array(datasetID, StringBinding.stringToEntry(identifier.name))
+    )
+    val result = identifierToIdStore.get(tx, encodedName)
+    Option(result)
+
+  private def lookupOrCreateIdentifier(identifier: Identifier): ByteIterable =
     val encodedName = StringBinding.stringToEntry(identifier.name)
-    val identifierResult = identifierToIdStore.get(tx, encodedName)
-    if (identifierResult != null) {
-      identifierResult
-    } else {
-      val internalId = xodusOperations.nextID(tx)
-      val internalIdWithDataset = CompoundByteIterable(Array(datasetID, internalId))
-      val encodedNameWithDataset = CompoundByteIterable(Array(datasetID, encodedName))
-      val idToIdentifierStore = xodusOperations.openStore(tx, LigatureStore.IdToIdentifierStore)
-      identifierToIdStore.put(tx, encodedNameWithDataset, internalId)
-      idToIdentifierStore.put(tx, internalIdWithDataset, encodedName)
-      internalId
+    lookupIdentifier(identifier) match {
+      case Some(res) => res
+      case None =>
+        val identifierToIdStore = xodusOperations.openStore(tx, LigatureStore.IdentifierToIdStore)
+        val internalId = xodusOperations.nextID(tx)
+        val internalIdWithDataset = CompoundByteIterable(Array(datasetID, internalId))
+        val encodedNameWithDataset = CompoundByteIterable(Array(datasetID, encodedName))
+        val idToIdentifierStore = xodusOperations.openStore(tx, LigatureStore.IdToIdentifierStore)
+        identifierToIdStore.put(tx, encodedNameWithDataset, internalId)
+        idToIdentifierStore.put(tx, internalIdWithDataset, encodedName)
+        internalId
     }
+
+  private def lookupStringLiteral(literal: StringLiteral): Option[ByteIterable] =
+    val stringToIdStore = xodusOperations.openStore(tx, LigatureStore.StringToIdStore)
+    val encodedString = CompoundByteIterable(
+      Array(datasetID, StringBinding.stringToEntry(literal.value))
+    )
+    val result = stringToIdStore.get(tx, encodedString)
+    Option(result)
 
   // TODO this function might be able to be merged with lookupOrCreateIdentifier
   private def lookupOrCreateStringLiteral(literal: StringLiteral): ByteIterable =
@@ -165,6 +180,119 @@ class XodusWriteTx(
     * Ok(true) only if the given Statement was found and removed. Note:
     * Potentially could trigger a ValidationError.
     */
-  def removeStatement(persistedStatement: Statement): IO[Unit] =
+  def removeStatement(statement: Statement): IO[Unit] = IO {
+    val entityID = lookupIdentifier(statement.entity)
+    val attributeID = lookupIdentifier(statement.attribute)
+    val encodedValue = lookupValue(statement.value)
+    if (
+      entityID.isDefined && attributeID.isDefined && encodedValue.isDefined && statementExists(
+        entityID.get,
+        attributeID.get,
+        encodedValue.get
+      )
+    ) {
+      removeStatement(statement, entityID.get, attributeID.get, encodedValue.get)
+    } else {
+      ()
+    }
+  }
+
+  /** This method checks if a Value exists in a Dataset.
+    * If the Value is an Identifier it checks IdentifierToIdStore.
+    * If the Value is a String it checks StringToIdStore.
+    * If the Value is a Bytes it check IntegerToIdStore.
+    * If the Value is an Integer it returns the encoded value.
+    */
+  private def lookupValue(value: Value): Option[ByteIterable] =
+    value match {
+      case identifier: Identifier =>
+        lookupIdentifier(identifier) match {
+          case None => None
+          case Some(id) =>
+            Some(
+              CompoundByteIterable(
+                Array(ByteBinding.byteToEntry(LigatureValueType.Identifier.id), id)
+              )
+            )
+        }
+      case stringLiteral: StringLiteral =>
+        lookupStringLiteral(stringLiteral) match {
+          case None => None
+          case Some(stringId) =>
+            Some(
+              CompoundByteIterable(
+                Array(ByteBinding.byteToEntry(LigatureValueType.String.id), stringId)
+              )
+            )
+        }
+      case IntegerLiteral(value) =>
+        Some(LongBinding.longToEntry(value))
+    }
+
+  private def removeStatement(
+      statement: Statement,
+      entityID: ByteIterable,
+      attributeID: ByteIterable,
+      encodedValue: ByteIterable
+  ): Unit = {
+    // remove Statement from all six of the index Stores
+    // check if any of the Identifiers contained in the Statement are used anywhere else
+    // if the value contains a String or Bytes remove the references
+    val d = datasetID
+    val e = entityID
+    val a = attributeID
+    val v = encodedValue
+
+    // remove eav
+    val eavStore = xodusOperations.openStore(tx, LigatureStore.EAVStore)
+    eavStore.delete(tx, CompoundByteIterable(Array(d, e, a, v)))
+    // remove eva
+    val evaStore = xodusOperations.openStore(tx, LigatureStore.EVAStore)
+    evaStore.delete(tx, CompoundByteIterable(Array(d, e, v, a)))
+    // remove aev
+    val aevStore = xodusOperations.openStore(tx, LigatureStore.AEVStore)
+    aevStore.delete(tx, CompoundByteIterable(Array(d, a, e, v)))
+    // remove ave
+    val aveStore = xodusOperations.openStore(tx, LigatureStore.AVEStore)
+    aveStore.delete(tx, CompoundByteIterable(Array(d, a, v, e)))
+    // remove vea
+    val veaStore = xodusOperations.openStore(tx, LigatureStore.VEAStore)
+    veaStore.delete(tx, CompoundByteIterable(Array(d, v, e, a)))
+    // remove vae
+    val vaeStore = xodusOperations.openStore(tx, LigatureStore.VAEStore)
+    vaeStore.delete(tx, CompoundByteIterable(Array(d, v, a, e)))
+
+    checkAndRemoveIdentifier(statement.entity, entityID)
+    checkAndRemoveIdentifier(statement.attribute, attributeID)
+    cleanUpValue(encodedValue)
+  }
+
+  private def checkAndRemoveIdentifier(identifier: Identifier, id: ByteIterable): Unit =
+    // check if an identifier is used in any position in any Statement in the Dataset
+    val eavStore = xodusOperations.openStore(tx, LigatureStore.EAVStore)
+    val eavResult = eavStore.get(tx, CompoundByteIterable(Array(datasetID, id)))
+
+    if (eavResult == null) {
+      val aevStore = xodusOperations.openStore(tx, LigatureStore.AEVStore)
+      val aveResult = aevStore.get(tx, CompoundByteIterable(Array(datasetID, id)))
+
+      if (aveResult == null) {
+        val veaStore = xodusOperations.openStore(tx, LigatureStore.VEAStore)
+        val veaResult = veaStore.get(tx, CompoundByteIterable(Array(datasetID, ByteBinding.byteToEntry(LigatureValueType.Identifier.id), id)))
+
+        if (veaResult == null) {
+          val idToIdentifierStore = xodusOperations.openStore(tx, LigatureStore.IdToIdentifierStore)
+          val identifierToIdStore = xodusOperations.openStore(tx, LigatureStore.IdentifierToIdStore)
+          idToIdentifierStore.delete(tx, CompoundByteIterable(Array(datasetID, id)))
+          identifierToIdStore.delete(tx, CompoundByteIterable(Array(datasetID, StringBinding.stringToEntry(identifier.name))))
+        }
+      }
+    }
+
+  private def cleanUpValue(value: ByteIterable): Unit =
+    // if value is an Identifier call checkAndRemoveIdentifier
+    // if value is a String remove it from stringToId and idToString stores
+    // if value is a Bytes remove it from bytesToId and idToBytes stores
+    // if value is an Integer do nothing
     ???
 }
