@@ -56,13 +56,13 @@ class XodusWriteTx(
   private def lookupOrCreateStringLiteral(literal: StringLiteral): ByteIterable =
     val stringToIdStore = xodusOperations.openStore(tx, LigatureStore.StringToIdStore)
     val encodedString = StringBinding.stringToEntry(literal.value)
-    val result = stringToIdStore.get(tx, encodedString)
-    if (result == null) {
+    val encodedStringWithDataset = CompoundByteIterable(Array(datasetID, encodedString))
+    val result = stringToIdStore.get(tx, encodedStringWithDataset)
+    if (result != null) {
       result
     } else {
       val internalId = xodusOperations.nextID(tx)
       val internalIdWithDataset = CompoundByteIterable(Array(datasetID, internalId))
-      val encodedStringWithDataset = CompoundByteIterable(Array(datasetID, encodedString))
       val idToStringStore = xodusOperations.openStore(tx, LigatureStore.IdToStringStore)
       stringToIdStore.put(tx, encodedStringWithDataset, internalId)
       idToStringStore.put(tx, internalIdWithDataset, encodedString)
