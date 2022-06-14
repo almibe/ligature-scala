@@ -32,6 +32,12 @@ class XodusQueryTx(
       ???
     }
 
+  private def lookupIdentifier(identifier: Option[Identifier]): Option[ByteIterable] =
+    ???
+
+  private def lookupValue(value: Option[Value]): Option[ByteIterable] =
+    ???
+
   private def lookupStringLiteral(internalIdentifier: ByteIterable): StringLiteral =
     val idToStringStore = xodusOperations.openStore(tx, LigatureStore.IdToStringStore)
     val result = idToStringStore.get(tx, CompoundByteIterable(Array(datasetID, internalIdentifier)))
@@ -90,7 +96,36 @@ class XodusQueryTx(
       entity: Option[Identifier],
       attribute: Option[Identifier],
       value: Option[Value]
-  ): Stream[IO, Statement] = ???
+  ): Stream[IO, Statement] = {
+    val luEntity = lookupIdentifier(entity)
+    val luAttribute = lookupIdentifier(attribute)
+    val luValue = lookupValue(value)
+
+    if (entity.isEmpty && attribute.isEmpty && value.isEmpty) {
+      allStatements()
+    } else if (
+      entity.isDefined && luEntity.isEmpty || attribute.isDefined && luAttribute.isEmpty || value.isDefined && luValue.isEmpty
+    ) {
+      Stream.empty
+    } else {
+      if (entity.isDefined) {
+        if (attribute.isDefined) {
+          matchStatementsEAV()
+        } else {
+          matchStatementsEVA()
+        }
+      } else if (attribute.isDefined) {
+        matchStatementsAVE()
+      } else { // Value is not empty
+        matchStatementsVEA()
+      }
+    }
+  }
+
+  private def matchStatementsEAV(): Stream[IO, Statement] = ???
+  private def matchStatementsEVA(): Stream[IO, Statement] = ???
+  private def matchStatementsAVE(): Stream[IO, Statement] = ???
+  private def matchStatementsVEA(): Stream[IO, Statement] = ???
 
   /** Returns all Statements that match the given criteria. If a
     * parameter is None then it matches all.
