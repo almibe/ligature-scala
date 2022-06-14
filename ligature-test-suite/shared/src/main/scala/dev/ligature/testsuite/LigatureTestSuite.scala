@@ -174,6 +174,24 @@ abstract class LigatureTestSuite extends CatsEffectSuite {
       _ <- instance.write(testDataset) { tx =>
         for {
           _ <- tx.addStatement(Statement(entity1, a, entity2))
+          _ <- tx.removeStatement(Statement(entity1, a, entity2))
+          _ <- tx.removeStatement(Statement(entity1, a, entity2))
+        } yield ()
+      }
+      statements <- instance.query(testDataset) { tx =>
+        tx.allStatements().compile.toList
+      }
+    } yield statements
+    assertIO(res, List())
+  }
+
+  test("removing statements from datasets with dupe") {
+    val instance = createLigature
+    val res = for {
+      _ <- instance.createDataset(testDataset)
+      _ <- instance.write(testDataset) { tx =>
+        for {
+          _ <- tx.addStatement(Statement(entity1, a, entity2))
           _ <- tx.addStatement(Statement(entity3, a, entity2))
           _ <- tx.removeStatement(Statement(entity1, a, entity2))
           _ <- tx.removeStatement(Statement(entity1, a, entity2))

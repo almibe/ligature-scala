@@ -226,7 +226,7 @@ class XodusWriteTx(
             )
         }
       case IntegerLiteral(value) =>
-        Some(LongBinding.longToEntry(value))
+        Some(LongBinding.longToEntry(value)) // TODO needs value type
     }
 
   private def removeStatement(
@@ -264,28 +264,25 @@ class XodusWriteTx(
 
     checkAndRemoveIdentifier(statement.entity, entityID)
     checkAndRemoveIdentifier(statement.attribute, attributeID)
-    cleanUpValue(encodedValue)
+    cleanUpValue(statement.value, encodedValue)
   }
 
   private def checkAndRemoveIdentifier(identifier: Identifier, id: ByteIterable): Unit =
     // check if an identifier is used in any position in any Statement in the Dataset
-    val eavStore = xodusOperations.openStore(tx, LigatureStore.EAVStore)
-    val eavResult = eavStore.get(tx, CompoundByteIterable(Array(datasetID, id)))
+    val eavResult = startsWith(LigatureStore.EAVStore, CompoundByteIterable(Array(datasetID, id)))
 
-    if (eavResult == null) {
-      val aevStore = xodusOperations.openStore(tx, LigatureStore.AEVStore)
-      val aveResult = aevStore.get(tx, CompoundByteIterable(Array(datasetID, id)))
+    if (eavResult) {
+      val aevResult = startsWith(LigatureStore.AEVStore, CompoundByteIterable(Array(datasetID, id)))
 
-      if (aveResult == null) {
-        val veaStore = xodusOperations.openStore(tx, LigatureStore.VEAStore)
-        val veaResult = veaStore.get(
-          tx,
+      if (aevResult) {
+        val veaResult = startsWith(
+          LigatureStore.VEAStore,
           CompoundByteIterable(
             Array(datasetID, ByteBinding.byteToEntry(LigatureValueType.Identifier.id), id)
           )
         )
 
-        if (veaResult == null) {
+        if (veaResult) {
           val idToIdentifierStore = xodusOperations.openStore(tx, LigatureStore.IdToIdentifierStore)
           val identifierToIdStore = xodusOperations.openStore(tx, LigatureStore.IdentifierToIdStore)
           idToIdentifierStore.delete(tx, CompoundByteIterable(Array(datasetID, id)))
@@ -297,10 +294,29 @@ class XodusWriteTx(
       }
     }
 
-  private def cleanUpValue(value: ByteIterable): Unit =
+  private def startsWith(ligatureStore: LigatureStore, prefix: ByteIterable): Boolean = {
+    val store = xodusOperations.openStore(tx, ligatureStore)
+    val cursor = store.openCursor(tx)
+    cursor.getSearchKeyRange(prefix)
+    val key = cursor.getKey()
+    cursor.close()
+    key.subIterable(0, prefix.getLength) == prefix
+  }
+
+  private def cleanUpValue(value: Value, valueEncoded: ByteIterable): Unit =
     // if value is an Identifier call checkAndRemoveIdentifier
     // if value is a String remove it from stringToId and idToString stores
     // if value is a Bytes remove it from bytesToId and idToBytes stores
     // if value is an Integer do nothing
-    ???
+    value match {
+      case identifier: Identifier =>
+        checkAndRemoveIdentifier(identifier, valueEncoded.subIterable(1, 8))
+      case stringLiteral: StringLiteral =>
+        val stringToIdStore = xodusOperations.openStore(tx, LigatureStore.StringToIdStore)
+        val idToStringStore = xodusOperations.openStore(tx, LigatureStore.IdToStringStore)
+        stringToIdStore.delete(tx, StringBinding.stringToEntry(stringLiteral.value))
+        idToStringStore.delete(tx, valueEncoded.subIterable(1, 8))
+      case _: IntegerLiteral => ()
+      // TODO support bytes
+    }
 }
