@@ -39,31 +39,31 @@ class InMemoryQueryTx(private val store: DatasetStore) extends QueryTx {
     res
   }
 
-  /** Returns all PersistedStatements that match the given criteria. If a
-    * parameter is None then it matches all.
-    */
-  override def matchStatementsRange(
-      entity: Option[Identifier],
-      attribute: Option[Identifier],
-      range: dev.ligature.Range
-  ): Stream[IO, Statement] = {
-    var res = Stream.emits(store.statements.toSeq)
-    if (entity.isDefined) {
-      res = res.filter(_.entity == entity.get)
-    }
-    if (attribute.isDefined) {
-      res = res.filter(_.attribute == attribute.get)
-    }
-    res = res.filter { ps =>
-      val testValue = ps.value
-      (testValue, range) match {
-        case (StringLiteral(v), StringLiteralRange(start, end)) =>
-          v >= start && v < end
-        case (IntegerLiteral(v), IntegerLiteralRange(start, end)) =>
-          v >= start && v < end
-        case _ => false
-      }
-    }
-    res
-  }
+//  /** Returns all PersistedStatements that match the given criteria. If a
+//    * parameter is None then it matches all.
+//    */
+//  override def matchStatementsRange(
+//      entity: Option[Identifier],
+//      attribute: Option[Identifier],
+//      range: dev.ligature.Range
+//  ): Stream[IO, Statement] = {
+//    var res = Stream.emits(store.statements.toSeq)
+//    if (entity.isDefined) {
+//      res = res.filter(_.entity == entity.get)
+//    }
+//    if (attribute.isDefined) {
+//      res = res.filter(_.attribute == attribute.get)
+//    }
+//    res = res.filter { ps =>
+//      val testValue = ps.value
+//      (testValue, range) match {
+//        case (StringLiteral(v), StringLiteralRange(start, end)) =>
+//          v >= start && v < end
+//        case (IntegerLiteral(v), IntegerLiteralRange(start, end)) =>
+//          v >= start && v < end
+//        case _ => false
+//      }
+//    }
+//    res
+//  }
 }

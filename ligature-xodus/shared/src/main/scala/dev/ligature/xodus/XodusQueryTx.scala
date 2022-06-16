@@ -58,9 +58,25 @@ class XodusQueryTx(
       case None => None
       case Some(value) =>
         value match {
-          case identifier: Identifier         => lookupIdentifier(Some(identifier)).map(id => CompoundByteIterable(Array(ByteBinding.byteToEntry(LigatureValueType.Identifier.id), id)))
-          case stringLiteral: StringLiteral   => lookupStringLiteral(stringLiteral).map(id => CompoundByteIterable(Array(ByteBinding.byteToEntry(LigatureValueType.String.id), id)))
-          case integerLiteral: IntegerLiteral => Some(CompoundByteIterable(Array(ByteBinding.byteToEntry(LigatureValueType.Integer.id), LongBinding.longToEntry(integerLiteral.value))))
+          case identifier: Identifier =>
+            lookupIdentifier(Some(identifier)).map(id =>
+              CompoundByteIterable(
+                Array(ByteBinding.byteToEntry(LigatureValueType.Identifier.id), id)
+              )
+            )
+          case stringLiteral: StringLiteral =>
+            lookupStringLiteral(stringLiteral).map(id =>
+              CompoundByteIterable(Array(ByteBinding.byteToEntry(LigatureValueType.String.id), id))
+            )
+          case integerLiteral: IntegerLiteral =>
+            Some(
+              CompoundByteIterable(
+                Array(
+                  ByteBinding.byteToEntry(LigatureValueType.Integer.id),
+                  LongBinding.longToEntry(integerLiteral.value)
+                )
+              )
+            )
         }
     }
 
@@ -252,12 +268,138 @@ class XodusQueryTx(
     results
   }
 
-  /** Returns all Statements that match the given criteria. If a
-    * parameter is None then it matches all.
-    */
-  override def matchStatementsRange(
-      entity: Option[Identifier],
-      attribute: Option[Identifier],
-      range: dev.ligature.Range
-  ): Stream[IO, Statement] = ???
+//  /** Returns all Statements that match the given criteria. If a
+//    * parameter is None then it matches all.
+//    */
+//  override def matchStatementsRange(
+//      entity: Option[Identifier],
+//      attribute: Option[Identifier],
+//      range: Range
+//  ): Stream[IO, Statement] = {
+//    val luEntity = lookupIdentifier(entity)
+//    val luAttribute = lookupIdentifier(attribute)
+//
+//    if (entity.isDefined) {
+//      if (attribute.isDefined) {
+//        matchStatementsEAV(luEntity.get, luAttribute.get, range)
+//      } else {
+//        matchStatementsEVA(luEntity.get, range) // we know attribute isn't set
+//      }
+//    } else if (attribute.isDefined) {
+//      matchStatementsAVE(luAttribute.get, range) // we know entity isn't set
+//    } else {
+//      matchStatementsVEA(range) // we know entity and attribute aren' set
+//    }
+//  }
+//
+//  case class EncodedRange(start: ByteIterable, end: ByteIterable)
+//
+//  private def encodeRange(valueRange: Range): EncodedRange =
+//    valueRange match {
+//      case StringLiteralRange(start, end) =>
+//        ???
+//      case IntegerLiteralRange(start, end) =>
+//        ???
+//    }
+//
+//  private def matchStatementsEAV(
+//      entityId: ByteIterable,
+//      attributeId: ByteIterable,
+//      valueRange: Range
+//  ): Stream[IO, Statement] = Stream.emits {
+//    val store = xodusOperations.openStore(tx, LigatureStore.EAVStore)
+//    val encodedRange = encodeRange(valueRange)
+//    val start = CompoundByteIterable(Array(datasetID, entityId, attributeId, encodedRange.start))
+//    val end = CompoundByteIterable(Array(datasetID, entityId, attributeId, encodedRange.end))
+//    val cursor = store.openCursor(tx)
+//    cursor.getSearchKeyRange(start)
+//    var continue = true
+//    val results: ArrayBuffer[Statement] = ArrayBuffer()
+//    while (continue) {
+//      val key = cursor.getKey
+//      if (key.subIterable(0, end.getLength).compareTo(end) < 0) {
+//        val statement = readStatement(key, ReadStatementOffsets.EAVRange)
+//        results.append(statement)
+//        continue = cursor.getNext
+//      } else {
+//        continue = false
+//      }
+//    }
+//    results
+//  }
+//
+//  private def matchStatementsEVA(
+//      entityId: ByteIterable,
+//      valueId: Range
+//  ): Stream[IO, Statement] = Stream.emits {
+//    ???
+////    val store = xodusOperations.openStore(tx, LigatureStore.EVAStore)
+////    val prefix = valueId match {
+////      case None      => CompoundByteIterable(Array(datasetID, entityId))
+////      case Some(vid) => CompoundByteIterable(Array(datasetID, entityId, vid))
+////    }
+////    val cursor = store.openCursor(tx)
+////    cursor.getSearchKeyRange(prefix)
+////    var continue = true
+////    val results: ArrayBuffer[Statement] = ArrayBuffer()
+////    while (continue) {
+////      val key = cursor.getKey
+////      if (key.subIterable(0, prefix.getLength) == prefix) {
+////        val statement = readStatement(key, ReadStatementOffsets.EVARange)
+////        results.append(statement)
+////        continue = cursor.getNext
+////      } else {
+////        continue = false
+////      }
+////    }
+////    results
+//  }
+//
+//  private def matchStatementsAVE(
+//      attributeId: ByteIterable,
+//      valueId: Range
+//  ): Stream[IO, Statement] = Stream.emits {
+//    ???
+////    val store = xodusOperations.openStore(tx, LigatureStore.AVEStore)
+////    val prefix = valueId match {
+////      case None      => CompoundByteIterable(Array(datasetID, attributeId))
+////      case Some(vid) => CompoundByteIterable(Array(datasetID, attributeId, vid))
+////    }
+////    val cursor = store.openCursor(tx)
+////    cursor.getSearchKeyRange(prefix)
+////    var continue = true
+////    val results: ArrayBuffer[Statement] = ArrayBuffer()
+////    while (continue) {
+////      val key = cursor.getKey
+////      if (key.subIterable(0, prefix.getLength) == prefix) {
+////        val statement = readStatement(key, ReadStatementOffsets.AVERange)
+////        results.append(statement)
+////        continue = cursor.getNext
+////      } else {
+////        continue = false
+////      }
+////    }
+////    results
+//  }
+//
+//  private def matchStatementsVEA(valueId: Range): Stream[IO, Statement] = Stream.emits {
+//    ???
+////    val store = xodusOperations.openStore(tx, LigatureStore.VEAStore)
+////    val prefix = CompoundByteIterable(Array(datasetID, valueId))
+////    val cursor = store.openCursor(tx)
+////    cursor.getSearchKeyRange(prefix)
+////    var continue = true
+////    val results: ArrayBuffer[Statement] = ArrayBuffer()
+////    while (continue) {
+////      val key = cursor.getKey
+////      if (key.subIterable(0, prefix.getLength) == prefix) {
+////        val statement = readStatement(key, ReadStatementOffsets.VEARange)
+////        results.append(statement)
+////        continue = cursor.getNext
+////      } else {
+////        continue = false
+////      }
+////    }
+////    results
+//  }
 }

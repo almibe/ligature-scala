@@ -51,9 +51,9 @@ sealed trait Value
 final case class StringLiteral(value: String) extends Value
 final case class IntegerLiteral(value: Long) extends Value
 
-sealed trait Range
-final case class StringLiteralRange(start: String, end: String) extends Range
-final case class IntegerLiteralRange(start: Long, end: Long) extends Range
+//sealed trait Range
+//final case class StringLiteralRange(start: String, end: String) extends Range
+//final case class IntegerLiteralRange(start: Long, end: Long) extends Range
 
 final case class Statement(
     entity: Identifier,
@@ -126,14 +126,14 @@ trait QueryTx {
       value: Option[Value] = None
   ): Stream[IO, Statement]
 
-  /** Returns all PersistedStatements that match the given criteria. If a
-    * parameter is None then it matches all.
-    */
-  def matchStatementsRange(
-      entity: Option[Identifier] = None,
-      attribute: Option[Identifier] = None,
-      value: Range
-  ): Stream[IO, Statement]
+//  /** Returns all PersistedStatements that match the given criteria. If a
+//    * parameter is None then it matches all.
+//    */
+//  def matchStatementsRange(
+//      entity: Option[Identifier] = None,
+//      attribute: Option[Identifier] = None,
+//      value: Range
+//  ): Stream[IO, Statement]
 }
 
 /** Represents a WriteTx within the context of a Ligature instance and a single
