@@ -131,7 +131,20 @@ lazy val ligatureHttp = crossProject(JVMPlatform)
     testFrameworks += new TestFramework("munit.Framework"),
     Compile / run / mainClass := Some("dev.ligature.http.MainLigatureHttp")
   )
-  .dependsOn(ligature, lig, wander, ligatureInMemory)
+  .dependsOn(ligature, lig, wander)
+
+lazy val ligatureHttpTestSuite = crossProject(JVMPlatform)
+  .in(file("ligature-http-test-suite"))
+  .settings(
+    name := "ligature-http-test-suite",
+    scalaVersion := scala3Version,
+    libraryDependencies += "co.fs2" %%% "fs2-core" % fs2Version,
+    libraryDependencies += "org.http4s" %% "http4s-dsl" % http4sVersion,
+    libraryDependencies += "org.http4s" %% "http4s-ember-server" % http4sVersion,
+    libraryDependencies += "org.http4s" %% "http4s-ember-client" % http4sVersion,
+    libraryDependencies += "com.google.code.gson" % "gson" % "2.9.0",
+  )
+  .dependsOn(ligature, lig, wander, ligatureHttp)
 
 addCommandAlias("serve", "ligature-httpJVM/run")
 
