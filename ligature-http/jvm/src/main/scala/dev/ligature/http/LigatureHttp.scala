@@ -17,29 +17,26 @@ import org.http4s.server.Router
 import scala.concurrent.duration.*
 import org.http4s.HttpRoutes
 import org.http4s.dsl.io.*
-import dev.ligature.inmemory.InMemoryLigature
 import dev.ligature.{Dataset, Identifier, Ligature, LigatureError, Statement}
 import dev.ligature.dlig.{DLigError, readDLig}
 import dev.ligature.lig.write
 import dev.ligature.wander.run
 
-object MainLigatureHttp extends IOApp {
-  def run(args: List[String]): IO[ExitCode] =
-    if (args.length == 1 && args(0) == "--local") { // currently only supports --local mode
-      val instance = LigatureHttp(
-        InMemoryLigature()
-      ) // hard-coded InMemory version for now
-      instance.startLocal()
-    } else {
-      IO {
-        println("Could not start application.")
-        println("A single mode argument is required.")
-        println("Supported modes:")
-        println("  --local")
-        ExitCode.Error
-      }
+def runLigature(ligature: Ligature, args: List[String]): IO[ExitCode] =
+  if (args.length == 1 && args(0) == "--local") { // currently only supports --local mode
+    val instance = LigatureHttp(
+      ligature
+    )
+    instance.startLocal()
+  } else {
+    IO {
+      println("Could not start application.")
+      println("A single mode argument is required.")
+      println("Supported modes:")
+      println("  --local")
+      ExitCode.Error
     }
-}
+  }
 
 class LigatureHttp(val ligature: Ligature) {
   private[http] def startLocal(): IO[ExitCode] =

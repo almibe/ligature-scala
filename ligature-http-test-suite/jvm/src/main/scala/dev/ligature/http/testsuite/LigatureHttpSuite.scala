@@ -2,25 +2,24 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at https://mozilla.org/MPL/2.0/. */
 
-package dev.ligature.http
+package dev.ligature.http.testsuite
 
 import dev.ligature.{Dataset, Statement}
 import dev.ligature.dlig.readDLig
+import dev.ligature.http.LigatureHttp
 import cats.effect.IO
 import cats.effect.unsafe.implicits.global
 import fs2.Stream
 import com.google.gson.*
 import com.google.gson.annotations.SerializedName
-import dev.ligature.inmemory.InMemoryLigature
 import munit.*
 import org.http4s.*
 import org.http4s.client.dsl.io.*
 import org.http4s.dsl.io.*
 import org.http4s.syntax.all.*
-import dev.ligature.inmemory.InMemoryLigature
 
-class LigatureHttpSuite extends FunSuite {
-  def createInstance() = LigatureHttp(InMemoryLigature()) // hard-coded for now
+abstract class LigatureHttpSuite extends FunSuite {
+  def createInstance(): LigatureHttp
 
   test("Datasets should initially be empty") {
     val instance = createInstance()

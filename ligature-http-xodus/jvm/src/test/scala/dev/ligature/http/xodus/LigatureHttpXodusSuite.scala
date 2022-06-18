@@ -1,17 +1,20 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
- * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+ * file, You can obtain one at https://mozilla.org/MPL/2.0/. */
 
-package dev.ligature.xodus
+package dev.ligature.http.xodus
 
-import dev.ligature.Ligature
-import dev.ligature.testsuite.LigatureTestSuite
-import java.nio.file._
+import dev.ligature.xodus.XodusLigature
+import dev.ligature.http.testsuite.LigatureHttpSuite
+import dev.ligature.http.LigatureHttp
+import cats.effect.unsafe.implicits.global
+
 import java.io.File
+import java.nio.file.{Files, Path}
 
-class LigatureXodusSpec extends LigatureTestSuite {
+class LigatureHttpXodusSuite extends LigatureHttpSuite {
   var path: Path = null
-  var ligatureInstance: Ligature = null
+  var ligatureInstance: XodusLigature = null
 
   override def beforeEach(context: BeforeEach): Unit =
     path = Files.createTempDirectory("LigatureXodusTest")
@@ -30,8 +33,8 @@ class LigatureXodusSpec extends LigatureTestSuite {
     deleteRecursively(path.toFile)
   }
 
-  override def createLigature: Ligature = {
+  override def createInstance(): LigatureHttp = {
     ligatureInstance = XodusLigature(path.toFile)
-    ligatureInstance
+    LigatureHttp(ligatureInstance)
   }
 }

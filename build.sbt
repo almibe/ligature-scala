@@ -127,11 +127,9 @@ lazy val ligatureHttp = crossProject(JVMPlatform)
     libraryDependencies += "org.http4s" %% "http4s-ember-server" % http4sVersion,
     libraryDependencies += "org.http4s" %% "http4s-ember-client" % http4sVersion,
     libraryDependencies += "com.google.code.gson" % "gson" % "2.9.0",
-    libraryDependencies += "org.scalameta" %%% "munit" % munitVersion % Test,
-    testFrameworks += new TestFramework("munit.Framework"),
-    Compile / run / mainClass := Some("dev.ligature.http.MainLigatureHttp")
   )
   .dependsOn(ligature, lig, wander)
+  .disablePlugins(RevolverPlugin)
 
 lazy val ligatureHttpTestSuite = crossProject(JVMPlatform)
   .in(file("ligature-http-test-suite"))
@@ -143,9 +141,34 @@ lazy val ligatureHttpTestSuite = crossProject(JVMPlatform)
     libraryDependencies += "org.http4s" %% "http4s-ember-server" % http4sVersion,
     libraryDependencies += "org.http4s" %% "http4s-ember-client" % http4sVersion,
     libraryDependencies += "com.google.code.gson" % "gson" % "2.9.0",
+    libraryDependencies += "org.typelevel" %%% "munit-cats-effect-3" % "1.0.7"
   )
-  .dependsOn(ligature, lig, wander, ligatureHttp)
+  .dependsOn(ligatureHttp, ligature, lig, wander)
+  .disablePlugins(RevolverPlugin)
 
-addCommandAlias("serve", "ligature-httpJVM/run")
+lazy val ligatureHttpInMemory = crossProject(JVMPlatform)
+  .in(file("ligature-http-in-memory"))
+  .settings(
+    name := "ligature-http-in-memory",
+    scalaVersion := scala3Version,
+    libraryDependencies += "org.scalameta" %%% "munit" % munitVersion % Test,
+    testFrameworks += new TestFramework("munit.Framework"),
+    Compile / run / mainClass := Some("dev.ligature.http.memory.MainLigatureHttp")
+  )
+  .dependsOn(ligatureHttp, ligatureInMemory, ligatureHttpTestSuite % Test)
+  .disablePlugins(RevolverPlugin)
+
+lazy val ligatureHttpXodus = crossProject(JVMPlatform)
+  .in(file("ligature-http-xodus"))
+  .settings(
+    name := "ligature-http-xodus",
+    scalaVersion := scala3Version,
+    libraryDependencies += "org.scalameta" %%% "munit" % munitVersion % Test,
+    testFrameworks += new TestFramework("munit.Framework"),
+    Compile / run / mainClass := Some("dev.ligature.http.MainLigatureHttp")
+  )
+  .dependsOn(ligatureHttp, ligatureXodus, ligatureHttpTestSuite % Test)
+
+addCommandAlias("serve", "ligature-http-xodusJVM/run")
 
 disablePlugins(RevolverPlugin)
