@@ -8,7 +8,18 @@ import cats.effect.*
 import dev.ligature.inmemory.InMemoryLigature
 import dev.ligature.http.runLigature
 
+
+
 object MainLigatureHttp extends IOApp {
   def run(args: List[String]): IO[ExitCode] =
     runLigature(InMemoryLigature(), args)
 }
+
+//} else {
+//  IO {
+//  println("Could not start application.")
+//  println("A single mode argument is required.")
+//  println("Supported modes:")
+//  println("  --local")
+//  ExitCode.Error
+//}

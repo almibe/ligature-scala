@@ -22,28 +22,21 @@ import dev.ligature.dlig.{DLigError, readDLig}
 import dev.ligature.lig.write
 import dev.ligature.wander.run
 
-def runLigature(ligature: Ligature, args: List[String]): IO[ExitCode] =
-  if (args.length == 1 && args(0) == "--local") { // currently only supports --local mode
+enum LigatureMode:
+  case Local
+
+def runLigature(ligature: Ligature, mode: LigatureMode, port: Port): IO[ExitCode] =
     val instance = LigatureHttp(
-      ligature
+      ligature, mode, port
     )
     instance.startLocal()
-  } else {
-    IO {
-      println("Could not start application.")
-      println("A single mode argument is required.")
-      println("Supported modes:")
-      println("  --local")
-      ExitCode.Error
-    }
-  }
 
-class LigatureHttp(val ligature: Ligature) {
+class LigatureHttp(val ligature: Ligature, val mode: LigatureMode, port: Port) {
   private[http] def startLocal(): IO[ExitCode] =
     EmberServerBuilder
       .default[IO]
       .withHost(ipv4"0.0.0.0")
-      .withPort(port"8080")
+      .withPort(port)
       .withHttpApp(routes)
       .build
       .use(_ => IO.never)

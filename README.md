@@ -16,6 +16,8 @@ See additional documentation [here](https://github.com/almibe/ligature-documenta
 | gaze                     | A utility library for parsing text/data structures.                              | ✅   | ✅ |
 | ligature-http            | A JVM based server for Ligature following the ligature-http spec.                | ✅   |   |
 | ligature-http-test-suite | A test suite for ligature-http                                                   | ✅   |   |
+| ligature-http-in-memory  | An implementation of ligature-http that stores everything in memory.             | ✅   |   |
+| ligature-http-xodus      | An implementation of ligature-http that uses ligature-xodus for storage.         | ✅   |   |
 
 ## Building
 This project requires sbt to build.
@@ -48,6 +50,32 @@ If you are using the interaction shell, I recommend using
 `reStart`
 
 This will let you reload the server whenever you want by repeating the command.
+
+### Server Configuration
+
+For now ligature-http only accepts configuration via the command line.
+This is likely to change but for now just using command line arguments is very helpful during development.
+
+#### Common Configuration
+
+All ligature-http implementations accept the following arguemnts
+
+| Name   | Description                          | Default | Note                               |
+|--------|--------------------------------------|---------|------------------------------------|
+| --port | The port ligature-http is served on. | 4202    | Can be any valid port number.      |
+ | --mode | The mode ligature-http is ran in.    | local   | Only local is currently supported. |
+
+#### In Memory Configuration
+
+The ligature-http-in-memory implementation only supports the common configuration.
+
+#### Xodus Configuration
+
+ligature-http-xodus adds the following configuration on top of the common configuration.
+
+| Name      | Description                                       | Default    | Note                                                                      |
+|-----------|---------------------------------------------------|------------|---------------------------------------------------------------------------|
+| --storage | The directory where the Xodus database is stored. | ~/ligature | Must be a valid directory, directory will be created if it doesn't exist. |
 
 ### Credits
 
