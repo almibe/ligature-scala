@@ -14,11 +14,15 @@ import java.io.File
 case class LigatureConf(
   port: Port = Port.fromInt(4202).get,
   authMode: AuthMode = AuthMode.None,
-  location: String = "~/ligature"
+  location: Option[String] = None
 )
 
 object MainLigatureHttp extends IOApp {
   def run(args: List[String]): IO[ExitCode] =
     val config = LigatureConf()
-    runLigature(XodusLigature(File(config.location)), config.authMode, config.port)
+    val dbDirectory = config.location match {
+      case None => File(s"${System.getProperty("user.home")}${System.getProperty("file.separator")}.ligature")
+      case Some(path) => File(path)
+    }
+    runLigature(XodusLigature(dbDirectory), config.authMode, config.port)
 }
