@@ -22,16 +22,16 @@ import dev.ligature.dlig.{DLigError, readDLig}
 import dev.ligature.lig.write
 import dev.ligature.wander.run
 
-enum LigatureMode:
-  case Local
+enum AuthMode:
+  case None
 
-def runLigature(ligature: Ligature, mode: LigatureMode, port: Port): IO[ExitCode] =
+def runLigature(ligature: Ligature, authMode: AuthMode, port: Port): IO[ExitCode] =
     val instance = LigatureHttp(
-      ligature, mode, port
+      ligature, authMode, port
     )
     instance.startLocal()
 
-class LigatureHttp(val ligature: Ligature, val mode: LigatureMode, port: Port) {
+class LigatureHttp(val ligature: Ligature, val mode: AuthMode, port: Port) {
   private[http] def startLocal(): IO[ExitCode] =
     EmberServerBuilder
       .default[IO]

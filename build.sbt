@@ -165,7 +165,7 @@ lazy val ligatureHttpXodus = crossProject(JVMPlatform)
     scalaVersion := scala3Version,
     libraryDependencies += "org.scalameta" %%% "munit" % munitVersion % Test,
     testFrameworks += new TestFramework("munit.Framework"),
-    Compile / run / mainClass := Some("dev.ligature.http.MainLigatureHttp")
+    Compile / run / mainClass := Some("dev.ligature.http.xodus.MainLigatureHttp")
   )
   .dependsOn(ligatureHttp, ligatureXodus, ligatureHttpTestSuite % Test)
 
