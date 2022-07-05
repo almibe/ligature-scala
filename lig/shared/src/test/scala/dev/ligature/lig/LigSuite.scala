@@ -52,6 +52,25 @@ class LigSuite extends FunSuite {
     }
   }
 
+  test("parse Statement from multi-line String") {
+    val statements =
+      """
+        |<a> <b> <c>
+        |<a> <b> 123
+        |<a> <b> "Test"
+        |""".stripMargin
+    val expectedStatements = Set(
+      Statement(identifier("a"), identifier("b"), identifier("c")),
+      Statement(identifier("a"), identifier("b"), IntegerLiteral(123)),
+      Statement(identifier("a"), identifier("b"), StringLiteral("Test")),
+    )
+    val resStatements = read(statements)
+    resStatements match {
+      case Right(res) => assertEquals(res.toSet, expectedStatements)
+      case Left(err)  => fail("failed", clues(err))
+    }
+  }
+
   test("parse identifiers") {
     val test = "<test>"
     val identifier = parseIdentifier(Gaze.from(test), Map(), None)
