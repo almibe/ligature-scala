@@ -92,8 +92,8 @@ object LigNibblers {
     (('a' to 'z') ++ ('A' to 'Z') ++ ('0' to '9')).toList.appended('_')
 
   val prefixNameNibbler = takeCharacters(
-      validPrefixName: _*
-    ) // matches _a-zA-Z0-9, TODO probably shouldn't make names that start with numbers
+    validPrefixName: _*
+  ) // matches _a-zA-Z0-9, TODO probably shouldn't make names that start with numbers
   val copyNibbler = takeString("^") // matches ^
 
   val idGenNibbler = takeString("{}") // matches {}
