@@ -71,7 +71,7 @@ class LigInputSuite extends FunSuite {
         IntegerLiteral(432)
       )
     )
-    val res = readDLig(input)
+    val res = read(input)
     res match {
       case Right(statements) => assertEquals(statements, expected)
       case Left(err)         => fail("failed", clues(err))
@@ -80,7 +80,7 @@ class LigInputSuite extends FunSuite {
 
   test("error copy character test") {
     val input = "<this:is:an:error> <a> ^"
-    val res = readDLig(input)
+    val res = read(input)
     assert(res.isLeft)
   }
 
@@ -98,7 +98,7 @@ class LigInputSuite extends FunSuite {
         IntegerLiteral(234)
       )
     )
-    val result = readDLig(input)
+    val result = read(input)
     result match {
       case Right(statements) => assertEquals(statements, expected)
       case Left(err)         => fail("failed", clues(err))
@@ -107,19 +107,19 @@ class LigInputSuite extends FunSuite {
 
   test("prefix error test") {
     val input = "prefix x = this:\nx x:is:a x:prefix"
-    val result = readDLig(input)
+    val result = read(input)
     assert(result.isLeft)
   }
 
   test("error prefix test") {
     val input = "x x:is:an x:error"
-    val result = readDLig(input)
+    val result = read(input)
     assert(result.isLeft)
   }
 
   test("basic prefix test") {
     val input = "prefix x = this:\nx:hello x:cruel x:world"
-    val result = readDLig(input)
+    val result = read(input)
     result match {
       case Right(statements) =>
         assertEquals(statements.length, 1)
@@ -141,7 +141,7 @@ class LigInputSuite extends FunSuite {
 
   test("entity gen id prefix test") {
     val input = "prefix x = this:\nx:hello{} x:cruel x:world"
-    val result = readDLig(input)
+    val result = read(input)
     result match {
       case Right(statements) =>
         assertEquals(statements.length, 1)
@@ -160,7 +160,7 @@ class LigInputSuite extends FunSuite {
 
   test("complex prefix test") {
     val input = "prefix x = this:\nx:{} x:{}is:a x:prefix{}"
-    val result = readDLig(input)
+    val result = read(input)
     result match {
       case Right(statements) =>
         assertEquals(statements.length, 1)

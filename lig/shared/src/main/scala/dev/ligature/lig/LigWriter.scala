@@ -11,7 +11,7 @@ def write(statements: Iterator[Statement]): String = {
   statements.foreach { statement =>
     sb.append(s"${writeStatement(statement)}\n")
   }
-  return sb.toString()
+  sb.toString()
 }
 
 def writeStatement(statement: Statement): String =

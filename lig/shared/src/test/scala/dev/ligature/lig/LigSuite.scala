@@ -19,7 +19,7 @@ class LigSuite extends FunSuite {
       identifier("e2")
     )
     val lines = write(List(statement).iterator)
-    val resStatements = parse(lines)
+    val resStatements = read(lines)
     resStatements match {
       case Right(statements) => assertEquals(statements, List(statement))
       case Left(err)         => fail("failed", clues(err))
@@ -45,22 +45,22 @@ class LigSuite extends FunSuite {
       )
     )
     val lines = write(statements.iterator)
-    val resStatements = parse(lines)
+    val resStatements = read(lines)
     resStatements match {
       case Right(res) => assertEquals(res, statements)
       case Left(err)  => fail("failed", clues(err))
     }
   }
-  
+
   test("parse identifiers") {
     val test = "<test>"
-    val identifier = parseIdentifier(Gaze.from(test))
+    val identifier = parseIdentifier(Gaze.from(test), Map(), None)
     assertEquals(identifier, Right(testIdentifier))
   }
 
   test("parse complex identifier") {
     val identifierS = "<http$://&&this@2]34.[42;342?#--__>"
-    val identifierRes = parseIdentifier(Gaze.from(identifierS))
+    val identifierRes = parseIdentifier(Gaze.from(identifierS), Map(), None)
     assertEquals(
       identifierRes,
       Right(identifier("http$://&&this@2]34.[42;342?#--__"))
