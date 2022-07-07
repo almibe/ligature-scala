@@ -26,14 +26,14 @@ def parse(script: Seq[Token]): Either[String, Script] = {
   val res = gaze.attempt(scriptNib)
   res match {
     case None =>
-      if (gaze.isComplete()) {
+      if (gaze.isComplete) {
         Right(Script(Seq()))
       } else {
         Left("No Match")
       }
     // TODO some case also needs to check if gaze is complete
     case Some(res) =>
-      if (gaze.isComplete()) {
+      if (gaze.isComplete) {
         Right(Script(res)) // .filter(_.isDefined).map(_.get)))
       } else {
         Left("No Match")
