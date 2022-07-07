@@ -20,6 +20,6 @@ class TakeCondSuite extends FunSuite {
     assertEquals(gaze.attempt(nibblerLetter), None)
     assertEquals(gaze.attempt(nibblerDigit), Some(List('8')))
     assertEquals(gaze.attempt(nibblerDigit), None)
-    assertEquals(gaze.isComplete(), true)
+    assertEquals(gaze.isComplete, true)
   }
 }

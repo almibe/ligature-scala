@@ -19,6 +19,6 @@ class TakeSuite extends FunSuite {
     assertEquals(gaze.attempt(nibbler7), Some(List('7')))
     assertEquals(gaze.attempt(nibbler8), Some(List('8')))
     assertEquals(gaze.attempt(nibbler8), None)
-    assertEquals(gaze.isComplete(), true)
+    assertEquals(gaze.isComplete, true)
   }
 }

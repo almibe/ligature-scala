@@ -17,25 +17,25 @@ class TakeStringSuite extends FunSuite {
   test("empty input") {
     val gaze = Gaze.from("")
     assertEquals(gaze.attempt(fiveStep), None)
-    assert(gaze.isComplete())
+    assert(gaze.isComplete)
   }
 
   test("single 5 input") {
     val gaze = Gaze.from("5")
     assertEquals(gaze.attempt(fiveStep), Some(Seq('5')))
-    assert(gaze.isComplete())
+    assert(gaze.isComplete)
   }
 
   test("single 4 input") {
     val gaze = Gaze.from("4")
     assertEquals(gaze.attempt(fiveStep), None)
-    assert(!gaze.isComplete())
+    assert(!gaze.isComplete)
   }
 
   test("multiple 5s input") {
     val gaze = Gaze.from("55555")
     val res = ArrayBuffer[Char]()
-    while (!gaze.isComplete()) {
+    while (!gaze.isComplete) {
       val nres = gaze.attempt(fiveStep)
       nres match {
         case Some(m) => res.appendAll(m)
@@ -50,7 +50,7 @@ class TakeStringSuite extends FunSuite {
     assertEquals(gaze.attempt(helloStep), Some("hello".toSeq))
     assertEquals(gaze.attempt(spaceStep), Some(" ".toSeq))
     assertEquals(gaze.attempt(worldStep), Some("world".toSeq))
-    assert(gaze.isComplete())
+    assert(gaze.isComplete)
   }
 
   test("map test") {

@@ -10,39 +10,39 @@ import munit.FunSuite
 class GazeSuite extends FunSuite {
   test("empty input") {
     val gaze = Gaze.from("")
-    assert(gaze.isComplete())
+    assert(gaze.isComplete)
     assertEquals(gaze.peek(), None)
     assertEquals(gaze.peek(), None)
-    assert(gaze.isComplete())
+    assert(gaze.isComplete)
   }
 
   test("init Gaze with zero values") {
     val gaze = new Gaze(Vector())
-    assert(gaze.isComplete())
+    assert(gaze.isComplete)
     assertEquals(gaze.peek(), None)
     assertEquals(gaze.next(), None)
-    assert(gaze.isComplete())
+    assert(gaze.isComplete)
   }
 
   test("init Gaze with one value") {
     val gaze = new Gaze(Vector(5));
-    assert(!gaze.isComplete())
+    assert(!gaze.isComplete)
     assertEquals(gaze.peek(), Some(5))
     assertEquals(gaze.next(), Some(5))
-    assert(gaze.isComplete())
+    assert(gaze.isComplete)
     assertEquals(gaze.peek(), None)
     assertEquals(gaze.next(), None)
-    assert(gaze.isComplete())
+    assert(gaze.isComplete)
   }
 
   test("init Gaze with single char string") {
     val gaze = Gaze.from("5");
-    assert(!gaze.isComplete())
+    assert(!gaze.isComplete)
     assertEquals(gaze.peek(), Some('5'))
     assertEquals(gaze.next(), Some('5'))
-    assert(gaze.isComplete())
+    assert(gaze.isComplete)
     assertEquals(gaze.peek(), None)
     assertEquals(gaze.next(), None)
-    assert(gaze.isComplete())
+    assert(gaze.isComplete)
   }
 }
