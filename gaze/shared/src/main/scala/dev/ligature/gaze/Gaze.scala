@@ -10,29 +10,38 @@ object Gaze {
   def from(
       text: String
   ): Gaze[Char] = // TODO eventually handle unicode better and make this Gaze[String]
-    return new Gaze(text.toVector)
+    new Gaze(text.toVector)
 }
+
+case class Location(line: Int, lineOffset: Int)
 
 class Gaze[+I](private val input: Vector[I]) {
   private var offset: Int = 0
+  private var line: Int = 0
+  private var lineOffset: Int = 0
 
-  def isComplete(): Boolean =
-    return this.offset >= this.input.length
+  def isComplete: Boolean =
+    this.offset >= this.input.length
 
   def peek(): Option[I] =
     if (this.isComplete()) {
-      return None
+      None
     } else {
-      return Some(this.input(this.offset))
+      Some(this.input(this.offset))
     }
 
   def next(): Option[I] =
     if (this.isComplete()) {
-      return None
+      None
     } else {
       val next = Some(this.input(this.offset))
       this.offset += 1
-      return next
+      this.lineOffset += 1
+      if (next.value == "\n") {
+        this.line += 1
+        this.lineOffset = 0
+      }
+      next
     }
 
   // TODO needs tests
@@ -43,10 +52,10 @@ class Gaze[+I](private val input: Vector[I]) {
     res match {
       case Some(_) =>
         this.offset = startOfThisLoop
-        return res
+        res
       case None =>
         this.offset = startOfThisLoop
-        return res
+        res
     }
   }
 
@@ -55,11 +64,15 @@ class Gaze[+I](private val input: Vector[I]) {
     val res = nibbler(this)
 
     res match {
-      case Some(_) => return res
+      case Some(_) => res
       case None =>
         this.offset = startOfThisLoop
-        return res
+        res
     }
+  }
+  
+  def location: Location = {
+    Location(this.line, this.lineOffset)
   }
 }
 
