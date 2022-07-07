@@ -24,14 +24,14 @@ class Gaze[+I](private val input: Vector[I]) {
     this.offset >= this.input.length
 
   def peek(): Option[I] =
-    if (this.isComplete()) {
+    if (this.isComplete) {
       None
     } else {
       Some(this.input(this.offset))
     }
 
   def next(): Option[I] =
-    if (this.isComplete()) {
+    if (this.isComplete) {
       None
     } else {
       val next = Some(this.input(this.offset))
