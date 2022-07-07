@@ -18,14 +18,14 @@ case class LigError(message: String)
 //  val gaze = Gaze.from(input)
 //  val statements: ArrayBuffer[Statement] = ArrayBuffer()
 //  var continue = true
-//  while (continue && !gaze.isComplete()) {
+//  while (continue && !gaze.isComplete) {
 //    gaze.attempt(optional(whiteSpaceAndNewLineNibbler))
 //    parseStatement(gaze) match {
 //      case Left(resStatement)  => return Left(resStatement)
 //      case Right(resStatement) => statements.append(resStatement)
 //    }
 //    val check = gaze.attempt(optional(whiteSpaceAndNewLineNibbler))
-//    if (check.isDefined && !gaze.isComplete()) {
+//    if (check.isDefined && !gaze.isComplete) {
 //      continue = true
 //    } else {
 //      continue = false
@@ -42,14 +42,14 @@ def read(input: String): Either[LigError, List[Statement]] = {
     statements <- parseStatements(gaze, prefixes)
   } yield statements
 //   var continue = true
-//   while (continue && !gaze.isComplete()) {
+//   while (continue && !gaze.isComplete) {
 //     gaze.attempt(optional(whiteSpaceAndNewLineNibbler))
 //     parseStatement(gaze) match {
 //       case Left(resStatement)  => return Left(resStatement)
 //       case Right(resStatement) => statements.append(resStatement)
 //     }
 //     val check = gaze.attempt(optional(whiteSpaceAndNewLineNibbler))
-//     if (check.isDefined && !gaze.isComplete()) {
+//     if (check.isDefined && !gaze.isComplete) {
 //       continue = true
 //     } else {
 //       continue = false
@@ -102,7 +102,7 @@ def parseStringLiteral(gaze: Gaze[Char]): Either[LigError, StringLiteral] = {
 
 def parsePrefixes(gaze: Gaze[Char]): Either[LigError, Map[String, String]] = {
   val result = HashMap[String, String]()
-  while (!gaze.isComplete())
+  while (!gaze.isComplete)
     parsePrefix(gaze) match {
       case Left(err)   => return Left(err)
       case Right(None) => return Right(result.toMap)
@@ -148,7 +148,7 @@ def parseStatements(
 ): Either[LigError, List[Statement]] = {
   val statements = ArrayBuffer[Statement]()
   var lastStatement: Option[Statement] = None
-  while (!gaze.isComplete())
+  while (!gaze.isComplete)
     parseStatement(gaze, prefixes, lastStatement) match {
       case Left(err) => return Left(err)
       case Right(statement) =>
