@@ -207,7 +207,7 @@ def repeat[I, O](
 ): Nibbler[I, O] = { (gaze: Gaze[I]) =>
   val allMatches = ArrayBuffer[O]()
   var continue = true
-  while (!gaze.isComplete() && continue)
+  while (!gaze.isComplete && continue)
     gaze.attempt(nibbler) match {
       case None    => continue = false
       case Some(v) => allMatches.appendAll(v)
