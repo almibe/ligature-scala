@@ -132,7 +132,7 @@ abstract class LigatureHttpSuite extends FunSuite {
     assertEquals(res, "<a> <b> <c>\n")
   }
 
-  test("Add multiple Statements".only) {
+  test("Add multiple Statements") {
     val instance = createInstance()
     val statements =
       """<1> <attribute> <2>
