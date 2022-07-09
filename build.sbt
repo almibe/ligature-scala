@@ -5,7 +5,7 @@ ThisBuild / organization := "dev.ligature"
 ThisBuild / organizationName := "ligature"
 
 val munitVersion = "0.7.29"
-val fs2Version = "3.2.9"
+val fs2Version = "3.2.10"
 
 lazy val ligature = crossProject(JSPlatform, JVMPlatform)
   .in(file("ligature"))
