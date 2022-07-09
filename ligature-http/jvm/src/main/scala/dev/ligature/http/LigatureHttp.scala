@@ -4,7 +4,6 @@
 
 package dev.ligature.http
 
-import cats.data.EitherT
 import cats.effect.*
 import org.http4s.*
 import org.http4s.dsl.io.*
@@ -18,8 +17,7 @@ import scala.concurrent.duration.*
 import org.http4s.HttpRoutes
 import org.http4s.dsl.io.*
 import dev.ligature.{Dataset, Identifier, Ligature, LigatureError, Statement}
-import dev.ligature.dlig.{DLigError, readDLig}
-import dev.ligature.lig.write
+import dev.ligature.lig.{LigError, read, write}
 import dev.ligature.wander.run
 
 enum AuthMode:
@@ -112,7 +110,7 @@ class LigatureHttp(val ligature: Ligature, val mode: AuthMode, port: Port) {
     Dataset.fromString(datasetName) match {
       case Right(dataset) =>
         val body: IO[String] = request.bodyText.compile.string
-        body.map(readDLig).flatMap {
+        body.map(read).flatMap {
           case Right(statements) =>
             ligature
               .write(dataset) { tx =>
@@ -136,7 +134,7 @@ class LigatureHttp(val ligature: Ligature, val mode: AuthMode, port: Port) {
     Dataset.fromString(datasetName) match {
       case Right(dataset) =>
         val body: IO[String] = request.bodyText.compile.string
-        body.map(readDLig).flatMap {
+        body.map(read).flatMap {
           case Right(statements) =>
             ligature
               .write(dataset) { tx =>

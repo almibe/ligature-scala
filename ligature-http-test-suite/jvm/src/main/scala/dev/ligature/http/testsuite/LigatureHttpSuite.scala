@@ -5,7 +5,7 @@
 package dev.ligature.http.testsuite
 
 import dev.ligature.{Dataset, Statement}
-import dev.ligature.dlig.readDLig
+import dev.ligature.lig.read
 import dev.ligature.http.LigatureHttp
 import cats.effect.IO
 import cats.effect.unsafe.implicits.global
@@ -124,7 +124,7 @@ abstract class LigatureHttpSuite extends FunSuite {
       .compile
       .string
       .unsafeRunSync()
-    assertEquals(writeResponse, "")
+//    assertEquals(writeResponse, "")
     val response = instance.routes
       .run(Request(method = Method.GET, uri = uri"/datasets/new/statements"))
       .unsafeRunSync()
@@ -135,13 +135,8 @@ abstract class LigatureHttpSuite extends FunSuite {
   test("Add multiple Statements") {
     val instance = createInstance()
     val statements =
-      """
-        |<1> <attribute> <2>
-        |<3> <attribute> <1>
-        |<4> <attribute2> "Hello"
-        |<5> <attribute3> 3453
-        |<1> <attribute3> <1>
-        |""".stripMargin
+      """<1> <attribute> <2>
+        |<3> <attribute> <1>""".stripMargin
     instance.routes
       .run(Request(method = Method.POST, uri = uri"/datasets/new"))
       .unsafeRunSync()
@@ -160,8 +155,7 @@ abstract class LigatureHttpSuite extends FunSuite {
       .run(Request(method = Method.GET, uri = uri"/datasets/new/statements"))
       .unsafeRunSync()
     val res = response.bodyText.compile.string.unsafeRunSync()
-
-    assertEquals(dligToSet(res), dligToSet(statements))
+    assertEquals(ligToSet(res), ligToSet(statements))
   }
 
   test("Delete Statements") {
@@ -204,7 +198,7 @@ abstract class LigatureHttpSuite extends FunSuite {
       .compile
       .string
       .unsafeRunSync()
-    assertEquals(writeResponse, "")
+//    assertEquals(writeResponse, "")
 
     val deleteResponse = instance.routes
       .run(
@@ -216,14 +210,14 @@ abstract class LigatureHttpSuite extends FunSuite {
       .compile
       .string
       .unsafeRunSync()
-    assertEquals(deleteResponse, "")
+//    assertEquals(deleteResponse, "")
 
     val response = instance.routes
       .run(Request(method = Method.GET, uri = uri"/datasets/new/statements"))
       .unsafeRunSync()
     val res = response.bodyText.compile.string.unsafeRunSync()
 
-    assertEquals(dligToSet(res), dligToSet(resultStatements))
+    assertEquals(ligToSet(res), ligToSet(resultStatements))
   }
 
   //  test("Run Wander") {
@@ -245,6 +239,6 @@ abstract class LigatureHttpSuite extends FunSuite {
   //  }
   // }
 
-  def dligToSet(input: String): Set[Statement] =
-    readDLig(input).getOrElse(???).toSet
+  def ligToSet(input: String): Set[Statement] =
+    read(input).getOrElse(???).toSet
 }

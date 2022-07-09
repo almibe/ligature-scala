@@ -7,7 +7,9 @@ package dev.ligature.http.xodus
 import dev.ligature.xodus.XodusLigature
 import dev.ligature.http.testsuite.LigatureHttpSuite
 import dev.ligature.http.LigatureHttp
+import dev.ligature.http.AuthMode
 import cats.effect.unsafe.implicits.global
+import com.comcast.ip4s.*
 
 import java.io.File
 import java.nio.file.{Files, Path}
@@ -35,6 +37,6 @@ class LigatureHttpXodusSuite extends LigatureHttpSuite {
 
   override def createInstance(): LigatureHttp = {
     ligatureInstance = XodusLigature(path.toFile)
-    LigatureHttp(ligatureInstance)
+    LigatureHttp(ligatureInstance, AuthMode.None, Port.fromInt(4202).get)
   }
 }

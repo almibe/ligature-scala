@@ -27,6 +27,6 @@ class RepeatSuite extends FunSuite {
   test("two match repeat test with remaining text") {
     val gaze = Gaze.from("hellohellohell")
     assertEquals(gaze.attempt(repeatHello), Some("hellohello".toSeq))
-    assert(!gaze.isComplete())
+    assert(!gaze.isComplete)
   }
 }

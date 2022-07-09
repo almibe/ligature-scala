@@ -12,6 +12,7 @@ import dev.ligature.gaze.{
   takeAll,
   takeAllGrouped,
   takeCharacters,
+  takeFirst,
   takeString,
   takeUntil,
   takeWhile
@@ -20,7 +21,7 @@ import dev.ligature.{Identifier, IntegerLiteral, Statement, StringLiteral, Value
 
 object LigNibblers {
   val whiteSpaceNibbler = takeCharacters(' ', '\t')
-  val whiteSpaceAndNewLineNibbler = takeCharacters(' ', '\t', '\n')
+  val whiteSpaceAndNewLineNibbler = takeAll(takeFirst(takeString(" "), takeString("\n"), takeString("\r\n"), takeString("\t")))
   val numberNibbler = takeCharacters(('0' to '9').toList.appended('-').toSeq*)
 
   val identifierNibbler = between(

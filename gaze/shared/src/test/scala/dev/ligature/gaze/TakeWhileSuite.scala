@@ -18,19 +18,19 @@ class TakeWhileSuite extends FunSuite {
     assertEquals(gaze.attempt(eatAllStep), None)
     assertEquals(gaze.attempt(spaceStep), None)
     assertEquals(gaze.attempt(digitStep), None)
-    assert(gaze.isComplete())
+    assert(gaze.isComplete)
   }
 
   test("single 5 input") {
     val gaze = Gaze.from("5")
     assertEquals(gaze.attempt(fiveStep), Some(Seq('5')))
-    assert(gaze.isComplete())
+    assert(gaze.isComplete)
   }
 
   test("single 4 input") {
     val gaze = Gaze.from("4")
     assertEquals(gaze.attempt(fiveStep), None)
-    assert(!gaze.isComplete())
+    assert(!gaze.isComplete)
   }
 
   test("multiple 5s input") {
@@ -42,6 +42,6 @@ class TakeWhileSuite extends FunSuite {
   test("eat all nibbler test") {
     val gaze = Gaze.from("hello world")
     assertEquals(gaze.attempt(eatAllStep), Some("hello world".toSeq))
-    assert(gaze.isComplete())
+    assert(gaze.isComplete)
   }
 }

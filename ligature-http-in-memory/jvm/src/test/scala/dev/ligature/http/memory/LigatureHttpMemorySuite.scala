@@ -7,7 +7,9 @@ package dev.ligature.http.memory
 import dev.ligature.inmemory.InMemoryLigature
 import dev.ligature.http.testsuite.LigatureHttpSuite
 import dev.ligature.http.LigatureHttp
+import dev.ligature.http.AuthMode
+import com.comcast.ip4s.*
 
 class LigatureHttpMemorySuite extends LigatureHttpSuite {
-  override def createInstance() = LigatureHttp(InMemoryLigature())
+  override def createInstance() = LigatureHttp(InMemoryLigature(), AuthMode.None, Port.fromInt(4202).get)
 }

@@ -17,7 +17,7 @@ class TakeAllGroupedSuite extends FunSuite {
     val takeAllNib = takeAllGrouped(nibbler5, nibbler6, nibbler7, nibbler8)
     val res = gaze.attempt(takeAllNib)
     assertEquals(res, Some(List(Seq('5'), Seq('6'), Seq('7'), Seq('8'))))
-    assert(gaze.isComplete())
+    assert(gaze.isComplete)
   }
 
   test("multiple nibblers fail and retry") {
@@ -26,11 +26,11 @@ class TakeAllGroupedSuite extends FunSuite {
     val takeAllFail = takeAllGrouped(nibbler5, nibbler6, nibbler8)
     val res = gaze.attempt(takeAllFail)
     assertEquals(res, None)
-    assert(!gaze.isComplete())
+    assert(!gaze.isComplete)
 
     val takeAllSucceed = takeAllGrouped(nibbler5, nibbler6, nibbler7, nibbler8)
     val res2 = gaze.attempt(takeAllSucceed)
     assertEquals(res2, Some(List(Seq('5'), Seq('6'), Seq('7'), Seq('8'))))
-    assert(gaze.isComplete())
+    assert(gaze.isComplete)
   }
 }

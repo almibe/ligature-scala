@@ -19,7 +19,7 @@ class TakeCharactersSuite extends FunSuite {
     assertEquals(gaze.attempt(abcStep), None)
     assertEquals(gaze.attempt(spaceStep), None)
     assertEquals(gaze.attempt(emptyStep), None)
-    assert(gaze.isComplete())
+    assert(gaze.isComplete)
   }
 
   test("single 5 input") {
@@ -27,15 +27,15 @@ class TakeCharactersSuite extends FunSuite {
     assertEquals(gaze.attempt(abcStep), None)
     assertEquals(gaze.attempt(spaceStep), None)
     assertEquals(gaze.attempt(emptyStep), None)
-    assert(!gaze.isComplete())
+    assert(!gaze.isComplete)
     assertEquals(gaze.attempt(fiveStep), Some("5".toSeq))
-    assert(gaze.isComplete())
+    assert(gaze.isComplete)
   }
 
   test("single 4 input") {
     val gaze = Gaze.from("4")
     assertEquals(gaze.attempt(fiveStep), None)
-    assert(!gaze.isComplete())
+    assert(!gaze.isComplete)
   }
 
   test("multiple 5s input") {
@@ -52,6 +52,6 @@ class TakeCharactersSuite extends FunSuite {
     assertEquals(gaze.attempt(abcStep), Some("abc".toSeq))
     assertEquals(gaze.attempt(spaceStep), Some(" ".toSeq))
     assertEquals(gaze.attempt(abcStep), None)
-    assert(!gaze.isComplete())
+    assert(!gaze.isComplete)
   }
 }

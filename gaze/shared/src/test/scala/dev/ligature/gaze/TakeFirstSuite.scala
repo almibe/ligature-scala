@@ -66,6 +66,6 @@ class TakeFirstSuite extends FunSuite {
     assertEquals(gaze.attempt(takeFirstSingle), Some("hello".toSeq))
     assertEquals(gaze.attempt(takeFirst3), Some("hello".toSeq))
     assertEquals(gaze.attempt(takeFirst3), Some("hello".toSeq))
-    assert(gaze.isComplete())
+    assert(gaze.isComplete)
   }
 }
