@@ -1,0 +1,11 @@
+.idea
+.vscode
+target/
+**/target/
+.bloop
+.bsp
+.metals
+**/metals.sbt
+.lsp
+.psc-ide-port
+index.js
