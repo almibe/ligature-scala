@@ -4,12 +4,13 @@
 
 package dev.ligature.idgen
 
+import io.kotest.core.spec.style.FunSpec
+
 class IDGenSuite : FunSpec() {
   init {
     test("check ids") {
-      val regEx = "[0-9a-zA-Z_-]{12}".r
+      val regEx = "[0-9a-zA-Z_-]{12}".toRegex()
       val id = genId()
-      println("***" + id)
       assert(regEx.matches(id))
     }
   }
