@@ -2,6 +2,7 @@
 kotlin = "1.6.21"
 coroutines = "1.6.3"
 kotest = "5.3.2"
+arrow = "1.1.2"
 
 [libraries]
 kotest-assertions-core = { module = "io.kotest:kotest-assertions-core", version.ref = "kotest" }
@@ -10,6 +11,7 @@ kotest-framework-datatest = { module = "io.kotest:kotest-framework-datatest", ve
 kotest-runner-junit5 = { module = "io.kotest:kotest-runner-junit5", version.ref = "kotest" }
 
 kotlinx-coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "coroutines" }
+arrow-core = { module = "io.arrow-kt:arrow-core", version.ref= "arrow" }
 
 [plugins]
 kotlin-multiplatform = { id = "org.jetbrains.kotlin.multiplatform" } #removed version
