@@ -12,68 +12,74 @@ import arrow.core.None
 /** A Nibbler that takes a single item.
   */
 fun <I>take(toMatch: I): Nibbler<I, I> = { gaze ->
-  when(val i = gaze.next()) {
+  when(val next = gaze.next()) {
     is Some -> {
-      if (toMatch == i.value) { Some(listOf(toMatch)) }
+      if (toMatch == next.value) { Some(listOf(toMatch)) }
       else { none() }
     }
     is None -> none()
   }
 }
 
-///** A Nibbler that takes a single item if the condition passed is true.
-//  */
-//def takeCond[I](cond: (I) => Boolean): Nibbler[I, I] = { gaze =>
-//  gaze.next() match {
-//    case Some(i) =>
-//      if (cond(i)) { Some(List(i)) }
-//      else { None }
-//    case None => None
-//  }
-//}
-//
-//def takeAll[I, O](
-//    nibblers: Nibbler[I, O]*
-//): Nibbler[I, O] = { (gaze: Gaze[I]) =>
-//  val results = ArrayBuffer[O]()
-//  val res = nibblers.forall { nibbler =>
-//    val res = gaze.attempt(nibbler)
-//    res match {
-//      case Some(res) =>
-//        results.appendAll(res)
-//        true
-//      case None =>
-//        false
-//    }
-//  }
-//  if (res) {
-//    Some(results.toSeq)
-//  } else {
-//    None
-//  }
-//}
-//
-//def takeAllGrouped[I](
-//    nibblers: Nibbler[I, I]*
-//): Nibbler[I, Seq[I]] = { (gaze: Gaze[I]) =>
-//  val results = ArrayBuffer[Seq[I]]()
-//  val res = nibblers.forall { nibbler =>
-//    val res = gaze.attempt(nibbler)
-//    res match {
-//      case Some(res) =>
-//        results.append(res)
-//        true
-//      case None =>
-//        false
-//    }
-//  }
-//  if (res) {
-//    Some(results.toList)
-//  } else {
-//    None
-//  }
-//}
-//
+/** A Nibbler that takes a single item if the condition passed is true.
+  */
+fun <I>takeCond(cond: (I) -> Boolean): Nibbler<I, I> = { gaze ->
+  when(val next = gaze.next()) {
+    is Some ->
+      if (cond(next.value)) { Some(listOf(next.value)) }
+      else { none() }
+    is None -> none()
+  }
+}
+
+/**
+ * A Nibbler that matches multiple Nibblers in order.
+ */
+fun <I, O>takeAll(
+    vararg nibblers: Nibbler<I, O>
+): Nibbler<I, O> = { gaze: Gaze<I> ->
+  val results = mutableListOf<O>()
+  val res = nibblers.all { nibbler ->
+    val res = gaze.attempt(nibbler)
+    when(res) {
+      is Some -> {
+        results.addAll(res.value)
+        true
+      }
+      is None -> false
+    }
+  }
+  if (res) {
+    Some(results.toList())
+  } else {
+    none()
+  }
+}
+
+/**
+ * A Nibbler that matches multiple Nibblers in order but
+ * keeps each matching set in a List.
+ */
+fun <I, O>takeAllGrouped(
+    vararg nibblers: Nibbler<I, O>
+): Nibbler<I, List<O>> = { gaze: Gaze<I> ->
+  val results = mutableListOf<List<O>>()
+  val res = nibblers.all { nibbler ->
+    when(val res = gaze.attempt(nibbler)) {
+      is Some -> {
+        results.add(res.value)
+        true
+      }
+      is None -> false
+    }
+  }
+  if (res) {
+    Some(results.toList())
+  } else {
+    none()
+  }
+}
+
 //def takeString(toMatch: String): Nibbler[Char, Char] = {
 //  //    let graphemes = to_match.graphemes(true).collect::<Vec<&str>>();
 //  val chars = toMatch.toVector
