@@ -22,14 +22,18 @@
 
 package dev.ligature.idgen
 
-import scala.language.postfixOps
 //import java.security.SecureRandom
 //import java.util.Random
-import scala.util.Random
+import kotlin.experimental.and
+import kotlin.math.ceil
+import kotlin.math.floor
+import kotlin.math.ln
+import kotlin.math.log
+import kotlin.random.Random
 
-//NOTE: Just using scala.util.Random for now since Scala.js doesn't support SecureRandom yet.
+//NOTE: Just using kotlin.random.Random for now since Kotlin.js doesn't support SecureRandom yet.
 //private val DEFAULT_NUMBER_GENERATOR = new SecureRandom()
-private val DEFAULT_NUMBER_GENERATOR = Random()
+private val DEFAULT_NUMBER_GENERATOR = Random
 
 /** The default alphabet used by this class. Creates url-friendly NanoId Strings
   * using 64 unique symbols.
@@ -54,7 +58,7 @@ private val DEFAULT_SIZE = 21
   * @return
   *   A randomly generated NanoId String.
   */
-def randomNanoId(): String =
+fun randomNanoId(): String =
   randomNanoId(DEFAULT_NUMBER_GENERATOR, DEFAULT_ALPHABET, DEFAULT_SIZE)
 
 /** Static factory to retrieve a NanoId String.
@@ -70,42 +74,36 @@ def randomNanoId(): String =
   * @return
   *   A randomly generated NanoId String.
   */
-def randomNanoId(random: Random, alphabet: Array[Char], size: Int): String = {
-  if (random == null) {
-    throw new IllegalArgumentException("random cannot be null.")
-  }
-
-  if (alphabet == null) {
-    throw new IllegalArgumentException("alphabet cannot be null.")
-  }
-
-  if (alphabet.length == 0 || alphabet.length >= 256) {
-    throw new IllegalArgumentException(
+fun randomNanoId(random: Random, alphabet: CharArray, size: Int): String {
+  if (alphabet.isEmpty() || alphabet.size >= 256) {
+    throw IllegalArgumentException(
       "alphabet must contain between 1 and 255 symbols."
     )
   }
 
   if (size <= 0) {
-    throw new IllegalArgumentException("size must be greater than zero.")
+    throw IllegalArgumentException("size must be greater than zero.")
   }
 
   val mask: Int =
-    (2 << Math.floor(Math.log(alphabet.length - 1) / Math.log(2)).toInt) - 1
-  val step: Int = Math.ceil(1.6 * mask * size / alphabet.length).toInt
+    (2 shl floor(ln((alphabet.size - 1).toDouble()) / ln(2.toDouble())).toInt()) - 1
+  val step: Int = ceil(1.6 * mask * size / alphabet.size).toInt()
   val idBuilder = StringBuilder()
 
+  fun intToByteArray (i: Int) : ByteArray =
+    ByteArray(4) {x -> (i.toLong() shr (x*8)).toByte()}
+
   while (true) {
-    val bytes = new Array[Byte](step)
+    val bytes = intToByteArray(step)
     random.nextBytes(bytes)
-    for (i <- 0 to step) {
-      val alphabetIndex = bytes(i) & mask
-      if (alphabetIndex < alphabet.length) {
-        idBuilder.append(alphabet(alphabetIndex))
-        if (idBuilder.length() == size) {
+    for (i in 0..step) {
+      val alphabetIndex = bytes[i] and mask.toByte() //TODO not sure if this is right
+      if (alphabetIndex < alphabet.size) {
+        idBuilder.append(alphabet[alphabetIndex.toInt()])
+        if (idBuilder.length == size) {
           return idBuilder.toString()
         }
       }
     }
   }
-  ??? // should never reach
 }

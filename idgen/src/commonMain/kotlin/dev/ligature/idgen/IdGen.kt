@@ -4,13 +4,9 @@
 
 package dev.ligature.idgen
 
-import munit.FunSuite
+private val ID_GENERATOR = kotlin.random.Random
+private val ID_ALPHABET = "_-0123456789abcdefABCDEF".toCharArray()
+private const val ID_SIZE = 12
 
-class IDGenSuite extends FunSuite {
-  test("check ids") {
-    val regEx = "[0-9a-zA-Z_-]{12}".r
-    val id = genId()
-    println("***" + id)
-    assert(regEx.matches(id))
-  }
-}
+fun genId(): String =
+  randomNanoId(ID_GENERATOR, ID_ALPHABET, ID_SIZE)

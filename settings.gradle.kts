@@ -9,4 +9,4 @@
  */
 
 rootProject.name = "ligature-kt"
-include("app", "list", "utilities")
+include("idgen")

@@ -4,9 +4,13 @@
 
 package dev.ligature.idgen
 
-private val ID_GENERATOR = new scala.util.Random
-private val ID_ALPHABET = "_-0123456789abcdefABCDEF".toCharArray()
-private val ID_SIZE = 12
-
-def genId(): String =
-  randomNanoId(ID_GENERATOR, ID_ALPHABET, ID_SIZE)
+class IDGenSuite : FunSpec() {
+  init {
+    test("check ids") {
+      val regEx = "[0-9a-zA-Z_-]{12}".r
+      val id = genId()
+      println("***" + id)
+      assert(regEx.matches(id))
+    }
+  }
+}
