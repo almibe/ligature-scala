@@ -10,8 +10,10 @@ class IDGenSuite : FunSpec() {
   init {
     test("check ids") {
       val regEx = "[0-9a-zA-Z_-]{12}".toRegex()
-      val id = genId()
-      assert(regEx.matches(id))
+      for (i in 0..1000) {
+        val id = genId()
+        assert(regEx.matches(id))
+      }
     }
   }
 }

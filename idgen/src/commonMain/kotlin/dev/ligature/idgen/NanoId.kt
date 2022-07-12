@@ -28,7 +28,6 @@ import kotlin.experimental.and
 import kotlin.math.ceil
 import kotlin.math.floor
 import kotlin.math.ln
-import kotlin.math.log
 import kotlin.random.Random
 
 //NOTE: Just using kotlin.random.Random for now since Kotlin.js doesn't support SecureRandom yet.
@@ -90,13 +89,10 @@ fun randomNanoId(random: Random, alphabet: CharArray, size: Int): String {
   val step: Int = ceil(1.6 * mask * size / alphabet.size).toInt()
   val idBuilder = StringBuilder()
 
-  fun intToByteArray (i: Int) : ByteArray =
-    ByteArray(4) {x -> (i.toLong() shr (x*8)).toByte()}
-
   while (true) {
-    val bytes = intToByteArray(step)
+    val bytes = ByteArray(step)
     random.nextBytes(bytes)
-    for (i in 0..step) {
+    for (i in 0 until step) {
       val alphabetIndex = bytes[i] and mask.toByte() //TODO not sure if this is right
       if (alphabetIndex < alphabet.size) {
         idBuilder.append(alphabet[alphabetIndex.toInt()])
