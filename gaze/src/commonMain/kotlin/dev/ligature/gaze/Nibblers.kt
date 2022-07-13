@@ -80,121 +80,123 @@ fun <I, O>takeAllGrouped(
   }
 }
 
-//def takeString(toMatch: String): Nibbler[Char, Char] = {
-//  //    let graphemes = to_match.graphemes(true).collect::<Vec<&str>>();
-//  val chars = toMatch.toVector
-//  return gaze => {
-//    var offset = 0
-//    var matched = true
-//    while (matched && offset < chars.length) {
-//      val nextChar = gaze.next()
-//      nextChar match {
-//        case Some(c) =>
-//          if (chars(offset) == c) {
-//            offset += 1;
-//          } else {
-//            matched = false
-//          }
-//        case None =>
-//          matched = false
-//      }
-//    }
-//    if (matched) {
-//      Some(chars)
-//    } else {
-//      None
-//    }
-//  }
-//}
-//
-//def takeUntil[I](toMatch: I): Nibbler[I, I] =
-//  return gaze => {
-//    val result = ArrayBuffer[I]()
-//    var matched = false
-//    while (!matched) {
-//      val next = gaze.peek()
-//      next match {
-//        case Some(v) =>
-//          if (v == toMatch) {
-//            matched = true
-//          } else {
-//            gaze.next()
-//            result.append(v)
-//          }
-//        case None =>
-//          matched = true
-//      }
-//    }
-//    Some(result.toSeq)
-//  }
-//
-////TODO needs tests
-//def takeUntil[I](toMatch: Nibbler[I, I]): Nibbler[I, I] =
-//  return gaze => {
-//    val result = ArrayBuffer[I]()
-//    var matched = false
-//    while (!matched) {
-//      val next = gaze.peek()
-//      next match {
-//        case Some(v) =>
-//          val check = gaze.check(toMatch)
-//          check match {
-//            case Some(_) => matched = true
-//            case None =>
-//              gaze.next()
-//              result.append(v)
-//          }
-//        case None =>
-//          matched = true
-//      }
-//    }
-//    Some(result.toSeq)
-//  }
-//
-//def takeWhile[I](
-//    predicate: (toMatch: I) => Boolean
-//): Nibbler[I, I] =
-//  return (gaze: Gaze[I]) => {
-//    val res = ArrayBuffer[I]()
-//    var matched = true
-//    var continue = true
-//    while (continue) {
-//      val peek = gaze.peek();
-//
-//      peek match {
-//        case Some(c) =>
-//          if (predicate(c)) {
-//            gaze.next();
-//            res += c;
-//          } else if (res.length == 0) {
-//            matched = false
-//            continue = false
-//          } else {
-//            continue = false
-//          }
-//        case None =>
-//          if (res.length == 0) {
-//            matched = false
-//            continue = false
-//          } else {
-//            continue = false
-//          }
-//      }
-//    }
-//    if (matched) {
-//      Some(res.toSeq)
-//    } else {
-//      None
-//    }
-//  }
-//
-//def optional[I, O](nibbler: Nibbler[I, O]): Nibbler[I, O] = { (gaze: Gaze[I]) =>
-//  gaze.attempt(nibbler) match {
-//    case res: Some[_] => res
-//    case None         => Some(Seq())
-//  }
-//}
-//
+fun takeString(toMatch: String): Nibbler<Char, Char> {
+  //    let graphemes = to_match.graphemes(true).collect::<Vec<&str>>();
+  val chars = toMatch.toList()
+  return { gaze ->
+    var offset = 0
+    var matched = true
+    while (matched && offset < chars.size) {
+      val nextChar = gaze.next()
+      when(nextChar) {
+        is Some ->
+          if (chars[offset] == nextChar.value) {
+            offset += 1
+          } else {
+            matched = false
+          }
+        is None -> matched = false
+      }
+    }
+    if (matched) {
+      Some(chars)
+    } else {
+      none()
+    }
+  }
+}
+
+/**
+ * A Nibbler that takes until a specific element is matched.
+ */
+fun <I>takeUntil(toMatch: I): Nibbler<I, I> =
+  { gaze ->
+    val result = mutableListOf<I>()
+    var matched = false
+    while (!matched) {
+      val next = gaze.peek()
+      when(next) {
+        is Some ->
+          if (next.value == toMatch) {
+            matched = true
+          } else {
+            gaze.next()
+            result.add(next.value)
+          }
+        is None -> matched = true
+      }
+    }
+    Some(result.toList())
+  }
+
+//TODO needs tests
+fun <I>takeUntil(toMatch: Nibbler<I, I>): Nibbler<I, I> =
+  { gaze ->
+    val result = mutableListOf<I>()
+    var matched = false
+    while (!matched) {
+      val next = gaze.peek()
+      when(next) {
+        is Some -> {
+          val check = gaze.check(toMatch)
+          when(check) {
+            is Some -> matched = true
+            is None -> {
+              gaze.next()
+              result.add(next.value)
+            }
+          }
+        }
+        is None -> matched = true
+      }
+    }
+    Some(result.toList())
+  }
+
+
+fun <I>takeWhile(
+    predicate: (toMatch: I) -> Boolean
+): Nibbler<I, I> =
+  { gaze: Gaze<I> ->
+    val res = mutableListOf<I>()
+    var matched = true
+    var proceed = true
+    while (proceed) {
+      when(val peek = gaze.peek()) {
+        is Some -> {
+          if (predicate(peek.value)) {
+            gaze.next()
+            res += peek.value
+          } else if (res.size == 0) {
+            matched = false
+            proceed = false
+          } else {
+            proceed = false
+          }
+        }
+        is None ->
+          if (res.size == 0) {
+            matched = false
+            proceed = false
+          } else {
+            proceed = false
+          }
+      }
+    }
+    if (matched) {
+      Some(res.toList())
+    } else {
+      none()
+    }
+  }
+
+fun <I, O>optional(nibbler: Nibbler<I, O>): Nibbler<I, O> = { gaze: Gaze<I> ->
+  when(val res = gaze.attempt(nibbler)) {
+    is Some -> res
+    is None -> Some(listOf())
+  }
+}
+
 //def takeCharacters(chars: Char*): Nibbler[Char, Char] = takeWhile {
 //  chars.contains(_)
 //}
@@ -214,10 +216,10 @@ fun <I, O>takeAllGrouped(
 //    nibbler: Nibbler[I, O]
 //): Nibbler[I, O] = { (gaze: Gaze[I]) =>
 //  val allMatches = ArrayBuffer[O]()
-//  var continue = true
-//  while (!gaze.isComplete && continue)
+//  var proceed = true
+//  while (!gaze.isComplete && proceed)
 //    gaze.attempt(nibbler) match {
-//      case None    => continue = false
+//      case None    => proceed = false
 //      case Some(v) => allMatches.appendAll(v)
 //    }
 //  if (allMatches.isEmpty) {
