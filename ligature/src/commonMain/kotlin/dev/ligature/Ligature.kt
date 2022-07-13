@@ -4,127 +4,114 @@
 
 package dev.ligature
 
-import fs2.Stream
-import cats.effect.IO
-import cats.data.EitherT
-import cats.effect.kernel.Resource
+import arrow.core.Option
+import arrow.core.none
+import kotlinx.coroutines.*
+import kotlinx.coroutines.flow.*
 
-import scala.annotation.unused
+data class Dataset(val name: String): Comparable<Dataset> {
+  private val pattern = Regex("^([a-zA-Z_][a-zA-Z0-9_]*)(/[a-zA-Z_][a-zA-Z0-9_]*)*$")
 
-final case class Dataset private (name: String) extends Ordered[Dataset] {
-  @unused
-  private def copy(): Unit = ()
+  override fun compareTo(that: Dataset): Int = this.name.compareTo(that.name)
 
-  override def compare(that: Dataset): Int = this.name.compare(that.name)
+//  fun fromString(name: String): Either[LigatureError, Dataset] =
+//    if (pattern.matches(name)) {
+//      Right(Dataset(name))
+//    } else {
+//      Left(LigatureError(s"Could not make Dataset from $name"))
+//    }
+}
+data class Identifier(val name: String): Value {
+  private val pattern = Regex("^[a-zA-Z0-9-._~:/?#\\[\\]@!$&'()*+,;%=]+$")
+
+//  def fromString(name: String): Either[LigatureError, Identifier] =
+//  if (pattern.matches(name)) {
+//    Right(Identifier(name))
+//  } else {
+//    Left(LigatureError(s"Invalid Identifier $name"))
+//  }
 }
 
-object Dataset {
-  private val pattern = "^([a-zA-Z_][a-zA-Z0-9_]*)(/[a-zA-Z_][a-zA-Z0-9_]*)*$".r
+data class LigatureError(val message: String)
 
-  def fromString(name: String): Either[LigatureError, Dataset] =
-    if (pattern.matches(name)) {
-      Right(Dataset(name))
-    } else {
-      Left(LigatureError(s"Could not make Dataset from $name"))
-    }
-}
-
-final case class Identifier private (name: String) extends Value {
-  @unused
-  private def copy(): Unit = ()
-}
-
-object Identifier {
-  private val pattern = "^[a-zA-Z0-9-._~:/?#\\[\\]@!$&'()*+,;%=]+$".r
-
-  def fromString(name: String): Either[LigatureError, Identifier] =
-    if (pattern.matches(name)) {
-      Right(Identifier(name))
-    } else {
-      Left(LigatureError(s"Invalid Identifier $name"))
-    }
-}
-
-final case class LigatureError(message: String)
-
-sealed trait Value
-final case class StringLiteral(value: String) extends Value
-final case class IntegerLiteral(value: Long) extends Value
+sealed interface Value
+data class StringLiteral(val value: String): Value
+data class IntegerLiteral(val value: Long): Value
 
 //sealed trait Range
 //final case class StringLiteralRange(start: String, end: String) extends Range
 //final case class IntegerLiteralRange(start: Long, end: Long) extends Range
 
-final case class Statement(
-    entity: Identifier,
-    attribute: Identifier,
-    value: Value
+data class Statement(
+    val entity: Identifier,
+    val attribute: Identifier,
+    val value: Value
 )
 
-/** A trait that all Ligature implementations implement. */
-trait Ligature {
+/** An interface that all Ligature implementations implement. */
+interface Ligature {
 
   /** Returns all Datasets in a Ligature instance. */
-  def allDatasets(): Stream[IO, Dataset]
+  fun allDatasets(): Flow<Dataset>
 
   /** Check if a given Dataset exists. */
-  def datasetExists(dataset: Dataset): IO[Boolean]
+  suspend fun datasetExists(dataset: Dataset): Boolean
 
   /** Returns all Datasets in a Ligature instance that start with the given
     * prefix.
     */
-  def matchDatasetsPrefix(
+  fun matchDatasetsPrefix(
       prefix: String
-  ): Stream[IO, Dataset]
+  ): Flow<Dataset>
 
   /** Returns all Datasets in a Ligature instance that are in a given range
     * (inclusive, exclusive].
     */
-  def matchDatasetsRange(
+  fun matchDatasetsRange(
       start: String,
       end: String
-  ): Stream[IO, Dataset]
+  ): Flow<Dataset>
 
   /** Creates a dataset with the given name. TODO should probably return its own
     * error type { InvalidDataset, DatasetExists, CouldNotCreateDataset }
     */
-  def createDataset(dataset: Dataset): IO[Unit]
+  suspend fun createDataset(dataset: Dataset): Void
 
   /** Deletes a dataset with the given name. TODO should probably return its own
     * error type { InvalidDataset, CouldNotDeleteDataset }
     */
-  def deleteDataset(dataset: Dataset): IO[Unit]
+  suspend fun deleteDataset(dataset: Dataset): Void
 
   /** Initializes a QueryTx TODO should probably return its own error type
     * CouldNotInitializeQueryTx
     */
-  def query[T](dataset: Dataset)(fn: QueryTx => IO[T]): IO[T]
+  suspend fun <T>query(dataset: Dataset, fn: (QueryTx) -> T): T
 
   /** Initializes a WriteTx TODO should probably return IO[Either] w/ its own
     * error type CouldNotInitializeWriteTx
     */
-  def write(dataset: Dataset)(fn: WriteTx => IO[Unit]): IO[Unit]
+  suspend fun <T>write(dataset: Dataset, fn: (WriteTx) -> T): T
 
-  def close(): IO[Unit]
+  suspend fun close(): Void
 }
 
 /** Represents a QueryTx within the context of a Ligature instance and a single
   * Dataset
   */
-trait QueryTx {
+interface QueryTx {
 
   /** Returns all PersistedStatements in this Dataset. */
-  def allStatements(): Stream[IO, Statement]
+  fun allStatements(): Flow<Statement>
 
   /** Returns all PersistedStatements that match the given criteria. If a
     * parameter is None then it matches all, so passing all Nones is the same as
     * calling allStatements.
     */
-  def matchStatements(
-      entity: Option[Identifier] = None,
-      attribute: Option[Identifier] = None,
-      value: Option[Value] = None
-  ): Stream[IO, Statement]
+  fun matchStatements(
+      entity: Option<Identifier> = none(),
+      attribute: Option<Identifier> = none(),
+      value: Option<Value> = none()
+  ): Flow<Statement>
 
 //  /** Returns all PersistedStatements that match the given criteria. If a
 //    * parameter is None then it matches all.
@@ -139,25 +126,25 @@ trait QueryTx {
 /** Represents a WriteTx within the context of a Ligature instance and a single
   * Dataset
   */
-trait WriteTx {
+interface WriteTx {
 
   /** Creates a new, unique Entity within this Dataset by combining a UUID and
     * an optional prefix. Note: Entities are shared across named graphs in a
     * given Dataset.
     */
-  def newIdentifier(prefix: String = ""): IO[Identifier]
+  suspend fun newIdentifier(prefix: String = ""): Identifier
 
   /** Adds a given Statement to this Dataset. If the Statement already exists
     * nothing happens.
     */
-  def addStatement(statement: Statement): IO[Unit]
+  suspend fun addStatement(statement: Statement): Void
 
   /** Removes a given PersistedStatement from this Dataset. If the
     * PersistedStatement doesn't exist nothing happens and returns Ok(false).
     * This function returns Ok(true) only if the given PersistedStatement was
     * found and removed.
     */
-  def removeStatement(
+  suspend fun removeStatement(
       statement: Statement
-  ): IO[Unit]
+  ): Void
 }
