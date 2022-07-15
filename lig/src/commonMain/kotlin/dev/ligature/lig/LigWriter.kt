@@ -4,7 +4,11 @@
 
 package dev.ligature.lig
 
-import dev.ligature.{Identifier, IntegerLiteral, Statement, StringLiteral, Value}
+import dev.ligature.Identifier
+import dev.ligature.IntegerLiteral
+import dev.ligature.Statement
+import dev.ligature.StringLiteral
+import dev.ligature.Value
 
 def write(statements: Iterator[Statement]): String = {
   val sb = StringBuilder()

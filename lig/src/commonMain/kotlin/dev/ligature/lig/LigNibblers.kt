@@ -4,20 +4,22 @@
 
 package dev.ligature.lig
 
-import scala.collection.mutable.ArrayBuffer
-import dev.ligature.gaze.{
-  Gaze,
-  Nibbler,
-  between,
-  takeAll,
-  takeAllGrouped,
-  takeCharacters,
-  takeFirst,
-  takeString,
-  takeUntil,
-  takeWhile
-}
-import dev.ligature.{Identifier, IntegerLiteral, Statement, StringLiteral, Value}
+import dev.ligature.gaze.Gaze
+import dev.ligature.gaze.Nibbler
+import dev.ligature.gaze.between
+import dev.ligature.gaze.takeAll
+import dev.ligature.gaze.takeAllGrouped
+import dev.ligature.gaze.takeCharacters
+import dev.ligature.gaze.takeFirst
+import dev.ligature.gaze.takeString
+import dev.ligature.gaze.takeUntil
+import dev.ligature.gaze.takeWhile
+
+import dev.ligature.Identifier
+import dev.ligature.IntegerLiteral
+import dev.ligature.Statement
+import dev.ligature.StringLiteral
+import dev.ligature.Value
 
 object LigNibblers {
   val whiteSpaceNibbler = takeCharacters(' ', '\t')

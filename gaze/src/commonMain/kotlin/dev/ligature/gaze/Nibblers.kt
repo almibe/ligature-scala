@@ -4,10 +4,10 @@
 
 package dev.ligature.gaze
 
-import dev.ligature.gaze.Gaze
 import arrow.core.Some
 import arrow.core.none
 import arrow.core.None
+import arrow.core.Option
 
 /** A Nibbler that takes a single item.
   */
@@ -197,38 +197,38 @@ fun <I, O>optional(nibbler: Nibbler<I, O>): Nibbler<I, O> = { gaze: Gaze<I> ->
   }
 }
 
-//def takeCharacters(chars: Char*): Nibbler[Char, Char] = takeWhile {
-//  chars.contains(_)
-//}
-//
-//def takeFirst[I, O](
-//    nibblers: Nibbler[I, O]*
-//): Nibbler[I, O] = { (gaze: Gaze[I]) =>
-//  var finalRes: Option[Seq[O]] = None
-//  val nibbler = nibblers.find { nibbler =>
-//    finalRes = gaze.attempt(nibbler)
-//    finalRes.isDefined
-//  }
-//  finalRes
-//}
-//
-//def repeat[I, O](
-//    nibbler: Nibbler[I, O]
-//): Nibbler[I, O] = { (gaze: Gaze[I]) =>
-//  val allMatches = ArrayBuffer[O]()
-//  var proceed = true
-//  while (!gaze.isComplete && proceed)
-//    gaze.attempt(nibbler) match {
-//      case None    => proceed = false
-//      case Some(v) => allMatches.appendAll(v)
-//    }
-//  if (allMatches.isEmpty) {
-//    None
-//  } else {
-//    Some(allMatches.toSeq)
-//  }
-//}
-//
+fun takeCharacters(vararg chars: Char): Nibbler<Char, Char> = takeWhile {
+  chars.contains(it)
+}
+
+fun <I, O>takeFirst(
+    vararg nibblers: Nibbler<I, O>
+): Nibbler<I, O> = { gaze: Gaze<I> ->
+  var finalRes: Option<List<O>> = none()
+  nibblers.find { nibbler ->
+    finalRes = gaze.attempt(nibbler)
+    finalRes is Some
+  }
+  finalRes
+}
+
+fun <I, O>repeat(
+    nibbler: Nibbler<I, O>
+): Nibbler<I, O> = { gaze: Gaze<I> ->
+  val allMatches = mutableListOf<O>()
+  var proceed = true
+  while (!gaze.isComplete && proceed)
+    when(val v = gaze.attempt(nibbler)) {
+      is None -> proceed = false
+      is Some -> allMatches.addAll(v.value)
+    }
+  if (allMatches.isEmpty()) {
+    none()
+  } else {
+    Some(allMatches.toList())
+  }
+}
+
 //def between[I](
 //    wrapper: Nibbler[I, I],
 //    content: Nibbler[I, I]
