@@ -22,6 +22,8 @@ import dev.ligature.StringLiteral
 import dev.ligature.Value
 
 import arrow.core.Some
+import arrow.core.none
+import arrow.core.None
 
 object LigNibblers {
   val whiteSpaceNibbler = takeCharacters(' ', '\t')
@@ -36,68 +38,70 @@ object LigNibblers {
     takeString(">")
   )
 
-  val stringContentNibbler: Nibbler<Char, Char> =
-    (gaze: Gaze[Char]) => {
-      // Full pattern \"(([^\x00-\x1F\"\\]|\\[\"\\/bfnrt]|\\u[0-9a-fA-F]{4})*)\"
-      val commandChars = 0x00.toChar to 0x1f.toChar
-      val validHexChar = (c: Char) =>
-        ('0' to '9' contains c) || ('a' to 'f' contains c) || ('A' to 'F' contains c)
-      val hexNibbler = takeWhile(validHexChar)
+  val stringContentNibbler: Nibbler<Char, Char> = {
+    (gaze: Gaze[Char]) -> {
+    // Full pattern \"(([^\x00-\x1F\"\\]|\\[\"\\/bfnrt]|\\u[0-9a-fA-F]{4})*)\"
+    val commandChars = 0x00.toChar to 0x1f.toChar
+    val validHexChar = (c: Char) =>
+    ('0' to '9' contains c) || ('a' to 'f' contains c) || ('A' to 'F' contains c)
+    val hexNibbler = takeWhile(validHexChar)
 
-      val sb = mutableListOf<Char>()
-      var offset = 0 // TODO delete
-      var fail = false
-      var complete = false
-      while (!complete && !fail && gaze.peek() is Some) {
-        val c = gaze.next().get
-        if (commandChars.contains(c)) {
-          fail = true
-        } else if (c == '"') {
-          complete = true
-        } else if (c == '\\') {
-          sb.append(c)
-          gaze.next() match {
-            case None => fail = true
-            case Some(c) =>
-              c match {
-                case '\\' | '"' | 'b' | 'f' | 'n' | 'r' | 't' => sb.append(c)
-                case 'u' =>
-                  sb.append(c)
-                  val res = gaze.attempt(hexNibbler)
-                  res match {
-                    case None => fail = true
-                    case Some(res) =>
-                      if (res.length == 4) {
-                        sb.appendAll(res)
-                      } else {
-                        fail = true
-                      }
+    val sb = mutableListOf<Char>()
+    var offset = 0 // TODO delete
+    var fail = false
+    var complete = false
+    while (!complete && !fail && gaze.peek() is Some) {
+      val c = gaze.next().get
+      if (commandChars.contains(c)) {
+        fail = true
+      } else if (c == '"') {
+        complete = true
+      } else if (c == '\\') {
+        sb.append(c)
+        when (val next = gaze.next()) {
+          is None -> fail = true
+          is Some -> {
+            when (c) {
+              '\\' || '"' || 'b' || 'f' || 'n' || 'r' || 't' -> sb.append(c)
+              'u' -> {
+                sb.append(c)
+                when (val res = gaze.attempt(hexNibbler)) {
+                  is None -> fail = true
+                  is Some -> {
+                    if (res.value.length == 4) {
+                      sb.addAll(res.value)
+                    } else {
+                      fail = true
+                    }
                   }
-                case _ =>
-                  fail = true
+                }
               }
+              else -> fail = true
+            }
           }
-        } else {
-          sb.append(c)
         }
-      }
-      if (fail) {
-        None
       } else {
-        Some(sb.toSeq)
+        sb.add(c)
       }
     }
+    if (fail) {
+      none()
+    } else {
+      Some(sb.toList())
+    }
+  }
 
   val stringNibbler = takeAllGrouped(
     takeString("\""),
     stringContentNibbler
   ) // TODO should be a between but stringContentNibbler consumes the last " currently
 
-  private val validPrefixName =
-    (('a' to 'z') ++ ('A' to 'Z') ++ ('0' to '9')).toList.appended('_')
+  //TODO this needs cleaned up
+  private val validPrefixName: CharArray =
+    (('a'..'z').toMutableList() + ('A'..'Z').toMutableList() + ('0'..'9').toMutableList() + listOf('_')).joinToString("").toCharArray()
 
   val prefixNameNibbler = takeCharacters(
-      validPrefixName: _*
+      *validPrefixName
     ) // matches _a-zA-Z0-9, TODO probably shouldn't make names that start with numbers
   val copyNibbler = takeString("^") // matches ^
 
