@@ -81,13 +81,20 @@ class Gaze<I>(private val input: List<I>) {
 
 typealias Nibbler<I, O> = (Gaze<I>) -> Option<List<O>>
 
+fun <I, O, NO>Nibbler<I, O>.map(f: (List<O>) -> List<NO>): Nibbler<I, NO> = { gaze ->
+  when(val results = this(gaze)) {
+    is None -> none()
+    is Some -> Some(f(results.value))
+  }
+}
+
 //abstract class Nibbler<I, O>: (Gaze<I>) -> Option<List<O>> {
 //  abstract fun apply(gaze: Gaze<I>): Option<List<O>>
 
-//  fun <NO>map(f: (List<O>) -> List<NO>): Nibbler<I, NO> { (gaze: Gaze<I>) ->
-//    when(val value = this.apply(gaze)) {
+//  fun <NO>map(f: (List<O>) -> List<NO>): Nibbler<I, NO> = { gaze ->
+//    when(val results = this.apply(gaze)) {
 //      is None -> none()
-//      is Some -> Some(f(value))
+//      is Some -> Some(f(results.value))
 //    }
 //  }
 

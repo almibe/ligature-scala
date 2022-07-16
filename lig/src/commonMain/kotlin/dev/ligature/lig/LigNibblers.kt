@@ -21,10 +21,12 @@ import dev.ligature.Statement
 import dev.ligature.StringLiteral
 import dev.ligature.Value
 
+import arrow.core.Some
+
 object LigNibblers {
   val whiteSpaceNibbler = takeCharacters(' ', '\t')
   val whiteSpaceAndNewLineNibbler = takeAll(takeFirst(takeString(" "), takeString("\n"), takeString("\r\n"), takeString("\t")))
-  val numberNibbler = takeCharacters(('0' to '9').toList.appended('-').toSeq*)
+  val numberNibbler = takeCharacters(('0' to '9').toList().add('-'))
 
   val identifierNibbler = between(
     takeString("<"),
@@ -34,7 +36,7 @@ object LigNibblers {
     takeString(">")
   )
 
-  val stringContentNibbler: Nibbler[Char, Char] =
+  val stringContentNibbler: Nibbler<Char, Char> =
     (gaze: Gaze[Char]) => {
       // Full pattern \"(([^\x00-\x1F\"\\]|\\[\"\\/bfnrt]|\\u[0-9a-fA-F]{4})*)\"
       val commandChars = 0x00.toChar to 0x1f.toChar
@@ -42,11 +44,11 @@ object LigNibblers {
         ('0' to '9' contains c) || ('a' to 'f' contains c) || ('A' to 'F' contains c)
       val hexNibbler = takeWhile(validHexChar)
 
-      var sb = ArrayBuffer[Char]()
+      val sb = mutableListOf<Char>()
       var offset = 0 // TODO delete
       var fail = false
       var complete = false
-      while (!complete && !fail && gaze.peek().isDefined) {
+      while (!complete && !fail && gaze.peek() is Some) {
         val c = gaze.next().get
         if (commandChars.contains(c)) {
           fail = true

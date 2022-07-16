@@ -10,15 +10,15 @@ import dev.ligature.Statement
 import dev.ligature.StringLiteral
 import dev.ligature.Value
 
-def write(statements: Iterator[Statement]): String = {
+fun write(statements: Iterator<Statement>): String {
   val sb = StringBuilder()
-  statements.foreach { statement =>
-    sb.append(s"${writeStatement(statement)}\n")
+  statements.forEach { statement ->
+    sb.append("${writeStatement(statement)}\n") //TODO use system's new-line
   }
-  sb.toString()
+  return sb.toString()
 }
 
-def writeStatement(statement: Statement): String =
+fun writeStatement(statement: Statement): String =
   StringBuilder()
     .append(writeIdentifier(statement.entity))
     .append(' ')
@@ -27,12 +27,12 @@ def writeStatement(statement: Statement): String =
     .append(writeValue(statement.value))
     .toString()
 
-def writeIdentifier(identifier: Identifier): String = s"<${identifier.name}>"
+fun writeIdentifier(identifier: Identifier): String = "<${identifier.name}>"
 
-def writeValue(value: Value): String =
-  value match {
-    case id: Identifier        => writeIdentifier(id)
-    case IntegerLiteral(value) => value.toString()
-    case StringLiteral(value) =>
-      s"\"${value}\"" // TODO this needs to handle escaping special characters
+fun writeValue(value: Value): String =
+  when(value) {
+    is Identifier     -> writeIdentifier(value)
+    is IntegerLiteral -> value.value.toString()
+    is StringLiteral  ->
+      "\"${value.value}\"" // TODO this needs to handle escaping special characters
   }

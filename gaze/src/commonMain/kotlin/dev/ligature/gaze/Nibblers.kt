@@ -229,13 +229,13 @@ fun <I, O>repeat(
   }
 }
 
-//def between[I](
-//    wrapper: Nibbler[I, I],
-//    content: Nibbler[I, I]
-//) = takeAllGrouped(wrapper, content, wrapper).map(_(1))
-//
-//def between[I](
-//    open: Nibbler[I, I],
-//    content: Nibbler[I, I],
-//    close: Nibbler[I, I]
-//) = takeAllGrouped(open, content, close).map(_(1))
+fun <I>between(
+    wrapper: Nibbler<I, I>,
+    content: Nibbler<I, I>
+) = takeAllGrouped(wrapper, content, wrapper).map { it[1] }
+
+fun <I>between(
+    open: Nibbler<I, I>,
+    content: Nibbler<I, I>,
+    close: Nibbler<I, I>
+) = takeAllGrouped(open, content, close).map { it[1] }

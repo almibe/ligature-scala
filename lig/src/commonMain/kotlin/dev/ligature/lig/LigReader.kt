@@ -7,12 +7,22 @@ package dev.ligature.lig
 import dev.ligature.*
 import dev.ligature.gaze.*
 import dev.ligature.idgen.genId
-import dev.ligature.lig.LigNibblers.{numberNibbler, stringContentNibbler, whiteSpaceAndNewLineNibbler, whiteSpaceNibbler}
-import dev.ligature.lig.{createIdentifier, parseIntegerLiteral, parseStringLiteral}
+import dev.ligature.lig.LigNibblers.numberNibbler
+import dev.ligature.lig.LigNibblers.stringContentNibbler
+import dev.ligature.lig.LigNibblers.whiteSpaceAndNewLineNibbler
+import dev.ligature.lig.LigNibblers.whiteSpaceNibbler
 
-import scala.collection.mutable.{ArrayBuffer, HashMap}
+import dev.ligature.lig.createIdentifier
+import dev.ligature.lig.parseIntegerLiteral
+import dev.ligature.lig.parseStringLiteral
 
-case class LigError(message: String)
+import arrow.core.Either
+import arrow.core.Option
+import arrow.core.None
+import arrow.core.none
+import arrow.core.Some
+
+data class LigError(val message: String)
 
 //def read(input: String): Either[LigError, List[Statement]] = {
 //  val gaze = Gaze.from(input)
@@ -34,13 +44,12 @@ case class LigError(message: String)
 //  Right(statements.toList)
 //}
 
-def read(input: String): Either[LigError, List[Statement]] = {
+fun read(input: String): Either<LigError, List<Statement>> {
   val gaze = Gaze.from(input)
   // val model: ArrayBuffer[DLigModel] = ArrayBuffer()
-  for {
-    prefixes <- parsePrefixes(gaze)
-    statements <- parseStatements(gaze, prefixes)
-  } yield statements
+  val prefixes = parsePrefixes(gaze)
+  val statements = parseStatements(gaze, prefixes)
+  TODO()
 //   var continue = true
 //   while (continue && !gaze.isComplete) {
 //     gaze.attempt(optional(whiteSpaceAndNewLineNibbler))
@@ -77,49 +86,47 @@ def read(input: String): Either[LigError, List[Statement]] = {
 //      .toRight(LigError(""))
 //  } yield Statement(entity, attribute, value)
 
-def createIdentifier(id: String): Either[LigError, Identifier] =
-  Identifier
-    .fromString(id)
-    .left
-    .map(_ => LigError("Invalid Identifier Id - $id"))
+fun createIdentifier(id: String): Either<LigError, Identifier> =
+  Identifier(id) //TODO not sure where to do error handling
+//  Identifier
+//    .fromString(id)
+//    .left
+//    .map(_ => LigError("Invalid Identifier Id - $id"))
 
-
-def parseIntegerLiteral(gaze: Gaze[Char]): Either[LigError, IntegerLiteral] =
-  gaze.attempt(numberNibbler) match {
-    case None => Left(LigError("Could not parse Integer."))
-    case Some(i) =>
-      Right(IntegerLiteral(i.mkString.toLong)) // TODO toLong can throw
+fun parseIntegerLiteral(gaze: Gaze<Char>): Either<LigError, IntegerLiteral> =
+  when(val res = gaze.attempt(numberNibbler)) {
+    is None -> Either.Left(LigError("Could not parse Integer."))
+    is Some ->
+      Either.Right(IntegerLiteral(res.value.joinToString("").toLong)) // TODO toLong can throw
   }
 
-def parseStringLiteral(gaze: Gaze[Char]): Either[LigError, StringLiteral] = {
-  val res = gaze.attempt(takeAllGrouped(takeString("\""), stringContentNibbler))
-
-  res match {
-    case None      => Left(LigError("Could not parse String."))
-    case Some(res) => Right(StringLiteral(res(1).mkString))
+fun parseStringLiteral(gaze: Gaze<Char>): Either<LigError, StringLiteral> =
+  when(val res = gaze.attempt(takeAllGrouped(takeString("\""), stringContentNibbler))) {
+    is None -> Either.Left(LigError("Could not parse String."))
+    is Some -> Either.Right(StringLiteral(res(1).joinToString("")))
   }
-}
 
-def parsePrefixes(gaze: Gaze[Char]): Either[LigError, Map[String, String]] = {
-  val result = HashMap[String, String]()
-  while (!gaze.isComplete)
-    parsePrefix(gaze) match {
-      case Left(err)   => return Left(err)
-      case Right(None) => return Right(result.toMap)
-      case Right(Some(pair)) =>
-        if (result.contains(pair._1)) {
-          return Left(LigError(s"Duplicate Prefix Name: ${pair._1}"))
-        } else {
-          result.addOne(pair)
-        }
-    }
-  Right(result.toMap)
+fun parsePrefixes(gaze: Gaze<Char>): Either<LigError, Map<String, String>> {
+  TODO()
+//  val result = HashMap[String, String]()
+//  while (!gaze.isComplete)
+//    parsePrefix(gaze) match {
+//      case Left(err)   => return Left(err)
+//      case Right(None) => return Right(result.toMap)
+//      case Right(Some(pair)) =>
+//        if (result.contains(pair._1)) {
+//          return Left(LigError(s"Duplicate Prefix Name: ${pair._1}"))
+//        } else {
+//          result.addOne(pair)
+//        }
+//    }
+//  Right(result.toMap)
 }
 
 //TODO: this function never returns an Error so if there is a malformed prefix it won't be caught until we try to read a Statement
-def parsePrefix(
-    gaze: Gaze[Char]
-): Either[LigError, Option[(String, String)]] = {
+fun parsePrefix(
+    gaze: Gaze<Char>
+): Either<LigError, Option<Pair<String, String>>> {
   val parseResult = gaze.attempt(
     takeAllGrouped(
       takeString("prefix"),
@@ -128,195 +135,198 @@ def parsePrefix(
       whiteSpaceNibbler,
       takeString("="),
       whiteSpaceNibbler,
-      takeWhile { c =>
-        "[a-zA-Z0-9-._~:/?#\\[\\]@!$&'()*+,;%=]".r.matches(c.toString)
+      takeWhile { c ->
+        Regex("[a-zA-Z0-9-._~:/?#\\[\\]@!$&'()*+,;%=]").matches(c.toString)
       }
     )
   )
-  parseResult match {
-    case None => Right(None)
-    case Some(p) =>
-      val prefixName = p(2).mkString
-      val prefixValue = p(6).mkString
-      Right(Some((prefixName, prefixValue)))
+  return when(parseResult) {
+    is None -> Right(None)
+    is Some -> {
+      val prefixName = parseResult.value(2).joinToString("")
+      val prefixValue = parseResult.value(6).joinToString("")
+      Right(Some(Pair(prefixName, prefixValue)))
+    }
   }
 }
 
-def parseStatements(
-    gaze: Gaze[Char],
-    prefixes: Map[String, String]
-): Either[LigError, List[Statement]] = {
-  val statements = ArrayBuffer[Statement]()
-  var lastStatement: Option[Statement] = None
+fun parseStatements(
+    gaze: Gaze<Char>,
+    prefixes: Map<String, String>
+): Either<LigError, List<Statement>> {
+  val statements = mutableListOf<Statement>()
+  var lastStatement: Option<Statement> = none()
   while (!gaze.isComplete)
-    parseStatement(gaze, prefixes, lastStatement) match {
-      case Left(err) => return Left(err)
-      case Right(statement) =>
+    when(val res = parseStatement(gaze, prefixes, lastStatement)) {
+      is Left  -> return res
+      is Right -> {
+        val statement = res.value
         lastStatement = Some(statement)
         statements.addOne(statement)
+      }
     }
   Right(statements.toList)
 }
 
-def parseStatement(
-    gaze: Gaze[Char],
-    prefixes: Map[String, String],
-    lastStatement: Option[Statement]
-): Either[LigError, Statement] =
-  for {
-    _ <- gaze
-      .attempt(optional(whiteSpaceAndNewLineNibbler))
-      .toRight(LigError("Error parsing optional whitespace before Statement"))
-    entity <- parseIdentifier(gaze, prefixes, lastEntity(lastStatement))
-    _ <- gaze
-      .attempt(whiteSpaceNibbler)
-      .toRight(LigError("Error parsing whitespace after Entity"))
-    attribute <- parseIdentifier(gaze, prefixes, lastAttribute(lastStatement))
-    _ <- gaze
-      .attempt(whiteSpaceNibbler)
-      .toRight(LigError("Error parsing whitespace after Attribute"))
-    value <- parseValue(gaze, prefixes, lastValue(lastStatement))
-    _ <- gaze
-      .attempt(optional(whiteSpaceAndNewLineNibbler))
-      .toRight(LigError(""))
-  } yield Statement(entity, attribute, value)
+fun parseStatement(
+    gaze: Gaze<Char>,
+    prefixes: Map<String, String>,
+    lastStatement: Option<Statement>
+): Either<LigError, Statement> = TODO()
+//  for {
+//    _ <- gaze
+//      .attempt(optional(whiteSpaceAndNewLineNibbler))
+//      .toRight(LigError("Error parsing optional whitespace before Statement"))
+//    entity <- parseIdentifier(gaze, prefixes, lastEntity(lastStatement))
+//    _ <- gaze
+//      .attempt(whiteSpaceNibbler)
+//      .toRight(LigError("Error parsing whitespace after Entity"))
+//    attribute <- parseIdentifier(gaze, prefixes, lastAttribute(lastStatement))
+//    _ <- gaze
+//      .attempt(whiteSpaceNibbler)
+//      .toRight(LigError("Error parsing whitespace after Attribute"))
+//    value <- parseValue(gaze, prefixes, lastValue(lastStatement))
+//    _ <- gaze
+//      .attempt(optional(whiteSpaceAndNewLineNibbler))
+//      .toRight(LigError(""))
+//  } yield Statement(entity, attribute, value)
 
-def lastEntity(lastStatement: Option[Statement]): Option[Identifier] =
-  lastStatement match {
-    case None            => None
-    case Some(statement) => Some(statement.entity)
+fun lastEntity(lastStatement: Option<Statement>): Option<Identifier> =
+  when(lastStatement) {
+    is None -> none()
+    is Some -> Some(lastStatement.value.entity)
   }
 
-def lastAttribute(lastStatement: Option[Statement]): Option[Identifier] =
-  lastStatement match {
-    case None            => None
-    case Some(statement) => Some(statement.attribute)
+fun lastAttribute(lastStatement: Option<Statement>): Option<Identifier> =
+  when(lastStatement) {
+    is None -> none()
+    is Some -> Some(lastStatement.value.attribute)
   }
 
-def lastValue(lastStatement: Option[Statement]): Option[Value] =
-  lastStatement match {
-    case None            => None
-    case Some(statement) => Some(statement.value)
+fun lastValue(lastStatement: Option<Statement>): Option<Value> =
+  when(lastStatement) {
+    is None -> none()
+    is Some -> Some(lastStatement.value.value)
   }
 
-def parseIdentifier(
-    gaze: Gaze[Char],
-    prefixes: Map[String, String],
-    lastIdentifier: Option[Identifier]
-): Either[LigError, Identifier] = {
+fun parseIdentifier(
+    gaze: Gaze<Char>,
+    prefixes: Map<String, String>,
+    lastIdentifier: Option<Identifier>
+): Either<LigError, Identifier> = {
+  TODO()
   // attempt copy character
-  val copyChar = gaze.attempt(LigNibblers.copyNibbler)
-  if (copyChar.isDefined) {
-    lastIdentifier match {
-      case None =>
-        return Left(
-          LigError("Can't Use Copy Character Without Existing Instance.")
-        )
-      case Some(id) => return Right(id)
-    }
-  }
-  val idGenId = gaze.attempt(
-    between(
-      takeString("<"),
-      repeat(
-        takeFirst(
-          takeWhile(c => "[a-zA-Z0-9-._~:/?#\\[\\]@!$&'()*+,;%=]".r.matches(c.toString)),
-          takeString("{}")
-        )
-      ),
-      takeString(">")
-    )
-  )
-  if (idGenId.isDefined) {
-    handleIdGenId(idGenId.get.mkString) match {
-      case Right(id) => return Right(id)
-      case Left(err) => return Left(err)
-    }
-  }
-  val prefixedGenId = gaze.attempt(
-    takeAllGrouped(
-      LigNibblers.prefixNameNibbler,
-      takeString(":"),
-      repeat(
-        takeFirst(
-          takeWhile(c => "[a-zA-Z0-9-._~:/?#\\[\\]@!$&'()*+,;%=]".r.matches(c.toString)),
-          takeString("{}")
-        )
-      )
-    )
-  )
-  if (prefixedGenId.isDefined) {
-    handlePrefixedGenId(prefixedGenId.get, prefixes) match {
-      case Right(id) => return Right(id)
-      case Left(err) => return Left(err)
-    }
-  }
-
-  Left(LigError(s"Could not match Identifier. ${gaze.location}"))
+//  val copyChar = gaze.attempt(LigNibblers.copyNibbler)
+//  if (copyChar.isDefined) {
+//    lastIdentifier match {
+//      case None =>
+//        return Left(
+//          LigError("Can't Use Copy Character Without Existing Instance.")
+//        )
+//      case Some(id) => return Right(id)
+//    }
+//  }
+//  val idGenId = gaze.attempt(
+//    between(
+//      takeString("<"),
+//      repeat(
+//        takeFirst(
+//          takeWhile(c => "[a-zA-Z0-9-._~:/?#\\[\\]@!$&'()*+,;%=]".r.matches(c.toString)),
+//          takeString("{}")
+//        )
+//      ),
+//      takeString(">")
+//    )
+//  )
+//  if (idGenId.isDefined) {
+//    handleIdGenId(idGenId.get.joinToString("")) match {
+//      case Right(id) => return Right(id)
+//      case Left(err) => return Left(err)
+//    }
+//  }
+//  val prefixedGenId = gaze.attempt(
+//    takeAllGrouped(
+//      LigNibblers.prefixNameNibbler,
+//      takeString(":"),
+//      repeat(
+//        takeFirst(
+//          takeWhile(c => "[a-zA-Z0-9-._~:/?#\\[\\]@!$&'()*+,;%=]".r.matches(c.toString)),
+//          takeString("{}")
+//        )
+//      )
+//    )
+//  )
+//  if (prefixedGenId.isDefined) {
+//    handlePrefixedGenId(prefixedGenId.get, prefixes) match {
+//      case Right(id) => return Right(id)
+//      case Left(err) => return Left(err)
+//    }
+//  }
+//
+//  Left(LigError(s"Could not match Identifier. ${gaze.location}"))
 }
 
-def handleIdGenId(input: String): Either[LigError, Identifier] =
-  Identifier.fromString(genIdId(input)).left.map(err => LigError(err.message))
+fun handleIdGenId(input: String): Either<LigError, Identifier> = TODO()
+  //Identifier.fromString(genIdId(input)).left.map(err => LigError(err.message))
 
-def genIdId(input: String): String = {
+fun genIdId(input: String): String = {
   val itr = input.toCharArray.iterator
   val sb = StringBuilder()
   while (itr.hasNext)
-    itr.next match {
-      case c: Char if c == '{' =>
+    when(val c = itr.next) {
+      c == '{' -> {
         itr.next // eat }, TODO should probably assert here
         sb.append(genId())
-      case c: Char => sb.append(c)
+      }
+      else -> sb.append(c)
     }
   sb.toString
 }
 
-def handlePrefixedId(
-    input: Seq[Seq[Char]],
-    prefixes: Map[String, String]
-): Either[LigError, Identifier] = {
-  val prefixName = input(0).mkString
-  prefixes.get(prefixName) match {
-    case None => Left(LigError(s"Prefix Name $prefixName, Doesn't Exist."))
-    case Some(prefixValue) =>
-      val postfix = input(2).mkString
-      Identifier
-        .fromString(prefixValue + postfix)
-        .left
-        .map(err => LigError(err.message))
+fun handlePrefixedId(
+    input: List<List<Char>>,
+    prefixes: Map<String, String>
+): Either<LigError, Identifier> {
+  val prefixName = input(0).joinToString("")
+  when(val res = prefixes.get(prefixName)) {
+    is None -> Left(LigError("Prefix Name $prefixName, doesn't exist."))
+    is Some -> {
+      val postfix = input(2).joinToString("")
+      Identifier(res.value + postfix) //TODO not validated
+    }
   }
 }
 
-def handlePrefixedGenId(
-    input: Seq[Seq[Char]],
-    prefixes: Map[String, String]
-): Either[LigError, Identifier] = {
-  val prefixName = input(0).mkString
-  prefixes.get(prefixName) match {
-    case None => Left(LigError(s"Prefix Name $prefixName, Doesn't Exist."))
-    case Some(prefixValue) =>
-      val postfix = input(2).mkString
-      Identifier
-        .fromString(genIdId(prefixValue + postfix))
-        .left
-        .map(err => LigError(err.message))
+fun handlePrefixedGenId(
+    input: List<List<Char>>,
+    prefixes: Map<String, String>
+): Either<LigError, Identifier> {
+  val prefixName = input[0].joinToString("")
+  return when(val prefixValue = prefixes.get(prefixName)) {
+    is None -> Left(LigError("Prefix name $prefixName, doesn't exist."))
+    is Some -> {
+      val postfix = input[2].joinToString("")
+      Identifier(genIdId(prefixValue + postfix)) //TODO not validated
+//        .fromString(genIdId(prefixValue + postfix))
+//        .left
+//        .map(err => LigError(err.message))
+    }
   }
 }
 
-def parseValue(
-    gaze: Gaze[Char],
-    prefixes: Map[String, String],
-    lastValue: Option[Value]
-): Either[LigError, Value] = {
+fun parseValue(
+    gaze: Gaze<Char>,
+    prefixes: Map<String, String>,
+    lastValue: Option<Value>
+): Either<LigError, Value> {
   // attempt copy character
   val copyChar = gaze.attempt(LigNibblers.copyNibbler)
-  if (copyChar.isDefined) {
-    lastValue match {
-      case None =>
-        return Left(
-          LigError("Can't Use Copy Character Without Existing Instance.")
-        )
-      case Some(id) => return Right(id)
+  if (copyChar is Some) {
+    when(lastValue) {
+      is None -> return Either.Left(
+        LigError("Can't Use Copy Character Without Existing Instance.")
+      )
+      is Some -> return Either.Right(lastValue.value)
     }
   }
 
@@ -325,15 +335,15 @@ def parseValue(
     prefixes,
     None
   ) // can be None since copy character has been checked for
-  if (entityRes.isRight) return entityRes
+  if (entityRes is Either.Left) return entityRes
 
   val integerRes = parseIntegerLiteral(gaze)
-  if (integerRes.isRight)
-    return integerRes.left.map(err => LigError(err.message))
+  if (integerRes is Either.Right)
+    return integerRes //integerRes.left.map(err => LigError(err.message))
 
   val stringRes = parseStringLiteral(gaze)
-  if (stringRes.isRight)
-    return stringRes.left.map(err => LigError(err.message))
+  if (stringRes is Either.Right)
+    return stringRes //stringRes.left.map(err => LigError(err.message))
 
-  Left(LigError("Unsupported Value."))
+  return Either.Left(LigError("Unsupported Value."))
 }
