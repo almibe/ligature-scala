@@ -75,12 +75,12 @@ interface Ligature {
   /** Creates a dataset with the given name. TODO should probably return its own
     * error type { InvalidDataset, DatasetExists, CouldNotCreateDataset }
     */
-  suspend fun createDataset(dataset: Dataset): Void
+  suspend fun createDataset(dataset: Dataset): Unit
 
   /** Deletes a dataset with the given name. TODO should probably return its own
     * error type { InvalidDataset, CouldNotDeleteDataset }
     */
-  suspend fun deleteDataset(dataset: Dataset): Void
+  suspend fun deleteDataset(dataset: Dataset): Unit
 
   /** Initializes a QueryTx TODO should probably return its own error type
     * CouldNotInitializeQueryTx
@@ -92,7 +92,7 @@ interface Ligature {
     */
   suspend fun <T>write(dataset: Dataset, fn: (WriteTx) -> T): T
 
-  suspend fun close(): Void
+  suspend fun close(): Unit
 }
 
 /** Represents a QueryTx within the context of a Ligature instance and a single
@@ -137,7 +137,7 @@ interface WriteTx {
   /** Adds a given Statement to this Dataset. If the Statement already exists
     * nothing happens.
     */
-  suspend fun addStatement(statement: Statement): Void
+  suspend fun addStatement(statement: Statement): Unit
 
   /** Removes a given PersistedStatement from this Dataset. If the
     * PersistedStatement doesn't exist nothing happens and returns Ok(false).
@@ -146,5 +146,5 @@ interface WriteTx {
     */
   suspend fun removeStatement(
       statement: Statement
-  ): Void
+  ): Unit
 }

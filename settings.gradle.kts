@@ -12,5 +12,6 @@ rootProject.name = "ligature-kt"
 include("idgen",
     "gaze",
     "ligature",
-    "lig"
+    "lig",
+    "ligature-in-memory"
 )
