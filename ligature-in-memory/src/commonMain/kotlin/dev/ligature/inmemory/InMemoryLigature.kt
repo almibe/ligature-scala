@@ -16,23 +16,25 @@ import dev.ligature.WriteTx
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.*
 
-import java.util.concurrent.atomic.AtomicReference
+//import java.util.concurrent.atomic.AtomicReference
 
 data class DatasetStore(val counter: Long, val statements: Set<Statement>)
 
 class InMemoryLigature: Ligature {
-  private val store = AtomicReference(SortedMap<Dataset, DatasetStore>())
+//  private val store = AtomicReference(SortedMap<Dataset, DatasetStore>())
 
   /** Returns all Datasets in a Ligature instance. */
   override fun allDatasets(): Flow<Dataset> = flow {
-    for (dataset in store.get().keys()){
-      emit(dataset)
-    }
+    TODO()
+//    for (dataset in store.get().keys()){
+//      emit(dataset)
+//    }
   }
 
   /** Check if a given Dataset exists. */
   override suspend fun datasetExists(dataset: Dataset): Boolean =
-    store.get().keys().contains(dataset)
+    TODO()
+//    store.get().keys().contains(dataset)
 //    for {
 //      ref <- IO(store)
 //    } yield ref.get.contains(dataset)
