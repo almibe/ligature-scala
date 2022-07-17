@@ -319,16 +319,16 @@ fun parseValue(
     prefixes: Map<String, String>,
     lastValue: Option<Value>
 ): Either<LigError, Value> {
-  // attempt copy character
-  val copyChar = gaze.attempt(LigNibblers.copyNibbler)
-  if (copyChar is Some<Char>) {
-    when(lastValue) {
-      is None -> return Either.Left(
-        LigError("Can't Use Copy Character Without Existing Instance.")
-      )
-      is Some -> return Either.Right(lastValue.value)
-    }
-  }
+  //TODO attempt copy character
+//  val copyChar = gaze.attempt(LigNibblers.copyNibbler)
+//  if (copyChar is Some<Char>) {
+//    when(lastValue) {
+//      is None -> return Either.Left(
+//        LigError("Can't Use Copy Character Without Existing Instance.")
+//      )
+//      is Some -> return Either.Right(lastValue.value)
+//    }
+//  }
 
   val entityRes = parseIdentifier(
     gaze,
