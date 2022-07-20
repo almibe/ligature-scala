@@ -13,5 +13,6 @@ include("idgen",
     "gaze",
     "ligature",
     "lig",
-    "ligature-in-memory"
+    "ligature-in-memory",
+    "wander"
 )
