@@ -63,6 +63,7 @@ kotlin {
                 implementation(project(":ligature"))
                 implementation(project(":idgen"))
                 implementation(project(":gaze"))
+                implementation(project(":lig"))
                 implementation(libs.kotlinx.coroutines.core)
                 implementation(libs.arrow.core)
             }
