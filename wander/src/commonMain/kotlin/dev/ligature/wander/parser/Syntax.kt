@@ -187,14 +187,16 @@ data class Scope(val elements: List<Element>): Expression {
   }
 }
 
-//TODO change below to use both an enum class and a data class for all the options
 sealed interface WanderType
-object WTValue: WanderType
-object WTIdentifier: WanderType
-object WTBoolean: WanderType
-object WTString: WanderType
-object WTInteger: WanderType
-data class WTFunction(val parameters: List<Parameter>, val output: WanderType): WanderType
+
+enum class SimpleType: WanderType {
+  Value,
+  Identifier,
+  Boolean,
+  String,
+  Integer
+}
+data class Function(val parameters: List<Parameter>, val output: WanderType): WanderType
 
 data class Parameter(
     val name: Name,
