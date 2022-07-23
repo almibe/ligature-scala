@@ -14,5 +14,6 @@ include("idgen",
     "ligature",
     "lig",
     "ligature-in-memory",
-    "wander"
+    "wander",
+    "ligature-xodus"
 )
