@@ -4,98 +4,100 @@
 
 package dev.ligature.wander
 
-import dev.ligature.wander.parser.{
-  Name,
-  NativeFunction,
-  Parameter,
-  BooleanValue,
-  ScriptResult,
-  ScriptError,
-  WanderValue
-}
-import dev.ligature.{Ligature, Dataset}
+
+import dev.ligature.wander.parser.Name
+import dev.ligature.wander.parser.NativeFunction
+import dev.ligature.wander.parser.Parameter
+import dev.ligature.wander.parser.BooleanValue
+import dev.ligature.wander.parser.ScriptResult
+import dev.ligature.wander.parser.ScriptError
+import dev.ligature.wander.parser.WanderValue
+
+import dev.ligature.Ligature
+import dev.ligature.Dataset
+
 import dev.ligature.wander.parser.WanderType
 
-def createStandardBindings(dataset: Dataset): Bindings = {
+fun createStandardBindings(dataset: Dataset): Bindings {
   val bindings = common()
-  datasetModeBindings(bindings, dataset)
+  return datasetModeBindings(bindings, dataset)
 }
 
-def common(): Bindings = {
+fun common(): Bindings {
   var stdLib = Bindings()
 
-  stdLib = stdLib
-    .bindVariable(
-      Name("log"),
-      NativeFunction(
-        List(Parameter(Name("message"), WanderType.String)),
-        (binding: Bindings) => ???
-      )
-    )
-    .getOrElse(???)
-
-  stdLib = stdLib
-    .bindVariable(
-      Name("not"),
-      NativeFunction(
-        List(Parameter(Name("bool"), WanderType.Boolean)),
-        (bindings: Bindings) =>
-          bindings.read(Name("bool")) match {
-            case Right(b: BooleanValue) => Right(BooleanValue(!b.value))
-            case _ =>
-              Left(
-                ScriptError(
-                  s"not requires a Boolean, received ${bindings.read(Name("bool"))}"
-                )
-              )
-          }
-      )
-    )
-    .getOrElse(???)
-
-  stdLib = stdLib
-    .bindVariable(
-      Name("and"),
-      NativeFunction(
-        List(
-          Parameter(Name("boolLeft"), WanderType.Boolean),
-          Parameter(Name("boolRight"), WanderType.Boolean)
-        ),
-        (bindings: Bindings) =>
-          for {
-            left <- bindings.read(Name("boolLeft"))
-            right <- bindings.read(Name("boolRight"))
-            res <- (left, right) match {
-              case (l: BooleanValue, r: BooleanValue) =>
-                Right(BooleanValue(l.value && r.value))
-              case _ => Left(ScriptError("and requires two booleans"))
-            }
-          } yield res
-      )
-    )
-    .getOrElse(???)
-
-  stdLib = stdLib
-    .bindVariable(
-      Name("or"),
-      NativeFunction(
-        List(
-          Parameter(Name("boolLeft"), WanderType.Boolean),
-          Parameter(Name("boolRight"), WanderType.Boolean)
-        ),
-        (bindings: Bindings) =>
-          for {
-            left <- bindings.read(Name("boolLeft"))
-            right <- bindings.read(Name("boolRight"))
-            res <- (left, right) match {
-              case (l: BooleanValue, r: BooleanValue) =>
-                Right(BooleanValue(l.value || r.value))
-              case _ => Left(ScriptError("or requires two booleans"))
-            }
-          } yield res
-      )
-    )
-    .getOrElse(???)
+//  stdLib = stdLib
+//    .bindVariable(
+//      Name("log"),
+//      NativeFunction(
+//        List(Parameter(Name("message"), WanderType.String)),
+//        (binding: Bindings) -> TODO()
+//      )
+//    )
+//    .getOrElse(???)
+//
+//  stdLib = stdLib
+//    .bindVariable(
+//      Name("not"),
+//      NativeFunction(
+//        List(Parameter(Name("bool"), WanderType.Boolean)),
+//        (bindings: Bindings) =>
+//          bindings.read(Name("bool")) match {
+//            case Right(b: BooleanValue) => Right(BooleanValue(!b.value))
+//            case _ =>
+//              Left(
+//                ScriptError(
+//                  s"not requires a Boolean, received ${bindings.read(Name("bool"))}"
+//                )
+//              )
+//          }
+//      )
+//    )
+//    .getOrElse(???)
+//
+//  stdLib = stdLib
+//    .bindVariable(
+//      Name("and"),
+//      NativeFunction(
+//        List(
+//          Parameter(Name("boolLeft"), WanderType.Boolean),
+//          Parameter(Name("boolRight"), WanderType.Boolean)
+//        ),
+//        (bindings: Bindings) =>
+//          for {
+//            left <- bindings.read(Name("boolLeft"))
+//            right <- bindings.read(Name("boolRight"))
+//            res <- (left, right) match {
+//              case (l: BooleanValue, r: BooleanValue) =>
+//                Right(BooleanValue(l.value && r.value))
+//              case _ => Left(ScriptError("and requires two booleans"))
+//            }
+//          } yield res
+//      )
+//    )
+//    .getOrElse(???)
+//
+//  stdLib = stdLib
+//    .bindVariable(
+//      Name("or"),
+//      NativeFunction(
+//        List(
+//          Parameter(Name("boolLeft"), WanderType.Boolean),
+//          Parameter(Name("boolRight"), WanderType.Boolean)
+//        ),
+//        (bindings: Bindings) =>
+//          for {
+//            left <- bindings.read(Name("boolLeft"))
+//            right <- bindings.read(Name("boolRight"))
+//            res <- (left, right) match {
+//              case (l: BooleanValue, r: BooleanValue) =>
+//                Right(BooleanValue(l.value || r.value))
+//              case _ => Left(ScriptError("or requires two booleans"))
+//            }
+//          } yield res
+//      )
+//    )
+//    .getOrElse(???)
 
   // class RangeResultStream implements ResultStream<bigint> {
   //     readonly start: bigint
@@ -128,10 +130,10 @@ def common(): Bindings = {
   // //     return RangeResultStream(start, stop)
   // // }))
 
-  stdLib
+  return stdLib
 }
 
-def datasetModeBindings(bindings: Bindings, dataset: Dataset): Bindings =
+fun datasetModeBindings(bindings: Bindings, dataset: Dataset): Bindings =
   bindings
 
 //def instanceModeBindings(bindings: Bindings): Bindings = {
