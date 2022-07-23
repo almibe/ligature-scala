@@ -11,6 +11,7 @@ import dev.ligature.wander.parser.FunctionDefinition
 import dev.ligature.wander.parser.NativeFunction
 
 import arrow.core.Either
+import arrow.core.Some
 
 data class Scope(
     val variables: Map<Name, WanderValue>,
@@ -26,14 +27,14 @@ data class Bindings(val scopes: List<Scope> = listOf(Scope(mapOf(), mapOf()))) {
       wanderValue: WanderValue
   ): Either<ScriptError, Bindings> {
     val currentScope = this.scopes.last()
-    if (
+    return if (
       currentScope.variables
         .contains(name) || currentScope.functions.contains(name)
     ) {
       Either.Left(ScriptError("$name is already bound in current scope."))
     } else {
       val newVariables = currentScope.variables + (name to wanderValue)
-      val oldScope = this.scopes.dropLast()
+      val oldScope = this.scopes.dropLast(1)
       Either.Right(
         Bindings(oldScope + (Scope(newVariables, currentScope.functions)))
       )
@@ -44,8 +45,8 @@ data class Bindings(val scopes: List<Scope> = listOf(Scope(mapOf(), mapOf()))) {
       name: Name,
       functionDefinition: FunctionDefinition
   ): Either<ScriptError, Bindings> {
-    val currentScope = this.scopes.last
-    if (
+    val currentScope = this.scopes.last()
+    return if (
       currentScope.variables
         .contains(name) || duplicateFunction(name, functionDefinition)
     ) {
@@ -53,9 +54,9 @@ data class Bindings(val scopes: List<Scope> = listOf(Scope(mapOf(), mapOf()))) {
     } else {
       if (currentScope.functions.contains(name)) {
         val newFunctionList =
-          currentScope.functions(name).appended(functionDefinition)
-        val newFunctions = currentScope.functions.updated(name, newFunctionList)
-        val oldScope = this.scopes.dropLast()
+          currentScope.functions[name]!!.plus((functionDefinition))
+        val newFunctions = currentScope.functions + (name to newFunctionList)
+        val oldScope = this.scopes.dropLast(1)
         Either.Right(
           Bindings(
             oldScope + (Scope(currentScope.variables, newFunctions))
@@ -63,11 +64,11 @@ data class Bindings(val scopes: List<Scope> = listOf(Scope(mapOf(), mapOf()))) {
         )
       } else {
         val newFunctions =
-          currentScope.functions.updated(name, List(functionDefinition))
-        val oldScope = this.scopes.dropRight(1)
+          currentScope.functions + (name to listOf(functionDefinition))
+        val oldScope = this.scopes.dropLast(1)
         Either.Right(
           Bindings(
-            oldScope.appended(Scope(currentScope.variables, newFunctions))
+            oldScope + (Scope(currentScope.variables, newFunctions))
           )
         )
       }
@@ -79,29 +80,29 @@ data class Bindings(val scopes: List<Scope> = listOf(Scope(mapOf(), mapOf()))) {
       functionDefinition: FunctionDefinition
   ): Boolean {
     val currentScope = this.scopes.last()
-    if (currentScope.functions.contains(name)) {
-      val functions = currentScope.functions(name)
+    return if (currentScope.functions.contains(name)) {
+      val functions = currentScope.functions[name]!!
       val dupe = functions.find { f ->
         functionDefinition.parameters == f.parameters
       }
-      dupe.isDefined
+      dupe != null
     } else {
       false
     }
   }
 
   fun read(name: Name): Either<ScriptError, WanderValue> {
-    var currentScopeOffset = this.scopes.length - 1
+    var currentScopeOffset = this.scopes.size - 1
     while (currentScopeOffset >= 0) {
-      val currentScope = this.scopes(currentScopeOffset)
+      val currentScope = this.scopes[currentScopeOffset]
       if (currentScope.variables.contains(name)) {
-        return Either.Right(currentScope.variables(name))
+        return Either.Right(currentScope.variables[name]!!)
       } else if (currentScope.functions.contains(name)) {
         TODO()
       }
       currentScopeOffset -= 1
     }
-    Either.Left(ScriptError("Could not find $name in scope."))
+    return Either.Left(ScriptError("Could not find $name in scope."))
   }
 }
 

@@ -11,6 +11,7 @@ import arrow.core.Either
 import arrow.core.Option
 import arrow.core.Some
 import arrow.core.None
+import arrow.core.none
 
 /** Represents the union of Statements and Expressions
   */
@@ -32,7 +33,7 @@ data class EvalResult(val bindings: Bindings, val result: WanderValue)
 
 /** Represents a Name in the Wander language.
   */
-final data class Name(val name: String): Expression {
+data class Name(val name: String): Expression {
   override fun eval(bindings: Bindings) =
     when(val res = bindings.read(this)) {
       is Either.Left  -> res
@@ -40,7 +41,7 @@ final data class Name(val name: String): Expression {
     }
 }
 
-sealed interface FunctionDefinition(val parameters: List<Parameter>): WanderValue
+sealed class FunctionDefinition(val parameters: List<Parameter>): WanderValue
 
 data class LigatureValue(val value: Value): WanderValue {
   override fun eval(bindings: Bindings) = Either.Right(
@@ -48,14 +49,14 @@ data class LigatureValue(val value: Value): WanderValue {
   )
 }
 
-data class BooleanValue(value: Boolean): WanderValue {
+data class BooleanValue(val value: Boolean): WanderValue {
   override fun eval(bindings: Bindings) = Either.Right(
     EvalResult(bindings, BooleanValue(value))
   )
 }
 
 //TODO is this needed?
-data class StatementValue(value: Statement): WanderValue {
+data class StatementValue(val value: Statement): WanderValue {
   override fun eval(binding: Bindings) = TODO()
 }
 
@@ -117,13 +118,14 @@ object LetKeyword: Element {
 }
 
 data class LetStatement(val name: Name, val expression: Expression): Element {
-  override fun eval(bindings: Bindings) {
+
+  override fun eval(bindings: Bindings): Either<ScriptError, EvalResult> {
     return when(val result = this.expression.eval(bindings)) {
-      is Left  -> result
-      is Right -> {
+      is Either.Left  -> result
+      is Either.Right -> {
         when(val res = bindings.bindVariable(this.name, result.value.result)) {
-          is Left  -> res
-          is Right -> Right(EvalResult(res.value, Nothing))
+          is Either.Left  -> res
+          is Either.Right -> Either.Right(EvalResult(res.value, Nothing))
         }
       }
     }
@@ -134,10 +136,10 @@ data class LetStatement(val name: Name, val expression: Expression): Element {
   * Wander.
   */
 data class NativeFunction(
-    override val parameters: List<Parameter>,
-    body: (bindings: Bindings) -> Either<ScriptError, WanderValue>,
-    output: WanderType = null
-): FunctionDefinition(parameters) { // TODO eventually remove the default null value
+    val nativeParameters: List<Parameter>,
+    val body: (bindings: Bindings) -> Either<ScriptError, WanderValue>,
+    val output: WanderType? = null
+): FunctionDefinition(nativeParameters) { // TODO eventually remove the default null value
   override fun eval(binding: Bindings) =
     // body(binding) match {
     //   case Left(err) => Left(err)
@@ -169,7 +171,7 @@ data class Script(val elements: List<Element>) {
   * bindings.
   */
 data class Scope(val elements: List<Element>): Expression {
-  override fun eval(bindings: Bindings): Either<ScriptError, ScriptResult> {
+  override fun eval(bindings: Bindings): Either<ScriptError, EvalResult> {
     var currentBindings = bindings.newScope()
     var result: WanderValue = Nothing
     elements.forEach { element ->
@@ -181,10 +183,11 @@ data class Scope(val elements: List<Element>): Expression {
         }
       }
     }
-    Either.Right(EvalResult(bindings, result))
+    return Either.Right(EvalResult(bindings, result))
   }
 }
 
+//TODO change below to use both an enum class and a data class for all the options
 sealed interface WanderType
 object WTValue: WanderType
 object WTIdentifier: WanderType
@@ -201,58 +204,63 @@ data class Parameter(
 /** Holds a reference to a function defined in Wander.
   */
 data class WanderFunction(
-    override val parameters: List<Parameter>,
-    output: WanderType,
-    body: Scope
-): FunctionDefinition(parameters) {
+    val wanderParameters: List<Parameter>,
+    val output: WanderType,
+    val body: Scope
+): FunctionDefinition(wanderParameters) {
   override fun eval(bindings: Bindings) =
     Either.Right(EvalResult(bindings, this))
 }
 
 data class FunctionCall(val name: Name, val parameters: List<Expression>): Expression {
-  fun eval(bindings: Bindings) {
-    val func = bindings.read(name)
-    when(func) {
-      is Right(wf: WanderFunction) -> {
-        val functionCallBindings =
-          updateFunctionCallBindings(bindings, wf.parameters)
-        wf.body.eval(functionCallBindings) match {
-          case left: Left[ScriptError, EvalResult] => left
-          case Right(value)                        => Right(EvalResult(bindings, value.result))
-        }
-      }
-      is Right(nf: NativeFunction) -> {
-        val functionCallBindings =
-          updateFunctionCallBindings(bindings, nf.parameters)
-        val res = nf.body(functionCallBindings)
-        res.map(EvalResult(bindings, _))
-      }
-      else -> Either.Left(ScriptError("${name.name} is not a function."))
-    }
+  override fun eval(bindings: Bindings): Either<ScriptError, EvalResult> {
+    TODO()
+//    val func = bindings.read(name)
+//    when(func) {
+//      is Right(wf: WanderFunction) -> {
+//        val functionCallBindings =
+//          updateFunctionCallBindings(bindings, wf.parameters)
+//        wf.body.eval(functionCallBindings) match {
+//          case left: Left[ScriptError, EvalResult] => left
+//          case Right(value)                        => Right(EvalResult(bindings, value.result))
+//        }
+//      }
+//      is Right(nf: NativeFunction) -> {
+//        val functionCallBindings =
+//          updateFunctionCallBindings(bindings, nf.parameters)
+//        val res = nf.body(functionCallBindings)
+//        res.map(EvalResult(bindings, _))
+//      }
+//      else -> Either.Left(ScriptError("${name.name} is not a function."))
+//    }
   }
 
   // TODO: this function should probably return an Either instead of throwing an exception
   fun updateFunctionCallBindings(
       bindings: Bindings,
-      args: List[Parameter]
-  ): Bindings =
-    if (args.length == parameters.length) {
-      var currentBindings = bindings.newScope()
-      for (i <- args.indices) {
-        val arg = args(i)
-        val param = parameters(i)
-        val paramRes = param.eval(currentBindings).getOrElse(???)
-        currentBindings.bindVariable(arg.name, paramRes.result) match {
-          case Left(err)    => Left(err)
-          case Right(value) => currentBindings = value
-        }
-      }
-      currentBindings
-    } else {
-      throw RuntimeException(
-        s"Argument number ${args.length} != Parameter number ${parameters.length}"
-      )
-    }
+      args: List<Parameter>
+  ): Bindings = TODO()
+//    if (args.size == parameters.size) {
+//      var currentBindings = bindings.newScope()
+//      for (i in args.indices) {
+//        val arg = args[i]
+//        val param = parameters[i]
+//        val paramRes = param.eval(currentBindings)//.getOrElse(TODO())
+//        if (paramRes.isNotEmpty()) {
+//          when(val res = currentBindings.bindVariable(arg.name, paramRes.orNull()!!)) {
+//            is Either.Left  -> TODO()//return res
+//            is Either.Right -> currentBindings = res.value
+//          }
+//        } else {
+//          TODO()
+//        }
+//      }
+//      currentBindings
+//    } else {
+//      throw RuntimeException(
+//        "Argument number ${args.size} != Parameter number ${parameters.size}"
+//      )
+//    }
 }
 
 //TODO is this needed?
@@ -290,11 +298,11 @@ data class IfExpression(
 //        )
 //      }
     }
-    if (evalCondition(condition)) {
+    if (evalCondition(condition).orNull() == true) {
       body.eval(bindings)
     } else {
       for (elseIf in elseIfs) {
-        if (evalCondition(elseIf.condition)) {
+        if (evalCondition(elseIf.condition).orNull() == true) {
           return elseIf.body.eval(bindings)
         }
       }
@@ -303,6 +311,7 @@ data class IfExpression(
         is None -> Either.Right(EvalResult(bindings, Nothing))
       }
     }
+    return Either.Right(EvalResult(bindings, Nothing))
   }
 }
 

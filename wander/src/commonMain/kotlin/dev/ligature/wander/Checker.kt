@@ -5,6 +5,7 @@
 package dev.ligature.wander
 
 import dev.ligature.wander.parser.Script
+import arrow.core.Either
 
 data class TypeError(val message: String)
 
