@@ -11,8 +11,13 @@ import dev.ligature.idgen.genId
   * Dataset
   */
 class InMemoryWriteTx(private val store: DatasetStore): WriteTx {
+  private sealed interface Operation
+  private data class AddOperation(val statement: Statement): Operation
+  private data class DeleteOperation(val statement: Statement): Operation
+
   private var isCanceled = false
-  private var newDatasetStore = store.copy()
+  private val operations = mutableListOf<Operation>()
+  //private var newDatasetStore = store.copy()
 
   /** Creates a new, unique Entity within this Dataset. */
   override suspend fun newIdentifier(prefix: String): Identifier = TODO() //IO.defer {
@@ -59,4 +64,15 @@ class InMemoryWriteTx(private val store: DatasetStore): WriteTx {
     * the release method of the Resource[IO, WriteTx].
     */
 //  private[inmemory] def modifiedDatasetStore(): DatasetStore = newDatasetStore
+
+  /**
+   * This method handles cleaning up the Tx.
+   * If the Tx is canceled nothing happens,
+   * but if the Tx is not canceled then all operations are applied to the store.
+   */
+  fun close() {
+    if (!isCanceled) {
+      TODO()
+    }
+  }
 }

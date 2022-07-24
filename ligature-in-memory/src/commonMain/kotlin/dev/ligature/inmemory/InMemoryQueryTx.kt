@@ -5,7 +5,7 @@
 package dev.ligature.inmemory
 
 import dev.ligature.*
-import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.*
 import arrow.core.Option
 
 /** Represents a QueryTx within the context of a Ligature instance and a single
@@ -14,8 +14,7 @@ import arrow.core.Option
 class InMemoryQueryTx(private val store: DatasetStore): QueryTx {
 
   /** Returns all PersistedStatements in this Dataset. */
-  override fun allStatements(): Flow<Statement> = TODO()
-//    Stream.emits(store.statements.toSeq)
+  override fun allStatements(): Flow<Statement> = store.statements.asFlow()
 
   /** Returns all PersistedStatements that match the given criteria. If a
     * parameter is None then it matches all, so passing all Nones is the same as
