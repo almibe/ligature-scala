@@ -9,6 +9,9 @@ import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.*
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
+import io.kotest.matchers.string.shouldStartWith
+import arrow.core.none
+import arrow.core.Some
 
 abstract class LigatureTestSuite: FunSpec() {
   abstract fun createLigature(): Ligature
@@ -163,105 +166,88 @@ abstract class LigatureTestSuite: FunSpec() {
     }
   }
 
-//  test("new identifiers") {
-//    val instance = createLigature
-//    val res = for {
-//      ligature.createDataset(testDataset)
-//      ligature.write(testDataset) { tx =>
-//        for {
-//          entity <- tx.newIdentifier("entity-")
-//          attribute <- tx.newIdentifier("attribute-")
-//          value <- tx.newIdentifier("value-")
-//          tx.addStatement(Statement(entity, attribute, value))
-//        } yield IO.unit
-//      }
-//      statements <- instance.query(testDataset) { tx =>
-//        tx.allStatements().toList()
-//      }
-//    } yield statements.head
-//    res.map { it =>
-//      assert(it.entity.name.startsWith("entity-"))
-//      assert(it.attribute.name.startsWith("attribute-"))
-//      it.value match {
-//        case Identifier(id) => assert(id.startsWith("value-"))
-//        case _              => assert(false)
-//      }
-//    }
-//  }
-//
-//  test("removing statements from datasets") {
-//    val instance = createLigature
-//    val res = for {
-//      ligature.createDataset(testDataset)
-//      ligature.write(testDataset) { tx =>
-//        for {
-//          tx.addStatement(Statement(entity1, a, entity2))
-//          tx.removeStatement(Statement(entity1, a, entity2))
-//          tx.removeStatement(Statement(entity1, a, entity2))
-//        } yield ()
-//      }
-//      statements <- instance.query(testDataset) { tx =>
-//        tx.allStatements().toList()
-//      }
-//    } yield statements
-//    assertIO(res, List())
-//  }
-//
-//  test("removing statements from datasets with dupe") {
-//    val instance = createLigature
-//    val res = for {
-//      ligature.createDataset(testDataset)
-//      ligature.write(testDataset) { tx =>
-//        for {
-//          tx.addStatement(Statement(entity1, a, entity2))
-//          tx.addStatement(Statement(entity3, a, entity2))
-//          tx.removeStatement(Statement(entity1, a, entity2))
-//          tx.removeStatement(Statement(entity1, a, entity2))
-//        } yield ()
-//      }
-//      statements <- instance.query(testDataset) { tx =>
-//        tx.allStatements().toList()
-//      }
-//    } yield statements
-//    assertIO(res, List(Statement(entity3, a, entity2)))
-//  }
-//
-//  test("removing statements from datasets with duplicate Strings") {
-//    val instance = createLigature
-//    val res = for {
-//      ligature.createDataset(testDataset)
-//      ligature.write(testDataset) { tx =>
-//        for {
-//          tx.addStatement(Statement(entity1, a, StringLiteral("hello")))
-//          tx.addStatement(Statement(entity1, a, StringLiteral("hello")))
-//          tx.addStatement(Statement(entity2, a, StringLiteral("hello")))
-//          tx.removeStatement(Statement(entity1, a, StringLiteral("hello")))
-//        } yield ()
-//      }
-//      statements <- instance.query(testDataset) { tx =>
-//        tx.allStatements().toList()
-//      }
-//    } yield statements.toSet
-//    assertIO(res, Set(Statement(entity2, a, StringLiteral("hello"))))
-//  }
-//
+  test("new identifiers") {
+    runTest { ligature ->
+      ligature.createDataset(testDataset)
+      ligature.write(testDataset) { tx ->
+        val entity = tx.newIdentifier("entity-")
+        val attribute = tx.newIdentifier("attribute-")
+        val value = tx.newIdentifier("value-")
+        tx.addStatement(Statement(entity, attribute, value))
+      }
+      val statement = ligature.query(testDataset) { tx ->
+        tx.allStatements().toList().first()
+      }
+      statement.entity.name.shouldStartWith("entity-")
+      statement.attribute.name.shouldStartWith("attribute-")
+      when(val value = statement.value) {
+        is Identifier -> value.name.shouldStartWith("value-")
+        else          -> throw Exception("Failed test.")
+      }
+    }
+  }
+
+  test("removing statements from datasets") {
+    runTest { ligature ->
+      ligature.createDataset(testDataset)
+      ligature.write(testDataset) { tx ->
+        tx.addStatement(Statement(entity1, a, entity2))
+        tx.removeStatement(Statement(entity1, a, entity2))
+        tx.removeStatement(Statement(entity1, a, entity2))
+      }
+      ligature.query(testDataset) { tx ->
+        tx.allStatements().toList() shouldBe listOf()
+      }
+    }
+  }
+
+  test("removing statements from datasets with dupe") {
+    runTest { ligature ->
+      ligature.createDataset(testDataset)
+      ligature.write(testDataset) { tx ->
+        tx.addStatement(Statement(entity1, a, entity2))
+        tx.addStatement(Statement(entity3, a, entity2))
+        tx.removeStatement(Statement(entity1, a, entity2))
+        tx.removeStatement(Statement(entity1, a, entity2))
+      }
+      ligature.query(testDataset) { tx ->
+        tx.allStatements().toList()
+      } shouldBe listOf(Statement(entity3, a, entity2))
+    }
+  }
+
+  test("removing statements from datasets with duplicate Strings") {
+    runTest { ligature ->
+      ligature.createDataset(testDataset)
+      ligature.write(testDataset) { tx ->
+        tx.addStatement(Statement(entity1, a, StringLiteral("hello")))
+        tx.addStatement(Statement(entity1, a, StringLiteral("hello")))
+        tx.addStatement(Statement(entity2, a, StringLiteral("hello")))
+        tx.removeStatement(Statement(entity1, a, StringLiteral("hello")))
+      }
+      ligature.query(testDataset) { tx ->
+        tx.allStatements().toList()
+      } shouldBe listOf(Statement(entity2, a, StringLiteral("hello")))
+    }
+  }
+
 //  // test("allow canceling WriteTx by throwing exception") {
-//  //     val res = createLigature.instance.use { instance  =>
+//  //     val res = createLigature.instance.use { instance  ->
 //  //         for {
 //  //             ligature.createDataset(testDataset)
-//  //             ligature.write(testDataset).use { tx =>
+//  //             ligature.write(testDataset).use { tx ->
 //  //                 for {
 //  //                     tx.addStatement(Statement(entity1, a, entity2))
 //  //                     tx.cancel()
 //  //                 } yield ()
 //  //             }
-//  //             ligature.write(testDataset).use { tx =>
+//  //             ligature.write(testDataset).use { tx ->
 //  //                 for {
 //  //                     tx.addStatement(Statement(entity2, a, entity3))
 //  //                     tx.addStatement(Statement(entity3, a, entity2))
 //  //                 } yield ()
 //  //             }
-//  //             statements <- instance.query(testDataset).use { tx =>
+//  //             statements <- instance.query(testDataset).use { tx ->
 //  //                 tx.allStatements().toList()
 //  //             }
 //  //         } yield statements
@@ -270,79 +256,54 @@ abstract class LigatureTestSuite: FunSpec() {
 //  //         Statement(entity2, a, entity3),
 //  //         Statement(entity3, a, entity2)))
 //  // }
-//
-//  test("matching statements in datasets") {
-//    val instance = createLigature
-//    val res = for {
-//      ligature.createDataset(testDataset)
-//      ligature.write(testDataset) { tx =>
-//        for {
-//          tx.addStatement(
-//            Statement(entity1, a, StringLiteral("Hello"))
-//          )
-//          tx.addStatement(Statement(entity2, a, entity1))
-//          tx.addStatement(Statement(entity2, a, entity3))
-//          tx.addStatement(Statement(entity3, b, entity2))
-//          tx.addStatement(
-//            Statement(entity3, b, StringLiteral("Hello"))
-//          )
-//        } yield ()
-//      }
-//      res <- instance.query(testDataset) { tx =>
-//        for {
-//          all <- tx.matchStatements().toList()
-//          as <- tx.matchStatements(None, Some(a)).toList()
-//          hellos <- tx
-//            .matchStatements(None, None, Some(StringLiteral("Hello")))
-//
-//            .toList()
-//          helloa <- tx
-//            .matchStatements(None, Some(a), Some(StringLiteral("Hello")))
-//
-//            .toList()
-//        } yield (all.toSet, as.toSet, hellos.toSet, helloa.toSet)
-//      }
-//    } yield res
-//    res.map { (all, as, hellos, helloa) =>
-//      assertEquals(
-//        all,
-//        Set(
-//          Statement(entity1, a, StringLiteral("Hello")),
-//          Statement(entity2, a, entity1),
-//          Statement(entity2, a, entity3),
-//          Statement(entity3, b, entity2),
-//          Statement(entity3, b, StringLiteral("Hello"))
-//        )
-//      )
-//      assertEquals(
-//        as,
-//        Set(
-//          Statement(entity1, a, StringLiteral("Hello")),
-//          Statement(entity2, a, entity1),
-//          Statement(entity2, a, entity3)
-//        )
-//      )
-//      assertEquals(
-//        hellos,
-//        Set(
-//          Statement(entity1, a, StringLiteral("Hello")),
-//          Statement(entity3, b, StringLiteral("Hello"))
-//        )
-//      )
-//      assertEquals(
-//        helloa,
-//        Set(
-//          Statement(entity1, a, StringLiteral("Hello"))
-//        )
-//      )
-//    }
-//  }
-//
+
+  test("matching statements in datasets") {
+    runTest { ligature ->
+      ligature.createDataset(testDataset)
+      ligature.write(testDataset) { tx ->
+        tx.addStatement(
+          Statement(entity1, a, StringLiteral("Hello"))
+        )
+        tx.addStatement(Statement(entity2, a, entity1))
+        tx.addStatement(Statement(entity2, a, entity3))
+        tx.addStatement(Statement(entity3, b, entity2))
+        tx.addStatement(
+          Statement(entity3, b, StringLiteral("Hello"))
+        )
+      }
+      ligature.query(testDataset) { tx ->
+          tx.matchStatements().toList().toSet() shouldBe setOf(
+            Statement(entity1, a, StringLiteral("Hello")),
+            Statement(entity2, a, entity1),
+            Statement(entity2, a, entity3),
+            Statement(entity3, b, entity2),
+            Statement(entity3, b, StringLiteral("Hello"))
+          )
+
+          tx.matchStatements(none(), Some(a)).toList() shouldBe setOf(
+            Statement(entity1, a, StringLiteral("Hello")),
+            Statement(entity2, a, entity1),
+            Statement(entity2, a, entity3)
+          )
+
+          tx.matchStatements(none(), none(), Some(StringLiteral("Hello")))
+              .toList().toSet() shouldBe setOf(
+                Statement(entity1, a, StringLiteral("Hello")),
+                Statement(entity3, b, StringLiteral("Hello"))
+              )
+
+          tx.matchStatements(none(), Some(a), Some(StringLiteral("Hello")))
+            .toList().toSet() shouldBe setOf(
+              Statement(entity1, a, StringLiteral("Hello"))
+            )
+        }
+      }
+    }
 ////  test("matching statements with literals and ranges in datasets") {
 ////    val instance = createLigature
 ////    val res = for {
 ////      ligature.createDataset(testDataset)
-////      ligature.write(testDataset) { tx =>
+////      ligature.write(testDataset) { tx ->
 ////        for {
 ////          tx.addStatement(Statement(entity1, a, entity2))
 ////          tx
@@ -362,24 +323,24 @@ abstract class LigatureTestSuite: FunSpec() {
 ////          )
 ////        } yield ()
 ////      }
-////      res <- instance.query(testDataset) { tx =>
+////      res <- instance.query(testDataset) { tx ->
 ////        for {
 ////          res1 <- tx
-////            .matchStatementsRange(None, None, StringLiteralRange("a", "dd"))
+////            .matchStatementsRange(none(), none(), StringLiteralRange("a", "dd"))
 ////
 ////            .toList()
 ////          res2 <- tx
-////            .matchStatementsRange(None, None, IntegerLiteralRange(3, 6))
+////            .matchStatementsRange(none(), none(), IntegerLiteralRange(3, 6))
 ////
 ////            .toList()
 ////          res3 <- tx
-////            .matchStatementsRange(None, Some(b), StringLiteralRange("ae", "df"))
+////            .matchStatementsRange(none(), Some(b), StringLiteralRange("ae", "df"))
 ////
 ////            .toList()
 ////        } yield (res1.toSet, res2.toSet, res3.toSet)
 ////      }
 ////    } yield res
-////    res.map { (res1, res2, res3) =>
+////    res.map { (res1, res2, res3) ->
 ////      assertEquals(
 ////        res1,
 ////        Set(
