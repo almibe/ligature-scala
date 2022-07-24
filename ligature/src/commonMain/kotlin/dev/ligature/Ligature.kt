@@ -85,12 +85,12 @@ interface Ligature {
   /** Initializes a QueryTx TODO should probably return its own error type
     * CouldNotInitializeQueryTx
     */
-  suspend fun <T>query(dataset: Dataset, fn: (QueryTx) -> T): T
+  suspend fun <T>query(dataset: Dataset, fn: suspend (QueryTx) -> T): T
 
   /** Initializes a WriteTx TODO should probably return IO[Either] w/ its own
     * error type CouldNotInitializeWriteTx
     */
-  suspend fun <T>write(dataset: Dataset, fn: (WriteTx) -> T): T
+  suspend fun <T>write(dataset: Dataset, fn: suspend (WriteTx) -> T): T
 
   suspend fun close(): Unit
 }
