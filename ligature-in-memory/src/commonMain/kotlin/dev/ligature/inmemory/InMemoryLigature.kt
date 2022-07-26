@@ -14,7 +14,7 @@ import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 
-data class DatasetStore(val counter: Long, val statements: Set<Statement>)
+data class DatasetStore(var counter: Long, val statements: MutableSet<Statement>)
 
 class InMemoryLigature: Ligature {
   private val mutex = Mutex()

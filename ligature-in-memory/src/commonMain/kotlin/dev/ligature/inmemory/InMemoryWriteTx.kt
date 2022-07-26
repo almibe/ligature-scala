@@ -17,19 +17,11 @@ class InMemoryWriteTx(private val store: DatasetStore): WriteTx {
 
   private var isCanceled = false
   private val operations = mutableListOf<Operation>()
-  //private var newDatasetStore = store.copy()
 
   /** Creates a new, unique Entity within this Dataset. */
-  override suspend fun newIdentifier(prefix: String): Identifier = TODO() //IO.defer {
-    // TODO needs to assert that the generated Id is unique within this Dataset
-//    Identifier.fromString(prefix + genId()) match {
-//      case Right(id) => IO(id)
-//      case Left(_) =>
-//        IO.raiseError(
-//          RuntimeException(s"Illegal Identifier Prefix - $prefix")
-//        )
-//    }
-//  }
+  override suspend fun newIdentifier(prefix: String): Identifier {
+    return Identifier(prefix + genId()) //TODO check that id doesn't exist
+  }
 
 //  private def newAnonymousEntityInternal(
 //      prefix: String = ""
@@ -40,30 +32,18 @@ class InMemoryWriteTx(private val store: DatasetStore): WriteTx {
     * nothing happens (TODO maybe add it with a new context?). Note: Potentially
     * could trigger a ValidationError
     */
-  override suspend fun addStatement(statement: Statement): Unit = TODO() //IO {
-//    newDatasetStore = newDatasetStore.copy(statements = newDatasetStore.statements + statement)
-//    ()
-//  }
+  override suspend fun addStatement(statement: Statement): Unit {
+    operations.add(AddOperation(statement))
+  }
 
   /** Removes a given Statement from this Dataset. If the Statement doesn't
     * exist nothing happens and returns Ok(false). This function returns
     * Ok(true) only if the given Statement was found and removed. Note:
     * Potentially could trigger a ValidationError.
     */
-  override suspend fun removeStatement(persistedStatement: Statement): Unit = TODO() //IO {
-//    if (newDatasetStore.statements.contains(persistedStatement)) {
-//      newDatasetStore =
-//        newDatasetStore.copy(statements = newDatasetStore.statements.excl(persistedStatement))
-//      ()
-//    } else {
-//      ()
-//    }
-//  }
-
-  /** Returns the DatasetStore that has been modified by this WriteTx. Used in
-    * the release method of the Resource[IO, WriteTx].
-    */
-//  private[inmemory] def modifiedDatasetStore(): DatasetStore = newDatasetStore
+  override suspend fun removeStatement(statement: Statement): Unit {
+    operations.add(DeleteOperation(statement))
+  }
 
   /**
    * This method handles cleaning up the Tx.
@@ -72,7 +52,16 @@ class InMemoryWriteTx(private val store: DatasetStore): WriteTx {
    */
   fun close() {
     if (!isCanceled) {
-      TODO()
+      for (operation in operations) {
+        when(operation) {
+          is AddOperation    -> {
+            store.statements.add(operation.statement)
+          }
+          is DeleteOperation -> {
+            store.statements.remove(operation.statement)
+          }
+        }
+      }
     }
   }
 }

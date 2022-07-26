@@ -24,19 +24,14 @@ class InMemoryQueryTx(private val store: DatasetStore): QueryTx {
       entity: Option<Identifier>,
       attribute: Option<Identifier>,
       value: Option<Value>
-  ): Flow<Statement> =  TODO() //{
-//    var res = Stream.emits(store.statements.toSeq)
-//    if (entity.isDefined) {
-//      res = res.filter(_.entity == entity.get)
-//    }
-//    if (attribute.isDefined) {
-//      res = res.filter(_.attribute == attribute.get)
-//    }
-//    if (value.isDefined) {
-//      res = res.filter(_.value == value.get)
-//    }
-//    res
-//  }
+  ): Flow<Statement> =  flow {
+    store.statements.filter { statement ->
+      val en = entity.fold( { true }, { it == statement.entity } )
+      val at = attribute.fold( { true }, { it == statement.attribute } )
+      val va = value.fold( { true }, { it == statement.value } )
+      en && at && va
+    }.forEach { emit(it) }
+  }
 
 //  /** Returns all PersistedStatements that match the given criteria. If a
 //    * parameter is None then it matches all.
