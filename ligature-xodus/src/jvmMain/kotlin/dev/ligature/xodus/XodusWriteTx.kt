@@ -4,7 +4,6 @@
 
 package dev.ligature.xodus
 
-import cats.effect.IO
 import dev.ligature.*
 import dev.ligature.idgen.genId
 import jetbrains.exodus.ByteIterable
@@ -16,6 +15,11 @@ import jetbrains.exodus.bindings.StringBinding
 import jetbrains.exodus.env.Transaction
 import jetbrains.exodus.util.IdGenerator
 
+import arrow.core.Option
+import arrow.core.Some
+import arrow.core.None
+import arrow.core.none
+
 /** Represents a WriteTx within the context of a Ligature instance and a single
   * Dataset
   */
@@ -23,26 +27,26 @@ class XodusWriteTx(
     private val tx: Transaction,
     private val xodusOperations: XodusOperations,
     private val datasetID: ByteIterable
-) extends WriteTx {
+): WriteTx {
 
   private fun lookupIdentifier(identifier: Identifier): Option<ByteIterable> {
     val identifierToIdStore = xodusOperations.openStore(tx, LigatureStore.IdentifierToIdStore)
     val encodedName = CompoundByteIterable(
-      Array(datasetID, StringBinding.stringToEntry(identifier.name))
+      arrayOf(datasetID, StringBinding.stringToEntry(identifier.name))
     )
     val result = identifierToIdStore.get(tx, encodedName)
-    Option(result)
+    return if (result == null) none() else Some(result)
   }
 
   private fun lookupOrCreateIdentifier(identifier: Identifier): ByteIterable =
     when(val res = lookupIdentifier(identifier)) {
-      is Some -> res
+      is Some -> res.value
       is None -> {
         val encodedName = StringBinding.stringToEntry(identifier.name)
         val identifierToIdStore = xodusOperations.openStore(tx, LigatureStore.IdentifierToIdStore)
         val internalId = xodusOperations.nextID(tx)
-        val internalIdWithDataset = CompoundByteIterable(Array(datasetID, internalId))
-        val encodedNameWithDataset = CompoundByteIterable(Array(datasetID, encodedName))
+        val internalIdWithDataset = CompoundByteIterable(arrayOf(datasetID, internalId))
+        val encodedNameWithDataset = CompoundByteIterable(arrayOf(datasetID, encodedName))
         val idToIdentifierStore = xodusOperations.openStore(tx, LigatureStore.IdToIdentifierStore)
         identifierToIdStore.put(tx, encodedNameWithDataset, internalId)
         idToIdentifierStore.put(tx, internalIdWithDataset, encodedName)
@@ -53,23 +57,23 @@ class XodusWriteTx(
   private fun lookupStringLiteral(literal: StringLiteral): Option<ByteIterable> {
     val stringToIdStore = xodusOperations.openStore(tx, LigatureStore.StringToIdStore)
     val encodedString = CompoundByteIterable(
-      Array(datasetID, StringBinding.stringToEntry(literal.value))
+      arrayOf(datasetID, StringBinding.stringToEntry(literal.value))
     )
     val result = stringToIdStore.get(tx, encodedString)
-    Option(result)
+    return if (result == null) none() else Some(result)
   }
 
   //TODO this function might be able to be merged with lookupOrCreateIdentifier
   private fun lookupOrCreateStringLiteral(literal: StringLiteral): ByteIterable {
     val stringToIdStore = xodusOperations.openStore(tx, LigatureStore.StringToIdStore)
     val encodedString = StringBinding.stringToEntry(literal.value)
-    val encodedStringWithDataset = CompoundByteIterable(Array(datasetID, encodedString))
+    val encodedStringWithDataset = CompoundByteIterable(arrayOf(datasetID, encodedString))
     val result = stringToIdStore.get(tx, encodedStringWithDataset)
-    if (result != null) {
+    return if (result != null) {
       result
     } else {
       val internalId = xodusOperations.nextID(tx)
-      val internalIdWithDataset = CompoundByteIterable(Array(datasetID, internalId))
+      val internalIdWithDataset = CompoundByteIterable(arrayOf(datasetID, internalId))
       val idToStringStore = xodusOperations.openStore(tx, LigatureStore.IdToStringStore)
       stringToIdStore.put(tx, encodedStringWithDataset, internalId)
       idToStringStore.put(tx, internalIdWithDataset, encodedString)
@@ -79,7 +83,7 @@ class XodusWriteTx(
 
   /** Takes a value and returns a ByteIterable that can be stored.
     * The ByteIterable is made up of a Byte that represents the Type and
-    * a 8 Byte value that represents the value that can be stored.
+    * an 8 Byte value that represents the value that can be stored.
     * Identifier -> Identifier's Internal ID
     * String -> String Internal ID
     * Long -> Value
@@ -89,7 +93,7 @@ class XodusWriteTx(
     when(value) {
       is Identifier -> {
         val temp = CompoundByteIterable(
-          Array(
+          arrayOf(
             ByteBinding.byteToEntry(LigatureValueType.Identifier.id),
             lookupOrCreateIdentifier(value)
           )
@@ -98,7 +102,7 @@ class XodusWriteTx(
       }
       is StringLiteral -> {
         CompoundByteIterable(
-          Array(
+          arrayOf(
             ByteBinding.byteToEntry(LigatureValueType.String.id),
             lookupOrCreateStringLiteral(value)
           )
@@ -106,7 +110,7 @@ class XodusWriteTx(
       }
       is IntegerLiteral -> {
         CompoundByteIterable(
-          Array(
+          arrayOf(
             ByteBinding.byteToEntry(LigatureValueType.Integer.id),
             LongBinding.longToEntry(value.value)
           )
@@ -121,8 +125,8 @@ class XodusWriteTx(
       value: ByteIterable
   ): Boolean {
     val eavStore = xodusOperations.openStore(tx, LigatureStore.EAVStore)
-    val encodedStatement = CompoundByteIterable(Array(datasetID, entity, attribute, value))
-    eavStore.get(tx, encodedStatement) != null
+    val encodedStatement = CompoundByteIterable(arrayOf(datasetID, entity, attribute, value))
+    return eavStore.get(tx, encodedStatement) != null
   }
 
   private fun storeStatement(
@@ -136,22 +140,22 @@ class XodusWriteTx(
     val v = value
     // EAV
     val eavStore = xodusOperations.openStore(tx, LigatureStore.EAVStore)
-    eavStore.put(tx, CompoundByteIterable(Array(d, e, a, v)), BooleanBinding.booleanToEntry(true))
+    eavStore.put(tx, CompoundByteIterable(arrayOf(d, e, a, v)), BooleanBinding.booleanToEntry(true))
     // EVA
     val evaStore = xodusOperations.openStore(tx, LigatureStore.EVAStore)
-    evaStore.put(tx, CompoundByteIterable(Array(d, e, v, a)), BooleanBinding.booleanToEntry(true))
+    evaStore.put(tx, CompoundByteIterable(arrayOf(d, e, v, a)), BooleanBinding.booleanToEntry(true))
     // AEV
     val aevStore = xodusOperations.openStore(tx, LigatureStore.AEVStore)
-    aevStore.put(tx, CompoundByteIterable(Array(d, a, e, v)), BooleanBinding.booleanToEntry(true))
+    aevStore.put(tx, CompoundByteIterable(arrayOf(d, a, e, v)), BooleanBinding.booleanToEntry(true))
     // AVE
     val aveStore = xodusOperations.openStore(tx, LigatureStore.AVEStore)
-    aveStore.put(tx, CompoundByteIterable(Array(d, a, v, e)), BooleanBinding.booleanToEntry(true))
+    aveStore.put(tx, CompoundByteIterable(arrayOf(d, a, v, e)), BooleanBinding.booleanToEntry(true))
     // VEA
     val veaStore = xodusOperations.openStore(tx, LigatureStore.VEAStore)
-    veaStore.put(tx, CompoundByteIterable(Array(d, v, e, a)), BooleanBinding.booleanToEntry(true))
+    veaStore.put(tx, CompoundByteIterable(arrayOf(d, v, e, a)), BooleanBinding.booleanToEntry(true))
     // VAE
     val vaeStore = xodusOperations.openStore(tx, LigatureStore.VAEStore)
-    vaeStore.put(tx, CompoundByteIterable(Array(d, v, a, e)), BooleanBinding.booleanToEntry(true))
+    vaeStore.put(tx, CompoundByteIterable(arrayOf(d, v, a, e)), BooleanBinding.booleanToEntry(true))
   }
 
   /** Returns an ID that doesn't exist within this Dataset.
@@ -191,7 +195,7 @@ class XodusWriteTx(
     * Ok(true) only if the given Statement was found and removed. Note:
     * Potentially could trigger a ValidationError.
     */
-  override fun removeStatement(statement: Statement): Unit = TODO() //IO {
+  override suspend fun removeStatement(statement: Statement): Unit = TODO() //IO {
 //    val entityID = lookupIdentifier(statement.entity)
 //    val attributeID = lookupIdentifier(statement.attribute)
 //    val encodedValue = lookupValue(statement.value)
@@ -222,7 +226,7 @@ class XodusWriteTx(
 //          case Some(id) =>
 //            Some(
 //              CompoundByteIterable(
-//                Array(ByteBinding.byteToEntry(LigatureValueType.Identifier.id), id)
+//                arrayOf(ByteBinding.byteToEntry(LigatureValueType.Identifier.id), id)
 //              )
 //            )
 //        }
@@ -232,7 +236,7 @@ class XodusWriteTx(
 //          case Some(stringId) =>
 //            Some(
 //              CompoundByteIterable(
-//                Array(ByteBinding.byteToEntry(LigatureValueType.String.id), stringId)
+//                arrayOf(ByteBinding.byteToEntry(LigatureValueType.String.id), stringId)
 //              )
 //            )
 //        }
@@ -256,22 +260,22 @@ class XodusWriteTx(
 
     // remove eav
     val eavStore = xodusOperations.openStore(tx, LigatureStore.EAVStore)
-    eavStore.delete(tx, CompoundByteIterable(Array(d, e, a, v)))
+    eavStore.delete(tx, CompoundByteIterable(arrayOf(d, e, a, v)))
     // remove eva
     val evaStore = xodusOperations.openStore(tx, LigatureStore.EVAStore)
-    evaStore.delete(tx, CompoundByteIterable(Array(d, e, v, a)))
+    evaStore.delete(tx, CompoundByteIterable(arrayOf(d, e, v, a)))
     // remove aev
     val aevStore = xodusOperations.openStore(tx, LigatureStore.AEVStore)
-    aevStore.delete(tx, CompoundByteIterable(Array(d, a, e, v)))
+    aevStore.delete(tx, CompoundByteIterable(arrayOf(d, a, e, v)))
     // remove ave
     val aveStore = xodusOperations.openStore(tx, LigatureStore.AVEStore)
-    aveStore.delete(tx, CompoundByteIterable(Array(d, a, v, e)))
+    aveStore.delete(tx, CompoundByteIterable(arrayOf(d, a, v, e)))
     // remove vea
     val veaStore = xodusOperations.openStore(tx, LigatureStore.VEAStore)
-    veaStore.delete(tx, CompoundByteIterable(Array(d, v, e, a)))
+    veaStore.delete(tx, CompoundByteIterable(arrayOf(d, v, e, a)))
     // remove vae
     val vaeStore = xodusOperations.openStore(tx, LigatureStore.VAEStore)
-    vaeStore.delete(tx, CompoundByteIterable(Array(d, v, a, e)))
+    vaeStore.delete(tx, CompoundByteIterable(arrayOf(d, v, a, e)))
 
     checkAndRemoveIdentifier(statement.entity, entityID)
     checkAndRemoveIdentifier(statement.attribute, attributeID)
@@ -280,26 +284,26 @@ class XodusWriteTx(
 
   private fun checkAndRemoveIdentifier(identifier: Identifier, id: ByteIterable): Unit {
     // check if an identifier is used in any position in any Statement in the Dataset
-    val eavResult = startsWith(LigatureStore.EAVStore, CompoundByteIterable(Array(datasetID, id)))
+    val eavResult = startsWith(LigatureStore.EAVStore, CompoundByteIterable(arrayOf(datasetID, id)))
 
     if (eavResult) {
-      val aevResult = startsWith(LigatureStore.AEVStore, CompoundByteIterable(Array(datasetID, id)))
+      val aevResult = startsWith(LigatureStore.AEVStore, CompoundByteIterable(arrayOf(datasetID, id)))
 
       if (aevResult) {
         val veaResult = startsWith(
           LigatureStore.VEAStore,
           CompoundByteIterable(
-            Array(datasetID, ByteBinding.byteToEntry(LigatureValueType.Identifier.id), id)
+            arrayOf(datasetID, ByteBinding.byteToEntry(LigatureValueType.Identifier.id), id)
           )
         )
 
         if (veaResult) {
           val idToIdentifierStore = xodusOperations.openStore(tx, LigatureStore.IdToIdentifierStore)
           val identifierToIdStore = xodusOperations.openStore(tx, LigatureStore.IdentifierToIdStore)
-          idToIdentifierStore.delete(tx, CompoundByteIterable(Array(datasetID, id)))
+          idToIdentifierStore.delete(tx, CompoundByteIterable(arrayOf(datasetID, id)))
           identifierToIdStore.delete(
             tx,
-            CompoundByteIterable(Array(datasetID, StringBinding.stringToEntry(identifier.name)))
+            CompoundByteIterable(arrayOf(datasetID, StringBinding.stringToEntry(identifier.name)))
           )
         }
       }
@@ -310,9 +314,9 @@ class XodusWriteTx(
     val store = xodusOperations.openStore(tx, ligatureStore)
     val cursor = store.openCursor(tx)
     cursor.getSearchKeyRange(prefix)
-    val key = cursor.getKey()
+    val key = cursor.key
     cursor.close()
-    key.subIterable(0, prefix.getLength) == prefix
+    return key.subIterable(0, prefix.length) == prefix
   }
 
   private fun cleanUpValue(value: Value, valueEncoded: ByteIterable): Unit = TODO()

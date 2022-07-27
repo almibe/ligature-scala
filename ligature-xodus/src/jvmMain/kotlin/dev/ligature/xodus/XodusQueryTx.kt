@@ -30,8 +30,8 @@ class XodusQueryTx(
   private fun lookupIdentifier(internalIdentifier: ByteIterable): Identifier {
     val idToIdentifierStore = xodusOperations.openStore(tx, LigatureStore.IdToIdentifierStore)
     val result =
-      idToIdentifierStore.get(tx, CompoundByteIterable(Array(datasetID, internalIdentifier)))
-    if (result != null) {
+      idToIdentifierStore.get(tx, CompoundByteIterable(arrayOf(datasetID, internalIdentifier)))
+    return if (result != null) {
       Identifier(StringBinding.entryToString(result))
     } else {
       TODO("Not impl'd")
@@ -45,19 +45,19 @@ class XodusQueryTx(
         val store = xodusOperations.openStore(tx, LigatureStore.IdentifierToIdStore)
         val result = store.get(
           tx,
-          CompoundByteIterable(Array(datasetID, StringBinding.stringToEntry(identifier.value.identifier.name)))
+          CompoundByteIterable(arrayOf(datasetID, StringBinding.stringToEntry(identifier.value.name)))
         )
-        Option(result)
+        if (result == null) none() else Some(result)
       }
     }
 
-  private fun lookupStringLiteral(stringLiteral: StringLiteral): Option<ByteIterable> = {
+  private fun lookupStringLiteral(stringLiteral: StringLiteral): Option<ByteIterable> {
     val store = xodusOperations.openStore(tx, LigatureStore.StringToIdStore)
     val result = store.get(
       tx,
-      CompoundByteIterable(Array(datasetID, StringBinding.stringToEntry(stringLiteral.value)))
+      CompoundByteIterable(arrayOf(datasetID, StringBinding.stringToEntry(stringLiteral.value)))
     )
-    Option(result)
+    return if (result == null) none() else Some(result)
   }
 
   private fun lookupValue(value: Option<Value>): Option<ByteIterable> = TODO()
@@ -68,17 +68,17 @@ class XodusQueryTx(
 //          case identifier: Identifier =>
 //            lookupIdentifier(Some(identifier)).map(id =>
 //              CompoundByteIterable(
-//                Array(ByteBinding.byteToEntry(LigatureValueType.Identifier.id), id)
+//                arrayOf(ByteBinding.byteToEntry(LigatureValueType.Identifier.id), id)
 //              )
 //            )
 //          case stringLiteral: StringLiteral =>
 //            lookupStringLiteral(stringLiteral).map(id =>
-//              CompoundByteIterable(Array(ByteBinding.byteToEntry(LigatureValueType.String.id), id))
+//              CompoundByteIterable(arrayOf(ByteBinding.byteToEntry(LigatureValueType.String.id), id))
 //            )
 //          case integerLiteral: IntegerLiteral =>
 //            Some(
 //              CompoundByteIterable(
-//                Array(
+//                arrayOf(
 //                  ByteBinding.byteToEntry(LigatureValueType.Integer.id),
 //                  LongBinding.longToEntry(integerLiteral.value)
 //                )
@@ -89,8 +89,8 @@ class XodusQueryTx(
 
   private fun lookupStringLiteral(internalIdentifier: ByteIterable): StringLiteral {
     val idToStringStore = xodusOperations.openStore(tx, LigatureStore.IdToStringStore)
-    val result = idToStringStore.get(tx, CompoundByteIterable(Array(datasetID, internalIdentifier)))
-    if (result != null) {
+    val result = idToStringStore.get(tx, CompoundByteIterable(arrayOf(datasetID, internalIdentifier)))
+    return if (result != null) {
       StringLiteral(StringBinding.entryToString(result))
     } else {
       TODO("case not handled")
@@ -123,7 +123,7 @@ class XodusQueryTx(
     val valueContent = bytes.subIterable(offsets.valueOffset + 1, 8)
     val value = constructValue(valueTypeId, valueContent)
 
-    Statement(entity, attribute, value)
+    return Statement(entity, attribute, value)
   }
 
   /** Returns all Statements in this Dataset. */
@@ -185,8 +185,8 @@ class XodusQueryTx(
 //  ): Stream[IO, Statement] = Stream.emits {
 //    val store = xodusOperations.openStore(tx, LigatureStore.EAVStore)
 //    val prefix = valueId match {
-//      case None      => CompoundByteIterable(Array(datasetID, entityId, attributeId))
-//      case Some(vid) => CompoundByteIterable(Array(datasetID, entityId, attributeId, vid))
+//      case None      => CompoundByteIterable(arrayOf(datasetID, entityId, attributeId))
+//      case Some(vid) => CompoundByteIterable(arrayOf(datasetID, entityId, attributeId, vid))
 //    }
 //    val cursor = store.openCursor(tx)
 //    cursor.getSearchKeyRange(prefix)
@@ -211,8 +211,8 @@ class XodusQueryTx(
 //  ): Stream[IO, Statement] = Stream.emits {
 //    val store = xodusOperations.openStore(tx, LigatureStore.EVAStore)
 //    val prefix = valueId match {
-//      case None      => CompoundByteIterable(Array(datasetID, entityId))
-//      case Some(vid) => CompoundByteIterable(Array(datasetID, entityId, vid))
+//      case None      => CompoundByteIterable(arrayOf(datasetID, entityId))
+//      case Some(vid) => CompoundByteIterable(arrayOf(datasetID, entityId, vid))
 //    }
 //    val cursor = store.openCursor(tx)
 //    cursor.getSearchKeyRange(prefix)
@@ -237,8 +237,8 @@ class XodusQueryTx(
 //  ): Stream[IO, Statement] = Stream.emits {
 //    val store = xodusOperations.openStore(tx, LigatureStore.AVEStore)
 //    val prefix = valueId match {
-//      case None      => CompoundByteIterable(Array(datasetID, attributeId))
-//      case Some(vid) => CompoundByteIterable(Array(datasetID, attributeId, vid))
+//      case None      => CompoundByteIterable(arrayOf(datasetID, attributeId))
+//      case Some(vid) => CompoundByteIterable(arrayOf(datasetID, attributeId, vid))
 //    }
 //    val cursor = store.openCursor(tx)
 //    cursor.getSearchKeyRange(prefix)
@@ -259,7 +259,7 @@ class XodusQueryTx(
 //
 //  private def matchStatementsVEA(valueId: ByteIterable): Stream[IO, Statement] = Stream.emits {
 //    val store = xodusOperations.openStore(tx, LigatureStore.VEAStore)
-//    val prefix = CompoundByteIterable(Array(datasetID, valueId))
+//    val prefix = CompoundByteIterable(arrayOf(datasetID, valueId))
 //    val cursor = store.openCursor(tx)
 //    cursor.getSearchKeyRange(prefix)
 //    var continue = true
@@ -318,8 +318,8 @@ class XodusQueryTx(
 //  ): Stream[IO, Statement] = Stream.emits {
 //    val store = xodusOperations.openStore(tx, LigatureStore.EAVStore)
 //    val encodedRange = encodeRange(valueRange)
-//    val start = CompoundByteIterable(Array(datasetID, entityId, attributeId, encodedRange.start))
-//    val end = CompoundByteIterable(Array(datasetID, entityId, attributeId, encodedRange.end))
+//    val start = CompoundByteIterable(arrayOf(datasetID, entityId, attributeId, encodedRange.start))
+//    val end = CompoundByteIterable(arrayOf(datasetID, entityId, attributeId, encodedRange.end))
 //    val cursor = store.openCursor(tx)
 //    cursor.getSearchKeyRange(start)
 //    var continue = true
@@ -344,8 +344,8 @@ class XodusQueryTx(
 //    ???
 ////    val store = xodusOperations.openStore(tx, LigatureStore.EVAStore)
 ////    val prefix = valueId match {
-////      case None      => CompoundByteIterable(Array(datasetID, entityId))
-////      case Some(vid) => CompoundByteIterable(Array(datasetID, entityId, vid))
+////      case None      => CompoundByteIterable(arrayOf(datasetID, entityId))
+////      case Some(vid) => CompoundByteIterable(arrayOf(datasetID, entityId, vid))
 ////    }
 ////    val cursor = store.openCursor(tx)
 ////    cursor.getSearchKeyRange(prefix)
@@ -371,8 +371,8 @@ class XodusQueryTx(
 //    ???
 ////    val store = xodusOperations.openStore(tx, LigatureStore.AVEStore)
 ////    val prefix = valueId match {
-////      case None      => CompoundByteIterable(Array(datasetID, attributeId))
-////      case Some(vid) => CompoundByteIterable(Array(datasetID, attributeId, vid))
+////      case None      => CompoundByteIterable(arrayOf(datasetID, attributeId))
+////      case Some(vid) => CompoundByteIterable(arrayOf(datasetID, attributeId, vid))
 ////    }
 ////    val cursor = store.openCursor(tx)
 ////    cursor.getSearchKeyRange(prefix)
@@ -394,7 +394,7 @@ class XodusQueryTx(
 //  private def matchStatementsVEA(valueId: Range): Stream[IO, Statement] = Stream.emits {
 //    ???
 ////    val store = xodusOperations.openStore(tx, LigatureStore.VEAStore)
-////    val prefix = CompoundByteIterable(Array(datasetID, valueId))
+////    val prefix = CompoundByteIterable(arrayOf(datasetID, valueId))
 ////    val cursor = store.openCursor(tx)
 ////    cursor.getSearchKeyRange(prefix)
 ////    var continue = true
