@@ -9,9 +9,9 @@ import dev.ligature.testsuite.LigatureTestSuite
 import java.nio.file._
 import java.io.File
 
-class LigatureXodusSpec extends LigatureTestSuite {
-  var path: Path = null
-  var ligatureInstance: Ligature = null
+class LigatureXodusSpec: LigatureTestSuite() {
+  lateinit var path: Path
+  lateinit var ligatureInstance: Ligature
 
   override def beforeEach(context: BeforeEach): Unit =
     path = Files.createTempDirectory("LigatureXodusTest")
@@ -30,8 +30,8 @@ class LigatureXodusSpec extends LigatureTestSuite {
     deleteRecursively(path.toFile)
   }
 
-  override def createLigature: Ligature = {
+  override fun createLigature(): Ligature {
     ligatureInstance = XodusLigature(path.toFile)
-    ligatureInstance
+    return ligatureInstance
   }
 }

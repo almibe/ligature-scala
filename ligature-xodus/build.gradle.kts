@@ -58,27 +58,23 @@ kotlin {
     }
 
     sourceSets {
-        val commonMain by getting {
+        val jvmMain by getting {
             dependencies {
                 implementation(project(":ligature"))
                 implementation(project(":idgen"))
                 implementation(libs.kotlinx.coroutines.core)
                 implementation(libs.arrow.core)
+                implementation("org.jetbrains.xodus:xodus-environment:2.0.1")
             }
         }
 
-        val commonTest by getting {
+        val jvmTest by getting {
             dependencies {
                 implementation(libs.kotest.assertions.core)
                 implementation(libs.kotest.framework.engine)
                 implementation(libs.kotest.framework.datatest)
                 implementation(kotlin("test-common"))
                 implementation(kotlin("test-annotations-common"))
-            }
-        }
-
-        val jvmTest by getting {
-            dependencies {
                 implementation(libs.kotest.runner.junit5)
             }
         }

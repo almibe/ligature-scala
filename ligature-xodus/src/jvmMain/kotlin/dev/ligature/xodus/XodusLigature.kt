@@ -27,8 +27,9 @@ import jetbrains.exodus.env.TransactionalExecutable
 
 import jetbrains.exodus.bindings.LongBinding
 import jetbrains.exodus.bindings.StringBinding
+import kotlinx.coroutines.flow.Flow
 
-inteface XodusOperations {
+interface XodusOperations {
   fun openStore(tx: Transaction, store: LigatureStore): Store
   fun nextID(tx: Transaction): ByteIterable
 }
@@ -55,34 +56,39 @@ enum class LigatureValueType(val id: Byte) {
   Identifier(0),
   Integer(1),
   String(2),
-  Bytes(3)
-}
+  Bytes(3);
 
-object LigatureValueType {
-  fun getValueType(id: Byte): LigatureValueType = when(id) {
-    LigatureValueType.Identifier.id -> LigatureValueType.Identifier
-    LigatureValueType.Integer.id    -> LigatureValueType.Integer
-    LigatureValueType.String.id     -> LigatureValueType.String
-    LigatureValueType.Bytes.id      -> LigatureValueType.Bytes
+  companion object {
+    fun getValueType(id: Byte): LigatureValueType = when (id) {
+      LigatureValueType.Identifier.id -> LigatureValueType.Identifier
+      LigatureValueType.Integer.id -> LigatureValueType.Integer
+      LigatureValueType.String.id -> LigatureValueType.String
+      LigatureValueType.Bytes.id -> LigatureValueType.Bytes
+      else -> TODO("handle error case, invalid type")
+    }
   }
 }
 
-final class XodusLigature(dbDirectory: File): Ligature, XodusOperations {
-  private val environment = Environments.newInstance(dbDirectory, new EnvironmentConfig)
-  setupStores()
+class XodusLigature(private val dbDirectory: File): Ligature, XodusOperations {
+  private val environment = Environments.newInstance(dbDirectory, EnvironmentConfig())
+
+  init {
+    setupStores()
+  }
 
   /** This method is ran once at the start to make sure all Stores exist.
     * This is done so that Stores can be opened in readonly mode.
     *  It also checks and initializes Counters
     * TODO: This method could probably check if the Environment exists and check the status of the Environment first.
     */
-  private def setupStores(): Unit = {
+  private fun setupStores(): Unit {
     // create all Stores
-    val createStoresTC: TransactionalComputable<Unit> = tx =>
-      LigatureStore.values.foreach(openStore(tx, _))
+    val createStoresTC: TransactionalComputable<Unit> = TransactionalComputable<Unit> { tx ->
+      LigatureStore.values().forEach { openStore(tx, it) }
+    }
     environment.computeInTransaction(createStoresTC)
     // set up counters -- for now it's just a single counter
-    val checkCountersTC: TransactionalComputable[Unit] = tx => {
+    val checkCountersTC: TransactionalComputable<Unit> = TransactionalComputable<Unit> { tx ->
       val counterStore = openStore(tx, LigatureStore.CountersStore)
       val currentCount = counterStore.get(tx, StringBinding.stringToEntry("counter"))
       if (currentCount == null) {
@@ -103,16 +109,16 @@ final class XodusLigature(dbDirectory: File): Ligature, XodusOperations {
     * Right now IDs are shared between all Stores but that might change.
     * Also, right now IDs are positive Long values and that might also change.
     */
-  override fun nextID(tx: Transaction): ByteIterable = {
+  override fun nextID(tx: Transaction): ByteIterable {
     val counterStore = openStore(tx, LigatureStore.CountersStore)
     val nextCount =
-      LongBinding.entryToLong(counterStore.get(tx, StringBinding.stringToEntry("counter"))) + 1L
+      LongBinding.entryToLong(counterStore.get(tx, StringBinding.stringToEntry("counter"))!!) + 1L
     counterStore.put(tx, StringBinding.stringToEntry("counter"), LongBinding.longToEntry(nextCount))
-    LongBinding.longToEntry(nextCount)
+    return LongBinding.longToEntry(nextCount)
   }
 
   /** Returns all Datasets in a Ligature instance. */
-  override fun allDatasets(): Stream<IO, Dataset> = TODO() //Stream.emits {
+  override fun allDatasets(): Flow<Dataset> = TODO() //Stream.emits {
 //    val tc: TransactionalComputable<List<String>> = tx => {
 //      val datasetToIdStore = openStore(tx, LigatureStore.DatasetToIdStore)
 //      val datasetsCursor = datasetToIdStore.openCursor(tx)
@@ -290,7 +296,7 @@ final class XodusLigature(dbDirectory: File): Ligature, XodusOperations {
     * CouldNotInitializeWriteTx
     */
   // TODO try rewriting to use bracket, like query does
-  override suspend fun write(dataset: Dataset, fn: suspend WriteTx -> Unit): Unit = TODO()
+  override suspend fun <T>write(dataset: Dataset, fn: suspend (WriteTx) -> T): T = TODO()
 //    IO { // TODO rewrite with TransactionComputable
 //      environment.beginTransaction()
 //    }.bracket { tx =>
