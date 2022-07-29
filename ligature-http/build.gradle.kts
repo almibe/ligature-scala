@@ -61,10 +61,12 @@ kotlin {
         val jvmMain by getting {
             dependencies {
                 implementation(project(":ligature"))
+                implementation(project(":lig"))
+                implementation(project(":wander"))
                 implementation(project(":idgen"))
                 implementation(libs.kotlinx.coroutines.core)
                 implementation(libs.arrow.core)
-                implementation("org.jetbrains.xodus:xodus-environment:2.0.1")
+                implementation("io.vertx:vertx-web:4.3.2")
             }
         }
 
@@ -73,8 +75,6 @@ kotlin {
                 implementation(libs.kotest.assertions.core)
                 implementation(libs.kotest.framework.engine)
                 implementation(libs.kotest.framework.datatest)
-                implementation(kotlin("test-common"))
-                implementation(kotlin("test-annotations-common"))
                 implementation(libs.kotest.runner.junit5)
             }
         }
