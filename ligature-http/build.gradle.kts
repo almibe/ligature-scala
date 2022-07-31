@@ -40,13 +40,6 @@ kotlin {
                 }
             }
         }
-//        js(IR) {
-//            browser()
-//            //nodejs()
-//        }
-//        linuxX64()
-//        macosX64()
-//        mingwX64()
     }
 
     targets.all {
@@ -66,16 +59,9 @@ kotlin {
                 implementation(project(":idgen"))
                 implementation(libs.kotlinx.coroutines.core)
                 implementation(libs.arrow.core)
-                implementation("io.vertx:vertx-web:4.3.2")
-            }
-        }
-
-        val jvmTest by getting {
-            dependencies {
-                implementation(libs.kotest.assertions.core)
-                implementation(libs.kotest.framework.engine)
-                implementation(libs.kotest.framework.datatest)
-                implementation(libs.kotest.runner.junit5)
+                implementation("io.ktor:ktor-server-core:2.0.3")
+                implementation("io.ktor:ktor-server-netty:2.0.3")
+                implementation("ch.qos.logback:logback-classic:1.2.11")
             }
         }
     }
@@ -86,19 +72,3 @@ kotlin {
 //        apiVersion = "1.5"
 //    }
 //}
-
-tasks.named<Test>("jvmTest") {
-    useJUnitPlatform()
-    filter {
-        isFailOnNoMatchingTests = false
-    }
-    testLogging {
-        showExceptions = true
-        showStandardStreams = true
-        events = setOf(
-            org.gradle.api.tasks.testing.logging.TestLogEvent.FAILED,
-            org.gradle.api.tasks.testing.logging.TestLogEvent.PASSED
-        )
-        exceptionFormat = org.gradle.api.tasks.testing.logging.TestExceptionFormat.FULL
-    }
-}
