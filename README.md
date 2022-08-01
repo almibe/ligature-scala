@@ -1,15 +1,15 @@
 # Note
 This project is in the middle of a rewrite, so it's kind of a mess.
 
-# ligature-scala
-An implementation of [Ligature knowledge graph](https://ligature.dev) library written in Scala for the JVM/JS.
+# ligature-kt
+An implementation of [Ligature knowledge graph](https://ligature.dev) library written in Kotlin for the JVM/JS.
 See additional documentation [here](https://github.com/almibe/ligature-documentation).
 
 ### Projects
 
 | Name                     | Description                                                                      | JVM | JS |
 | ------------------------ | -------------------------------------------------------------------------------- | --- | -- |
-| ligature                 | Common data types and traits for Ligature                                        | ✅   | ✅ |
+| ligature                 | Common data types and interfaces for Ligature                                    | ✅   | ✅ |
 | ligature-test-suite      | A shared test suite for Ligature                                                 | ✅   | ✅ |
 | idgen                    | A basic, unsecure, implementation of nanoid for use with Ligature                | ✅   | ✅ |
 | lig                      | A simple serialization format as well as DLig an input format for Ligature       | ✅   | ✅ |
@@ -23,45 +23,29 @@ See additional documentation [here](https://github.com/almibe/ligature-documenta
 | ligature-http-xodus      | An implementation of ligature-http that uses ligature-xodus for storage.         | ✅   |   |
 
 ## Building
-This project requires sbt to build.
-See https://www.scala-sbt.org/
+This project uses Gradle to build.
+See https://www.gradle.org/
 
 ### Basics
 
-For the most part development of this project only requires the basics that SBT provides.
+For the most part development of this project only requires the basics that Gradle provides.
 
-Run `sbt` to bring up the sbt shell.
-
-Use `projects` to see the list of sub-projects.
-
-Use `project {project-name}` to switch projects.
-
-Use `compile` to compile code.
-
-Use `test` to run tests.
-
-Use `scalafmtAll` to format code.
+Use `gradle check` to check that code builds and run tests.
 
 ### Running the Server
 
-The server can be ran using the `serve` command.
-
-`sbt serve`
-
-If you are using the interaction shell, I recommend using
-
-`reStart`
-
-This will let you reload the server whenever you want by repeating the command.
+```bash
+cd ligature-http-xodus
+gradle run
+```
 
 ### Server Configuration
 
-For now ligature-http only accepts configuration via the command line.
-This is likely to change but for now just using command line arguments is very helpful during development.
+???
 
 #### Common Configuration
 
-All ligature-http implementations accept the following arguemnts
+All ligature-http implementations accept the following arguments
 
 | Name   | Description                          | Default | Note                               |
 |--------|--------------------------------------|---------|------------------------------------|
@@ -82,7 +66,7 @@ ligature-http-xodus adds the following configuration on top of the common config
 
 ### Credits
 
-The idgen package contains a Scala port of https://github.com/aventrix/jnanoid.
+The idgen package contains a Kotlin port of https://github.com/aventrix/jnanoid.
 
 ### JavaScript Notes
 
