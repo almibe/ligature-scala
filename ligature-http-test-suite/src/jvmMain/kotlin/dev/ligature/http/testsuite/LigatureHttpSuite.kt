@@ -29,20 +29,20 @@ abstract class LigatureHttpSuite: FunSpec() {
         response.bodyAsText() shouldBe "[]"
       }
     }
-  }
 
-//  test("Add Datasets") {
-//    val instance = createInstance()
-//    instance.routes
-//      .run(Request(method = Method.POST, uri = uri"/datasets/new"))
-//      .unsafeRunSync()
-//    val response = instance.routes
-//      .run(Request(method = Method.GET, uri = uri"/datasets"))
-//      .unsafeRunSync()
-//    val res = response.bodyText.compile.string.unsafeRunSync()
-//    assertEquals(res, "[\"new\"]")
-//  }
-//
+    test("Add Datasets") {
+      testApplication {
+        application {
+          instanceModule()
+        }
+        val addResponse = client.post("/datasets/new")
+        addResponse.status shouldBe HttpStatusCode.OK
+        val response = client.get("/datasets")
+        response.status shouldBe HttpStatusCode.OK
+        response.bodyAsText() shouldBe "[\"new\"]"
+      }
+    }
+
 //  // test("Query Datasets w/ prefix") {
 //  //   val writes = List("test/test1", "test/test2", "test3/test")
 //  //     .map { ds => toIO(() => client.post(port, local, s"/$ds").send()) }
@@ -80,166 +80,122 @@ abstract class LigatureHttpSuite: FunSpec() {
 //  //   )
 //  // }
 //
-//  test("Delete Datasets") {
-//    val instance = createInstance()
-//    instance.routes
-//      .run(Request(method = Method.POST, uri = uri"/datasets/new2"))
-//      .unsafeRunSync()
-//    instance.routes
-//      .run(Request(method = Method.POST, uri = uri"/datasets/new3"))
-//      .unsafeRunSync()
-//    instance.routes
-//      .run(Request(method = Method.DELETE, uri = uri"/datasets/new3"))
-//      .unsafeRunSync()
-//    val response = instance.routes
-//      .run(Request(method = Method.GET, uri = uri"/datasets"))
-//      .unsafeRunSync()
-//    val res = response.bodyText.compile.string.unsafeRunSync()
-//    assertEquals(res, "[\"new2\"]")
-//  }
-//
-//  test("Statements in new Dataset should start empty") {
-//    val instance = createInstance()
-//    instance.routes
-//      .run(Request(method = Method.POST, uri = uri"/datasets/new"))
-//      .unsafeRunSync()
-//    val response = instance.routes
-//      .run(Request(method = Method.GET, uri = uri"/datasets/new/statements"))
-//      .unsafeRunSync()
-//    val res = response.bodyText.compile.string.unsafeRunSync()
-//    assertEquals(res, "")
-//  }
-//
-//  test("Add a single Statement") {
-//    val instance = createInstance()
-//    instance.routes
-//      .run(Request(method = Method.POST, uri = uri"/datasets/new"))
-//      .unsafeRunSync()
-//    val writeResponse = instance.routes
-//      .run(
-//        Request(method = Method.POST, uri = uri"/datasets/new/statements")
-//          .withEntity("<a> <b> <c>")
-//      )
-//      .unsafeRunSync()
-//      .bodyText
-//      .compile
-//      .string
-//      .unsafeRunSync()
-////    assertEquals(writeResponse, "")
-//    val response = instance.routes
-//      .run(Request(method = Method.GET, uri = uri"/datasets/new/statements"))
-//      .unsafeRunSync()
-//    val res = response.bodyText.compile.string.unsafeRunSync()
-//    assertEquals(res, "<a> <b> <c>\n")
-//  }
-//
-//  test("Add multiple Statements") {
-//    val instance = createInstance()
-//    val statements =
-//      """<1> <attribute> <2>
-//        |<3> <attribute> <1>""".stripMargin
-//    instance.routes
-//      .run(Request(method = Method.POST, uri = uri"/datasets/new"))
-//      .unsafeRunSync()
-//    val writeResponse = instance.routes
-//      .run(
-//        Request(method = Method.POST, uri = uri"/datasets/new/statements")
-//          .withEntity(statements)
-//      )
-//      .unsafeRunSync()
-//      .bodyText
-//      .compile
-//      .string
-//      .unsafeRunSync()
-//    assertEquals(writeResponse, "")
-//    val response = instance.routes
-//      .run(Request(method = Method.GET, uri = uri"/datasets/new/statements"))
-//      .unsafeRunSync()
-//    val res = response.bodyText.compile.string.unsafeRunSync()
-//    assertEquals(ligToSet(res), ligToSet(statements))
-//  }
-//
-//  test("Delete Statements") {
-//    val instance = createInstance()
-//    val addStatements =
-//      """
-//        |<1> <attribute> <2>
-//        |<3> <attribute> <1>
-//        |<4> <attribute2> "Hello"
-//        |<5> <attribute3> 3453
-//        |<1> <attribute3> <1>
-//        |""".stripMargin
-//
-//    val deleteStatements = // includes a dupe and a statement that doesn't exist
-//      """
-//        |<1> <attribute> <2>
-//        |<6> <attribute3> 3453
-//        |<1> <attribute3> <1>
-//        |<1> <attribute> <2>
-//        |""".stripMargin
-//
-//    val resultStatements =
-//      """
-//        |<3> <attribute> <1>
-//        |<4> <attribute2> "Hello"
-//        |<5> <attribute3> 3453
-//        |""".stripMargin
-//
-//    instance.routes
-//      .run(Request(method = Method.POST, uri = uri"/datasets/new"))
-//      .unsafeRunSync()
-//
-//    val writeResponse = instance.routes
-//      .run(
-//        Request(method = Method.POST, uri = uri"/datasets/new/statements")
-//          .withEntity(addStatements)
-//      )
-//      .unsafeRunSync()
-//      .bodyText
-//      .compile
-//      .string
-//      .unsafeRunSync()
-////    assertEquals(writeResponse, "")
-//
-//    val deleteResponse = instance.routes
-//      .run(
-//        Request(method = Method.DELETE, uri = uri"/datasets/new/statements")
-//          .withEntity(deleteStatements)
-//      )
-//      .unsafeRunSync()
-//      .bodyText
-//      .compile
-//      .string
-//      .unsafeRunSync()
-////    assertEquals(deleteResponse, "")
-//
-//    val response = instance.routes
-//      .run(Request(method = Method.GET, uri = uri"/datasets/new/statements"))
-//      .unsafeRunSync()
-//    val res = response.bodyText.compile.string.unsafeRunSync()
-//
-//    assertEquals(ligToSet(res), ligToSet(resultStatements))
-//  }
-//
-//  //  test("Run Wander") {
-//  //    val instance = createInstance()
-//  //    instance.routes
-//  //      .run(Request(method = Method.POST, uri = uri"/datasets/new"))
-//  //      .unsafeRunSync()
-//  //    val writeResponse = instance.routes
-//  //      .run(
-//  //        Request(method = Method.POST, uri = uri"/datasets/new/wander")
-//  //          .withEntity("and(true true)")
-//  //      )
-//  //      .unsafeRunSync()
-//  //      .bodyText
-//  //      .compile
-//  //      .string
-//  //      .unsafeRunSync()
-//  //    assertEquals(writeResponse, "true")
-//  //  }
-//  // }
-//
-//  def ligToSet(input: String): Set[Statement] =
-//    read(input).getOrElse(???).toSet
+    test("Delete Datasets") {
+      testApplication {
+        application {
+          instanceModule()
+        }
+        client.post("/datasets/new2")
+        client.post("/datasets/new3")
+        client.delete("/datasets/new3")
+        val response = client.get("/datasets")
+        response.bodyAsText() shouldBe "[\"new2\"]"
+      }
+    }
+
+    test("Statements in new Dataset should start empty") {
+      testApplication {
+        application {
+          instanceModule()
+        }
+        client.post("/datasets/new")
+        val response = client.get("/datasets/new/statements")
+        response.bodyAsText() shouldBe ""
+      }
+    }
+
+    test("Add a single Statement") {
+      testApplication {
+        application {
+          instanceModule()
+        }
+        client.post("/datasets/new")
+        val writeResponse = client.post("/datasets/new/statements") {
+          setBody("<a> <b> <c>")
+        }
+        writeResponse.status shouldBe HttpStatusCode.OK
+        val response = client.get("/datasets/new/statements")
+        response.bodyAsText() shouldBe "<a> <b> <c>\n"
+      }
+    }
+
+    test("Add multiple Statements") {
+      testApplication {
+        application {
+          instanceModule()
+        }
+        val statements =
+          """<1> <attribute> <2>
+            |<3> <attribute> <1>""".trimMargin()
+        client.get("/datasets/new")
+        val writeResponse = client.post("/datasets/new/statements") {
+          setBody(statements)
+        }
+        writeResponse.status shouldBe HttpStatusCode.OK
+        val response = client.get("/datasets/new/statements")
+        ligToSet(response.bodyAsText()) shouldBe ligToSet(statements)
+      }
+    }
+
+    test("Delete Statements") {
+      testApplication {
+        application {
+          instanceModule()
+        }
+        val addStatements =
+          """
+        |<1> <attribute> <2>
+        |<3> <attribute> <1>
+        |<4> <attribute2> "Hello"
+        |<5> <attribute3> 3453
+        |<1> <attribute3> <1>
+        |""".trimMargin()
+
+        val deleteStatements = // includes a dupe and a statement that doesn't exist
+          """
+        |<1> <attribute> <2>
+        |<6> <attribute3> 3453
+        |<1> <attribute3> <1>
+        |<1> <attribute> <2>
+        |""".trimMargin()
+
+        val resultStatements =
+          """
+        |<3> <attribute> <1>
+        |<4> <attribute2> "Hello"
+        |<5> <attribute3> 3453
+        |""".trimMargin()
+
+        client.post("/datasets/new")
+
+        client.post("/datasets/new/statements") {
+          setBody(addStatements)
+        }
+
+        val deleteResponse = client.delete("/datasets/new/statements") {
+          setBody(deleteStatements)
+        }
+        deleteResponse.status shouldBe HttpStatusCode.OK
+
+        val response = client.get("/datasets/new/statements")
+        ligToSet(response.bodyAsText()) shouldBe ligToSet(resultStatements)
+      }
+    }
+
+    test("Run Wander") {
+      testApplication {
+        application {
+          instanceModule()
+        }
+        client.post("/datasets/new")
+        val wanderResponse = client.post("/datasets/new/wander") {
+          setBody("and(true true)")
+        }
+        wanderResponse.status shouldBe HttpStatusCode.OK
+        wanderResponse.bodyAsText() shouldBe "true"
+      }
+    }
+  }
+  private fun ligToSet(input: String): Set<Statement> =
+    read(input).fold( { throw Error("Could not convert $input") }, { it.toSet() } )
 }

@@ -21,13 +21,6 @@ kotlin {
                 }
             }
         }
-//        js(IR) {
-//            browser()
-//            //nodejs()
-//        }
-//        linuxX64()
-//        macosX64()
-//        mingwX64()
     }
 
     targets.all {
@@ -55,23 +48,8 @@ kotlin {
                 implementation(libs.kotest.framework.datatest)
             }
         }
-
-        val jvmTest by getting {
-            dependencies {
-                implementation(libs.kotest.assertions.core)
-                implementation(libs.kotest.framework.engine)
-                implementation(libs.kotest.framework.datatest)
-                implementation(libs.kotest.runner.junit5)
-            }
-        }
     }
 }
-
-//tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile>().configureEach {
-//    kotlinOptions {
-//        apiVersion = "1.5"
-//    }
-//}
 
 tasks.named<Test>("jvmTest") {
     useJUnitPlatform()
