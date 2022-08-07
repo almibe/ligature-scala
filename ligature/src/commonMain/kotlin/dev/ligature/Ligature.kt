@@ -8,31 +8,45 @@ import arrow.core.Option
 import arrow.core.none
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.*
+import kotlin.jvm.JvmInline
+import arrow.core.Either
+import arrow.core.Either.Left
+import arrow.core.Either.Right
 
-data class Dataset(val name: String): Comparable<Dataset> {
-  private val pattern = Regex("^([a-zA-Z_][a-zA-Z0-9_]*)(/[a-zA-Z_][a-zA-Z0-9_]*)*$")
+val datasetPattern = Regex("^([a-zA-Z_][a-zA-Z0-9_]*)(/[a-zA-Z_][a-zA-Z0-9_]*)*$")
+val identifierPattern = Regex("^[a-zA-Z0-9-._~:/?#\\[\\]@!$&'()*+,;%=]+$")
 
-  override fun compareTo(that: Dataset): Int = this.name.compareTo(that.name)
+@JvmInline
+value class InvalidDataset(val invalidName: String)
 
-//  fun fromString(name: String): Either[LigatureError, Dataset] =
-//    if (pattern.matches(name)) {
-//      Right(Dataset(name))
-//    } else {
-//      Left(LigatureError(s"Could not make Dataset from $name"))
-//    }
+@JvmInline
+value class Dataset /*private constructor*/(val name: String): Comparable<Dataset> { //TODO make constructor private
+  override fun toString(): String = "Dataset($name)"
+  override fun compareTo(other: Dataset): Int = this.name.compareTo(other.name)
+
+  companion object {
+    fun create(name: String): Either<InvalidDataset, Dataset> =
+      if (name.matches(datasetPattern)) Right(Dataset(name))
+      else Left(InvalidDataset(name))
+  }
 }
-data class Identifier(val name: String): Value {
-  private val pattern = Regex("^[a-zA-Z0-9-._~:/?#\\[\\]@!$&'()*+,;%=]+$")
 
-//  def fromString(name: String): Either[LigatureError, Identifier] =
-//  if (pattern.matches(name)) {
-//    Right(Identifier(name))
-//  } else {
-//    Left(LigatureError(s"Invalid Identifier $name"))
-//  }
+@JvmInline
+value class InvalidIdentifier(val invalidName: String)
+
+@JvmInline
+value class Identifier(val name: String): Comparable<Identifier>, Value { //TODO make constructor private
+  override fun toString(): String = "Identifier($name)"
+  override fun compareTo(other: Identifier): Int = this.name.compareTo(other.name)
+
+  companion object {
+    fun create(name: String): Either<InvalidIdentifier, Identifier> =
+      if (name.matches(identifierPattern)) Right(Identifier(name))
+      else Left(InvalidIdentifier(name))
+  }
 }
 
-data class LigatureError(val message: String)
+data class LigatureError(val message: String) //TODO make interface or abstract class?
 
 sealed interface Value
 data class StringLiteral(val value: String): Value
