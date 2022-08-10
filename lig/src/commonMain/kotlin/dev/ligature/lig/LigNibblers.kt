@@ -38,7 +38,8 @@ object LigNibblers {
     takeString(">")
   )
 
-  val stringContentNibbler: Nibbler<Char, Char> = TODO() //{ gaze: Gaze<Char> -> {
+//  val stringContentNibbler: Nibbler<Char, Char> = { gaze: Gaze<Char> -> {
+//    TODO()
 //      // Full pattern \"(([^\x00-\x1F\"\\]|\\[\"\\/bfnrt]|\\u[0-9a-fA-F]{4})*)\"
 //      val commandChars = 0x00.toChar()..0x1f.toChar()
 //      val validHexChar = { c: Char ->
@@ -92,10 +93,10 @@ object LigNibblers {
 //    }
 //  }
 
-  val stringNibbler = takeAllGrouped(
-    takeString("\""),
-    stringContentNibbler
-  ) // TODO should be a between but stringContentNibbler consumes the last " currently
+//  val stringNibbler = takeAllGrouped(
+//    takeString("\""),
+//    stringContentNibbler
+//  ) // TODO should be a between but stringContentNibbler consumes the last " currently
 
   //TODO this needs cleaned up
   private val validPrefixName: CharArray =

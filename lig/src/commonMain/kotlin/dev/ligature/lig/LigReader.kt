@@ -8,13 +8,13 @@ import dev.ligature.*
 import dev.ligature.gaze.*
 import dev.ligature.idgen.genId
 import dev.ligature.lig.LigNibblers.numberNibbler
-import dev.ligature.lig.LigNibblers.stringContentNibbler
+//import dev.ligature.lig.LigNibblers.stringContentNibbler
 import dev.ligature.lig.LigNibblers.whiteSpaceAndNewLineNibbler
 import dev.ligature.lig.LigNibblers.whiteSpaceNibbler
 
 import dev.ligature.lig.createIdentifier
 import dev.ligature.lig.parseIntegerLiteral
-import dev.ligature.lig.parseStringLiteral
+//import dev.ligature.lig.parseStringLiteral
 
 import arrow.core.Either
 import arrow.core.Option
@@ -45,25 +45,25 @@ data class LigError(val message: String)
 //}
 
 fun read(input: String): Either<LigError, List<Statement>> {
-  //val gaze = Gaze.from(input)
-  // val model: ArrayBuffer[DLigModel] = ArrayBuffer()
-  //val prefixes = parsePrefixes(gaze)
-  //val statements = parseStatements(gaze, prefixes)
   TODO()
-//   var continue = true
-//   while (continue && !gaze.isComplete) {
-//     gaze.attempt(optional(whiteSpaceAndNewLineNibbler))
-//     parseStatement(gaze) match {
-//       case Left(resStatement)  => return Left(resStatement)
-//       case Right(resStatement) => statements.append(resStatement)
-//     }
-//     val check = gaze.attempt(optional(whiteSpaceAndNewLineNibbler))
-//     if (check.isDefined && !gaze.isComplete) {
-//       continue = true
-//     } else {
-//       continue = false
-//     }
-//   }
+//  val gaze = Gaze.from(input)
+//  val model: MutableList<DLigModel> = mutableListOf()
+//  val prefixes = parsePrefixes(gaze)
+//  //val statements = parseStatements(gaze, prefixes)
+//  var `continue` = true
+//  while (`continue` && !gaze.isComplete) {
+//    gaze.attempt(optional(whiteSpaceAndNewLineNibbler))
+//    parseStatement(gaze) match {
+//      case Left(resStatement)  => return Left(resStatement)
+//      case Right(resStatement) => statements.append(resStatement)
+//    }
+//    val check = gaze.attempt(optional(whiteSpaceAndNewLineNibbler))
+//    if (check.isDefined && !gaze.isComplete) {
+//      `continue` = true
+//    } else {
+//      `continue` = false
+//    }
+//  }
 //  return Right(model.toList)
 }
 
@@ -100,11 +100,11 @@ fun parseIntegerLiteral(gaze: Gaze<Char>): Either<LigError, IntegerLiteral> =
       Either.Right(IntegerLiteral(res.value.joinToString("").toLong())) // TODO toLong can throw
   }
 
-fun parseStringLiteral(gaze: Gaze<Char>): Either<LigError, StringLiteral> =
-  when(val res = gaze.attempt(takeAllGrouped(takeString("\""), stringContentNibbler))) {
-    is None -> Either.Left(LigError("Could not parse String."))
-    is Some -> Either.Right(StringLiteral(res.value[1].joinToString("")))
-  }
+//fun parseStringLiteral(gaze: Gaze<Char>): Either<LigError, StringLiteral> =
+//  when(val res = gaze.attempt(takeAllGrouped(takeString("\""), stringContentNibbler))) {
+//    is None -> Either.Left(LigError("Could not parse String."))
+//    is Some -> Either.Right(StringLiteral(res.value[1].joinToString("")))
+//  }
 
 fun parsePrefixes(gaze: Gaze<Char>): Either<LigError, Map<String, String>> {
   TODO()
@@ -314,11 +314,11 @@ fun handlePrefixedGenId(
   }
 }
 
-fun parseValue(
-    gaze: Gaze<Char>,
-    prefixes: Map<String, String>,
-    lastValue: Option<Value>
-): Either<LigError, Value> {
+//fun parseValue(
+//    gaze: Gaze<Char>,
+//    prefixes: Map<String, String>,
+//    lastValue: Option<Value>
+//): Either<LigError, Value> {
   //TODO attempt copy character
 //  val copyChar = gaze.attempt(LigNibblers.copyNibbler)
 //  if (copyChar is Some<Char>) {
@@ -330,20 +330,20 @@ fun parseValue(
 //    }
 //  }
 
-  val entityRes = parseIdentifier(
-    gaze,
-    prefixes,
-    None
-  ) // can be None since copy character has been checked for
-  if (entityRes is Either.Left) return entityRes
-
-  val integerRes = parseIntegerLiteral(gaze)
-  if (integerRes is Either.Right)
-    return integerRes //integerRes.left.map(err => LigError(err.message))
-
-  val stringRes = parseStringLiteral(gaze)
-  if (stringRes is Either.Right)
-    return stringRes //stringRes.left.map(err => LigError(err.message))
-
-  return Either.Left(LigError("Unsupported Value."))
-}
+//  val entityRes = parseIdentifier(
+//    gaze,
+//    prefixes,
+//    None
+//  ) // can be None since copy character has been checked for
+//  if (entityRes is Either.Left) return entityRes
+//
+//  val integerRes = parseIntegerLiteral(gaze)
+//  if (integerRes is Either.Right)
+//    return integerRes //integerRes.left.map(err => LigError(err.message))
+//
+////  val stringRes = parseStringLiteral(gaze)
+//  if (stringRes is Either.Right)
+//    return stringRes //stringRes.left.map(err => LigError(err.message))
+//
+//  return Either.Left(LigError("Unsupported Value."))
+//}
