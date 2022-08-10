@@ -7,13 +7,13 @@ package dev.ligature.lig
 import dev.ligature.*
 import dev.ligature.gaze.*
 import dev.ligature.idgen.genId
-import dev.ligature.lig.LigNibblers.numberNibbler
+//import dev.ligature.lig.LigNibblers.numberNibbler
 //import dev.ligature.lig.LigNibblers.stringContentNibbler
-import dev.ligature.lig.LigNibblers.whiteSpaceAndNewLineNibbler
+//import dev.ligature.lig.LigNibblers.whiteSpaceAndNewLineNibbler
 import dev.ligature.lig.LigNibblers.whiteSpaceNibbler
 
 import dev.ligature.lig.createIdentifier
-import dev.ligature.lig.parseIntegerLiteral
+//import dev.ligature.lig.parseIntegerLiteral
 //import dev.ligature.lig.parseStringLiteral
 
 import arrow.core.Either
@@ -93,12 +93,12 @@ fun createIdentifier(id: String): Either<LigError, Identifier> =
 //    .left
 //    .map(_ => LigError("Invalid Identifier Id - $id"))
 
-fun parseIntegerLiteral(gaze: Gaze<Char>): Either<LigError, IntegerLiteral> =
-  when(val res = gaze.attempt(numberNibbler)) {
-    is None -> Either.Left(LigError("Could not parse Integer."))
-    is Some ->
-      Either.Right(IntegerLiteral(res.value.joinToString("").toLong())) // TODO toLong can throw
-  }
+//fun parseIntegerLiteral(gaze: Gaze<Char>): Either<LigError, IntegerLiteral> =
+//  when(val res = gaze.attempt(numberNibbler)) {
+//    is None -> Either.Left(LigError("Could not parse Integer."))
+//    is Some ->
+//      Either.Right(IntegerLiteral(res.value.joinToString("").toLong())) // TODO toLong can throw
+//  }
 
 //fun parseStringLiteral(gaze: Gaze<Char>): Either<LigError, StringLiteral> =
 //  when(val res = gaze.attempt(takeAllGrouped(takeString("\""), stringContentNibbler))) {

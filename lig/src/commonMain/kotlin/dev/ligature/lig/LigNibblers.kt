@@ -4,17 +4,6 @@
 
 package dev.ligature.lig
 
-import dev.ligature.gaze.Gaze
-import dev.ligature.gaze.Nibbler
-import dev.ligature.gaze.between
-import dev.ligature.gaze.takeAll
-import dev.ligature.gaze.takeAllGrouped
-import dev.ligature.gaze.takeCharacters
-import dev.ligature.gaze.takeFirst
-import dev.ligature.gaze.takeString
-import dev.ligature.gaze.takeUntil
-import dev.ligature.gaze.takeWhile
-
 import dev.ligature.Identifier
 import dev.ligature.IntegerLiteral
 import dev.ligature.Statement
@@ -24,11 +13,13 @@ import dev.ligature.Value
 import arrow.core.Some
 import arrow.core.none
 import arrow.core.None
+import dev.ligature.gaze.*
+import dev.ligature.gaze.takeString
 
 object LigNibblers {
-  val whiteSpaceNibbler = takeCharacters(' ', '\t')
-  val whiteSpaceAndNewLineNibbler = takeAll(takeFirst(takeString(" "), takeString("\n"), takeString("\r\n"), takeString("\t")))
-  val numberNibbler = takeCharacters(*CharRange('0', '9').toList().toCharArray())//takeCharacters(*(CharRange('0','9').toMutableList().add('-')))
+  val whiteSpaceNibbler: Nibbler<Char, LigToken> = takeCharacters(' ', '\t').map { listOf(LigToken.WhiteSpace) }
+
+  val newLineNibbler: Nibbler<Char, LigToken> = takeAll(takeFirst(takeString("\n"), takeString("\r\n"))).map { listOf(LigToken.NewLine) }
 
   val identifierNibbler = between(
     takeString("<"),
@@ -36,22 +27,32 @@ object LigNibblers {
       Regex("[a-zA-Z0-9-._~:/?#\\[\\]@!$&'()*+,;%=]").matches(c.toString())
     },
     takeString(">")
-  )
+  ).map { listOf(LigToken.Identifier(it.joinToString(""))) }
 
-//  val stringContentNibbler: Nibbler<Char, Char> = { gaze: Gaze<Char> -> {
-//    TODO()
-//      // Full pattern \"(([^\x00-\x1F\"\\]|\\[\"\\/bfnrt]|\\u[0-9a-fA-F]{4})*)\"
+  val integerNibbler = takeAll(
+    optional(takeString("-")),
+    takeWhile { it.isDigit() } )
+    .map { listOf(LigToken.IntegerLiteral(it.joinToString(""))) }
+
+  val bytesNibbler = takeAll(
+    takeString("0"),
+    takeString("x"),
+    takeWhile { Regex("[a-fA-F0-9]").matches(it.toString()) } )
+    .map { listOf(LigToken.BytesLiteral(it.joinToString(""))) }
+
+  val stringContentNibbler: Nibbler<Char, Char> = //{ gaze: Gaze<Char> -> {
+      // Full pattern \"(([^\x00-\x1F\"\\]|\\[\"\\/bfnrt]|\\u[0-9a-fA-F]{4})*)\"
+    takeWhile { Regex("[a-zA-Z0-9 ,.!?]").matches(it.toString()) }
 //      val commandChars = 0x00.toChar()..0x1f.toChar()
 //      val validHexChar = { c: Char ->
 //        (c in '0'..'9') || (c in 'a'..'f') || (c in 'A'..'F')
 //      }
-//      val hexNibbler = takeWhile(validHexChar)
+//      val hexNibbler = takeWhile(validHexChar) //TODO should probably only read pairs in
 //
 //      val sb = mutableListOf<Char>()
-//      var offset = 0 // TODO delete
 //      var fail = false
 //      var complete = false
-//      while (!complete && !fail && gaze.peek() is Some) {
+//      while (!complete && !fail && !gaze.isComplete) {
 //        val c = gaze.next().get
 //        if (commandChars.contains(c)) {
 //          fail = true
@@ -93,10 +94,10 @@ object LigNibblers {
 //    }
 //  }
 
-//  val stringNibbler = takeAllGrouped(
-//    takeString("\""),
-//    stringContentNibbler
-//  ) // TODO should be a between but stringContentNibbler consumes the last " currently
+  val stringNibbler = between(
+    takeString("\""),
+    stringContentNibbler
+  ).map { listOf(LigToken.StringLiteral(it.joinToString(""))) }
 
   //TODO this needs cleaned up
   private val validPrefixName: CharArray =
