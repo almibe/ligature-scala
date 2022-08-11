@@ -48,4 +48,3 @@ fun tokenize(input: String): List<LigToken> {
   }
   return tokens
 }
-
