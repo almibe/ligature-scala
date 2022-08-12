@@ -2,27 +2,50 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at https://mozilla.org/MPL/2.0/. */
 
-package dev.ligature.lig
+package dev.ligature.lig.parser
 
 import arrow.core.Some
 import arrow.core.None
 import arrow.core.continuations.eagerEffect
-import arrow.core.continuations.effect
 import arrow.core.Either
 import dev.ligature.*
 import dev.ligature.gaze.*
+import dev.ligature.lig.LigError
+import dev.ligature.lig.lexer.LigToken
 
-fun parse(input: List<LigToken>): List<Statement> {
+fun parse(input: List<LigToken>): Either<LigError, List<Statement>> {
   val gaze = Gaze(input)
   val statements = mutableListOf<Statement>()
-  while (!gaze.isComplete) {
+  stripNewLinesAndWhiteSpace(gaze)
+  var foundNewLine = true
+  while (!gaze.isComplete && foundNewLine) {
     val res = gaze.attempt(statementNibbler)
     when(res) {
       is Some -> statements.addAll(res.value)
       is None -> TODO()
     }
+    foundNewLine = stripNewLinesAndWhiteSpace(gaze)
   }
-  return statements
+  return Either.Right(statements)
+}
+
+/**
+ * This function removes all leading new lines and white space.
+ * It returns true if it read at least one new line.
+ */
+private fun stripNewLinesAndWhiteSpace(gaze: Gaze<LigToken>): Boolean {
+  var foundNewLine = false
+  while (!gaze.isComplete) {
+    if (gaze.peek() == Some(LigToken.WhiteSpace)) {
+      gaze.next()
+    } else if (gaze.peek() == Some(LigToken.NewLine)) {
+      gaze.next()
+      foundNewLine = true
+    } else {
+      break
+    }
+  }
+  return foundNewLine
 }
 
 val statementNibbler: Nibbler<LigToken, Statement> =

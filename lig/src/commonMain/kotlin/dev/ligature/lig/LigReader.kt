@@ -7,22 +7,21 @@ package dev.ligature.lig
 import dev.ligature.*
 import dev.ligature.gaze.*
 import dev.ligature.idgen.genId
-//import dev.ligature.lig.LigNibblers.numberNibbler
-//import dev.ligature.lig.LigNibblers.stringContentNibbler
-//import dev.ligature.lig.LigNibblers.whiteSpaceAndNewLineNibbler
 import dev.ligature.lig.LigNibblers.whiteSpaceNibbler
-
-import dev.ligature.lig.createIdentifier
-//import dev.ligature.lig.parseIntegerLiteral
-//import dev.ligature.lig.parseStringLiteral
-
 import arrow.core.Either
 import arrow.core.Option
 import arrow.core.None
 import arrow.core.none
 import arrow.core.Some
+import dev.ligature.lig.lexer.tokenize
+import dev.ligature.lig.parser.parse
 
 data class LigError(val message: String)
+
+fun read(input: String): Either<LigError, List<Statement>> {
+  val tokens = tokenize(input)
+  return parse(tokens)
+}
 
 //def read(input: String): Either[LigError, List[Statement]] = {
 //  val gaze = Gaze.from(input)
@@ -44,8 +43,8 @@ data class LigError(val message: String)
 //  Right(statements.toList)
 //}
 
-fun read(input: String): Either<LigError, List<Statement>> {
-  TODO()
+//fun read(input: String): Either<LigError, List<Statement>> {
+//  TODO()
 //  val gaze = Gaze.from(input)
 //  val model: MutableList<DLigModel> = mutableListOf()
 //  val prefixes = parsePrefixes(gaze)
@@ -65,7 +64,7 @@ fun read(input: String): Either<LigError, List<Statement>> {
 //    }
 //  }
 //  return Right(model.toList)
-}
+//}
 
 //def parseStatement(gaze: Gaze[Char]): Either[LigError, Statement] =
 //  for {

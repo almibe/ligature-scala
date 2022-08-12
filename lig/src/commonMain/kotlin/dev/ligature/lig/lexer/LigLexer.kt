@@ -2,18 +2,12 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at https://mozilla.org/MPL/2.0/. */
 
-package dev.ligature.lig
+package dev.ligature.lig.lexer
 
 import arrow.core.None
 import arrow.core.Some
-import dev.ligature.gaze.Gaze
-import dev.ligature.gaze.takeFirst
-import dev.ligature.lig.LigNibblers.identifierNibbler
-import dev.ligature.lig.LigNibblers.integerNibbler
-import dev.ligature.lig.LigNibblers.bytesNibbler
-import dev.ligature.lig.LigNibblers.stringNibbler
-import dev.ligature.lig.LigNibblers.newLineNibbler
-import dev.ligature.lig.LigNibblers.whiteSpaceNibbler
+import dev.ligature.gaze.*
+import dev.ligature.lig.LigNibblers
 
 sealed interface LigToken {
 //  data class Term(val value: String): LigToken
@@ -33,12 +27,12 @@ fun tokenize(input: String): List<LigToken> {
   while (!gaze.isComplete) {
     val res = gaze.attempt<LigToken>(
       takeFirst(
-        identifierNibbler,
-        whiteSpaceNibbler,
-        newLineNibbler,
-        stringNibbler,
-        bytesNibbler,
-        integerNibbler,
+        TokenNibblers.identifierNibbler,
+        TokenNibblers.whiteSpaceNibbler,
+        TokenNibblers.newLineNibbler,
+        TokenNibblers.stringNibbler,
+        TokenNibblers.bytesNibbler,
+        TokenNibblers.integerNibbler,
       )
     )
     when(res) {
@@ -47,4 +41,22 @@ fun tokenize(input: String): List<LigToken> {
     }
   }
   return tokens
+}
+
+object TokenNibblers {
+  val whiteSpaceNibbler: Nibbler<Char, LigToken> = LigNibblers.whiteSpaceNibbler.map { listOf(LigToken.WhiteSpace) }
+
+  val newLineNibbler: Nibbler<Char, LigToken> = LigNibblers.newLineNibbler.map {
+    listOf(LigToken.NewLine)
+  }
+
+  val identifierNibbler = LigNibblers.identifierNibbler.map { listOf(LigToken.Identifier(it.joinToString(""))) }
+
+  val integerNibbler = LigNibblers.integerNibbler.map { listOf(LigToken.IntegerLiteral(it.joinToString(""))) }
+
+  val bytesNibbler = LigNibblers.bytesNibbler
+    .map { listOf(LigToken.BytesLiteral(it.joinToString(""))) }
+
+  val stringNibbler = LigNibblers.stringNibbler
+    .map { listOf(LigToken.StringLiteral(it.joinToString(""))) }
 }

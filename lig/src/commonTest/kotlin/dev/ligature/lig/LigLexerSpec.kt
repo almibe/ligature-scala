@@ -4,6 +4,8 @@
 
 package dev.ligature.lig
 
+import dev.ligature.lig.lexer.LigToken
+import dev.ligature.lig.lexer.tokenize
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 

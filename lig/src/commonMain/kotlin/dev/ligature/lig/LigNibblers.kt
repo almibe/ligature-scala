@@ -4,22 +4,14 @@
 
 package dev.ligature.lig
 
-import dev.ligature.Identifier
-import dev.ligature.IntegerLiteral
-import dev.ligature.Statement
-import dev.ligature.StringLiteral
-import dev.ligature.Value
-
-import arrow.core.Some
-import arrow.core.none
-import arrow.core.None
 import dev.ligature.gaze.*
 import dev.ligature.gaze.takeString
+import dev.ligature.lig.lexer.LigToken
 
 object LigNibblers {
-  val whiteSpaceNibbler: Nibbler<Char, LigToken> = takeCharacters(' ', '\t').map { listOf(LigToken.WhiteSpace) }
+  val whiteSpaceNibbler = takeCharacters(' ', '\t')
 
-  val newLineNibbler: Nibbler<Char, LigToken> = takeAll(takeFirst(takeString("\n"), takeString("\r\n"))).map { listOf(LigToken.NewLine) }
+  val newLineNibbler = takeAll(takeFirst(takeString("\n"), takeString("\r\n")))
 
   val identifierNibbler = between(
     takeString("<"),
@@ -27,18 +19,16 @@ object LigNibblers {
       Regex("[a-zA-Z0-9-._~:/?#\\[\\]@!$&'()*+,;%=]").matches(c.toString())
     },
     takeString(">")
-  ).map { listOf(LigToken.Identifier(it.joinToString(""))) }
+  )
 
   val integerNibbler = takeAll(
     optional(takeString("-")),
     takeWhile { it.isDigit() } )
-    .map { listOf(LigToken.IntegerLiteral(it.joinToString(""))) }
 
   val bytesNibbler = takeAll(
     takeString("0"),
     takeString("x"),
     takeWhile { Regex("[a-fA-F0-9]").matches(it.toString()) } )
-    .map { listOf(LigToken.BytesLiteral(it.joinToString(""))) }
 
   val stringContentNibbler: Nibbler<Char, Char> = //{ gaze: Gaze<Char> -> {
       // Full pattern \"(([^\x00-\x1F\"\\]|\\[\"\\/bfnrt]|\\u[0-9a-fA-F]{4})*)\"
@@ -97,7 +87,7 @@ object LigNibblers {
   val stringNibbler = between(
     takeString("\""),
     stringContentNibbler
-  ).map { listOf(LigToken.StringLiteral(it.joinToString(""))) }
+  )
 
   //TODO this needs cleaned up
   private val validPrefixName: CharArray =
