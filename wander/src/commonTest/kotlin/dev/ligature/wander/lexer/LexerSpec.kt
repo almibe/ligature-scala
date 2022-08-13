@@ -61,47 +61,72 @@ class LexerSpec: FunSpec() {
       ))
     }
 
-//    test("read String Literals") {
-//      TODO("data class StringLiteral(val value: String")
-//    }
-//
-//    test("read Bytes Literals") {
-//      TODO("data class BytesLiteral(val value: String")
-//    }
-//
-//    test("read let keyword") {
-//      TODO("object LetKeyword")
-//    }
-//
-//    test("read equals sign") {
-//      TODO("object EqualSign")
-//    }
-//
-//    test("read names") {
-//      TODO("data class Name(val value: String")
-//    }
-//
-//    test("read braces") {
-//      TODO("object OpenBrace")
-//      TODO("object CloseBrace")
-//    }
-//
-//    test("read colon") {
-//      TODO("object Colon")
-//    }
-//
-//    test("read parens") {
-//      TODO("object OpenParen")
-//      TODO("object CloseParen")
-//    }
-//
-//    test("read arrow") {
-//      TODO("object Arrow")
-//    }
-//
-//    test("read if and else keywords") {
-//      TODO("object IfKeyword")
-//      TODO("object ElseKeyword")
-//    }
+    test("read String Literals") {
+      runCases(mapOf(
+        "\"hello\"" to listOf(Token.StringLiteral("hello")),
+      ))
+    }
+
+    test("read Bytes Literals") {
+      runCases(mapOf(
+        "0x55" to listOf(Token.BytesLiteral("0x55")),
+      ))
+    }
+
+    test("read let keyword") {
+      runCases(mapOf(
+        "let" to listOf(Token.LetKeyword),
+      ))
+    }
+
+    test("read equals sign") {
+      runCases(mapOf(
+        "=" to listOf(Token.EqualSign),
+      ))
+    }
+
+    test("read names") {
+      runCases(mapOf(
+        "hello" to listOf(Token.Name("hello")),
+      ))
+    }
+
+    test("read braces") {
+      runCases(mapOf(
+        "{" to listOf(Token.OpenBrace),
+        "}" to listOf(Token.CloseBrace),
+        "{{}}}" to listOf(Token.OpenBrace, Token.OpenBrace, Token.CloseBrace, Token.CloseBrace, Token.CloseBrace)
+      ))
+    }
+
+    test("read colon") {
+      runCases(mapOf(
+        ":" to listOf(Token.Colon),
+        "::::" to listOf(Token.Colon, Token.Colon, Token.Colon, Token.Colon)
+      ))
+    }
+
+    test("read parens") {
+      runCases(mapOf(
+        "(" to listOf(Token.OpenParen),
+        ")" to listOf(Token.CloseParen),
+        "(()))" to listOf(Token.OpenParen, Token.OpenParen, Token.CloseParen, Token.CloseParen, Token.CloseParen)
+      ))
+    }
+
+    test("read arrow") {
+      runCases(mapOf(
+        "->" to listOf(Token.Arrow),
+        "->->" to listOf(Token.Arrow, Token.Arrow),
+        "->->->" to listOf(Token.Arrow, Token.Arrow, Token.Arrow)
+      ))
+    }
+
+    test("read if and else keywords") {
+      runCases(mapOf(
+        "if" to listOf(Token.IfKeyword),
+        "else" to listOf(Token.ElseKeyword),
+      ))
+    }
   }
 }

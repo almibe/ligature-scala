@@ -63,6 +63,9 @@ object Nibblers {
   val arrowTokenNib =
     takeString("->").map { res -> listOf(Token.Arrow) }
 
+  val bytesTokenNib =
+    LigNibblers.bytesNibbler.map { res -> listOf(Token.BytesLiteral(res.joinToString("")))}
+
   val integerTokenNib =
     LigNibblers.integerNibbler.map { res -> listOf(Token.Integer(res.joinToString(""))) }
 
@@ -76,18 +79,19 @@ object Nibblers {
     takeFirst(
       spacesTokenNib,
       nameTokenNib,
-//      colonTokenNib,
-//      openParenTokenNib,
-//      closeParenTokenNib,
-//      arrowTokenNib,
+      colonTokenNib,
+      openParenTokenNib,
+      closeParenTokenNib,
+      arrowTokenNib,
+      bytesTokenNib,
       integerTokenNib,
       newLineTokenNib,
       identifierTokenNib,
-//      openBraceTokenNib,
-//      closeBraceTokenNib,
-//      stringTokenNib,
+      openBraceTokenNib,
+      closeBraceTokenNib,
+      stringTokenNib,
       commentTokenNib,
-//      equalSignTokenNib
+      equalSignTokenNib
     )
   )
 }
