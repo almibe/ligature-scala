@@ -167,7 +167,7 @@ data class Script(val elements: List<Element>) {
   }
 }
 
-/** Represents a scope in Wander that can be eval'd and can contain it's own
+/** Represents a scope in Wander that can be eval'd and can contain its own
   * bindings.
   */
 data class Scope(val elements: List<Element>): Expression {
@@ -187,28 +187,28 @@ data class Scope(val elements: List<Element>): Expression {
   }
 }
 
-sealed interface WanderType
-
-enum class SimpleType: WanderType {
-  Value,
-  Identifier,
-  Boolean,
-  String,
-  Integer
-}
-data class Function(val parameters: List<Parameter>, val output: WanderType): WanderType
+//sealed interface WanderType
+//
+//enum class SimpleType: WanderType {
+//  Value,
+//  Identifier,
+//  Boolean,
+//  String,
+//  Integer
+//}
+//data class Function(val parameters: List<Parameter>, val output: WanderType): WanderType
 
 data class Parameter(
     val name: Name,
-    val parameterType: WanderType
+//    val parameterType: WanderType
 )
 
 /** Holds a reference to a function defined in Wander.
   */
 data class WanderFunction(
     val wanderParameters: List<Parameter>,
-    val output: WanderType,
-    val body: Scope
+//    val output: WanderType,
+    val body: Expression
 ): FunctionDefinition(wanderParameters) {
   override fun eval(bindings: Bindings) =
     Either.Right(EvalResult(bindings, this))

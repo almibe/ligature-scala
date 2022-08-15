@@ -4,38 +4,32 @@
 
 package dev.ligature.wander.parser
 
-import dev.ligature.IntegerLiteral
-import dev.ligature.Identifier
-import dev.ligature.StringLiteral
-
-import dev.ligature.wander.lexer.Token
-import dev.ligature.wander.lexer.TokenType
-
 import arrow.core.Some
 import arrow.core.Either
 import arrow.core.None
-import arrow.core.none
 import dev.ligature.gaze.*
+import dev.ligature.wander.lexer.Token
+import dev.ligature.wander.parser.Nibblers.scriptNib
 
-fun parse(script: List<Token>): Either<String, Script> {
+data class ParsingError(val message: String)
+
+fun parse(script: List<Token>): Either<ParsingError, Script> {
   val filteredInput = script.filter { token: Token ->
-    token.tokenType != TokenType.Comment && token.tokenType != TokenType.Spaces && token.tokenType != TokenType.NewLine
+    token !is Token.Comment && token !is Token.Spaces && token !is Token.NewLine
   }.toList()
   val gaze = Gaze(filteredInput)
-  val res = gaze.attempt(scriptNib)
-  return when(res) {
+  return when(val res = gaze.attempt(scriptNib)) {
     is None ->
       if (gaze.isComplete) {
         Either.Right(Script(listOf()))
       } else {
-        Either.Left("No Match")
+        Either.Left(ParsingError("No Match1"))
       }
-    // TODO some case also needs to check if gaze is complete
     is Some ->
       if (gaze.isComplete) {
         Either.Right(Script(res.value)) // .filter(_.isDefined).map(_.get)))
       } else {
-        Either.Left("No Match")
+        Either.Left(ParsingError("Not complete - ${gaze.peek()}"))
       }
   }
 }
