@@ -115,14 +115,14 @@ class ParserSpec: FunSpec() {
       ))
     }
 
-    //TODO test case for function definition
     test("function definition") {
       runCases(mapOf(
-        "() -> {}" to listOf(FunctionDefinition(Name("foo"), listOf())),
-        "(x) -> x" to listOf(FunctionCall(Name("foo"), listOf(Name("x")))),
+        "() -> {}" to listOf(WanderFunction(listOf(), Scope(listOf()))),
+        "(x) -> x" to listOf(WanderFunction(listOf(Parameter(Name("x"))), Name("x"))),
         "(x y z) -> foo2(z y x)" to listOf(
-          FunctionCall(Name("foo"),
-            listOf(LigatureValue(IntegerLiteral(5)), Name("x"), Scope(listOf())))
+          WanderFunction(
+            listOf(Parameter(Name("x")), Parameter(Name("y")), Parameter(Name("z"))),
+            FunctionCall(Name("foo2"), listOf(Name("z"), Name("y"), Name("x"))))
         )))
     }
   }

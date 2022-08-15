@@ -105,17 +105,18 @@ object Nibblers {
 //  }
 
 
-//
-//  val parameterNib: Nibbler<Token, Parameter> = { gaze ->
-//    TODO()
-////  for {
-////    name <- gaze.attempt(
-////      nameNib
-////    ) // .map { name => name.map(name => Parameter(name)) }
-////    _ <- gaze.attempt(colonNib)
-////    typeName <- gaze.attempt(typeNib)
-////  } yield Seq(Parameter(name.first(), typeName.first()))
-//  }
+
+  val parameterNib: Nibbler<Token, Parameter> = nameNib.map { listOf(Parameter(it[0])) }
+    //{ gaze ->
+    //TODO()
+//  for {
+//    name <- gaze.attempt(
+//      nameNib
+//    ) // .map { name => name.map(name => Parameter(name)) }
+//    _ <- gaze.attempt(colonNib)
+//    typeName <- gaze.attempt(typeNib)
+//  } yield Seq(Parameter(name.first(), typeName.first()))
+  //}
 
   val wanderFunctionNib: Nibbler<Token, FunctionDefinition> = takeAllGrouped(
     openParenNib,
@@ -124,8 +125,8 @@ object Nibblers {
     arrowNib,
     ::expressionNib // or scopeNib?
   ).map { tokens: List<List<Element>> ->
-    val parameters = listOf<Parameter>() // 1
-    val body = Scope(listOf()) // 4
+    val parameters = tokens[1].map { it as Parameter }
+    val body = tokens[4][0] as Expression
     listOf(WanderFunction(parameters, body))
   }
 

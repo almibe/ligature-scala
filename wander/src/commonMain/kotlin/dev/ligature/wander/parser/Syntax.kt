@@ -138,7 +138,7 @@ data class LetStatement(val name: Name, val expression: Expression): Element {
 data class NativeFunction(
     val nativeParameters: List<Parameter>,
     val body: (bindings: Bindings) -> Either<ScriptError, WanderValue>,
-    val output: WanderType? = null
+//    val output: WanderType? = null
 ): FunctionDefinition(nativeParameters) { // TODO eventually remove the default null value
   override fun eval(binding: Bindings) =
     // body(binding) match {
@@ -201,7 +201,9 @@ data class Scope(val elements: List<Element>): Expression {
 data class Parameter(
     val name: Name,
 //    val parameterType: WanderType
-)
+): Expression {
+  override fun eval(bindings: Bindings) = TODO()
+}
 
 /** Holds a reference to a function defined in Wander.
   */
