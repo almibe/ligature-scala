@@ -65,7 +65,8 @@ class ParserSpec: FunSpec() {
       runCases(mapOf(
         "{}" to listOf(Scope(listOf())),
         "{ -123123 }" to listOf(Scope(listOf(LigatureValue(IntegerLiteral(-123123L))))),
-        "{ { true } }" to listOf(Scope(listOf(Scope(listOf(BooleanValue(true))))))
+        "{ { true } }" to listOf(Scope(listOf(Scope(listOf(BooleanValue(true)))))),
+        "{ let x = 5 }" to listOf(Scope(listOf((LetStatement(Name("x"), LigatureValue(IntegerLiteral(5)))))))
       ))
     }
 
