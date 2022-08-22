@@ -4,7 +4,10 @@
 
 package dev.ligature
 
-import arrow.core.Either.Right
+import com.github.michaelbull.result.Result
+import com.github.michaelbull.result.Err
+import com.github.michaelbull.result.Ok
+import com.github.michaelbull.result.map
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 
@@ -41,10 +44,10 @@ class LigatureSuite: FunSpec() {
       )
 
       for (ok in oks)
-        Dataset.create(ok).map { it.name } shouldBe Right(ok)
+        Dataset.create(ok).map { it.name } shouldBe Ok(ok)
 
       for (err in errs)
-        Dataset.create(err).isLeft() shouldBe true
+        (Dataset.create(err) is Err) shouldBe true
     }
 
     test("valid Identifier names") {
@@ -70,10 +73,10 @@ class LigatureSuite: FunSpec() {
       val errs = listOf("", "this is a test", "test test", "test/ /test", " test")
 
       for (ok in oks)
-        Identifier.create(ok).map { it.name } shouldBe Right(ok)
+        Identifier.create(ok).map { it.name } shouldBe Ok(ok)
 
       for (err in errs)
-        Identifier.create(err).isLeft() shouldBe true
+        (Identifier.create(err) is Err) shouldBe true
     }
   }
 }

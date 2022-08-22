@@ -4,14 +4,12 @@
 
 package dev.ligature
 
-import arrow.core.Option
-import arrow.core.none
+import com.github.michaelbull.result.Result
+import com.github.michaelbull.result.Err
+import com.github.michaelbull.result.Ok
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.*
 import kotlin.jvm.JvmInline
-import arrow.core.Either
-import arrow.core.Either.Left
-import arrow.core.Either.Right
 
 val datasetPattern = Regex("^([a-zA-Z_][a-zA-Z0-9_]*)(/[a-zA-Z_][a-zA-Z0-9_]*)*$")
 val identifierPattern = Regex("^[a-zA-Z0-9-._~:/?#\\[\\]@!$&'()*+,;%=]+$")
@@ -25,9 +23,9 @@ value class Dataset /*private constructor*/(val name: String): Comparable<Datase
   override fun compareTo(other: Dataset): Int = this.name.compareTo(other.name)
 
   companion object {
-    fun create(name: String): Either<InvalidDataset, Dataset> =
-      if (name.matches(datasetPattern)) Right(Dataset(name))
-      else Left(InvalidDataset(name))
+    fun create(name: String): Result<Dataset, InvalidDataset> =
+      if (name.matches(datasetPattern)) Ok(Dataset(name))
+      else Err(InvalidDataset(name))
   }
 }
 
@@ -40,9 +38,9 @@ value class Identifier(val name: String): Comparable<Identifier>, Value { //TODO
   override fun compareTo(other: Identifier): Int = this.name.compareTo(other.name)
 
   companion object {
-    fun create(name: String): Either<InvalidIdentifier, Identifier> =
-      if (name.matches(identifierPattern)) Right(Identifier(name))
-      else Left(InvalidIdentifier(name))
+    fun create(name: String): Result<Identifier, InvalidIdentifier> =
+      if (name.matches(identifierPattern)) Ok(Identifier(name))
+      else Err(InvalidIdentifier(name))
   }
 }
 
@@ -51,6 +49,22 @@ data class LigatureError(val message: String) //TODO make interface or abstract 
 sealed interface Value
 data class StringLiteral(val value: String): Value
 data class IntegerLiteral(val value: Long): Value
+data class BytesLiteral(val value: ByteArray): Value {
+  override fun equals(other: Any?): Boolean {
+    if (this === other) return true
+    if (other == null || this::class != other::class) return false
+
+    other as BytesLiteral
+
+    if (!value.contentEquals(other.value)) return false
+
+    return true
+  }
+
+  override fun hashCode(): Int {
+    return value.contentHashCode()
+  }
+}
 
 //sealed trait Range
 //final case class StringLiteralRange(start: String, end: String) extends Range
@@ -122,9 +136,9 @@ interface QueryTx {
     * calling allStatements.
     */
   fun matchStatements(
-      entity: Option<Identifier> = none(),
-      attribute: Option<Identifier> = none(),
-      value: Option<Value> = none()
+      entity: Identifier? = null,
+      attribute: Identifier? = null,
+      value: Value? = null
   ): Flow<Statement>
 
 //  /** Returns all PersistedStatements that match the given criteria. If a
