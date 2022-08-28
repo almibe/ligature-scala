@@ -2,21 +2,21 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-package dev.ligature.wander
+package dev.ligature.wander.interpreter
 
-
+import com.github.michaelbull.result.Result
+import com.github.michaelbull.result.Err
+import com.github.michaelbull.result.Ok
 import dev.ligature.wander.parser.Name
 import dev.ligature.wander.parser.NativeFunction
 import dev.ligature.wander.parser.Parameter
 import dev.ligature.wander.parser.BooleanValue
 import dev.ligature.wander.parser.ScriptResult
-import dev.ligature.wander.parser.ScriptError
 import dev.ligature.wander.parser.WanderValue
 
 import dev.ligature.Ligature
 import dev.ligature.Dataset
-
-import dev.ligature.wander.parser.WanderType
+import dev.ligature.wander.Bindings
 
 fun createStandardBindings(dataset: Dataset): Bindings {
   val bindings = common()
@@ -24,7 +24,7 @@ fun createStandardBindings(dataset: Dataset): Bindings {
 }
 
 fun common(): Bindings {
-  var stdLib = Bindings()
+  val stdLib = Bindings()
 
 //  stdLib = stdLib
 //    .bindVariable(
@@ -40,21 +40,21 @@ fun common(): Bindings {
 //    .bindVariable(
 //      Name("not"),
 //      NativeFunction(
-//        List(Parameter(Name("bool"), WanderType.Boolean)),
-//        (bindings: Bindings) =>
+//        listOf(Parameter(Name("bool"))),//, WanderType.Boolean)),
+//        { bindings: Bindings ->
 //          bindings.read(Name("bool")) match {
 //            case Right(b: BooleanValue) => Right(BooleanValue(!b.value))
 //            case _ =>
 //              Left(
 //                ScriptError(
-//                  s"not requires a Boolean, received ${bindings.read(Name("bool"))}"
+//                  "not requires a Boolean, received ${bindings.read(Name("bool"))}"
 //                )
 //              )
 //          }
 //      )
 //    )
 //    .getOrElse(???)
-//
+
 //  stdLib = stdLib
 //    .bindVariable(
 //      Name("and"),
@@ -77,27 +77,26 @@ fun common(): Bindings {
 //    )
 //    .getOrElse(???)
 //
-//  stdLib = stdLib
-//    .bindVariable(
-//      Name("or"),
-//      NativeFunction(
-//        List(
-//          Parameter(Name("boolLeft"), WanderType.Boolean),
-//          Parameter(Name("boolRight"), WanderType.Boolean)
-//        ),
-//        (bindings: Bindings) =>
+  stdLib.bindVariable(
+      Name("or"),
+      NativeFunction(
+        listOf(
+          Parameter(Name("boolLeft")),//, WanderType.Boolean),
+          Parameter(Name("boolRight"))//, WanderType.Boolean)
+        )) { bindings: Bindings ->
+          Ok(BooleanValue(true))
 //          for {
-//            left <- bindings.read(Name("boolLeft"))
-//            right <- bindings.read(Name("boolRight"))
-//            res <- (left, right) match {
-//              case (l: BooleanValue, r: BooleanValue) =>
-//                Right(BooleanValue(l.value || r.value))
-//              case _ => Left(ScriptError("or requires two booleans"))
+//            left < -bindings.read(Name("boolLeft"))
+//            right < -bindings.read(Name("boolRight"))
+//            res < -(left, right) match {
+//              case(l: BooleanValue, r: BooleanValue) =>
+//              Right(BooleanValue(l.value || r.value))
+//              case _ => Left (ScriptError("or requires two booleans"))
 //            }
 //          } yield res
-//      )
-//    )
-//    .getOrElse(???)
+        }
+    )
+    //.getOrElse { throw Error("Could not bind 'or' function.") }
 
   // class RangeResultStream implements ResultStream<bigint> {
   //     readonly start: bigint
