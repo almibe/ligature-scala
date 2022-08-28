@@ -4,105 +4,112 @@
 
 package dev.ligature.wander
 
+import arrow.core.Either
+import arrow.core.Either.Left
+import arrow.core.Either.Right
+import arrow.core.Some
 import dev.ligature.wander.parser.Name
-import dev.ligature.wander.parser.ScriptError
+import dev.ligature.wander.interpreter.ScriptError
 import dev.ligature.wander.parser.WanderValue
 import dev.ligature.wander.parser.FunctionDefinition
 import dev.ligature.wander.parser.NativeFunction
+import kotlin.reflect.KClass
 
-import arrow.core.Either
-import arrow.core.Some
+data class Scope(val variables: MutableMap<Name, WanderValue> = mutableMapOf())
+//    val functions: Map<Name, List<FunctionDefinition>>
+//)
 
-data class Scope(
-    val variables: Map<Name, WanderValue>,
-    val functions: Map<Name, List<FunctionDefinition>>
-)
+class Bindings {
+  private val scopes = mutableListOf<Scope>()
 
-data class Bindings(val scopes: List<Scope> = listOf(Scope(mapOf(), mapOf()))) {
-  fun newScope(): Bindings =
-    Bindings(this.scopes + (Scope(mapOf(), mapOf())))
+  fun addScope() = this.scopes.add(Scope())
+  fun removeScope() = this.scopes.removeLast()
 
   fun bindVariable(
       name: Name,
       wanderValue: WanderValue
-  ): Either<ScriptError, Bindings> {
+  ): Either<ScriptError, Unit> {
     val currentScope = this.scopes.last()
-    return if (
-      currentScope.variables
-        .contains(name) || currentScope.functions.contains(name)
-    ) {
-      Either.Left(ScriptError("$name is already bound in current scope."))
+    return if (currentScope.variables.contains(name)) {
+      Left(ScriptError("$name is already bound in current scope."))
     } else {
-      val newVariables = currentScope.variables + (name to wanderValue)
-      val oldScope = this.scopes.dropLast(1)
-      Either.Right(
-        Bindings(oldScope + (Scope(newVariables, currentScope.functions)))
-      )
+      currentScope.variables[name] = wanderValue
+      Right(Unit)
     }
   }
 
-  fun bindFunction(
-      name: Name,
-      functionDefinition: FunctionDefinition
-  ): Either<ScriptError, Bindings> {
-    val currentScope = this.scopes.last()
-    return if (
-      currentScope.variables
-        .contains(name) || duplicateFunction(name, functionDefinition)
-    ) {
-      Either.Left(ScriptError("$name is already bound in current scope."))
-    } else {
-      if (currentScope.functions.contains(name)) {
-        val newFunctionList =
-          currentScope.functions[name]!!.plus((functionDefinition))
-        val newFunctions = currentScope.functions + (name to newFunctionList)
-        val oldScope = this.scopes.dropLast(1)
-        Either.Right(
-          Bindings(
-            oldScope + (Scope(currentScope.variables, newFunctions))
-          )
-        )
-      } else {
-        val newFunctions =
-          currentScope.functions + (name to listOf(functionDefinition))
-        val oldScope = this.scopes.dropLast(1)
-        Either.Right(
-          Bindings(
-            oldScope + (Scope(currentScope.variables, newFunctions))
-          )
-        )
-      }
-    }
-  }
+//  fun bindFunction(
+//      name: Name,
+//      functionDefinition: FunctionDefinition
+//  ): Either<ScriptError, Bindings> {
+//    val currentScope = this.scopes.last()
+//    return if (
+//      currentScope.variables
+//        .contains(name) || duplicateFunction(name, functionDefinition)
+//    ) {
+//      Either.Left(ScriptError("$name is already bound in current scope."))
+//    } else {
+//      if (currentScope.functions.contains(name)) {
+//        val newFunctionList =
+//          currentScope.functions[name]!!.plus((functionDefinition))
+//        val newFunctions = currentScope.functions + (name to newFunctionList)
+//        val oldScope = this.scopes.dropLast(1)
+//        Either.Right(
+//          Bindings(
+//            oldScope + (Scope(currentScope.variables, newFunctions))
+//          )
+//        )
+//      } else {
+//        val newFunctions =
+//          currentScope.functions + (name to listOf(functionDefinition))
+//        val oldScope = this.scopes.dropLast(1)
+//        Either.Right(
+//          Bindings(
+//            oldScope + (Scope(currentScope.variables, newFunctions))
+//          )
+//        )
+//      }
+//    }
+//  }
 
-  private fun duplicateFunction(
-      name: Name,
-      functionDefinition: FunctionDefinition
-  ): Boolean {
-    val currentScope = this.scopes.last()
-    return if (currentScope.functions.contains(name)) {
-      val functions = currentScope.functions[name]!!
-      val dupe = functions.find { f ->
-        functionDefinition.parameters == f.parameters
+//  private fun duplicateFunction(
+//      name: Name,
+//      functionDefinition: FunctionDefinition
+//  ): Boolean {
+//    val currentScope = this.scopes.last()
+//    return if (currentScope.functions.contains(name)) {
+//      val functions = currentScope.functions[name]!!
+//      val dupe = functions.find { f ->
+//        functionDefinition.parameters == f.parameters
+//      }
+//      dupe != null
+//    } else {
+//      false
+//    }
+//  }
+
+  inline fun <reified T: WanderValue>readExperiment(name: Name): Either<ScriptError, T> =
+    when (val value = read(name)) {
+      is Right -> {
+        if (value.value is T) Right(value as T)
+        else Left(ScriptError("Could not read $name with correct type, found ${value.value}."))
       }
-      dupe != null
-    } else {
-      false
+      is Left -> value
     }
-  }
 
   fun read(name: Name): Either<ScriptError, WanderValue> {
     var currentScopeOffset = this.scopes.size - 1
     while (currentScopeOffset >= 0) {
       val currentScope = this.scopes[currentScopeOffset]
       if (currentScope.variables.contains(name)) {
-        return Either.Right(currentScope.variables[name]!!)
-      } else if (currentScope.functions.contains(name)) {
-        TODO()
+        return Right(currentScope.variables[name]!!)
       }
+      //else if (currentScope.functions.contains(name)) {
+      //  TODO()
+      //}
       currentScopeOffset -= 1
     }
-    return Either.Left(ScriptError("Could not find $name in scope."))
+    return Left(ScriptError("Could not find $name in scope."))
   }
 }
 
