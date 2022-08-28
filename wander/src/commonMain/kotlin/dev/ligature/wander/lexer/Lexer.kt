@@ -8,6 +8,7 @@ import arrow.core.Either
 import arrow.core.None
 import arrow.core.Some
 import dev.ligature.gaze.*
+import dev.ligature.wander.WanderError
 
 sealed interface Token {
   data class Boolean(val value: kotlin.Boolean): Token
@@ -31,7 +32,7 @@ sealed interface Token {
   object ElseKeyword: Token
 }
 
-data class TokenizeError(val message: String)
+data class TokenizeError(override val message: String): WanderError
 
 fun tokenize(input: String): Either<TokenizeError, List<Token>> {
   val gaze = Gaze.from(input)

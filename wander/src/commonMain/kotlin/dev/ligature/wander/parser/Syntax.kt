@@ -5,9 +5,13 @@
 package dev.ligature.wander.parser
 
 import dev.ligature.wander.Bindings
+import dev.ligature.wander.interpreter.ScriptError
 import dev.ligature.Statement
 import dev.ligature.Value
 import arrow.core.Either
+import arrow.core.Either.Left
+import arrow.core.Either.Right
+import arrow.core.flatMap
 import arrow.core.Option
 import arrow.core.Some
 import arrow.core.None
@@ -27,7 +31,6 @@ sealed interface Expression: Element
   */
 sealed interface WanderValue: Expression
 
-data class ScriptError(val message: String)
 data class ScriptResult(val result: WanderValue)
 data class EvalResult(val bindings: Bindings, val result: WanderValue)
 
@@ -132,7 +135,7 @@ data class LetStatement(val name: Name, val expression: Expression): Element {
   }
 }
 
-/** Holds a reference to a function defined in Scala that can be called from
+/** Holds a reference to a function defined in Kotlin that can be called from
   * Wander.
   */
 data class NativeFunction(
@@ -217,54 +220,48 @@ data class WanderFunction(
 }
 
 data class FunctionCall(val name: Name, val parameters: List<Expression>): Expression {
-  override fun eval(bindings: Bindings): Either<ScriptError, EvalResult> {
-    TODO()
-//    val func = bindings.read(name)
-//    when(func) {
-//      is Right(wf: WanderFunction) -> {
-//        val functionCallBindings =
-//          updateFunctionCallBindings(bindings, wf.parameters)
-//        wf.body.eval(functionCallBindings) match {
-//          case left: Left[ScriptError, EvalResult] => left
-//          case Right(value)                        => Right(EvalResult(bindings, value.result))
-//        }
-//      }
-//      is Right(nf: NativeFunction) -> {
-//        val functionCallBindings =
-//          updateFunctionCallBindings(bindings, nf.parameters)
-//        val res = nf.body(functionCallBindings)
-//        res.map(EvalResult(bindings, _))
-//      }
-//      else -> Either.Left(ScriptError("${name.name} is not a function."))
-//    }
-  }
+  override fun eval(bindings: Bindings): Either<ScriptError, EvalResult> =
+    bindings.read(name).flatMap { value: WanderValue ->
+      when(value) {
+        is WanderFunction -> {
+          val functionCallBindings = updateFunctionCallBindings(bindings, value.parameters)
+          value.body.eval(functionCallBindings)
+        }
+        is NativeFunction -> {
+          val functionCallBindings = updateFunctionCallBindings(bindings, value.parameters)
+          val res = value.body(functionCallBindings)
+          res.flatMap { Right(EvalResult(bindings, it)) }
+        }
+        else -> Either.Left(ScriptError("${name.name} is not a function."))
+      }
+    }
 
   // TODO: this function should probably return an Either instead of throwing an exception
   fun updateFunctionCallBindings(
       bindings: Bindings,
       args: List<Parameter>
-  ): Bindings = TODO()
-//    if (args.size == parameters.size) {
-//      var currentBindings = bindings.newScope()
-//      for (i in args.indices) {
-//        val arg = args[i]
-//        val param = parameters[i]
-//        val paramRes = param.eval(currentBindings)//.getOrElse(TODO())
-//        if (paramRes.isNotEmpty()) {
-//          when(val res = currentBindings.bindVariable(arg.name, paramRes.orNull()!!)) {
-//            is Either.Left  -> TODO()//return res
-//            is Either.Right -> currentBindings = res.value
-//          }
-//        } else {
-//          TODO()
-//        }
-//      }
-//      currentBindings
-//    } else {
-//      throw RuntimeException(
-//        "Argument number ${args.size} != Parameter number ${parameters.size}"
-//      )
-//    }
+  ): Bindings =
+    if (args.size == parameters.size) {
+      var currentBindings = bindings.newScope()
+      for (i in args.indices) {
+        val arg = args[i]
+        val param = parameters[i]
+        val paramRes = param.eval(currentBindings)//.getOrElse(TODO())
+        if (paramRes.isNotEmpty()) {
+          when(val res = currentBindings.bindVariable(arg.name, (paramRes.orNull()!!).result)) {
+            is Either.Left  -> TODO()//return res
+            is Either.Right -> currentBindings = res.value
+          }
+        } else {
+          TODO()
+        }
+      }
+      currentBindings
+    } else {
+      throw RuntimeException(
+        "Argument number ${args.size} != Parameter number ${parameters.size}"
+      )
+    }
 }
 
 //TODO is this needed?

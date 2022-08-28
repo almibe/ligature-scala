@@ -8,10 +8,11 @@ import arrow.core.Some
 import arrow.core.Either
 import arrow.core.None
 import dev.ligature.gaze.*
+import dev.ligature.wander.WanderError
 import dev.ligature.wander.lexer.Token
 import dev.ligature.wander.parser.Nibblers.scriptNib
 
-data class ParsingError(val message: String)
+data class ParsingError(override val message: String): WanderError
 
 fun parse(script: List<Token>): Either<ParsingError, Script> {
   val filteredInput = script.filter { token: Token ->
