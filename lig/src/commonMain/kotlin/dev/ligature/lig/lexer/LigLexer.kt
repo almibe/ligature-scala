@@ -36,7 +36,7 @@ fun tokenize(input: String): List<LigToken> {
       )
     )
     when(res) {
-      is None -> { TODO("Return Left here ${gaze.isComplete}\n${gaze.debug()}") }
+      is None -> { TODO("Return Left here ${gaze.isComplete}\n${gaze.peek()}") }
       is Some -> { tokens.addAll(res.value) }
     }
   }

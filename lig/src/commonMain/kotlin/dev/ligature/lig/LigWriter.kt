@@ -4,11 +4,7 @@
 
 package dev.ligature.lig
 
-import dev.ligature.Identifier
-import dev.ligature.IntegerLiteral
-import dev.ligature.Statement
-import dev.ligature.StringLiteral
-import dev.ligature.Value
+import dev.ligature.*
 
 fun write(statements: Iterator<Statement>): String {
   val sb = StringBuilder()
@@ -35,4 +31,5 @@ fun writeValue(value: Value): String =
     is IntegerLiteral -> value.value.toString()
     is StringLiteral  ->
       "\"${value.value}\"" // TODO this needs to handle escaping special characters
+    is BytesLiteral   -> TODO()
   }
