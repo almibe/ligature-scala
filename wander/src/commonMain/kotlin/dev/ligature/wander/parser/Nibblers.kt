@@ -88,13 +88,7 @@ object Nibblers {
 //    listOf(Arrow)
 //  }
 //
-  val scopeNib: Nibbler<Token, Scope> = between(
-    openBraceNib,
-    optional(repeat(::expressionNib)),
-    closeBraceNib
-  ).map { tokens: List<Element> ->
-    listOf(Scope(tokens))
-  }
+
 
 //    { gaze ->
 //  for {
@@ -273,6 +267,14 @@ object Nibblers {
 //  }
 
   val elementNib = takeFirst(::expressionNib, letStatementNib)
+
+  val scopeNib: Nibbler<Token, Scope> = between(
+    openBraceNib,
+    optional(repeat(elementNib)),
+    closeBraceNib
+  ).map { tokens: List<Element> ->
+    listOf(Scope(tokens))
+  }
 
   fun expressionNib(gaze: Gaze<Token>): Option<List<Expression>> =
     takeFirst(
