@@ -44,7 +44,7 @@ private val DEFAULT_ALPHABET =
 /** The default size used by this class. Creates NanoId Strings with slightly
   * more unique values than UUID v4.
   */
-private val DEFAULT_SIZE = 21
+private const val DEFAULT_SIZE = 21
 
 /** Static factory to retrieve a url-friendly, pseudo randomly generated, NanoId
   * String.
