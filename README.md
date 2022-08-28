@@ -12,7 +12,7 @@ See additional documentation [here](https://github.com/almibe/ligature-documenta
 | ligature                 | Common data types and interfaces for Ligature                                    | ✅   | ✅ |
 | ligature-test-suite      | A shared test suite for Ligature                                                 | ✅   | ✅ |
 | idgen                    | A basic, unsecure, implementation of nanoid for use with Ligature                | ✅   | ✅ |
-| lig                      | A simple serialization format as well as DLig an input format for Ligature       | ✅   | ✅ |
+| lig                      | A simple serialization/input format Ligature                                     | ✅   | ✅ |
 | ligature-in-memory       | An in-memory implementation of Ligature                                          | ✅   | ✅ |
 | ligature-xodus           | An implementation of Ligature using LMDB for persistence.                        | ✅   |   |
 | wander                   | A scripting language for working with Ligature.                                  | ✅   | ✅ |
