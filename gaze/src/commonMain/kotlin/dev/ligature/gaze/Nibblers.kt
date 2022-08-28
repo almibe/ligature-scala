@@ -4,11 +4,6 @@
 
 package dev.ligature.gaze
 
-import arrow.core.Some
-import arrow.core.none
-import arrow.core.None
-import arrow.core.Option
-
 /** A Nibbler that takes a single item.
   */
 fun <I>take(toMatch: I): Nibbler<I, I> = { gaze ->
@@ -28,6 +23,18 @@ fun <I>takeCond(cond: (I) -> Boolean): Nibbler<I, I> = { gaze ->
     is Some ->
       if (cond(next.value)) { Some(listOf(next.value)) }
       else { none() }
+    is None -> none()
+  }
+}
+
+fun <I, O>takeCondMap(cond: (I) -> Option<O>): Nibbler<I, O> = { gaze ->
+  when(val next = gaze.next()) {
+    is Some -> {
+      when(val res = cond(next.value)) {
+        is Some -> Some(listOf(res.value))
+        is None -> none()
+      }
+    }
     is None -> none()
   }
 }
@@ -229,13 +236,13 @@ fun <I, O>repeat(
   }
 }
 
-fun <I>between(
-    wrapper: Nibbler<I, I>,
-    content: Nibbler<I, I>
+fun <I, O>between(
+    wrapper: Nibbler<I, O>,
+    content: Nibbler<I, O>
 ) = takeAllGrouped(wrapper, content, wrapper).map { it[1] }
 
-fun <I>between(
-    open: Nibbler<I, I>,
-    content: Nibbler<I, I>,
-    close: Nibbler<I, I>
+fun <I, O>between(
+    open: Nibbler<I, O>,
+    content: Nibbler<I, O>,
+    close: Nibbler<I, O>
 ) = takeAllGrouped(open, content, close).map { it[1] }

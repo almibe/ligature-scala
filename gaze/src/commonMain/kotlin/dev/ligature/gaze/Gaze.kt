@@ -4,11 +4,6 @@
 
 package dev.ligature.gaze
 
-import arrow.core.Option
-import arrow.core.Some
-import arrow.core.None
-import arrow.core.none
-
 data class Location(val line: Int, val lineOffset: Int)
 
 class Gaze<I>(private val input: List<I>) {
@@ -26,14 +21,16 @@ class Gaze<I>(private val input: List<I>) {
   val isComplete: Boolean
     get() = this.offset >= this.input.size
 
-  fun peek(): Option<I> =
+  //TODO add optional int param to peek
+  fun peek(distance: Int = 0): Option<I> =
     if (this.isComplete) {
       none()
     } else {
       Some(this.input[this.offset])
     }
 
-  fun next(): Option<I> =
+  //TODO add optional int param to next
+  fun next(distance: Int = 0): Option<I> =
     if (this.isComplete) {
       none()
     } else {
@@ -63,15 +60,15 @@ class Gaze<I>(private val input: List<I>) {
     }
   }
 
-  fun <O>attempt(nibbler: Nibbler<I, O>): Option<List<O>> {
+  fun <O>attempt(nibbler: Nibbler<I, O>): List<O>? {
     val startOfThisLoop = this.offset
 
     return when(val res = nibbler(this)) {
-      is Some -> res
-      is None -> {
+      null -> {
         this.offset = startOfThisLoop
         res
       }
+      else -> res
     }
   }
   
@@ -79,12 +76,12 @@ class Gaze<I>(private val input: List<I>) {
     get() = Location(this.line, this.lineOffset)
 }
 
-typealias Nibbler<I, O> = (Gaze<I>) -> Option<List<O>>
+typealias Nibbler<I, O> = (Gaze<I>) -> List<O>?
 
 fun <I, O, NO>Nibbler<I, O>.map(f: (List<O>) -> List<NO>): Nibbler<I, NO> = { gaze ->
   when(val results = this(gaze)) {
-    is None -> none()
-    is Some -> Some(f(results.value))
+    null -> null
+    else -> f(results)
   }
 }
 
