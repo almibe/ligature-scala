@@ -4,21 +4,19 @@
 
 package dev.ligature.gaze
 
-import arrow.core.Some
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 
 class OptionSuite: FunSpec() {
-  val ello = takeString("ello")
   val optionalHello = takeAll(optional(takeString("h")), takeString("ello"))
 
   init {
     test("option test") {
       val gaze = Gaze.from("hello")
-      gaze.attempt(optionalHello) shouldBe Some("hello".toList())
+      gaze.attempt(optionalHello) shouldBe "hello".toList()
 
       val gaze2 = Gaze.from("ello")
-      gaze2.attempt(optionalHello) shouldBe Some("ello".toList())
+      gaze2.attempt(optionalHello) shouldBe "ello".toList()
     }
   }
 }

@@ -8,11 +8,11 @@ package dev.ligature.gaze
   */
 fun <I>take(toMatch: I): Nibbler<I, I> = { gaze ->
   when(val next = gaze.next()) {
-    is Some -> {
-      if (toMatch == next.value) { Some(listOf(toMatch)) }
-      else { none() }
+    null -> null
+    else -> {
+      if (toMatch == next) { listOf(toMatch) }
+      else { null }
     }
-    is None -> none()
   }
 }
 
@@ -20,22 +20,22 @@ fun <I>take(toMatch: I): Nibbler<I, I> = { gaze ->
   */
 fun <I>takeCond(cond: (I) -> Boolean): Nibbler<I, I> = { gaze ->
   when(val next = gaze.next()) {
-    is Some ->
-      if (cond(next.value)) { Some(listOf(next.value)) }
-      else { none() }
-    is None -> none()
+    null -> null
+    else ->
+      if (cond(next)) { listOf(next) }
+      else { null }
   }
 }
 
-fun <I, O>takeCondMap(cond: (I) -> Option<O>): Nibbler<I, O> = { gaze ->
+fun <I, O>takeCondMap(cond: (I) -> O?): Nibbler<I, O> = { gaze ->
   when(val next = gaze.next()) {
-    is Some -> {
-      when(val res = cond(next.value)) {
-        is Some -> Some(listOf(res.value))
-        is None -> none()
+    null -> null
+    else -> {
+      when(val res = cond(next)) {
+        null -> null
+        else -> listOf(res)
       }
     }
-    is None -> none()
   }
 }
 
@@ -47,19 +47,18 @@ fun <I, O>takeAll(
 ): Nibbler<I, O> = { gaze: Gaze<I> ->
   val results = mutableListOf<O>()
   val res = nibblers.all { nibbler ->
-    val res = gaze.attempt(nibbler)
-    when(res) {
-      is Some -> {
-        results.addAll(res.value)
+    when(val res = gaze.attempt(nibbler)) {
+      null -> false
+      else -> {
+        results.addAll(res)
         true
       }
-      is None -> false
     }
   }
   if (res) {
-    Some(results.toList())
+    results.toList()
   } else {
-    none()
+    null
   }
 }
 
@@ -73,17 +72,17 @@ fun <I, O>takeAllGrouped(
   val results = mutableListOf<List<O>>()
   val res = nibblers.all { nibbler ->
     when(val res = gaze.attempt(nibbler)) {
-      is Some -> {
-        results.add(res.value)
+      null -> false
+      else -> {
+        results.add(res)
         true
       }
-      is None -> false
     }
   }
   if (res) {
-    Some(results.toList())
+    results.toList()
   } else {
-    none()
+    null
   }
 }
 
@@ -94,21 +93,20 @@ fun takeString(toMatch: String): Nibbler<Char, Char> {
     var offset = 0
     var matched = true
     while (matched && offset < chars.size) {
-      val nextChar = gaze.next()
-      when(nextChar) {
-        is Some ->
-          if (chars[offset] == nextChar.value) {
+      when(val nextChar = gaze.next()) {
+        null -> matched = false
+        else ->
+          if (chars[offset] == nextChar) {
             offset += 1
           } else {
             matched = false
           }
-        is None -> matched = false
       }
     }
     if (matched) {
-      Some(chars)
+      chars
     } else {
-      none()
+      null
     }
   }
 }
@@ -121,19 +119,18 @@ fun <I>takeUntil(toMatch: I): Nibbler<I, I> =
     val result = mutableListOf<I>()
     var matched = false
     while (!matched) {
-      val next = gaze.peek()
-      when(next) {
-        is Some ->
-          if (next.value == toMatch) {
+      when(val next = gaze.peek()) {
+        null -> matched = true
+        else ->
+          if (next == toMatch) {
             matched = true
           } else {
             gaze.next()
-            result.add(next.value)
+            result.add(next)
           }
-        is None -> matched = true
       }
     }
-    Some(result.toList())
+    result.toList()
   }
 
 //TODO needs tests
@@ -142,24 +139,21 @@ fun <I>takeUntil(toMatch: Nibbler<I, I>): Nibbler<I, I> =
     val result = mutableListOf<I>()
     var matched = false
     while (!matched) {
-      val next = gaze.peek()
-      when(next) {
-        is Some -> {
-          val check = gaze.check(toMatch)
-          when(check) {
-            is Some -> matched = true
-            is None -> {
+      when(val next = gaze.peek()) {
+        null -> matched = true
+        else -> {
+          when(gaze.check(toMatch)) {
+            null -> {
               gaze.next()
-              result.add(next.value)
+              result.add(next)
             }
+            else -> matched = true
           }
         }
-        is None -> matched = true
       }
     }
-    Some(result.toList())
+    result.toList()
   }
-
 
 fun <I>takeWhile(
     predicate: (toMatch: I) -> Boolean
@@ -170,10 +164,17 @@ fun <I>takeWhile(
     var proceed = true
     while (proceed) {
       when(val peek = gaze.peek()) {
-        is Some -> {
-          if (predicate(peek.value)) {
+        null ->
+          if (res.size == 0) {
+            matched = false
+            proceed = false
+          } else {
+            proceed = false
+          }
+        else -> {
+          if (predicate(peek)) {
             gaze.next()
-            res += peek.value
+            res += peek
           } else if (res.size == 0) {
             matched = false
             proceed = false
@@ -181,26 +182,19 @@ fun <I>takeWhile(
             proceed = false
           }
         }
-        is None ->
-          if (res.size == 0) {
-            matched = false
-            proceed = false
-          } else {
-            proceed = false
-          }
       }
     }
     if (matched) {
-      Some(res.toList())
+      res.toList()
     } else {
-      none()
+      null
     }
   }
 
 fun <I, O>optional(nibbler: Nibbler<I, O>): Nibbler<I, O> = { gaze: Gaze<I> ->
   when(val res = gaze.attempt(nibbler)) {
-    is Some -> res
-    is None -> Some(listOf())
+    null -> listOf()
+    else -> res
   }
 }
 
@@ -211,10 +205,10 @@ fun takeCharacters(vararg chars: Char): Nibbler<Char, Char> = takeWhile {
 fun <I, O>takeFirst(
     vararg nibblers: Nibbler<I, O>
 ): Nibbler<I, O> = { gaze: Gaze<I> ->
-  var finalRes: Option<List<O>> = none()
+  var finalRes: List<O>? = null
   nibblers.find { nibbler ->
     finalRes = gaze.attempt(nibbler)
-    finalRes is Some
+    finalRes != null
   }
   finalRes
 }
@@ -226,13 +220,13 @@ fun <I, O>repeat(
   var proceed = true
   while (!gaze.isComplete && proceed)
     when(val v = gaze.attempt(nibbler)) {
-      is None -> proceed = false
-      is Some -> allMatches.addAll(v.value)
+      null -> proceed = false
+      else -> allMatches.addAll(v)
     }
   if (allMatches.isEmpty()) {
-    none()
+    null
   } else {
-    Some(allMatches.toList())
+    allMatches.toList()
   }
 }
 

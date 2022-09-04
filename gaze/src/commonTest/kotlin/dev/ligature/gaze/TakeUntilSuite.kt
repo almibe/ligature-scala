@@ -4,7 +4,6 @@
 
 package dev.ligature.gaze
 
-import arrow.core.Some
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 
@@ -19,19 +18,19 @@ class TakeUntilSuite: FunSpec() {
       val gaze3 = Gaze.from("    \n   ")
       val gaze4 = Gaze.from("123\n")
 
-      gaze1.attempt(nibbler) shouldBe Some(listOf())
+      gaze1.attempt(nibbler) shouldBe listOf()
       gaze1.isComplete shouldBe true
 
-      gaze2.attempt(nibbler) shouldBe Some(listOf())
+      gaze2.attempt(nibbler) shouldBe listOf()
       gaze2.isComplete shouldBe false
-      gaze2.attempt(takeNewLine) shouldBe Some(listOf('\n'))
+      gaze2.attempt(takeNewLine) shouldBe listOf('\n')
       gaze2.isComplete shouldBe true
 
-      gaze3.attempt(nibbler) shouldBe Some(listOf(' ', ' ', ' ', ' '))
+      gaze3.attempt(nibbler) shouldBe listOf(' ', ' ', ' ', ' ')
 
-      gaze4.attempt(nibbler) shouldBe Some(listOf('1', '2', '3'))
+      gaze4.attempt(nibbler) shouldBe listOf('1', '2', '3')
       gaze4.isComplete shouldBe false
-      gaze4.attempt(takeNewLine) shouldBe Some(listOf('\n'))
+      gaze4.attempt(takeNewLine) shouldBe listOf('\n')
       gaze4.isComplete shouldBe true
     }
   }

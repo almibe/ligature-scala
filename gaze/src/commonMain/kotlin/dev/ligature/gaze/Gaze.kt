@@ -21,43 +21,55 @@ class Gaze<I>(private val input: List<I>) {
   val isComplete: Boolean
     get() = this.offset >= this.input.size
 
-  //TODO add optional int param to peek
-  fun peek(distance: Int = 0): Option<I> =
+  fun peek(): I? =
     if (this.isComplete) {
-      none()
+      null
     } else {
-      Some(this.input[this.offset])
+      this.input[this.offset]
     }
 
-  //TODO add optional int param to next
-  fun next(distance: Int = 0): Option<I> =
+  fun next(): I? =
     if (this.isComplete) {
-      none()
+      null
     } else {
-      val next = Some(this.input[this.offset])
+      val next = this.input[this.offset]
       this.offset += 1
       this.lineOffset += 1
-      if (next.value == "\n") {
+      if (next == "\n") {
         this.line += 1
         this.lineOffset = 0
       }
       next
     }
 
+//  fun peek(distance: Int): List<I>? =
+//    if (this.isComplete) { //TODO check length
+//      null
+//    } else {
+//      this.input.slice(this.offset..this.offset+distance)
+//    }
+//
+//  fun next(distance: Int): List<I>? =
+//    if (this.isComplete) { //TODO check length
+//      null
+//    } else {
+//      val next = this.input[this.offset]
+//      this.offset += 1
+//      this.lineOffset += 1
+//      if (next == "\n") {
+//        this.line += 1
+//        this.lineOffset = 0
+//      }
+//      next
+//    }
+
   // TODO needs tests
-  fun <O>check(nibbler: Nibbler<I, O>): Option<List<O>> {
+  fun <O>check(nibbler: Nibbler<I, O>): List<O>? {
     val startOfThisLoop = this.offset
 
-    return when(val res = nibbler(this)) {
-      is Some -> {
-        this.offset = startOfThisLoop
-        res
-      }
-      is None -> {
-        this.offset = startOfThisLoop
-        res
-      }
-    }
+    val res = nibbler(this)
+    this.offset = startOfThisLoop
+    return res
   }
 
   fun <O>attempt(nibbler: Nibbler<I, O>): List<O>? {

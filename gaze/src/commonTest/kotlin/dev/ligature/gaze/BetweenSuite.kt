@@ -4,7 +4,6 @@
 
 package dev.ligature.gaze
 
-import arrow.core.Some
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 
@@ -17,12 +16,12 @@ class BetweenSuite: FunSpec() {
   init {
     test("quote wrap test") {
       val gaze = Gaze.from("'hello'")
-      gaze.attempt(between(quote, content)) shouldBe Some("hello".toList())
+      gaze.attempt(between(quote, content)) shouldBe "hello".toList()
     }
 
     test("angle bracket test") {
       val gaze = Gaze.from("<hello>")
-      gaze.attempt(between(open, content, close)) shouldBe Some("hello".toList())
+      gaze.attempt(between(open, content, close)) shouldBe "hello".toList()
     }
   }
 }

@@ -4,8 +4,6 @@
 
 package dev.ligature.gaze
 
-import arrow.core.none
-import arrow.core.Some
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 
@@ -15,23 +13,23 @@ class RepeatSuite: FunSpec() {
   init {
     test("empty repeat test") {
       val gaze = Gaze.from("")
-      gaze.attempt(repeatHello) shouldBe none()
+      gaze.attempt(repeatHello) shouldBe null
     }
 
     test("one match repeat test") {
       val gaze = Gaze.from("hello")
-      gaze.attempt(repeatHello) shouldBe Some("hello".toList())
+      gaze.attempt(repeatHello) shouldBe "hello".toList()
     }
 
     test("two match repeat test") {
       val gaze = Gaze.from("hellohello")
-      gaze.attempt(repeatHello) shouldBe Some("hellohello".toList())
+      gaze.attempt(repeatHello) shouldBe "hellohello".toList()
       gaze.isComplete shouldBe true
     }
 
     test("two match repeat test with remaining text") {
       val gaze = Gaze.from("hellohellohell")
-      gaze.attempt(repeatHello) shouldBe Some("hellohello".toList())
+      gaze.attempt(repeatHello) shouldBe "hellohello".toList()
       gaze.isComplete shouldBe false
     }
   }
