@@ -4,8 +4,6 @@
 
 package dev.ligature.lig.parser
 
-import arrow.core.Some
-import arrow.core.None
 import arrow.core.continuations.eagerEffect
 import arrow.core.Either
 import dev.ligature.*
@@ -21,8 +19,8 @@ fun parse(input: List<LigToken>): Either<LigError, List<Statement>> {
   while (!gaze.isComplete && foundNewLine) {
     val res = gaze.attempt(statementNibbler)
     when(res) {
-      is Some -> statements.addAll(res.value)
-      is None -> TODO()
+      null -> TODO()
+      else -> statements.addAll(res)
     }
     foundNewLine = stripNewLinesAndWhiteSpace(gaze)
   }
@@ -36,9 +34,9 @@ fun parse(input: List<LigToken>): Either<LigError, List<Statement>> {
 private fun stripNewLinesAndWhiteSpace(gaze: Gaze<LigToken>): Boolean {
   var foundNewLine = false
   while (!gaze.isComplete) {
-    if (gaze.peek() == Some(LigToken.WhiteSpace)) {
+    if (gaze.peek() == LigToken.WhiteSpace) {
       gaze.next()
-    } else if (gaze.peek() == Some(LigToken.NewLine)) {
+    } else if (gaze.peek() == LigToken.NewLine) {
       gaze.next()
       foundNewLine = true
     } else {

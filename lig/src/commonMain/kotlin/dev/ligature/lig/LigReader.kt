@@ -9,10 +9,6 @@ import dev.ligature.gaze.*
 import dev.ligature.idgen.genId
 import dev.ligature.lig.LigNibblers.whiteSpaceNibbler
 import arrow.core.Either
-import arrow.core.Option
-import arrow.core.None
-import arrow.core.none
-import arrow.core.Some
 import dev.ligature.lig.lexer.tokenize
 import dev.ligature.lig.parser.parse
 
@@ -125,7 +121,7 @@ fun parsePrefixes(gaze: Gaze<Char>): Either<LigError, Map<String, String>> {
 //TODO: this function never returns an Error so if there is a malformed prefix it won't be caught until we try to read a Statement
 fun parsePrefix(
     gaze: Gaze<Char>
-): Either<LigError, Option<Pair<String, String>>> {
+): Either<LigError, Pair<String, String>?> {
   val parseResult = gaze.attempt(
     takeAllGrouped(
       takeString("prefix"),
@@ -140,11 +136,11 @@ fun parsePrefix(
     )
   )
   return when(parseResult) {
-    is None -> Either.Right(None)
-    is Some -> {
-      val prefixName = parseResult.value[2].joinToString("")
-      val prefixValue = parseResult.value[6].joinToString("")
-      Either.Right(Some(Pair(prefixName, prefixValue)))
+    null -> Either.Right(null)
+    else -> {
+      val prefixName = parseResult[2].joinToString("")
+      val prefixValue = parseResult[6].joinToString("")
+      Either.Right(Pair(prefixName, prefixValue))
     }
   }
 }
@@ -154,13 +150,13 @@ fun parseStatements(
     prefixes: Map<String, String>
 ): Either<LigError, List<Statement>> {
   val statements = mutableListOf<Statement>()
-  var lastStatement: Option<Statement> = none()
+  var lastStatement: Statement? = null
   while (!gaze.isComplete)
     when(val res = parseStatement(gaze, prefixes, lastStatement)) {
       is Either.Left  -> return res
       is Either.Right -> {
         val statement = res.value
-        lastStatement = Some(statement)
+        lastStatement = statement
         statements.add(statement)
       }
     }
@@ -170,7 +166,7 @@ fun parseStatements(
 fun parseStatement(
     gaze: Gaze<Char>,
     prefixes: Map<String, String>,
-    lastStatement: Option<Statement>
+    lastStatement: Statement?
 ): Either<LigError, Statement> = TODO()
 //  for {
 //    _ <- gaze
@@ -190,28 +186,28 @@ fun parseStatement(
 //      .toRight(LigError(""))
 //  } yield Statement(entity, attribute, value)
 
-fun lastEntity(lastStatement: Option<Statement>): Option<Identifier> =
+fun lastEntity(lastStatement: Statement?): Identifier? =
   when(lastStatement) {
-    is None -> none()
-    is Some -> Some(lastStatement.value.entity)
+    null -> null
+    else -> lastStatement.entity
   }
 
-fun lastAttribute(lastStatement: Option<Statement>): Option<Identifier> =
+fun lastAttribute(lastStatement: Statement?): Identifier? =
   when(lastStatement) {
-    is None -> none()
-    is Some -> Some(lastStatement.value.attribute)
+    null -> null
+    else -> lastStatement.attribute
   }
 
-fun lastValue(lastStatement: Option<Statement>): Option<Value> =
+fun lastValue(lastStatement: Statement?): Value? =
   when(lastStatement) {
-    is None -> none()
-    is Some -> Some(lastStatement.value.value)
+    null -> null
+    else -> lastStatement.value
   }
 
 fun parseIdentifier(
     gaze: Gaze<Char>,
     prefixes: Map<String, String>,
-    lastIdentifier: Option<Identifier>
+    lastIdentifier: Identifier?
 ): Either<LigError, Identifier> {
   TODO()
   // attempt copy character

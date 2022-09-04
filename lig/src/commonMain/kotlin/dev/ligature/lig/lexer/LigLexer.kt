@@ -4,8 +4,6 @@
 
 package dev.ligature.lig.lexer
 
-import arrow.core.None
-import arrow.core.Some
 import dev.ligature.gaze.*
 import dev.ligature.lig.LigNibblers
 
@@ -36,8 +34,8 @@ fun tokenize(input: String): List<LigToken> {
       )
     )
     when(res) {
-      is None -> { TODO("Return Left here ${gaze.isComplete}\n${gaze.peek()}") }
-      is Some -> { tokens.addAll(res.value) }
+      null -> { TODO("Return Left here ${gaze.isComplete}\n${gaze.peek()}") }
+      else -> { tokens.addAll(res) }
     }
   }
   return tokens
