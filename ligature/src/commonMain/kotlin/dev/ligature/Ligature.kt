@@ -4,12 +4,14 @@
 
 package dev.ligature
 
-import com.github.michaelbull.result.Result
-import com.github.michaelbull.result.Err
-import com.github.michaelbull.result.Ok
+import arrow.core.Option
+import arrow.core.none
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.*
 import kotlin.jvm.JvmInline
+import arrow.core.Either
+import arrow.core.Either.Left
+import arrow.core.Either.Right
 
 val datasetPattern = Regex("^([a-zA-Z_][a-zA-Z0-9_]*)(/[a-zA-Z_][a-zA-Z0-9_]*)*$")
 val identifierPattern = Regex("^[a-zA-Z0-9-._~:/?#\\[\\]@!$&'()*+,;%=]+$")
@@ -23,9 +25,9 @@ value class Dataset /*private constructor*/(val name: String): Comparable<Datase
   override fun compareTo(other: Dataset): Int = this.name.compareTo(other.name)
 
   companion object {
-    fun create(name: String): Result<Dataset, InvalidDataset> =
-      if (name.matches(datasetPattern)) Ok(Dataset(name))
-      else Err(InvalidDataset(name))
+    fun create(name: String): Either<InvalidDataset, Dataset> =
+      if (name.matches(datasetPattern)) Right(Dataset(name))
+      else Left(InvalidDataset(name))
   }
 }
 
@@ -38,9 +40,9 @@ value class Identifier(val name: String): Comparable<Identifier>, Value { //TODO
   override fun compareTo(other: Identifier): Int = this.name.compareTo(other.name)
 
   companion object {
-    fun create(name: String): Result<Identifier, InvalidIdentifier> =
-      if (name.matches(identifierPattern)) Ok(Identifier(name))
-      else Err(InvalidIdentifier(name))
+    fun create(name: String): Either<InvalidIdentifier, Identifier> =
+      if (name.matches(identifierPattern)) Right(Identifier(name))
+      else Left(InvalidIdentifier(name))
   }
 }
 
@@ -71,9 +73,9 @@ data class BytesLiteral(val value: ByteArray): Value {
 //final case class IntegerLiteralRange(start: Long, end: Long) extends Range
 
 data class Statement(
-    val entity: Identifier,
-    val attribute: Identifier,
-    val value: Value
+  val entity: Identifier,
+  val attribute: Identifier,
+  val value: Value
 )
 
 /** An interface that all Ligature implementations implement. */
@@ -86,55 +88,55 @@ interface Ligature {
   suspend fun datasetExists(dataset: Dataset): Boolean
 
   /** Returns all Datasets in a Ligature instance that start with the given
-    * prefix.
-    */
+   * prefix.
+   */
   fun matchDatasetsPrefix(
-      prefix: String
+    prefix: String
   ): Flow<Dataset>
 
   /** Returns all Datasets in a Ligature instance that are in a given range
-    * (inclusive, exclusive].
-    */
+   * (inclusive, exclusive].
+   */
   fun matchDatasetsRange(
-      start: String,
-      end: String
+    start: String,
+    end: String
   ): Flow<Dataset>
 
   /** Creates a dataset with the given name. TODO should probably return its own
-    * error type { InvalidDataset, DatasetExists, CouldNotCreateDataset }
-    */
+   * error type { InvalidDataset, DatasetExists, CouldNotCreateDataset }
+   */
   suspend fun createDataset(dataset: Dataset): Unit
 
   /** Deletes a dataset with the given name. TODO should probably return its own
-    * error type { InvalidDataset, CouldNotDeleteDataset }
-    */
+   * error type { InvalidDataset, CouldNotDeleteDataset }
+   */
   suspend fun deleteDataset(dataset: Dataset): Unit
 
   /** Initializes a QueryTx TODO should probably return its own error type
-    * CouldNotInitializeQueryTx
-    */
+   * CouldNotInitializeQueryTx
+   */
   suspend fun <T>query(dataset: Dataset, fn: suspend (QueryTx) -> T): T
 
   /** Initializes a WriteTx TODO should probably return IO[Either] w/ its own
-    * error type CouldNotInitializeWriteTx
-    */
+   * error type CouldNotInitializeWriteTx
+   */
   suspend fun <T>write(dataset: Dataset, fn: suspend (WriteTx) -> T): T
 
   suspend fun close(): Unit
 }
 
 /** Represents a QueryTx within the context of a Ligature instance and a single
-  * Dataset
-  */
+ * Dataset
+ */
 interface QueryTx {
 
   /** Returns all PersistedStatements in this Dataset. */
   fun allStatements(): Flow<Statement>
 
   /** Returns all PersistedStatements that match the given criteria. If a
-    * parameter is None then it matches all, so passing all Nones is the same as
-    * calling allStatements.
-    */
+   * parameter is None then it matches all, so passing all Nones is the same as
+   * calling allStatements.
+   */
   fun matchStatements(
       entity: Identifier? = null,
       attribute: Identifier? = null,
@@ -152,27 +154,27 @@ interface QueryTx {
 }
 
 /** Represents a WriteTx within the context of a Ligature instance and a single
-  * Dataset
-  */
+ * Dataset
+ */
 interface WriteTx {
 
   /** Creates a new, unique Entity within this Dataset by combining a UUID and
-    * an optional prefix. Note: Entities are shared across named graphs in a
-    * given Dataset.
-    */
+   * an optional prefix. Note: Entities are shared across named graphs in a
+   * given Dataset.
+   */
   suspend fun newIdentifier(prefix: String = ""): Identifier
 
   /** Adds a given Statement to this Dataset. If the Statement already exists
-    * nothing happens.
-    */
+   * nothing happens.
+   */
   suspend fun addStatement(statement: Statement): Unit
 
   /** Removes a given PersistedStatement from this Dataset. If the
-    * PersistedStatement doesn't exist nothing happens and returns Ok(false).
-    * This function returns Ok(true) only if the given PersistedStatement was
-    * found and removed.
-    */
+   * PersistedStatement doesn't exist nothing happens and returns Ok(false).
+   * This function returns Ok(true) only if the given PersistedStatement was
+   * found and removed.
+   */
   suspend fun removeStatement(
-      statement: Statement
+    statement: Statement
   ): Unit
 }
