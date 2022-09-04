@@ -276,7 +276,7 @@ object Nibblers {
     listOf(Scope(tokens))
   }
 
-  fun expressionNib(gaze: Gaze<Token>): Option<List<Expression>> =
+  fun expressionNib(gaze: Gaze<Token>): List<Expression>? =
     takeFirst(
       ifExpressionNib,
       functionCallNib,

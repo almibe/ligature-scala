@@ -4,9 +4,7 @@
 
 package dev.ligature.wander.parser
 
-import arrow.core.Some
 import arrow.core.Either
-import arrow.core.None
 import dev.ligature.gaze.*
 import dev.ligature.wander.WanderError
 import dev.ligature.wander.lexer.Token
@@ -20,15 +18,15 @@ fun parse(script: List<Token>): Either<ParsingError, Script> {
   }.toList()
   val gaze = Gaze(filteredInput)
   return when(val res = gaze.attempt(scriptNib)) {
-    is None ->
+    null ->
       if (gaze.isComplete) {
         Either.Right(Script(listOf()))
       } else {
         Either.Left(ParsingError("No Match1"))
       }
-    is Some ->
+    else ->
       if (gaze.isComplete) {
-        Either.Right(Script(res.value)) // .filter(_.isDefined).map(_.get)))
+        Either.Right(Script(res)) // .filter(_.isDefined).map(_.get)))
       } else {
         Either.Left(ParsingError("Not complete - ${gaze.peek()}"))
       }

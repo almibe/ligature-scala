@@ -5,8 +5,6 @@
 package dev.ligature.wander.lexer
 
 import arrow.core.Either
-import arrow.core.None
-import arrow.core.Some
 import dev.ligature.gaze.*
 import dev.ligature.wander.WanderError
 
@@ -37,15 +35,15 @@ data class TokenizeError(override val message: String): WanderError
 fun tokenize(input: String): Either<TokenizeError, List<Token>> {
   val gaze = Gaze.from(input)
   return when(val res = gaze.attempt(Nibblers.tokensNib)) {
-    is None ->
+    null ->
       if (gaze.isComplete) {
         Either.Right(listOf())
       } else {
         Either.Left(TokenizeError("Error"))
       }
-    is Some ->
+    else ->
       if (gaze.isComplete) {
-        Either.Right(res.value)
+        Either.Right(res)
       } else {
         Either.Left(TokenizeError("Error"))
       }

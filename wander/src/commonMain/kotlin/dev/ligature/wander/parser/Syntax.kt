@@ -13,9 +13,6 @@ import arrow.core.Either.Left
 import arrow.core.Either.Right
 import arrow.core.flatMap
 import arrow.core.Option
-import arrow.core.Some
-import arrow.core.None
-import arrow.core.none
 
 /** Represents the union of Statements and Expressions
   */

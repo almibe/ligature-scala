@@ -4,9 +4,9 @@
 
 package dev.ligature.wander.interpreter
 
-import com.github.michaelbull.result.Result
-import com.github.michaelbull.result.Err
-import com.github.michaelbull.result.Ok
+import arrow.core.Either
+import arrow.core.Either.Right
+import arrow.core.Either.Left
 import dev.ligature.wander.parser.Name
 import dev.ligature.wander.parser.NativeFunction
 import dev.ligature.wander.parser.Parameter
@@ -84,7 +84,7 @@ fun common(): Bindings {
           Parameter(Name("boolLeft")),//, WanderType.Boolean),
           Parameter(Name("boolRight"))//, WanderType.Boolean)
         )) { bindings: Bindings ->
-          Ok(BooleanValue(true))
+          Right(BooleanValue(true))
 //          for {
 //            left < -bindings.read(Name("boolLeft"))
 //            right < -bindings.read(Name("boolRight"))
