@@ -149,9 +149,9 @@ class XodusQueryTx(
     * calling allStatements.
     */
   override fun matchStatements(
-      entity: Option<Identifier>,
-      attribute: Option<Identifier>,
-      value: Option<Value>
+      entity: Identifier?,
+      attribute: Identifier?,
+      value: Value?
   ): Flow<Statement> = TODO() //{
 //    val luEntity = lookupIdentifier(entity)
 //    val luAttribute = lookupIdentifier(attribute)

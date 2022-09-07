@@ -19,6 +19,7 @@ include(
     "ligature-http-test-suite",
     "ligature-http-xodus",
     "ligature-in-memory",
+    "ligature-repl",
     "ligature-test-suite",
     "ligature-xodus",
     "wander"

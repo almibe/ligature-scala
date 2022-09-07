@@ -116,7 +116,7 @@ class XodusWriteTx(
           )
         )
       }
-      // TODO Bytes
+      is BytesLiteral -> TODO()
     }
 
   private fun statementExists(

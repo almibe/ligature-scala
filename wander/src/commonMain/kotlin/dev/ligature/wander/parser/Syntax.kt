@@ -13,6 +13,7 @@ import arrow.core.Either.Left
 import arrow.core.Either.Right
 import arrow.core.flatMap
 import arrow.core.Option
+import arrow.core.none
 
 /** Represents the union of Statements and Expressions
   */
@@ -125,7 +126,7 @@ data class LetStatement(val name: Name, val expression: Expression): Element {
       is Either.Right -> {
         when(val res = bindings.bindVariable(this.name, result.value.result)) {
           is Either.Left  -> res
-          is Either.Right -> Either.Right(EvalResult(res.value, Nothing))
+          is Either.Right -> TODO() //Either.Right(EvalResult(res.value, Nothing))
         }
       }
     }
@@ -172,7 +173,7 @@ data class Script(val elements: List<Element>) {
   */
 data class Scope(val elements: List<Element>): Expression {
   override fun eval(bindings: Bindings): Either<ScriptError, EvalResult> {
-    var currentBindings = bindings.newScope()
+    var currentBindings = bindings//.newScope() TODO fix
     var result: WanderValue = Nothing
     elements.forEach { element ->
       when (val res = element.eval(currentBindings)) {
@@ -237,28 +238,28 @@ data class FunctionCall(val name: Name, val parameters: List<Expression>): Expre
   fun updateFunctionCallBindings(
       bindings: Bindings,
       args: List<Parameter>
-  ): Bindings =
-    if (args.size == parameters.size) {
-      var currentBindings = bindings.newScope()
-      for (i in args.indices) {
-        val arg = args[i]
-        val param = parameters[i]
-        val paramRes = param.eval(currentBindings)//.getOrElse(TODO())
-        if (paramRes.isNotEmpty()) {
-          when(val res = currentBindings.bindVariable(arg.name, (paramRes.orNull()!!).result)) {
-            is Either.Left  -> TODO()//return res
-            is Either.Right -> currentBindings = res.value
-          }
-        } else {
-          TODO()
-        }
-      }
-      currentBindings
-    } else {
-      throw RuntimeException(
-        "Argument number ${args.size} != Parameter number ${parameters.size}"
-      )
-    }
+  ): Bindings = TODO()
+//    if (args.size == parameters.size) {
+//      var currentBindings = bindings//.newScope() TODO fix
+//      for (i in args.indices) {
+//        val arg = args[i]
+//        val param = parameters[i]
+//        val paramRes = param.eval(currentBindings)//.getOrElse(TODO())
+//        if (paramRes.isNotEmpty()) {
+//          when(val res = currentBindings.bindVariable(arg.name, (paramRes.orNull()!!).result)) {
+//            is Either.Left  -> TODO()//return res
+//            is Either.Right -> currentBindings = res.value
+//          }
+//        } else {
+//          TODO()
+//        }
+//      }
+//      currentBindings
+//    } else {
+//      throw RuntimeException(
+//        "Argument number ${args.size} != Parameter number ${parameters.size}"
+//      )
+//    }
 }
 
 //TODO is this needed?
@@ -304,10 +305,11 @@ data class IfExpression(
           return elseIf.body.eval(bindings)
         }
       }
-      return when(`else`) {
-        is Some -> `else`.value.body.eval(bindings)
-        is None -> Either.Right(EvalResult(bindings, Nothing))
-      }
+      TODO()
+//      return when(`else`) {
+//        is Some -> `else`.value.body.eval(bindings)
+//        is None -> Either.Right(EvalResult(bindings, Nothing))
+//      }
     }
     return Either.Right(EvalResult(bindings, Nothing))
   }

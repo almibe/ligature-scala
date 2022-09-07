@@ -21,14 +21,14 @@ class InMemoryQueryTx(private val store: DatasetStore): QueryTx {
     * calling allStatements.
     */
   override fun matchStatements(
-      entity: Option<Identifier>,
-      attribute: Option<Identifier>,
-      value: Option<Value>
+      entity: Identifier?,
+      attribute: Identifier?,
+      value: Value?
   ): Flow<Statement> =  flow {
     store.statements.filter { statement ->
-      val en = entity.fold( { true }, { it == statement.entity } )
-      val at = attribute.fold( { true }, { it == statement.attribute } )
-      val va = value.fold( { true }, { it == statement.value } )
+      val en = entity == null || entity == statement.entity
+      val at = attribute == null || attribute == statement.attribute
+      val va = value == null || value == statement.value
       en && at && va
     }.forEach { emit(it) }
   }
