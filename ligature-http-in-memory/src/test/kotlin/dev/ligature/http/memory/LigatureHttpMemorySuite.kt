@@ -18,12 +18,3 @@ class LigatureHttpMemorySuite: LigatureHttpSuite() {
     routes(InMemoryLigature())
   }
 }
-
-class MyTests : StringSpec({
-  "length should return size of string" {
-    "hello".length shouldBe 5
-  }
-  "startsWith should test for a prefix" {
-    "world" should startWith("wor")
-  }
-})

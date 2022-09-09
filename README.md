@@ -21,6 +21,7 @@ See additional documentation [here](https://github.com/almibe/ligature-documenta
 | ligature-http-test-suite | A test suite for ligature-http                                                   | ✅   |   |
 | ligature-http-in-memory  | An implementation of ligature-http that stores everything in memory.             | ✅   |   |
 | ligature-http-xodus      | An implementation of ligature-http that uses ligature-xodus for storage.         | ✅   |   |
+| ligature-repl            | A JVM based REPL for experimenting with Ligature.                                | ✅   |   |
 
 ## Building
 This project uses Gradle to build.
@@ -31,6 +32,10 @@ See https://www.gradle.org/
 For the most part development of this project only requires the basics that Gradle provides.
 
 Use `gradle check` to check that code builds and run tests.
+
+### Using the REPL
+
+See [docs](https://github.com/almibe/ligature-kt/ligature-repl/README.md).
 
 ### Running the Server
 
