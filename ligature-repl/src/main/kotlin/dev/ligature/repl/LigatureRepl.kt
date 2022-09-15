@@ -4,27 +4,15 @@
 
 package dev.ligature.repl
 
-import dev.ligature.http.*
-import io.ktor.server.engine.*
-import io.ktor.server.netty.*
-
-import org.jline.builtins.*;
-import org.jline.builtins.Completers.TreeCompleter;
-import org.jline.builtins.Options.HelpException;
-import org.jline.keymap.BindingReader;
-import org.jline.keymap.KeyMap;
-import org.jline.reader.*;
-import org.jline.reader.LineReader.Option;
-import org.jline.reader.impl.DefaultParser;
-import org.jline.reader.impl.DefaultParser.Bracket;
-import org.jline.reader.impl.LineReaderImpl;
-import org.jline.reader.impl.completer.ArgumentCompleter;
-import org.jline.reader.impl.completer.StringsCompleter;
-import org.jline.terminal.*;
-import org.jline.utils.*;
-import org.jline.utils.InfoCmp.Capability;
-
+import dev.ligature.inmemory.InMemoryLigature
+import org.jline.reader.EndOfFileException
+import org.jline.reader.LineReader
+import org.jline.reader.LineReader.Option
+import org.jline.reader.LineReaderBuilder
+import org.jline.reader.UserInterruptException
 import org.jline.terminal.TerminalBuilder
+import javax.script.ScriptContext
+import javax.script.ScriptEngineManager
 
 sealed interface ReplResult {
   object NoResult: ReplResult
@@ -32,24 +20,36 @@ sealed interface ReplResult {
   data class Text(val content: String): ReplResult
 }
 
-sealed interface Command
+sealed interface Command {
+  val name: String
+}
 
+/**
+ * A Task in Ligature REPL is a function that accepts arguments,
+ * runs once, and can print a result to the REPL.
+ */
 data class Task(
-  val name: String,
+  override val name: String,
   val description: String,
   val run: (args: List<String>) -> ReplResult): Command
 
 data class Mode(
-  val name: String,
+  override val name: String,
   val description: String,
+  val init: (args: List<String>) -> ReplResult,
   val exec: (input: String) -> ReplResult): Command
 
+val defaultMode = Mode(
+  "default",
+  "The default mode used to run tasks or enter other modes.",
+  { ReplResult.NoResult },
+  { ReplResult.Text("Enter a valid Command.") } //TODO maybe output all commands
+)
+
 fun main() {
-  val tasks = mutableListOf<Task>()
-//  val ligature = InMemoryLigature()
-//  embeddedServer(Netty, port = 8080, host = "0.0.0.0") {
-//    routes(ligature)
-//  }.start(wait = true)
+  var currentMode = defaultMode
+  val commands = mutableListOf<Command>()
+  val inMemoryligature = InMemoryLigature()
   val terminal = TerminalBuilder.terminal()
   val reader = LineReaderBuilder.builder()
     .terminal(terminal)
@@ -63,12 +63,26 @@ fun main() {
   var `continue` = true
   val prompt = ">"
 
-  tasks += (Task("exit", "Exit REPL") { args ->
-    if (args.size == 0) {
+  commands += (Task("exit", "Exit REPL") { args ->
+    if (args.isEmpty()) {
       `continue` = false
       ReplResult.NoResult
     } else {
       ReplResult.Text(":exit takes no arguments.")
+    }
+  })
+
+  fun matchAndExecute(line: String) {
+    if (line.startsWith(":")) {
+      val args = line.split(" ")
+      when(val command = commands.find { it.name == ":${args.first()}" }) {
+        is Task -> TODO()
+        is Mode -> TODO()
+        null -> TODO()
+      }
+      TODO("Call init and switch modes")
+    } else {
+      currentMode.exec(line)
     }
   }
 
@@ -76,11 +90,7 @@ fun main() {
     var line: String? = null
     try {
       line = reader.readLine(prompt)
-      if (line.trim() == ":exit") {
-        `continue` = false
-      } else {
-        println(">> $line")
-      }
+      matchAndExecute(line)
     } catch (e: UserInterruptException) {
       `continue` = false
       // Ignore
@@ -89,4 +99,30 @@ fun main() {
       return;
     }
   }
+}
+
+fun run(input: String) {
+//  println(ScriptEngineManager().engineFactories)
+//
+//  val engine = ScriptEngineManager().getEngineByExtension("kts")!!
+//
+//
+//  val bindings = engine.createBindings()
+//  bindings["test"] = { 4 }
+//
+//  engine.setBindings(bindings, ScriptContext.GLOBAL_SCOPE)
+//
+//  print("> ")
+////  System.`in`.reader().forEachLine {
+//    val res = engine.eval(input)
+//    println(res)
+////  }
+
+  val engine = ScriptEngineManager().getEngineByExtension("kts")!!
+  engine.put("util", LigatureUtil)
+  println(engine.eval("kotlinx.coroutines.runBlocking { util.twice(2) }")) //prints 4
+}
+
+object LigatureUtil {
+  suspend fun twice(i: Int): Int = i * 2
 }

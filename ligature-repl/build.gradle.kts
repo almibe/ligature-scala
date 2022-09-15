@@ -26,8 +26,11 @@ dependencies {
     runtimeOnly("net.java.dev.jna:jna:5.3.1")
     implementation("org.jline:jline:3.21.0")
     runtimeOnly("org.jline:jline-terminal-jna:3.21.0")
-    implementation("org.graalvm.js:js:22.0.0")
-    implementation("org.graalvm.js:js-scriptengine:22.0.0")
+//    implementation("org.graalvm.js:js:22.0.0")
+//    implementation("org.graalvm.js:js-scriptengine:22.0.0")
+    implementation("org.jetbrains.kotlin:kotlin-scripting-jsr223:1.6.21") //TODO don't hard code version
+//    runtimeOnly("org.jetbrains.kotlin:kotlin-main-kts:1.6.21")
+    //implementation("org.apache.groovy:groovy-all:4.0.4")
     implementation(libs.kotlinx.coroutines.core)
     implementation(libs.arrow.core)
     testImplementation(project(":ligature-http-test-suite"))
