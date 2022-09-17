@@ -22,6 +22,10 @@ data class Scope(val variables: MutableMap<Name, WanderValue> = mutableMapOf())
 class Bindings {
   private val scopes = mutableListOf<Scope>()
 
+  init {
+    addScope()
+  }
+
   fun addScope() = this.scopes.add(Scope())
   fun removeScope() = this.scopes.removeLast()
 
@@ -114,5 +118,5 @@ class Bindings {
 }
 
 //TODO this function will probably be used once I allow for ad-hoc polymorphism with functions.
-fun createFunctionDelegate(): NativeFunction =
-  TODO()
+//fun createFunctionDelegate(): NativeFunction =
+//  TODO()
