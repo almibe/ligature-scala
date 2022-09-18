@@ -14,6 +14,12 @@ val exitTask = Task("exit", "Exit REPL") { args ->
   }
 }
 
+fun createInstanceTask(ligatureInstance: LigatureInstance) = Task(
+  "instance",
+  "Displays information on currently referenced Ligature instance.") {
+    ReplResult.Text(ligatureInstance.displayName)
+  }
+
 fun createHelpTask(commands: List<Command>) = Task(
   "help",
   "Displays this message.") {

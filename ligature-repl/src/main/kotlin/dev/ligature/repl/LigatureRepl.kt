@@ -4,6 +4,7 @@
 
 package dev.ligature.repl
 
+import dev.ligature.Ligature
 import dev.ligature.inmemory.InMemoryLigature
 import org.jline.reader.EndOfFileException
 import org.jline.reader.LineReader
@@ -67,10 +68,15 @@ val defaultMode = Mode(
   { ReplResult.Text("Enter a valid Command, type :help to see all Commands.") }
 )
 
+data class LigatureInstance(
+  var instance: Ligature,
+  var displayName: String
+)
+
 fun main() {
   var currentMode = defaultMode
   val commands = mutableListOf<Command>()
-  val ligatureInstance = InMemoryLigature()
+  val ligatureInstance = LigatureInstance(InMemoryLigature(), "In-Memory")
   val terminal = TerminalBuilder.terminal()
   val reader = LineReaderBuilder.builder()
     .terminal(terminal)
@@ -87,6 +93,7 @@ fun main() {
   commands.add(exitTask)
   commands.add(createHelpTask(commands))
   commands.add(createKtsMode())
+  commands.add(createInstanceTask(ligatureInstance))
 
   fun matchAndExecute(line: String): ReplResult =
     if (line.startsWith(":")) {
