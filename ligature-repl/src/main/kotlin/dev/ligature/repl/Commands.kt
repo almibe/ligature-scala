@@ -14,6 +14,17 @@ val exitTask = Task("exit", "Exit REPL") { args ->
   }
 }
 
+fun createHelpTask(commands: List<Command>) = Task(
+  "help",
+  "Displays this message.") {
+    val sb = StringBuilder()
+    commands.forEach {
+      sb.append("  - :${it.name}\t${it.description}\n")
+    }
+    if (sb.isNotEmpty()) sb.deleteCharAt(sb.lastIndex)
+    ReplResult.Text(sb.toString())
+  }
+
 fun createKtsMode(): Mode {
   val engine = ScriptEngineManager().getEngineByExtension("kts")!!
 

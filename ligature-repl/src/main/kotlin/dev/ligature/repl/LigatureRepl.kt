@@ -85,6 +85,7 @@ fun main() {
 
   commands.add(defaultMode)
   commands.add(exitTask)
+  commands.add(createHelpTask(commands))
   commands.add(createKtsMode())
 
   fun matchAndExecute(line: String): ReplResult =
