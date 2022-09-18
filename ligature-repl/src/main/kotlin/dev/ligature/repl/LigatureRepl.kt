@@ -4,7 +4,6 @@
 
 package dev.ligature.repl
 
-import arrow.core.some
 import dev.ligature.inmemory.InMemoryLigature
 import org.jline.reader.EndOfFileException
 import org.jline.reader.LineReader
@@ -12,8 +11,6 @@ import org.jline.reader.LineReader.Option
 import org.jline.reader.LineReaderBuilder
 import org.jline.reader.UserInterruptException
 import org.jline.terminal.TerminalBuilder
-import javax.script.ScriptContext
-import javax.script.ScriptEngineManager
 
 sealed interface ReplResult {
   object NoResult: ReplResult
@@ -132,30 +129,4 @@ fun main() {
       `continue` = false
     }
   }
-}
-
-val exitTask = Task("exit", "Exit REPL") { args ->
-    if (args.isEmpty()) {
-      ReplResult.ExitRepl("Exiting...")
-    } else {
-      ReplResult.Text(":exit takes no arguments.")
-    }
-  }
-
-fun createKtsMode(): Mode {
-  val engine = ScriptEngineManager().getEngineByExtension("kts")!!
-
-  return Mode(
-    "kts",
-    "kts",
-    "Run Kotlin code",
-    { args: List<String> ->
-      if (args.isEmpty()) {
-        ModeSwitchResult.Success("Entering KTS Mode")
-      } else {
-        ModeSwitchResult.Failure("Kotlin mode takes no arguments.")
-      }
-    },
-    { input: String -> ReplResult.Text(engine.eval(input)?.toString() ?: " -- no result") }
-  )
 }
