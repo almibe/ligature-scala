@@ -4,6 +4,7 @@
 
 package dev.ligature.repl
 
+import dev.ligature.inmemory.InMemoryLigature
 import javax.script.ScriptEngineManager
 
 val exitTask = Task("exit", "Exit REPL") { args ->
@@ -18,6 +19,14 @@ fun createInstanceTask(ligatureInstance: LigatureInstance) = Task(
   "instance",
   "Displays information on currently referenced Ligature instance.") {
     ReplResult.Text(ligatureInstance.displayName)
+  }
+
+fun createUseInMemoryTask(ligatureInstance: LigatureInstance) = Task(
+  "use-in-memory",
+  "Switches current Ligature instance to a newly created in-memory instance.") {
+    ligatureInstance.displayName = "In-Memory"
+    ligatureInstance.instance = InMemoryLigature()
+    ReplResult.Text("Using in-memory instance.")
   }
 
 fun createHelpTask(commands: List<Command>) = Task(

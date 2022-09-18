@@ -93,6 +93,7 @@ fun main() {
   commands.add(exitTask)
   commands.add(createHelpTask(commands))
   commands.add(createKtsMode())
+  commands.add(createUseInMemoryTask(ligatureInstance))
   commands.add(createInstanceTask(ligatureInstance))
 
   fun matchAndExecute(line: String): ReplResult =
