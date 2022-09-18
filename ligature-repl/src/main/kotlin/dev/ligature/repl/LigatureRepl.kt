@@ -29,6 +29,7 @@ sealed interface ModeSwitchResult {
 sealed interface Command {
   val name: String
   val description: String
+  val usage: String?
 }
 
 /**
@@ -44,6 +45,9 @@ data class Task(
    * Description used for help message.
    */
   override val description: String,
+
+  override val usage: String?,
+
   /**
    * Lambda that is run when task is invoked.
    */
@@ -57,6 +61,7 @@ data class Mode(
   override val name: String,
   val displayPrefix: String,
   override val description: String,
+  override val usage: String?,
   val init: (args: List<String>) -> ModeSwitchResult,
   val exec: (input: String) -> ReplResult): Command
 
@@ -64,6 +69,7 @@ val defaultMode = Mode(
   "default",
   "",
   "The default mode used to run tasks or enter other modes.",
+  null,
   { ModeSwitchResult.Success("Entering default mode.") },
   { ReplResult.Text("Enter a valid Command, type :help to see all Commands.") }
 )
@@ -91,6 +97,9 @@ fun main() {
 
   commands.add(defaultMode)
   commands.add(exitTask)
+  commands.add(createDatasetsTask(ligatureInstance))
+  commands.add(createAddDatasetTask(ligatureInstance))
+  commands.add(createRemoveDatasetTask(ligatureInstance))
   commands.add(createHelpTask(commands))
   commands.add(createKtsMode())
   commands.add(createUseInMemoryTask(ligatureInstance))
