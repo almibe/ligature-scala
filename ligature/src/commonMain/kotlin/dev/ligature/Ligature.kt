@@ -4,14 +4,12 @@
 
 package dev.ligature
 
-import arrow.core.Option
-import arrow.core.none
-import kotlinx.coroutines.*
-import kotlinx.coroutines.flow.*
-import kotlin.jvm.JvmInline
 import arrow.core.Either
 import arrow.core.Either.Left
 import arrow.core.Either.Right
+import kotlinx.coroutines.*
+import kotlinx.coroutines.flow.*
+import kotlin.jvm.JvmInline
 
 val datasetPattern = Regex("^([a-zA-Z_][a-zA-Z0-9_]*)(/[a-zA-Z_][a-zA-Z0-9_]*)*$")
 val identifierPattern = Regex("^[a-zA-Z0-9-._~:/?#\\[\\]@!$&'()*+,;%=]+$")
@@ -130,10 +128,10 @@ interface Ligature {
  */
 interface QueryTx {
 
-  /** Returns all PersistedStatements in this Dataset. */
+  /** Returns all Statements in this Dataset. */
   fun allStatements(): Flow<Statement>
 
-  /** Returns all PersistedStatements that match the given criteria. If a
+  /** Returns all Statements that match the given criteria. If a
    * parameter is None then it matches all, so passing all Nones is the same as
    * calling allStatements.
    */
@@ -143,7 +141,7 @@ interface QueryTx {
       value: Value? = null
   ): Flow<Statement>
 
-//  /** Returns all PersistedStatements that match the given criteria. If a
+//  /** Returns all Statements that match the given criteria. If a
 //    * parameter is None then it matches all.
 //    */
 //  def matchStatementsRange(
@@ -169,9 +167,9 @@ interface WriteTx {
    */
   suspend fun addStatement(statement: Statement): Unit
 
-  /** Removes a given PersistedStatement from this Dataset. If the
-   * PersistedStatement doesn't exist nothing happens and returns Ok(false).
-   * This function returns Ok(true) only if the given PersistedStatement was
+  /** Removes a given Statement from this Dataset. If the
+   * Statement doesn't exist nothing happens and returns Ok(false).
+   * This function returns Ok(true) only if the given Statement was
    * found and removed.
    */
   suspend fun removeStatement(
