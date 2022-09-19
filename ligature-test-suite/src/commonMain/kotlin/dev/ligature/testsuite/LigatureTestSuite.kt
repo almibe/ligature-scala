@@ -280,19 +280,19 @@ abstract class LigatureTestSuite: FunSpec() {
             Statement(entity3, b, StringLiteral("Hello"))
           )
 
-          tx.matchStatements(none(), Some(a)).toList() shouldBe setOf(
+          tx.matchStatements(null, a).toList() shouldBe setOf(
             Statement(entity1, a, StringLiteral("Hello")),
             Statement(entity2, a, entity1),
             Statement(entity2, a, entity3)
           )
 
-          tx.matchStatements(none(), none(), Some(StringLiteral("Hello")))
+          tx.matchStatements(null, null, StringLiteral("Hello"))
               .toList().toSet() shouldBe setOf(
                 Statement(entity1, a, StringLiteral("Hello")),
                 Statement(entity3, b, StringLiteral("Hello"))
               )
 
-          tx.matchStatements(none(), Some(a), Some(StringLiteral("Hello")))
+          tx.matchStatements(null, a, StringLiteral("Hello"))
             .toList().toSet() shouldBe setOf(
               Statement(entity1, a, StringLiteral("Hello"))
             )
