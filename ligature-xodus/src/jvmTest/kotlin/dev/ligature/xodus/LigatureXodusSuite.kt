@@ -6,32 +6,38 @@ package dev.ligature.xodus
 
 import dev.ligature.Ligature
 import dev.ligature.testsuite.LigatureTestSuite
-import java.nio.file._
+import io.kotest.common.runBlocking
+import io.kotest.core.test.TestCase
+import io.kotest.core.test.TestResult
+import java.nio.file.*
 import java.io.File
 
 class LigatureXodusSpec: LigatureTestSuite() {
   lateinit var path: Path
   lateinit var ligatureInstance: Ligature
 
-  override def beforeEach(context: BeforeEach): Unit =
+  override suspend fun beforeTest(testCase: TestCase) {
     path = Files.createTempDirectory("LigatureXodusTest")
+  }
 
-  override def afterEach(context: AfterEach): Unit = {
-    def deleteRecursively(file: File): Unit = {
+  override suspend fun afterTest(testCase: TestCase, testResult: TestResult) {
+    fun deleteRecursively(file: File) {
       if (file.isDirectory) {
-        file.listFiles.foreach(deleteRecursively)
+        file.listFiles().forEach { deleteRecursively(it) }
       }
-      if (file.exists && !file.delete) {
-        throw new Exception(s"Unable to delete ${file.getAbsolutePath}")
+      if (file.exists() && !file.delete()) {
+        throw Exception("Unable to delete ${file.absolutePath}")
       }
     }
 
-    ligatureInstance.close().unsafeRunSync()
-    deleteRecursively(path.toFile)
+    runBlocking {
+      ligatureInstance.close()
+      deleteRecursively(path.toFile())
+    }
   }
 
   override fun createLigature(): Ligature {
-    ligatureInstance = XodusLigature(path.toFile)
+    ligatureInstance = XodusLigature(path.toFile())
     return ligatureInstance
   }
 }
