@@ -12,11 +12,9 @@ import jetbrains.exodus.bindings.LongBinding
 import jetbrains.exodus.bindings.StringBinding
 import jetbrains.exodus.env.Transaction
 
-import arrow.core.Option
-import arrow.core.Some
-import arrow.core.None
-import arrow.core.none
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.emptyFlow
+import kotlinx.coroutines.flow.flow
 
 /** Represents a QueryTx within the context of a Ligature instance and a single
   * Dataset
@@ -27,65 +25,63 @@ class XodusQueryTx(
     private val datasetID: ByteIterable
 ): QueryTx {
 
-  private fun lookupIdentifier(internalIdentifier: ByteIterable): Identifier {
+  private fun lookupIdentifier(internalIdentifier: ByteIterable): Identifier? {
     val idToIdentifierStore = xodusOperations.openStore(tx, LigatureStore.IdToIdentifierStore)
     val result =
       idToIdentifierStore.get(tx, CompoundByteIterable(arrayOf(datasetID, internalIdentifier)))
     return if (result != null) {
       Identifier(StringBinding.entryToString(result))
     } else {
-      TODO("Not impl'd")
+      null
     }
   }
 
-  private fun lookupIdentifier(identifier: Option<Identifier>): Option<ByteIterable> =
+  private fun lookupIdentifier(identifier: Identifier?): ByteIterable? =
     when(identifier) {
-      is None -> none()
-      is Some -> {
+      null -> null
+      else -> {
         val store = xodusOperations.openStore(tx, LigatureStore.IdentifierToIdStore)
         val result = store.get(
           tx,
-          CompoundByteIterable(arrayOf(datasetID, StringBinding.stringToEntry(identifier.value.name)))
+          CompoundByteIterable(arrayOf(datasetID, StringBinding.stringToEntry(identifier.name)))
         )
-        if (result == null) none() else Some(result)
+        result
       }
     }
 
-  private fun lookupStringLiteral(stringLiteral: StringLiteral): Option<ByteIterable> {
+  private fun lookupStringLiteral(stringLiteral: StringLiteral): ByteIterable? {
     val store = xodusOperations.openStore(tx, LigatureStore.StringToIdStore)
-    val result = store.get(
+    return store.get(
       tx,
       CompoundByteIterable(arrayOf(datasetID, StringBinding.stringToEntry(stringLiteral.value)))
     )
-    return if (result == null) none() else Some(result)
   }
 
-  private fun lookupValue(value: Option<Value>): Option<ByteIterable> = TODO()
-//    value match {
-//      case None => None
-//      case Some(value) =>
-//        value match {
-//          case identifier: Identifier =>
-//            lookupIdentifier(Some(identifier)).map(id =>
-//              CompoundByteIterable(
-//                arrayOf(ByteBinding.byteToEntry(LigatureValueType.Identifier.id), id)
-//              )
-//            )
-//          case stringLiteral: StringLiteral =>
-//            lookupStringLiteral(stringLiteral).map(id =>
-//              CompoundByteIterable(arrayOf(ByteBinding.byteToEntry(LigatureValueType.String.id), id))
-//            )
-//          case integerLiteral: IntegerLiteral =>
-//            Some(
-//              CompoundByteIterable(
-//                arrayOf(
-//                  ByteBinding.byteToEntry(LigatureValueType.Integer.id),
-//                  LongBinding.longToEntry(integerLiteral.value)
-//                )
-//              )
-//            )
-//        }
-//    }
+  private fun lookupValue(value: Value?): ByteIterable? =
+    when (value) {
+      null -> null
+      else ->
+        when (value) {
+          is Identifier ->
+            lookupIdentifier(value)?.let {
+              CompoundByteIterable(
+                arrayOf(ByteBinding.byteToEntry(LigatureValueType.Identifier.id), it)
+              )
+            }
+          is StringLiteral ->
+            lookupStringLiteral(value)?.let {
+              CompoundByteIterable(arrayOf(ByteBinding.byteToEntry(LigatureValueType.String.id), it))
+            }
+          is IntegerLiteral ->
+            CompoundByteIterable(
+              arrayOf(
+                ByteBinding.byteToEntry(LigatureValueType.Integer.id),
+                LongBinding.longToEntry(value.value)
+              )
+            )
+          is BytesLiteral -> TODO()
+        }
+    }
 
   private fun lookupStringLiteral(internalIdentifier: ByteIterable): StringLiteral {
     val idToStringStore = xodusOperations.openStore(tx, LigatureStore.IdToStringStore)
@@ -97,13 +93,13 @@ class XodusQueryTx(
     }
   }
 
-  private fun constructValue(valueTypeId: Byte, valueContent: ByteIterable): Value = TODO()
-//    LigatureValueType.getValueType(valueTypeId) match {
-//      case LigatureValueType.Identifier => lookupIdentifier(valueContent)
-//      case LigatureValueType.Integer    => IntegerLiteral(LongBinding.entryToLong(valueContent))
-//      case LigatureValueType.String     => lookupStringLiteral(valueContent)
-//      case LigatureValueType.Bytes      => ???
-//    }
+  private fun constructValue(valueTypeId: Byte, valueContent: ByteIterable): Value? =
+    when(LigatureValueType.getValueType(valueTypeId)) {
+      LigatureValueType.Identifier -> lookupIdentifier(valueContent)
+      LigatureValueType.Integer    -> IntegerLiteral(LongBinding.entryToLong(valueContent))
+      LigatureValueType.String     -> lookupStringLiteral(valueContent)
+      LigatureValueType.Bytes      -> TODO()
+    }
 
   enum class ReadStatementOffsets(val entityOffset: Int, val attributeOffset: Int, val valueOffset: Int) {
     EAVRange(8, 16, 24),
@@ -123,26 +119,26 @@ class XodusQueryTx(
     val valueContent = bytes.subIterable(offsets.valueOffset + 1, 8)
     val value = constructValue(valueTypeId, valueContent)
 
-    return Statement(entity, attribute, value)
+    return Statement(entity!!, attribute!!, value!!) //TODO handle error better
   }
 
   /** Returns all Statements in this Dataset. */
-  override fun allStatements(): Flow<Statement> = TODO() //Stream.emits {
-//    val output: ArrayBuffer[Statement] = ArrayBuffer()
-//    val eavStore = xodusOperations.openStore(tx, LigatureStore.EAVStore)
-//    val eavCursor = eavStore.openCursor(tx)
-//    var continue = eavCursor.getSearchKeyRange(datasetID) != null
-//    while (continue) {
-//      val statement = eavCursor.getKey
-//      if (datasetID == statement.subIterable(0, datasetID.getLength)) {
-//        output.append(readStatement(statement, ReadStatementOffsets.EAVRange))
-//        continue = eavCursor.getNext
-//      } else {
-//        continue = false
-//      }
-//    }
-//    output
-//  }
+  override fun allStatements(): Flow<Statement> = flow {
+    val output = mutableListOf<Statement>()
+    val eavStore = xodusOperations.openStore(tx, LigatureStore.EAVStore)
+    val eavCursor = eavStore.openCursor(tx)
+    var `continue` = eavCursor.getSearchKeyRange(datasetID) != null
+    while (`continue`) {
+      val statement = eavCursor.key
+      `continue` = if (datasetID == statement.subIterable(0, datasetID.length)) {
+        output.add(readStatement(statement, ReadStatementOffsets.EAVRange))
+        eavCursor.next
+      } else {
+        false
+      }
+    }
+    output.forEach { emit(it) }
+  }
 
   /** Returns all Statements that match the given criteria. If a
     * parameter is None then it matches all, so passing all Nones is the same as
@@ -157,23 +153,25 @@ class XodusQueryTx(
 //    val luAttribute = lookupIdentifier(attribute)
 //    val luValue = lookupValue(value)
 //
-//    if (entity.isEmpty && attribute.isEmpty && value.isEmpty) {
+//    if (entity == null && attribute == null && value == null) {
 //      allStatements()
 //    } else if (
-//      entity.isDefined && luEntity.isEmpty || attribute.isDefined && luAttribute.isEmpty || value.isDefined && luValue.isEmpty
+//      entity != null && luEntity == null ||
+//      attribute != null && luAttribute == null ||
+//      value != null && luValue == null
 //    ) {
-//      Stream.empty
+//      emptyFlow()
 //    } else {
-//      if (entity.isDefined) {
-//        if (attribute.isDefined) {
-//          matchStatementsEAV(luEntity.get, luAttribute.get, luValue)
+//      if (entity != null) {
+//        if (attribute != null) {
+//          matchStatementsEAV(luEntity, luAttribute, luValue)
 //        } else {
-//          matchStatementsEVA(luEntity.get, luValue) // we know attribute isn't set
+//          matchStatementsEVA(luEntity, luValue) // we know attribute isn't set
 //        }
-//      } else if (attribute.isDefined) {
-//        matchStatementsAVE(luAttribute.get, luValue) // we know entity isn't set
+//      } else if (attribute != null) {
+//        matchStatementsAVE(luAttribute, luValue) // we know entity isn't set
 //      } else {
-//        matchStatementsVEA(luValue.get) // we know entity and attribute aren' set
+//        matchStatementsVEA(luValue) // we know entity and attribute aren' set
 //      }
 //    }
 //  }
