@@ -116,7 +116,7 @@ abstract class LigatureTestSuite: FunSpec() {
         tx.addStatement(Statement(entity1, a, entity3))
       }
       ligature.query(testDataset) { tx ->
-        tx.allStatements().toList().toSet()
+        tx.allStatements().toSet()
       } shouldBe setOf(
         Statement(entity1, a, entity2),
         Statement(entity1, a, entity3)
@@ -135,7 +135,7 @@ abstract class LigatureTestSuite: FunSpec() {
           tx.addStatement(Statement(entity2, a, IntegerLiteral(-243729)))
         }
         ligature.query(testDataset) { tx ->
-          tx.allStatements().toList().toSet()
+          tx.allStatements().toSet()
         } shouldBe setOf(
           Statement(entity1, a, entity2),
           Statement(entity1, a, IntegerLiteral(100)),
@@ -156,7 +156,7 @@ abstract class LigatureTestSuite: FunSpec() {
         tx.addStatement(Statement(entity2, a, StringLiteral("text")))
       }
       ligature.query(testDataset) { tx ->
-        tx.allStatements().toList().toSet()
+        tx.allStatements().toSet()
       } shouldBe setOf(
         Statement(entity1, a, entity2),
         Statement(entity1, a, StringLiteral("text")),
@@ -272,7 +272,7 @@ abstract class LigatureTestSuite: FunSpec() {
         )
       }
       ligature.query(testDataset) { tx ->
-          tx.matchStatements().toList().toSet() shouldBe setOf(
+          tx.matchStatements().toSet() shouldBe setOf(
             Statement(entity1, a, StringLiteral("Hello")),
             Statement(entity2, a, entity1),
             Statement(entity2, a, entity3),
@@ -280,20 +280,20 @@ abstract class LigatureTestSuite: FunSpec() {
             Statement(entity3, b, StringLiteral("Hello"))
           )
 
-          tx.matchStatements(null, a).toList() shouldBe setOf(
+          tx.matchStatements(null, a).toSet() shouldBe setOf(
             Statement(entity1, a, StringLiteral("Hello")),
             Statement(entity2, a, entity1),
             Statement(entity2, a, entity3)
           )
 
           tx.matchStatements(null, null, StringLiteral("Hello"))
-              .toList().toSet() shouldBe setOf(
+              .toSet() shouldBe setOf(
                 Statement(entity1, a, StringLiteral("Hello")),
                 Statement(entity3, b, StringLiteral("Hello"))
               )
 
           tx.matchStatements(null, a, StringLiteral("Hello"))
-            .toList().toSet() shouldBe setOf(
+            .toSet() shouldBe setOf(
               Statement(entity1, a, StringLiteral("Hello"))
             )
         }
