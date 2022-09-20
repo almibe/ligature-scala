@@ -165,11 +165,11 @@ class XodusWriteTx(
           exists = store.get(tx, encodedIdentifier) != null
           if (exists) {
             newIdentifier = Identifier.create("$prefix${genId()}")
-            val id = newIdentifier.getOrElse { TODO() }
+            val id = newIdentifier.orNull()!!
             encodedIdentifier = StringBinding.stringToEntry(id.name)
           }
         }
-        newIdentifier.getOrElse { TODO() }
+        newIdentifier.orNull()!!
       }
       is Left -> {
         TODO()
@@ -313,20 +313,22 @@ class XodusWriteTx(
     return key.subIterable(0, prefix.length) == prefix
   }
 
-  private fun cleanUpValue(value: Value, valueEncoded: ByteIterable): Unit = TODO()
+  private fun cleanUpValue(value: Value, valueEncoded: ByteIterable) {
     // if value is an Identifier call checkAndRemoveIdentifier
     // if value is a String remove it from stringToId and idToString stores
     // if value is a Bytes remove it from bytesToId and idToBytes stores
     // if value is an Integer do nothing
-//    value match {
-//      case identifier: Identifier =>
-//        checkAndRemoveIdentifier(identifier, valueEncoded.subIterable(1, 8))
-//      case stringLiteral: StringLiteral =>
-//        val stringToIdStore = xodusOperations.openStore(tx, LigatureStore.StringToIdStore)
-//        val idToStringStore = xodusOperations.openStore(tx, LigatureStore.IdToStringStore)
-//        stringToIdStore.delete(tx, StringBinding.stringToEntry(stringLiteral.value))
-//        idToStringStore.delete(tx, valueEncoded.subIterable(1, 8))
-//      case _: IntegerLiteral => ()
-//      // TODO support bytes
-//    }
+    when (value) {
+      is Identifier ->
+        checkAndRemoveIdentifier(value, valueEncoded.subIterable(1, 8))
+      is StringLiteral -> {
+        val stringToIdStore = xodusOperations.openStore(tx, LigatureStore.StringToIdStore)
+        val idToStringStore = xodusOperations.openStore(tx, LigatureStore.IdToStringStore)
+        stringToIdStore.delete(tx, StringBinding.stringToEntry(value.value))
+        idToStringStore.delete(tx, valueEncoded.subIterable(1, 8))
+      }
+      is IntegerLiteral -> {}
+      is BytesLiteral -> TODO()
+    }
+  }
 }

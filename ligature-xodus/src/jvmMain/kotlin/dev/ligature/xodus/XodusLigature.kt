@@ -204,7 +204,7 @@ class XodusLigature(private val dbDirectory: File): Ligature, XodusOperations {
       }
       results
     }
-    environment.computeInReadonlyTransaction(tc)
+    environment.computeInReadonlyTransaction(tc).forEach { emit(it) }
   }
 
   private fun stringInRange(toTest: String, start: String, end: String): Boolean =
