@@ -148,132 +148,134 @@ class XodusQueryTx(
       entity: Identifier?,
       attribute: Identifier?,
       value: Value?
-  ): Flow<Statement> = TODO() //{
-//    val luEntity = lookupIdentifier(entity)
-//    val luAttribute = lookupIdentifier(attribute)
-//    val luValue = lookupValue(value)
-//
-//    if (entity == null && attribute == null && value == null) {
-//      allStatements()
-//    } else if (
-//      entity != null && luEntity == null ||
-//      attribute != null && luAttribute == null ||
-//      value != null && luValue == null
-//    ) {
-//      emptyFlow()
-//    } else {
-//      if (entity != null) {
-//        if (attribute != null) {
-//          matchStatementsEAV(luEntity, luAttribute, luValue)
-//        } else {
-//          matchStatementsEVA(luEntity, luValue) // we know attribute isn't set
-//        }
-//      } else if (attribute != null) {
-//        matchStatementsAVE(luAttribute, luValue) // we know entity isn't set
-//      } else {
-//        matchStatementsVEA(luValue) // we know entity and attribute aren' set
-//      }
-//    }
-//  }
+  ): Flow<Statement> {
+    val luEntity = lookupIdentifier(entity)
+    val luAttribute = lookupIdentifier(attribute)
+    val luValue = lookupValue(value)
 
-//  private def matchStatementsEAV(
-//      entityId: ByteIterable,
-//      attributeId: ByteIterable,
-//      valueId: Option[ByteIterable]
-//  ): Stream[IO, Statement] = Stream.emits {
-//    val store = xodusOperations.openStore(tx, LigatureStore.EAVStore)
-//    val prefix = valueId match {
-//      case None      => CompoundByteIterable(arrayOf(datasetID, entityId, attributeId))
-//      case Some(vid) => CompoundByteIterable(arrayOf(datasetID, entityId, attributeId, vid))
-//    }
-//    val cursor = store.openCursor(tx)
-//    cursor.getSearchKeyRange(prefix)
-//    var continue = true
-//    val results: ArrayBuffer[Statement] = ArrayBuffer()
-//    while (continue) {
-//      val key = cursor.getKey
-//      if (key.subIterable(0, prefix.getLength) == prefix) {
-//        val statement = readStatement(key, ReadStatementOffsets.EAVRange)
-//        results.append(statement)
-//        continue = cursor.getNext
-//      } else {
-//        continue = false
-//      }
-//    }
-//    results
-//  }
-//
-//  private def matchStatementsEVA(
-//      entityId: ByteIterable,
-//      valueId: Option[ByteIterable]
-//  ): Stream[IO, Statement] = Stream.emits {
-//    val store = xodusOperations.openStore(tx, LigatureStore.EVAStore)
-//    val prefix = valueId match {
-//      case None      => CompoundByteIterable(arrayOf(datasetID, entityId))
-//      case Some(vid) => CompoundByteIterable(arrayOf(datasetID, entityId, vid))
-//    }
-//    val cursor = store.openCursor(tx)
-//    cursor.getSearchKeyRange(prefix)
-//    var continue = true
-//    val results: ArrayBuffer[Statement] = ArrayBuffer()
-//    while (continue) {
-//      val key = cursor.getKey
-//      if (key.subIterable(0, prefix.getLength) == prefix) {
-//        val statement = readStatement(key, ReadStatementOffsets.EVARange)
-//        results.append(statement)
-//        continue = cursor.getNext
-//      } else {
-//        continue = false
-//      }
-//    }
-//    results
-//  }
-//
-//  private def matchStatementsAVE(
-//      attributeId: ByteIterable,
-//      valueId: Option[ByteIterable]
-//  ): Stream[IO, Statement] = Stream.emits {
-//    val store = xodusOperations.openStore(tx, LigatureStore.AVEStore)
-//    val prefix = valueId match {
-//      case None      => CompoundByteIterable(arrayOf(datasetID, attributeId))
-//      case Some(vid) => CompoundByteIterable(arrayOf(datasetID, attributeId, vid))
-//    }
-//    val cursor = store.openCursor(tx)
-//    cursor.getSearchKeyRange(prefix)
-//    var continue = true
-//    val results: ArrayBuffer[Statement] = ArrayBuffer()
-//    while (continue) {
-//      val key = cursor.getKey
-//      if (key.subIterable(0, prefix.getLength) == prefix) {
-//        val statement = readStatement(key, ReadStatementOffsets.AVERange)
-//        results.append(statement)
-//        continue = cursor.getNext
-//      } else {
-//        continue = false
-//      }
-//    }
-//    results
-//  }
-//
-//  private def matchStatementsVEA(valueId: ByteIterable): Stream[IO, Statement] = Stream.emits {
-//    val store = xodusOperations.openStore(tx, LigatureStore.VEAStore)
-//    val prefix = CompoundByteIterable(arrayOf(datasetID, valueId))
-//    val cursor = store.openCursor(tx)
-//    cursor.getSearchKeyRange(prefix)
-//    var continue = true
-//    val results: ArrayBuffer[Statement] = ArrayBuffer()
-//    while (continue) {
-//      val key = cursor.getKey
-//      if (key.subIterable(0, prefix.getLength) == prefix) {
-//        val statement = readStatement(key, ReadStatementOffsets.VEARange)
-//        results.append(statement)
-//        continue = cursor.getNext
-//      } else {
-//        continue = false
-//      }
-//    }
-//    results
-//  }
+    return if (entity == null && attribute == null && value == null) {
+      allStatements()
+    } else if (
+      entity != null && luEntity == null ||
+      attribute != null && luAttribute == null ||
+      value != null && luValue == null
+    ) {
+      emptyFlow()
+    } else {
+      if (entity != null && luEntity != null) {
+        if (attribute != null && luAttribute != null) {
+          matchStatementsEAV(luEntity, luAttribute, luValue)
+        } else {
+          matchStatementsEVA(luEntity, luValue) // we know attribute isn't set
+        }
+      } else if (attribute != null && luAttribute != null) {
+        matchStatementsAVE(luAttribute, luValue) // we know entity isn't set
+      } else if (luValue != null) {
+        matchStatementsVEA(luValue) // we know entity and attribute aren't set
+      } else {
+        emptyFlow()
+      }
+    }
+  }
+
+  private fun matchStatementsEAV(
+      entityId: ByteIterable,
+      attributeId: ByteIterable,
+      valueId: ByteIterable?
+  ): Flow<Statement> = flow {
+    val store = xodusOperations.openStore(tx, LigatureStore.EAVStore)
+    val prefix = when (valueId) {
+      null -> CompoundByteIterable(arrayOf(datasetID, entityId, attributeId))
+      else -> CompoundByteIterable(arrayOf(datasetID, entityId, attributeId, valueId))
+    }
+    val cursor = store.openCursor(tx)
+    cursor.getSearchKeyRange(prefix)
+    var `continue` = true
+    val results = mutableListOf<Statement>()
+    while (`continue`) {
+      val key = cursor.key
+      `continue` = if (key.subIterable(0, prefix.length) == prefix) {
+          val statement = readStatement(key, ReadStatementOffsets.EAVRange)
+          results.add(statement)
+        cursor.next
+      } else {
+        false
+      }
+    }
+    results.forEach { emit(it) }
+  }
+
+  private fun matchStatementsEVA(
+      entityId: ByteIterable,
+      valueId: ByteIterable?
+  ): Flow<Statement> = flow {
+    val store = xodusOperations.openStore(tx, LigatureStore.EVAStore)
+    val prefix = when (valueId) {
+      null -> CompoundByteIterable(arrayOf(datasetID, entityId))
+      else -> CompoundByteIterable(arrayOf(datasetID, entityId, valueId))
+    }
+    val cursor = store.openCursor(tx)
+    cursor.getSearchKeyRange(prefix)
+    var `continue` = true
+    val results = mutableListOf<Statement>()
+    while (`continue`) {
+      val key = cursor.key
+      `continue` = if (key.subIterable(0, prefix.length) == prefix) {
+          val statement = readStatement(key, ReadStatementOffsets.EVARange)
+          results.add(statement)
+        cursor.next
+      } else {
+        false
+      }
+    }
+    results.forEach { emit(it) }
+  }
+
+  private fun matchStatementsAVE(
+      attributeId: ByteIterable,
+      valueId: ByteIterable?
+  ): Flow<Statement> = flow {
+    val store = xodusOperations.openStore(tx, LigatureStore.AVEStore)
+    val prefix = when(valueId) {
+      null -> CompoundByteIterable(arrayOf(datasetID, attributeId))
+      else -> CompoundByteIterable(arrayOf(datasetID, attributeId, valueId))
+    }
+    val cursor = store.openCursor(tx)
+    cursor.getSearchKeyRange(prefix)
+    var `continue` = true
+    val results = mutableListOf<Statement>()
+    while (`continue`) {
+      val key = cursor.key
+      `continue` = if (key.subIterable(0, prefix.length) == prefix) {
+          val statement = readStatement(key, ReadStatementOffsets.AVERange)
+          results.add(statement)
+        cursor.next
+      } else {
+        false
+      }
+    }
+    results.forEach { emit(it) }
+  }
+
+  private fun matchStatementsVEA(valueId: ByteIterable): Flow<Statement> = flow {
+    val store = xodusOperations.openStore(tx, LigatureStore.VEAStore)
+    val prefix = CompoundByteIterable(arrayOf(datasetID, valueId))
+    val cursor = store.openCursor(tx)
+    cursor.getSearchKeyRange(prefix)
+    var `continue` = true
+    val results = mutableListOf<Statement>()
+    while (`continue`) {
+      val key = cursor.key
+      `continue` = if (key.subIterable(0, prefix.length) == prefix) {
+          val statement = readStatement(key, ReadStatementOffsets.VEARange)
+          results.add(statement)
+        cursor.next
+      } else {
+        false
+      }
+    }
+    results.forEach { emit(it) }
+  }
 
 //  /** Returns all Statements that match the given criteria. If a
 //    * parameter is None then it matches all.
