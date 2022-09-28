@@ -26,7 +26,7 @@ abstract class LigatureHttpSuite: FunSpec() {
         }
         val response = client.get("/datasets")
         response.status shouldBe HttpStatusCode.OK
-        response.bodyAsText() shouldBe "[]"
+        response.bodyAsText() shouldBe ""
       }
     }
 
@@ -39,7 +39,7 @@ abstract class LigatureHttpSuite: FunSpec() {
         addResponse.status shouldBe HttpStatusCode.OK
         val response = client.get("/datasets")
         response.status shouldBe HttpStatusCode.OK
-        response.bodyAsText() shouldBe "[\"new\"]"
+        response.bodyAsText() shouldBe "new\n"
       }
     }
 
@@ -89,7 +89,7 @@ abstract class LigatureHttpSuite: FunSpec() {
         client.post("/datasets/new3")
         client.delete("/datasets/new3")
         val response = client.get("/datasets")
-        response.bodyAsText() shouldBe "[\"new2\"]"
+        response.bodyAsText() shouldBe "new2\n"
       }
     }
 
@@ -124,6 +124,7 @@ abstract class LigatureHttpSuite: FunSpec() {
         application {
           instanceModule()
         }
+        client.post("/datasets/new")
         val statements =
           """<1> <attribute> <2>
             |<3> <attribute> <1>""".trimMargin()
@@ -189,7 +190,7 @@ abstract class LigatureHttpSuite: FunSpec() {
         }
         client.post("/datasets/new")
         val wanderResponse = client.post("/datasets/new/wander") {
-          setBody("and(true true)")
+          setBody("true")
         }
         wanderResponse.status shouldBe HttpStatusCode.OK
         wanderResponse.bodyAsText() shouldBe "true"
