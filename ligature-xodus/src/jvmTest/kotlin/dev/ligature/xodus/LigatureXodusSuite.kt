@@ -12,7 +12,7 @@ import io.kotest.core.test.TestResult
 import java.nio.file.*
 import java.io.File
 
-class LigatureXodusSpec: LigatureTestSuite() {
+class LigatureXodusSuite: LigatureTestSuite() {
   lateinit var path: Path
   lateinit var ligatureInstance: Ligature
 

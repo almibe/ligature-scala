@@ -72,6 +72,10 @@ enum class LigatureValueType(val id: Byte) {
   }
 }
 
+//TODO make constructor private
+//TODO add companion object with the following functions
+//TODO fromDirectory(directory: File)
+//TODO inMemory()
 class XodusLigature(private val dbDirectory: File): Ligature, XodusOperations {
   private val environment = Environments.newInstance(dbDirectory, EnvironmentConfig())
 
