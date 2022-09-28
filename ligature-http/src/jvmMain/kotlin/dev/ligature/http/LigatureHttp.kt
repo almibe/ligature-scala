@@ -5,6 +5,7 @@
 package dev.ligature.http
 
 import dev.ligature.Ligature
+import io.ktor.http.*
 
 import io.ktor.server.application.*
 import io.ktor.server.response.*
@@ -27,8 +28,8 @@ fun main(args: Array<String>): Unit = io.ktor.server.netty.EngineMain.main(args)
 fun Application.routes(ligature: Ligature) {
   val handlers = Handlers(ligature)
   routing {
-    get("/") {
-      call.respondText("Hello, world!")
+    get("/status") {
+      call.respondText("""{"status":"ok"}""", ContentType.parse("application/json"))
     }
 
 //    case GET -> Root / "datasets"                => getDatasets()
@@ -71,121 +72,4 @@ fun Application.routes(ligature: Ligature) {
       handlers.runWanderQuery(call, call.parameters["datasetName"]!!)
     }
   }
-}
-
-class Handlers(val ligature: Ligature) {
-  suspend fun getDatasets(call: ApplicationCall) {
-    call.respondText("[]") //TODO rewrite
-//  for {
-//    out <- ligature
-//      .allDatasets()
-//      .map(ds => s"\"${ds.name}\"")
-//    .intersperse(",")
-//      .compile
-//      .string
-//    res <- Ok(s"[${out}]")
-//  } yield res
-  }
-
-  suspend fun addDataset(call: ApplicationCall, datasetName: String) {
-      TODO()
-    }
-//    Dataset.fromString(datasetName) match {
-//      case Right(dataset) =>
-//      for {
-//        _ <- ligature.createDataset(dataset)
-//        res <- Ok("Dataset added.")
-//      } yield res
-//      case Left(error) =>
-//      BadRequest(error.message)
-//    }
-
-  suspend fun deleteDataset(call: ApplicationCall, datasetName: String) {
-      TODO()
-    }
-//    Dataset.fromString(datasetName) match {
-//      case Right(dataset) =>
-//      for {
-//        _ <- ligature.deleteDataset(dataset)
-//        res <- Ok("Dataset deleted.")
-//      } yield res
-//      case Left(error) =>
-//      BadRequest(error.message)
-//    }
-
-  suspend fun getAllStatements(call: ApplicationCall, datasetName: String) {
-      TODO()
-    }
-//    Dataset.fromString(datasetName) match {
-//      case Right(dataset) =>
-//      val statements: IO[String] = ligature
-//      .query(dataset) { qx =>
-//      qx.allStatements().compile.toList
-//    }
-//      .map((statements: List[Statement]) => write(statements.iterator))
-//      Ok(statements)
-//      case Left(error) =>
-//      BadRequest(error.message)
-//    }
-
-  suspend fun addStatements(cal: ApplicationCall, datasetName: String) {
-      TODO()
-    }
-//    Dataset.fromString(datasetName) match {
-//      case Right(dataset) =>
-//      val body: IO[String] = request.bodyText.compile.string
-//      body.map(read).flatMap {
-//        case Right(statements) =>
-//        ligature
-//          .write(dataset) { tx =>
-//            statements
-//              .map(statement => tx.addStatement(statement))
-//            .sequence_
-//          }
-//          .flatMap { _ =>
-//            Ok()
-//          }
-//        case Left(err) => BadRequest(err.message)
-//      }
-//      case Left(err) =>
-//      BadRequest(err.message)
-//    }
-
-  suspend fun deleteStatements(call: ApplicationCall, datasetName: String) {
-      TODO()
-    }
-//    Dataset.fromString(datasetName) match {
-//      case Right(dataset) =>
-//      val body: IO[String] = request.bodyText.compile.string
-//      body.map(read).flatMap {
-//        case Right(statements) =>
-//        ligature
-//          .write(dataset) { tx =>
-//            statements
-//              .map(statement => tx.removeStatement(statement))
-//            .sequence_
-//          }
-//          .flatMap { _ =>
-//            Ok()
-//          }
-//        case Left(err) => BadRequest(err.message)
-//      }
-//      case Left(err) =>
-//      BadRequest(err.message)
-//    }
-
-  suspend fun runWanderQuery(call: ApplicationCall, datasetName: String) {
-      TODO()
-    }
-//    Dataset.fromString(datasetName) match {
-//      case Right(dataset) =>
-//      val body: IO[String] = request.bodyText.compile.string
-//      body.map(script => run(script, dataset)).flatMap {
-//      case Right(result) =>
-//      Ok(result.toString)
-//      case Left(err) => BadRequest(err.message)
-//    }
-//      case Left(err) =>
-//      BadRequest(err.message)
-//    }
 }
