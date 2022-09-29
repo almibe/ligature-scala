@@ -4,39 +4,44 @@
 
 package dev.ligature.http.xodus
 
-import dev.ligature.xodus.XodusLigature
+import dev.ligature.Ligature
+import dev.ligature.http.*
 import dev.ligature.http.testsuite.LigatureHttpSuite
-import dev.ligature.http.LigatureHttp
-import dev.ligature.http.AuthMode
-import cats.effect.unsafe.implicits.global
-import com.comcast.ip4s.*
-
+import dev.ligature.xodus.XodusLigature
+import io.kotest.common.runBlocking
+import io.kotest.core.test.TestCase
+import io.kotest.core.test.TestResult
+import io.ktor.server.application.*
 import java.io.File
-import java.nio.file.{Files, Path}
+import java.nio.file.Files
+import java.nio.file.Path
 
-class LigatureHttpXodusSuite extends LigatureHttpSuite {
-  var path: Path = null
-  var ligatureInstance: XodusLigature = null
+class LigatureHttpXodusSuite: LigatureHttpSuite() {
+  lateinit var path: Path
+  lateinit var ligatureInstance: Ligature
 
-  override def beforeEach(context: BeforeEach): Unit =
+  override suspend fun beforeTest(testCase: TestCase) {
     path = Files.createTempDirectory("LigatureXodusTest")
+    ligatureInstance = XodusLigature(path.toFile())
+  }
 
-  override def afterEach(context: AfterEach): Unit = {
-    def deleteRecursively(file: File): Unit = {
+  override suspend fun afterTest(testCase: TestCase, testResult: TestResult) {
+    fun deleteRecursively(file: File) {
       if (file.isDirectory) {
-        file.listFiles.foreach(deleteRecursively)
+        file.listFiles().forEach { deleteRecursively(it) }
       }
-      if (file.exists && !file.delete) {
-        throw new Exception(s"Unable to delete ${file.getAbsolutePath}")
+      if (file.exists() && !file.delete()) {
+        throw Exception("Unable to delete ${file.absolutePath}")
       }
     }
 
-    ligatureInstance.close().unsafeRunSync()
-    deleteRecursively(path.toFile)
+    runBlocking {
+      ligatureInstance.close()
+      deleteRecursively(path.toFile())
+    }
   }
 
-  override def createInstance(): LigatureHttp = {
-    ligatureInstance = XodusLigature(path.toFile)
-    LigatureHttp(ligatureInstance, AuthMode.None, Port.fromInt(4202).get)
+  override fun Application.instanceModule() {
+    routes(ligatureInstance)
   }
 }

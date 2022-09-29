@@ -16,7 +16,7 @@ repositories {
 dependencies {
     implementation(project(":ligature"))
     implementation(project(":idgen"))
-    implementation(project(":ligature-in-memory"))
+    implementation(project(":ligature-xodus"))
     implementation(project(":ligature-http"))
     implementation("io.ktor:ktor-server-core:2.0.3")
     implementation("io.ktor:ktor-server-netty:2.0.3")
@@ -46,5 +46,5 @@ tasks.withType<Test>().configureEach {
 }
 
 application {
-  mainClass.set("dev.ligature.http.memory.LigatureHttpInMemoryKt")
+  mainClass.set("dev.ligature.http.xodus.LigatureHttpXodusKt")
 }
