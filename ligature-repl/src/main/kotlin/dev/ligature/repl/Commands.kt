@@ -7,7 +7,11 @@ package dev.ligature.repl
 import arrow.core.Either.Left
 import arrow.core.Either.Right
 import dev.ligature.Dataset
+import dev.ligature.StringLiteral
 import dev.ligature.inmemory.InMemoryLigature
+import dev.ligature.wander.Bindings
+import dev.ligature.wander.interpreter.common
+import dev.ligature.wander.parser.*
 import kotlinx.coroutines.runBlocking
 import javax.script.ScriptEngineManager
 
@@ -109,6 +113,42 @@ fun createRemoveDatasetTask(ligatureInstance: LigatureInstance) = Task(
   } else {
     ReplResult.ReplError("remove-dataset task takes dataset name parameter.")
   }
+}
+
+fun createWanderMode(): Mode {
+  /**
+   * Create a set of bindings that contains all common bindings
+   * and an additional binding that returns a string of all Names that
+   * are bound.
+   */
+  fun createBindings(): Bindings {
+    val bindings = common()
+    bindings.bindVariable(Name("bindings"), NativeFunction(listOf()) {
+      Right(LigatureValue(StringLiteral(bindings.names().joinToString { it.name })))
+    })
+    return bindings
+  }
+
+  val bindings = createBindings()
+
+  return Mode("wander",
+  "wander",
+  "Run Wander code",
+  null,
+    { args ->
+      if (args.isEmpty()) {
+        ModeSwitchResult.Success("Entering KTS Mode")
+      } else {
+        ModeSwitchResult.Failure("Kotlin mode takes no arguments.")
+      }
+    },
+    { input ->
+      when (val result = dev.ligature.wander.run(input, bindings)) {
+        is Right -> ReplResult.Text(" - ${result.value.printResult()}")
+        is Left -> ReplResult.ReplError(" X ${result.value.message}")
+      }
+    }
+  )
 }
 
 fun createKtsMode(): Mode {

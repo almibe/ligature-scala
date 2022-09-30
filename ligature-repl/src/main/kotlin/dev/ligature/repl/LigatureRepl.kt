@@ -80,7 +80,7 @@ data class LigatureInstance(
 )
 
 fun main() {
-  var currentMode = defaultMode
+  var currentMode = createWanderMode()
   val commands = mutableListOf<Command>()
   val ligatureInstance = LigatureInstance(InMemoryLigature(), "In-Memory")
   val terminal = TerminalBuilder.terminal()

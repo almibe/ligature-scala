@@ -20,6 +20,7 @@ dependencies {
     implementation(project(":ligature-in-memory"))
     implementation(project(":ligature-xodus"))
     implementation(project(":ligature-http"))
+    implementation(project(":wander"))
     implementation("io.ktor:ktor-server-core:2.0.3")
     implementation("io.ktor:ktor-server-netty:2.0.3")
     //runtimeOnly("org.fusesource.jansi:jansi:2.4.0")
