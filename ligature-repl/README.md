@@ -8,23 +8,16 @@ So instead run `.\run.bat`.
 
 ## Commands
 
-### :exit
+The following are functions that are added to Wander's standard library when using the REPL.
+
+### exit()
 
 Exit the REPL.
 
-### :help
+### help()
 
-Print all Commands and their arguments if there are any.
+Prints documentation.
 
-### :kts
+### bindings()
 
-Run Kotlin code via JSR-223.
-
-### :instance
-
-View the current instance of Ligature being used.
-
-### :use-in-memory
-
-Switch the current Ligature instance to a newly created in-memory instance.
-
+Lists all the currently bound names.
