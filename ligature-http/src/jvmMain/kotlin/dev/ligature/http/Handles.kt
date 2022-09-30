@@ -13,7 +13,6 @@ import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
-import kotlinx.coroutines.flow.collect
 
 class Handlers(private val ligature: Ligature) {
   suspend fun getDatasets(call: ApplicationCall) {
@@ -49,8 +48,8 @@ class Handlers(private val ligature: Ligature) {
       is Right -> {
         val result = StringBuilder()
         ligature.query(dataset.value) { qx ->
-          qx.allStatements()
-        }.collect { result.append("${writeStatement(it)}\n") }
+          qx.allStatements().collect { result.append("${writeStatement(it)}\n") }
+        }
         call.respondText(result.toString())
       }
       is Left -> TODO("Return invalid Dataset name error")

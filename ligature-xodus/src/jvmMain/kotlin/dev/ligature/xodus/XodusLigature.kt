@@ -293,7 +293,7 @@ class XodusLigature(private val dbDirectory: File): Ligature, XodusOperations {
   override suspend fun <T>query(dataset: Dataset, fn: suspend (QueryTx) -> T): T {
     val tx = environment.beginReadonlyTransaction()
     val res = when (val datasetId = fetchDatasetID(dataset)) {
-      null -> TODO()
+      null -> TODO("Dataset doesn't exist")
       else -> {
         val queryTx = XodusQueryTx(tx, this, datasetId)
         fn(queryTx)
