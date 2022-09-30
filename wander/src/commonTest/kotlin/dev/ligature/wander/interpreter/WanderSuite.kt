@@ -11,7 +11,7 @@ import dev.ligature.wander.run
 
 class WanderSuite: FunSpec() {
   init {
-    val testOnly: Set<String> = setOf("not function") // if set is empty all tests will run
+    val testOnly: Set<String> = setOf() // if set is empty all tests will run
 
     fun runTest(description: String): Boolean =
       testOnly.isEmpty() || testOnly.contains(description)

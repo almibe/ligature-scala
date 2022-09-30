@@ -29,8 +29,22 @@ sealed interface Expression: Element
   */
 sealed interface WanderValue: Expression
 
-data class ScriptResult(val result: WanderValue)
-data class EvalResult(val bindings: Bindings, val result: WanderValue)
+fun write(wanderValue: WanderValue): String =
+  when (wanderValue) {
+    is BooleanValue -> wanderValue.value.toString()
+    is NativeFunction -> "Native Function"
+    is WanderFunction -> "Wander Function"
+    is LigatureValue -> dev.ligature.lig.writeValue(wanderValue.value)
+    Nothing -> "nothing"
+    is StatementValue -> dev.ligature.lig.writeStatement(wanderValue.value)
+  }
+
+data class ScriptResult(val result: WanderValue) {
+  fun printResult(): String {
+    return write(result)
+  }
+}
+data class EvalResult(val result: WanderValue)
 
 /** Represents a Name in the Wander language.
   */
@@ -38,7 +52,7 @@ data class Name(val name: String): Expression {
   override fun eval(bindings: Bindings) =
     when(val res = bindings.read(this)) {
       is Either.Left  -> res
-      is Either.Right -> Either.Right(EvalResult(bindings, res.value))
+      is Either.Right -> Either.Right(EvalResult(res.value))
     }
 }
 
@@ -46,13 +60,13 @@ sealed class FunctionDefinition(val parameters: List<Parameter>): WanderValue
 
 data class LigatureValue(val value: Value): WanderValue {
   override fun eval(bindings: Bindings) = Either.Right(
-    EvalResult(bindings, LigatureValue(value))
+    EvalResult(LigatureValue(value))
   )
 }
 
 data class BooleanValue(val value: Boolean): WanderValue {
   override fun eval(bindings: Bindings) = Either.Right(
-    EvalResult(bindings, BooleanValue(value))
+    EvalResult(BooleanValue(value))
   )
 }
 
@@ -62,7 +76,7 @@ data class StatementValue(val value: Statement): WanderValue {
 }
 
 object Nothing: WanderValue {
-  override fun eval(bindings: Bindings) = Either.Right(EvalResult(bindings, Nothing))
+  override fun eval(bindings: Bindings) = Either.Right(EvalResult(Nothing))
 }
 
 //TODO add back
@@ -126,7 +140,7 @@ data class LetStatement(val name: Name, val expression: Expression): Element {
       is Either.Right -> {
         when(val res = bindings.bindVariable(this.name, result.value.result)) {
           is Either.Left  -> res
-          is Either.Right -> TODO() //Either.Right(EvalResult(res.value, Nothing))
+          is Either.Right -> Either.Right(EvalResult(Nothing))
         }
       }
     }
@@ -144,9 +158,9 @@ data class NativeFunction(
   override fun eval(binding: Bindings) =
     // body(binding) match {
     //   case Left(err) => Left(err)
-    //   case Right(res) => Right(EvalResult(binding, res))
+    //   case Right(res) => Right(EvalResult(res))
     // }
-    Either.Right(EvalResult(binding, this))
+    Either.Right(EvalResult(this))
 }
 
 /** Represents a full script that can be eval'd.
@@ -154,13 +168,11 @@ data class NativeFunction(
 data class Script(val elements: List<Element>) {
   fun eval(bindings: Bindings): Either<ScriptError, ScriptResult> {
     var result: WanderValue = Nothing
-    var currentBindings: Bindings = bindings
     elements.forEach { element ->
-      when(val res = element.eval(currentBindings)) {
+      when(val res = element.eval(bindings)) {
         is Either.Left  -> return res
         is Either.Right -> {
           result = res.value.result
-          currentBindings = res.value.bindings
         }
       }
     }
@@ -173,18 +185,18 @@ data class Script(val elements: List<Element>) {
   */
 data class Scope(val elements: List<Element>): Expression {
   override fun eval(bindings: Bindings): Either<ScriptError, EvalResult> {
-    var currentBindings = bindings//.newScope() TODO fix
+    bindings.addScope()//.newScope() TODO fix
     var result: WanderValue = Nothing
     elements.forEach { element ->
-      when (val res = element.eval(currentBindings)) {
+      when (val res = element.eval(bindings)) {
         is Either.Left  -> return res
         is Either.Right -> {
           result = res.value.result
-          currentBindings = res.value.bindings
         }
       }
     }
-    return Either.Right(EvalResult(bindings, result))
+    bindings.removeScope()
+    return Either.Right(EvalResult(result))
   }
 }
 
@@ -214,7 +226,7 @@ data class WanderFunction(
     val body: Expression
 ): FunctionDefinition(wanderParameters) {
   override fun eval(bindings: Bindings) =
-    Either.Right(EvalResult(bindings, this))
+    Either.Right(EvalResult(this))
 }
 
 data class FunctionCall(val name: Name, val parameters: List<Expression>): Expression {
@@ -222,13 +234,16 @@ data class FunctionCall(val name: Name, val parameters: List<Expression>): Expre
     bindings.read(name).flatMap { value: WanderValue ->
       when(value) {
         is WanderFunction -> {
-          val functionCallBindings = updateFunctionCallBindings(bindings, value.parameters)
-          value.body.eval(functionCallBindings)
+          updateFunctionCallBindings(bindings, value.parameters)
+          val res = value.body.eval(bindings)
+          bindings.removeScope()
+          res
         }
         is NativeFunction -> {
-          val functionCallBindings = updateFunctionCallBindings(bindings, value.parameters)
-          val res = value.body(functionCallBindings)
-          res.flatMap { Right(EvalResult(bindings, it)) }
+          updateFunctionCallBindings(bindings, value.parameters)
+          val res = value.body(bindings)
+          bindings.removeScope()
+          res.flatMap { Right(EvalResult(it)) }
         }
         else -> Either.Left(ScriptError("${name.name} is not a function."))
       }
@@ -238,28 +253,28 @@ data class FunctionCall(val name: Name, val parameters: List<Expression>): Expre
   fun updateFunctionCallBindings(
       bindings: Bindings,
       args: List<Parameter>
-  ): Bindings = TODO()
-//    if (args.size == parameters.size) {
-//      var currentBindings = bindings//.newScope() TODO fix
-//      for (i in args.indices) {
-//        val arg = args[i]
-//        val param = parameters[i]
-//        val paramRes = param.eval(currentBindings)//.getOrElse(TODO())
-//        if (paramRes.isNotEmpty()) {
-//          when(val res = currentBindings.bindVariable(arg.name, (paramRes.orNull()!!).result)) {
-//            is Either.Left  -> TODO()//return res
-//            is Either.Right -> currentBindings = res.value
-//          }
-//        } else {
-//          TODO()
-//        }
-//      }
-//      currentBindings
-//    } else {
-//      throw RuntimeException(
-//        "Argument number ${args.size} != Parameter number ${parameters.size}"
-//      )
-//    }
+  ): Either<ScriptError, Unit> =
+    if (args.size == parameters.size) {
+      bindings.addScope()
+      for (i in args.indices) {
+        val arg = args[i]
+        val param = parameters[i]
+        val paramRes = param.eval(bindings)//.getOrElse(TODO())
+        if (paramRes.isNotEmpty()) {
+          when(val res = bindings.bindVariable(arg.name, (paramRes.orNull()!!).result)) {
+            is Either.Left  -> TODO()//return res
+            else -> {}
+          }
+        } else {
+          TODO()
+        }
+      }
+      Either.Right(Unit)
+    } else {
+      throw RuntimeException(
+        "Argument number ${args.size} != Parameter number ${parameters.size}"
+      )
+    }
 }
 
 //TODO is this needed?
@@ -308,10 +323,10 @@ data class IfExpression(
       TODO()
 //      return when(`else`) {
 //        is Some -> `else`.value.body.eval(bindings)
-//        is None -> Either.Right(EvalResult(bindings, Nothing))
+//        is None -> Either.Right(EvalResult(Nothing))
 //      }
     }
-    return Either.Right(EvalResult(bindings, Nothing))
+    return Either.Right(EvalResult(Nothing))
   }
 }
 

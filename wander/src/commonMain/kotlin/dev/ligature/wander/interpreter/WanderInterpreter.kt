@@ -6,23 +6,24 @@ package dev.ligature.wander.interpreter
 
 import arrow.core.Either
 import dev.ligature.Dataset
+import dev.ligature.wander.Bindings
 import dev.ligature.wander.WanderError
 import dev.ligature.wander.parser.Script
 import dev.ligature.wander.parser.ScriptResult
 
 data class ScriptError(override val message: String): WanderError
 
+//TODO get rid of this file?
+
 fun interpret(
-  script: Script
-): Either<ScriptError, ScriptResult> {
-  val bindings = common()
-  return script.eval(bindings)
-}
+  script: Script,
+  bindings: Bindings
+): Either<ScriptError, ScriptResult> = script.eval(bindings)
 
 fun interpret(
     script: Script,
-    dataset: Dataset
+    dataset: Dataset,
+    bindings: Bindings
 ): Either<ScriptError, ScriptResult> {
-  val bindings = createStandardBindings(dataset)
   return script.eval(bindings)
 }

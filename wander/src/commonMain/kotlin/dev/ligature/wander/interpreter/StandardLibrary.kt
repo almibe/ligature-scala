@@ -36,47 +36,43 @@ fun common(): Bindings {
 //    )
 //    .getOrElse(???)
 //
-//  stdLib = stdLib
-//    .bindVariable(
-//      Name("not"),
-//      NativeFunction(
-//        listOf(Parameter(Name("bool"))),//, WanderType.Boolean)),
-//        { bindings: Bindings ->
-//          bindings.read(Name("bool")) match {
-//            case Right(b: BooleanValue) => Right(BooleanValue(!b.value))
-//            case _ =>
-//              Left(
-//                ScriptError(
-//                  "not requires a Boolean, received ${bindings.read(Name("bool"))}"
-//                )
-//              )
-//          }
-//      )
-//    )
-//    .getOrElse(???)
+  stdLib
+    .bindVariable(
+      Name("not"),
+      NativeFunction(
+        listOf(Parameter(Name("bool")))
+      ) //, WanderType.Boolean)),
+      { bindings: Bindings ->
+        val bool = bindings.read(Name("bool"))
+        if (bool is Right) {
+          val value = bool.value as BooleanValue
+          Right(BooleanValue(!value.value))
+        } else {
+          TODO()
+        }
+      }
+    )
 
-//  stdLib = stdLib
-//    .bindVariable(
-//      Name("and"),
-//      NativeFunction(
-//        List(
-//          Parameter(Name("boolLeft"), WanderType.Boolean),
-//          Parameter(Name("boolRight"), WanderType.Boolean)
-//        ),
-//        (bindings: Bindings) =>
-//          for {
-//            left <- bindings.read(Name("boolLeft"))
-//            right <- bindings.read(Name("boolRight"))
-//            res <- (left, right) match {
-//              case (l: BooleanValue, r: BooleanValue) =>
-//                Right(BooleanValue(l.value && r.value))
-//              case _ => Left(ScriptError("and requires two booleans"))
-//            }
-//          } yield res
-//      )
-//    )
-//    .getOrElse(???)
-//
+  stdLib
+    .bindVariable(
+      Name("and"),
+      NativeFunction(
+        listOf(
+          Parameter(Name("boolLeft")),//, WanderType.Boolean),
+          Parameter(Name("boolRight"))//, WanderType.Boolean)
+        )) { bindings: Bindings ->
+        val left = bindings.read(Name("boolLeft"))
+        val right = bindings.read(Name("boolRight"))
+        if (left is Right && right is Right) {
+          val l = left.value as BooleanValue
+          val r = right.value as BooleanValue
+          Right(BooleanValue(l.value && r.value))
+        } else {
+          Left(ScriptError("and requires two booleans"))
+        }
+      }
+    )
+
   stdLib.bindVariable(
       Name("or"),
       NativeFunction(
@@ -84,19 +80,17 @@ fun common(): Bindings {
           Parameter(Name("boolLeft")),//, WanderType.Boolean),
           Parameter(Name("boolRight"))//, WanderType.Boolean)
         )) { bindings: Bindings ->
-          Right(BooleanValue(true))
-//          for {
-//            left < -bindings.read(Name("boolLeft"))
-//            right < -bindings.read(Name("boolRight"))
-//            res < -(left, right) match {
-//              case(l: BooleanValue, r: BooleanValue) =>
-//              Right(BooleanValue(l.value || r.value))
-//              case _ => Left (ScriptError("or requires two booleans"))
-//            }
-//          } yield res
+          val left = bindings.read(Name("boolLeft"))
+          val right = bindings.read(Name("boolRight"))
+          if (left is Right && right is Right) {
+            val l = left.value as BooleanValue
+            val r = right.value as BooleanValue
+            Right(BooleanValue(l.value || r.value))
+          } else {
+            Left (ScriptError("or requires two booleans"))
+          }
         }
     )
-    //.getOrElse { throw Error("Could not bind 'or' function.") }
 
   // class RangeResultStream implements ResultStream<bigint> {
   //     readonly start: bigint

@@ -115,6 +115,14 @@ class Bindings {
     }
     return Left(ScriptError("Could not find $name in scope."))
   }
+
+  fun names(): Set<Name> {
+    val names = mutableSetOf<Name>()
+    scopes.forEach {
+      names.addAll(it.variables.keys)
+    }
+    return names
+  }
 }
 
 //TODO this function will probably be used once I allow for ad-hoc polymorphism with functions.
