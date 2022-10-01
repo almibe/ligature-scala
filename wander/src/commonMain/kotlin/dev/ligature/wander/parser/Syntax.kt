@@ -223,7 +223,7 @@ data class Parameter(
 data class WanderFunction(
     val wanderParameters: List<Parameter>,
 //    val output: WanderType,
-    val body: Expression
+    val body: Scope
 ): FunctionDefinition(wanderParameters) {
   override fun eval(bindings: Bindings) =
     Either.Right(EvalResult(this))
@@ -286,51 +286,35 @@ data class ReferenceExpression(val name: Name): Expression {
 data class IfExpression(
     val condition: Expression,
     val body: Expression,
-    val elseIfs: List<ElseIf> = listOf(),
-    val `else`: Option<Else> = none()
+    val elsifs: List<Elsif> = listOf(),
+    val `else`: Else? = null
 ): Expression {
   override fun eval(bindings: Bindings): Either<ScriptError, EvalResult> {
-    fun evalCondition(expression: Expression): Either<ScriptError, Boolean> {
-      TODO()
-//      when(val res = condition.eval(bindings)) {
-//        is Either.Right(EvalResult(_, BooleanValue(res))) -> res
-//        is Either.Left -> return res
-//        case _ =>
-//          return Either.Left(
-//          ScriptError("Conditions in if expression must return BooleanValue.")
-//        )
-//      }
-
-//      elseIf.condition.eval(bindings) match {
-//        case Right(EvalResult(_, BooleanValue(res))) => res
-//        case Left(err)                               => return Left(err)
-//        case _ =>
-//        return Left(
-//          ScriptError(
-//            "Conditions in if expression must return BooleanValue."
-//          )
-//        )
-//      }
-    }
-    if (evalCondition(condition).orNull() == true) {
-      body.eval(bindings)
-    } else {
-      for (elseIf in elseIfs) {
-        if (evalCondition(elseIf.condition).orNull() == true) {
-          return elseIf.body.eval(bindings)
+    fun evalCondition(expression: Expression): Either<ScriptError, Boolean> =
+      when (val res = expression.eval(bindings)) {
+        is Left -> res
+        is Right -> {
+          when (val value = res.value.result) {
+            is BooleanValue -> Right(value.value)
+            else -> Left(ScriptError("Conditions in if expression must return BooleanValue."))
+          }
         }
       }
-      TODO()
-//      return when(`else`) {
-//        is Some -> `else`.value.body.eval(bindings)
-//        is None -> Either.Right(EvalResult(Nothing))
-//      }
+
+    return if (evalCondition(condition).orNull() == true) {
+      body.eval(bindings)
+    } else {
+      for (elsif in elsifs) {
+        if (evalCondition(elsif.condition).orNull() == true) {
+          return elsif.body.eval(bindings)
+        }
+      }
+      return `else`?.body?.eval(bindings) ?: Either.Right(EvalResult(Nothing))
     }
-    return Either.Right(EvalResult(Nothing))
   }
 }
 
-data class ElseIf(val condition: Expression, val body: Expression): Expression {
+data class Elsif(val condition: Expression, val body: Expression): Expression {
   override fun eval(bindings: Bindings) = TODO("is this needed?")
 }
 

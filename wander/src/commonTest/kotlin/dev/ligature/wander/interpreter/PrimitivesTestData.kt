@@ -51,7 +51,7 @@ val primitivesTestData = listOf(
   ),
   TestInstance(
     description = "comment + nothing test",
-    script = "#nothing   " + newLine,
+    script = "--nothing   $newLine",
     result = Right(ScriptResult(Nothing))
   ),
   TestInstance(

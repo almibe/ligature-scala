@@ -23,20 +23,20 @@ import dev.ligature.wander.parser.ScriptResult
 val closureTestData = listOf(
   TestInstance(
     description = "function0 def",
-    script = """let f = () -> Integer { 5 }
+    script = """let f = { -> 5 }
                |f()""".trimMargin(),
     result = Right(ScriptResult(LigatureValue(IntegerLiteral(5))))
   ),
   TestInstance(
     description = "function0 def with closing over variable",
     script = """let x = 5
-               |let f = () -> Integer { x }
+               |let f = { -> x }
                |f()""".trimMargin(),
     result = Right(ScriptResult(LigatureValue(IntegerLiteral(5))))
   ),
   TestInstance(
-    description = "function1 def exact type",
-    script = """let identity = (identifier:Identifier) -> Identifier {
+    description = "function1 def",
+    script = """let identity = { identifier ->
                |  identifier
                |}
                |identity(<testEntity>)""".trimMargin(),
@@ -47,20 +47,8 @@ val closureTestData = listOf(
     )
   ),
   TestInstance(
-    description = "function1 def super type",
-    script = """let identity = (value:Value) -> Value {
-             |  value
-             |}
-             |identity(<testEntity>)""".trimMargin(),
-    result = Right(
-      ScriptResult(
-        LigatureValue(Identifier.create("testEntity").getOrElse { throw Error("Unexpected value.") })
-      )
-    )
-  ),
-  TestInstance(
     description = "function2 def",
-    script = """let second = (value1:Value value2:Value) -> Value {
+    script = """let second = { value1 value2 ->
                |  value2
                |}
                |second(<testEntity> "hello")""".trimMargin(),
@@ -72,7 +60,7 @@ val closureTestData = listOf(
   ),
   TestInstance(
     description = "function3 def",
-    script = """let middle = (value1:Value value2:Value value3:Value) -> Value {
+    script = """let middle = { value1 value2 value3 ->
                |  value2
                |}
                |middle(<testEntity> "hello" 24601)""".trimMargin(),

@@ -22,7 +22,7 @@ fun parse(script: List<Token>): Either<ParsingError, Script> {
       if (gaze.isComplete) {
         Either.Right(Script(listOf()))
       } else {
-        Either.Left(ParsingError("No Match1"))
+        Either.Left(ParsingError("No Match"))
       }
     else ->
       if (gaze.isComplete) {

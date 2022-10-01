@@ -20,7 +20,7 @@ object Nibblers {
     }
 
   val commentTokenNib = dev.ligature.gaze.takeAll(
-    takeString(";"),
+    takeString("--"),
     takeUntil(takeFirst(takeString("\n"), takeString("\r\n")))
   ).map { results -> listOf(Token.Comment(results.joinToString(""))) }
 
@@ -35,6 +35,7 @@ object Nibblers {
       when(val content = value.joinToString("")) {
         "let"   -> listOf(Token.LetKeyword)
         "if"    -> listOf(Token.IfKeyword)
+        "elsif" -> listOf(Token.ElsifKeyword)
         "else"  -> listOf(Token.ElseKeyword)
         "true"  -> listOf(Token.Boolean(true))
         "false" -> listOf(Token.Boolean(false))

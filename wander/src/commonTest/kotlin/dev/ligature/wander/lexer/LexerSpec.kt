@@ -47,9 +47,9 @@ class LexerSpec: FunSpec() {
 
     test("read comments") {
       runCases(mapOf(
-        ";" to listOf(Token.Comment(";")),
-        ";hello" to listOf(Token.Comment(";hello")),
-        ";this is a@#$@%$#@$%@ comment;;;;  " to listOf(Token.Comment(";this is a@#\$@%\$#@\$%@ comment;;;;  "))
+        "--" to listOf(Token.Comment("--")),
+        "--hello" to listOf(Token.Comment("--hello")),
+        "-- this is a@#$@%$#@$%@ comment;;;;  " to listOf(Token.Comment("-- this is a@#\$@%\$#@\$%@ comment;;;;  "))
       ))
     }
 
@@ -125,6 +125,7 @@ class LexerSpec: FunSpec() {
     test("read if and else keywords") {
       runCases(mapOf(
         "if" to listOf(Token.IfKeyword),
+        "elsif" to listOf(Token.ElsifKeyword),
         "else" to listOf(Token.ElseKeyword),
       ))
     }

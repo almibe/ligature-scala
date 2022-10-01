@@ -9,7 +9,7 @@ import dev.ligature.IntegerLiteral
 import dev.ligature.wander.lexer.Token
 import dev.ligature.wander.parser.BooleanValue
 import dev.ligature.wander.parser.Else
-import dev.ligature.wander.parser.ElseIf
+import dev.ligature.wander.parser.Elsif
 import dev.ligature.wander.parser.FunctionCall
 import dev.ligature.wander.parser.IfExpression
 import dev.ligature.wander.parser.LetStatement

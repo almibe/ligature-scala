@@ -27,6 +27,7 @@ sealed interface Token {
   object CloseParen: Token
   object Arrow: Token
   object IfKeyword: Token
+  object ElsifKeyword: Token
   object ElseKeyword: Token
 }
 

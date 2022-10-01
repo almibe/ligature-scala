@@ -78,18 +78,18 @@ class ParserSpec: FunSpec() {
         "if true 5 else 6" to listOf(
           IfExpression(BooleanValue(true), LigatureValue(IntegerLiteral(5)),
             listOf(),
-            Some(Else(LigatureValue(IntegerLiteral(6)))))),
-        "if true false else if false true else 7" to listOf(
+            Else(LigatureValue(IntegerLiteral(6))))),
+        "if true false elsif false true else 7" to listOf(
           IfExpression(BooleanValue(true), BooleanValue(false),
-            listOf(ElseIf(BooleanValue(false), BooleanValue(true))),
-            Some(Else(LigatureValue(IntegerLiteral(7)))))),
-        "if 1 2 else if 2 3 else if 3 4 else 5" to listOf(
+            listOf(Elsif(BooleanValue(false), BooleanValue(true))),
+            Else(LigatureValue(IntegerLiteral(7))))),
+        "if 1 2 elsif 2 3 elsif 3 4 else 5" to listOf(
           IfExpression(LigatureValue(IntegerLiteral(1)), LigatureValue(IntegerLiteral(2)),
             listOf(
-              ElseIf(LigatureValue(IntegerLiteral(2)), LigatureValue(IntegerLiteral(3))),
-              ElseIf(LigatureValue(IntegerLiteral(3)), LigatureValue(IntegerLiteral(4)))
+              Elsif(LigatureValue(IntegerLiteral(2)), LigatureValue(IntegerLiteral(3))),
+              Elsif(LigatureValue(IntegerLiteral(3)), LigatureValue(IntegerLiteral(4)))
             ),
-            Some(Else(LigatureValue(IntegerLiteral(5))))))
+            Else(LigatureValue(IntegerLiteral(5)))))
       ))
     }
 
@@ -118,13 +118,16 @@ class ParserSpec: FunSpec() {
 
     test("function definition") {
       runCases(mapOf(
-        "() -> {}" to listOf(WanderFunction(listOf(), Scope(listOf()))),
-        "(x) -> x" to listOf(WanderFunction(listOf(Parameter(Name("x"))), Name("x"))),
-        "(x y z) -> foo2(z y x)" to listOf(
+        "{ -> 5 }" to listOf(WanderFunction(listOf(), Scope(listOf(LigatureValue(IntegerLiteral(5)))))),
+        "{ x -> x }" to listOf(WanderFunction(listOf(Parameter(Name("x"))), Scope(listOf(Name("x"))))),
+        "{ x -> let x = 65 x }" to listOf(WanderFunction(listOf(Parameter(Name("x"))),
+          Scope(listOf(LetStatement(Name("x"), LigatureValue(IntegerLiteral(65))),
+            Name("x"))))),
+        "{ x y z -> foo2(z y x) }" to listOf(
           WanderFunction(
             listOf(Parameter(Name("x")), Parameter(Name("y")), Parameter(Name("z"))),
-            FunctionCall(Name("foo2"), listOf(Name("z"), Name("y"), Name("x"))))
-        )))
+            Scope(listOf(FunctionCall(Name("foo2"), listOf(Name("z"), Name("y"), Name("x")))))
+        ))))
     }
   }
 }
