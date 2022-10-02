@@ -29,6 +29,14 @@ sealed interface WanderValue: Expression
 
 fun write(wanderValue: WanderValue): String =
   when (wanderValue) {
+    is Seq -> {
+      val sb = StringBuilder("[")
+      wanderValue.contents.forEach {
+        sb.append(" ${write(it)}")
+      }
+      sb.append("]")
+      sb.toString()
+    }
     is BooleanValue -> wanderValue.value.toString()
     is NativeFunction -> "Native Function"
     is WanderFunction -> "Wander Function"
@@ -52,6 +60,12 @@ data class Name(val name: String): Expression {
       is Either.Left  -> res
       is Either.Right -> Either.Right(EvalResult(res.value))
     }
+}
+
+//TODO probably replace type of contents with Flow<WanderValue>
+data class Seq(val contents: List<WanderValue> = listOf()): WanderValue {
+  override fun eval(bindings: Bindings): Either<ScriptError, EvalResult> =
+    Right(EvalResult(this))
 }
 
 sealed class FunctionDefinition(val parameters: List<Parameter>): WanderValue
@@ -85,6 +99,18 @@ object Nothing: WanderValue {
 object EqualSign: Element {
   override fun eval(binding: Bindings) = Either.Left(
     ScriptError("Cannot eval equal sign.")
+  )
+}
+
+object OpenSquare: Element {
+  override fun eval(binding: Bindings) = Either.Left(
+    ScriptError("Cannot eval `[`.")
+  )
+}
+
+object CloseSquare: Element {
+  override fun eval(binding: Bindings) = Either.Left(
+    ScriptError("Cannot eval `]`.")
   )
 }
 

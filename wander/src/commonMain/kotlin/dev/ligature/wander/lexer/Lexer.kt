@@ -25,6 +25,8 @@ sealed interface Token {
   object Colon: Token
   object OpenParen: Token
   object CloseParen: Token
+  object OpenSquare: Token
+  object CloseSquare: Token
   object Arrow: Token
   object IfKeyword: Token
   object ElsifKeyword: Token

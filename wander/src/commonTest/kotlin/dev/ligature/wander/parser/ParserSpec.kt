@@ -61,6 +61,12 @@ class ParserSpec: FunSpec() {
       ))
     }
 
+    test("parsing Sequences") {
+      runCases(mapOf(
+        "[]" to listOf(Seq()),
+      ))
+    }
+
     test("basic scope support") {
       runCases(mapOf(
         "{}" to listOf(Scope(listOf())),

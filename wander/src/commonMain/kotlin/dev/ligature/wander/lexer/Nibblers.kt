@@ -61,6 +61,12 @@ object Nibblers {
   val closeParenTokenNib =
     takeString(")").map { res -> listOf(Token.CloseParen) }
 
+  val openSquareTokenNib =
+    takeString("[").map { res -> listOf(Token.OpenSquare) }
+
+  val closeSquareTokenNib =
+    takeString("]").map { res -> listOf(Token.CloseSquare) }
+
   val arrowTokenNib =
     takeString("->").map { res -> listOf(Token.Arrow) }
 
@@ -83,6 +89,8 @@ object Nibblers {
       colonTokenNib,
       openParenTokenNib,
       closeParenTokenNib,
+      openSquareTokenNib,
+      closeSquareTokenNib,
       arrowTokenNib,
       bytesTokenNib,
       integerTokenNib,

@@ -114,6 +114,14 @@ class LexerSpec: FunSpec() {
       ))
     }
 
+    test("read square brackets") {
+      runCases(mapOf(
+        "[" to listOf(Token.OpenSquare),
+        "]" to listOf(Token.CloseSquare),
+        "[[]]]" to listOf(Token.OpenSquare, Token.OpenSquare, Token.CloseSquare, Token.CloseSquare, Token.CloseSquare)
+      ))
+    }
+
     test("read arrow") {
       runCases(mapOf(
         "->" to listOf(Token.Arrow),

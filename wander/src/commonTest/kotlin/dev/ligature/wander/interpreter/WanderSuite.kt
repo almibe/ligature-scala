@@ -4,6 +4,8 @@
 
 package dev.ligature.wander.interpreter
 
+import dev.ligature.wander.library.common
+import dev.ligature.wander.library.datasetQueryBindings
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import io.kotest.assertions.withClue
@@ -22,8 +24,7 @@ class WanderSuite: FunSpec() {
           test(
             "Interpreting -- ${testGroup.category} -- ${instance.description}"
           ) {
-            val result = run(instance.script, testGroup.dataset)
-
+            val result = run(instance.script, common())//datasetQueryBindings(testGroup.dataset))
             withClue("results are not the same for ${instance.description}") {
               result shouldBe instance.result
             }

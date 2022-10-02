@@ -59,6 +59,16 @@ object Nibblers {
     listOf(Name(token.value))
   }
 
+  val openSquareNib = takeCond<Token> {
+    it is Token.OpenSquare }.map {
+    listOf(OpenSquare)
+  }
+
+  val closeSquareNib = takeCond<Token> {
+    it is Token.CloseSquare }.map {
+    listOf(CloseSquare)
+  }
+
   val openBraceNib = takeCond<Token> {
     it is Token.OpenBrace }.map {
     listOf(OpenBrace)
@@ -276,6 +286,14 @@ object Nibblers {
     listOf(FunctionCall(tokens[0][0] as Name, parameters))
   }
 
+  val seqNib: Nibbler<Token, Expression> = between(
+    openSquareNib,
+    optional(repeat(::expressionNib)),
+    closeSquareNib
+  ).map { tokens: List<Element> ->
+    listOf(Seq())
+  }
+
   val scopeNib: Nibbler<Token, Scope> = between(
     openBraceNib,
     optional(repeat(elementNib)),
@@ -294,8 +312,9 @@ object Nibblers {
       wanderFunctionNib,
       stringNib,
       integerNib,
-      booleanNib
+      booleanNib,
       //TODO bytes literal
+      seqNib
     )(gaze)
 
   val scriptNib: Nibbler<Token, Element> =
