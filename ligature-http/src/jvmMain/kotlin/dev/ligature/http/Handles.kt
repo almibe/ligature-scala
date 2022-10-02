@@ -9,6 +9,8 @@ import arrow.core.Either.Right
 import dev.ligature.Dataset
 import dev.ligature.Ligature
 import dev.ligature.lig.writeStatement
+import dev.ligature.wander.library.common
+import dev.ligature.wander.library.datasetQueryBindings
 import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.request.*
@@ -100,7 +102,8 @@ class Handlers(private val ligature: Ligature) {
     when (val dataset = Dataset.create(datasetName)) {
       is Right -> {
         val script = call.receiveText()
-        when (val res = dev.ligature.wander.run(script, dataset.value)) {
+        val bindings = datasetQueryBindings(dataset.value)
+        when (val res = dev.ligature.wander.run(script, bindings)) {
           is Right -> call.respondText(res.value.printResult())
           is Left -> TODO("Return error message from running script")
         }
