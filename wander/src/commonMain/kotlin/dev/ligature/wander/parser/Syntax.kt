@@ -30,12 +30,13 @@ sealed interface WanderValue: Expression
 fun write(wanderValue: WanderValue): String =
   when (wanderValue) {
     is Seq -> {
-      val sb = StringBuilder("[")
-      wanderValue.contents.forEach {
-        sb.append(" ${write(it)}")
-      }
-      sb.append("]")
-      sb.toString()
+//      val sb = StringBuilder("[")
+//      wanderValue.contents.forEach {
+//        //sb.append(" ${write(it)}")
+//      }
+//      sb.append("]")
+//      sb.toString()
+      "Sequence"
     }
     is BooleanValue -> wanderValue.value.toString()
     is NativeFunction -> "Native Function"
@@ -62,8 +63,8 @@ data class Name(val name: String): Expression {
     }
 }
 
-//TODO probably replace type of contents with Flow<WanderValue>
-data class Seq(val contents: List<WanderValue> = listOf()): WanderValue {
+//TODO probably replace type of contents with Flow<Expression>
+data class Seq(val contents: List<Expression> = listOf()): WanderValue {
   override fun eval(bindings: Bindings): Either<ScriptError, EvalResult> =
     Right(EvalResult(this))
 }

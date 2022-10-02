@@ -64,6 +64,12 @@ class ParserSpec: FunSpec() {
     test("parsing Sequences") {
       runCases(mapOf(
         "[]" to listOf(Seq()),
+        "[1]" to listOf(Seq(listOf(LigatureValue(IntegerLiteral(1))))),
+        "[1 nothing <hello>]" to listOf(Seq(listOf(
+          LigatureValue(IntegerLiteral(1)),
+          Name("nothing"),
+          LigatureValue(Identifier("hello"))
+        )))
       ))
     }
 

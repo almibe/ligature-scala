@@ -291,7 +291,8 @@ object Nibblers {
     optional(repeat(::expressionNib)),
     closeSquareNib
   ).map { tokens: List<Element> ->
-    listOf(Seq())
+    val contents: List<Expression> = tokens as List<Expression>
+    listOf(Seq(contents))
   }
 
   val scopeNib: Nibbler<Token, Scope> = between(
