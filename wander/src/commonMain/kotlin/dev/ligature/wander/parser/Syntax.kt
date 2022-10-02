@@ -4,7 +4,7 @@
 
 package dev.ligature.wander.parser
 
-import dev.ligature.wander.Bindings
+import dev.ligature.wander.interpreter.Bindings
 import dev.ligature.wander.interpreter.ScriptError
 import dev.ligature.Statement
 import dev.ligature.Value
@@ -12,8 +12,6 @@ import arrow.core.Either
 import arrow.core.Either.Left
 import arrow.core.Either.Right
 import arrow.core.flatMap
-import arrow.core.Option
-import arrow.core.none
 
 /** Represents the union of Statements and Expressions
   */
@@ -151,8 +149,8 @@ data class LetStatement(val name: Name, val expression: Expression): Element {
   * Wander.
   */
 data class NativeFunction(
-    val nativeParameters: List<Parameter>,
-    val body: (bindings: Bindings) -> Either<ScriptError, WanderValue>,
+  val nativeParameters: List<Parameter>,
+  val body: (bindings: Bindings) -> Either<ScriptError, WanderValue>,
 //    val output: WanderType? = null
 ): FunctionDefinition(nativeParameters) { // TODO eventually remove the default null value
   override fun eval(binding: Bindings) =
@@ -251,8 +249,8 @@ data class FunctionCall(val name: Name, val parameters: List<Expression>): Expre
 
   // TODO: this function should probably return an Either instead of throwing an exception
   fun updateFunctionCallBindings(
-      bindings: Bindings,
-      args: List<Parameter>
+    bindings: Bindings,
+    args: List<Parameter>
   ): Either<ScriptError, Unit> =
     if (args.size == parameters.size) {
       bindings.addScope()

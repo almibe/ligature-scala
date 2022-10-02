@@ -2,18 +2,13 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-package dev.ligature.wander
+package dev.ligature.wander.interpreter
 
 import arrow.core.Either
 import arrow.core.Either.Left
 import arrow.core.Either.Right
-import arrow.core.Some
 import dev.ligature.wander.parser.Name
-import dev.ligature.wander.interpreter.ScriptError
 import dev.ligature.wander.parser.WanderValue
-import dev.ligature.wander.parser.FunctionDefinition
-import dev.ligature.wander.parser.NativeFunction
-import kotlin.reflect.KClass
 
 data class Scope(val variables: MutableMap<Name, WanderValue> = mutableMapOf())
 //    val functions: Map<Name, List<FunctionDefinition>>

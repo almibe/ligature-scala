@@ -9,15 +9,7 @@ import arrow.core.Either.Right
 import dev.ligature.Identifier
 import dev.ligature.IntegerLiteral
 import dev.ligature.StringLiteral
-import dev.ligature.wander.lexer.Token
-import dev.ligature.wander.parser.FunctionCall
-import dev.ligature.wander.parser.LetStatement
 import dev.ligature.wander.parser.LigatureValue
-import dev.ligature.wander.parser.Name
-import dev.ligature.wander.parser.Parameter
-import dev.ligature.wander.Scope
-import dev.ligature.wander.parser.Script
-import dev.ligature.wander.parser.WanderFunction
 import dev.ligature.wander.parser.ScriptResult
 
 val closureTestData = listOf(

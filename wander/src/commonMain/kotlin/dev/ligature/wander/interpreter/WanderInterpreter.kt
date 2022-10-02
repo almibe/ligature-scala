@@ -6,7 +6,6 @@ package dev.ligature.wander.interpreter
 
 import arrow.core.Either
 import dev.ligature.Dataset
-import dev.ligature.wander.Bindings
 import dev.ligature.wander.WanderError
 import dev.ligature.wander.parser.Script
 import dev.ligature.wander.parser.ScriptResult

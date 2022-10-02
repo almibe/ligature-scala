@@ -5,12 +5,11 @@
 package dev.ligature.wander
 
 import arrow.core.Either.Right
-import arrow.core.flatMap
-import arrow.core.getOrElse
 
 import dev.ligature.wander.parser.LigatureValue
 import dev.ligature.wander.parser.Name
 import dev.ligature.StringLiteral
+import dev.ligature.wander.interpreter.Bindings
 
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
