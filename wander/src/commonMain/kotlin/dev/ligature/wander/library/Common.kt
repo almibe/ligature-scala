@@ -6,29 +6,60 @@ package dev.ligature.wander.library
 
 import arrow.core.Either.Left
 import arrow.core.Either.Right
+import dev.ligature.StringLiteral
 import dev.ligature.wander.interpreter.Bindings
 import dev.ligature.wander.interpreter.ScriptError
-import dev.ligature.wander.parser.BooleanValue
-import dev.ligature.wander.parser.Name
-import dev.ligature.wander.parser.NativeFunction
-import dev.ligature.wander.parser.Parameter
+import dev.ligature.wander.parser.*
+
+interface Logger {
+  fun log(message: String): dev.ligature.wander.parser.Nothing
+}
 
 /**
  * Create a Bindings instance with functions
  */
-fun common(): Bindings {
+fun common(logger: Logger = object : Logger {
+  override fun log(message: String): dev.ligature.wander.parser.Nothing {
+    println(message)
+    return dev.ligature.wander.parser.Nothing
+  }
+}): Bindings {
   val stdLib = Bindings()
 
-//  stdLib = stdLib
-//    .bindVariable(
-//      Name("log"),
-//      NativeFunction(
-//        List(Parameter(Name("message"), WanderType.String)),
-//        (binding: Bindings) -> TODO()
-//      )
-//    )
-//    .getOrElse(???)
-//
+  stdLib
+    .bindVariable(
+      Name("log"),
+      NativeFunction(
+        listOf(Parameter(Name("message")))) { bindings ->
+          when (val message = bindings.read(Name("message"))) {
+            is Right -> Right(logger.log((message.value as StringLiteral).value))
+            is Left -> TODO()
+          }
+        }
+    )
+
+  stdLib
+    .bindVariable(
+      Name("ensure"),
+      NativeFunction(
+        listOf(Parameter(Name("arg")))) { bindings ->
+          when (val arg = bindings.read(Name("arg"))) {
+            is Right -> {
+              val value = arg.value
+              if (value is BooleanValue) {
+                if (value.value) {
+                  Right(Nothing)
+                } else {
+                  TODO()
+                }
+              } else {
+                TODO()
+              }
+            }
+            is Left -> TODO()
+          }
+      })
+
   stdLib
     .bindVariable(
       Name("not"),
@@ -84,6 +115,55 @@ fun common(): Bindings {
       }
     }
   )
+
+  stdLib.bindVariable(
+    Name("range"),
+    NativeFunction(
+      listOf(Parameter(Name("start")), Parameter(Name("stop")))) { bindings: Bindings ->
+        //TODO for now just return 0 to 9, eventually read start and stop params
+        TODO()
+      }
+    )
+
+//  stdLib.bindVariable(
+//    Name("each"),
+//    NativeFunction(
+//      listOf(Parameter(Name("seq")), Parameter(Name("fn")))) {
+//        val seq = bindings.read(Name("seq"))
+//        val fn = bindings.read(Name("fn"))
+//        if (seq is Right && fn is Right) {
+//          val s = seq.value as Seq
+//          val f = fn.value as FunctionDefinition
+//          val res = mutableListOf<Expression>()
+//          s.contents.forEach {
+//            f.
+//          }
+//          Right(BooleanValue(l.value || r.value))
+//        } else {
+//          Left (ScriptError("or requires two booleans"))
+//        }
+//      }
+//  )
+
+//  stdLib.bindVariable(
+//    Name("map"),
+//    NativeFunction(
+//      listOf(Parameter(Name("seq")), Parameter(Name("fn")))) {
+//        val seq = bindings.read(Name("seq"))
+//        val fn = bindings.read(Name("fn"))
+//        if (seq is Right && fn is Right) {
+//          val s = seq.value as Seq
+//          val f = fn.value as FunctionDefinition
+//          val res = mutableListOf<Expression>()
+//          s.contents.forEach {
+//            f.
+//          }
+//          Right(BooleanValue(l.value || r.value))
+//        } else {
+//          Left (ScriptError("or requires two booleans"))
+//        }
+//      }
+//  )
 
   // class RangeResultStream implements ResultStream<bigint> {
   //     readonly start: bigint
