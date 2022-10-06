@@ -7,6 +7,9 @@ package dev.ligature.wander.interpreter
 import dev.ligature.Identifier
 import dev.ligature.wander.parser.Element
 
+/**
+ * A Value represents a result from eval-ing an Element or a value that can be bound.
+ */
 sealed interface Value {
   data class BooleanLiteral(val value: Boolean): Value
   data class StringLiteral(val value: String): Value

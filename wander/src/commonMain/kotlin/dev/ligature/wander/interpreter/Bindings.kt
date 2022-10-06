@@ -32,8 +32,8 @@ class Bindings {
     }
   }
 
-  inline fun <reified T: Value>readExperiment(name: String): Either<EvalError, T> =
-    when (val value = read(name)) {
+  inline fun <reified T: Value>read(name: String): Either<EvalError, T> =
+    when (val value = readValue(name)) {
       is Right -> {
         if (value.value is T) Right(value as T)
         else Left(EvalError("Could not read $name with correct type, found ${value.value}."))
@@ -41,7 +41,7 @@ class Bindings {
       is Left -> value
     }
 
-  fun read(name: String): Either<EvalError, Value> {
+  fun readValue(name: String): Either<EvalError, Value> {
     var currentScopeOffset = this.scopes.size - 1
     while (currentScopeOffset >= 0) {
       val currentScope = this.scopes[currentScopeOffset]

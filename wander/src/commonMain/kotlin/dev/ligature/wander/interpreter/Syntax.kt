@@ -4,108 +4,6 @@
 
 package dev.ligature.wander.interpreter
 
-//import dev.ligature.wander.interpreter.ScriptError
-//import dev.ligature.Statement
-//import dev.ligature.Value
-//import arrow.core.Either
-//import arrow.core.Either.Left
-//import arrow.core.Either.Right
-//import arrow.core.flatMap
-//
-////TODO probably replace type of contents with Flow<Expression>
-//data class Seq(val contents: List<Expression> = listOf()): WanderValue {
-//  override fun eval(bindings: Bindings): Either<ScriptError, EvalResult> =
-//    Right(EvalResult(this))
-//}
-//
-//sealed class FunctionDefinition(val parameters: List<Parameter>): WanderValue
-//
-//data class LigatureValue(val value: Value): WanderValue {
-//  override fun eval(bindings: Bindings) = Either.Right(
-//    EvalResult(LigatureValue(value))
-//  )
-//}
-//
-//data class BooleanValue(val value: Boolean): WanderValue {
-//  override fun eval(bindings: Bindings) = Either.Right(
-//    EvalResult(BooleanValue(value))
-//  )
-//}
-//
-////TODO is this needed?
-//data class StatementValue(val value: Statement): WanderValue {
-//  override fun eval(binding: Bindings) = TODO()
-//}
-//
-//object Nothing: WanderValue {
-//  override fun eval(bindings: Bindings) = Either.Right(EvalResult(Nothing))
-//}
-//
-////TODO add back
-////data class ResultStream(stream: Stream[IO, WanderValue]) extends WanderValue {
-////  override def eval(binding: Bindings) = ???
-////}
-//
-//object EqualSign: Element {
-//  override fun eval(binding: Bindings) = Either.Left(
-//    ScriptError("Cannot eval equal sign.")
-//  )
-//}
-//
-//object OpenSquare: Element {
-//  override fun eval(binding: Bindings) = Either.Left(
-//    ScriptError("Cannot eval `[`.")
-//  )
-//}
-//
-//object CloseSquare: Element {
-//  override fun eval(binding: Bindings) = Either.Left(
-//    ScriptError("Cannot eval `]`.")
-//  )
-//}
-//
-//object OpenBrace: Element {
-//  override fun eval(binding: Bindings) = Either.Left(
-//    ScriptError("Cannot eval open brace.")
-//  )
-//}
-//
-//object CloseBrace: Element {
-//  override fun eval(binding: Bindings) = Either.Left(
-//    ScriptError("Cannot eval close brace.")
-//  )
-//}
-//
-//object OpenParen: Element {
-//  override fun eval(binding: Bindings) = Either.Left(
-//    ScriptError("Cannot eval open paren.")
-//  )
-//}
-//
-//object CloseParen: Element {
-//  override fun eval(binding: Bindings) = Either.Left(
-//    ScriptError("Cannot eval close paren.")
-//  )
-//}
-//
-//object Arrow: Element {
-//  override fun eval(binding: Bindings) = Either.Left(
-//    ScriptError("Cannot eval arrow.")
-//  )
-//}
-//
-//object Colon: Element {
-//  override fun eval(binding: Bindings) = Either.Left(
-//    ScriptError("Cannot eval colon.")
-//  )
-//}
-//
-//object LetKeyword: Element {
-//  override fun eval(binding: Bindings) = Either.Left(
-//    ScriptError("Cannot eval let keyword.")
-//  )
-//}
-//
 //data class LetStatement(val name: Name, val expression: Expression): Element {
 //
 //  override fun eval(bindings: Bindings): Either<ScriptError, EvalResult> {
@@ -137,22 +35,6 @@ package dev.ligature.wander.interpreter
 //    Either.Right(EvalResult(this))
 //}
 //
-///** Represents a full script that can be eval'd.
-//  */
-//data class Script(val elements: List<Element>) {
-//  fun eval(bindings: Bindings): Either<ScriptError, ScriptResult> {
-//    var result: WanderValue = Nothing
-//    elements.forEach { element ->
-//      when(val res = element.eval(bindings)) {
-//        is Either.Left  -> return res
-//        is Either.Right -> {
-//          result = res.value.result
-//        }
-//      }
-//    }
-//    return Either.Right(ScriptResult(result))
-//  }
-//}
 //
 ///** Represents a scope in Wander that can be eval'd and can contain its own
 //  * bindings.
@@ -172,24 +54,6 @@ package dev.ligature.wander.interpreter
 //    bindings.removeScope()
 //    return Either.Right(EvalResult(result))
 //  }
-//}
-//
-////sealed interface WanderType
-////
-////enum class SimpleType: WanderType {
-////  Value,
-////  Identifier,
-////  Boolean,
-////  String,
-////  Integer
-////}
-////data class Function(val parameters: List<Parameter>, val output: WanderType): WanderType
-//
-//data class Parameter(
-//    val name: Name,
-////    val parameterType: WanderType
-//): Expression {
-//  override fun eval(bindings: Bindings) = TODO()
 //}
 //
 ///** Holds a reference to a function defined in Wander.
@@ -251,12 +115,6 @@ package dev.ligature.wander.interpreter
 //    }
 //}
 //
-////TODO is this needed?
-//data class ReferenceExpression(val name: Name): Expression {
-//  override fun eval(bindings: Bindings) =
-//    TODO()
-//}
-//
 //data class IfExpression(
 //    val condition: Expression,
 //    val body: Expression,
@@ -288,10 +146,3 @@ package dev.ligature.wander.interpreter
 //  }
 //}
 //
-//data class Elsif(val condition: Expression, val body: Expression): Expression {
-//  override fun eval(bindings: Bindings) = TODO("is this needed?")
-//}
-//
-//data class Else(val body: Expression): Expression {
-//  override fun eval(bindings: Bindings) = TODO("is this needed?")
-//}
