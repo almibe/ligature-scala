@@ -5,17 +5,23 @@
 package dev.ligature.wander.library
 
 import dev.ligature.Dataset
+import dev.ligature.QueryTx
 import dev.ligature.wander.interpreter.Bindings
+import dev.ligature.wander.parser.Name
+import dev.ligature.wander.parser.NativeFunction
+import kotlinx.coroutines.flow.fold
 
-fun datasetQueryBindings(dataset: Dataset, bindings: Bindings = common()): Bindings {
+fun datasetQueryBindings(queryTx: QueryTx, dataset: Dataset, bindings: Bindings = common()): Bindings {
+  //      allStatements(): Promise<Array<Statement>>
+//  bindings.bindVariable(Name("allStatements"), NativeFunction(listOf()) {
+//    queryTx.allStatements().fold("", { current, running -> "$current$running" })
+//  })
+
+
   return bindings
 }
 
 //function readScope(scope: ExecutionScope, bindings: Bindings) {
-//  //      allStatements(): Promise<Array<Statement>>
-//  bindings.bind(Name("allStatements"), NativeFunction([], (_bindings: Bindings) => {
-//    return TODO()
-//  }))
 //  //      matchStatements(entity: Entity | null, attribute: Attribute | null, value: Value | null | LiteralRange, context: Entity | null): Promise<Array<Statement>>
 //  bindings.bind(Name("matchStatements"), NativeFunction(["entity", "attribute", "value", "context"], (_bindings: Bindings) => {
 //    return TODO()

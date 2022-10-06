@@ -8,34 +8,40 @@ import arrow.core.Either.Left
 import arrow.core.Either.Right
 import dev.ligature.StringLiteral
 import dev.ligature.wander.interpreter.Bindings
-import dev.ligature.wander.interpreter.ScriptError
+import dev.ligature.wander.interpreter.Value
 import dev.ligature.wander.parser.*
 
 interface Logger {
-  fun log(message: String): dev.ligature.wander.parser.Nothing
+  fun log(message: String): Value.Nothing
 }
 
 /**
  * Create a Bindings instance with functions
  */
 fun common(logger: Logger = object : Logger {
-  override fun log(message: String): dev.ligature.wander.parser.Nothing {
+  override fun log(message: String): Value.Nothing {
     println(message)
-    return dev.ligature.wander.parser.Nothing
+    return Value.Nothing
   }
 }): Bindings {
   val stdLib = Bindings()
 
   stdLib
     .bindVariable(
-      Name("log"),
-      NativeFunction(
-        listOf(Parameter(Name("message")))) { bindings ->
-          when (val message = bindings.read(Name("message"))) {
-            is Right -> Right(logger.log((message.value as StringLiteral).value))
-            is Left -> TODO()
+      "log",
+      Value.NativeFunction(
+        listOf("message")
+      ) { bindings ->
+        when (val message = bindings.read("message")) {
+          is Right -> {
+            val output = ((message.value as LigatureValue).value as StringLiteral).value
+            logger.log(output)
+            Right(Nothing)
           }
+
+          is Left -> TODO()
         }
+      }
     )
 
   stdLib
@@ -125,76 +131,81 @@ fun common(logger: Logger = object : Logger {
       }
     )
 
-//  stdLib.bindVariable(
-//    Name("each"),
-//    NativeFunction(
-//      listOf(Parameter(Name("seq")), Parameter(Name("fn")))) {
-//        val seq = bindings.read(Name("seq"))
-//        val fn = bindings.read(Name("fn"))
-//        if (seq is Right && fn is Right) {
-//          val s = seq.value as Seq
-//          val f = fn.value as FunctionDefinition
-//          val res = mutableListOf<Expression>()
-//          s.contents.forEach {
-//            f.
-//          }
-//          Right(BooleanValue(l.value || r.value))
-//        } else {
-//          Left (ScriptError("or requires two booleans"))
-//        }
-//      }
-//  )
+  stdLib.bindVariable(
+    Name("each"),
+    NativeFunction(
+      listOf(Parameter(Name("seq")), Parameter(Name("fn")))) { bindings ->
+      val seq = bindings.read(Name("seq"))
+      val fn = bindings.read(Name("fn"))
+      if (seq is Right<*> && fn is Right<*>) {
+        val s = seq.value as Seq
+        val f = fn.value as FunctionDefinition
+        if (f.parameters.size == 1) {
+          val argName = f.parameters.first().name
+          s.contents.forEach {
+            when (val r = it.eval(bindings)) {
+              is Right -> {
+                bindings.addScope()
+                bindings.bindVariable(argName, r.value.result)
+                val evalRes = f.eval(bindings)
+                println("Finished eval - $evalRes")
+                bindings.removeScope()
+                if (evalRes is Left) {
+                  return@NativeFunction evalRes
+                }
+              }
+              is Left -> return@NativeFunction r
+            }
+          }
+          Right(Nothing)
+        } else {
+          TODO("report error, incorrect parameters")
+        }
+      } else {
+        Left (ScriptError("Could not map."))
+      }
+    }
+  )
 
-//  stdLib.bindVariable(
-//    Name("map"),
-//    NativeFunction(
-//      listOf(Parameter(Name("seq")), Parameter(Name("fn")))) {
-//        val seq = bindings.read(Name("seq"))
-//        val fn = bindings.read(Name("fn"))
-//        if (seq is Right && fn is Right) {
-//          val s = seq.value as Seq
-//          val f = fn.value as FunctionDefinition
-//          val res = mutableListOf<Expression>()
-//          s.contents.forEach {
-//            f.
-//          }
-//          Right(BooleanValue(l.value || r.value))
-//        } else {
-//          Left (ScriptError("or requires two booleans"))
-//        }
-//      }
-//  )
+  //TODO count function
 
-  // class RangeResultStream implements ResultStream<bigint> {
-  //     readonly start: bigint
-  //     readonly stop: bigint
-  //     private i: bigint
-
-  //     constructor(start: bigint, stop: bigint) {
-  //         this.start = start
-  //         this.stop = stop
-  //         this.i = start
-  //     }
-
-  //     next(): Promise<bigint | ResultComplete | ResultError> {
-  //         if (this.i < this.stop) {
-  //             val result = this.i
-  //             this.i++;
-  //             return Promise.resolve(result)
-  //         } else {
-  //             return Promise.resolve(ResultComplete(this.stop - this.start));
-  //         }
-  //     }
-  //     toArray(): Promise<ResultComplete | ResultError | bigint[]> {
-  //         throw Error("Method not implemented.");
-  //     }
-  // }
-
-  // // stdLib.bind(Name("range"), NativeFunction(["start", "stop"], (bindings: Bindings) => {
-  // //     val start = bindings.read(Name("start")) as unknown as bigint //TODO check value
-  // //     val stop = bindings.read(Name("stop")) as unknown as bigint //TODO check value
-  // //     return RangeResultStream(start, stop)
-  // // }))
-
+  stdLib.bindVariable(
+    Name("map"),
+    NativeFunction(
+      listOf(Parameter(Name("seq")), Parameter(Name("fn")))) { bindings ->
+        val seq = bindings.read(Name("seq"))
+        val fn = bindings.read(Name("fn"))
+        if (seq is Right<*> && fn is Right<*>) {
+          val s = seq.value as Seq
+          val f = fn.value as FunctionDefinition
+          if (f.parameters.size == 1) {
+            val argName = f.parameters.first().name
+            val res = mutableListOf<Expression>()
+            s.contents.forEach {
+              //TODO bind `it` to the name saved above
+              val r = it.eval(bindings)
+              when (r) {
+                is Right -> {
+                  bindings.addScope()
+                  bindings.bindVariable(argName, r.value.result)
+                  val evalRes = f.eval(bindings)
+                  bindings.removeScope()
+                  when (evalRes) {
+                    is Right -> res.add(evalRes.value.result)
+                    is Left -> return@NativeFunction evalRes
+                  }
+                }
+                is Left -> return@NativeFunction r
+              }
+            }
+            Right(Seq(res))
+          } else {
+            TODO("report error, incorrect parameters")
+          }
+        } else {
+          Left (ScriptError("Could not map."))
+        }
+      }
+  )
   return stdLib
 }

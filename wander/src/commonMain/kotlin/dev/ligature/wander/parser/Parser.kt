@@ -5,6 +5,8 @@
 package dev.ligature.wander.parser
 
 import arrow.core.Either
+import arrow.core.Either.Left
+import arrow.core.Either.Right
 import dev.ligature.gaze.*
 import dev.ligature.wander.WanderError
 import dev.ligature.wander.lexer.Token
@@ -12,7 +14,7 @@ import dev.ligature.wander.parser.Nibblers.scriptNib
 
 data class ParsingError(override val message: String): WanderError
 
-fun parse(script: List<Token>): Either<ParsingError, Script> {
+fun parse(script: List<Token>): Either<ParsingError, List<Element>> {
   val filteredInput = script.filter { token: Token ->
     token !is Token.Comment && token !is Token.Spaces && token !is Token.NewLine
   }.toList()
@@ -20,15 +22,15 @@ fun parse(script: List<Token>): Either<ParsingError, Script> {
   return when(val res = gaze.attempt(scriptNib)) {
     null ->
       if (gaze.isComplete) {
-        Either.Right(Script(listOf()))
+        Right(listOf())
       } else {
-        Either.Left(ParsingError("No Match"))
+        Left(ParsingError("No Match"))
       }
     else ->
       if (gaze.isComplete) {
-        Either.Right(Script(res)) // .filter(_.isDefined).map(_.get)))
+        Right(res) // .filter(_.isDefined).map(_.get)))
       } else {
-        Either.Left(ParsingError("Not complete - ${gaze.peek()}"))
+        Left(ParsingError("Not complete - ${gaze.peek()}"))
       }
   }
 }

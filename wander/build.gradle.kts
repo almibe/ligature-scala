@@ -17,6 +17,7 @@
 //    }
 //}
 
+@Suppress("DSL_SCOPE_VIOLATION")
 plugins {
     kotlin("multiplatform")// version "1.7.10"
 //    alias(libs.plugins.kotlin.multiplatform)
