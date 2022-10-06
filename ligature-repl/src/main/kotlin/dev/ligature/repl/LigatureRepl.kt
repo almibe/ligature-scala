@@ -33,15 +33,6 @@ fun main() {
 
   val prompt = ">"
 
-//  commands.add(exitTask)
-//  commands.add(createDatasetsTask(ligatureInstance))
-//  commands.add(createAddDatasetTask(ligatureInstance))
-//  commands.add(createRemoveDatasetTask(ligatureInstance))
-//  commands.add(createHelpTask(commands))
-//  commands.add(createKtsMode())
-//  commands.add(createUseInMemoryTask(ligatureInstance))
-//  commands.add(createInstanceTask(ligatureInstance))
-
   var `continue` = true
   while (`continue`) {
     try {
