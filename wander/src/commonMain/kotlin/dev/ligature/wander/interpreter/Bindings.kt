@@ -7,6 +7,7 @@ package dev.ligature.wander.interpreter
 import arrow.core.Either
 import arrow.core.Either.Left
 import arrow.core.Either.Right
+import kotlin.reflect.KClass
 
 class Bindings {
   data class BindingScope(val variables: MutableMap<String, Value> = mutableMapOf())
@@ -32,7 +33,9 @@ class Bindings {
     }
   }
 
-  inline fun <reified T: Value>read(name: String): Either<EvalError, T> =
+  inline fun <reified T: Value>read(name: String,
+                                    @Suppress("UNUSED_PARAMETER") clazz: KClass<T>? = null
+  ): Either<EvalError, T> =
     when (val value = readValue(name)) {
       is Right -> {
         if (value.value is T) Right(value as T)
