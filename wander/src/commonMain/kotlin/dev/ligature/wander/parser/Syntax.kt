@@ -18,10 +18,10 @@ sealed interface Element {
   data class IdentifierLiteral(val value: Identifier): Value
   data class FunctionCall(val name: String, val arguments: List<Expression>): Expression
   data class LambdaDefinition(val parameters: List<String>, val body: List<Element>): Value
-  data class Conditional(val condition: Expression, val body: List<Element>)
+  data class Conditional(val condition: Expression, val body: Expression)
   data class IfExpression(val ifConditional: Conditional,
                           val elsifConditional: List<Conditional> = listOf(),
-                          val elseBody: List<Element>? = null): Expression
+                          val elseBody: Expression? = null): Expression
   data class Seq(val values: List<Expression>): Value
   object Nothing: Expression
 }

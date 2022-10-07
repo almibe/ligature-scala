@@ -37,8 +37,7 @@ fun common(logger: Logger = object : Logger {
           is Right -> {
             val output = write(message.value)
             logger.log(output)
-            Value.Nothing
-            //Right(Nothing)
+            Right(Value.Nothing)
           }
           is Left -> TODO()
         }

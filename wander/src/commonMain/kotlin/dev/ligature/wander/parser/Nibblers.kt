@@ -4,10 +4,7 @@
 
 package dev.ligature.wander.parser
 
-import dev.ligature.BytesLiteral
 import dev.ligature.Identifier
-import dev.ligature.IntegerLiteral
-import dev.ligature.StringLiteral
 import dev.ligature.gaze.*
 import dev.ligature.wander.lexer.Token
 
@@ -77,33 +74,20 @@ object Nibblers {
       listOf<Element>()
     }
 
-//  val openParenNib = takeCond<Token> {
-//    it is Token.OpenParen }.map {
-//    listOf(Token.OpenParen)
-//  }
-//
-//  val closeParenNib = takeCond<Token> {
-//    it is Token.CloseParen }.map {
-//      listOf(Token.CloseParen)
-//    }
-//
-//  val arrowNib = takeCond<Token> {
-//    it is Token.Arrow }.map {
-//      listOf(Token.Arrow)
-//    }
-//
-////TODO probably get rid of?
-////  val parameterNib: Nibbler<Token, Parameter> = nameNib.map { listOf(Parameter(it[0])) }
-////    //{ gaze ->
-////    //TODO()
-//////  for {
-//////    name <- gaze.attempt(
-//////      nameNib
-//////    ) // .map { name => name.map(name => Parameter(name)) }
-//////    _ <- gaze.attempt(colonNib)
-//////    typeName <- gaze.attempt(typeNib)
-//////  } yield Seq(Parameter(name.first(), typeName.first()))
-////  //}
+  val openParenNib = takeCond<Token> {
+    it is Token.OpenParen }.map {
+    listOf<Element>()
+  }
+
+  val closeParenNib = takeCond<Token> {
+    it is Token.CloseParen }.map {
+      listOf<Element>()
+    }
+
+  val arrowNib = takeCond<Token> {
+    it is Token.Arrow }.map {
+      listOf<Element>()
+    }
 
   val equalSignNib = takeCond<Token> {
     it is Token.EqualSign }.map {
@@ -125,140 +109,59 @@ object Nibblers {
   }
 
   val elementNib = takeFirst(::expressionNib, letStatementNib)
-//
-//  /**
-//   * Nib the handles lambda definitions
-//   * eg:
-//   * { x -> x }
-//   */
-//  val wanderFunctionNib: Nibbler<Token, FunctionDefinition> = takeAllGrouped(
-//      openBraceNib,
-//      optional(repeat(parameterNib)),
-//      arrowNib,
-//      optional(repeat(elementNib)),
-//      closeBraceNib
-//    ).map { tokens: List<List<Element>> ->
-//    val parameters = tokens[1].map { it as Parameter }
-//    val body = tokens[3]
-//    listOf(WanderFunction(parameters, Scope(body)))
-//  }
-//
-////{ gaze ->
-////    TODO()
-////  for {
-////    _ <- gaze.attempt(openParenNib)
-////    parameters <- gaze.attempt(optional(repeat(parameterNib)))
-////    _ <- gaze.attempt(closeParenNib)
-////    _ <- gaze.attempt(arrowNib)
-////    returnType <- gaze.attempt(typeNib)
-////    body <- gaze.attempt(scopeNib)
-////  } yield Seq(WanderFunction(parameters.toList, returnType.first(), body.first()))
-////  }
-//
-////  val typeNib: Nibbler<Token, WanderType> = takeFirst(
-////    take(Token("Integer", TokenType.Name)).map { listOf(SimpleType.Integer) },
-////    take(Token("Identifier", TokenType.Name)).map {
-////      listOf(SimpleType.Identifier)
-////    },
-////    take(Token("Value", TokenType.Name)).map { listOf(SimpleType.Value) }
-////  )
-////
-//  val ifKeywordNib = takeCond<Token> {
-//    it is Token.IfKeyword } .map {
-//    listOf(LetKeyword) //TODO add new element
-//  }
-//
-//  val elsifKeywordNib = takeCond<Token> {
-//    it is Token.ElsifKeyword } .map {
-//    listOf(LetKeyword) //TODO add new element
-//  }
-//
-//  val elseKeywordNib = takeCond<Token> {
-//      it is Token.ElseKeyword }.map {
-//      listOf(LetKeyword) //TODO add new element
-//    }
-//
-//  val elsifExpressionNib: Nibbler<Token, Elsif> = takeAllGrouped(
-//    elsifKeywordNib,
-//    ::expressionNib,
-//    ::expressionNib
-//  ).map { tokens: List<List<Element>> ->
-//    listOf(Elsif(tokens[1][0] as Expression, tokens[2][0] as Expression))
-//  }
-//    //{ gaze ->
-//    //TODO()
-////  for {
-////    _ <- gaze.attempt(elseKeywordNib)
-////    _ <- gaze.attempt(ifKeywordNib)
-////    condition <- gaze.attempt(expressionNib)
-////    body <- gaze.attempt(expressionNib)
-////  } yield Seq(ElseIf(condition.first(), body.first()))
-////  }
-//
-//  val elseExpressionNib: Nibbler<Token, Else> = takeAllGrouped(
-//    elseKeywordNib,
-//    ::expressionNib
-//  ). map { tokens: List<List<Element>> ->
-//    listOf(Else(tokens[1][0] as Expression))
-//  }
-//
-//    //{ gaze ->
-//    //TODO()
-////  for {
-////    _ <- gaze.attempt(elseKeywordNib)
-////    body <- gaze.attempt(expressionNib)
-////  } yield Seq(Else(body.first()))
-////  }
-//
-//  val ifExpressionNib: Nibbler<Token, IfExpression> = takeAllGrouped(
-//    ifKeywordNib,
-//    ::expressionNib,
-//    ::expressionNib,
-//    optional(repeat(elsifExpressionNib)),
-//    optional(elseExpressionNib)
-//  ).map { tokens: List<List<Element>> ->
-//    val elsifs = tokens[3].map { it as Elsif }
-//    val elseValue: Else? = if (tokens[4].size == 1) {
-//      tokens[4][0] as Else
-//    } else {
-//      null
-//    }
-//    listOf(
-//      IfExpression(
-//        tokens[1][0] as Expression,
-//        tokens[2][0] as Expression,
-//        elsifs,
-//        elseValue
-//      )
-//    )
-//  }
-//    //{ gaze ->
-//   /// TODO()
-////  for {
-////    _ <- gaze.attempt(ifKeywordNib)
-////    condition <- gaze.attempt(expressionNib)
-////    body <- gaze.attempt(expressionNib)
-////    elseIfs <- gaze.attempt(optional(repeat(elseIfExpressionNib)))
-////    `else` <- gaze.attempt(optional(elseExpressionNib))
-////  } yield Seq(
-////    IfExpression(
-////      condition.first(),
-////      body.first(),
-////      elseIfs.toList,
-////      `else`.toList.find(_ => true)
-////    )
-////  )
-////  }
-//
-//  val functionCallNib: Nibbler<Token, FunctionCall> = takeAllGrouped(
-//      nameNib,
-//      openParenNib,
-//      optional(repeat(::expressionNib)),
-//      closeParenNib,
-//  ).map { tokens: List<List<Element>> ->
-//    val parameters = tokens[2].map { it as Expression }
-//    listOf(FunctionCall(tokens[0][0] as Name, parameters))
-//  }
+
+  /**
+   * Nib the handles lambda definitions
+   * eg:
+   * { x -> x }
+   */
+  val lambdaDefinitionNib: Nibbler<Token, Element.LambdaDefinition> = takeAllGrouped(
+      openBraceNib,
+      optional(repeat(nameNib)),
+      arrowNib,
+      optional(repeat(elementNib)),
+      closeBraceNib
+    ).map { tokens: List<List<Element>> ->
+    val parameters = tokens[1].map { (it as Element.Name).name }
+    val body = tokens[3]
+    listOf(Element.LambdaDefinition(parameters, body))
+  }
+
+  val ifExpressionNib: Nibbler<Token, Element.IfExpression> = nib@{ gaze ->
+    if(gaze.next() != Token.IfKeyword) { return@nib null }
+    val ifCondition = gaze.attempt(::expressionNib)?.first()
+    val ifBody = gaze.attempt(::expressionNib)?.first()
+    if (ifCondition == null || ifBody == null) { return@nib null }
+    val ifConditional = Element.Conditional(ifCondition, ifBody)
+    val elsifConditionals = mutableListOf<Element.Conditional>()
+    while (gaze.peek() == Token.ElsifKeyword) {
+      gaze.next()
+      val condition = gaze.attempt(::expressionNib)?.first()
+      val body = gaze.attempt(::expressionNib)?.first()
+      if (condition == null || body == null) { return@nib null }
+      elsifConditionals.add(Element.Conditional(condition, body))
+    }
+    val elseBody = if (gaze.peek() == Token.ElseKeyword) {
+      gaze.next()
+      gaze.attempt(::expressionNib)?.first()
+    } else {
+      null
+    }
+    listOf(Element.IfExpression(
+      ifConditional,
+      elsifConditionals,
+      elseBody))
+  }
+
+  val functionCallNib: Nibbler<Token, Element.FunctionCall> = takeAllGrouped(
+      nameNib,
+      openParenNib,
+      optional(repeat(::expressionNib)),
+      closeParenNib,
+  ).map { tokens: List<List<Element>> ->
+    val parameters = tokens[2].map { it as Element.Expression }
+    listOf(Element.FunctionCall((tokens[0][0] as Element.Name).name, parameters))
+  }
 
   val seqNib: Nibbler<Token, Element.Seq> = between(
     openSquareNib,
@@ -279,12 +182,12 @@ object Nibblers {
 
   fun expressionNib(gaze: Gaze<Token>): List<Element.Expression>? =
     takeFirst(
-//      ifExpressionNib,
-//      functionCallNib,
+      ifExpressionNib,
+      functionCallNib,
       nameNib,
       scopeNib,
       identifierNib,
-//      wanderFunctionNib,
+      lambdaDefinitionNib,
       stringNib,
       integerNib,
       booleanNib,

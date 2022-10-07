@@ -33,46 +33,80 @@ fun eval(element: Element, bindings: Bindings): Either<EvalError, Value> =
     is Element.StringLiteral -> Right(Value.StringLiteral(element.value))
     Element.Nothing -> Right(Value.Nothing)
     is Element.Name -> bindings.read(element.name, Value::class)
-    is Element.FunctionCall -> {
-      TODO()
-//      //TODO this should probably handle lambdas and native functions the same.
-//      val wanderFunction = bindings.read(element.name, Value.LambdaDefinition::class).orNull()
-//      val nativeFunction = bindings.read(element.name, Value.NativeFunction::class).orNull()
-//
-//      if (wanderFunction != null) {
-//        bindings.addScope()
-//        eval(element.)
-//        //eval function
-//        bindings.removeScope()
-//        //return value
-//        TODO()
-//      } else if (nativeFunction != null) {
-//        bindings.addScope()
-//        eval(element.)
-//        //eval function
-//        bindings.removeScope()
-//        //return value
-//        TODO()
-//      } else {
-//        Left(EvalError("Function not defined ${element.name}"))
-//      }
-    }
-    is Element.IfExpression -> {
-      //eval if condition
-      //if true run body and return
-      //check all elsif conditions
-      //if true run body and return
-      //if else exists run body and return
-      //return nothing if nothing matches
-      TODO()
-    }
+    is Element.FunctionCall -> eval(element, bindings)
+    is Element.IfExpression -> eval(element, bindings)
     is Element.Scope -> {
-      eval(element.body, bindings)
+      bindings.addScope()
+      val res = eval(element.body, bindings)
+      bindings.removeScope()
+      res
     }
     is Element.LetStatement -> {
-      //eval value expression
-      //bind value to name
-      //return nothing
-      TODO()
+      when(val value = eval(element.value, bindings)) {
+        is Right -> {
+          when(val bindingRes = bindings.bindVariable(element.name, value.value)) {
+            is Right -> Right(Value.Nothing)
+            is Left -> bindingRes
+          }
+        }
+        is Left -> value
+      }
     }
   }
+
+fun eval(element: Element.FunctionCall, bindings: Bindings): Either<EvalError, Value> {
+  //TODO this should probably handle lambdas and native functions the same.
+  val lambdaDefinition = bindings.read(element.name, Value.LambdaDefinition::class).orNull()
+  val nativeFunction = bindings.read(element.name, Value.NativeFunction::class).orNull()
+
+  return if (lambdaDefinition != null) {
+    bindings.addScope()
+    //TODO add bindings for parameters
+    val res = eval(lambdaDefinition.body, bindings)
+    bindings.removeScope()
+    res
+  } else if (nativeFunction != null) {
+    bindings.addScope()
+    //TODO add bindings for parameters
+    val res = nativeFunction.body(bindings)
+    bindings.removeScope()
+    res
+  } else {
+    Left(EvalError("Function not defined ${element.name}"))
+  }
+}
+
+fun eval(element: Element.IfExpression, bindings: Bindings): Either<EvalError, Value> {
+  return when (val ifCondRes = eval(element.ifConditional.condition, bindings)) {
+    is Right -> {
+      if (ifCondRes.value is Value.BooleanLiteral) {
+        if ((ifCondRes.value as Value.BooleanLiteral).value) {
+          return eval(element.ifConditional.body, bindings)
+        } else {
+          element.elsifConditional.forEach {
+            when (val elsifCondRes = eval(it.condition, bindings)) {
+              is Right -> {
+                if (elsifCondRes.value is Value.BooleanLiteral) {
+                  if ((elsifCondRes.value as Value.BooleanLiteral).value) {
+                    return eval(element.ifConditional.body, bindings)
+                  } //else do nothing
+                } else {
+                  return Left(EvalError("Elsif condition must result in a Boolean value."))
+                }
+              }
+              is Left -> return elsifCondRes
+            }
+          }
+        }
+      } else {
+        Left(EvalError("If condition must result in a Boolean value."))
+      }
+      if (element.elseBody != null) {
+        eval(element.elseBody, bindings)
+      } else {
+        Right(Value.Nothing)
+      }
+    }
+    is Left -> ifCondRes
+  }
+}

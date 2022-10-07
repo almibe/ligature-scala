@@ -4,6 +4,7 @@
 
 package dev.ligature.wander.interpreter
 
+import arrow.core.Either
 import dev.ligature.Identifier
 import dev.ligature.wander.parser.Element
 
@@ -18,7 +19,7 @@ sealed interface Value {
   data class LambdaDefinition(val parameters: List<String>,
                               val body: List<Element>): Value
   data class NativeFunction(val parameters: List<String>,
-                            val body: (Bindings) -> Value): Value
+                            val body: (Bindings) -> Either<EvalError, Value>): Value
   data class Seq(val values: List<Element.Expression>): Value
   object Nothing: Value
 }
