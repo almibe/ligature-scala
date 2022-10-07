@@ -77,65 +77,65 @@ class ParserSpec: FunSpec() {
         "{ let x = 5 }" to listOf(Element.Scope(listOf((Element.LetStatement("x", Element.IntegerLiteral(5))))))
       ))
     }
-//TODO restore below
-//    test("parse if expressions") {
-//      runCases(mapOf(
-//        "if {} {}" to listOf(Element.IfExpression(Element.Scope(listOf()), Element.Scope(listOf()))),
-//        "if { -123123 } true" to listOf(Element.IfExpression(Element.Scope(listOf(Element.IntegerLiteral(-123123)))), Element.BooleanLiteral(true)),
-//        "if {{ true }} false" to listOf(Element.IfExpression(Element.Scope(listOf(Element.Scope(listOf(Element.BooleanLiteral(true))))), Element.BooleanLiteral(false))),
-//        "if true 5 else 6" to listOf(
-//          IfExpression(BooleanValue(true), LigatureValue(IntegerLiteral(5)),
-//            listOf(),
-//            Else(LigatureValue(IntegerLiteral(6))))),
-//        "if true false elsif false true else 7" to listOf(
-//          IfExpression(BooleanValue(true), BooleanValue(false),
-//            listOf(Elsif(BooleanValue(false), BooleanValue(true))),
-//            Else(LigatureValue(IntegerLiteral(7))))),
-//        "if 1 2 elsif 2 3 elsif 3 4 else 5" to listOf(
-//          IfExpression(LigatureValue(IntegerLiteral(1)), LigatureValue(IntegerLiteral(2)),
-//            listOf(
-//              Elsif(LigatureValue(IntegerLiteral(2)), LigatureValue(IntegerLiteral(3))),
-//              Elsif(LigatureValue(IntegerLiteral(3)), LigatureValue(IntegerLiteral(4)))
-//            ),
-//            Else(LigatureValue(IntegerLiteral(5)))))
-//      ))
-//    }
-//
-//    test("function call") {
-//      runCases(mapOf(
-//        "foo()" to listOf(FunctionCall(Name("foo"), listOf())),
-//        "foo(x)" to listOf(FunctionCall(Name("foo"), listOf(Name("x")))),
-//        "foo(5 x {})" to listOf(
-//          FunctionCall(Name("foo"),
-//            listOf(LigatureValue(IntegerLiteral(5)), Name("x"), Scope(listOf())))
-//        )))
-//    }
-//
-//    test("parse let Statements") {
-//      runCases(mapOf(
-//        "let x = 5" to listOf(LetStatement(Name("x"), LigatureValue(IntegerLiteral(5)))),
-//        "let x = foo(6)" to listOf(
-//          LetStatement(Name("x"),
-//            FunctionCall(Name("foo"),
-//              listOf(LigatureValue(IntegerLiteral(6)))))),
-//        "let x = { foo(\"hello\") }" to listOf(
-//          LetStatement(Name("x"), Scope(
-//            listOf(FunctionCall(Name("foo"), listOf(LigatureValue(StringLiteral("hello"))))))))
-//      ))
-//    }
-//
-//    test("function definition") {
-//      runCases(mapOf(
-//        "{ -> 5 }" to listOf(WanderFunction(listOf(), Scope(listOf(LigatureValue(IntegerLiteral(5)))))),
-//        "{ x -> x }" to listOf(WanderFunction(listOf(Parameter(Name("x"))), Scope(listOf(Name("x"))))),
-//        "{ x -> let x = 65 x }" to listOf(WanderFunction(listOf(Parameter(Name("x"))),
-//          Scope(listOf(LetStatement(Name("x"), LigatureValue(IntegerLiteral(65))),
-//            Name("x"))))),
-//        "{ x y z -> foo2(z y x) }" to listOf(
-//          WanderFunction(
-//            listOf(Parameter(Name("x")), Parameter(Name("y")), Parameter(Name("z"))),
-//            Scope(listOf(FunctionCall(Name("foo2"), listOf(Name("z"), Name("y"), Name("x")))))
-//        ))))
-//    }
+
+    test("parse if expressions") {
+      runCases(mapOf(
+        "if {} {}" to listOf(Element.IfExpression(Element.Scope(listOf()), Element.Scope(listOf()))),
+        "if { -123123 } true" to listOf(Element.IfExpression(Element.Scope(listOf(Element.IntegerLiteral(-123123)))), Element.BooleanLiteral(true)),
+        "if {{ true }} false" to listOf(Element.IfExpression(Element.Scope(listOf(Element.Scope(listOf(Element.BooleanLiteral(true))))), Element.BooleanLiteral(false))),
+        "if true 5 else 6" to listOf(
+          IfExpression(BooleanValue(true), LigatureValue(IntegerLiteral(5)),
+            listOf(),
+            Else(LigatureValue(IntegerLiteral(6))))),
+        "if true false elsif false true else 7" to listOf(
+          IfExpression(BooleanValue(true), BooleanValue(false),
+            listOf(Elsif(BooleanValue(false), BooleanValue(true))),
+            Else(LigatureValue(IntegerLiteral(7))))),
+        "if 1 2 elsif 2 3 elsif 3 4 else 5" to listOf(
+          IfExpression(LigatureValue(IntegerLiteral(1)), LigatureValue(IntegerLiteral(2)),
+            listOf(
+              Elsif(LigatureValue(IntegerLiteral(2)), LigatureValue(IntegerLiteral(3))),
+              Elsif(LigatureValue(IntegerLiteral(3)), LigatureValue(IntegerLiteral(4)))
+            ),
+            Else(LigatureValue(IntegerLiteral(5)))))
+      ))
+    }
+
+    test("function call") {
+      runCases(mapOf(
+        "foo()" to listOf(FunctionCall(Name("foo"), listOf())),
+        "foo(x)" to listOf(FunctionCall(Name("foo"), listOf(Name("x")))),
+        "foo(5 x {})" to listOf(
+          FunctionCall(Name("foo"),
+            listOf(LigatureValue(IntegerLiteral(5)), Name("x"), Scope(listOf())))
+        )))
+    }
+
+    test("parse let Statements") {
+      runCases(mapOf(
+        "let x = 5" to listOf(LetStatement(Name("x"), LigatureValue(IntegerLiteral(5)))),
+        "let x = foo(6)" to listOf(
+          LetStatement(Name("x"),
+            FunctionCall(Name("foo"),
+              listOf(LigatureValue(IntegerLiteral(6)))))),
+        "let x = { foo(\"hello\") }" to listOf(
+          LetStatement(Name("x"), Scope(
+            listOf(FunctionCall(Name("foo"), listOf(LigatureValue(StringLiteral("hello"))))))))
+      ))
+    }
+
+    test("function definition") {
+      runCases(mapOf(
+        "{ -> 5 }" to listOf(WanderFunction(listOf(), Scope(listOf(LigatureValue(IntegerLiteral(5)))))),
+        "{ x -> x }" to listOf(WanderFunction(listOf(Parameter(Name("x"))), Scope(listOf(Name("x"))))),
+        "{ x -> let x = 65 x }" to listOf(WanderFunction(listOf(Parameter(Name("x"))),
+          Scope(listOf(LetStatement(Name("x"), LigatureValue(IntegerLiteral(65))),
+            Name("x"))))),
+        "{ x y z -> foo2(z y x) }" to listOf(
+          WanderFunction(
+            listOf(Parameter(Name("x")), Parameter(Name("y")), Parameter(Name("z"))),
+            Scope(listOf(FunctionCall(Name("foo2"), listOf(Name("z"), Name("y"), Name("x")))))
+        ))))
+    }
   }
 }

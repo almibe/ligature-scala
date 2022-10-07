@@ -20,28 +20,28 @@ object Nibblers {
     val token = tokens.first() as Token.Boolean
     listOf(Element.BooleanLiteral(token.value))
   }
-//
-//  val identifierNib: Nibbler<Token, Element> = takeCond<Token> {
-//    it is Token.Identifier
-//  }.map { tokens: List<Token> ->
-//    val token = tokens.first() as Token.Identifier
-//    listOf(Element.IdentifierLiteral(Identifier(token.value)))
-//  }
-//
+
+  val identifierNib: Nibbler<Token, Element.IdentifierLiteral> = takeCond<Token> {
+    it is Token.Identifier
+  }.map { tokens: List<Token> ->
+    val token = tokens.first() as Token.Identifier
+    listOf(Element.IdentifierLiteral(Identifier(token.value)))
+  }
+
   val integerNib: Nibbler<Token, Element.IntegerLiteral> = takeCond<Token> {
     it is Token.Integer
   }.map { tokens: List<Token> ->
     val token = tokens.first() as Token.Integer
     listOf(Element.IntegerLiteral(token.value.toLong()))
   }
-//
-//  val stringNib: Nibbler<Token, Element> = takeCond<Token> {
-//    it is Token.StringLiteral
-//  }.map { tokens: List<Token> ->
-//    val token = tokens.first() as Token.StringLiteral
-//    listOf(Element.StringLiteral(token.value))
-//  }
-//
+
+  val stringNib: Nibbler<Token, Element.StringLiteral> = takeCond<Token> {
+    it is Token.StringLiteral
+  }.map { tokens: List<Token> ->
+    val token = tokens.first() as Token.StringLiteral
+    listOf(Element.StringLiteral(token.value))
+  }
+
 ////TODO add back
 ////  val bytesNib: Nibbler<Token, Element> = takeCond<Token> {
 ////    it is Token.BytesLiteral
@@ -49,34 +49,34 @@ object Nibblers {
 ////    val token = tokens.first() as Token.BytesLiteral
 ////    listOf(LigatureValue(BytesLiteral(byteArrayOf()))) //TODO set actual value
 ////  }
-//
-//  val nameNib = takeCond<Token> {
-//    it is Token.Name
-//  }.map { tokens ->
-//    val token = tokens.first() as Token.Name
-//    listOf(Element.Name(token.value))
-//  }
-//
-//  val openSquareNib = takeCond<Token> {
-//    it is Token.OpenSquare }.map {
-//    listOf(Token.OpenSquare)
-//  }
-//
-//  val closeSquareNib = takeCond<Token> {
-//    it is Token.CloseSquare }.map {
-//    listOf(Token.CloseSquare)
-//  }
-//
-//  val openBraceNib = takeCond<Token> {
-//    it is Token.OpenBrace }.map {
-//    listOf(Token.OpenBrace)
-//  }
-//
-//  val closeBraceNib = takeCond<Token> {
-//    it is Token.CloseBrace }.map {
-//      listOf(Token.CloseBrace)
-//    }
-//
+
+  val nameNib = takeCond<Token> {
+    it is Token.Name
+  }.map { tokens ->
+    val token = tokens.first() as Token.Name
+    listOf(Element.Name(token.value))
+  }
+
+  val openSquareNib = takeCond<Token> {
+    it is Token.OpenSquare }.map {
+    listOf<Element>()
+  }
+
+  val closeSquareNib = takeCond<Token> {
+    it is Token.CloseSquare }.map {
+    listOf<Element>()
+  }
+
+  val openBraceNib = takeCond<Token> {
+    it is Token.OpenBrace }.map {
+    listOf<Element>()
+  }
+
+  val closeBraceNib = takeCond<Token> {
+    it is Token.CloseBrace }.map {
+      listOf<Element>()
+    }
+
 //  val openParenNib = takeCond<Token> {
 //    it is Token.OpenParen }.map {
 //    listOf(Token.OpenParen)
@@ -104,36 +104,27 @@ object Nibblers {
 //////    typeName <- gaze.attempt(typeNib)
 //////  } yield Seq(Parameter(name.first(), typeName.first()))
 ////  //}
-//
-//  val equalSignNib = takeCond<Token> {
-//    it is Token.EqualSign }.map {
-//    listOf(Token.EqualSign)
-//  }
-//
-//  val letKeywordNib = takeCond<Token> {
-//    it is Token.LetKeyword }.map {
-//    listOf(Token.LetKeyword)
-//  }
-//
-//  val letStatementNib: Nibbler<Token, Element.LetStatement> = takeAllGrouped(
-//    letKeywordNib,
-//    nameNib,
-//    equalSignNib,
-//    ::expressionNib
-//  ).map { tokens: List<List<Element>> ->
-//    listOf(LetStatement(tokens[1][0] as String, tokens[3][0] as Expression))
-//  }
-//  //{ gaze ->
-////    TODO()
-////  for {
-////    _ <- gaze.attempt(letKeywordNib)
-////    name <- gaze.attempt(nameNib)
-////    _ <- gaze.attempt(equalSignNib)
-////    expression <- gaze.attempt(expressionNib)
-////  } yield Seq(LetStatement(name.first(), expression.first()))
-////  }
-//
-  val elementNib = takeFirst(::expressionNib)//, letStatementNib)
+
+  val equalSignNib = takeCond<Token> {
+    it is Token.EqualSign }.map {
+    listOf<Element>()
+  }
+
+  val letKeywordNib = takeCond<Token> {
+    it is Token.LetKeyword }.map {
+    listOf<Element>()
+  }
+
+  val letStatementNib: Nibbler<Token, Element.LetStatement> = takeAllGrouped(
+    letKeywordNib,
+    nameNib,
+    equalSignNib,
+    ::expressionNib
+  ).map { tokens: List<List<Element>> ->
+    listOf(Element.LetStatement((tokens[1][0] as Element.Name).name, tokens[3][0] as Element.Expression))
+  }
+
+  val elementNib = takeFirst(::expressionNib, letStatementNib)
 //
 //  /**
 //   * Nib the handles lambda definitions
@@ -268,37 +259,37 @@ object Nibblers {
 //    val parameters = tokens[2].map { it as Expression }
 //    listOf(FunctionCall(tokens[0][0] as Name, parameters))
 //  }
-//
-//  val seqNib: Nibbler<Token, Expression> = between(
-//    openSquareNib,
-//    optional(repeat(::expressionNib)),
-//    closeSquareNib
-//  ).map { tokens: List<Element> ->
-//    val contents: List<Expression> = tokens as List<Expression>
-//    listOf(Seq(contents))
-//  }
-//
-//  val scopeNib: Nibbler<Token, Scope> = between(
-//    openBraceNib,
-//    optional(repeat(elementNib)),
-//    closeBraceNib
-//  ).map { tokens: List<Element> ->
-//    listOf(Scope(tokens))
-//  }
-//
+
+  val seqNib: Nibbler<Token, Element.Seq> = between(
+    openSquareNib,
+    optional(repeat(::expressionNib)),
+    closeSquareNib
+  ).map { tokens: List<Element> ->
+    val contents: List<Element.Expression> = tokens as List<Element.Expression>
+    listOf(Element.Seq(contents))
+  }
+
+  val scopeNib: Nibbler<Token, Element.Scope> = between(
+    openBraceNib,
+    optional(repeat(elementNib)),
+    closeBraceNib
+  ).map { tokens: List<Element> ->
+    listOf(Element.Scope(tokens))
+  }
+
   fun expressionNib(gaze: Gaze<Token>): List<Element.Expression>? =
     takeFirst(
 //      ifExpressionNib,
 //      functionCallNib,
-//      nameNib,
-//      scopeNib,
-//      identifierNib,
+      nameNib,
+      scopeNib,
+      identifierNib,
 //      wanderFunctionNib,
-//      stringNib,
+      stringNib,
       integerNib,
       booleanNib,
       //TODO bytes literal
-//      seqNib
+      seqNib
     )(gaze)
 
   val scriptNib: Nibbler<Token, Element> =

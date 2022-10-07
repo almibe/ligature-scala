@@ -38,7 +38,7 @@ class Bindings {
   ): Either<EvalError, T> =
     when (val value = readValue(name)) {
       is Right -> {
-        if (value.value is T) Right(value as T)
+        if (value.value is T) Right(value.value as T)
         else Left(EvalError("Could not read $name with correct type, found ${value.value}."))
       }
       is Left -> value
