@@ -18,7 +18,7 @@ sealed interface Value {
   data class LambdaDefinition(val parameters: List<String>,
                               val body: List<Element>): Value
   data class NativeFunction(val parameters: List<String>,
-                            val body: (Bindings) -> Element.Expression): Value
+                            val body: (Bindings) -> Value): Value
   data class Seq(val values: List<Element.Expression>): Value
   object Nothing: Value
 }

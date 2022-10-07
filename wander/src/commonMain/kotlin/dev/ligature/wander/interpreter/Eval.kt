@@ -32,22 +32,30 @@ fun eval(element: Element, bindings: Bindings): Either<EvalError, Value> =
     is Element.Seq -> Right(Value.Seq(element.values))
     is Element.StringLiteral -> Right(Value.StringLiteral(element.value))
     Element.Nothing -> Right(Value.Nothing)
-    is Element.Name -> when(val res = bindings.read(element.name)) {
-      is Right -> Right(res.value)
-      is Left -> res
-    }
+    is Element.Name -> bindings.read(element.name, Value::class)
     is Element.FunctionCall -> {
-      when (val fn = bindings.read(element.name)) {
-        is Right -> {
-          bindings.addScope()
-          eval(element.)
-          //eval function
-          bindings.removeScope()
-          //return value
-          TODO()
-        }
-        is Left -> fn
-      }
+      TODO()
+//      //TODO this should probably handle lambdas and native functions the same.
+//      val wanderFunction = bindings.read(element.name, Value.LambdaDefinition::class).orNull()
+//      val nativeFunction = bindings.read(element.name, Value.NativeFunction::class).orNull()
+//
+//      if (wanderFunction != null) {
+//        bindings.addScope()
+//        eval(element.)
+//        //eval function
+//        bindings.removeScope()
+//        //return value
+//        TODO()
+//      } else if (nativeFunction != null) {
+//        bindings.addScope()
+//        eval(element.)
+//        //eval function
+//        bindings.removeScope()
+//        //return value
+//        TODO()
+//      } else {
+//        Left(EvalError("Function not defined ${element.name}"))
+//      }
     }
     is Element.IfExpression -> {
       //eval if condition
