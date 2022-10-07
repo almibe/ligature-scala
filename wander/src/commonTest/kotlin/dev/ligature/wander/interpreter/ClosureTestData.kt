@@ -7,24 +7,20 @@ package dev.ligature.wander.interpreter
 import arrow.core.getOrElse
 import arrow.core.Either.Right
 import dev.ligature.Identifier
-import dev.ligature.IntegerLiteral
-import dev.ligature.StringLiteral
-import dev.ligature.wander.parser.LigatureValue
-import dev.ligature.wander.parser.ScriptResult
 
 val closureTestData = listOf(
   TestInstance(
     description = "function0 def",
     script = """let f = { -> 5 }
                |f()""".trimMargin(),
-    result = Right(ScriptResult(LigatureValue(IntegerLiteral(5))))
+    result = Right(Value.IntegerLiteral(5))
   ),
   TestInstance(
     description = "function0 def with closing over variable",
     script = """let x = 5
                |let f = { -> x }
                |f()""".trimMargin(),
-    result = Right(ScriptResult(LigatureValue(IntegerLiteral(5))))
+    result = Right(Value.IntegerLiteral(5))
   ),
   TestInstance(
     description = "function1 def",
@@ -33,10 +29,8 @@ val closureTestData = listOf(
                |}
                |identity(<testEntity>)""".trimMargin(),
     result = Right(
-      ScriptResult(
-        LigatureValue(Identifier.create("testEntity").getOrElse { throw Error("Unexpected value.") } )
-      )
-    )
+      Value.IdentifierLiteral(Identifier.create("testEntity")
+        .getOrElse { throw Error("Unexpected value.")}))
   ),
   TestInstance(
     description = "function2 def",
@@ -44,11 +38,7 @@ val closureTestData = listOf(
                |  value2
                |}
                |second(<testEntity> "hello")""".trimMargin(),
-    result = Right(
-      ScriptResult(
-        LigatureValue(StringLiteral("hello"))
-      )
-    )
+    result = Right(Value.StringLiteral("hello"))
   ),
   TestInstance(
     description = "function3 def",
@@ -56,11 +46,7 @@ val closureTestData = listOf(
                |  value2
                |}
                |middle(<testEntity> "hello" 24601)""".trimMargin(),
-    result = Right(
-      ScriptResult(
-        LigatureValue(StringLiteral("hello"))
-      )
-    )
+    result = Right(Value.StringLiteral("hello"))
   ),
 //  TestInstance(
 //    description = "function vararg",

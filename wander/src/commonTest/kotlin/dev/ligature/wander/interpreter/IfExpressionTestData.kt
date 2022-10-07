@@ -5,20 +5,6 @@
 package dev.ligature.wander.interpreter
 
 import arrow.core.Either.Right
-import dev.ligature.IntegerLiteral
-import dev.ligature.wander.lexer.Token
-import dev.ligature.wander.parser.BooleanValue
-import dev.ligature.wander.parser.Else
-import dev.ligature.wander.parser.Elsif
-import dev.ligature.wander.parser.FunctionCall
-import dev.ligature.wander.parser.IfExpression
-import dev.ligature.wander.parser.LetStatement
-import dev.ligature.wander.parser.LigatureValue
-import dev.ligature.wander.parser.Name
-import dev.ligature.wander.parser.Nothing
-import dev.ligature.wander.parser.Scope
-import dev.ligature.wander.parser.Script
-import dev.ligature.wander.parser.ScriptResult
 
 val ifExpression = listOf(
   TestInstance(
@@ -26,12 +12,12 @@ val ifExpression = listOf(
     script = """if true {
                |  7
                |}""".trimMargin(),
-    result = Right(ScriptResult(LigatureValue(IntegerLiteral(7))))
+    result = Right(Value.IntegerLiteral(7))
   ),
   TestInstance(
     description = "if false",
     script = "if and(false true) { 24601 }",
-    result = Right(ScriptResult(Nothing))
+    result = Right(Value.Nothing)
   ),
   TestInstance(
     description = "if else",
@@ -46,7 +32,7 @@ val ifExpression = listOf(
                |} else {
                |    4
                |}""".trimMargin(),
-    result = Right(ScriptResult(LigatureValue(IntegerLiteral(2))))
+    result = Right(Value.IntegerLiteral(2))
   ),
   TestInstance(
     description = "else",
@@ -59,6 +45,6 @@ val ifExpression = listOf(
                |} else {
                |    3
                |}""".trimMargin(),
-    result = Right(ScriptResult(LigatureValue(IntegerLiteral(3))))
+    result = Right(Value.IntegerLiteral(3))
   )
 )
