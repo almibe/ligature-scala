@@ -166,6 +166,48 @@ fun common(logger: Logger = object : Logger {
 //TODO rest function
 
   stdLib.bindVariable(
+    "filter",
+    Element.NativeFunction(
+      listOf("seq", "fn")) { bindings ->
+      val seq = bindings.read("seq", Element.Seq::class)
+      val fn = bindings.read("fn", Element.Function::class)
+      if (seq is Right && fn is Right) {
+        val s = seq.value
+        val f = fn.value
+        if (f.parameters.size == 1) {
+          val argName = f.parameters.first()
+          val res = mutableListOf<Element.Expression>()
+          s.values.forEach {
+            //TODO bind `it` to the name saved above
+            when (val r = eval(it, bindings)) {
+              is Right -> {
+                bindings.addScope()
+                bindings.bindVariable(argName, r.value)
+                val evalRes = f.call(bindings)
+                bindings.removeScope()
+                when (evalRes) {
+                  is Right -> {
+                    val value = evalRes.value
+                    if (value is Element.BooleanLiteral && value.value)
+                    res.add(it)
+                  }
+                  is Left -> return@NativeFunction evalRes
+                }
+              }
+              is Left -> return@NativeFunction r
+            }
+          }
+          Right(Element.Seq(res))
+        } else {
+          TODO("report error, incorrect parameters")
+        }
+      } else {
+        Left(EvalError("Could not filter."))
+      }
+    }
+  )
+
+  stdLib.bindVariable(
     "map",
     Element.NativeFunction(
       listOf("seq", "fn")) { bindings ->
