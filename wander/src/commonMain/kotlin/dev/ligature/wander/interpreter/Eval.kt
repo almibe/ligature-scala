@@ -55,14 +55,12 @@ fun eval(element: Element, bindings: Bindings): Either<EvalError, Value> =
   }
 
 fun eval(element: Element.FunctionCall, bindings: Bindings): Either<EvalError, Value> {
-  //TODO this should probably handle lambdas and native functions the same.
-  val lambdaDefinition = bindings.read(element.name, Value.LambdaDefinition::class).orNull()
-  val nativeFunction = bindings.read(element.name, Value.NativeFunction::class).orNull()
+  val fn = bindings.read(element.name, Value.Function::class).orNull()
 
-  return if (lambdaDefinition != null) {
+  return if (fn != null) {
     bindings.addScope()
-    if (lambdaDefinition.parameters.size == element.arguments.size) {
-      lambdaDefinition.parameters.forEachIndexed { index, param ->
+    if (fn.parameters.size == element.arguments.size) {
+      fn.parameters.forEachIndexed { index, param ->
         when (val argRes = eval(element.arguments[index], bindings)) {
           is Right -> {
             bindings.bindVariable(param, argRes.value)
@@ -70,32 +68,12 @@ fun eval(element: Element.FunctionCall, bindings: Bindings): Either<EvalError, V
           is Left -> return argRes
         }
       }
-      val res = eval(lambdaDefinition.body, bindings)
+      val res = fn.call(bindings)
       bindings.removeScope()
       res
     } else {
       Left(EvalError(
-        "Function `${element.name}` expected ${lambdaDefinition.parameters.size} arguments only received ${element.arguments.size}"
-      ))
-    }
-  } else if (nativeFunction != null) {
-    bindings.addScope()
-
-    if (nativeFunction.parameters.size == element.arguments.size) {
-      nativeFunction.parameters.forEachIndexed { index, param ->
-        when (val argRes = eval(element.arguments[index], bindings)) {
-          is Right -> {
-            bindings.bindVariable(param, argRes.value)
-          }
-          is Left -> return argRes
-        }
-      }
-      val res = nativeFunction.body(bindings)
-      bindings.removeScope()
-      res
-    } else {
-      Left(EvalError(
-        "Function `${element.name}` expected ${nativeFunction.parameters.size} arguments only received ${element.arguments.size}"
+        "Function `${element.name}` expected ${fn.parameters.size} arguments only received ${element.arguments.size}"
       ))
     }
   } else {

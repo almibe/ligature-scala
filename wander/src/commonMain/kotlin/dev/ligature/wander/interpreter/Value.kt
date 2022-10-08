@@ -17,14 +17,15 @@ sealed interface Value {
   data class IntegerLiteral(val value: Long): Value
   data class IdentifierLiteral(val value: Identifier): Value
   sealed interface Function: Value {
+    val parameters: List<String>
     fun call(bindings: Bindings): Either<EvalError, Value>
   }
-  data class LambdaDefinition(val parameters: List<String>,
+  data class LambdaDefinition(override val parameters: List<String>,
                               val body: List<Element>): Function {
     override fun call(bindings: Bindings): Either<EvalError, Value> =
       eval(body, bindings)
   }
-  data class NativeFunction(val parameters: List<String>,
+  data class NativeFunction(override val parameters: List<String>,
                             val body: (Bindings) -> Either<EvalError, Value>): Function {
     override fun call(bindings: Bindings): Either<EvalError, Value> =
       body(bindings)
