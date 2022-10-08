@@ -9,7 +9,7 @@ import arrow.core.Either.Right
 import dev.ligature.Dataset
 import dev.ligature.Ligature
 import dev.ligature.lig.writeStatement
-import dev.ligature.wander.interpreter.write
+import dev.ligature.wander.model.write
 import dev.ligature.wander.library.common
 import io.ktor.http.*
 import io.ktor.server.application.*
