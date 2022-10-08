@@ -8,8 +8,8 @@ import arrow.core.Either.Left
 import arrow.core.Either.Right
 import dev.ligature.wander.interpreter.Bindings
 import dev.ligature.wander.interpreter.Value
+import dev.ligature.wander.interpreter.write
 import dev.ligature.wander.library.common
-import dev.ligature.wander.parser.*
 
 object WanderRepl {
   /**
@@ -20,7 +20,7 @@ object WanderRepl {
   private fun createBindings(): Bindings {
     val bindings = common()
     bindings.bindVariable("bindings", Value.NativeFunction(listOf()) {
-      Value.StringLiteral(bindings.names().joinToString { it })
+      Right(Value.StringLiteral(bindings.names().joinToString { it }))
     })
     return bindings
   }
@@ -33,7 +33,7 @@ object WanderRepl {
 
   fun eval(input: String): String =
     when (val result = dev.ligature.wander.run(input, bindings)) {
-      is Right -> " - ${result.value.printResult()}"
+      is Right -> " - ${write(result.value)}"
       is Left -> " X ${result.value.message}"
   }
 }

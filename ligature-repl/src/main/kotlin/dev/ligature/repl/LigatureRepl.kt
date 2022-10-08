@@ -37,7 +37,7 @@ fun main() {
   while (`continue`) {
     try {
       val line = reader.readLine(prompt)
-      val res = WanderREPL.eval(line)
+      val res = WanderRepl.eval(line)
       println(res)
     } catch (e: UserInterruptException) {
       `continue` = false
