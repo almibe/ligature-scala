@@ -16,10 +16,19 @@ sealed interface Value {
   data class StringLiteral(val value: String): Value
   data class IntegerLiteral(val value: Long): Value
   data class IdentifierLiteral(val value: Identifier): Value
+  sealed interface Function: Value {
+    fun call(bindings: Bindings): Either<EvalError, Value>
+  }
   data class LambdaDefinition(val parameters: List<String>,
-                              val body: List<Element>): Value
+                              val body: List<Element>): Function {
+    override fun call(bindings: Bindings): Either<EvalError, Value> =
+      eval(body, bindings)
+  }
   data class NativeFunction(val parameters: List<String>,
-                            val body: (Bindings) -> Either<EvalError, Value>): Value
+                            val body: (Bindings) -> Either<EvalError, Value>): Function {
+    override fun call(bindings: Bindings): Either<EvalError, Value> =
+      body(bindings)
+  }
   data class Seq(val values: List<Element.Expression>): Value
   object Nothing: Value
 }
