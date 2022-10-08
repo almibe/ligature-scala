@@ -1,9 +1,8 @@
-# Note
-This project is in the middle of a rewrite, so it's kind of a mess.
-
 # ligature-kt
 An implementation of [Ligature knowledge graph](https://ligature.dev) library written in Kotlin for the JVM/JS.
 See additional documentation [here](https://github.com/almibe/ligature-documentation).
+
+[![](https://jitci.com/gh/almibe/ligature-kt/svg)](https://jitci.com/gh/almibe/ligature-kt)
 
 ### Projects
 

@@ -9,10 +9,10 @@ plugins {
     id("org.jetbrains.kotlin.jvm")
 }
 
-repositories {
-    // Use Maven Central for resolving dependencies.
-    mavenCentral()
-}
+//repositories {
+//    // Use Maven Central for resolving dependencies.
+//    mavenCentral()
+//}
 
 dependencies {
     constraints {
