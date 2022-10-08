@@ -61,18 +61,45 @@ fun eval(element: Element.FunctionCall, bindings: Bindings): Either<EvalError, V
 
   return if (lambdaDefinition != null) {
     bindings.addScope()
-    //TODO add bindings for parameters
-    val res = eval(lambdaDefinition.body, bindings)
-    bindings.removeScope()
-    res
+    if (lambdaDefinition.parameters.size == element.arguments.size) {
+      lambdaDefinition.parameters.forEachIndexed { index, param ->
+        when (val argRes = eval(element.arguments[index], bindings)) {
+          is Right -> {
+            bindings.bindVariable(param, argRes.value)
+          }
+          is Left -> return argRes
+        }
+      }
+      val res = eval(lambdaDefinition.body, bindings)
+      bindings.removeScope()
+      res
+    } else {
+      Left(EvalError(
+        "Function `${element.name}` expected ${lambdaDefinition.parameters.size} arguments only received ${element.arguments.size}"
+      ))
+    }
   } else if (nativeFunction != null) {
     bindings.addScope()
-    //TODO add bindings for parameters
-    val res = nativeFunction.body(bindings)
-    bindings.removeScope()
-    res
+
+    if (nativeFunction.parameters.size == element.arguments.size) {
+      nativeFunction.parameters.forEachIndexed { index, param ->
+        when (val argRes = eval(element.arguments[index], bindings)) {
+          is Right -> {
+            bindings.bindVariable(param, argRes.value)
+          }
+          is Left -> return argRes
+        }
+      }
+      val res = nativeFunction.body(bindings)
+      bindings.removeScope()
+      res
+    } else {
+      Left(EvalError(
+        "Function `${element.name}` expected ${nativeFunction.parameters.size} arguments only received ${element.arguments.size}"
+      ))
+    }
   } else {
-    Left(EvalError("Function not defined ${element.name}"))
+    Left(EvalError("Function `${element.name}` not defined."))
   }
 }
 

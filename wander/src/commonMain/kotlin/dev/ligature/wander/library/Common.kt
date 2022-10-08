@@ -8,6 +8,7 @@ import arrow.core.Either.Left
 import arrow.core.Either.Right
 import dev.ligature.StringLiteral
 import dev.ligature.wander.interpreter.Bindings
+import dev.ligature.wander.interpreter.EvalError
 import dev.ligature.wander.interpreter.Value
 import dev.ligature.wander.interpreter.write
 import dev.ligature.wander.parser.*
@@ -65,63 +66,62 @@ fun common(logger: Logger = object : Logger {
 //            is Left -> TODO()
 //          }
 //      })
-//
-//  stdLib
-//    .bindVariable(
-//      Name("not"),
-//      NativeFunction(
-//        listOf(Parameter(Name("bool")))
-//      ) //, WanderType.Boolean)),
-//      { bindings: Bindings ->
-//        val bool = bindings.read(Name("bool"))
-//        if (bool is Right) {
-//          val value = bool.value as BooleanValue
-//          Right(BooleanValue(!value.value))
-//        } else {
-//          TODO()
-//        }
-//      }
-//    )
-//
-//  stdLib
-//    .bindVariable(
-//      Name("and"),
-//      NativeFunction(
-//        listOf(
-//          Parameter(Name("boolLeft")),//, WanderType.Boolean),
-//          Parameter(Name("boolRight"))//, WanderType.Boolean)
-//        )) { bindings: Bindings ->
-//        val left = bindings.read(Name("boolLeft"))
-//        val right = bindings.read(Name("boolRight"))
-//        if (left is Right && right is Right) {
-//          val l = left.value as BooleanValue
-//          val r = right.value as BooleanValue
-//          Right(BooleanValue(l.value && r.value))
-//        } else {
-//          Left(ScriptError("and requires two booleans"))
-//        }
-//      }
-//    )
-//
-//  stdLib.bindVariable(
-//    Name("or"),
-//    NativeFunction(
-//      listOf(
-//        Parameter(Name("boolLeft")),//, WanderType.Boolean),
-//        Parameter(Name("boolRight"))//, WanderType.Boolean)
-//      )) { bindings: Bindings ->
-//      val left = bindings.read(Name("boolLeft"))
-//      val right = bindings.read(Name("boolRight"))
-//      if (left is Right && right is Right) {
-//        val l = left.value as BooleanValue
-//        val r = right.value as BooleanValue
-//        Right(BooleanValue(l.value || r.value))
-//      } else {
-//        Left (ScriptError("or requires two booleans"))
-//      }
-//    }
-//  )
-//
+
+  stdLib
+    .bindVariable(
+      "not",
+      Value.NativeFunction(
+        listOf("bool"))
+      { bindings: Bindings ->
+        val bool = bindings.read("bool", Value.BooleanLiteral::class)
+        if (bool is Right) {
+          val value = bool.value
+          Right(Value.BooleanLiteral(!value.value))
+        } else {
+          TODO()
+        }
+      }
+    )
+
+  stdLib
+    .bindVariable(
+      "and",
+      Value.NativeFunction(
+        listOf(
+          "boolLeft",
+          "boolRight"
+        )) { bindings: Bindings ->
+        val left = bindings.read("boolLeft", Value.BooleanLiteral::class)
+        val right = bindings.read("boolRight", Value.BooleanLiteral::class)
+        if (left is Right && right is Right) {
+          val l = left.value
+          val r = right.value
+          Right(Value.BooleanLiteral(l.value && r.value))
+        } else {
+          Left(EvalError("Function `and` requires two booleans"))
+        }
+      }
+    )
+
+  stdLib.bindVariable(
+    "or",
+    Value.NativeFunction(
+      listOf(
+        "boolLeft",
+        "boolRight"
+      )) { bindings: Bindings ->
+      val left = bindings.read("boolLeft", Value.BooleanLiteral::class)
+      val right = bindings.read("boolRight", Value.BooleanLiteral::class)
+      if (left is Right && right is Right) {
+        val l = left.value
+        val r = right.value
+        Right(Value.BooleanLiteral(l.value || r.value))
+      } else {
+        Left(EvalError("Function `or` requires two booleans"))
+      }
+    }
+  )
+
 //  stdLib.bindVariable(
 //    Name("range"),
 //    NativeFunction(
