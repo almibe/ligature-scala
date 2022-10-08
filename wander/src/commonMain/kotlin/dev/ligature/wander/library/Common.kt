@@ -40,27 +40,23 @@ fun common(logger: Logger = object : Logger {
       }
     )
 
-//  stdLib
-//    .bindVariable(
-//      "ensure",
-//      Value.NativeFunction(
-//        listOf("arg")) { bindings ->
-//          when (val arg = bindings.read("arg", Value.BooleanLiteral)) {
-//            is Right -> {
-//              val value = arg.value
-//              if (value is BooleanValue) {
-//                if (value.value) {
-//                  Right(Nothing)
-//                } else {
-//                  TODO()
-//                }
-//              } else {
-//                TODO()
-//              }
-//            }
-//            is Left -> TODO()
-//          }
-//      })
+  stdLib
+    .bindVariable(
+      "ensure",
+      Value.NativeFunction(
+        listOf("arg")) { bindings ->
+          when (val arg = bindings.read("arg", Value.BooleanLiteral::class)) {
+            is Right -> {
+              val value = arg.value
+                if (value.value) {
+                  Right(Value.Nothing)
+                } else {
+                  Left(EvalError("Ensure failed."))
+                }
+            }
+            is Left -> Left(EvalError("Ensure failed."))
+          }
+      })
 
   stdLib
     .bindVariable(
