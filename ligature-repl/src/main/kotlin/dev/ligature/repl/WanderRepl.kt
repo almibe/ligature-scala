@@ -7,9 +7,9 @@ package dev.ligature.repl
 import arrow.core.Either.Left
 import arrow.core.Either.Right
 import dev.ligature.wander.interpreter.Bindings
-import dev.ligature.wander.interpreter.Value
-import dev.ligature.wander.interpreter.write
 import dev.ligature.wander.library.common
+import dev.ligature.wander.model.Element
+import dev.ligature.wander.model.write
 
 object WanderRepl {
   /**
@@ -19,8 +19,8 @@ object WanderRepl {
    */
   private fun createBindings(): Bindings {
     val bindings = common()
-    bindings.bindVariable("bindings", Value.NativeFunction(listOf()) {
-      Right(Value.StringLiteral(bindings.names().joinToString { it }))
+    bindings.bindVariable("bindings", Element.NativeFunction(listOf()) {
+      Right(Element.StringLiteral(bindings.names().joinToString { it }))
     })
     return bindings
   }
