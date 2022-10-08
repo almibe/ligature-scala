@@ -137,14 +137,14 @@ class ParserSpec: FunSpec() {
     test("lambda definition") {
       runCases(mapOf(
         "{ -> 5 }" to listOf(Element.LambdaDefinition(listOf(), listOf(Element.IntegerLiteral(5)))),
-    //    "{ x -> x }" to listOf(WanderFunction(listOf(Parameter(Name("x"))), Scope(listOf(Name("x"))))),
-//        "{ x -> let x = 65 x }" to listOf(WanderFunction(listOf(Parameter(Name("x"))),
-//          Scope(listOf(LetStatement(Name("x"), LigatureValue(IntegerLiteral(65))),
-//            Name("x"))))),
-//        "{ x y z -> foo2(z y x) }" to listOf(
-//          WanderFunction(
-//            listOf(Parameter(Name("x")), Parameter(Name("y")), Parameter(Name("z"))),
-//            Scope(listOf(FunctionCall(Name("foo2"), listOf(Name("z"), Name("y"), Name("x")))))
+        "{ x -> x }" to listOf(Element.LambdaDefinition(listOf("x"), listOf(Element.Name("x")))),
+        "{ x -> let x = 65 x }" to listOf(Element.LambdaDefinition(listOf("x"),
+          listOf(Element.LetStatement("x", Element.IntegerLiteral(65)),
+            Element.Name("x")))),
+        "{ x y z -> foo2(z y x) }" to listOf(
+          Element.LambdaDefinition(
+            listOf("x", "y", "z"),
+            listOf(Element.FunctionCall("foo2", listOf(Element.Name("z"), Element.Name("y"), Element.Name("x"))))))
         ))
     }
   }
