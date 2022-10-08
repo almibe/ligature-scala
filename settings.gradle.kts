@@ -24,3 +24,5 @@ include(
     "ligature-xodus",
     "wander"
 )
+
+enableFeaturePreview("VERSION_CATALOGS")
