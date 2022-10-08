@@ -6,12 +6,7 @@ package dev.ligature.wander.library
 
 import arrow.core.Either.Left
 import arrow.core.Either.Right
-import dev.ligature.StringLiteral
-import dev.ligature.wander.interpreter.Bindings
-import dev.ligature.wander.interpreter.EvalError
-import dev.ligature.wander.interpreter.Value
-import dev.ligature.wander.interpreter.write
-import dev.ligature.wander.parser.*
+import dev.ligature.wander.interpreter.*
 
 interface Logger {
   fun log(message: String): Value.Nothing
@@ -131,42 +126,41 @@ fun common(logger: Logger = object : Logger {
 //      }
 //    )
 //
-//  stdLib.bindVariable(
-//    Name("each"),
-//    NativeFunction(
-//      listOf(Parameter(Name("seq")), Parameter(Name("fn")))) { bindings ->
-//      val seq = bindings.read(Name("seq"))
-//      val fn = bindings.read(Name("fn"))
-//      if (seq is Right<*> && fn is Right<*>) {
-//        val s = seq.value as Seq
-//        val f = fn.value as FunctionDefinition
-//        if (f.parameters.size == 1) {
-//          val argName = f.parameters.first().name
-//          s.contents.forEach {
-//            when (val r = it.eval(bindings)) {
-//              is Right -> {
-//                bindings.addScope()
-//                bindings.bindVariable(argName, r.value.result)
-//                val evalRes = f.eval(bindings)
-//                println("Finished eval - $evalRes")
-//                bindings.removeScope()
-//                if (evalRes is Left) {
-//                  return@NativeFunction evalRes
-//                }
-//              }
-//              is Left -> return@NativeFunction r
-//            }
-//          }
-//          Right(Nothing)
-//        } else {
-//          TODO("report error, incorrect parameters")
-//        }
-//      } else {
-//        Left (ScriptError("Could not map."))
-//      }
-//    }
-//  )
-//
+  stdLib.bindVariable(
+    "each",
+    Value.NativeFunction(
+      listOf("seq", "fn")) { bindings ->
+      val seq = bindings.read("seq", Value.Seq::class)
+      val fn = bindings.read("fn", Value.Function::class)
+      if (seq is Right && fn is Right) {
+        val s = seq.value
+        val f = fn.value
+        if (f.parameters.size == 1) {
+          val argName = f.parameters.first()
+          s.values.forEach {
+            when (val r = eval(it, bindings)) {
+              is Right -> {
+                bindings.addScope()
+                bindings.bindVariable(argName, r.value)
+                val evalRes = f.call(bindings)
+                bindings.removeScope()
+                if (evalRes is Left) {
+                  return@NativeFunction evalRes
+                }
+              }
+              is Left -> return@NativeFunction r
+            }
+          }
+          Right(Value.Nothing)
+        } else {
+          Left(EvalError("Second argument to function `each` require a single parameter."))
+        }
+      } else {
+        Left(EvalError("Function `each` requires two arguments."))
+      }
+    }
+  )
+
 //  //TODO count function
 //
 //  stdLib.bindVariable(
