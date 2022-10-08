@@ -7,10 +7,11 @@ package dev.ligature.wander.interpreter
 import arrow.core.Either
 import arrow.core.Either.Left
 import arrow.core.Either.Right
+import dev.ligature.wander.model.Element
 import kotlin.reflect.KClass
 
 class Bindings {
-  data class BindingScope(val variables: MutableMap<String, Value> = mutableMapOf())
+  data class BindingScope(val variables: MutableMap<String, Element> = mutableMapOf())
   private val scopes = mutableListOf<BindingScope>()
 
   init {
@@ -22,7 +23,7 @@ class Bindings {
 
   fun bindVariable(
       name: String,
-      bindValue: Value
+      bindValue: Element
   ): Either<EvalError, Unit> {
     val currentScope = this.scopes.last()
     return if (currentScope.variables.contains(name)) {
@@ -33,7 +34,7 @@ class Bindings {
     }
   }
 
-  inline fun <reified T: Value>read(name: String,
+  inline fun <reified T: Element>read(name: String,
                                     @Suppress("UNUSED_PARAMETER") clazz: KClass<T>? = null
   ): Either<EvalError, T> =
     when (val value = readValue(name)) {
@@ -44,7 +45,7 @@ class Bindings {
       is Left -> value
     }
 
-  fun readValue(name: String): Either<EvalError, Value> {
+  fun readValue(name: String): Either<EvalError, Element> {
     var currentScopeOffset = this.scopes.size - 1
     while (currentScopeOffset >= 0) {
       val currentScope = this.scopes[currentScopeOffset]

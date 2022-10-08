@@ -5,6 +5,7 @@
 package dev.ligature.wander.interpreter
 
 import arrow.core.Either.Right
+import dev.ligature.wander.model.Element
 
 val ifExpression = listOf(
   TestInstance(
@@ -12,12 +13,12 @@ val ifExpression = listOf(
     script = """if true {
                |  7
                |}""".trimMargin(),
-    result = Right(Value.IntegerLiteral(7))
+    result = Right(Element.IntegerLiteral(7))
   ),
   TestInstance(
     description = "if false",
     script = "if and(false true) { 24601 }",
-    result = Right(Value.Nothing)
+    result = Right(Element.Nothing)
   ),
   TestInstance(
     description = "if else",
@@ -32,7 +33,7 @@ val ifExpression = listOf(
                |} else {
                |    4
                |}""".trimMargin(),
-    result = Right(Value.IntegerLiteral(2))
+    result = Right(Element.IntegerLiteral(2))
   ),
   TestInstance(
     description = "else",
@@ -45,6 +46,6 @@ val ifExpression = listOf(
                |} else {
                |    3
                |}""".trimMargin(),
-    result = Right(Value.IntegerLiteral(3))
+    result = Right(Element.IntegerLiteral(3))
   )
 )

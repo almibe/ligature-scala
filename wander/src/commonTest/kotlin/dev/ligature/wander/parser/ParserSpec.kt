@@ -8,6 +8,7 @@ import arrow.core.Either.Left
 import arrow.core.Either.Right
 import dev.ligature.Identifier
 import dev.ligature.wander.lexer.tokenize
+import dev.ligature.wander.model.Element
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 

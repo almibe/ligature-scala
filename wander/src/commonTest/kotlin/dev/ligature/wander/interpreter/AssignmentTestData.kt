@@ -5,22 +5,23 @@
 package dev.ligature.wander.interpreter
 
 import arrow.core.Either.Right
+import dev.ligature.wander.model.Element
 
 val assignmentTestData = listOf(
   TestInstance(
     description = "basic let",
     script = "let x = 5",
-    result = Right(Value.Nothing)
+    result = Right(Element.Nothing)
   ),
   TestInstance(
     description = "make sure keyword parser is greedy",
     script = "let trued = true",
-    result = Right(Value.Nothing)
+    result = Right(Element.Nothing)
   ),
   TestInstance(
     description = "let with result",
     script = "let hello = 5\nhello",
-    result = Right(Value.IntegerLiteral(5))
+    result = Right(Element.IntegerLiteral(5))
   ),
   TestInstance(
     description = "basic scope",
@@ -28,7 +29,7 @@ val assignmentTestData = listOf(
                |  let x = 7
                |  x
                |}""".trimMargin(),
-    result = Right(Value.IntegerLiteral(7))
+    result = Right(Element.IntegerLiteral(7))
   ),
   TestInstance(
     description = "scope shadowing",
@@ -37,6 +38,6 @@ val assignmentTestData = listOf(
                |  let x = 7
                |  x
                |}""".trimMargin(),
-    result = Right(Value.IntegerLiteral(7))
+    result = Right(Element.IntegerLiteral(7))
   )
 )

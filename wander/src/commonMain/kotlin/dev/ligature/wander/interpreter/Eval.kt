@@ -8,12 +8,12 @@ import arrow.core.Either
 import arrow.core.Either.Left
 import arrow.core.Either.Right
 import dev.ligature.wander.WanderError
-import dev.ligature.wander.parser.Element
+import dev.ligature.wander.model.Element
 
 data class EvalError(override val message: String): WanderError
 
-fun eval(script: List<Element>, bindings: Bindings): Either<EvalError, Value> {
-  var lastResult: Value = Value.Nothing
+fun eval(script: List<Element>, bindings: Bindings): Either<EvalError, Element> {
+  var lastResult: Element = Element.Nothing
   script.forEach {
     when (val evalResult = eval(it, bindings)) {
       is Right -> lastResult = evalResult.value
@@ -23,16 +23,16 @@ fun eval(script: List<Element>, bindings: Bindings): Either<EvalError, Value> {
   return Right(lastResult)
 }
 
-fun eval(element: Element, bindings: Bindings): Either<EvalError, Value> =
+fun eval(element: Element, bindings: Bindings): Either<EvalError, Element> =
   when (element) {
-    is Element.BooleanLiteral -> Right(Value.BooleanLiteral(element.value))
-    is Element.IdentifierLiteral -> Right(Value.IdentifierLiteral(element.value))
-    is Element.IntegerLiteral -> Right(Value.IntegerLiteral(element.value))
-    is Element.LambdaDefinition -> Right(Value.LambdaDefinition(element.parameters, element.body))
-    is Element.Seq -> Right(Value.Seq(element.values))
-    is Element.StringLiteral -> Right(Value.StringLiteral(element.value))
-    Element.Nothing -> Right(Value.Nothing)
-    is Element.Name -> bindings.read(element.name, Value::class)
+    is Element.BooleanLiteral -> Right(element)
+    is Element.IdentifierLiteral -> Right(element)
+    is Element.IntegerLiteral -> Right(element)
+    is Element.LambdaDefinition -> Right(element)
+    is Element.Seq -> Right(element)
+    is Element.StringLiteral -> Right(element)
+    Element.Nothing -> Right(element)
+    is Element.Name -> bindings.read(element.name, Element::class)
     is Element.FunctionCall -> eval(element, bindings)
     is Element.IfExpression -> eval(element, bindings)
     is Element.Scope -> {
@@ -45,17 +45,18 @@ fun eval(element: Element, bindings: Bindings): Either<EvalError, Value> =
       when(val value = eval(element.value, bindings)) {
         is Right -> {
           when(val bindingRes = bindings.bindVariable(element.name, value.value)) {
-            is Right -> Right(Value.Nothing)
+            is Right -> Right(Element.Nothing)
             is Left -> bindingRes
           }
         }
         is Left -> value
       }
     }
+    is Element.NativeFunction -> Right(element)
   }
 
-fun eval(element: Element.FunctionCall, bindings: Bindings): Either<EvalError, Value> {
-  val fn = bindings.read(element.name, Value.Function::class).orNull()
+fun eval(element: Element.FunctionCall, bindings: Bindings): Either<EvalError, Element> {
+  val fn = bindings.read(element.name, Element.Function::class).orNull()
 
   return if (fn != null) {
     bindings.addScope()
@@ -81,18 +82,18 @@ fun eval(element: Element.FunctionCall, bindings: Bindings): Either<EvalError, V
   }
 }
 
-fun eval(element: Element.IfExpression, bindings: Bindings): Either<EvalError, Value> {
+fun eval(element: Element.IfExpression, bindings: Bindings): Either<EvalError, Element> {
   return when (val ifCondRes = eval(element.ifConditional.condition, bindings)) {
     is Right -> {
-      if (ifCondRes.value is Value.BooleanLiteral) {
-        if ((ifCondRes.value as Value.BooleanLiteral).value) {
+      if (ifCondRes.value is Element.BooleanLiteral) {
+        if ((ifCondRes.value as Element.BooleanLiteral).value) {
           return eval(element.ifConditional.body, bindings)
         } else {
           element.elsifConditional.forEach {
             when (val elsifCondRes = eval(it.condition, bindings)) {
               is Right -> {
-                if (elsifCondRes.value is Value.BooleanLiteral) {
-                  if ((elsifCondRes.value as Value.BooleanLiteral).value) {
+                if (elsifCondRes.value is Element.BooleanLiteral) {
+                  if ((elsifCondRes.value as Element.BooleanLiteral).value) {
                     return eval(element.ifConditional.body, bindings)
                   } //else do nothing
                 } else {
@@ -109,7 +110,7 @@ fun eval(element: Element.IfExpression, bindings: Bindings): Either<EvalError, V
       if (element.elseBody != null) {
         eval(element.elseBody, bindings)
       } else {
-        Right(Value.Nothing)
+        Right(Element.Nothing)
       }
     }
     is Left -> ifCondRes

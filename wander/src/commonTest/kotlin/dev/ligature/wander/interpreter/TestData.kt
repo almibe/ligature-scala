@@ -7,6 +7,7 @@ package dev.ligature.wander.interpreter
 import arrow.core.Either
 import arrow.core.getOrElse
 import dev.ligature.Dataset
+import dev.ligature.wander.model.Element
 
 data class TestData(
     val category: String,
@@ -17,7 +18,7 @@ data class TestData(
 data class TestInstance(
   val description: String,
   val script: String,
-  val result: Either<EvalError, Value>
+  val result: Either<EvalError, Element>
 )
 
 //NOTE: New lines are hard coded as \n because sometimes on Windows

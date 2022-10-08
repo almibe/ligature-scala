@@ -7,20 +7,21 @@ package dev.ligature.wander.interpreter
 import arrow.core.getOrElse
 import arrow.core.Either.Right
 import dev.ligature.Identifier
+import dev.ligature.wander.model.Element
 
 val closureTestData = listOf(
   TestInstance(
     description = "function0 def",
     script = """let f = { -> 5 }
                |f()""".trimMargin(),
-    result = Right(Value.IntegerLiteral(5))
+    result = Right(Element.IntegerLiteral(5))
   ),
   TestInstance(
     description = "function0 def with closing over variable",
     script = """let x = 5
                |let f = { -> x }
                |f()""".trimMargin(),
-    result = Right(Value.IntegerLiteral(5))
+    result = Right(Element.IntegerLiteral(5))
   ),
   TestInstance(
     description = "function1 def",
@@ -29,7 +30,7 @@ val closureTestData = listOf(
                |}
                |identity(<testEntity>)""".trimMargin(),
     result = Right(
-      Value.IdentifierLiteral(Identifier.create("testEntity")
+      Element.IdentifierLiteral(Identifier.create("testEntity")
         .getOrElse { throw Error("Unexpected value.")}))
   ),
   TestInstance(
@@ -38,7 +39,7 @@ val closureTestData = listOf(
                |  value2
                |}
                |second(<testEntity> "hello")""".trimMargin(),
-    result = Right(Value.StringLiteral("hello"))
+    result = Right(Element.StringLiteral("hello"))
   ),
   TestInstance(
     description = "function3 def",
@@ -46,7 +47,7 @@ val closureTestData = listOf(
                |  value2
                |}
                |middle(<testEntity> "hello" 24601)""".trimMargin(),
-    result = Right(Value.StringLiteral("hello"))
+    result = Right(Element.StringLiteral("hello"))
   ),
 //  TestInstance(
 //    description = "function vararg",
