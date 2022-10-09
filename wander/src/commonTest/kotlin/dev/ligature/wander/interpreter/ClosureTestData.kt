@@ -4,9 +4,8 @@
 
 package dev.ligature.wander.interpreter
 
-import arrow.core.Either
-import arrow.core.getOrElse
 import arrow.core.Either.Right
+import arrow.core.getOrElse
 import dev.ligature.Identifier
 import dev.ligature.wander.model.Element
 

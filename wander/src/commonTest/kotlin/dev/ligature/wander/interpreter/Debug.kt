@@ -5,9 +5,8 @@
 package dev.ligature.wander.interpreter
 
 import arrow.core.getOrElse
-import dev.ligature.Dataset
-import dev.ligature.wander.parser.parse
 import dev.ligature.wander.lexer.tokenize
+import dev.ligature.wander.parser.parse
 
 fun main() {
   val input = """let identity = (value:Value) -> Value {

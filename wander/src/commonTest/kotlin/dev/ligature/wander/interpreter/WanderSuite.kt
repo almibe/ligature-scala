@@ -5,11 +5,10 @@
 package dev.ligature.wander.interpreter
 
 import dev.ligature.wander.library.common
-import dev.ligature.wander.library.datasetQueryBindings
+import dev.ligature.wander.run
+import io.kotest.assertions.withClue
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
-import io.kotest.assertions.withClue
-import dev.ligature.wander.run
 
 class WanderSuite: FunSpec() {
   init {
