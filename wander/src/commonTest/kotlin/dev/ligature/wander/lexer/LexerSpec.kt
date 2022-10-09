@@ -106,6 +106,14 @@ class LexerSpec: FunSpec() {
       ))
     }
 
+    test("read dot") {
+      runCases(mapOf(
+        "." to listOf(Token.Dot),
+        "...." to listOf(Token.Dot, Token.Dot, Token.Dot, Token.Dot),
+        "name.name" to listOf(Token.Name("name"), Token.Dot, Token.Name("name"))
+      ))
+    }
+
     test("read parens") {
       runCases(mapOf(
         "(" to listOf(Token.OpenParen),

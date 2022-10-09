@@ -85,6 +85,11 @@ object Nibblers {
       listOf<Element>()
     }
 
+  val dotNib = takeCond<Token> {
+    it is Token.Dot }.map {
+    listOf<Element>()
+  }
+
   val arrowNib = takeCond<Token> {
     it is Token.Arrow }.map {
       listOf<Element>()
@@ -155,13 +160,26 @@ object Nibblers {
   }
 
   val functionCallNib: Nibbler<Token, Element.FunctionCall> = takeAllGrouped(
-      nameNib,
-      openParenNib,
-      optional(repeat(::expressionNib)),
-      closeParenNib,
+    nameNib,
+    openParenNib,
+    optional(repeat(::expressionNib)),
+    closeParenNib,
   ).map { tokens: List<List<Element>> ->
     val parameters = tokens[2].map { it as Element.Expression }
     listOf(Element.FunctionCall((tokens[0][0] as Element.Name).name, parameters))
+  }
+
+  val methodCallNib: Nibbler<Token, Element.FunctionCall> = takeAllGrouped(
+    ::parameterNib,
+    dotNib,
+    nameNib,
+    openParenNib,
+    optional(repeat(::expressionNib)),
+    closeParenNib,
+  ).map { tokens: List<List<Element>> ->
+    val parameters = mutableListOf(tokens[0][0] as Element.Expression)
+    parameters.addAll(tokens[4].map { it as Element.Expression })
+    listOf(Element.FunctionCall((tokens[2][0] as Element.Name).name, parameters))
   }
 
   val seqNib: Nibbler<Token, Element.Seq> = between(
@@ -181,7 +199,8 @@ object Nibblers {
     listOf(Element.Scope(tokens))
   }
 
-  fun expressionNib(gaze: Gaze<Token>): List<Element.Expression>? =
+  //this is only used currently for method call syntax
+  fun parameterNib(gaze: Gaze<Token>): List<Element.Expression>? =
     takeFirst(
       ifExpressionNib,
       functionCallNib,
@@ -193,8 +212,24 @@ object Nibblers {
       integerNib,
       booleanNib,
       //TODO bytes literal
-      seqNib
+      seqNib,
     )(gaze)
+
+  fun expressionNib(gaze: Gaze<Token>): List<Element.Expression>? =
+    takeFirst(
+      methodCallNib,
+      ifExpressionNib,
+      functionCallNib,
+      nameNib,
+      scopeNib,
+      identifierNib,
+      lambdaDefinitionNib,
+      stringNib,
+      integerNib,
+      booleanNib,
+      //TODO bytes literal
+      seqNib,
+      )(gaze)
 
   val scriptNib: Nibbler<Token, Element> =
     optional(

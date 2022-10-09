@@ -49,6 +49,9 @@ object Nibblers {
   val colonTokenNib =
     takeString(":").map { res -> listOf(Token.Colon) }
 
+  val dotTokenNib =
+    takeString(".").map { res -> listOf(Token.Dot) }
+
   val openBraceTokenNib =
     takeString("{").map { res -> listOf(Token.OpenBrace) }
 
@@ -87,6 +90,7 @@ object Nibblers {
       spacesTokenNib,
       nameTokenNib,
       colonTokenNib,
+      dotTokenNib,
       openParenTokenNib,
       closeParenTokenNib,
       openSquareTokenNib,

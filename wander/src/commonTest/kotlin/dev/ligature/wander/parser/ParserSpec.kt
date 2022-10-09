@@ -148,5 +148,13 @@ class ParserSpec: FunSpec() {
             listOf(Element.FunctionCall("foo2", listOf(Element.Name("z"), Element.Name("y"), Element.Name("x"))))))
         ))
     }
+
+    test("method call syntax") {
+      runCases(mapOf(
+        "6.even()" to listOf(Element.FunctionCall("even", listOf(Element.IntegerLiteral(6)))),
+        "6.add(7)" to listOf(Element.FunctionCall("add",
+          listOf(Element.IntegerLiteral(6), Element.IntegerLiteral(7)))),
+      ))
+    }
   }
 }

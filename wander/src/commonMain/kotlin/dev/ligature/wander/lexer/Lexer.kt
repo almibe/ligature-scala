@@ -28,6 +28,7 @@ sealed interface Token {
   object OpenSquare: Token
   object CloseSquare: Token
   object Arrow: Token
+  object Dot: Token
   object IfKeyword: Token
   object ElsifKeyword: Token
   object ElseKeyword: Token
