@@ -67,5 +67,11 @@ val closureTestData = listOf(
     script = """let middle = {x y z -> y}
                |24601.middle("hello" <world>)""".trimMargin(),
     result = Right(Element.StringLiteral("hello"))
+  ),
+  TestInstance(
+    description = """chained dot calls""",
+    script = """let middle = {x y z -> y}
+               |24601.middle("hello" <world>).middle(1 2).middle(6 7)""".trimMargin(),
+    result = Right(Element.IntegerLiteral(6))
   )
 )

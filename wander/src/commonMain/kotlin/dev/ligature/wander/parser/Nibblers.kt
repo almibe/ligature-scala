@@ -169,17 +169,35 @@ object Nibblers {
     listOf(Element.FunctionCall((tokens[0][0] as Element.Name).name, parameters))
   }
 
-  val methodCallNib: Nibbler<Token, Element.FunctionCall> = takeAllGrouped(
-    ::parameterNib,
-    dotNib,
-    nameNib,
-    openParenNib,
-    optional(repeat(::expressionNib)),
-    closeParenNib,
-  ).map { tokens: List<List<Element>> ->
-    val parameters = mutableListOf(tokens[0][0] as Element.Expression)
-    parameters.addAll(tokens[4].map { it as Element.Expression })
-    listOf(Element.FunctionCall((tokens[2][0] as Element.Name).name, parameters))
+  /**
+   * This function does the following
+   *  - read .
+   *  - read functionName
+   *  - read (
+   *  - read remainingArguments
+   *  - read )
+   *  - returns Element.FunctionCall(functionName, listOf(firstArg, remainingArguments)
+   */
+  fun readDotCall(gaze: Gaze<Token>, firstArg: Element.Expression): Element.FunctionCall? {
+    val parameters = mutableListOf<Element.Expression>()
+    parameters.add(firstArg)
+    if(gaze.next() != Token.Dot) { return null }
+    if(gaze.peek() !is Token.Name) { return null }
+    val name = (gaze.next() as Token.Name).value
+    if(gaze.next() != Token.OpenParen) { return null }
+    val remainingParameters = optional(repeat(::expressionNib))(gaze) ?: listOf()
+    parameters.addAll(remainingParameters)
+    if(gaze.next() != Token.CloseParen) { return null }
+    return Element.FunctionCall(name, parameters)
+  }
+
+  val methodCallNib: Nibbler<Token, Element.FunctionCall> = nib@{ gaze ->
+    var firstParameter: Element.Expression = parameterNib(gaze)?.first() ?: return@nib null
+    if (gaze.peek() != Token.Dot) { return@nib null }
+    while(gaze.peek() == Token.Dot) {
+      firstParameter = readDotCall(gaze, firstParameter) ?: return@nib null
+    }
+    listOf(firstParameter as Element.FunctionCall)
   }
 
   val seqNib: Nibbler<Token, Element.Seq> = between(

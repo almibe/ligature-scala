@@ -154,7 +154,12 @@ class ParserSpec: FunSpec() {
         "6.even()" to listOf(Element.FunctionCall("even", listOf(Element.IntegerLiteral(6)))),
         "6.add(7)" to listOf(Element.FunctionCall("add",
           listOf(Element.IntegerLiteral(6), Element.IntegerLiteral(7)))),
-      ))
+        "6.add(7).subtract(13).add(5)" to listOf( // add(subtract(add(6 7) 13) 5)
+          Element.FunctionCall("add",
+            listOf(Element.FunctionCall("subtract",
+            listOf(
+              Element.FunctionCall("add", listOf(Element.IntegerLiteral(6), Element.IntegerLiteral(7))), Element.IntegerLiteral(13))), Element.IntegerLiteral(5)))
+      )))
     }
   }
 }
