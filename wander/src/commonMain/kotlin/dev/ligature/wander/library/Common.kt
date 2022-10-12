@@ -246,5 +246,14 @@ fun common(logger: Logger = object : Logger {
       }
   )
 
+  stdLib.bindVariable("graph", Element.NativeFunction(listOf()) {
+    //TODO make sure no arguments are passed
+    Right(Element.Graph())
+  })
+
+//  stdLib.bindVariable("add", Element.NativeFunction(listOf()) {
+//
+//  })
+
   return stdLib
 }

@@ -6,6 +6,7 @@ package dev.ligature.wander.model
 
 import arrow.core.Either
 import dev.ligature.Identifier
+import dev.ligature.Statement
 import dev.ligature.wander.interpreter.Bindings
 import dev.ligature.wander.interpreter.EvalError
 import dev.ligature.wander.interpreter.eval
@@ -42,6 +43,8 @@ sealed interface Element {
     override suspend fun call(bindings: Bindings): Either<EvalError, Value> =
       body(bindings)
   }
+
+  data class Graph(val statements: MutableSet<Statement> = mutableSetOf()): Value
 }
 
 fun write(element: Element): String =
@@ -66,4 +69,5 @@ fun write(element: Element): String =
     is Element.Name -> element.name
     is Element.Scope -> "[scope]"
     is Element.LetStatement -> "[let statement]"
+    is Element.Graph -> dev.ligature.lig.write(element.statements.iterator())
   }

@@ -30,6 +30,7 @@ suspend fun eval(element: Element, bindings: Bindings): Either<EvalError, Elemen
     is Element.IntegerLiteral -> Right(element)
     is Element.LambdaDefinition -> Right(element)
     is Element.Seq -> Right(element)
+    is Element.Graph -> Right(element)
     is Element.StringLiteral -> Right(element)
     Element.Nothing -> Right(element)
     is Element.Name -> bindings.read(element.name, Element::class)
