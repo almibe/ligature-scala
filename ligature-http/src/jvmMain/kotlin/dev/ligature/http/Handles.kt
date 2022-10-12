@@ -11,6 +11,7 @@ import dev.ligature.Ligature
 import dev.ligature.lig.writeStatement
 import dev.ligature.wander.model.write
 import dev.ligature.wander.library.common
+import dev.ligature.wander.library.datasetQueryBindings
 import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.request.*
@@ -102,14 +103,16 @@ class Handlers(private val ligature: Ligature) {
     when (val dataset = Dataset.create(datasetName)) {
       is Right -> {
         val script = call.receiveText()
-        //TODO fix bindings below
-        val bindings = common() //datasetQueryBindings(dataset.value)
-        when (val res = dev.ligature.wander.run(script, bindings)) {
-          is Right -> call.respondText(write(res.value))
-          is Left -> TODO("Return error message from running script")
+        ligature.query(dataset.value) { tx ->
+          val bindings = datasetQueryBindings(tx, dataset.value)
+          when (val res = dev.ligature.wander.run(script, bindings)) {
+            is Right -> call.respondText(write(res.value))
+            is Left -> call.respondText(res.value.message) //TODO set HTTP status
+          }
         }
       }
-      is Left -> TODO("Return invalid Dataset name error")
+      //TODO set HTTP status below
+      is Left -> call.respondText("Invalid Dataset Name - $datasetName")
     }
   }
 }
