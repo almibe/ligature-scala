@@ -30,16 +30,16 @@ sealed interface Element {
 
   sealed interface Function: Expression {
     val parameters: List<String>
-    fun call(bindings: Bindings): Either<EvalError, Element>
+    suspend fun call(bindings: Bindings): Either<EvalError, Element>
   }
   data class LambdaDefinition(override val parameters: List<String>,
                               val body: List<Element>): Function {
-    override fun call(bindings: Bindings): Either<EvalError, Element> =
+    override suspend fun call(bindings: Bindings): Either<EvalError, Element> =
       eval(body, bindings)
   }
   data class NativeFunction(override val parameters: List<String>,
-                            val body: (Bindings) -> Either<EvalError, Value>): Function {
-    override fun call(bindings: Bindings): Either<EvalError, Value> =
+                            val body: suspend (Bindings) -> Either<EvalError, Value>): Function {
+    override suspend fun call(bindings: Bindings): Either<EvalError, Value> =
       body(bindings)
   }
 }

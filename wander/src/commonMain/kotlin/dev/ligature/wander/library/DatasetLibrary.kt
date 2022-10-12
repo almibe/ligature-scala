@@ -4,14 +4,17 @@
 
 package dev.ligature.wander.library
 
+import arrow.core.Either
 import dev.ligature.Dataset
 import dev.ligature.QueryTx
 import dev.ligature.wander.interpreter.Bindings
+import dev.ligature.wander.model.Element
+import kotlinx.coroutines.flow.fold
 
-fun datasetQueryBindings(queryTx: QueryTx, dataset: Dataset, bindings: Bindings = common()): Bindings {
-  //      allStatements(): Promise<Array<Statement>>
-//  bindings.bindVariable(Name("allStatements"), NativeFunction(listOf()) {
-//    queryTx.allStatements().fold("", { current, running -> "$current$running" })
-//  })
+suspend fun datasetQueryBindings(queryTx: QueryTx, dataset: Dataset, bindings: Bindings = common()): Bindings {
+  bindings.bindVariable("find", Element.NativeFunction(listOf()) {
+    val res = queryTx.allStatements().fold("") { current, running -> "$current$running" }
+    Either.Right(Element.StringLiteral(res))
+  })
   return bindings
 }

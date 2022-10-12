@@ -18,7 +18,7 @@ data class LigatureInstance(
   val displayName: String
 )
 
-fun main() {
+suspend fun main() {
   var ligatureInstance = LigatureInstance(InMemoryLigature(), "In-Memory")
   val terminal = TerminalBuilder.terminal()
   val reader = LineReaderBuilder.builder()

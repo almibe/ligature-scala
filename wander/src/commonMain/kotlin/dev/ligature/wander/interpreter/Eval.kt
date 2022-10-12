@@ -12,7 +12,7 @@ import dev.ligature.wander.model.Element
 
 data class EvalError(override val message: String): WanderError
 
-fun eval(script: List<Element>, bindings: Bindings): Either<EvalError, Element> {
+suspend fun eval(script: List<Element>, bindings: Bindings): Either<EvalError, Element> {
   var lastResult: Element = Element.Nothing
   script.forEach {
     when (val evalResult = eval(it, bindings)) {
@@ -23,7 +23,7 @@ fun eval(script: List<Element>, bindings: Bindings): Either<EvalError, Element> 
   return Right(lastResult)
 }
 
-fun eval(element: Element, bindings: Bindings): Either<EvalError, Element> =
+suspend fun eval(element: Element, bindings: Bindings): Either<EvalError, Element> =
   when (element) {
     is Element.BooleanLiteral -> Right(element)
     is Element.IdentifierLiteral -> Right(element)
@@ -55,7 +55,7 @@ fun eval(element: Element, bindings: Bindings): Either<EvalError, Element> =
     is Element.NativeFunction -> Right(element)
   }
 
-fun eval(element: Element.FunctionCall, bindings: Bindings): Either<EvalError, Element> {
+suspend fun eval(element: Element.FunctionCall, bindings: Bindings): Either<EvalError, Element> {
   val fn = bindings.read(element.name, Element.Function::class).orNull()
 
   return if (fn != null) {
@@ -82,7 +82,7 @@ fun eval(element: Element.FunctionCall, bindings: Bindings): Either<EvalError, E
   }
 }
 
-fun eval(element: Element.IfExpression, bindings: Bindings): Either<EvalError, Element> {
+suspend fun eval(element: Element.IfExpression, bindings: Bindings): Either<EvalError, Element> {
   return when (val ifCondRes = eval(element.ifConditional.condition, bindings)) {
     is Right -> {
       if (ifCondRes.value is Element.BooleanLiteral) {
