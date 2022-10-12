@@ -25,4 +25,5 @@ include(
     "wander"
 )
 
+//below line is added for CircleCI
 enableFeaturePreview("VERSION_CATALOGS")
