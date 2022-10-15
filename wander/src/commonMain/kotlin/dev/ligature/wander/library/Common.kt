@@ -4,8 +4,14 @@
 
 package dev.ligature.wander.library
 
+import arrow.core.Either
 import arrow.core.Either.Left
 import arrow.core.Either.Right
+import arrow.core.Eval
+import dev.ligature.Identifier
+import dev.ligature.IntegerLiteral
+import dev.ligature.Statement
+import dev.ligature.StringLiteral
 import dev.ligature.wander.interpreter.*
 import dev.ligature.wander.model.Element
 import dev.ligature.wander.model.write
@@ -251,9 +257,43 @@ fun common(logger: Logger = object : Logger {
     Right(Element.Graph())
   })
 
-//  stdLib.bindVariable("add", Element.NativeFunction(listOf()) {
-//
-//  })
+  fun seqToStatement(seq: Element.Seq): Either<EvalError, Statement> {
+    if (seq.values.size == 3) {
+      val e = seq.values[0] as Element.IdentifierLiteral
+      val a = seq.values[1] as Element.IdentifierLiteral
+      val v = when (val v = seq.values[2] as Element.Value) {
+        is Element.BooleanLiteral -> return Left(EvalError("Booleans are not a valid Ligature Values."))
+        is Element.Graph -> return Left(EvalError("Graphs are not a valid Ligature Values."))
+        is Element.IdentifierLiteral -> v.value
+        is Element.IntegerLiteral -> IntegerLiteral(v.value)
+        Element.Nothing -> return Left(EvalError("Nothing is not a valid Ligature Value."))
+        is Element.Seq -> return Left(EvalError("Seqs are not a valid Ligature Values."))
+        is Element.StringLiteral -> StringLiteral(v.value)
+      }
+      return Right(Statement(e.value, a.value, v))
+    } else {
+      return Left(EvalError("${write(seq)} is not a valid statement."))
+    }
+  }
+
+  stdLib.bindVariable("add", Element.NativeFunction(listOf("graph", "statement")) { bindings ->
+    val graphBinding = bindings.read("graph", Element.Graph::class)
+    val statementBinding = bindings.read("statement", Element.Seq::class)
+    if (graphBinding is Right && statementBinding is Right) {
+      val graph = graphBinding.value
+      when (val statement = seqToStatement(statementBinding.value)) {
+        is Right -> {
+          graph.statements.add(statement.value)
+          Right(graph)
+        }
+        is Left -> {
+          statement
+        }
+      }
+    } else {
+      Left(EvalError("add requires a graph and a statement"))
+    }
+  })
 
   return stdLib
 }
