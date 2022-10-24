@@ -12,7 +12,7 @@ import dev.ligature.http.*
 
 fun main() {
   val ligature = InMemoryLigature()
-  embeddedServer(Netty, port = 8080, host = "0.0.0.0") {
+  embeddedServer(Netty, port = 4200, host = "0.0.0.0") {
     routes(ligature)
   }.start(wait = true)
 }

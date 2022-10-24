@@ -15,7 +15,7 @@ import java.io.File
 import java.nio.file.Files
 
 data class LigatureConf(
-  val port: Int = 4202,
+  val port: Int = 4200,
   val authMode: AuthMode = AuthMode.None,
   val location: String? = null
 )
@@ -23,7 +23,7 @@ data class LigatureConf(
 fun main() {
   val directory = File("${System.getProperty("user.home")}${System.getProperty("file.separator")}.ligature")
   val ligature = XodusLigature(directory)
-  embeddedServer(Netty, port = 8080, host = "0.0.0.0") {
+  embeddedServer(Netty, port = 4200, host = "0.0.0.0") {
     routes(ligature)
   }.start(wait = true)
 }
