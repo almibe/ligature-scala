@@ -19,7 +19,7 @@ object WanderRepl {
    */
   private fun createBindings(): Bindings {
     val bindings = common()
-    bindings.bindVariable("bindings", Element.NativeFunction(listOf()) {
+    bindings.bindVariable("bindings", Element.NativeFunction(listOf()) { _, _ ->
       Right(Element.StringLiteral(bindings.names().joinToString { it }))
     })
     return bindings
