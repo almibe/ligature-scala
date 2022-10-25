@@ -61,9 +61,9 @@ suspend fun eval(element: Element.FunctionCall, bindings: Bindings): Either<Eval
 
   return if (fn != null) {
     val arguments = mutableListOf<Element.Value>()
-    if (fn.parameters.size == element.arguments.size) {
-      fn.parameters.forEachIndexed { index, param ->
-        when (val argRes = eval(element.arguments[index], bindings)) {
+//    if (fn.parameters.size == element.arguments.size) {
+      element.arguments.forEach { argument ->
+        when (val argRes = eval(argument, bindings)) {
           is Right -> {
             arguments.add(argRes.value as Element.Value)
           }
@@ -72,11 +72,11 @@ suspend fun eval(element: Element.FunctionCall, bindings: Bindings): Either<Eval
       }
       val res = fn.call(arguments, bindings)
       res
-    } else {
-      Left(EvalError(
-        "Function `${element.name}` expected ${fn.parameters.size} arguments only received ${element.arguments.size}"
-      ))
-    }
+//    } else {
+//      Left(EvalError(
+//        "Function `${element.name}` expected ${fn.parameters.size} arguments only received ${element.arguments.size}"
+//      ))
+//    }
   } else {
     Left(EvalError("Function `${element.name}` not defined."))
   }

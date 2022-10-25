@@ -7,6 +7,7 @@ package dev.ligature.wander.library
 import arrow.core.Either
 import arrow.core.Either.Left
 import arrow.core.Either.Right
+import arrow.core.Eval
 import dev.ligature.IntegerLiteral
 import dev.ligature.Statement
 import dev.ligature.StringLiteral
@@ -238,13 +239,6 @@ fun common(logger: Logger = object : Logger {
       }
   )
 
-  stdLib.bindVariable("graph", Element.NativeFunction(
-    listOf()
-  ) { arguments, bindings ->
-    //TODO make sure no arguments are passed
-    Right(Element.Graph())
-  })
-
   fun seqToStatement(seq: Element.Seq): Either<EvalError, Statement> {
     if (seq.values.size == 3) {
       val e = seq.values[0] as Element.IdentifierLiteral
@@ -263,6 +257,30 @@ fun common(logger: Logger = object : Logger {
       return Left(EvalError("${write(seq)} is not a valid statement."))
     }
   }
+
+  stdLib.bindVariable("graph", Element.NativeFunction(
+    listOf()
+  ) { arguments, bindings ->
+    if (arguments.isEmpty()) {
+      Right(Element.Graph())
+    } else if (arguments.size == 1 && arguments.first() is Element.Seq) {
+      val seq = arguments.first() as Element.Seq
+      val statements: List<Statement> = seq.values.map {
+        if (it is Element.Seq) {
+          when (val statement = seqToStatement(it)) {
+            is Right -> statement.value
+            is Left -> TODO()
+          }
+        } else {
+          //eval the expression and check if it's a Seq
+          TODO()
+        }
+      }
+      Right(Element.Graph(statements.toMutableSet()))
+    } else {
+      Left(EvalError("graph function takes 0 or 1 arguments."))
+    }
+  })
 
   stdLib.bindVariable("add", Element.NativeFunction(
     listOf("graph", "statement")

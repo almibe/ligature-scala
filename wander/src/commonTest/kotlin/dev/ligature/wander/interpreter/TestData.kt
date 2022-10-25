@@ -7,6 +7,7 @@ package dev.ligature.wander.interpreter
 import arrow.core.Either
 import arrow.core.getOrElse
 import dev.ligature.Dataset
+import dev.ligature.wander.library.commonLib
 import dev.ligature.wander.model.Element
 
 data class TestData(
@@ -51,6 +52,11 @@ val testData = listOf(
     category = "If Expressions",
     dataset = Dataset.create("test").getOrElse { throw Error("Unexpected error.") },
     testInstances = ifExpression
+  ),
+  TestData(
+    category = "Common Lib",
+    dataset = Dataset.create("test").getOrElse { throw Error("Unexpected error.") },
+    testInstances = commonLib
   )
   // TODO add error cases
 )
