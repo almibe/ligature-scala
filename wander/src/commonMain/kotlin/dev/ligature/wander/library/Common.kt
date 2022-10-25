@@ -7,8 +7,6 @@ package dev.ligature.wander.library
 import arrow.core.Either
 import arrow.core.Either.Left
 import arrow.core.Either.Right
-import arrow.core.Eval
-import dev.ligature.Identifier
 import dev.ligature.IntegerLiteral
 import dev.ligature.Statement
 import dev.ligature.StringLiteral
@@ -36,14 +34,14 @@ fun common(logger: Logger = object : Logger {
       "log",
       Element.NativeFunction(
         listOf("message")
-      ) { bindings ->
-        when (val message = bindings.read("message", Element::class)) {
-          is Right -> {
-            val output = write(message.value)
-            logger.log(output)
-            Right(Element.Nothing)
-          }
-          is Left -> TODO()
+      ) { arguments, bindings ->
+        if (arguments.size == 1) {
+          val message = arguments[0]
+          val output = write(message)
+          logger.log(output)
+          Right(Element.Nothing)
+        } else {
+          TODO()
         }
       }
     )
@@ -52,30 +50,29 @@ fun common(logger: Logger = object : Logger {
     .bindVariable(
       "ensure",
       Element.NativeFunction(
-        listOf("arg")) { bindings ->
-          when (val arg = bindings.read("arg", Element.BooleanLiteral::class)) {
-            is Right -> {
-              val value = arg.value
-                if (value.value) {
-                  Right(Element.Nothing)
-                } else {
-                  Left(EvalError("Ensure failed."))
-                }
-            }
-            is Left -> Left(EvalError("Ensure failed."))
+        listOf("arg")
+      ) { arguments, bindings ->
+        if (arguments.size == 1) {
+          val arg = arguments[0]
+          if (arg is Element.BooleanLiteral && arg.value) {
+            Right(Element.Nothing)
+          } else {
+            Left(EvalError("Ensure failed."))
           }
+        } else {
+          Left(EvalError("Ensure requires a single argument."))
+        }
       })
 
   stdLib
     .bindVariable(
       "not",
       Element.NativeFunction(
-        listOf("bool"))
-      { bindings: Bindings ->
-        val bool = bindings.read("bool", Element.BooleanLiteral::class)
-        if (bool is Right) {
-          val value = bool.value
-          Right(Element.BooleanLiteral(!value.value))
+        listOf("bool")
+      ) { arguments, bindings: Bindings ->
+        val bool = arguments[0]
+        if (bool is Element.BooleanLiteral) {
+          Right(Element.BooleanLiteral(!bool.value))
         } else {
           TODO()
         }
@@ -89,13 +86,12 @@ fun common(logger: Logger = object : Logger {
         listOf(
           "boolLeft",
           "boolRight"
-        )) { bindings: Bindings ->
-        val left = bindings.read("boolLeft", Element.BooleanLiteral::class)
-        val right = bindings.read("boolRight", Element.BooleanLiteral::class)
-        if (left is Right && right is Right) {
-          val l = left.value
-          val r = right.value
-          Right(Element.BooleanLiteral(l.value && r.value))
+        )
+      ) { arguments, bindings: Bindings ->
+        val left = arguments[0]
+        val right = arguments[1]
+        if (left is Element.BooleanLiteral && right is Element.BooleanLiteral) {
+          Right(Element.BooleanLiteral(left.value && right.value))
         } else {
           Left(EvalError("Function `and` requires two booleans"))
         }
@@ -108,13 +104,12 @@ fun common(logger: Logger = object : Logger {
       listOf(
         "boolLeft",
         "boolRight"
-      )) { bindings: Bindings ->
-      val left = bindings.read("boolLeft", Element.BooleanLiteral::class)
-      val right = bindings.read("boolRight", Element.BooleanLiteral::class)
-      if (left is Right && right is Right) {
-        val l = left.value
-        val r = right.value
-        Right(Element.BooleanLiteral(l.value || r.value))
+      )
+    ) { arguments, bindings: Bindings ->
+      val left = arguments[0]
+      val right = arguments[1]
+      if (left is Element.BooleanLiteral && right is Element.BooleanLiteral) {
+        Right(Element.BooleanLiteral(left.value || right.value))
       } else {
         Left(EvalError("Function `or` requires two booleans"))
       }
@@ -133,21 +128,18 @@ fun common(logger: Logger = object : Logger {
   stdLib.bindVariable(
     "each",
     Element.NativeFunction(
-      listOf("seq", "fn")) { bindings ->
-      val seq = bindings.read("seq", Element.Seq::class)
-      val fn = bindings.read("fn", Element.Function::class)
-      if (seq is Right && fn is Right) {
-        val s = seq.value
-        val f = fn.value
-        if (f.parameters.size == 1) {
-          val argName = f.parameters.first()
-          s.values.forEach {
+      listOf("seq", "fn")
+    ) { arguments, bindings ->
+      //TODO check arguments length first
+      val seq = arguments[0]
+      val fn = arguments[1]
+      if (seq is Element.Seq && fn is Element.Function) {
+        if (fn.parameters.size == 1) {
+          seq.values.forEach {
             when (val r = eval(it, bindings)) {
               is Right -> {
-                bindings.addScope()
-                bindings.bindVariable(argName, r.value)
-                val evalRes = f.call(bindings)
-                bindings.removeScope()
+                val arg = r.value as Element.Value
+                val evalRes = fn.call(listOf(arg), bindings)
                 if (evalRes is Left) {
                   return@NativeFunction evalRes
                 }
@@ -174,24 +166,21 @@ fun common(logger: Logger = object : Logger {
   stdLib.bindVariable(
     "filter",
     Element.NativeFunction(
-      listOf("seq", "fn")) { bindings ->
-      val seq = bindings.read("seq", Element.Seq::class)
-      val fn = bindings.read("fn", Element.Function::class)
-      if (seq is Right && fn is Right) {
-        val s = seq.value
-        val f = fn.value
-        if (f.parameters.size == 1) {
-          val argName = f.parameters.first()
+      listOf("seq", "fn")
+    ) { arguments, bindings ->
+      //TODO check arguments length first
+      val seq = arguments[0]//bindings.read("seq", Element.Seq::class)
+      val fn = arguments[1]//bindings.read("fn", Element.Function::class)
+      if (seq is Element.Seq && fn is Element.Function) {
+        if (fn.parameters.size == 1) {
+          val argName = fn.parameters.first()
           val res = mutableListOf<Element.Expression>()
-          s.values.forEach {
+          seq.values.forEach {
             //TODO bind `it` to the name saved above
             when (val r = eval(it, bindings)) {
               is Right -> {
-                bindings.addScope()
-                bindings.bindVariable(argName, r.value)
-                val evalRes = f.call(bindings)
-                bindings.removeScope()
-                when (evalRes) {
+                val arg = r.value as Element.Value
+                when (val evalRes = fn.call(listOf(arg), bindings)) {
                   is Right -> {
                     val value = evalRes.value
                     if (value is Element.BooleanLiteral && value.value)
@@ -216,24 +205,21 @@ fun common(logger: Logger = object : Logger {
   stdLib.bindVariable(
     "map",
     Element.NativeFunction(
-      listOf("seq", "fn")) { bindings ->
-        val seq = bindings.read("seq", Element.Seq::class)
-        val fn = bindings.read("fn", Element.Function::class)
-        if (seq is Right && fn is Right) {
-          val s = seq.value
-          val f = fn.value
-          if (f.parameters.size == 1) {
-            val argName = f.parameters.first()
+      listOf("seq", "fn")
+    ) { arguments, bindings ->
+        //TODO check arguments length first
+        val seq = arguments[0]//bindings.read("seq", Element.Seq::class)
+        val fn = arguments[1]//bindings.read("fn", Element.Function::class)
+        if (seq is Element.Seq && fn is Element.Function) {
+          if (fn.parameters.size == 1) {
+            val argName = fn.parameters.first()
             val res = mutableListOf<Element.Expression>()
-            s.values.forEach {
+            seq.values.forEach {
               //TODO bind `it` to the name saved above
               when (val r = eval(it, bindings)) {
                 is Right -> {
-                  bindings.addScope()
-                  bindings.bindVariable(argName, r.value)
-                  val evalRes = f.call(bindings)
-                  bindings.removeScope()
-                  when (evalRes) {
+                  val arg = r.value as Element.Value
+                  when (val evalRes = fn.call(listOf(arg), bindings)) {
                     //TODO fix below, I think I need a way to convert from Value to Element
                     is Right -> res.add(evalRes.value as Element.Expression)
                     is Left -> return@NativeFunction evalRes
@@ -252,7 +238,9 @@ fun common(logger: Logger = object : Logger {
       }
   )
 
-  stdLib.bindVariable("graph", Element.NativeFunction(listOf()) {
+  stdLib.bindVariable("graph", Element.NativeFunction(
+    listOf()
+  ) { arguments, bindings ->
     //TODO make sure no arguments are passed
     Right(Element.Graph())
   })
@@ -276,12 +264,14 @@ fun common(logger: Logger = object : Logger {
     }
   }
 
-  stdLib.bindVariable("add", Element.NativeFunction(listOf("graph", "statement")) { bindings ->
-    val graphBinding = bindings.read("graph", Element.Graph::class)
-    val statementBinding = bindings.read("statement", Element.Seq::class)
-    if (graphBinding is Right && statementBinding is Right) {
-      val graph = graphBinding.value
-      when (val statement = seqToStatement(statementBinding.value)) {
+  stdLib.bindVariable("add", Element.NativeFunction(
+    listOf("graph", "statement")
+  ) { arguments, bindings ->
+    //TODO check arguments length first
+    val graph = arguments[0]//bindings.read("graph", Element.Graph::class)
+    val statementSeq = arguments[1]//bindings.read("statement", Element.Seq::class)
+    if (graph is Element.Graph && statementSeq is Element.Seq) {
+      when (val statement = seqToStatement(statementSeq)) {
         is Right -> {
           graph.statements.add(statement.value)
           Right(graph)

@@ -31,17 +31,24 @@ sealed interface Element {
 
   sealed interface Function: Expression {
     val parameters: List<String>
-    suspend fun call(bindings: Bindings): Either<EvalError, Element>
+    suspend fun call(arguments: List<Value>, bindings: Bindings): Either<EvalError, Element>
   }
   data class LambdaDefinition(override val parameters: List<String>,
                               val body: List<Element>): Function {
-    override suspend fun call(bindings: Bindings): Either<EvalError, Element> =
-      eval(body, bindings)
+    override suspend fun call(arguments: List<Value>, bindings: Bindings): Either<EvalError, Element> {
+      bindings.addScope()
+      parameters.forEachIndexed { index, param ->
+        bindings.bindVariable(param, arguments[index])
+      }
+      val res = eval(body, bindings)
+      bindings.removeScope()
+      return res
+    }
   }
   data class NativeFunction(override val parameters: List<String>,
-                            val body: suspend (Bindings) -> Either<EvalError, Value>): Function {
-    override suspend fun call(bindings: Bindings): Either<EvalError, Value> =
-      body(bindings)
+                            val body: suspend (List<Value>, Bindings) -> Either<EvalError, Value>): Function {
+    override suspend fun call(arguments: List<Value>, bindings: Bindings): Either<EvalError, Value> =
+      body(arguments, bindings)
   }
 
   data class Graph(val statements: MutableSet<Statement> = mutableSetOf()): Value

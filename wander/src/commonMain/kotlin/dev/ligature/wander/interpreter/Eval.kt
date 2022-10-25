@@ -60,18 +60,17 @@ suspend fun eval(element: Element.FunctionCall, bindings: Bindings): Either<Eval
   val fn = bindings.read(element.name, Element.Function::class).orNull()
 
   return if (fn != null) {
-    bindings.addScope()
+    val arguments = mutableListOf<Element.Value>()
     if (fn.parameters.size == element.arguments.size) {
       fn.parameters.forEachIndexed { index, param ->
         when (val argRes = eval(element.arguments[index], bindings)) {
           is Right -> {
-            bindings.bindVariable(param, argRes.value)
+            arguments.add(argRes.value as Element.Value)
           }
           is Left -> return argRes
         }
       }
-      val res = fn.call(bindings)
-      bindings.removeScope()
+      val res = fn.call(arguments, bindings)
       res
     } else {
       Left(EvalError(
