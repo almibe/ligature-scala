@@ -18,7 +18,7 @@ val identifierPattern = Regex("^[a-zA-Z0-9-._~:/?#\\[\\]@!$&'()*+,;%=]+$")
 value class InvalidDataset(val invalidName: String)
 
 @JvmInline
-value class Dataset /*private constructor*/(val name: String): Comparable<Dataset> { //TODO make constructor private
+value class Dataset /*private constructor*/(val name: String) : Comparable<Dataset> { //TODO make constructor private
   override fun toString(): String = "Dataset($name)"
   override fun compareTo(other: Dataset): Int = this.name.compareTo(other.name)
 
@@ -33,7 +33,7 @@ value class Dataset /*private constructor*/(val name: String): Comparable<Datase
 value class InvalidIdentifier(val invalidName: String)
 
 @JvmInline
-value class Identifier(val name: String): Comparable<Identifier>, Value { //TODO make constructor private
+value class Identifier(val name: String) : Comparable<Identifier>, Value { //TODO make constructor private
   override fun toString(): String = "Identifier($name)"
   override fun compareTo(other: Identifier): Int = this.name.compareTo(other.name)
 
@@ -47,9 +47,9 @@ value class Identifier(val name: String): Comparable<Identifier>, Value { //TODO
 data class LigatureError(val message: String) //TODO make interface or abstract class?
 
 sealed interface Value
-data class StringLiteral(val value: String): Value
-data class IntegerLiteral(val value: Long): Value
-data class BytesLiteral(val value: ByteArray): Value {
+data class StringLiteral(val value: String) : Value
+data class IntegerLiteral(val value: Long) : Value
+data class BytesLiteral(val value: ByteArray) : Value {
   override fun equals(other: Any?): Boolean {
     if (this === other) return true
     if (other == null || this::class != other::class) return false
@@ -113,12 +113,12 @@ interface Ligature {
   /** Initializes a QueryTx TODO should probably return its own error type
    * CouldNotInitializeQueryTx
    */
-  suspend fun <T>query(dataset: Dataset, fn: suspend (QueryTx) -> T): T
+  suspend fun <T> query(dataset: Dataset, fn: suspend (QueryTx) -> T): T
 
   /** Initializes a WriteTx TODO should probably return IO[Either] w/ its own
    * error type CouldNotInitializeWriteTx
    */
-  suspend fun <T>write(dataset: Dataset, fn: suspend (WriteTx) -> T): T
+  suspend fun <T> write(dataset: Dataset, fn: suspend (WriteTx) -> T): T
 
   suspend fun close(): Unit
 }
@@ -136,9 +136,9 @@ interface QueryTx {
    * calling allStatements.
    */
   fun matchStatements(
-      entity: Identifier? = null,
-      attribute: Identifier? = null,
-      value: Value? = null
+    entity: Identifier? = null,
+    attribute: Identifier? = null,
+    value: Value? = null
   ): Flow<Statement>
 
 //  /** Returns all Statements that match the given criteria. If a

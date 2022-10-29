@@ -8,7 +8,7 @@ import arrow.core.Either.Right
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 
-class LigatureSuite: FunSpec() {
+class LigatureSuite : FunSpec() {
   init {
     test("valid Dataset names") {
       // TODO add more tests
