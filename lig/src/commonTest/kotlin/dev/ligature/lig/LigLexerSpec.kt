@@ -32,6 +32,7 @@ class LigLexerSpec: FunSpec() {
     test("read String Literal") {
       val testCases = mapOf<String, List<LigToken>>(
         "\"hello\"" to listOf(LigToken.StringLiteral("hello")),
+        "\"LGTBQ+\"" to listOf(LigToken.StringLiteral("LGTBQ+"))
       )
       for((input, expected) in testCases) {
         tokenize(input) shouldBe expected

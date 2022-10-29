@@ -30,59 +30,53 @@ object LigNibblers {
     takeString("x"),
     takeWhile { Regex("[a-fA-F0-9]").matches(it.toString()) } )
 
-  val stringContentNibbler: Nibbler<Char, Char> = //{ gaze: Gaze<Char> -> {
-      // Full pattern \"(([^\x00-\x1F\"\\]|\\[\"\\/bfnrt]|\\u[0-9a-fA-F]{4})*)\"
-    takeWhile { Regex("[a-zA-Z0-9 ,.!?]").matches(it.toString()) }
-//      val commandChars = 0x00.toChar()..0x1f.toChar()
-//      val validHexChar = { c: Char ->
-//        (c in '0'..'9') || (c in 'a'..'f') || (c in 'A'..'F')
-//      }
-//      val hexNibbler = takeWhile(validHexChar) //TODO should probably only read pairs in
-//
-//      val sb = mutableListOf<Char>()
-//      var fail = false
-//      var complete = false
-//      while (!complete && !fail && !gaze.isComplete) {
-//        val c = gaze.next().get
-//        if (commandChars.contains(c)) {
-//          fail = true
-//        } else if (c == '"') {
-//          complete = true
-//        } else if (c == '\\') {
-//          sb.append(c)
-//          when (val next = gaze.next()) {
-//            is None -> fail = true
-//            is Some -> {
-//              when (c) {
-//                '\\' || '"' || 'b' || 'f' || 'n' || 'r' || 't' -> sb.append(c)
-//                'u' -> {
-//                  sb.append(c)
-//                  when (val res = gaze.attempt(hexNibbler)) {
-//                    is None -> fail = true
-//                    is Some -> {
-//                      if (res.value.length == 4) {
-//                        sb.addAll(res.value)
-//                      } else {
-//                        fail = true
-//                      }
-//                    }
-//                  }
-//                }
-//                else -> fail = true
-//              }
-//            }
-//          }
-//        } else {
-//          sb.add(c)
-//        }
-//      }
-//      if (fail) {
-//        none()
-//      } else {
-//        Some(sb.toList())
-//      }
-//    }
-//  }
+  val stringContentNibbler: Nibbler<Char, Char> = { gaze: Gaze<Char> ->
+    // Full pattern \"(([^\x00-\x1F\"\\]|\\[\"\\/bfnrt]|\\u[0-9a-fA-F]{4})*)\"
+    val commandChars = 0x00.toChar()..0x1f.toChar()
+    val validHexChar = { c: Char ->
+      (c in '0'..'9') || (c in 'a'..'f') || (c in 'A'..'F')
+    }
+    val hexNibbler = takeWhile(validHexChar) //TODO should probably only read pairs in
+    val sb = mutableListOf<Char>()
+    var fail = false
+    var complete = false
+    while (!complete && !fail && !gaze.isComplete) {
+      val c = gaze.next()
+      if (commandChars.contains(c) || c == null) {
+        fail = true
+      } else if (c == '\\') {
+        sb.add(c)
+        when (val next = gaze.next()) {
+          null -> fail = true
+          '\\', '"', 'b', 'f', 'n', 'r', 't' -> sb.add(next)
+          'u' -> {
+            sb.add(next)
+            when (val res = gaze.attempt(hexNibbler)) {
+              null -> fail = true
+              else -> {
+                if (res.size == 4) {
+                  sb.addAll(res)
+                } else {
+                  fail = true
+                }
+              }
+            }
+          }
+          else -> fail = true
+        }
+      } else {
+        sb.add(c)
+      }
+      if (gaze.peek() == '"') {
+        complete = true
+      }
+    }
+    if (fail) {
+      null
+    } else {
+      sb.toList()
+    }
+  }
 
   val stringNibbler = between(
     takeString("\""),
