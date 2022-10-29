@@ -8,5 +8,4 @@ private val ID_GENERATOR = kotlin.random.Random
 private val ID_ALPHABET = "_-0123456789abcdefABCDEF".toCharArray()
 private const val ID_SIZE = 12
 
-fun genId(): String =
-  randomNanoId(ID_GENERATOR, ID_ALPHABET, ID_SIZE)
+fun genId(): String = randomNanoId(ID_GENERATOR, ID_ALPHABET, ID_SIZE)

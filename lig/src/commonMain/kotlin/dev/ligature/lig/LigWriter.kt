@@ -9,27 +9,27 @@ import dev.ligature.*
 fun write(statements: Iterator<Statement>): String {
   val sb = StringBuilder()
   statements.forEach { statement ->
-    sb.append("${writeStatement(statement)}\n") //TODO use system's new-line
+    sb.append("${writeStatement(statement)}\n") // TODO use system's new-line
   }
   return sb.toString()
 }
 
 fun writeStatement(statement: Statement): String =
-  StringBuilder()
-    .append(writeIdentifier(statement.entity))
-    .append(' ')
-    .append(writeIdentifier(statement.attribute))
-    .append(' ')
-    .append(writeValue(statement.value))
-    .toString()
+    StringBuilder()
+        .append(writeIdentifier(statement.entity))
+        .append(' ')
+        .append(writeIdentifier(statement.attribute))
+        .append(' ')
+        .append(writeValue(statement.value))
+        .toString()
 
 fun writeIdentifier(identifier: Identifier): String = "<${identifier.name}>"
 
 fun writeValue(value: Value): String =
-  when (value) {
-    is Identifier -> writeIdentifier(value)
-    is IntegerLiteral -> value.value.toString()
-    is StringLiteral ->
-      "\"${value.value}\"" // TODO this needs to handle escaping special characters
-    is BytesLiteral -> TODO()
-  }
+    when (value) {
+      is Identifier -> writeIdentifier(value)
+      is IntegerLiteral -> value.value.toString()
+      is StringLiteral ->
+          "\"${value.value}\"" // TODO this needs to handle escaping special characters
+      is BytesLiteral -> TODO()
+    }

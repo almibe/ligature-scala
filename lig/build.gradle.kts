@@ -4,26 +4,27 @@
  * This project uses @Incubating APIs which are subject to change.
  */
 
-//plugins {
+// plugins {
 //    id("dev.ligature.kotlin-library-conventions")
-//}
+// }
 //
-//kotlin {
+// kotlin {
 //    sourceSets {
 //        commonMain{
 //            dependencies {
 //            }
 //        }
 //    }
-//}
+// }
 
 plugins {
-  kotlin("multiplatform")// version "1.7.10"
-//    alias(libs.plugins.kotlin.multiplatform)
+  kotlin("multiplatform") // version "1.7.10"
+  //    alias(libs.plugins.kotlin.multiplatform)
   alias(libs.plugins.kotest.multiplatform)
 }
 
 group = "dev.ligature"
+
 version = "0.1.0-SNAPSHOT"
 
 repositories {
@@ -33,29 +34,17 @@ repositories {
 
 kotlin {
   targets {
-    jvm {
-      compilations.all {
-        kotlinOptions {
-          jvmTarget = "1.8"
-        }
-      }
-    }
-//        js(IR) {
-//            browser()
-//            //nodejs()
-//        }
-//        linuxX64()
-//        macosX64()
-//        mingwX64()
+    jvm { compilations.all { kotlinOptions { jvmTarget = "1.8" } } }
+    //        js(IR) {
+    //            browser()
+    //            //nodejs()
+    //        }
+    //        linuxX64()
+    //        macosX64()
+    //        mingwX64()
   }
 
-  targets.all {
-    compilations.all {
-      kotlinOptions {
-        verbose = true
-      }
-    }
-  }
+  targets.all { compilations.all { kotlinOptions { verbose = true } } }
 
   sourceSets {
     val commonMain by getting {
@@ -79,32 +68,26 @@ kotlin {
       }
     }
 
-    val jvmTest by getting {
-      dependencies {
-        implementation(libs.kotest.runner.junit5)
-      }
-    }
+    val jvmTest by getting { dependencies { implementation(libs.kotest.runner.junit5) } }
   }
 }
 
-//tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile>().configureEach {
+// tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile>().configureEach {
 //    kotlinOptions {
 //        apiVersion = "1.5"
 //    }
-//}
+// }
 
 tasks.named<Test>("jvmTest") {
   useJUnitPlatform()
-  filter {
-    isFailOnNoMatchingTests = false
-  }
+  filter { isFailOnNoMatchingTests = false }
   testLogging {
     showExceptions = true
     showStandardStreams = true
-    events = setOf(
-      org.gradle.api.tasks.testing.logging.TestLogEvent.FAILED,
-      org.gradle.api.tasks.testing.logging.TestLogEvent.PASSED
-    )
+    events =
+        setOf(
+            org.gradle.api.tasks.testing.logging.TestLogEvent.FAILED,
+            org.gradle.api.tasks.testing.logging.TestLogEvent.PASSED)
     exceptionFormat = org.gradle.api.tasks.testing.logging.TestExceptionFormat.FULL
   }
 }

@@ -9,10 +9,10 @@ plugins {
   id("org.jetbrains.kotlin.jvm")
 }
 
-//repositories {
+// repositories {
 //    // Use Maven Central for resolving dependencies.
 //    mavenCentral()
-//}
+// }
 
 dependencies {
   constraints {
@@ -35,9 +35,10 @@ dependencies {
 testing {
   suites {
     // Configure the built-in test suite
-    val test by getting(JvmTestSuite::class) {
-      // Use JUnit Jupiter test framework
-      useJUnitJupiter("5.8.1")
-    }
+    val test by
+        getting(JvmTestSuite::class) {
+          // Use JUnit Jupiter test framework
+          useJUnitJupiter("5.8.1")
+        }
   }
 }

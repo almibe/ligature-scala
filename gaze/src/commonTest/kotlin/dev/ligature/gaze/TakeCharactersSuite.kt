@@ -40,10 +40,11 @@ class TakeCharactersSuite : FunSpec() {
 
     test("multiple 5s input") {
       val gaze = Gaze.from("55555")
-      val res = when (val match = gaze.attempt(fiveStep)) {
-        null -> throw Error("Should not happen")
-        else -> match.joinToString("").toInt()
-      }
+      val res =
+          when (val match = gaze.attempt(fiveStep)) {
+            null -> throw Error("Should not happen")
+            else -> match.joinToString("").toInt()
+          }
       res shouldBe 55555
     }
 

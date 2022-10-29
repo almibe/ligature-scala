@@ -12,68 +12,64 @@ class LigatureSuite : FunSpec() {
   init {
     test("valid Dataset names") {
       // TODO add more tests
-      val oks = listOf(
-        "t",
-        "T",
-        "test",
-        "test/test/test",
-        "test/test",
-        "this/is/a/test",
-        "_",
-        "_/_",
-        "_/_/_",
-        "_test",
-        "__test__",
-        "test/_test",
-        "test3/test"
-      )
-      val errs = listOf(
-        "",
-        "/",
-        "test/",
-        "/test",
-        "_/_/",
-        "/_/_",
-        "test//test",
-        "test test",
-        "test/ /test",
-        " test"
-      )
+      val oks =
+          listOf(
+              "t",
+              "T",
+              "test",
+              "test/test/test",
+              "test/test",
+              "this/is/a/test",
+              "_",
+              "_/_",
+              "_/_/_",
+              "_test",
+              "__test__",
+              "test/_test",
+              "test3/test")
+      val errs =
+          listOf(
+              "",
+              "/",
+              "test/",
+              "/test",
+              "_/_/",
+              "/_/_",
+              "test//test",
+              "test test",
+              "test/ /test",
+              " test")
 
-      for (ok in oks)
-        Dataset.create(ok).map { it.name } shouldBe Right(ok)
+      for (ok in oks) Dataset.create(ok).map { it.name } shouldBe Right(ok)
 
-      for (err in errs)
-        Dataset.create(err).isLeft() shouldBe true
+      for (err in errs) Dataset.create(err).isLeft() shouldBe true
     }
 
     test("valid Identifier names") {
       // TODO add more tests
-      val oks = listOf(
-        "test",
-        "test_test_test",
-        "test_test",
-        "this1_is2_a_test",
-        "_",
-        "_test",
-        "__test__",
-        "testTest",
-        "G",
-        "2",
-        "5test",
-        "test!",
-        "/_/_",
-        "test//test",
-        "HELLO"
-      )
+      val oks =
+          listOf(
+              "test",
+              "test_test_test",
+              "test_test",
+              "this1_is2_a_test",
+              "_",
+              "_test",
+              "__test__",
+              "testTest",
+              "G",
+              "2",
+              "5test",
+              "test!",
+              "/_/_",
+              "test//test",
+              "HELLO")
 
       val errs = listOf("", "this is a test", "test test", "test/ /test", " test")
 
-      for (ok in oks)
-        Identifier.create(ok).map { it.name } shouldBe Right(ok)
+      for (ok in oks) Identifier.create(ok).map { it.name } shouldBe Right(ok)
 
-      for (err in errs)
-        Identifier.create(err).isLeft() shouldBe true
+      for (err in errs) Identifier.create(err).isLeft() shouldBe true
     }
   }
 }
