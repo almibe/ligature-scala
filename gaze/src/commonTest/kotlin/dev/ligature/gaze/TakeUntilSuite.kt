@@ -7,7 +7,7 @@ package dev.ligature.gaze
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 
-class TakeUntilSuite: FunSpec() {
+class TakeUntilSuite : FunSpec() {
 
   init {
     test("take until basic cases") {

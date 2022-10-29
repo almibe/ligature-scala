@@ -7,7 +7,7 @@ package dev.ligature.gaze
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 
-class BetweenSuite: FunSpec() {
+class BetweenSuite : FunSpec() {
   val quote = takeString("'")
   val open = takeString("<")
   val close = takeString(">")

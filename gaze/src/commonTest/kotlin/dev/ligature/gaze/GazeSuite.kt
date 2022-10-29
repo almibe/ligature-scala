@@ -7,7 +7,7 @@ package dev.ligature.gaze
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 
-class GazeSuite: FunSpec() {
+class GazeSuite : FunSpec() {
   init {
     test("empty input") {
       val gaze = Gaze.from("")

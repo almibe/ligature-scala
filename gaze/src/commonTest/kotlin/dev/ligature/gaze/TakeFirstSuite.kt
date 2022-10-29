@@ -7,7 +7,7 @@ package dev.ligature.gaze
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 
-class TakeFirstSuite: FunSpec() {
+class TakeFirstSuite : FunSpec() {
   val takeHello = takeString("hello")
   val takeSpace = takeString(" ")
   val takeWorld = takeString("world")

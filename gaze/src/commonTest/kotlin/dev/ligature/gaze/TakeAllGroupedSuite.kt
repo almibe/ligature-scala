@@ -7,7 +7,7 @@ package dev.ligature.gaze
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 
-class TakeAllGroupedSuite: FunSpec() {
+class TakeAllGroupedSuite : FunSpec() {
   val nibbler5 = take('5')
   val nibbler6 = take('6')
   val nibbler7 = take('7')

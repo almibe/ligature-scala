@@ -7,7 +7,7 @@ package dev.ligature.gaze
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 
-class RepeatSuite: FunSpec() {
+class RepeatSuite : FunSpec() {
   val repeatHello: Nibbler<Char, Char> = repeat(takeString("hello"))
 
   init {

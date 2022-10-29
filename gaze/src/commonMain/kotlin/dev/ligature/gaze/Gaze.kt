@@ -64,7 +64,7 @@ class Gaze<I>(private val input: List<I>) {
 //    }
 
   // TODO needs tests
-  fun <O>check(nibbler: Nibbler<I, O>): List<O>? {
+  fun <O> check(nibbler: Nibbler<I, O>): List<O>? {
     val startOfThisLoop = this.offset
 
     val res = nibbler(this)
@@ -72,26 +72,27 @@ class Gaze<I>(private val input: List<I>) {
     return res
   }
 
-  fun <O>attempt(nibbler: Nibbler<I, O>): List<O>? {
+  fun <O> attempt(nibbler: Nibbler<I, O>): List<O>? {
     val startOfThisLoop = this.offset
 
-    return when(val res = nibbler(this)) {
+    return when (val res = nibbler(this)) {
       null -> {
         this.offset = startOfThisLoop
         res
       }
+
       else -> res
     }
   }
-  
+
   val location: Location
     get() = Location(this.line, this.lineOffset)
 }
 
 typealias Nibbler<I, O> = (Gaze<I>) -> List<O>?
 
-fun <I, O, NO>Nibbler<I, O>.map(f: (List<O>) -> List<NO>): Nibbler<I, NO> = { gaze ->
-  when(val results = this(gaze)) {
+fun <I, O, NO> Nibbler<I, O>.map(f: (List<O>) -> List<NO>): Nibbler<I, NO> = { gaze ->
+  when (val results = this(gaze)) {
     null -> null
     else -> f(results)
   }

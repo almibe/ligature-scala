@@ -7,12 +7,12 @@ package dev.ligature.gaze
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 
-class TakeCondSuite: FunSpec() {
+class TakeCondSuite : FunSpec() {
 
   init {
     test("multiple nibblers succeed") {
       val gaze = Gaze.from("5678")
-      val nibbler5 = takeCond<Char> {it == '5' }
+      val nibbler5 = takeCond<Char> { it == '5' }
       val nibbler6 = takeCond<Char> { it == '6' }
       val nibblerDigit = takeCond<Char> { it.isDigit() }
       val nibblerLetter = takeCond<Char> { it.isLetter() }

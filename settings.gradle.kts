@@ -10,19 +10,19 @@
 
 rootProject.name = "ligature-kt"
 include(
-    "gaze",
-    "idgen",
-    "lig",
-    "ligature",
-    "ligature-http",
-    "ligature-http-in-memory",
-    "ligature-http-test-suite",
-    "ligature-http-xodus",
-    "ligature-in-memory",
-    "ligature-repl",
-    "ligature-test-suite",
-    "ligature-xodus",
-    "wander"
+  "gaze",
+  "idgen",
+  "lig",
+  "ligature",
+  "ligature-http",
+  "ligature-http-in-memory",
+  "ligature-http-test-suite",
+  "ligature-http-xodus",
+  "ligature-in-memory",
+  "ligature-repl",
+  "ligature-test-suite",
+  "ligature-xodus",
+  "wander"
 )
 
 //below line is added for CircleCI

@@ -7,7 +7,7 @@ package dev.ligature.gaze
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 
-class OptionSuite: FunSpec() {
+class OptionSuite : FunSpec() {
   val optionalHello = takeAll(optional(takeString("h")), takeString("ello"))
 
   init {

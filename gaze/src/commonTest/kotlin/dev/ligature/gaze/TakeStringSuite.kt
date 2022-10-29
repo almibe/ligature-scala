@@ -7,7 +7,7 @@ package dev.ligature.gaze
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 
-class TakeStringSuite: FunSpec() {
+class TakeStringSuite : FunSpec() {
   private val fiveStep = takeString("5")
   private val helloStep = takeString("hello")
   private val spaceStep = takeString(" ")
@@ -36,7 +36,7 @@ class TakeStringSuite: FunSpec() {
       val gaze = Gaze.from("55555")
       val res = mutableListOf<Char>()
       while (!gaze.isComplete) {
-        when(val nres = gaze.attempt(fiveStep)) {
+        when (val nres = gaze.attempt(fiveStep)) {
           null -> throw Error("Should not happen")
           else -> res.addAll(nres)
         }
@@ -54,7 +54,7 @@ class TakeStringSuite: FunSpec() {
 
     test("map test") {
       val gaze = Gaze.from("1")
-      val oneDigit = takeString("1").map { it.map { it.digitToInt() }}
+      val oneDigit = takeString("1").map { it.map { it.digitToInt() } }
       gaze.attempt(oneDigit) shouldBe listOf(1)
     }
   }

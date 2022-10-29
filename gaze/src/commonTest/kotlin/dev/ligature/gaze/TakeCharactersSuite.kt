@@ -7,7 +7,7 @@ package dev.ligature.gaze
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 
-class TakeCharactersSuite: FunSpec() {
+class TakeCharactersSuite : FunSpec() {
   private val abcStep = takeCharacters('a', 'b', 'c')
   private val spaceStep = takeCharacters(' ')
   private val fiveStep = takeCharacters('5')
@@ -40,7 +40,7 @@ class TakeCharactersSuite: FunSpec() {
 
     test("multiple 5s input") {
       val gaze = Gaze.from("55555")
-      val res = when(val match = gaze.attempt(fiveStep)) {
+      val res = when (val match = gaze.attempt(fiveStep)) {
         null -> throw Error("Should not happen")
         else -> match.joinToString("").toInt()
       }

@@ -7,7 +7,7 @@ package dev.ligature.gaze
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 
-class TakeWhileSuite: FunSpec() {
+class TakeWhileSuite : FunSpec() {
   private val fiveStep = takeWhile<Char> { it == '5' }
   private val eatAllStep = takeWhile<Char> { true }
   private val spaceStep = takeWhile<Char> { c -> c == ' ' || c == '\t' }

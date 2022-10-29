@@ -5,33 +5,39 @@
 package dev.ligature.gaze
 
 /** A Nibbler that takes a single item.
-  */
-fun <I>take(toMatch: I): Nibbler<I, I> = { gaze ->
-  when(val next = gaze.next()) {
+ */
+fun <I> take(toMatch: I): Nibbler<I, I> = { gaze ->
+  when (val next = gaze.next()) {
     null -> null
     else -> {
-      if (toMatch == next) { listOf(toMatch) }
-      else { null }
+      if (toMatch == next) {
+        listOf(toMatch)
+      } else {
+        null
+      }
     }
   }
 }
 
 /** A Nibbler that takes a single item if the condition passed is true.
-  */
-fun <I>takeCond(cond: (I) -> Boolean): Nibbler<I, I> = { gaze ->
-  when(val next = gaze.next()) {
+ */
+fun <I> takeCond(cond: (I) -> Boolean): Nibbler<I, I> = { gaze ->
+  when (val next = gaze.next()) {
     null -> null
     else ->
-      if (cond(next)) { listOf(next) }
-      else { null }
+      if (cond(next)) {
+        listOf(next)
+      } else {
+        null
+      }
   }
 }
 
-fun <I, O>takeCondMap(cond: (I) -> O?): Nibbler<I, O> = { gaze ->
-  when(val next = gaze.next()) {
+fun <I, O> takeCondMap(cond: (I) -> O?): Nibbler<I, O> = { gaze ->
+  when (val next = gaze.next()) {
     null -> null
     else -> {
-      when(val res = cond(next)) {
+      when (val res = cond(next)) {
         null -> null
         else -> listOf(res)
       }
@@ -42,12 +48,12 @@ fun <I, O>takeCondMap(cond: (I) -> O?): Nibbler<I, O> = { gaze ->
 /**
  * A Nibbler that matches multiple Nibblers in order.
  */
-fun <I, O>takeAll(
-    vararg nibblers: Nibbler<I, O>
+fun <I, O> takeAll(
+  vararg nibblers: Nibbler<I, O>
 ): Nibbler<I, O> = { gaze: Gaze<I> ->
   val results = mutableListOf<O>()
   val res = nibblers.all { nibbler ->
-    when(val res = gaze.attempt(nibbler)) {
+    when (val res = gaze.attempt(nibbler)) {
       null -> false
       else -> {
         results.addAll(res)
@@ -66,12 +72,12 @@ fun <I, O>takeAll(
  * A Nibbler that matches multiple Nibblers in order but
  * keeps each matching set in a List.
  */
-fun <I, O>takeAllGrouped(
-    vararg nibblers: Nibbler<I, O>
+fun <I, O> takeAllGrouped(
+  vararg nibblers: Nibbler<I, O>
 ): Nibbler<I, List<O>> = { gaze: Gaze<I> ->
   val results = mutableListOf<List<O>>()
   val res = nibblers.all { nibbler ->
-    when(val res = gaze.attempt(nibbler)) {
+    when (val res = gaze.attempt(nibbler)) {
       null -> false
       else -> {
         results.add(res)
@@ -93,7 +99,7 @@ fun takeString(toMatch: String): Nibbler<Char, Char> {
     var offset = 0
     var matched = true
     while (matched && offset < chars.size) {
-      when(val nextChar = gaze.next()) {
+      when (val nextChar = gaze.next()) {
         null -> matched = false
         else ->
           if (chars[offset] == nextChar) {
@@ -114,12 +120,12 @@ fun takeString(toMatch: String): Nibbler<Char, Char> {
 /**
  * A Nibbler that takes until a specific element is matched.
  */
-fun <I>takeUntil(toMatch: I): Nibbler<I, I> =
+fun <I> takeUntil(toMatch: I): Nibbler<I, I> =
   { gaze ->
     val result = mutableListOf<I>()
     var matched = false
     while (!matched) {
-      when(val next = gaze.peek()) {
+      when (val next = gaze.peek()) {
         null -> matched = true
         else ->
           if (next == toMatch) {
@@ -134,19 +140,20 @@ fun <I>takeUntil(toMatch: I): Nibbler<I, I> =
   }
 
 //TODO needs tests
-fun <I>takeUntil(toMatch: Nibbler<I, I>): Nibbler<I, I> =
+fun <I> takeUntil(toMatch: Nibbler<I, I>): Nibbler<I, I> =
   { gaze ->
     val result = mutableListOf<I>()
     var matched = false
     while (!matched) {
-      when(val next = gaze.peek()) {
+      when (val next = gaze.peek()) {
         null -> matched = true
         else -> {
-          when(gaze.check(toMatch)) {
+          when (gaze.check(toMatch)) {
             null -> {
               gaze.next()
               result.add(next)
             }
+
             else -> matched = true
           }
         }
@@ -155,15 +162,15 @@ fun <I>takeUntil(toMatch: Nibbler<I, I>): Nibbler<I, I> =
     result.toList()
   }
 
-fun <I>takeWhile(
-    predicate: (toMatch: I) -> Boolean
+fun <I> takeWhile(
+  predicate: (toMatch: I) -> Boolean
 ): Nibbler<I, I> =
   { gaze: Gaze<I> ->
     val res = mutableListOf<I>()
     var matched = true
     var proceed = true
     while (proceed) {
-      when(val peek = gaze.peek()) {
+      when (val peek = gaze.peek()) {
         null ->
           if (res.size == 0) {
             matched = false
@@ -171,6 +178,7 @@ fun <I>takeWhile(
           } else {
             proceed = false
           }
+
         else -> {
           if (predicate(peek)) {
             gaze.next()
@@ -191,8 +199,8 @@ fun <I>takeWhile(
     }
   }
 
-fun <I, O>optional(nibbler: Nibbler<I, O>): Nibbler<I, O> = { gaze: Gaze<I> ->
-  when(val res = gaze.attempt(nibbler)) {
+fun <I, O> optional(nibbler: Nibbler<I, O>): Nibbler<I, O> = { gaze: Gaze<I> ->
+  when (val res = gaze.attempt(nibbler)) {
     null -> listOf()
     else -> res
   }
@@ -202,8 +210,8 @@ fun takeCharacters(vararg chars: Char): Nibbler<Char, Char> = takeWhile {
   chars.contains(it)
 }
 
-fun <I, O>takeFirst(
-    vararg nibblers: Nibbler<I, O>
+fun <I, O> takeFirst(
+  vararg nibblers: Nibbler<I, O>
 ): Nibbler<I, O> = { gaze: Gaze<I> ->
   var finalRes: List<O>? = null
   nibblers.find { nibbler ->
@@ -213,13 +221,13 @@ fun <I, O>takeFirst(
   finalRes
 }
 
-fun <I, O>repeat(
-    nibbler: Nibbler<I, O>
+fun <I, O> repeat(
+  nibbler: Nibbler<I, O>
 ): Nibbler<I, O> = { gaze: Gaze<I> ->
   val allMatches = mutableListOf<O>()
   var proceed = true
   while (!gaze.isComplete && proceed)
-    when(val v = gaze.attempt(nibbler)) {
+    when (val v = gaze.attempt(nibbler)) {
       null -> proceed = false
       else -> allMatches.addAll(v)
     }
@@ -230,13 +238,13 @@ fun <I, O>repeat(
   }
 }
 
-fun <I, O>between(
-    wrapper: Nibbler<I, O>,
-    content: Nibbler<I, O>
+fun <I, O> between(
+  wrapper: Nibbler<I, O>,
+  content: Nibbler<I, O>
 ) = takeAllGrouped(wrapper, content, wrapper).map { it[1] }
 
-fun <I, O>between(
-    open: Nibbler<I, O>,
-    content: Nibbler<I, O>,
-    close: Nibbler<I, O>
+fun <I, O> between(
+  open: Nibbler<I, O>,
+  content: Nibbler<I, O>,
+  close: Nibbler<I, O>
 ) = takeAllGrouped(open, content, close).map { it[1] }
