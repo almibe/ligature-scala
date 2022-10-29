@@ -15,7 +15,7 @@ import io.ktor.client.request.*
 import io.ktor.client.statement.*
 import io.ktor.http.*
 
-abstract class LigatureHttpSuite: FunSpec() {
+abstract class LigatureHttpSuite : FunSpec() {
   abstract fun Application.instanceModule()
 
   init {
@@ -197,6 +197,7 @@ abstract class LigatureHttpSuite: FunSpec() {
       }
     }
   }
+
   private fun ligToSet(input: String): Set<Statement> =
-    read(input).fold( { throw Error("Could not convert $input") }, { it.toSet() } )
+    read(input).fold({ throw Error("Could not convert $input") }, { it.toSet() })
 }

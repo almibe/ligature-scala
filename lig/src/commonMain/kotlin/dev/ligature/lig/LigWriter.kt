@@ -26,10 +26,10 @@ fun writeStatement(statement: Statement): String =
 fun writeIdentifier(identifier: Identifier): String = "<${identifier.name}>"
 
 fun writeValue(value: Value): String =
-  when(value) {
-    is Identifier     -> writeIdentifier(value)
+  when (value) {
+    is Identifier -> writeIdentifier(value)
     is IntegerLiteral -> value.value.toString()
-    is StringLiteral  ->
+    is StringLiteral ->
       "\"${value.value}\"" // TODO this needs to handle escaping special characters
-    is BytesLiteral   -> TODO()
+    is BytesLiteral -> TODO()
   }

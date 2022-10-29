@@ -8,12 +8,12 @@ import dev.ligature.*
 import dev.ligature.idgen.genId
 
 /** Represents a WriteTx within the context of a Ligature instance and a single
-  * Dataset
-  */
-class InMemoryWriteTx(private val store: DatasetStore): WriteTx {
+ * Dataset
+ */
+class InMemoryWriteTx(private val store: DatasetStore) : WriteTx {
   private sealed interface Operation
-  private data class AddOperation(val statement: Statement): Operation
-  private data class DeleteOperation(val statement: Statement): Operation
+  private data class AddOperation(val statement: Statement) : Operation
+  private data class DeleteOperation(val statement: Statement) : Operation
 
   private var isCanceled = false
   private val operations = mutableListOf<Operation>()
@@ -29,18 +29,18 @@ class InMemoryWriteTx(private val store: DatasetStore): WriteTx {
 //    Identifier.fromString(prefix + genId())
 
   /** Adds a given Statement to this Dataset. If the Statement already exists
-    * nothing happens (TODO maybe add it with a new context?). Note: Potentially
-    * could trigger a ValidationError
-    */
+   * nothing happens (TODO maybe add it with a new context?). Note: Potentially
+   * could trigger a ValidationError
+   */
   override suspend fun addStatement(statement: Statement): Unit {
     operations.add(AddOperation(statement))
   }
 
   /** Removes a given Statement from this Dataset. If the Statement doesn't
-    * exist nothing happens and returns Ok(false). This function returns
-    * Ok(true) only if the given Statement was found and removed. Note:
-    * Potentially could trigger a ValidationError.
-    */
+   * exist nothing happens and returns Ok(false). This function returns
+   * Ok(true) only if the given Statement was found and removed. Note:
+   * Potentially could trigger a ValidationError.
+   */
   override suspend fun removeStatement(statement: Statement): Unit {
     operations.add(DeleteOperation(statement))
   }
@@ -53,10 +53,11 @@ class InMemoryWriteTx(private val store: DatasetStore): WriteTx {
   fun close() {
     if (!isCanceled) {
       for (operation in operations) {
-        when(operation) {
-          is AddOperation    -> {
+        when (operation) {
+          is AddOperation -> {
             store.statements.add(operation.statement)
           }
+
           is DeleteOperation -> {
             store.statements.remove(operation.statement)
           }

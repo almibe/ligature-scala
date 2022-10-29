@@ -8,15 +8,16 @@ import dev.ligature.gaze.*
 import dev.ligature.lig.LigNibblers
 
 sealed interface LigToken {
-//  data class Term(val value: String): LigToken
+  //  data class Term(val value: String): LigToken
 //  object Equals: LigToken
-  data class Identifier(val name: String): LigToken
-//  object Copy: LigToken
-  object NewLine: LigToken
-  object WhiteSpace: LigToken
-  data class IntegerLiteral(val value: String): LigToken
-  data class StringLiteral(val value: String): LigToken
-  data class BytesLiteral(val value: String): LigToken
+  data class Identifier(val name: String) : LigToken
+
+  //  object Copy: LigToken
+  object NewLine : LigToken
+  object WhiteSpace : LigToken
+  data class IntegerLiteral(val value: String) : LigToken
+  data class StringLiteral(val value: String) : LigToken
+  data class BytesLiteral(val value: String) : LigToken
 }
 
 fun tokenize(input: String): List<LigToken> {
@@ -33,9 +34,14 @@ fun tokenize(input: String): List<LigToken> {
         TokenNibblers.integerNibbler,
       )
     )
-    when(res) {
-      null -> { TODO("Return Left here ${gaze.isComplete}\n${gaze.peek()}") }
-      else -> { tokens.addAll(res) }
+    when (res) {
+      null -> {
+        TODO("Return Left here ${gaze.isComplete}\n${gaze.peek()}")
+      }
+
+      else -> {
+        tokens.addAll(res)
+      }
     }
   }
   return tokens

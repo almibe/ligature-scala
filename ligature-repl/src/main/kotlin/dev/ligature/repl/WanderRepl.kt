@@ -35,5 +35,5 @@ object WanderRepl {
     when (val result = dev.ligature.wander.run(input, bindings)) {
       is Right -> "- ${write(result.value)}"
       is Left -> "X ${result.value.message}"
-  }
+    }
 }

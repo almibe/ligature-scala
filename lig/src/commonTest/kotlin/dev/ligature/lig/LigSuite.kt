@@ -14,7 +14,7 @@ import dev.ligature.gaze.Gaze
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 
-class LigSuite: FunSpec() {
+class LigSuite : FunSpec() {
 
   init {
 //    test("basic Statement with all Entities") {

@@ -13,40 +13,48 @@ import dev.ligature.lig.parser.parse
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 
-class LigParserSpec: FunSpec() {
+class LigParserSpec : FunSpec() {
   init {
     test("parse simple Statement") {
       val input = "<a> <b> <c>"
       val tokens = tokenize(input)
-      parse(tokens) shouldBe Either.Right(listOf(
-        Statement(Identifier("a"), Identifier("b"), Identifier("c"))
-      ))
+      parse(tokens) shouldBe Either.Right(
+        listOf(
+          Statement(Identifier("a"), Identifier("b"), Identifier("c"))
+        )
+      )
     }
 
     test("parse complex Statement") {
       val input = "  <a>    <b>   12345    "
       val tokens = tokenize(input)
-      parse(tokens) shouldBe Either.Right(listOf(
-        Statement(Identifier("a"), Identifier("b"), IntegerLiteral(12345))
-      ))
+      parse(tokens) shouldBe Either.Right(
+        listOf(
+          Statement(Identifier("a"), Identifier("b"), IntegerLiteral(12345))
+        )
+      )
     }
 
     test("parse multiple Statements") {
       val input = "<a> <b> <c>\n<e> <f> <g>\n"
       val tokens = tokenize(input)
-      parse(tokens) shouldBe Either.Right(listOf(
-        Statement(Identifier("a"), Identifier("b"), Identifier("c")),
-        Statement(Identifier("e"), Identifier("f"), Identifier("g"))
-      ))
+      parse(tokens) shouldBe Either.Right(
+        listOf(
+          Statement(Identifier("a"), Identifier("b"), Identifier("c")),
+          Statement(Identifier("e"), Identifier("f"), Identifier("g"))
+        )
+      )
     }
 
     test("support empty lines") {
       val input = "\n\n  \n<a> <b> <c>\n  <e> <f> <g>\n    "
       val tokens = tokenize(input)
-      parse(tokens) shouldBe Either.Right(listOf(
-        Statement(Identifier("a"), Identifier("b"), Identifier("c")),
-        Statement(Identifier("e"), Identifier("f"), Identifier("g"))
-      ))
+      parse(tokens) shouldBe Either.Right(
+        listOf(
+          Statement(Identifier("a"), Identifier("b"), Identifier("c")),
+          Statement(Identifier("e"), Identifier("f"), Identifier("g"))
+        )
+      )
     }
   }
 }

@@ -16,7 +16,7 @@ import dev.ligature.StringLiteral
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 
-class LigInputSuite: FunSpec() {
+class LigInputSuite : FunSpec() {
 
   init {
 //    test("id gen") {

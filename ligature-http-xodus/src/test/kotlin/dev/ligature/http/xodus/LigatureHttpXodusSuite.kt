@@ -16,7 +16,7 @@ import java.io.File
 import java.nio.file.Files
 import java.nio.file.Path
 
-class LigatureHttpXodusSuite: LigatureHttpSuite() {
+class LigatureHttpXodusSuite : LigatureHttpSuite() {
   lateinit var path: Path
   lateinit var ligatureInstance: Ligature
 

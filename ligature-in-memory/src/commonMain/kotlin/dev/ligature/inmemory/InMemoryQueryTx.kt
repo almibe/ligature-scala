@@ -9,22 +9,22 @@ import kotlinx.coroutines.flow.*
 import arrow.core.Option
 
 /** Represents a QueryTx within the context of a Ligature instance and a single
-  * Dataset
-  */
-class InMemoryQueryTx(private val store: DatasetStore): QueryTx {
+ * Dataset
+ */
+class InMemoryQueryTx(private val store: DatasetStore) : QueryTx {
 
   /** Returns all PersistedStatements in this Dataset. */
   override fun allStatements(): Flow<Statement> = store.statements.asFlow()
 
   /** Returns all PersistedStatements that match the given criteria. If a
-    * parameter is None then it matches all, so passing all Nones is the same as
-    * calling allStatements.
-    */
+   * parameter is None then it matches all, so passing all Nones is the same as
+   * calling allStatements.
+   */
   override fun matchStatements(
-      entity: Identifier?,
-      attribute: Identifier?,
-      value: Value?
-  ): Flow<Statement> =  flow {
+    entity: Identifier?,
+    attribute: Identifier?,
+    value: Value?
+  ): Flow<Statement> = flow {
     store.statements.filter { statement ->
       val en = entity == null || entity == statement.entity
       val at = attribute == null || attribute == statement.attribute

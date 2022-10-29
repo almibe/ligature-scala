@@ -23,12 +23,12 @@ object LigNibblers {
 
   val integerNibbler = takeAll(
     optional(takeString("-")),
-    takeWhile { it.isDigit() } )
+    takeWhile { it.isDigit() })
 
   val bytesNibbler = takeAll(
     takeString("0"),
     takeString("x"),
-    takeWhile { Regex("[a-fA-F0-9]").matches(it.toString()) } )
+    takeWhile { Regex("[a-fA-F0-9]").matches(it.toString()) })
 
   val stringContentNibbler: Nibbler<Char, Char> = { gaze: Gaze<Char> ->
     // Full pattern \"(([^\x00-\x1F\"\\]|\\[\"\\/bfnrt]|\\u[0-9a-fA-F]{4})*)\"
@@ -62,6 +62,7 @@ object LigNibblers {
               }
             }
           }
+
           else -> fail = true
         }
       } else {
@@ -85,11 +86,12 @@ object LigNibblers {
 
   //TODO this needs cleaned up
   private val validPrefixName: CharArray =
-    (('a'..'z').toMutableList() + ('A'..'Z').toMutableList() + ('0'..'9').toMutableList() + listOf('_')).joinToString("").toCharArray()
+    (('a'..'z').toMutableList() + ('A'..'Z').toMutableList() + ('0'..'9').toMutableList() + listOf('_')).joinToString("")
+      .toCharArray()
 
   val prefixNameNibbler = takeCharacters(
-      *validPrefixName
-    ) // matches _a-zA-Z0-9, TODO probably shouldn't make names that start with numbers
+    *validPrefixName
+  ) // matches _a-zA-Z0-9, TODO probably shouldn't make names that start with numbers
   val copyNibbler = takeString("^") // matches ^
 
   val idGenNibbler = takeString("{}") // matches {}

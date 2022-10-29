@@ -32,6 +32,7 @@ class Handlers(private val ligature: Ligature) {
         ligature.createDataset(dataset.value)
         call.respond(HttpStatusCode.OK, "Dataset $datasetName Added.")
       }
+
       is Left -> TODO("Return invalid Dataset name error")
     }
   }
@@ -42,6 +43,7 @@ class Handlers(private val ligature: Ligature) {
         ligature.deleteDataset(dataset.value)
         call.respond(HttpStatusCode.OK, "Dataset $datasetName Removed.")
       }
+
       is Left -> TODO("Return invalid Dataset name error")
     }
   }
@@ -55,6 +57,7 @@ class Handlers(private val ligature: Ligature) {
         }
         call.respondText(result.toString())
       }
+
       is Left -> TODO("Return invalid Dataset name error")
     }
   }
@@ -72,9 +75,11 @@ class Handlers(private val ligature: Ligature) {
             }
             call.respondText("Added ${statements.value.size} statements.")
           }
+
           is Left -> TODO("Report error reading Lig.")
         }
       }
+
       is Left -> TODO("Return invalid Dataset name error")
     }
   }
@@ -92,9 +97,11 @@ class Handlers(private val ligature: Ligature) {
             }
             call.respondText("Removed ${statements.value.size} statements.")
           }
+
           is Left -> TODO("Report error reading Lig.")
         }
       }
+
       is Left -> TODO("Return invalid Dataset name error")
     }
   }

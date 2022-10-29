@@ -120,7 +120,7 @@ fun parsePrefixes(gaze: Gaze<Char>): Either<LigError, Map<String, String>> {
 
 //TODO: this function never returns an Error so if there is a malformed prefix it won't be caught until we try to read a Statement
 fun parsePrefix(
-    gaze: Gaze<Char>
+  gaze: Gaze<Char>
 ): Either<LigError, Pair<String, String>?> {
   val parseResult = gaze.attempt(
     takeAllGrouped(
@@ -135,7 +135,7 @@ fun parsePrefix(
       }
     )
   )
-  return when(parseResult) {
+  return when (parseResult) {
     null -> Either.Right(null)
     else -> {
       val prefixName = parseResult[2].joinToString("")
@@ -146,14 +146,14 @@ fun parsePrefix(
 }
 
 fun parseStatements(
-    gaze: Gaze<Char>,
-    prefixes: Map<String, String>
+  gaze: Gaze<Char>,
+  prefixes: Map<String, String>
 ): Either<LigError, List<Statement>> {
   val statements = mutableListOf<Statement>()
   var lastStatement: Statement? = null
   while (!gaze.isComplete)
-    when(val res = parseStatement(gaze, prefixes, lastStatement)) {
-      is Either.Left  -> return res
+    when (val res = parseStatement(gaze, prefixes, lastStatement)) {
+      is Either.Left -> return res
       is Either.Right -> {
         val statement = res.value
         lastStatement = statement
@@ -164,9 +164,9 @@ fun parseStatements(
 }
 
 fun parseStatement(
-    gaze: Gaze<Char>,
-    prefixes: Map<String, String>,
-    lastStatement: Statement?
+  gaze: Gaze<Char>,
+  prefixes: Map<String, String>,
+  lastStatement: Statement?
 ): Either<LigError, Statement> = TODO()
 //  for {
 //    _ <- gaze
@@ -187,27 +187,27 @@ fun parseStatement(
 //  } yield Statement(entity, attribute, value)
 
 fun lastEntity(lastStatement: Statement?): Identifier? =
-  when(lastStatement) {
+  when (lastStatement) {
     null -> null
     else -> lastStatement.entity
   }
 
 fun lastAttribute(lastStatement: Statement?): Identifier? =
-  when(lastStatement) {
+  when (lastStatement) {
     null -> null
     else -> lastStatement.attribute
   }
 
 fun lastValue(lastStatement: Statement?): Value? =
-  when(lastStatement) {
+  when (lastStatement) {
     null -> null
     else -> lastStatement.value
   }
 
 fun parseIdentifier(
-    gaze: Gaze<Char>,
-    prefixes: Map<String, String>,
-    lastIdentifier: Identifier?
+  gaze: Gaze<Char>,
+  prefixes: Map<String, String>,
+  lastIdentifier: Identifier?
 ): Either<LigError, Identifier> {
   TODO()
   // attempt copy character
@@ -262,28 +262,29 @@ fun parseIdentifier(
 }
 
 fun handleIdGenId(input: String): Either<LigError, Identifier> = TODO()
-  //Identifier.fromString(genIdId(input)).left.map(err => LigError(err.message))
+//Identifier.fromString(genIdId(input)).left.map(err => LigError(err.message))
 
 fun genIdId(input: String): String {
   val itr = input.toCharArray().iterator()
   val sb = StringBuilder()
   while (itr.hasNext())
-    when(val c = itr.next()) {
+    when (val c = itr.next()) {
       '{' -> {
         itr.next() // eat }, TODO should probably assert here
         sb.append(genId())
       }
+
       else -> sb.append(c)
     }
   return sb.toString()
 }
 
 fun handlePrefixedId(
-    input: List<List<Char>>,
-    prefixes: Map<String, String>
+  input: List<List<Char>>,
+  prefixes: Map<String, String>
 ): Either<LigError, Identifier> {
   val prefixName = input[0].joinToString("")
-  return when(val res = prefixes.get(prefixName)) {
+  return when (val res = prefixes.get(prefixName)) {
     null -> Either.Left(LigError("Prefix Name $prefixName, doesn't exist."))
     else -> {
       val postfix = input[2].joinToString("")
@@ -293,11 +294,11 @@ fun handlePrefixedId(
 }
 
 fun handlePrefixedGenId(
-    input: List<List<Char>>,
-    prefixes: Map<String, String>
+  input: List<List<Char>>,
+  prefixes: Map<String, String>
 ): Either<LigError, Identifier> {
   val prefixName = input[0].joinToString("")
-  return when(val prefixValue = prefixes.get(prefixName)) {
+  return when (val prefixValue = prefixes.get(prefixName)) {
     null -> Either.Left(LigError("Prefix name $prefixName, doesn't exist."))
     else -> {
       val postfix = input[2].joinToString("")
@@ -314,7 +315,7 @@ fun handlePrefixedGenId(
 //    prefixes: Map<String, String>,
 //    lastValue: Option<Value>
 //): Either<LigError, Value> {
-  //TODO attempt copy character
+//TODO attempt copy character
 //  val copyChar = gaze.attempt(LigNibblers.copyNibbler)
 //  if (copyChar is Some<Char>) {
 //    when(lastValue) {

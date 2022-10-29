@@ -16,7 +16,7 @@ import kotlinx.coroutines.sync.withLock
 
 data class DatasetStore(var counter: Long, val statements: MutableSet<Statement>)
 
-class InMemoryLigature: Ligature {
+class InMemoryLigature : Ligature {
   private val mutex = Mutex()
   private val store = mutableMapOf<Dataset, DatasetStore>()
 
@@ -35,8 +35,8 @@ class InMemoryLigature: Ligature {
   }
 
   /** Returns all Datasets in a Ligature instance that start with the given
-    * prefix.
-    */
+   * prefix.
+   */
   override fun matchDatasetsPrefix(prefix: String): Flow<Dataset> =
     flow {
       mutex.withLock {
@@ -45,11 +45,11 @@ class InMemoryLigature: Ligature {
     }
 
   /** Returns all Datasets in a Ligature instance that are in a given range
-    * (inclusive, exclusive].
-    */
+   * (inclusive, exclusive].
+   */
   override fun matchDatasetsRange(
-      start: String,
-      end: String
+    start: String,
+    end: String
   ): Flow<Dataset> = flow {
     mutex.withLock {
       store.keys.filter { it.name >= start && it.name < end }.forEach { emit(it) }
@@ -57,8 +57,8 @@ class InMemoryLigature: Ligature {
   }
 
   /** Creates a dataset with the given name. TODO should probably return its own
-    * error type { InvalidDataset, DatasetExists, CouldNotCreateDataset }
-    */
+   * error type { InvalidDataset, DatasetExists, CouldNotCreateDataset }
+   */
   override suspend fun createDataset(dataset: Dataset): Unit = mutex.withLock {
     if (!store.contains(dataset)) {
       store[dataset] = DatasetStore(0L, mutableSetOf())
@@ -66,16 +66,16 @@ class InMemoryLigature: Ligature {
   }
 
   /** Deletes a dataset with the given name. TODO should probably return its own
-    * error type { InvalidDataset, CouldNotDeleteDataset }
-    */
+   * error type { InvalidDataset, CouldNotDeleteDataset }
+   */
   override suspend fun deleteDataset(dataset: Dataset): Unit = mutex.withLock {
     store.remove(dataset)
   }
 
   /** Initializes a QueryTx TODO should probably return its own error type
-    * CouldNotInitializeQueryTx
-    */
-  override suspend fun <T>query(dataset: Dataset, fn: suspend (QueryTx) -> T): T =
+   * CouldNotInitializeQueryTx
+   */
+  override suspend fun <T> query(dataset: Dataset, fn: suspend (QueryTx) -> T): T =
     mutex.withLock {
       val ds = store[dataset]
       if (ds != null) {
@@ -87,9 +87,9 @@ class InMemoryLigature: Ligature {
     }
 
   /** Initializes a WriteTx TODO should probably return its own error type
-    * CouldNotInitializeWriteTx
-    */
-  override suspend fun <T>write(dataset: Dataset, fn: suspend (WriteTx) -> T): T =
+   * CouldNotInitializeWriteTx
+   */
+  override suspend fun <T> write(dataset: Dataset, fn: suspend (WriteTx) -> T): T =
     mutex.withLock {
       val ds = store[dataset]
       if (ds != null) {

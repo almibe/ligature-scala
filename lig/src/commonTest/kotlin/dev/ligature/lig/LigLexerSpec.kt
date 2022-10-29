@@ -9,13 +9,13 @@ import dev.ligature.lig.lexer.tokenize
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 
-class LigLexerSpec: FunSpec() {
+class LigLexerSpec : FunSpec() {
   init {
     test("read Identifier") {
       val testCases = mapOf<String, List<LigToken>>(
         "<identifier>" to listOf(LigToken.Identifier("identifier")),
       )
-      for((input, expected) in testCases) {
+      for ((input, expected) in testCases) {
         tokenize(input) shouldBe expected
       }
     }
@@ -24,7 +24,7 @@ class LigLexerSpec: FunSpec() {
       val testCases = mapOf<String, List<LigToken>>(
         "1" to listOf(LigToken.IntegerLiteral("1")),
       )
-      for((input, expected) in testCases) {
+      for ((input, expected) in testCases) {
         tokenize(input) shouldBe expected
       }
     }
@@ -34,7 +34,7 @@ class LigLexerSpec: FunSpec() {
         "\"hello\"" to listOf(LigToken.StringLiteral("hello")),
         "\"LGTBQ+\"" to listOf(LigToken.StringLiteral("LGTBQ+"))
       )
-      for((input, expected) in testCases) {
+      for ((input, expected) in testCases) {
         tokenize(input) shouldBe expected
       }
     }
@@ -43,7 +43,7 @@ class LigLexerSpec: FunSpec() {
       val testCases = mapOf<String, List<LigToken>>(
         "0x1122EF" to listOf(LigToken.BytesLiteral("0x1122EF")),
       )
-      for((input, expected) in testCases) {
+      for ((input, expected) in testCases) {
         tokenize(input) shouldBe expected
       }
     }
@@ -55,9 +55,9 @@ class LigLexerSpec: FunSpec() {
           LigToken.WhiteSpace,
           LigToken.StringLiteral("hello, world!"),
           LigToken.WhiteSpace
-          ),
+        ),
       )
-      for((input, expected) in testCases) {
+      for ((input, expected) in testCases) {
         tokenize(input) shouldBe expected
       }
     }
@@ -71,7 +71,7 @@ class LigLexerSpec: FunSpec() {
           LigToken.StringLiteral("hello, world!")
         ),
       )
-      for((input, expected) in testCases) {
+      for ((input, expected) in testCases) {
         tokenize(input) shouldBe expected
       }
     }

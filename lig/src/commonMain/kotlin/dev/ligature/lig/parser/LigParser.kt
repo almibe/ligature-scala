@@ -18,7 +18,7 @@ fun parse(input: List<LigToken>): Either<LigError, List<Statement>> {
   var foundNewLine = true
   while (!gaze.isComplete && foundNewLine) {
     val res = gaze.attempt(statementNibbler)
-    when(res) {
+    when (res) {
       null -> TODO()
       else -> statements.addAll(res)
     }
@@ -68,14 +68,14 @@ val statementNibbler: Nibbler<LigToken, Statement> =
       val value = input[2].toValue().bind()
       Statement(entity, attribute, value)
     }.toEither()
-    when(res) {
+    when (res) {
       is Either.Right -> listOf(res.value)
-      is Either.Left  -> TODO()
+      is Either.Left -> TODO()
     }
   }
 
 fun LigToken.toIdentifier(): Either<LigError, Identifier> =
-  when(this) {
+  when (this) {
     is LigToken.Identifier -> this.toIdentifier()
     else -> Either.Left(LigError("Invalid Identifier $this."))
   }
@@ -84,10 +84,10 @@ fun LigToken.Identifier.toIdentifier(): Either<LigError, Identifier> =
   Identifier.create(name).mapLeft { LigError("Invalid Identifier $name.") }
 
 fun LigToken.toValue(): Either<LigError, Value> =
-  when(this) {
-    is LigToken.Identifier     -> this.toIdentifier()
+  when (this) {
+    is LigToken.Identifier -> this.toIdentifier()
     is LigToken.IntegerLiteral -> Either.Right(IntegerLiteral(this.value.toLong())) //TODO handle toLong errors
-    is LigToken.StringLiteral  -> Either.Right(StringLiteral(this.value))
+    is LigToken.StringLiteral -> Either.Right(StringLiteral(this.value))
     //TODO Bytes
     else -> Either.Left(LigError("Unknown Value Type -- $this")) //handle white space and new lines
   }

@@ -13,7 +13,7 @@ import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.startWith
 import io.ktor.server.application.*
 
-class LigatureHttpMemorySuite: LigatureHttpSuite() {
+class LigatureHttpMemorySuite : LigatureHttpSuite() {
   override fun Application.instanceModule() {
     routes(InMemoryLigature())
   }
