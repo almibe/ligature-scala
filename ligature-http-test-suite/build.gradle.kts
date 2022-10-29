@@ -1,10 +1,11 @@
 plugins {
-  kotlin("multiplatform")// version "1.7.10"
-//    alias(libs.plugins.kotlin.multiplatform)
+  kotlin("multiplatform") // version "1.7.10"
+  //    alias(libs.plugins.kotlin.multiplatform)
   alias(libs.plugins.kotest.multiplatform)
 }
 
 group = "dev.ligature"
+
 version = "0.1.0-SNAPSHOT"
 
 repositories {
@@ -13,23 +14,9 @@ repositories {
 }
 
 kotlin {
-  targets {
-    jvm {
-      compilations.all {
-        kotlinOptions {
-          jvmTarget = "1.8"
-        }
-      }
-    }
-  }
+  targets { jvm { compilations.all { kotlinOptions { jvmTarget = "1.8" } } } }
 
-  targets.all {
-    compilations.all {
-      kotlinOptions {
-        verbose = true
-      }
-    }
-  }
+  targets.all { compilations.all { kotlinOptions { verbose = true } } }
 
   sourceSets {
     val jvmMain by getting {
@@ -53,16 +40,14 @@ kotlin {
 
 tasks.named<Test>("jvmTest") {
   useJUnitPlatform()
-  filter {
-    isFailOnNoMatchingTests = false
-  }
+  filter { isFailOnNoMatchingTests = false }
   testLogging {
     showExceptions = true
     showStandardStreams = true
-    events = setOf(
-      org.gradle.api.tasks.testing.logging.TestLogEvent.FAILED,
-      org.gradle.api.tasks.testing.logging.TestLogEvent.PASSED
-    )
+    events =
+        setOf(
+            org.gradle.api.tasks.testing.logging.TestLogEvent.FAILED,
+            org.gradle.api.tasks.testing.logging.TestLogEvent.PASSED)
     exceptionFormat = org.gradle.api.tasks.testing.logging.TestExceptionFormat.FULL
   }
 }

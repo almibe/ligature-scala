@@ -19,6 +19,4 @@ interface WanderError {
 }
 
 suspend fun run(script: String, bindings: Bindings = common()): Either<WanderError, Element> =
-  tokenize(script)
-    .flatMap { tokens: List<Token> -> parse(tokens) }
-    .flatMap { eval(it, bindings) }
+    tokenize(script).flatMap { tokens: List<Token> -> parse(tokens) }.flatMap { eval(it, bindings) }

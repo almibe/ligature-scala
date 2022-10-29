@@ -13,25 +13,28 @@ import dev.ligature.wander.lexer.Token
 import dev.ligature.wander.model.Element
 import dev.ligature.wander.parser.Nibblers.scriptNib
 
-data class ParsingError(override val message: String): WanderError
+data class ParsingError(override val message: String) : WanderError
 
 fun parse(script: List<Token>): Either<ParsingError, List<Element>> {
-  val filteredInput = script.filter { token: Token ->
-    token !is Token.Comment && token !is Token.Spaces && token !is Token.NewLine
-  }.toList()
+  val filteredInput =
+      script
+          .filter { token: Token ->
+            token !is Token.Comment && token !is Token.Spaces && token !is Token.NewLine
+          }
+          .toList()
   val gaze = Gaze(filteredInput)
-  return when(val res = gaze.attempt(scriptNib)) {
+  return when (val res = gaze.attempt(scriptNib)) {
     null ->
-      if (gaze.isComplete) {
-        Right(listOf())
-      } else {
-        Left(ParsingError("No Match"))
-      }
+        if (gaze.isComplete) {
+          Right(listOf())
+        } else {
+          Left(ParsingError("No Match"))
+        }
     else ->
-      if (gaze.isComplete) {
-        Right(res) // .filter(_.isDefined).map(_.get)))
-      } else {
-        Left(ParsingError("Not complete - ${gaze.peek()}"))
-      }
+        if (gaze.isComplete) {
+          Right(res) // .filter(_.isDefined).map(_.get)))
+        } else {
+          Left(ParsingError("Not complete - ${gaze.peek()}"))
+        }
   }
 }

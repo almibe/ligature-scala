@@ -13,15 +13,16 @@ import dev.ligature.wander.model.write
 
 object WanderRepl {
   /**
-   * Create a set of bindings that contains all common bindings
-   * and an additional binding that returns a string of all Names that
-   * are bound.
+   * Create a set of bindings that contains all common bindings and an additional binding that
+   * returns a string of all Names that are bound.
    */
   private fun createBindings(): Bindings {
     val bindings = common()
-    bindings.bindVariable("bindings", Element.NativeFunction(listOf()) { _, _ ->
-      Right(Element.StringLiteral(bindings.names().joinToString { it }))
-    })
+    bindings.bindVariable(
+        "bindings",
+        Element.NativeFunction(listOf()) { _, _ ->
+          Right(Element.StringLiteral(bindings.names().joinToString { it }))
+        })
     return bindings
   }
 
@@ -32,8 +33,8 @@ object WanderRepl {
   }
 
   suspend fun eval(input: String): String =
-    when (val result = dev.ligature.wander.run(input, bindings)) {
-      is Right -> "- ${write(result.value)}"
-      is Left -> "X ${result.value.message}"
-    }
+      when (val result = dev.ligature.wander.run(input, bindings)) {
+        is Right -> "- ${write(result.value)}"
+        is Left -> "X ${result.value.message}"
+      }
 }

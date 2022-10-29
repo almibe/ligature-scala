@@ -4,7 +4,7 @@
 
 package dev.ligature.wander.library
 
-//def instanceModeBindings(bindings: Bindings): Bindings = {
+// def instanceModeBindings(bindings: Bindings): Bindings = {
 // function instanceScope(scope: ExecutionScope, bindings: Bindings) {
 //     // allDatasets(): Promise<Array<Dataset>>;
 //     bindings.bind(Name("allDatasets"), NativeFunction([], (_bindings: Bindings) => {
@@ -15,11 +15,13 @@ package dev.ligature.wander.library
 //         return TODO()
 //     }))
 //     // matchDatasetPrefix(prefix: string): Promise<Array<Dataset>>;
-//     bindings.bind(Name("matchDatasetPrefix"), NativeFunction(["prefix"], (_bindings: Bindings) => {
+//     bindings.bind(Name("matchDatasetPrefix"), NativeFunction(["prefix"], (_bindings: Bindings) =>
+// {
 //         return TODO()
 //     }))
 //     // matchDatasetRange(start: string, end: string): Promise<Array<Dataset>>;
-//     bindings.bind(Name("matchDatasetRange"), NativeFunction(["start", "end"], (_bindings: Bindings) => {
+//     bindings.bind(Name("matchDatasetRange"), NativeFunction(["start", "end"], (_bindings:
+// Bindings) => {
 //         return TODO()
 //     }))
 //     // createDataset(dataset: Dataset): Promise<Dataset>;

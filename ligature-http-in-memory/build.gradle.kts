@@ -1,11 +1,12 @@
 plugins {
-//    alias(libs.plugins.kotlin.multiplatform)
-//    alias(libs.plugins.kotest.multiplatform)
+  //    alias(libs.plugins.kotlin.multiplatform)
+  //    alias(libs.plugins.kotest.multiplatform)
   kotlin
   application
 }
 
 group = "dev.ligature"
+
 version = "0.1.0-SNAPSHOT"
 
 repositories {
@@ -39,12 +40,8 @@ dependencies {
 //            }
 //        }
 //    }
-//}
+// }
 
-tasks.withType<Test>().configureEach {
-  useJUnitPlatform()
-}
+tasks.withType<Test>().configureEach { useJUnitPlatform() }
 
-application {
-  mainClass.set("dev.ligature.http.memory.LigatureHttpInMemoryKt")
-}
+application { mainClass.set("dev.ligature.http.memory.LigatureHttpInMemoryKt") }

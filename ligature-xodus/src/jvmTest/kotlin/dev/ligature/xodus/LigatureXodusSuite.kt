@@ -9,10 +9,10 @@ import dev.ligature.testsuite.LigatureTestSuite
 import io.kotest.common.runBlocking
 import io.kotest.core.test.TestCase
 import io.kotest.core.test.TestResult
-import java.nio.file.*
 import java.io.File
+import java.nio.file.*
 
-class LigatureXodusSuite: LigatureTestSuite() {
+class LigatureXodusSuite : LigatureTestSuite() {
   lateinit var path: Path
   lateinit var ligatureInstance: Ligature
 

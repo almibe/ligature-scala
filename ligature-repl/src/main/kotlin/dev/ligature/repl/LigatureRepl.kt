@@ -13,22 +13,20 @@ import org.jline.reader.LineReaderBuilder
 import org.jline.reader.UserInterruptException
 import org.jline.terminal.TerminalBuilder
 
-data class LigatureInstance(
-  val instance: Ligature,
-  val displayName: String
-)
+data class LigatureInstance(val instance: Ligature, val displayName: String)
 
 suspend fun main() {
   var ligatureInstance = LigatureInstance(InMemoryLigature(), "In-Memory")
   val terminal = TerminalBuilder.terminal()
-  val reader = LineReaderBuilder.builder()
-    .terminal(terminal)
-//    .completer(completer)
-//    .parser(parser)
-    .variable(LineReader.SECONDARY_PROMPT_PATTERN, "%M%P > ")
-    .variable(LineReader.INDENTATION, 2)
-    .option(Option.INSERT_BRACKET, true)
-    .build()
+  val reader =
+      LineReaderBuilder.builder()
+          .terminal(terminal)
+          //    .completer(completer)
+          //    .parser(parser)
+          .variable(LineReader.SECONDARY_PROMPT_PATTERN, "%M%P > ")
+          .variable(LineReader.INDENTATION, 2)
+          .option(Option.INSERT_BRACKET, true)
+          .build()
 
   val prompt = "> "
 

@@ -21,10 +21,7 @@ class Bindings {
   fun addScope() = this.scopes.add(BindingScope())
   fun removeScope() = this.scopes.removeLast()
 
-  fun bindVariable(
-      name: String,
-      bindValue: Element
-  ): Either<EvalError, Unit> {
+  fun bindVariable(name: String, bindValue: Element): Either<EvalError, Unit> {
     val currentScope = this.scopes.last()
     return if (currentScope.variables.contains(name)) {
       Left(EvalError("$name is already bound in current scope."))
@@ -34,16 +31,17 @@ class Bindings {
     }
   }
 
-  inline fun <reified T: Element>read(name: String,
-                                    @Suppress("UNUSED_PARAMETER") clazz: KClass<T>? = null
+  inline fun <reified T : Element> read(
+      name: String,
+      @Suppress("UNUSED_PARAMETER") clazz: KClass<T>? = null
   ): Either<EvalError, T> =
-    when (val value = readValue(name)) {
-      is Right -> {
-        if (value.value is T) Right(value.value as T)
-        else Left(EvalError("Could not read $name with correct type, found ${value.value}."))
+      when (val value = readValue(name)) {
+        is Right -> {
+          if (value.value is T) Right(value.value as T)
+          else Left(EvalError("Could not read $name with correct type, found ${value.value}."))
+        }
+        is Left -> value
       }
-      is Left -> value
-    }
 
   fun readValue(name: String): Either<EvalError, Element> {
     var currentScopeOffset = this.scopes.size - 1
@@ -59,9 +57,7 @@ class Bindings {
 
   fun names(): Set<String> {
     val names = mutableSetOf<String>()
-    scopes.forEach {
-      names.addAll(it.variables.keys)
-    }
+    scopes.forEach { names.addAll(it.variables.keys) }
     return names
   }
 }

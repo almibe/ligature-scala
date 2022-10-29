@@ -1,12 +1,13 @@
 plugins {
-//    alias(libs.plugins.kotlin.multiplatform)
-//    alias(libs.plugins.kotest.multiplatform)
+  //    alias(libs.plugins.kotlin.multiplatform)
+  //    alias(libs.plugins.kotest.multiplatform)
   kotlin
   application
   id("com.github.johnrengelman.shadow") version "7.1.2"
 }
 
 group = "dev.ligature"
+
 version = "0.1.0-SNAPSHOT"
 
 repositories {
@@ -42,12 +43,8 @@ dependencies {
 //            }
 //        }
 //    }
-//}
+// }
 
-tasks.withType<Test>().configureEach {
-  useJUnitPlatform()
-}
+tasks.withType<Test>().configureEach { useJUnitPlatform() }
 
-application {
-  mainClass.set("dev.ligature.repl.LigatureReplKt")
-}
+application { mainClass.set("dev.ligature.repl.LigatureReplKt") }

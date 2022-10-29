@@ -9,7 +9,6 @@ import dev.ligature.Ligature
 import dev.ligature.QueryTx
 import dev.ligature.Statement
 import dev.ligature.WriteTx
-
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
@@ -30,98 +29,89 @@ class InMemoryLigature : Ligature {
   }
 
   /** Check if a given Dataset exists. */
-  override suspend fun datasetExists(dataset: Dataset): Boolean = mutex.withLock {
-    store.contains(dataset)
+  override suspend fun datasetExists(dataset: Dataset): Boolean =
+      mutex.withLock { store.contains(dataset) }
+
+  /** Returns all Datasets in a Ligature instance that start with the given prefix. */
+  override fun matchDatasetsPrefix(prefix: String): Flow<Dataset> = flow {
+    mutex.withLock { store.keys.filter { it.name.startsWith(prefix) }.forEach { emit(it) } }
   }
 
-  /** Returns all Datasets in a Ligature instance that start with the given
-   * prefix.
+  /**
+   * Returns all Datasets in a Ligature instance that are in a given range (inclusive, exclusive].
    */
-  override fun matchDatasetsPrefix(prefix: String): Flow<Dataset> =
-    flow {
+  override fun matchDatasetsRange(start: String, end: String): Flow<Dataset> = flow {
+    mutex.withLock { store.keys.filter { it.name >= start && it.name < end }.forEach { emit(it) } }
+  }
+
+  /**
+   * Creates a dataset with the given name. TODO should probably return its own error type {
+   * InvalidDataset, DatasetExists, CouldNotCreateDataset }
+   */
+  override suspend fun createDataset(dataset: Dataset): Unit =
       mutex.withLock {
-        store.keys.filter { it.name.startsWith(prefix) }.forEach { emit(it) }
+        if (!store.contains(dataset)) {
+          store[dataset] = DatasetStore(0L, mutableSetOf())
+        }
       }
-    }
 
-  /** Returns all Datasets in a Ligature instance that are in a given range
-   * (inclusive, exclusive].
+  /**
+   * Deletes a dataset with the given name. TODO should probably return its own error type {
+   * InvalidDataset, CouldNotDeleteDataset }
    */
-  override fun matchDatasetsRange(
-    start: String,
-    end: String
-  ): Flow<Dataset> = flow {
-    mutex.withLock {
-      store.keys.filter { it.name >= start && it.name < end }.forEach { emit(it) }
-    }
-  }
+  override suspend fun deleteDataset(dataset: Dataset): Unit =
+      mutex.withLock { store.remove(dataset) }
 
-  /** Creates a dataset with the given name. TODO should probably return its own
-   * error type { InvalidDataset, DatasetExists, CouldNotCreateDataset }
-   */
-  override suspend fun createDataset(dataset: Dataset): Unit = mutex.withLock {
-    if (!store.contains(dataset)) {
-      store[dataset] = DatasetStore(0L, mutableSetOf())
-    }
-  }
-
-  /** Deletes a dataset with the given name. TODO should probably return its own
-   * error type { InvalidDataset, CouldNotDeleteDataset }
-   */
-  override suspend fun deleteDataset(dataset: Dataset): Unit = mutex.withLock {
-    store.remove(dataset)
-  }
-
-  /** Initializes a QueryTx TODO should probably return its own error type
-   * CouldNotInitializeQueryTx
+  /**
+   * Initializes a QueryTx TODO should probably return its own error type CouldNotInitializeQueryTx
    */
   override suspend fun <T> query(dataset: Dataset, fn: suspend (QueryTx) -> T): T =
-    mutex.withLock {
-      val ds = store[dataset]
-      if (ds != null) {
-        val tx = InMemoryQueryTx(ds)
-        fn(tx)
-      } else {
-        TODO("handle case of DS not existing")
+      mutex.withLock {
+        val ds = store[dataset]
+        if (ds != null) {
+          val tx = InMemoryQueryTx(ds)
+          fn(tx)
+        } else {
+          TODO("handle case of DS not existing")
+        }
       }
-    }
 
-  /** Initializes a WriteTx TODO should probably return its own error type
-   * CouldNotInitializeWriteTx
+  /**
+   * Initializes a WriteTx TODO should probably return its own error type CouldNotInitializeWriteTx
    */
   override suspend fun <T> write(dataset: Dataset, fn: suspend (WriteTx) -> T): T =
-    mutex.withLock {
-      val ds = store[dataset]
-      if (ds != null) {
-        val tx = InMemoryWriteTx(ds)
-        try {
-          fn(tx)
-        } finally {
-          tx.close()
+      mutex.withLock {
+        val ds = store[dataset]
+        if (ds != null) {
+          val tx = InMemoryWriteTx(ds)
+          try {
+            fn(tx)
+          } finally {
+            tx.close()
+          }
+        } else {
+          TODO("handle case of DS not existing")
         }
-      } else {
-        TODO("handle case of DS not existing")
       }
-    }
-//    IO {
-//      val ds = this.store.get.get(dataset)
-//      ds match {
-//        case Some(ds) =>
-//          val tx = InMemoryWriteTx(ds)
-//          tx
-//        case None =>
-//          throw RuntimeException(
-//            ""
-//          ) // WriteResult.WriteError(s"Could not write to ${dataset.name}"))
-//      }
-//    }.bracket(tx => fn(tx))(tx =>
-//      IO {
-//        val newStore =
-//          this.store.get.updated(dataset, tx.modifiedDatasetStore())
-//        this.store.set(newStore)
-//        ()
-//      }
-//    )
+  //    IO {
+  //      val ds = this.store.get.get(dataset)
+  //      ds match {
+  //        case Some(ds) =>
+  //          val tx = InMemoryWriteTx(ds)
+  //          tx
+  //        case None =>
+  //          throw RuntimeException(
+  //            ""
+  //          ) // WriteResult.WriteError(s"Could not write to ${dataset.name}"))
+  //      }
+  //    }.bracket(tx => fn(tx))(tx =>
+  //      IO {
+  //        val newStore =
+  //          this.store.get.updated(dataset, tx.modifiedDatasetStore())
+  //        this.store.set(newStore)
+  //        ()
+  //      }
+  //    )
 
   // def write(dataset: Dataset): Resource[IO, WriteTx] = { //TODO acquire write lock
   //     val l = lock.writeLock()
@@ -144,12 +134,8 @@ class InMemoryLigature : Ligature {
   // }
 
   /**
-   * Note: Currently for the In Memory implementation, close just wipes the
-   * store and doesn't actually close anything.
-   * This might change.
+   * Note: Currently for the In Memory implementation, close just wipes the store and doesn't
+   * actually close anything. This might change.
    */
-  override suspend fun close(): Unit =
-    mutex.withLock {
-      store.clear()
-    }
+  override suspend fun close(): Unit = mutex.withLock { store.clear() }
 }

@@ -4,26 +4,27 @@
  * This project uses @Incubating APIs which are subject to change.
  */
 
-//plugins {
+// plugins {
 //    id("dev.ligature.kotlin-library-conventions")
-//}
+// }
 //
-//kotlin {
+// kotlin {
 //    sourceSets {
 //        commonMain{
 //            dependencies {
 //            }
 //        }
 //    }
-//}
+// }
 
 plugins {
-  kotlin("multiplatform")// version "1.7.10"
-//    alias(libs.plugins.kotlin.multiplatform)
+  kotlin("multiplatform") // version "1.7.10"
+  //    alias(libs.plugins.kotlin.multiplatform)
   alias(libs.plugins.kotest.multiplatform)
 }
 
 group = "dev.ligature"
+
 version = "0.1.0-SNAPSHOT"
 
 repositories {
@@ -32,23 +33,9 @@ repositories {
 }
 
 kotlin {
-  targets {
-    jvm {
-      compilations.all {
-        kotlinOptions {
-          jvmTarget = "1.8"
-        }
-      }
-    }
-  }
+  targets { jvm { compilations.all { kotlinOptions { jvmTarget = "1.8" } } } }
 
-  targets.all {
-    compilations.all {
-      kotlinOptions {
-        verbose = true
-      }
-    }
-  }
+  targets.all { compilations.all { kotlinOptions { verbose = true } } }
 
   sourceSets {
     val jvmMain by getting {
@@ -67,8 +54,8 @@ kotlin {
   }
 }
 
-//tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile>().configureEach {
+// tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile>().configureEach {
 //    kotlinOptions {
 //        apiVersion = "1.5"
 //    }
-//}
+// }

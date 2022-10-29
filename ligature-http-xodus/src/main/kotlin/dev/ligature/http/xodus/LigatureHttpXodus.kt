@@ -4,26 +4,23 @@
 
 package dev.ligature.http.xodus
 
-import io.ktor.server.engine.*
-import io.ktor.server.netty.*
-
-import dev.ligature.xodus.XodusLigature
+import dev.ligature.http.*
 import dev.ligature.http.AuthMode
 import dev.ligature.http.routes
-import dev.ligature.http.*
+import dev.ligature.xodus.XodusLigature
+import io.ktor.server.engine.*
+import io.ktor.server.netty.*
 import java.io.File
-import java.nio.file.Files
 
 data class LigatureConf(
-  val port: Int = 4200,
-  val authMode: AuthMode = AuthMode.None,
-  val location: String? = null
+    val port: Int = 4200,
+    val authMode: AuthMode = AuthMode.None,
+    val location: String? = null
 )
 
 fun main() {
-  val directory = File("${System.getProperty("user.home")}${System.getProperty("file.separator")}.ligature")
+  val directory =
+      File("${System.getProperty("user.home")}${System.getProperty("file.separator")}.ligature")
   val ligature = XodusLigature(directory)
-  embeddedServer(Netty, port = 4200, host = "0.0.0.0") {
-    routes(ligature)
-  }.start(wait = true)
+  embeddedServer(Netty, port = 4200, host = "0.0.0.0") { routes(ligature) }.start(wait = true)
 }

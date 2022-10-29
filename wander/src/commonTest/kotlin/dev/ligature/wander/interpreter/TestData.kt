@@ -17,46 +17,41 @@ data class TestData(
 )
 
 data class TestInstance(
-  val description: String,
-  val script: String,
-  val result: Either<EvalError, Element>
+    val description: String,
+    val script: String,
+    val result: Either<EvalError, Element>
 )
 
-//NOTE: New lines are hard coded as \n because sometimes on Windows
-//the two types of new lines get mixed up in the codebase between the editor and Scalafmt.
-//Not ideal, but it works consistently at least.
-val newLine = "\n" //sys.props("line.separator")
+// NOTE: New lines are hard coded as \n because sometimes on Windows
+// the two types of new lines get mixed up in the codebase between the editor and Scalafmt.
+// Not ideal, but it works consistently at least.
+val newLine = "\n" // sys.props("line.separator")
 
-val testData = listOf(
-  TestData(
-    category = "Primitives",
-    dataset = Dataset.create("test").getOrElse { throw Error("Unexpected error.") },
-    testInstances = primitivesTestData
-  ),
-  TestData(
-    category = "Assignment",
-    dataset = Dataset.create("test").getOrElse { throw Error("Unexpected error.") },
-    testInstances = assignmentTestData
-  ),
-  TestData(
-    category = "Closures",
-    dataset = Dataset.create("test").getOrElse { throw Error("Unexpected error.") },
-    testInstances = closureTestData
-  ),
-  TestData(
-    category = "Boolean Functions",
-    dataset = Dataset.create("test").getOrElse { throw Error("Unexpected error.") },
-    testInstances = booleanExpression
-  ),
-  TestData(
-    category = "If Expressions",
-    dataset = Dataset.create("test").getOrElse { throw Error("Unexpected error.") },
-    testInstances = ifExpression
-  ),
-  TestData(
-    category = "Common Lib",
-    dataset = Dataset.create("test").getOrElse { throw Error("Unexpected error.") },
-    testInstances = commonLib
-  )
-  // TODO add error cases
-)
+val testData =
+    listOf(
+        TestData(
+            category = "Primitives",
+            dataset = Dataset.create("test").getOrElse { throw Error("Unexpected error.") },
+            testInstances = primitivesTestData),
+        TestData(
+            category = "Assignment",
+            dataset = Dataset.create("test").getOrElse { throw Error("Unexpected error.") },
+            testInstances = assignmentTestData),
+        TestData(
+            category = "Closures",
+            dataset = Dataset.create("test").getOrElse { throw Error("Unexpected error.") },
+            testInstances = closureTestData),
+        TestData(
+            category = "Boolean Functions",
+            dataset = Dataset.create("test").getOrElse { throw Error("Unexpected error.") },
+            testInstances = booleanExpression),
+        TestData(
+            category = "If Expressions",
+            dataset = Dataset.create("test").getOrElse { throw Error("Unexpected error.") },
+            testInstances = ifExpression),
+        TestData(
+            category = "Common Lib",
+            dataset = Dataset.create("test").getOrElse { throw Error("Unexpected error.") },
+            testInstances = commonLib)
+        // TODO add error cases
+        )

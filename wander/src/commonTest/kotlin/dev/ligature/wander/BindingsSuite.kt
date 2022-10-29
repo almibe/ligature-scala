@@ -10,7 +10,7 @@ import dev.ligature.wander.model.Element
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 
-class BindingsSuite: FunSpec() {
+class BindingsSuite : FunSpec() {
   private val name1 = "test"
   private val name2 = "test2"
 
