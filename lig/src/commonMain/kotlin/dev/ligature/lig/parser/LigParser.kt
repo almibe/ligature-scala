@@ -16,7 +16,7 @@ private fun String.allIndices(pattern: String): List<Int> {
   var cont = true
   var currentIndex = 0
   val results = mutableListOf<Int>()
-  while(cont) {
+  while (cont) {
     val index = this.indexOf(pattern, currentIndex)
     if (index == -1) {
       cont = false
@@ -32,20 +32,23 @@ private fun String.allIndices(pattern: String): List<Int> {
 }
 
 fun parse(input: List<LigToken>): Either<LigError, List<Statement>> {
-  //TODO the below is a quick work around, eventually this should use the
-  //TODO generator used by the Ligature instance
-  val input = input.map {
-    if (it is LigToken.GeneratedIdentifier) {
-      val indices = it.name.allIndices("{}")
-      if (indices.size == 1) {
-        LigToken.Identifier(it.name.replace("{}", genId()))
-      } else {
-        TODO("Return error, invalid identifier")
+  // TODO the below is a quick work around, eventually this should use the
+  // TODO generator used by the Ligature instance
+  println("Input1 - ${input}")
+  val input =
+      input.map {
+        if (it is LigToken.GeneratedIdentifier) {
+          val indices = it.name.allIndices("{}")
+          if (indices.size == 1) {
+            LigToken.Identifier(it.name.replace("{}", genId()))
+          } else {
+            TODO("Return error, invalid identifier")
+          }
+        } else {
+          it
+        }
       }
-    } else {
-      it
-    }
-  }
+  println("Input2 - ${input}")
 
   val gaze = Gaze(input)
   val statements = mutableListOf<Statement>()
@@ -80,7 +83,7 @@ private fun stripNewLinesAndWhiteSpace(gaze: Gaze<LigToken>): Boolean {
   return foundNewLine
 }
 
-val statementNibbler: Nibbler<LigToken, Statement> =
+val statementNibbler: Nibbler<LigToken, Statement> = //Either<LigError, Statement>> =
     takeAll<LigToken, LigToken>(
             optional(take(LigToken.WhiteSpace)),
             takeCond { it is LigToken.Identifier },

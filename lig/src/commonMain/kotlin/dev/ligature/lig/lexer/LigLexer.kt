@@ -4,7 +4,11 @@
 
 package dev.ligature.lig.lexer
 
+import arrow.core.Either
+import arrow.core.Either.Left
+import arrow.core.Either.Right
 import dev.ligature.gaze.*
+import dev.ligature.lig.LigError
 import dev.ligature.lig.LigNibblers
 
 sealed interface LigToken {
@@ -20,7 +24,7 @@ sealed interface LigToken {
   data class BytesLiteral(val value: String) : LigToken
 }
 
-fun tokenize(input: String): List<LigToken> {
+fun tokenize(input: String): Either<LigError, List<LigToken>> {
   val gaze = Gaze.from(input)
   val tokens = mutableListOf<LigToken>()
   while (!gaze.isComplete) {
@@ -37,14 +41,14 @@ fun tokenize(input: String): List<LigToken> {
             ))
     when (res) {
       null -> {
-        TODO("Return Left here ${gaze.isComplete}\n${gaze.peek()}")
+        return Left(LigError("Could not parse ligature @${gaze.location}"))
       }
       else -> {
         tokens.addAll(res)
       }
     }
   }
-  return tokens
+  return Right(tokens)
 }
 
 object TokenNibblers {
@@ -58,7 +62,9 @@ object TokenNibblers {
       LigNibblers.identifierNibbler.map { listOf(LigToken.Identifier(it.joinToString(""))) }
 
   val generatedIdentifierNibbler =
-    LigNibblers.generatedIdentifierNibbler.map { listOf(LigToken.Identifier(it.joinToString(""))) }
+      LigNibblers.generatedIdentifierNibbler.map {
+        listOf(LigToken.GeneratedIdentifier(it.joinToString("")))
+      }
 
   val integerNibbler =
       LigNibblers.integerNibbler.map { listOf(LigToken.IntegerLiteral(it.joinToString(""))) }

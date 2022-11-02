@@ -72,7 +72,13 @@ class Handlers(private val ligature: Ligature) {
             ligature.write(dataset.value) { wx -> statements.value.forEach { wx.addStatement(it) } }
             call.respondText("Added ${statements.value.size} statements.")
           }
-          is Left -> TODO("Report error reading Lig.")
+          is Left -> {
+            // TODO return 400 with error from lig parser
+            call.respondText(
+                "Error processing Lig.\n${statements.value}",
+                ContentType.Text.Plain,
+                HttpStatusCode.BadRequest)
+          }
         }
       }
       is Left -> TODO("Return invalid Dataset name error")

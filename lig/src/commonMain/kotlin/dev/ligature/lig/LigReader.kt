@@ -5,19 +5,23 @@
 package dev.ligature.lig
 
 import arrow.core.Either
+import arrow.core.Either.Left
+import arrow.core.Either.Right
 import dev.ligature.*
 import dev.ligature.gaze.*
 import dev.ligature.idgen.genId
 import dev.ligature.lig.LigNibblers.whiteSpaceNibbler
 import dev.ligature.lig.lexer.tokenize
 import dev.ligature.lig.parser.parse
+import kotlin.jvm.JvmInline
 
-data class LigError(val message: String)
+@JvmInline value class LigError(override val userMessage: String) : LigatureError
 
-fun read(input: String): Either<LigError, List<Statement>> {
-  val tokens = tokenize(input)
-  return parse(tokens)
-}
+fun read(input: String): Either<LigError, List<Statement>> =
+    when (val tokens = tokenize(input)) {
+      is Left -> Left(tokens.value)
+      is Right -> parse(tokens.value)
+    }
 
 // def read(input: String): Either[LigError, List[Statement]] = {
 //  val gaze = Gaze.from(input)
@@ -320,6 +324,7 @@ fun handlePrefixedGenId(
 //      is Some -> return Either.Right(lastValue.value)
 //    }
 //  }
+
 
 
 //  val entityRes = parseIdentifier(

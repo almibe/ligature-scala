@@ -19,10 +19,12 @@ object LigNibblers {
           takeString(">"))
 
   val generatedIdentifierNibbler =
-    between(
-      takeString("<"),
-      takeWhile { c -> Regex("[a-zA-Z0-9-._~:/?#\\[\\]@!$&'()*+,;%={}]").matches(c.toString()) },
-      takeString(">"))
+      between(
+          takeString("<"),
+          takeWhile { c ->
+            Regex("[a-zA-Z0-9-._~:/?#\\[\\]@!$&'()*+,;%={}]").matches(c.toString())
+          },
+          takeString(">"))
 
   val integerNibbler = takeAll(optional(takeString("-")), takeWhile { it.isDigit() })
 
@@ -98,7 +100,7 @@ object LigNibblers {
   val prefixNameNibbler =
       takeCharacters(
           *validPrefixName) // matches _a-zA-Z0-9, TODO probably shouldn't make names that start
-                            // with numbers
+  // with numbers
   val copyNibbler = takeString("^") // matches ^
 
   val idGenNibbler = takeString("{}") // matches {}
