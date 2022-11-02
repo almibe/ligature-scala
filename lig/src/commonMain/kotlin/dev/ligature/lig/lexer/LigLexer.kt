@@ -11,7 +11,7 @@ sealed interface LigToken {
   //  data class Term(val value: String): LigToken
   //  object Equals: LigToken
   data class Identifier(val name: String) : LigToken
-
+  data class GeneratedIdentifier(val name: String) : LigToken
   //  object Copy: LigToken
   object NewLine : LigToken
   object WhiteSpace : LigToken
@@ -28,6 +28,7 @@ fun tokenize(input: String): List<LigToken> {
         gaze.attempt<LigToken>(
             takeFirst(
                 TokenNibblers.identifierNibbler,
+                TokenNibblers.generatedIdentifierNibbler,
                 TokenNibblers.whiteSpaceNibbler,
                 TokenNibblers.newLineNibbler,
                 TokenNibblers.stringNibbler,
@@ -55,6 +56,9 @@ object TokenNibblers {
 
   val identifierNibbler =
       LigNibblers.identifierNibbler.map { listOf(LigToken.Identifier(it.joinToString(""))) }
+
+  val generatedIdentifierNibbler =
+    LigNibblers.generatedIdentifierNibbler.map { listOf(LigToken.Identifier(it.joinToString(""))) }
 
   val integerNibbler =
       LigNibblers.integerNibbler.map { listOf(LigToken.IntegerLiteral(it.joinToString(""))) }

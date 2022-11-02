@@ -18,6 +18,12 @@ object LigNibblers {
           takeWhile { c -> Regex("[a-zA-Z0-9-._~:/?#\\[\\]@!$&'()*+,;%=]").matches(c.toString()) },
           takeString(">"))
 
+  val generatedIdentifierNibbler =
+    between(
+      takeString("<"),
+      takeWhile { c -> Regex("[a-zA-Z0-9-._~:/?#\\[\\]@!$&'()*+,;%={}]").matches(c.toString()) },
+      takeString(">"))
+
   val integerNibbler = takeAll(optional(takeString("-")), takeWhile { it.isDigit() })
 
   val bytesNibbler =

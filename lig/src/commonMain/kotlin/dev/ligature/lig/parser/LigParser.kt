@@ -8,17 +8,51 @@ import arrow.core.Either
 import arrow.core.continuations.eagerEffect
 import dev.ligature.*
 import dev.ligature.gaze.*
+import dev.ligature.idgen.genId
 import dev.ligature.lig.LigError
 import dev.ligature.lig.lexer.LigToken
 
+private fun String.allIndices(pattern: String): List<Int> {
+  var cont = true
+  var currentIndex = 0
+  val results = mutableListOf<Int>()
+  while(cont) {
+    val index = this.indexOf(pattern, currentIndex)
+    if (index == -1) {
+      cont = false
+    } else {
+      results.add(index)
+      currentIndex = index + pattern.length
+      if (currentIndex >= this.length) {
+        cont = false
+      }
+    }
+  }
+  return results
+}
+
 fun parse(input: List<LigToken>): Either<LigError, List<Statement>> {
+  //TODO the below is a quick work around, eventually this should use the
+  //TODO generator used by the Ligature instance
+  val input = input.map {
+    if (it is LigToken.GeneratedIdentifier) {
+      val indices = it.name.allIndices("{}")
+      if (indices.size == 1) {
+        LigToken.Identifier(it.name.replace("{}", genId()))
+      } else {
+        TODO("Return error, invalid identifier")
+      }
+    } else {
+      it
+    }
+  }
+
   val gaze = Gaze(input)
   val statements = mutableListOf<Statement>()
   stripNewLinesAndWhiteSpace(gaze)
   var foundNewLine = true
   while (!gaze.isComplete && foundNewLine) {
-    val res = gaze.attempt(statementNibbler)
-    when (res) {
+    when (val res = gaze.attempt(statementNibbler)) {
       null -> TODO()
       else -> statements.addAll(res)
     }
