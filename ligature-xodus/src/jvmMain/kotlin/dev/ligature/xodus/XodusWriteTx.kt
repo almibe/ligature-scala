@@ -4,6 +4,7 @@
 
 package dev.ligature.xodus
 
+import arrow.core.Either
 import arrow.core.Either.Left
 import arrow.core.Either.Right
 import dev.ligature.*
@@ -142,7 +143,7 @@ class XodusWriteTx(
   }
 
   /** Returns an ID that doesn't exist within this Dataset. */
-  override suspend fun newIdentifier(prefix: String): Identifier {
+  override suspend fun newIdentifier(prefix: String): Either<LigatureError, Identifier> {
     var newIdentifier = Identifier.create("$prefix${genId()}")
     return when (newIdentifier) {
       is Right -> {
@@ -157,10 +158,10 @@ class XodusWriteTx(
             encodedIdentifier = StringBinding.stringToEntry(id.name)
           }
         }
-        newIdentifier.orNull()!!
+        Right(newIdentifier.orNull()!!)
       }
       is Left -> {
-        TODO()
+        return newIdentifier
       }
     }
   }

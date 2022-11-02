@@ -4,6 +4,7 @@
 
 package dev.ligature.inmemory
 
+import arrow.core.Either
 import dev.ligature.*
 import dev.ligature.idgen.genId
 
@@ -17,8 +18,8 @@ class InMemoryWriteTx(private val store: DatasetStore) : WriteTx {
   private val operations = mutableListOf<Operation>()
 
   /** Creates a new, unique Entity within this Dataset. */
-  override suspend fun newIdentifier(prefix: String): Identifier {
-    return Identifier(prefix + genId()) // TODO check that id doesn't exist
+  override suspend fun newIdentifier(prefix: String): Either<LigatureError, Identifier> {
+    return Identifier.create(prefix + genId()) // TODO check that id doesn't exist
   }
 
   //  private def newAnonymousEntityInternal(

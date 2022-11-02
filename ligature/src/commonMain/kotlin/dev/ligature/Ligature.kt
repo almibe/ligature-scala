@@ -8,13 +8,20 @@ import arrow.core.Either
 import arrow.core.Either.Left
 import arrow.core.Either.Right
 import kotlin.jvm.JvmInline
-import kotlinx.coroutines.*
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.Flow
+
+interface LigatureError {
+  val userMessage: String
+}
 
 val datasetPattern = Regex("^([a-zA-Z_][a-zA-Z0-9_]*)(/[a-zA-Z_][a-zA-Z0-9_]*)*$")
 val identifierPattern = Regex("^[a-zA-Z0-9-._~:/?#\\[\\]@!$&'()*+,;%=]+$")
 
-@JvmInline value class InvalidDataset(val invalidName: String)
+@JvmInline
+value class InvalidDataset(val invalidName: String) : LigatureError {
+  override val userMessage: String
+    get() = "Invalid Dataset name - $invalidName"
+}
 
 @JvmInline
 value class Dataset /*private constructor*/(val name: String) :
@@ -28,7 +35,11 @@ value class Dataset /*private constructor*/(val name: String) :
   }
 }
 
-@JvmInline value class InvalidIdentifier(val invalidName: String)
+@JvmInline
+value class InvalidIdentifier(val invalidName: String) : LigatureError {
+  override val userMessage: String
+    get() = "Invalid Identifier name - $invalidName"
+}
 
 @JvmInline
 value class Identifier(val name: String) :
@@ -42,8 +53,6 @@ value class Identifier(val name: String) :
         else Left(InvalidIdentifier(name))
   }
 }
-
-data class LigatureError(val message: String) // TODO make interface or abstract class?
 
 sealed interface Value
 
@@ -78,43 +87,38 @@ data class Statement(val entity: Identifier, val attribute: Identifier, val valu
 interface Ligature {
 
   /** Returns all Datasets in a Ligature instance. */
-  fun allDatasets(): Flow<Dataset>
+  fun allDatasets(): Either<LigatureError, Flow<Dataset>>
 
   /** Check if a given Dataset exists. */
-  suspend fun datasetExists(dataset: Dataset): Boolean
+  suspend fun datasetExists(dataset: Dataset): Either<LigatureError, Boolean>
 
   /** Returns all Datasets in a Ligature instance that start with the given prefix. */
-  fun matchDatasetsPrefix(prefix: String): Flow<Dataset>
+  fun matchDatasetsPrefix(prefix: String): Either<LigatureError, Flow<Dataset>>
 
   /**
    * Returns all Datasets in a Ligature instance that are in a given range (inclusive, exclusive].
    */
-  fun matchDatasetsRange(start: String, end: String): Flow<Dataset>
+  fun matchDatasetsRange(start: String, end: String): Either<LigatureError, Flow<Dataset>>
 
   /**
    * Creates a dataset with the given name. TODO should probably return its own error type {
    * InvalidDataset, DatasetExists, CouldNotCreateDataset }
    */
-  suspend fun createDataset(dataset: Dataset): Unit
+  suspend fun createDataset(dataset: Dataset): Either<LigatureError, Unit>
 
   /**
    * Deletes a dataset with the given name. TODO should probably return its own error type {
    * InvalidDataset, CouldNotDeleteDataset }
    */
-  suspend fun deleteDataset(dataset: Dataset): Unit
+  suspend fun deleteDataset(dataset: Dataset): Either<LigatureError, Unit>
 
-  /**
-   * Initializes a QueryTx TODO should probably return its own error type CouldNotInitializeQueryTx
-   */
-  suspend fun <T> query(dataset: Dataset, fn: suspend (QueryTx) -> T): T
+  /** Run a QueryTx. */
+  suspend fun <T> query(dataset: Dataset, fn: suspend (QueryTx) -> T): Either<LigatureError, T>
 
-  /**
-   * Initializes a WriteTx TODO should probably return IO[Either] w/ its own error type
-   * CouldNotInitializeWriteTx
-   */
-  suspend fun <T> write(dataset: Dataset, fn: suspend (WriteTx) -> T): T
+  /** Run a WriteTx. */
+  suspend fun <T> write(dataset: Dataset, fn: suspend (WriteTx) -> T): Either<LigatureError, T>
 
-  suspend fun close(): Unit
+  suspend fun close(): Either<LigatureError, Unit>
 }
 
 /** Represents a QueryTx within the context of a Ligature instance and a single Dataset */
@@ -145,12 +149,11 @@ interface QueryTx {
 
 /** Represents a WriteTx within the context of a Ligature instance and a single Dataset */
 interface WriteTx {
-
   /**
    * Creates a new, unique Entity within this Dataset by combining a UUID and an optional prefix.
    * Note: Entities are shared across named graphs in a given Dataset.
    */
-  suspend fun newIdentifier(prefix: String = ""): Identifier
+  suspend fun newIdentifier(prefix: String = ""): Either<LigatureError, Identifier>
 
   /** Adds a given Statement to this Dataset. If the Statement already exists nothing happens. */
   suspend fun addStatement(statement: Statement): Unit

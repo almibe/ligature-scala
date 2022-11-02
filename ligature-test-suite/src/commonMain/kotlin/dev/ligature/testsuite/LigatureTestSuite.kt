@@ -4,6 +4,8 @@
 
 package dev.ligature.testsuite
 
+import arrow.core.Either
+import arrow.core.getOrElse
 import dev.ligature.*
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
@@ -23,6 +25,9 @@ abstract class LigatureTestSuite : FunSpec() {
   val entity2 = Identifier("b")
   val entity3 = Identifier("c")
 
+  private fun<E,T> Either<E, T>.get(): T =
+    this.getOrElse { TODO() }
+
   fun runTest(fn: suspend (Ligature) -> Unit) {
     val ligature = createLigature()
     runBlocking {
@@ -33,28 +38,28 @@ abstract class LigatureTestSuite : FunSpec() {
 
   init {
     test("create and close store") {
-      runTest { ligature -> ligature.allDatasets().toList() shouldBe listOf() }
+      runTest { ligature -> ligature.allDatasets().get().toList() shouldBe listOf() }
     }
 
     test("creating a new dataset") {
       runTest { ligature ->
         ligature.createDataset(testDataset)
-        ligature.allDatasets().toList() shouldBe listOf(testDataset)
+        ligature.allDatasets().get().toList() shouldBe listOf(testDataset)
       }
     }
 
     test("check if datasets exist") {
       runTest { ligature ->
         ligature.createDataset(testDataset)
-        ligature.datasetExists(testDataset) shouldBe true
-        ligature.datasetExists(testDataset2) shouldBe false
+        ligature.datasetExists(testDataset).get() shouldBe true
+        ligature.datasetExists(testDataset2).get() shouldBe false
       }
     }
 
     test("match datasets prefix exact") {
       runTest { ligature ->
         ligature.createDataset(testDataset)
-        ligature.matchDatasetsPrefix("test/test").toList().size shouldBe 1
+        ligature.matchDatasetsPrefix("test/test").get().toList().size shouldBe 1
       }
     }
 
@@ -63,9 +68,9 @@ abstract class LigatureTestSuite : FunSpec() {
         ligature.createDataset(testDataset)
         ligature.createDataset(testDataset2)
         ligature.createDataset(testDataset3)
-        ligature.matchDatasetsPrefix("test").toList().size shouldBe 3
-        ligature.matchDatasetsPrefix("test/").toList().size shouldBe 2
-        ligature.matchDatasetsPrefix("snoo").toList().size shouldBe 0
+        ligature.matchDatasetsPrefix("test").get().toList().size shouldBe 3
+        ligature.matchDatasetsPrefix("test/").get().toList().size shouldBe 2
+        ligature.matchDatasetsPrefix("snoo").get().toList().size shouldBe 0
       }
     }
 
@@ -81,9 +86,9 @@ abstract class LigatureTestSuite : FunSpec() {
         ligature.createDataset(Dataset("test3/test"))
         ligature.createDataset(Dataset("test4"))
         ligature.createDataset(Dataset("z"))
-        ligature.matchDatasetsRange("a", "b").toList().size shouldBe 2
-        ligature.matchDatasetsRange("be", "test3").toList().size shouldBe 4
-        ligature.matchDatasetsRange("snoo", "zz").toList().size shouldBe 5
+        ligature.matchDatasetsRange("a", "b").get().toList().size shouldBe 2
+        ligature.matchDatasetsRange("be", "test3").get().toList().size shouldBe 4
+        ligature.matchDatasetsRange("snoo", "zz").get().toList().size shouldBe 5
       }
     }
 
@@ -92,14 +97,14 @@ abstract class LigatureTestSuite : FunSpec() {
         ligature.createDataset(testDataset)
         ligature.deleteDataset(testDataset)
         ligature.deleteDataset(testDataset2)
-        ligature.allDatasets().toList() shouldBe listOf()
+        ligature.allDatasets().get().toList() shouldBe listOf()
       }
     }
 
     test("new datasets should be empty") {
       runTest { ligature ->
         ligature.createDataset(testDataset)
-        ligature.query(testDataset) { tx -> tx.allStatements().toList() } shouldBe listOf()
+        ligature.query(testDataset) { tx -> tx.allStatements().toList() }.get() shouldBe listOf()
       }
     }
 
@@ -111,7 +116,7 @@ abstract class LigatureTestSuite : FunSpec() {
           tx.addStatement(Statement(entity1, a, entity2)) // dupe
           tx.addStatement(Statement(entity1, a, entity3))
         }
-        ligature.query(testDataset) { tx -> tx.allStatements().toSet() } shouldBe
+        ligature.query(testDataset) { tx -> tx.allStatements().toSet() }.get() shouldBe
             setOf(Statement(entity1, a, entity2), Statement(entity1, a, entity3))
       }
     }
@@ -126,7 +131,7 @@ abstract class LigatureTestSuite : FunSpec() {
           tx.addStatement(Statement(entity1, a, IntegerLiteral(100)))
           tx.addStatement(Statement(entity2, a, IntegerLiteral(-243729)))
         }
-        ligature.query(testDataset) { tx -> tx.allStatements().toSet() } shouldBe
+        ligature.query(testDataset) { tx -> tx.allStatements().toSet() }.get() shouldBe
             setOf(
                 Statement(entity1, a, entity2),
                 Statement(entity1, a, IntegerLiteral(100)),
@@ -145,7 +150,7 @@ abstract class LigatureTestSuite : FunSpec() {
           tx.addStatement(Statement(entity1, a, StringLiteral("text")))
           tx.addStatement(Statement(entity2, a, StringLiteral("text")))
         }
-        ligature.query(testDataset) { tx -> tx.allStatements().toSet() } shouldBe
+        ligature.query(testDataset) { tx -> tx.allStatements().toSet() }.get() shouldBe
             setOf(
                 Statement(entity1, a, entity2),
                 Statement(entity1, a, StringLiteral("text")),
@@ -158,12 +163,12 @@ abstract class LigatureTestSuite : FunSpec() {
       runTest { ligature ->
         ligature.createDataset(testDataset)
         ligature.write(testDataset) { tx ->
-          val entity = tx.newIdentifier("entity-")
-          val attribute = tx.newIdentifier("attribute-")
-          val value = tx.newIdentifier("value-")
+          val entity = tx.newIdentifier("entity-").get()
+          val attribute = tx.newIdentifier("attribute-").get()
+          val value = tx.newIdentifier("value-").get()
           tx.addStatement(Statement(entity, attribute, value))
         }
-        val statement = ligature.query(testDataset) { tx -> tx.allStatements().toList().first() }
+        val statement = ligature.query(testDataset) { tx -> tx.allStatements().toList().first() }.get()
         statement.entity.name.shouldStartWith("entity-")
         statement.attribute.name.shouldStartWith("attribute-")
         when (val value = statement.value) {
@@ -194,7 +199,7 @@ abstract class LigatureTestSuite : FunSpec() {
           tx.removeStatement(Statement(entity1, a, entity2))
           tx.removeStatement(Statement(entity1, a, entity2))
         }
-        ligature.query(testDataset) { tx -> tx.allStatements().toList() } shouldBe
+        ligature.query(testDataset) { tx -> tx.allStatements().toList() }.get() shouldBe
             listOf(Statement(entity3, a, entity2))
       }
     }
@@ -208,7 +213,7 @@ abstract class LigatureTestSuite : FunSpec() {
           tx.addStatement(Statement(entity2, a, StringLiteral("hello")))
           tx.removeStatement(Statement(entity1, a, StringLiteral("hello")))
         }
-        ligature.query(testDataset) { tx -> tx.allStatements().toList() } shouldBe
+        ligature.query(testDataset) { tx -> tx.allStatements().toList() }.get() shouldBe
             listOf(Statement(entity2, a, StringLiteral("hello")))
       }
     }

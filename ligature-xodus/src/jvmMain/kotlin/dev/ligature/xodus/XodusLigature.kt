@@ -4,13 +4,10 @@
 
 package dev.ligature.xodus
 
+import arrow.core.Either
 import arrow.core.Either.Left
 import arrow.core.Either.Right
-import dev.ligature.Dataset
-import dev.ligature.Identifier
-import dev.ligature.Ligature
-import dev.ligature.QueryTx
-import dev.ligature.WriteTx
+import dev.ligature.*
 import java.io.File
 import jetbrains.exodus.ByteIterable
 import jetbrains.exodus.bindings.LongBinding
@@ -119,26 +116,29 @@ class XodusLigature(private val dbDirectory: File) : Ligature, XodusOperations {
   }
 
   /** Returns all Datasets in a Ligature instance. */
-  override fun allDatasets(): Flow<Dataset> = flow {
-    val tc =
-        TransactionalComputable<List<String>> { tx ->
-          val datasetToIdStore = openStore(tx, LigatureStore.DatasetToIdStore)
-          val datasetsCursor = datasetToIdStore.openCursor(tx)
-          val datasets: MutableList<String> = mutableListOf()
-          while (datasetsCursor.next) datasets.add(StringBinding.entryToString(datasetsCursor.key))
-          datasetsCursor.close() // TODO should use bracket
-          datasets
-        }
-    environment
-        .computeInReadonlyTransaction(tc)
-        .map { Dataset.create(it) }
-        .forEach {
-          when (it) {
-            is Right -> emit(it.value)
-            is Left -> TODO()
-          }
-        }
-  }
+  override fun allDatasets(): Either<LigatureError, Flow<Dataset>> =
+      Right(
+          flow {
+            val tc =
+                TransactionalComputable<List<String>> { tx ->
+                  val datasetToIdStore = openStore(tx, LigatureStore.DatasetToIdStore)
+                  val datasetsCursor = datasetToIdStore.openCursor(tx)
+                  val datasets: MutableList<String> = mutableListOf()
+                  while (datasetsCursor.next) datasets.add(
+                      StringBinding.entryToString(datasetsCursor.key))
+                  datasetsCursor.close() // TODO should use bracket
+                  datasets
+                }
+            environment
+                .computeInReadonlyTransaction(tc)
+                .map { Dataset.create(it) }
+                .forEach {
+                  when (it) {
+                    is Right -> emit(it.value)
+                    is Left -> TODO()
+                  }
+                }
+          })
 
   private fun fetchDatasetID(dataset: Dataset): ByteIterable? {
     val tc =
@@ -150,65 +150,75 @@ class XodusLigature(private val dbDirectory: File) : Ligature, XodusOperations {
   }
 
   /** Check if a given Dataset exists. */
-  override suspend fun datasetExists(dataset: Dataset): Boolean = fetchDatasetID(dataset) != null
+  override suspend fun datasetExists(dataset: Dataset): Either<LigatureError, Boolean> =
+      Right(fetchDatasetID(dataset) != null)
 
   /** Returns all Datasets in a Ligature instance that start with the given prefix. */
-  override fun matchDatasetsPrefix(prefix: String): Flow<Dataset> = flow {
-    val tc =
-        TransactionalComputable<List<Dataset>> { tx ->
-          val results = mutableListOf<Dataset>()
-          val cursor = openStore(tx, LigatureStore.DatasetToIdStore).openCursor(tx)
-          val prefixBytes = StringBinding.stringToEntry(prefix)
-          cursor.getSearchKeyRange(prefixBytes)
-          var r: ByteIterable? = cursor.key
-          var `continue` = true
-          while (`continue` && r != null && StringBinding.entryToString(r).startsWith(prefix)) {
-            when (val ds = Dataset.create(StringBinding.entryToString(r))) {
-              is Right -> {
-                results.add(ds.value)
-                `continue` = cursor.next
-                r = cursor.key
-              }
-              is Left -> {
-                TODO()
-              }
-            }
-          }
-          results
-        }
-    environment.computeInReadonlyTransaction(tc).forEach { emit(it) }
-  }
+  override fun matchDatasetsPrefix(prefix: String): Either<LigatureError, Flow<Dataset>> =
+      Right(
+          flow {
+            val tc =
+                TransactionalComputable<List<Dataset>> { tx ->
+                  val results = mutableListOf<Dataset>()
+                  val cursor = openStore(tx, LigatureStore.DatasetToIdStore).openCursor(tx)
+                  val prefixBytes = StringBinding.stringToEntry(prefix)
+                  cursor.getSearchKeyRange(prefixBytes)
+                  var r: ByteIterable? = cursor.key
+                  var `continue` = true
+                  while (`continue` &&
+                      r != null &&
+                      StringBinding.entryToString(r).startsWith(prefix)) {
+                    when (val ds = Dataset.create(StringBinding.entryToString(r))) {
+                      is Right -> {
+                        results.add(ds.value)
+                        `continue` = cursor.next
+                        r = cursor.key
+                      }
+                      is Left -> {
+                        TODO()
+                      }
+                    }
+                  }
+                  results
+                }
+            environment.computeInReadonlyTransaction(tc).forEach { emit(it) }
+          })
 
   /**
    * Returns all Datasets in a Ligature instance that are in a given range (inclusive, exclusive].
    */
-  override fun matchDatasetsRange(start: String, end: String): Flow<Dataset> = flow {
-    val tc =
-        TransactionalComputable<List<Dataset>> { tx ->
-          val results = mutableListOf<Dataset>()
-          val cursor = openStore(tx, LigatureStore.DatasetToIdStore).openCursor(tx)
-          val prefixBytes = StringBinding.stringToEntry(start)
-          cursor.getSearchKeyRange(prefixBytes)
-          var r: ByteIterable? = cursor.key
-          var `continue` = true
-          while (`continue` &&
-              r != null &&
-              stringInRange(StringBinding.entryToString(r), start, end)) {
-            when (val ds = Dataset.create(StringBinding.entryToString(r))) {
-              is Right -> {
-                results.add(ds.value)
-                `continue` = cursor.next
-                r = cursor.key
-              }
-              is Left -> {
-                TODO()
-              }
-            }
-          }
-          results
-        }
-    environment.computeInReadonlyTransaction(tc).forEach { emit(it) }
-  }
+  override fun matchDatasetsRange(
+      start: String,
+      end: String
+  ): Either<LigatureError, Flow<Dataset>> =
+      Right(
+          flow {
+            val tc =
+                TransactionalComputable<List<Dataset>> { tx ->
+                  val results = mutableListOf<Dataset>()
+                  val cursor = openStore(tx, LigatureStore.DatasetToIdStore).openCursor(tx)
+                  val prefixBytes = StringBinding.stringToEntry(start)
+                  cursor.getSearchKeyRange(prefixBytes)
+                  var r: ByteIterable? = cursor.key
+                  var `continue` = true
+                  while (`continue` &&
+                      r != null &&
+                      stringInRange(StringBinding.entryToString(r), start, end)) {
+                    when (val ds = Dataset.create(StringBinding.entryToString(r))) {
+                      is Right -> {
+                        results.add(ds.value)
+                        `continue` = cursor.next
+                        r = cursor.key
+                      }
+                      is Left -> {
+                        TODO()
+                      }
+                    }
+                  }
+                  results
+                }
+            environment.computeInReadonlyTransaction(tc).forEach { emit(it) }
+          })
 
   private fun stringInRange(toTest: String, start: String, end: String): Boolean =
       toTest >= start && toTest < end
@@ -217,7 +227,7 @@ class XodusLigature(private val dbDirectory: File) : Ligature, XodusOperations {
    * Creates a dataset with the given name. TODO should probably return its own error type {
    * InvalidDataset, DatasetExists, CouldNotCreateDataset }
    */
-  override suspend fun createDataset(dataset: Dataset) {
+  override suspend fun createDataset(dataset: Dataset): Either<LigatureError, Unit> {
     val tc = TransactionalExecutable { tx ->
       val nameEntry = StringBinding.stringToEntry(dataset.name)
       val datasetToIdStore = openStore(tx, LigatureStore.DatasetToIdStore)
@@ -231,13 +241,14 @@ class XodusLigature(private val dbDirectory: File) : Ligature, XodusOperations {
       }
     }
     environment.executeInTransaction(tc)
+    return Right(Unit)
   }
 
   /**
    * Deletes a dataset with the given name. TODO should probably return its own error type {
    * InvalidDataset, CouldNotDeleteDataset }
    */
-  override suspend fun deleteDataset(dataset: Dataset) {
+  override suspend fun deleteDataset(dataset: Dataset): Either<LigatureError, Unit> {
     val tc = TransactionalExecutable { tx ->
       val nameEntry = StringBinding.stringToEntry(dataset.name)
       val datasetToIdStore = openStore(tx, LigatureStore.DatasetToIdStore)
@@ -251,6 +262,7 @@ class XodusLigature(private val dbDirectory: File) : Ligature, XodusOperations {
       }
     }
     environment.executeInTransaction(tc)
+    return Right(Unit)
   }
 
   /**
@@ -288,15 +300,24 @@ class XodusLigature(private val dbDirectory: File) : Ligature, XodusOperations {
     }
   }
 
+  @JvmInline
+  value class DatasetNoExist(private val dataset: Dataset) : LigatureError {
+    override val userMessage: String
+      get() = "Dataset ${dataset.name} does not exist."
+  }
+
   /**
    * Initializes a QueryTx TODO should probably return its own error type CouldNotInitializeQueryTx
    */
   // TODO probably use arrow's Resource here?
-  override suspend fun <T> query(dataset: Dataset, fn: suspend (QueryTx) -> T): T {
+  override suspend fun <T> query(
+      dataset: Dataset,
+      fn: suspend (QueryTx) -> T
+  ): Either<LigatureError, T> {
     val tx = environment.beginReadonlyTransaction()
     val res =
         when (val datasetId = fetchDatasetID(dataset)) {
-          null -> TODO("Dataset doesn't exist")
+          null -> return Left(DatasetNoExist(dataset))
           else -> {
             val queryTx = XodusQueryTx(tx, this, datasetId)
             fn(queryTx)
@@ -305,18 +326,21 @@ class XodusLigature(private val dbDirectory: File) : Ligature, XodusOperations {
     if (!tx.isFinished) {
       tx.abort()
     }
-    return res
+    return Right(res)
   }
 
   /**
    * Initializes a WriteTx TODO should probably return its own error type CouldNotInitializeWriteTx
    */
   // TODO probably use arrow's Resource here?
-  override suspend fun <T> write(dataset: Dataset, fn: suspend (WriteTx) -> T): T {
+  override suspend fun <T> write(
+      dataset: Dataset,
+      fn: suspend (WriteTx) -> T
+  ): Either<LigatureError, T> {
     val tx = environment.beginTransaction()
     val res =
         when (val datasetId = fetchDatasetID(dataset)) {
-          null -> TODO()
+          null -> return Left(DatasetNoExist(dataset))
           else -> {
             val writeTx = XodusWriteTx(tx, this, datasetId)
             fn(writeTx)
@@ -325,8 +349,8 @@ class XodusLigature(private val dbDirectory: File) : Ligature, XodusOperations {
     if (!tx.isFinished) {
       tx.commit()
     }
-    return res
+    return Right(res)
   }
 
-  override suspend fun close(): Unit = environment.close()
+  override suspend fun close(): Either<LigatureError, Unit> = Right(environment.close())
 }

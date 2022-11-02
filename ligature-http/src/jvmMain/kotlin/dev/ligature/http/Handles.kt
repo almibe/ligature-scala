@@ -19,8 +19,15 @@ import io.ktor.server.response.*
 class Handlers(private val ligature: Ligature) {
   suspend fun getDatasets(call: ApplicationCall) {
     val result = StringBuilder()
-    ligature.allDatasets().collect { result.append("${it.name}\n") }
-    call.respondText(result.toString())
+    when (val datasets = ligature.allDatasets()) {
+      is Right -> {
+        datasets.value.collect { result.append("${it.name}\n") }
+        call.respondText(result.toString())
+      }
+      is Left -> {
+        TODO()
+      }
+    }
   }
 
   suspend fun addDataset(call: ApplicationCall, datasetName: String) {
