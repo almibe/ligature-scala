@@ -7,6 +7,7 @@ package dev.ligature.wander.library
 import arrow.core.Either
 import arrow.core.Either.Left
 import arrow.core.Either.Right
+import arrow.core.tail
 import dev.ligature.IntegerLiteral
 import dev.ligature.Statement
 import dev.ligature.StringLiteral
@@ -119,8 +120,7 @@ fun common(
       Element.NativeFunction(
           listOf(
               Parameter("seq", WanderType.Seq(WanderType.Any)),
-              Parameter("index", WanderType.Integer)
-          )) { arguments, bindings ->
+              Parameter("index", WanderType.Integer))) { arguments, bindings ->
             if (arguments.size == 2) {
               val seq = arguments[0] as Element.Seq
               val index = arguments[1] as Element.IntegerLiteral
@@ -128,20 +128,20 @@ fun common(
             } else {
               Left(EvalError("value requires 1 argument"))
             }
-      })
+          })
 
   stdLib.bindVariable(
-    "count",
-    Element.NativeFunction(
-      listOf(
-        Parameter("seq", WanderType.Seq(WanderType.Any)))) { arguments, bindings ->
-      if (arguments.size == 1) {
-        val seq = arguments[0] as Element.Seq
-        Right(Element.IntegerLiteral(seq.values.size.toLong()))
-      } else {
-        Left(EvalError("count requires 1 argument"))
-      }
-    })
+      "count",
+      Element.NativeFunction(listOf(Parameter("seq", WanderType.Seq(WanderType.Any)))) {
+          arguments,
+          bindings ->
+        if (arguments.size == 1) {
+          val seq = arguments[0] as Element.Seq
+          Right(Element.IntegerLiteral(seq.values.size.toLong()))
+        } else {
+          Left(EvalError("count requires 1 argument"))
+        }
+      })
 
   stdLib.bindVariable(
       "ensure",
@@ -242,10 +242,67 @@ fun common(
             }
           })
 
+  stdLib.bindVariable(
+      "flatten",
+      Element.NativeFunction(
+          listOf(Parameter("seq", WanderType.Seq(WanderType.Seq(WanderType.Any))))) {
+              arguments,
+              bindings ->
+            if (arguments.size == 1) {
+              val seq = arguments[0] as Element.Seq
+              val result = mutableListOf<Element.Expression>()
+              seq.values.forEach {
+                it as Element.Seq
+                result.addAll(it.values)
+              }
+              Right(Element.Seq(result))
+            } else {
+              Left(EvalError("flatten requires 1 parameter"))
+            }
+          })
+
+  stdLib.bindVariable(
+      "first",
+      Element.NativeFunction(
+          listOf(Parameter("seq", WanderType.Seq(WanderType.Seq(WanderType.Any))))) {
+              arguments,
+              bindings ->
+            if (arguments.size == 1) {
+              val seq = arguments[0] as Element.Seq
+              Right(seq.values.first() as Element.Value)
+            } else {
+              Left(EvalError("first requires 1 parameter"))
+            }
+          })
+
+  stdLib.bindVariable(
+      "rest",
+      Element.NativeFunction(
+          listOf(Parameter("seq", WanderType.Seq(WanderType.Seq(WanderType.Any))))) {
+              arguments,
+              bindings ->
+            if (arguments.size == 1) {
+              val seq = arguments[0] as Element.Seq
+              Right(Element.Seq(seq.values.tail()))
+            } else {
+              Left(EvalError("first requires 1 parameter"))
+            }
+          })
+
+  stdLib.bindVariable(
+      "flatmap",
+      Element.NativeFunction(
+          listOf(
+              Parameter("seq", WanderType.Seq(WanderType.Any)),
+              Parameter("fn", WanderType.Function))) { arguments, bindings ->
+            if (arguments.size == 2) {
+              TODO()
+            } else {
+              Left(EvalError("flatmap requires two parameters."))
+            }
+          })
+
   // TODO reduce function --
-  // TODO first function --
-  // TODO rest function --
-  // TODO flatten function --
   // TODO flatMap function --
 
   stdLib.bindVariable(
