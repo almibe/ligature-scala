@@ -242,8 +242,7 @@ fun common(
             }
           })
 
-  stdLib.bindVariable(
-      "flatten",
+  val flatten =
       Element.NativeFunction(
           listOf(Parameter("seq", WanderType.Seq(WanderType.Seq(WanderType.Any))))) {
               arguments,
@@ -259,7 +258,9 @@ fun common(
             } else {
               Left(EvalError("flatten requires 1 parameter"))
             }
-          })
+          }
+
+  stdLib.bindVariable("flatten", flatten)
 
   stdLib.bindVariable(
       "first",
@@ -289,6 +290,43 @@ fun common(
             }
           })
 
+  val map =
+      Element.NativeFunction(
+          listOf(
+              Parameter("seq", WanderType.Seq(WanderType.Any)),
+              Parameter("fn", WanderType.Function))) { arguments, bindings ->
+            // TODO check arguments length first
+            val seq = arguments[0] // bindings.read("seq", Element.Seq::class)
+            val fn = arguments[1] // bindings.read("fn", Element.Function::class)
+            if (seq is Element.Seq && fn is Element.Function) {
+              if (fn.parameters.size == 1) {
+                val argName = fn.parameters.first()
+                val res = mutableListOf<Element.Expression>()
+                seq.values.forEach {
+                  // TODO bind `it` to the name saved above
+                  when (val r = eval(it, bindings)) {
+                    is Right -> {
+                      val arg = r.value as Element.Value
+                      when (val evalRes = fn.call(listOf(arg), bindings)) {
+                        // TODO fix below, I think I need a way to convert from Value to Element
+                        is Right -> res.add(evalRes.value as Element.Expression)
+                        is Left -> return@NativeFunction evalRes
+                      }
+                    }
+                    is Left -> return@NativeFunction r
+                  }
+                }
+                Right(Element.Seq(res))
+              } else {
+                TODO("report error, incorrect parameters")
+              }
+            } else {
+              Left(EvalError("Could not map."))
+            }
+          }
+
+  stdLib.bindVariable("map", map)
+
   stdLib.bindVariable(
       "flatmap",
       Element.NativeFunction(
@@ -296,13 +334,30 @@ fun common(
               Parameter("seq", WanderType.Seq(WanderType.Any)),
               Parameter("fn", WanderType.Function))) { arguments, bindings ->
             if (arguments.size == 2) {
-              TODO()
+              when (val mapResult = map.body(arguments, bindings)) {
+                is Left -> return@NativeFunction mapResult
+                is Right -> {
+                  flatten.body(listOf(mapResult.value), bindings)
+                }
+              }
             } else {
               Left(EvalError("flatmap requires two parameters."))
             }
           })
 
-  // TODO reduce function --
+  stdLib.bindVariable(
+      "fold",
+      Element.NativeFunction(
+          listOf(
+              Parameter("seq", WanderType.Seq(WanderType.Any)),
+              Parameter("initial", WanderType.Any),
+              Parameter("fn", WanderType.Function))) { arguments, bindings ->
+            if (arguments.size == 3) {
+              TODO()
+            } else {
+              Left(EvalError("fold requires three parameters."))
+            }
+          })
   // TODO flatMap function --
 
   stdLib.bindVariable(
@@ -340,42 +395,6 @@ fun common(
               }
             } else {
               Left(EvalError("Could not filter."))
-            }
-          })
-
-  stdLib.bindVariable(
-      "map",
-      Element.NativeFunction(
-          listOf(
-              Parameter("seq", WanderType.Seq(WanderType.Any)),
-              Parameter("fn", WanderType.Function))) { arguments, bindings ->
-            // TODO check arguments length first
-            val seq = arguments[0] // bindings.read("seq", Element.Seq::class)
-            val fn = arguments[1] // bindings.read("fn", Element.Function::class)
-            if (seq is Element.Seq && fn is Element.Function) {
-              if (fn.parameters.size == 1) {
-                val argName = fn.parameters.first()
-                val res = mutableListOf<Element.Expression>()
-                seq.values.forEach {
-                  // TODO bind `it` to the name saved above
-                  when (val r = eval(it, bindings)) {
-                    is Right -> {
-                      val arg = r.value as Element.Value
-                      when (val evalRes = fn.call(listOf(arg), bindings)) {
-                        // TODO fix below, I think I need a way to convert from Value to Element
-                        is Right -> res.add(evalRes.value as Element.Expression)
-                        is Left -> return@NativeFunction evalRes
-                      }
-                    }
-                    is Left -> return@NativeFunction r
-                  }
-                }
-                Right(Element.Seq(res))
-              } else {
-                TODO("report error, incorrect parameters")
-              }
-            } else {
-              Left(EvalError("Could not map."))
             }
           })
 

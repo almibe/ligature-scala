@@ -29,7 +29,18 @@ suspend fun eval(element: Element, bindings: Bindings): Either<EvalError, Elemen
       is Element.IdentifierLiteral -> Right(element)
       is Element.IntegerLiteral -> Right(element)
       is Element.LambdaDefinition -> Right(element)
-      is Element.Seq -> Right(element)
+      is Element.Seq -> {
+        val results = mutableListOf<Element.Expression>()
+        element.values.forEach {
+          when(val res = eval(it, bindings)) {
+            is Left -> return res
+            is Right -> {
+              results.add(res.value as Element.Expression)
+            }
+          }
+        }
+        Right(Element.Seq(results))
+      }
       is Element.Graph -> Right(element)
       is Element.StringLiteral -> Right(element)
       Element.Nothing -> Right(element)
