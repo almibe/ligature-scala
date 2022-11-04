@@ -6,6 +6,7 @@ package dev.ligature.wander
 
 import arrow.core.Either
 import arrow.core.flatMap
+import dev.ligature.LigatureError
 import dev.ligature.wander.interpreter.Bindings
 import dev.ligature.wander.interpreter.eval
 import dev.ligature.wander.lexer.Token
@@ -14,9 +15,7 @@ import dev.ligature.wander.library.common
 import dev.ligature.wander.model.Element
 import dev.ligature.wander.parser.parse
 
-interface WanderError {
-  val message: String
-}
+interface WanderError: LigatureError
 
 suspend fun run(script: String, bindings: Bindings = common()): Either<WanderError, Element> =
     tokenize(script).flatMap { tokens: List<Token> -> parse(tokens) }.flatMap { eval(it, bindings) }

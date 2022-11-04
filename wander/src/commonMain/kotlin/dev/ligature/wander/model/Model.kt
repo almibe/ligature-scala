@@ -11,6 +11,19 @@ import dev.ligature.wander.interpreter.Bindings
 import dev.ligature.wander.interpreter.EvalError
 import dev.ligature.wander.interpreter.eval
 
+sealed interface WanderType {
+  object Any: WanderType
+  object Unspecified: WanderType
+  object Integer: WanderType
+  object String: WanderType
+  object Boolean: WanderType
+  data class Seq(val type: WanderType): WanderType
+  object Function: WanderType
+  object Graph: WanderType
+}
+
+data class Parameter(val name: String, val type: WanderType)
+
 sealed interface Element {
   data class LetStatement(val name: String, val value: Expression) : Element
   sealed interface Expression : Element
@@ -31,25 +44,25 @@ sealed interface Element {
   data class Seq(val values: List<Expression>) : Value
   object Nothing : Value
 
-  sealed interface Function : Expression {
-    val parameters: List<String>
+  sealed interface Function : Value {
+    val parameters: List<Parameter>
     suspend fun call(arguments: List<Value>, bindings: Bindings): Either<EvalError, Element>
   }
-  data class LambdaDefinition(override val parameters: List<String>, val body: List<Element>) :
+  data class LambdaDefinition(override val parameters: List<Parameter>, val body: List<Element>) :
       Function {
     override suspend fun call(
         arguments: List<Value>,
         bindings: Bindings
     ): Either<EvalError, Element> {
       bindings.addScope()
-      parameters.forEachIndexed { index, param -> bindings.bindVariable(param, arguments[index]) }
+      parameters.forEachIndexed { index, param -> bindings.bindVariable(param.name, arguments[index]) }
       val res = eval(body, bindings)
       bindings.removeScope()
       return res
     }
   }
   data class NativeFunction(
-      override val parameters: List<String>,
+      override val parameters: List<Parameter>,
       val body: suspend (List<Value>, Bindings) -> Either<EvalError, Value>
   ) : Function {
     override suspend fun call(

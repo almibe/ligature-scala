@@ -34,7 +34,7 @@ sealed interface Token {
   object ElseKeyword : Token
 }
 
-data class TokenizeError(override val message: String) : WanderError
+data class TokenizeError(override val userMessage: String) : WanderError
 
 fun tokenize(input: String): Either<TokenizeError, List<Token>> {
   val gaze = Gaze.from(input)

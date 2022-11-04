@@ -9,6 +9,8 @@ import arrow.core.Either.Right
 import dev.ligature.Identifier
 import dev.ligature.wander.lexer.tokenize
 import dev.ligature.wander.model.Element
+import dev.ligature.wander.model.Parameter
+import dev.ligature.wander.model.WanderType
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 
@@ -179,18 +181,23 @@ class ParserSpec : FunSpec() {
               "{ -> 5 }" to
                   listOf(Element.LambdaDefinition(listOf(), listOf(Element.IntegerLiteral(5)))),
               "{ x -> x }" to
-                  listOf(Element.LambdaDefinition(listOf("x"), listOf(Element.Name("x")))),
+                  listOf(
+                      Element.LambdaDefinition(
+                          listOf(Parameter("x", WanderType.Any)), listOf(Element.Name("x")))),
               "{ x -> let x = 65 x }" to
                   listOf(
                       Element.LambdaDefinition(
-                          listOf("x"),
+                          listOf(Parameter("x", WanderType.Any)),
                           listOf(
                               Element.LetStatement("x", Element.IntegerLiteral(65)),
                               Element.Name("x")))),
               "{ x y z -> foo2(z y x) }" to
                   listOf(
                       Element.LambdaDefinition(
-                          listOf("x", "y", "z"),
+                          listOf(
+                              Parameter("x", WanderType.Any),
+                              Parameter("y", WanderType.Any),
+                              Parameter("z", WanderType.Any)),
                           listOf(
                               Element.FunctionCall(
                                   "foo2",

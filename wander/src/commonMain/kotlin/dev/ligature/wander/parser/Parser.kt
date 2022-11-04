@@ -13,7 +13,7 @@ import dev.ligature.wander.lexer.Token
 import dev.ligature.wander.model.Element
 import dev.ligature.wander.parser.Nibblers.scriptNib
 
-data class ParsingError(override val message: String) : WanderError
+data class ParsingError(override val userMessage: String) : WanderError
 
 fun parse(script: List<Token>): Either<ParsingError, List<Element>> {
   val filteredInput =

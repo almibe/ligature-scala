@@ -12,6 +12,8 @@ import dev.ligature.Statement
 import dev.ligature.StringLiteral
 import dev.ligature.wander.interpreter.*
 import dev.ligature.wander.model.Element
+import dev.ligature.wander.model.Parameter
+import dev.ligature.wander.model.WanderType
 import dev.ligature.wander.model.write
 
 interface Logger {
@@ -32,7 +34,7 @@ fun common(
 
   stdLib.bindVariable(
       "log",
-      Element.NativeFunction(listOf("message")) { arguments, bindings ->
+      Element.NativeFunction(listOf(Parameter("message", WanderType.Any))) { arguments, bindings ->
         if (arguments.size == 1) {
           val message = arguments[0]
           val output = write(message)
@@ -44,8 +46,106 @@ fun common(
       })
 
   stdLib.bindVariable(
+      "eq",
+      Element.NativeFunction(
+          listOf(Parameter("left", WanderType.Any), Parameter("right", WanderType.Any))) {
+              arguments,
+              bindings ->
+            if (arguments.size == 2) {
+              val left = arguments[0]
+              val right = arguments[1]
+              Right(Element.BooleanLiteral(left == right))
+            } else {
+              Left(EvalError("eq function requires 2 arguments."))
+            }
+          })
+
+  stdLib.bindVariable(
+      "take",
+      Element.NativeFunction(
+          listOf(
+              Parameter("seq", WanderType.Seq(WanderType.Any)),
+              Parameter("number", WanderType.Integer))) { arguments, bindings ->
+            if (arguments.size == 2) {
+              val seq = arguments[0] as Element.Seq
+              val number = arguments[1] as Element.IntegerLiteral
+              Right(Element.Seq(seq.values.take(number.value.toInt())))
+            } else {
+              Left(EvalError("take requires 2 arguments"))
+            }
+          })
+
+  stdLib.bindVariable(
+      "entity",
+      Element.NativeFunction(listOf(Parameter("statement", WanderType.Seq(WanderType.Any)))) {
+          arguments,
+          bindings ->
+        if (arguments.size == 1) {
+          val seq = arguments[0] as Element.Seq
+          Right(seq.values[0] as Element.Value)
+        } else {
+          Left(EvalError("entity requires 1 argument"))
+        }
+      })
+
+  stdLib.bindVariable(
+      "attribute",
+      Element.NativeFunction(listOf(Parameter("statement", WanderType.Seq(WanderType.Any)))) {
+          arguments,
+          bindings ->
+        if (arguments.size == 1) {
+          val seq = arguments[0] as Element.Seq
+          Right(seq.values[1] as Element.Value)
+        } else {
+          Left(EvalError("attribute requires 1 argument"))
+        }
+      })
+
+  stdLib.bindVariable(
+      "value",
+      Element.NativeFunction(listOf(Parameter("statement", WanderType.Seq(WanderType.Any)))) {
+          arguments,
+          bindings ->
+        if (arguments.size == 1) {
+          val seq = arguments[0] as Element.Seq
+          Right(seq.values[2] as Element.Value)
+        } else {
+          Left(EvalError("value requires 1 argument"))
+        }
+      })
+
+  stdLib.bindVariable(
+      "get",
+      Element.NativeFunction(
+          listOf(
+              Parameter("seq", WanderType.Seq(WanderType.Any)),
+              Parameter("index", WanderType.Integer)
+          )) { arguments, bindings ->
+            if (arguments.size == 2) {
+              val seq = arguments[0] as Element.Seq
+              val index = arguments[1] as Element.IntegerLiteral
+              Right(seq.values[index.value.toInt()] as Element.Value)
+            } else {
+              Left(EvalError("value requires 1 argument"))
+            }
+      })
+
+  stdLib.bindVariable(
+    "count",
+    Element.NativeFunction(
+      listOf(
+        Parameter("seq", WanderType.Seq(WanderType.Any)))) { arguments, bindings ->
+      if (arguments.size == 1) {
+        val seq = arguments[0] as Element.Seq
+        Right(Element.IntegerLiteral(seq.values.size.toLong()))
+      } else {
+        Left(EvalError("count requires 1 argument"))
+      }
+    })
+
+  stdLib.bindVariable(
       "ensure",
-      Element.NativeFunction(listOf("arg")) { arguments, bindings ->
+      Element.NativeFunction(listOf(Parameter("arg", WanderType.Boolean))) { arguments, bindings ->
         if (arguments.size == 1) {
           val arg = arguments[0]
           if (arg is Element.BooleanLiteral && arg.value) {
@@ -60,7 +160,9 @@ fun common(
 
   stdLib.bindVariable(
       "not",
-      Element.NativeFunction(listOf("bool")) { arguments, bindings: Bindings ->
+      Element.NativeFunction(listOf(Parameter("bool", WanderType.Boolean))) {
+          arguments,
+          bindings: Bindings ->
         val bool = arguments[0]
         if (bool is Element.BooleanLiteral) {
           Right(Element.BooleanLiteral(!bool.value))
@@ -71,27 +173,33 @@ fun common(
 
   stdLib.bindVariable(
       "and",
-      Element.NativeFunction(listOf("boolLeft", "boolRight")) { arguments, bindings: Bindings ->
-        val left = arguments[0]
-        val right = arguments[1]
-        if (left is Element.BooleanLiteral && right is Element.BooleanLiteral) {
-          Right(Element.BooleanLiteral(left.value && right.value))
-        } else {
-          Left(EvalError("Function `and` requires two booleans"))
-        }
-      })
+      Element.NativeFunction(
+          listOf(
+              Parameter("boolLeft", WanderType.Boolean),
+              Parameter("boolRight", WanderType.Boolean))) { arguments, bindings: Bindings ->
+            val left = arguments[0]
+            val right = arguments[1]
+            if (left is Element.BooleanLiteral && right is Element.BooleanLiteral) {
+              Right(Element.BooleanLiteral(left.value && right.value))
+            } else {
+              Left(EvalError("Function `and` requires two booleans"))
+            }
+          })
 
   stdLib.bindVariable(
       "or",
-      Element.NativeFunction(listOf("boolLeft", "boolRight")) { arguments, bindings: Bindings ->
-        val left = arguments[0]
-        val right = arguments[1]
-        if (left is Element.BooleanLiteral && right is Element.BooleanLiteral) {
-          Right(Element.BooleanLiteral(left.value || right.value))
-        } else {
-          Left(EvalError("Function `or` requires two booleans"))
-        }
-      })
+      Element.NativeFunction(
+          listOf(
+              Parameter("boolLeft", WanderType.Boolean),
+              Parameter("boolRight", WanderType.Boolean))) { arguments, bindings: Bindings ->
+            val left = arguments[0]
+            val right = arguments[1]
+            if (left is Element.BooleanLiteral && right is Element.BooleanLiteral) {
+              Right(Element.BooleanLiteral(left.value || right.value))
+            } else {
+              Left(EvalError("Function `or` requires two booleans"))
+            }
+          })
 
   //  stdLib.bindVariable(
   //    Name("range"),
@@ -104,106 +212,115 @@ fun common(
   //
   stdLib.bindVariable(
       "each",
-      Element.NativeFunction(listOf("seq", "fn")) { arguments, bindings ->
-        // TODO check arguments length first
-        val seq = arguments[0]
-        val fn = arguments[1]
-        if (seq is Element.Seq && fn is Element.Function) {
-          if (fn.parameters.size == 1) {
-            seq.values.forEach {
-              when (val r = eval(it, bindings)) {
-                is Right -> {
-                  val arg = r.value as Element.Value
-                  val evalRes = fn.call(listOf(arg), bindings)
-                  if (evalRes is Left) {
-                    return@NativeFunction evalRes
+      Element.NativeFunction(
+          listOf(
+              Parameter("seq", WanderType.Seq(WanderType.Any)),
+              Parameter("fn", WanderType.Function))) { arguments, bindings ->
+            // TODO check arguments length first
+            val seq = arguments[0]
+            val fn = arguments[1]
+            if (seq is Element.Seq && fn is Element.Function) {
+              if (fn.parameters.size == 1) {
+                seq.values.forEach {
+                  when (val r = eval(it, bindings)) {
+                    is Right -> {
+                      val arg = r.value as Element.Value
+                      val evalRes = fn.call(listOf(arg), bindings)
+                      if (evalRes is Left) {
+                        return@NativeFunction evalRes
+                      }
+                    }
+                    is Left -> return@NativeFunction r
                   }
                 }
-                is Left -> return@NativeFunction r
+                Right(Element.Nothing)
+              } else {
+                Left(EvalError("Second argument to function `each` require a single parameter."))
               }
+            } else {
+              Left(EvalError("Function `each` requires two arguments."))
             }
-            Right(Element.Nothing)
-          } else {
-            Left(EvalError("Second argument to function `each` require a single parameter."))
-          }
-        } else {
-          Left(EvalError("Function `each` requires two arguments."))
-        }
-      })
+          })
 
-  // TODO count function
-  // TODO filter function
-  // TODO reduce function
-  // TODO first function
-  // TODO rest function
+  // TODO reduce function --
+  // TODO first function --
+  // TODO rest function --
+  // TODO flatten function --
+  // TODO flatMap function --
 
   stdLib.bindVariable(
       "filter",
-      Element.NativeFunction(listOf("seq", "fn")) { arguments, bindings ->
-        // TODO check arguments length first
-        val seq = arguments[0] // bindings.read("seq", Element.Seq::class)
-        val fn = arguments[1] // bindings.read("fn", Element.Function::class)
-        if (seq is Element.Seq && fn is Element.Function) {
-          if (fn.parameters.size == 1) {
-            val argName = fn.parameters.first()
-            val res = mutableListOf<Element.Expression>()
-            seq.values.forEach {
-              // TODO bind `it` to the name saved above
-              when (val r = eval(it, bindings)) {
-                is Right -> {
-                  val arg = r.value as Element.Value
-                  when (val evalRes = fn.call(listOf(arg), bindings)) {
+      Element.NativeFunction(
+          listOf(
+              Parameter("seq", WanderType.Seq(WanderType.Any)),
+              Parameter("fn", WanderType.Function))) { arguments, bindings ->
+            // TODO check arguments length first
+            val seq = arguments[0] // bindings.read("seq", Element.Seq::class)
+            val fn = arguments[1] // bindings.read("fn", Element.Function::class)
+            if (seq is Element.Seq && fn is Element.Function) {
+              if (fn.parameters.size == 1) {
+                val argName = fn.parameters.first()
+                val res = mutableListOf<Element.Expression>()
+                seq.values.forEach {
+                  // TODO bind `it` to the name saved above
+                  when (val r = eval(it, bindings)) {
                     is Right -> {
-                      val value = evalRes.value
-                      if (value is Element.BooleanLiteral && value.value) res.add(it)
+                      val arg = r.value as Element.Value
+                      when (val evalRes = fn.call(listOf(arg), bindings)) {
+                        is Right -> {
+                          val value = evalRes.value
+                          if (value is Element.BooleanLiteral && value.value) res.add(it)
+                        }
+                        is Left -> return@NativeFunction evalRes
+                      }
                     }
-                    is Left -> return@NativeFunction evalRes
+                    is Left -> return@NativeFunction r
                   }
                 }
-                is Left -> return@NativeFunction r
+                Right(Element.Seq(res))
+              } else {
+                TODO("report error, incorrect parameters")
               }
+            } else {
+              Left(EvalError("Could not filter."))
             }
-            Right(Element.Seq(res))
-          } else {
-            TODO("report error, incorrect parameters")
-          }
-        } else {
-          Left(EvalError("Could not filter."))
-        }
-      })
+          })
 
   stdLib.bindVariable(
       "map",
-      Element.NativeFunction(listOf("seq", "fn")) { arguments, bindings ->
-        // TODO check arguments length first
-        val seq = arguments[0] // bindings.read("seq", Element.Seq::class)
-        val fn = arguments[1] // bindings.read("fn", Element.Function::class)
-        if (seq is Element.Seq && fn is Element.Function) {
-          if (fn.parameters.size == 1) {
-            val argName = fn.parameters.first()
-            val res = mutableListOf<Element.Expression>()
-            seq.values.forEach {
-              // TODO bind `it` to the name saved above
-              when (val r = eval(it, bindings)) {
-                is Right -> {
-                  val arg = r.value as Element.Value
-                  when (val evalRes = fn.call(listOf(arg), bindings)) {
-                    // TODO fix below, I think I need a way to convert from Value to Element
-                    is Right -> res.add(evalRes.value as Element.Expression)
-                    is Left -> return@NativeFunction evalRes
+      Element.NativeFunction(
+          listOf(
+              Parameter("seq", WanderType.Seq(WanderType.Any)),
+              Parameter("fn", WanderType.Function))) { arguments, bindings ->
+            // TODO check arguments length first
+            val seq = arguments[0] // bindings.read("seq", Element.Seq::class)
+            val fn = arguments[1] // bindings.read("fn", Element.Function::class)
+            if (seq is Element.Seq && fn is Element.Function) {
+              if (fn.parameters.size == 1) {
+                val argName = fn.parameters.first()
+                val res = mutableListOf<Element.Expression>()
+                seq.values.forEach {
+                  // TODO bind `it` to the name saved above
+                  when (val r = eval(it, bindings)) {
+                    is Right -> {
+                      val arg = r.value as Element.Value
+                      when (val evalRes = fn.call(listOf(arg), bindings)) {
+                        // TODO fix below, I think I need a way to convert from Value to Element
+                        is Right -> res.add(evalRes.value as Element.Expression)
+                        is Left -> return@NativeFunction evalRes
+                      }
+                    }
+                    is Left -> return@NativeFunction r
                   }
                 }
-                is Left -> return@NativeFunction r
+                Right(Element.Seq(res))
+              } else {
+                TODO("report error, incorrect parameters")
               }
+            } else {
+              Left(EvalError("Could not map."))
             }
-            Right(Element.Seq(res))
-          } else {
-            TODO("report error, incorrect parameters")
-          }
-        } else {
-          Left(EvalError("Could not map."))
-        }
-      })
+          })
 
   fun seqToStatement(seq: Element.Seq): Either<EvalError, Statement> {
     if (seq.values.size == 3) {
@@ -219,6 +336,10 @@ fun common(
             Element.Nothing -> return Left(EvalError("Nothing is not a valid Ligature Value."))
             is Element.Seq -> return Left(EvalError("Seqs are not a valid Ligature Values."))
             is Element.StringLiteral -> StringLiteral(v.value)
+            is Element.LambdaDefinition ->
+                return Left(EvalError("Functions are not valid Ligature Value."))
+            is Element.NativeFunction ->
+                return Left(EvalError("Functions are not valid Ligature Value."))
           }
       return Right(Statement(e.value, a.value, v))
     } else {
@@ -253,24 +374,27 @@ fun common(
 
   stdLib.bindVariable(
       "add",
-      Element.NativeFunction(listOf("graph", "statement")) { arguments, bindings ->
-        // TODO check arguments length first
-        val graph = arguments[0] // bindings.read("graph", Element.Graph::class)
-        val statementSeq = arguments[1] // bindings.read("statement", Element.Seq::class)
-        if (graph is Element.Graph && statementSeq is Element.Seq) {
-          when (val statement = seqToStatement(statementSeq)) {
-            is Right -> {
-              graph.statements.add(statement.value)
-              Right(graph)
+      Element.NativeFunction(
+          listOf(
+              Parameter("graph", WanderType.Graph),
+              Parameter("statement", WanderType.Seq(WanderType.Any)))) { arguments, bindings ->
+            // TODO check arguments length first
+            val graph = arguments[0] // bindings.read("graph", Element.Graph::class)
+            val statementSeq = arguments[1] // bindings.read("statement", Element.Seq::class)
+            if (graph is Element.Graph && statementSeq is Element.Seq) {
+              when (val statement = seqToStatement(statementSeq)) {
+                is Right -> {
+                  graph.statements.add(statement.value)
+                  Right(graph)
+                }
+                is Left -> {
+                  statement
+                }
+              }
+            } else {
+              Left(EvalError("add requires a graph and a statement"))
             }
-            is Left -> {
-              statement
-            }
-          }
-        } else {
-          Left(EvalError("add requires a graph and a statement"))
-        }
-      })
+          })
 
   return stdLib
 }

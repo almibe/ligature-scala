@@ -111,12 +111,17 @@ class Handlers(private val ligature: Ligature) {
           val bindings = datasetQueryBindings(tx, dataset.value)
           when (val res = dev.ligature.wander.run(script, bindings)) {
             is Right -> call.respondText(write(res.value))
-            is Left -> call.respondText(res.value.message) // TODO set HTTP status
+            is Left ->
+                call.respondText(
+                    res.value.userMessage, ContentType.Text.Plain, HttpStatusCode.BadRequest)
           }
         }
       }
-      // TODO set HTTP status below
-      is Left -> call.respondText("Invalid Dataset Name - $datasetName")
+      is Left ->
+          call.respondText(
+              "Invalid Dataset Name - $datasetName",
+              ContentType.Text.Plain,
+              HttpStatusCode.BadRequest)
     }
   }
 }

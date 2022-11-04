@@ -18,8 +18,7 @@ object Nibblers {
       takeFirst(takeString("\n"), takeString("\r\n")).map { res -> listOf(Token.NewLine) }
 
   val commentTokenNib =
-      dev.ligature.gaze
-          .takeAll(takeString("--"), takeUntil(takeFirst(takeString("\n"), takeString("\r\n"))))
+      takeAll(takeString("--"), takeUntil(takeFirst(takeString("\n"), takeString("\r\n"))))
           .map { results -> listOf(Token.Comment(results.joinToString(""))) }
 
   /**
@@ -27,10 +26,9 @@ object Nibblers {
    * and if none match and name is returned.
    */
   val nameTokenNib =
-      dev.ligature.gaze
-          .takeAll(
+      takeAll(
               takeCond { c: Char -> c.isLetter() || c == '_' },
-              optional(takeWhile<Char> { c: Char -> c.isLetter() || c.isDigit() || c == '_' }))
+              optional(takeWhile { c: Char -> c.isLetter() || c.isDigit() || c == '_' }))
           .map { value ->
             when (val content = value.joinToString("")) {
               "let" -> listOf(Token.LetKeyword)
@@ -43,25 +41,25 @@ object Nibblers {
             }
           }
 
-  val equalSignTokenNib = takeString("=").map { res -> listOf(Token.EqualSign) }
+  val equalSignTokenNib = takeString("=").map { listOf(Token.EqualSign) }
 
-  val colonTokenNib = takeString(":").map { res -> listOf(Token.Colon) }
+  val colonTokenNib = takeString(":").map { listOf(Token.Colon) }
 
-  val dotTokenNib = takeString(".").map { res -> listOf(Token.Dot) }
+  val dotTokenNib = takeString(".").map { listOf(Token.Dot) }
 
-  val openBraceTokenNib = takeString("{").map { res -> listOf(Token.OpenBrace) }
+  val openBraceTokenNib = takeString("{").map { listOf(Token.OpenBrace) }
 
-  val closeBraceTokenNib = takeString("}").map { res -> listOf(Token.CloseBrace) }
+  val closeBraceTokenNib = takeString("}").map { listOf(Token.CloseBrace) }
 
-  val openParenTokenNib = takeString("(").map { res -> listOf(Token.OpenParen) }
+  val openParenTokenNib = takeString("(").map { listOf(Token.OpenParen) }
 
-  val closeParenTokenNib = takeString(")").map { res -> listOf(Token.CloseParen) }
+  val closeParenTokenNib = takeString(")").map { listOf(Token.CloseParen) }
 
-  val openSquareTokenNib = takeString("[").map { res -> listOf(Token.OpenSquare) }
+  val openSquareTokenNib = takeString("[").map { listOf(Token.OpenSquare) }
 
-  val closeSquareTokenNib = takeString("]").map { res -> listOf(Token.CloseSquare) }
+  val closeSquareTokenNib = takeString("]").map { listOf(Token.CloseSquare) }
 
-  val arrowTokenNib = takeString("->").map { res -> listOf(Token.Arrow) }
+  val arrowTokenNib = takeString("->").map { listOf(Token.Arrow) }
 
   val bytesTokenNib =
       LigNibblers.bytesNibbler.map { res -> listOf(Token.BytesLiteral(res.joinToString(""))) }

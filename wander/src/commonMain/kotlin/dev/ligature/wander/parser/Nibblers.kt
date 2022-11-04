@@ -8,6 +8,8 @@ import dev.ligature.Identifier
 import dev.ligature.gaze.*
 import dev.ligature.wander.lexer.Token
 import dev.ligature.wander.model.Element
+import dev.ligature.wander.model.Parameter
+import dev.ligature.wander.model.WanderType
 
 object Nibblers {
   //  //TODO this code might be better if takeCond allowed you to map values
@@ -94,7 +96,8 @@ object Nibblers {
               optional(repeat(elementNib)),
               closeBraceNib)
           .map { tokens: List<List<Element>> ->
-            val parameters = tokens[1].map { (it as Element.Name).name }
+            //TODO update below with actual types not just Any
+            val parameters = tokens[1].map { Parameter((it as Element.Name).name, WanderType.Any) }
             val body = tokens[3]
             listOf(Element.LambdaDefinition(parameters, body))
           }

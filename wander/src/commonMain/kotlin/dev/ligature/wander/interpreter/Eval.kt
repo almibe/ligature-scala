@@ -10,7 +10,7 @@ import arrow.core.Either.Right
 import dev.ligature.wander.WanderError
 import dev.ligature.wander.model.Element
 
-data class EvalError(override val message: String) : WanderError
+data class EvalError(override val userMessage: String) : WanderError
 
 suspend fun eval(script: List<Element>, bindings: Bindings): Either<EvalError, Element> {
   var lastResult: Element = Element.Nothing
