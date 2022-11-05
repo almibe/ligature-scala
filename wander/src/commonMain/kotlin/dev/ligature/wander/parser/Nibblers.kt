@@ -57,6 +57,8 @@ object Nibblers {
             listOf(Element.Name(token.value))
           }
 
+  val questionMarkNib = takeCond<Token> { it is Token.QuestionMark }.map { listOf<Element.Nothing>(Element.Nothing) }
+
   val openSquareNib = takeCond<Token> { it is Token.OpenSquare }.map { listOf<Element>() }
 
   val closeSquareNib = takeCond<Token> { it is Token.CloseSquare }.map { listOf<Element>() }
@@ -212,6 +214,7 @@ object Nibblers {
           stringNib,
           integerNib,
           booleanNib,
+          questionMarkNib,
           // TODO bytes literal
           seqNib,
       )(gaze)
@@ -228,6 +231,7 @@ object Nibblers {
           stringNib,
           integerNib,
           booleanNib,
+          questionMarkNib,
           // TODO bytes literal
           seqNib,
       )(gaze)

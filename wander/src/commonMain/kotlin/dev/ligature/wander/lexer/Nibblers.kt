@@ -47,6 +47,8 @@ object Nibblers {
 
   val dotTokenNib = takeString(".").map { listOf(Token.Dot) }
 
+  val questionMarkTokenNib = takeString("?").map { listOf(Token.QuestionMark) }
+
   val openBraceTokenNib = takeString("{").map { listOf(Token.OpenBrace) }
 
   val closeBraceTokenNib = takeString("}").map { listOf(Token.CloseBrace) }
@@ -84,6 +86,7 @@ object Nibblers {
               openSquareTokenNib,
               closeSquareTokenNib,
               arrowTokenNib,
+              questionMarkTokenNib,
               bytesTokenNib,
               integerTokenNib,
               newLineTokenNib,
