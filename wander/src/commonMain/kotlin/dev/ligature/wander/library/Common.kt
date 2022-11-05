@@ -472,5 +472,20 @@ fun common(
             }
           })
 
+  stdLib.bindVariable(
+      "sum",
+      Element.NativeFunction(
+          listOf(Parameter("left", WanderType.Integer), Parameter("right", WanderType.Integer))) {
+              arguments,
+              bindings ->
+            if (arguments.size == 2) {
+              val left = arguments[0] as Element.IntegerLiteral
+              val right = arguments[1] as Element.IntegerLiteral
+              Right(Element.IntegerLiteral(left.value + right.value))
+            } else {
+              TODO()
+            }
+          })
+
   return stdLib
 }
