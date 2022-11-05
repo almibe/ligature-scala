@@ -18,8 +18,10 @@ object Nibblers {
       takeFirst(takeString("\n"), takeString("\r\n")).map { res -> listOf(Token.NewLine) }
 
   val commentTokenNib =
-      takeAll(takeString("--"), takeUntil(takeFirst(takeString("\n"), takeString("\r\n"))))
-          .map { results -> listOf(Token.Comment(results.joinToString(""))) }
+      takeAll(takeString("--"), takeUntil(takeFirst(takeString("\n"), takeString("\r\n")))).map {
+          results ->
+        listOf(Token.Comment(results.joinToString("")))
+      }
 
   /**
    * This nibbler matches both names and keywords. After the initial match all keywords are checked

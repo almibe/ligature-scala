@@ -83,7 +83,7 @@ private fun stripNewLinesAndWhiteSpace(gaze: Gaze<LigToken>): Boolean {
   return foundNewLine
 }
 
-val statementNibbler: Nibbler<LigToken, Statement> = //Either<LigError, Statement>> =
+val statementNibbler: Nibbler<LigToken, Statement> = // Either<LigError, Statement>> =
     takeAll<LigToken, LigToken>(
             optional(take(LigToken.WhiteSpace)),
             takeCond { it is LigToken.Identifier },

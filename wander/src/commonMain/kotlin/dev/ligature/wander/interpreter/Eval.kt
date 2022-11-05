@@ -32,7 +32,7 @@ suspend fun eval(element: Element, bindings: Bindings): Either<EvalError, Elemen
       is Element.Seq -> {
         val results = mutableListOf<Element.Expression>()
         element.values.forEach {
-          when(val res = eval(it, bindings)) {
+          when (val res = eval(it, bindings)) {
             is Left -> return res
             is Right -> {
               results.add(res.value as Element.Expression)

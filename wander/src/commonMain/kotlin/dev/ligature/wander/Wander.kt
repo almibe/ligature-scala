@@ -15,7 +15,7 @@ import dev.ligature.wander.library.common
 import dev.ligature.wander.model.Element
 import dev.ligature.wander.parser.parse
 
-interface WanderError: LigatureError
+interface WanderError : LigatureError
 
 suspend fun run(script: String, bindings: Bindings = common()): Either<WanderError, Element> =
     tokenize(script).flatMap { tokens: List<Token> -> parse(tokens) }.flatMap { eval(it, bindings) }

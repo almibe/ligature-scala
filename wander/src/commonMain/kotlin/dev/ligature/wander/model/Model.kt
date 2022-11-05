@@ -12,14 +12,14 @@ import dev.ligature.wander.interpreter.EvalError
 import dev.ligature.wander.interpreter.eval
 
 sealed interface WanderType {
-  object Any: WanderType
-  object Unspecified: WanderType
-  object Integer: WanderType
-  object String: WanderType
-  object Boolean: WanderType
-  data class Seq(val type: WanderType): WanderType
-  object Function: WanderType
-  object Graph: WanderType
+  object Any : WanderType
+  object Unspecified : WanderType
+  object Integer : WanderType
+  object String : WanderType
+  object Boolean : WanderType
+  data class Seq(val type: WanderType) : WanderType
+  object Function : WanderType
+  object Graph : WanderType
 }
 
 data class Parameter(val name: String, val type: WanderType)
@@ -55,7 +55,9 @@ sealed interface Element {
         bindings: Bindings
     ): Either<EvalError, Element> {
       bindings.addScope()
-      parameters.forEachIndexed { index, param -> bindings.bindVariable(param.name, arguments[index]) }
+      parameters.forEachIndexed { index, param ->
+        bindings.bindVariable(param.name, arguments[index])
+      }
       val res = eval(body, bindings)
       bindings.removeScope()
       return res

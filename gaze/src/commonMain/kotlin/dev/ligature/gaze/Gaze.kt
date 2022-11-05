@@ -101,12 +101,14 @@ fun <I, O, NO> Nibbler<I, O>.map(f: (List<O>) -> List<NO>): Nibbler<I, NO> = { g
 //  abstract fun apply(gaze: Gaze<I>): Option<List<O>>
 
 
+
 //  fun <NO>map(f: (List<O>) -> List<NO>): Nibbler<I, NO> = { gaze ->
 //    when(val results = this.apply(gaze)) {
 //      is None -> none()
 //      is Some -> Some(f(results.value))
 //    }
 //  }
+
 
 
 //  final fun as[NO](value: NO): Nibbler[I, NO] = { (gaze: Gaze[I]) =>

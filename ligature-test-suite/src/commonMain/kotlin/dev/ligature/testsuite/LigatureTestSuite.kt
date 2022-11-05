@@ -25,8 +25,7 @@ abstract class LigatureTestSuite : FunSpec() {
   val entity2 = Identifier("b")
   val entity3 = Identifier("c")
 
-  private fun<E,T> Either<E, T>.get(): T =
-    this.getOrElse { TODO() }
+  private fun <E, T> Either<E, T>.get(): T = this.getOrElse { TODO() }
 
   fun runTest(fn: suspend (Ligature) -> Unit) {
     val ligature = createLigature()
@@ -168,7 +167,8 @@ abstract class LigatureTestSuite : FunSpec() {
           val value = tx.newIdentifier("value-").get()
           tx.addStatement(Statement(entity, attribute, value))
         }
-        val statement = ligature.query(testDataset) { tx -> tx.allStatements().toList().first() }.get()
+        val statement =
+            ligature.query(testDataset) { tx -> tx.allStatements().toList().first() }.get()
         statement.entity.name.shouldStartWith("entity-")
         statement.attribute.name.shouldStartWith("attribute-")
         when (val value = statement.value) {

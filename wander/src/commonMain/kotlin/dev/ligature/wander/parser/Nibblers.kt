@@ -57,7 +57,8 @@ object Nibblers {
             listOf(Element.Name(token.value))
           }
 
-  val questionMarkNib = takeCond<Token> { it is Token.QuestionMark }.map { listOf<Element.Nothing>(Element.Nothing) }
+  val questionMarkNib =
+      takeCond<Token> { it is Token.QuestionMark }.map { listOf<Element.Nothing>(Element.Nothing) }
 
   val openSquareNib = takeCond<Token> { it is Token.OpenSquare }.map { listOf<Element>() }
 
@@ -98,7 +99,7 @@ object Nibblers {
               optional(repeat(elementNib)),
               closeBraceNib)
           .map { tokens: List<List<Element>> ->
-            //TODO update below with actual types not just Any
+            // TODO update below with actual types not just Any
             val parameters = tokens[1].map { Parameter((it as Element.Name).name, WanderType.Any) }
             val body = tokens[3]
             listOf(Element.LambdaDefinition(parameters, body))
