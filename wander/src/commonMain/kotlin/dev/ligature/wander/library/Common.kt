@@ -353,12 +353,21 @@ fun common(
               Parameter("initial", WanderType.Any),
               Parameter("fn", WanderType.Function))) { arguments, bindings ->
             if (arguments.size == 3) {
-              TODO()
+              val seq = arguments[0] as Element.Seq
+              var running = arguments[1] as Element.Value
+              val fn = arguments[2] as Element.Function
+              seq.values.forEach {
+                val args: List<Element.Value> = listOf(running, it) as List<Element.Value>
+                when (val res = fn.call(args, bindings)) {
+                  is Left -> return@NativeFunction res
+                  is Right -> running = res.value as Element.Value
+                }
+              }
+              Right(running)
             } else {
               Left(EvalError("fold requires three parameters."))
             }
           })
-  // TODO flatMap function --
 
   stdLib.bindVariable(
       "filter",
