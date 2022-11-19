@@ -18,9 +18,8 @@
 // }
 
 plugins {
-  kotlin("multiplatform") // version "1.7.10"
-  //    alias(libs.plugins.kotlin.multiplatform)
-  alias(libs.plugins.kotest.multiplatform)
+  //TODO this isn't a multiplatform project
+  kotlin("multiplatform") version "1.7.21"
 }
 
 group = "dev.ligature"

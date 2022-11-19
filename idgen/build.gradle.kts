@@ -18,7 +18,7 @@
 // }
 
 plugins {
-  kotlin("multiplatform") // version "1.7.10"
+  kotlin("multiplatform") version "1.7.21"
   //    alias(libs.plugins.kotlin.multiplatform)
   alias(libs.plugins.kotest.multiplatform)
 }
@@ -35,10 +35,10 @@ repositories {
 kotlin {
   targets {
     jvm { compilations.all { kotlinOptions { jvmTarget = "1.8" } } }
-    //        js(IR) {
-    //            browser()
-    //            //nodejs()
-    //        }
+            js(LEGACY) {
+                //browser()
+                nodejs()
+            }
     //        linuxX64()
     //        macosX64()
     //        mingwX64()
