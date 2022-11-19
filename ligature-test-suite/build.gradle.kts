@@ -18,7 +18,7 @@
 // }
 
 plugins {
-  kotlin("multiplatform") // version "1.7.10"
+  kotlin("multiplatform") version "1.7.21"
   //    alias(libs.plugins.kotlin.multiplatform)
   alias(libs.plugins.kotest.multiplatform)
 }
