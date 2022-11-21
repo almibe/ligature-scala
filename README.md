@@ -22,6 +22,7 @@ See additional documentation [here](https://github.com/almibe/ligature-documenta
 | ligature-http-in-memory | An implementation of ligature-http that stores everything in memory. | ✅ | |
 | ligature-http-xodus | An implementation of ligature-http that uses ligature-xodus for storage. | ✅ | |
 | ligature-repl | A JVM based REPL for experimenting with Ligature. | ✅ | |
+| ligature-js | An API for working with Ligature from JavaScript. | | ✅ |
 
 ## Building
 

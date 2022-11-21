@@ -1,19 +1,5 @@
-// plugins {
-//    id("dev.ligature.kotlin-library-conventions")
-// }
-//
-// kotlin {
-//    sourceSets {
-//        commonMain{
-//            dependencies {
-//            }
-//        }
-//    }
-// }
-
 plugins {
-  kotlin("multiplatform") version "1.7.10"
-  //    alias(libs.plugins.kotlin.multiplatform)
+  id("dev.ligature.kotlin-library-conventions")
   alias(libs.plugins.kotest.multiplatform)
 }
 

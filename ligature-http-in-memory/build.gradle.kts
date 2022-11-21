@@ -1,7 +1,5 @@
 plugins {
-  //    alias(libs.plugins.kotlin.multiplatform)
-  //    alias(libs.plugins.kotest.multiplatform)
-  kotlin("jvm") version "1.7.21"
+  kotlin("jvm")// version "1.7.21"
   application
 }
 

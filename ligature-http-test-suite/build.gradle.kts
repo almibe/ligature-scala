@@ -1,7 +1,6 @@
 plugins {
   //TODO this shouldn't be a multiplatform project
-  kotlin("multiplatform") version "1.7.21"
-  //    alias(libs.plugins.kotlin.multiplatform)
+  id("dev.ligature.kotlin-library-conventions")
   alias(libs.plugins.kotest.multiplatform)
 }
 

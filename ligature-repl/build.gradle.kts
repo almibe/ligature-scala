@@ -1,7 +1,5 @@
 plugins {
-  //    alias(libs.plugins.kotlin.multiplatform)
-  //    alias(libs.plugins.kotest.multiplatform)
-  kotlin("jvm") version "1.7.21"
+  kotlin("jvm")// version "1.7.21"
   application
   id("com.github.johnrengelman.shadow") version "7.1.2"
 }
@@ -14,6 +12,8 @@ repositories {
   mavenCentral()
   maven("https://maven.pkg.jetbrains.space/public/p/kotlinx-html/maven")
 }
+
+
 
 dependencies {
   implementation(project(":ligature"))

@@ -5,6 +5,8 @@
 package dev.ligature.lig
 
 import arrow.core.Either
+import arrow.core.getOrElse
+import arrow.core.getOrHandle
 import dev.ligature.Identifier
 import dev.ligature.IntegerLiteral
 import dev.ligature.Statement
@@ -17,21 +19,21 @@ class LigParserSpec : FunSpec() {
   init {
     test("parse simple Statement") {
       val input = "<a> <b> <c>"
-      val tokens = tokenize(input)
+      val tokens = tokenize(input).getOrElse { TODO() }
       parse(tokens) shouldBe
           Either.Right(listOf(Statement(Identifier("a"), Identifier("b"), Identifier("c"))))
     }
 
     test("parse complex Statement") {
       val input = "  <a>    <b>   12345    "
-      val tokens = tokenize(input)
+      val tokens = tokenize(input).getOrElse { TODO() }
       parse(tokens) shouldBe
           Either.Right(listOf(Statement(Identifier("a"), Identifier("b"), IntegerLiteral(12345))))
     }
 
     test("parse multiple Statements") {
       val input = "<a> <b> <c>\n<e> <f> <g>\n"
-      val tokens = tokenize(input)
+      val tokens = tokenize(input).getOrElse { TODO() }
       parse(tokens) shouldBe
           Either.Right(
               listOf(
@@ -41,7 +43,7 @@ class LigParserSpec : FunSpec() {
 
     test("support empty lines") {
       val input = "\n\n  \n<a> <b> <c>\n  <e> <f> <g>\n    "
-      val tokens = tokenize(input)
+      val tokens = tokenize(input).getOrElse { TODO() }
       parse(tokens) shouldBe
           Either.Right(
               listOf(
