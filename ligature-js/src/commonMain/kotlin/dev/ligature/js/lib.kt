@@ -4,4 +4,5 @@
 
 package dev.ligature.js
 
+@JsExport
 fun hello(): String = "world"

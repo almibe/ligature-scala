@@ -16,10 +16,10 @@ repositories {
 kotlin {
   targets {
     jvm { compilations.all { kotlinOptions { jvmTarget = "1.8" } } }
-    //        js(IR) {
-    //            browser()
-    //            //nodejs()
-    //        }
+    js(IR) {
+      browser()
+      // nodejs()
+    }
     //        linuxX64()
     //        macosX64()
     //        mingwX64()

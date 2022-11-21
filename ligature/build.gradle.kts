@@ -16,6 +16,10 @@ repositories {
 
 kotlin {
   targets {
+    js(IR) {
+      browser()
+    }
+
     jvm { compilations.all { kotlinOptions { jvmTarget = "1.8" } } }
     //        js(IR) {
     //            browser()

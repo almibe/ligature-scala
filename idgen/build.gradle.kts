@@ -1,5 +1,5 @@
 plugins {
-  kotlin("multiplatform") //version "1.7.21"
+  id("dev.ligature.kotlin-library-conventions")
   alias(libs.plugins.kotest.multiplatform)
 }
 
@@ -9,16 +9,15 @@ version = "0.1.0-SNAPSHOT"
 
 repositories {
   mavenCentral()
-  maven("https://maven.pkg.jetbrains.space/public/p/kotlinx-html/maven")
 }
 
 kotlin {
   targets {
     jvm { compilations.all { kotlinOptions { jvmTarget = "1.8" } } }
-            js(LEGACY) {
-                //browser()
-                nodejs()
-            }
+    js(IR) {
+      browser()
+      //nodejs()
+    }
     //        linuxX64()
     //        macosX64()
     //        mingwX64()

@@ -22,10 +22,10 @@ kotlin {
   sourceSets {
     val commonMain by getting {
       dependencies {
-//        implementation(project(":ligature"))
-//        implementation(project(":lig"))
-//        implementation(project(":wander"))
-//        implementation(project(":ligature-in-memory"))
+        implementation(project(":ligature"))
+        implementation(project(":lig"))
+        implementation(project(":wander"))
+        implementation(project(":ligature-in-memory"))
         implementation(libs.kotlinx.coroutines.core)
         implementation(libs.arrow.core)
       }
