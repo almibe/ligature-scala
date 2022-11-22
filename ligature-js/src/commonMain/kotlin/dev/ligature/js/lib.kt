@@ -4,5 +4,21 @@
 
 package dev.ligature.js
 
+import dev.ligature.inmemory.InMemoryLigature
+
 @JsExport
-fun hello(): String = "world"
+class Ligature {
+  private val store = InMemoryLigature()
+
+  suspend fun loadLig(lig: String): Unit {
+
+  }
+
+  suspend fun removeLig(lig: String): Unit {
+
+  }
+
+  suspend fun runWander(wander: String): String {
+
+  }
+}

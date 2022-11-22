@@ -6,6 +6,8 @@ package dev.ligature.wander
 
 import arrow.core.Either
 import arrow.core.flatMap
+import dev.ligature.Dataset
+import dev.ligature.Ligature
 import dev.ligature.LigatureError
 import dev.ligature.wander.interpreter.Bindings
 import dev.ligature.wander.interpreter.eval
@@ -19,3 +21,7 @@ interface WanderError : LigatureError
 
 suspend fun run(script: String, bindings: Bindings = common()): Either<WanderError, Element> =
     tokenize(script).flatMap { tokens: List<Token> -> parse(tokens) }.flatMap { eval(it, bindings) }
+
+suspend fun Ligature.wanderQuery(dataset: Dataset, wander: String): Either<LigatureError, Element> {
+  TODO()
+}
