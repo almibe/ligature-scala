@@ -23,5 +23,5 @@ suspend fun run(script: String, bindings: Bindings = common()): Either<WanderErr
     tokenize(script).flatMap { tokens: List<Token> -> parse(tokens) }.flatMap { eval(it, bindings) }
 
 suspend fun Ligature.wanderQuery(dataset: Dataset, wander: String): Either<LigatureError, Element> {
-  TODO()
+  return run(wander)
 }
