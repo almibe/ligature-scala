@@ -4,35 +4,29 @@
 
 package dev.ligature.js
 
-//import kotlinx.coroutines.runBlocking
 import arrow.core.getOrElse
 import dev.ligature.Dataset
 import dev.ligature.inmemory.InMemoryLigature
 import dev.ligature.lig.insertLig
+import kotlinx.coroutines.*
+import kotlinx.coroutines.GlobalScope
 
 @JsExport
 class Ligature {
   private val store = InMemoryLigature()
   private val dataset = Dataset.create("instance").getOrElse { TODO() }
 
-  init {
+  init {}
 
+  fun loadLig(lig: String): Promise<Unit> {
+    GlobalScope.promise { store.insertLig(dataset, lig) }
   }
 
-  fun loadLig(lig: String): Unit {
-
-    TODO()
-//    runBlocking {
-//      store.insertLig(dataset, lig)
-//
-//    }
+  fun removeLig(lig: String): Promise<Unit> {
+    GlobalScope.promise { TODO() }
   }
 
-  fun removeLig(lig: String): Unit {
-    TODO()
-  }
-
-  fun runWander(wander: String): String {
-    TODO()
+  fun runWander(wander: String): Promise<String> {
+    GlobalScope.promise { "TODO" }
   }
 }
