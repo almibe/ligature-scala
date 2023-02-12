@@ -1,5 +1,8 @@
 # ligature-kt
 
+## NOTE: This project isn't being worked on currently, see https://github.com/almibe/ligature-fs
+for a currently developed version of this project in F#.
+
 An implementation of [Ligature knowledge graph](https://ligature.dev) library written in Kotlin for the JVM/JS.
 See additional documentation [here](https://github.com/almibe/ligature-documentation).
 
