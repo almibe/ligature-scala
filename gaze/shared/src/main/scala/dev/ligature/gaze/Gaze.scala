@@ -70,10 +70,9 @@ class Gaze[+I](private val input: Vector[I]) {
         res
     }
   }
-  
-  def location: Location = {
+
+  def location: Location =
     Location(this.line, this.lineOffset)
-  }
 }
 
 abstract class Nibbler[-I, +O] {
