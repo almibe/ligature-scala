@@ -1,34 +1,28 @@
+# Note
+This project is in the middle of a rewrite, so it's kind of a mess.
+
 # ligature-kt
-
-## NOTE: This project isn't being worked on currently, see https://github.com/almibe/ligature-fs
-for a currently developed version of this project in F#.
-
 An implementation of [Ligature knowledge graph](https://ligature.dev) library written in Kotlin for the JVM/JS.
 See additional documentation [here](https://github.com/almibe/ligature-documentation).
 
-[![almibe](https://circleci.com/gh/almibe/ligature-kt.svg?style=svg)](https://circleci.com/gh/almibe/ligature-kt)
-
 ### Projects
 
-| Name | Description | JVM | JS |
+| Name                     | Description                                                                      | JVM | JS |
 | ------------------------ | -------------------------------------------------------------------------------- | --- | -- |
-| ligature | Common data types and interfaces for Ligature | ✅ | ✅ |
-| ligature-test-suite | A shared test suite for Ligature | ✅ | ✅ |
-| idgen | A basic, unsecure, implementation of nanoid for use with Ligature | ✅ | ✅ |
-| lig | A simple serialization/input format Ligature | ✅ | ✅ |
-| ligature-in-memory | An in-memory implementation of Ligature | ✅ | ✅ |
-| ligature-xodus | An implementation of Ligature using LMDB for persistence. | ✅ | |
-| wander | A scripting language for working with Ligature. | ✅ | ✅ |
-| gaze | A utility library for parsing text/data structures. | ✅ | ✅ |
-| ligature-http | A JVM based server for Ligature following the ligature-http spec. | ✅ | |
-| ligature-http-test-suite | A test suite for ligature-http | ✅ | |
-| ligature-http-in-memory | An implementation of ligature-http that stores everything in memory. | ✅ | |
-| ligature-http-xodus | An implementation of ligature-http that uses ligature-xodus for storage. | ✅ | |
-| ligature-repl | A JVM based REPL for experimenting with Ligature. | ✅ | |
-| ligature-js | An API for working with Ligature from JavaScript. | | ✅ |
+| ligature                 | Common data types and interfaces for Ligature                                    | ✅   | ✅ |
+| ligature-test-suite      | A shared test suite for Ligature                                                 | ✅   | ✅ |
+| idgen                    | A basic, unsecure, implementation of nanoid for use with Ligature                | ✅   | ✅ |
+| lig                      | A simple serialization/input format Ligature                                     | ✅   | ✅ |
+| ligature-in-memory       | An in-memory implementation of Ligature                                          | ✅   | ✅ |
+| ligature-xodus           | An implementation of Ligature using LMDB for persistence.                        | ✅   |   |
+| wander                   | A scripting language for working with Ligature.                                  | ✅   | ✅ |
+| gaze                     | A utility library for parsing text/data structures.                              | ✅   | ✅ |
+| ligature-http            | A JVM based server for Ligature following the ligature-http spec.                | ✅   |   |
+| ligature-http-test-suite | A test suite for ligature-http                                                   | ✅   |   |
+| ligature-http-in-memory  | An implementation of ligature-http that stores everything in memory.             | ✅   |   |
+| ligature-http-xodus      | An implementation of ligature-http that uses ligature-xodus for storage.         | ✅   |   |
 
 ## Building
-
 This project uses Gradle to build.
 See https://www.gradle.org/
 
@@ -37,10 +31,6 @@ See https://www.gradle.org/
 For the most part development of this project only requires the basics that Gradle provides.
 
 Use `gradle check` to check that code builds and run tests.
-
-### Using the REPL
-
-See [docs](https://github.com/almibe/ligature-kt/ligature-repl/README.md).
 
 ### Running the Server
 
@@ -60,7 +50,7 @@ All ligature-http implementations accept the following arguments
 | Name   | Description                          | Default | Note                               |
 |--------|--------------------------------------|---------|------------------------------------|
 | --port | The port ligature-http is served on. | 4202    | Can be any valid port number.      |
-| --mode | The mode ligature-http is ran in.    | local   | Only local is currently supported. |
+ | --mode | The mode ligature-http is ran in.    | local   | Only local is currently supported. |
 
 #### In Memory Configuration
 

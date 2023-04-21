@@ -4,23 +4,26 @@
 
 package dev.ligature.wander.interpreter
 
-import dev.ligature.wander.library.common
-import dev.ligature.wander.run
-import io.kotest.assertions.withClue
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
+import io.kotest.assertions.withClue
+import dev.ligature.wander.run
 
-class WanderSuite : FunSpec() {
+class WanderSuite: FunSpec() {
   init {
-    val testOnly: Set<String> = setOf() // if set is empty all tests will run
+    val testOnly: Set<String> = setOf("not function") // if set is empty all tests will run
 
-    fun runTest(description: String): Boolean = testOnly.isEmpty() || testOnly.contains(description)
+    fun runTest(description: String): Boolean =
+      testOnly.isEmpty() || testOnly.contains(description)
 
     testData.forEach { testGroup ->
       testGroup.testInstances.forEach { instance ->
         if (runTest(instance.description)) {
-          test("Interpreting -- ${testGroup.category} -- ${instance.description}") {
-            val result = run(instance.script, common()) // datasetQueryBindings(testGroup.dataset))
+          test(
+            "Interpreting -- ${testGroup.category} -- ${instance.description}"
+          ) {
+            val result = run(instance.script, testGroup.dataset)
+
             withClue("results are not the same for ${instance.description}") {
               result shouldBe instance.result
             }

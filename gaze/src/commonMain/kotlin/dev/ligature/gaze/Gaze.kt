@@ -13,69 +13,57 @@ class Gaze<I>(private val input: List<I>) {
 
   companion object {
     fun from(
-        text: String
+      text: String
     ): Gaze<Char> = // TODO eventually handle unicode better and make this Gaze[String]
-    Gaze(text.toCharArray().toList())
+      Gaze(text.toCharArray().toList())
   }
 
   val isComplete: Boolean
     get() = this.offset >= this.input.size
 
-  fun peek(): I? =
-      if (this.isComplete) {
-        null
-      } else {
-        this.input[this.offset]
-      }
+  //TODO add optional int param to peek
+  fun peek(distance: Int = 0): Option<I> =
+    if (this.isComplete) {
+      none()
+    } else {
+      Some(this.input[this.offset])
+    }
 
-  fun next(): I? =
-      if (this.isComplete) {
-        null
-      } else {
-        val next = this.input[this.offset]
-        this.offset += 1
-        this.lineOffset += 1
-        if (next == "\n") {
-          this.line += 1
-          this.lineOffset = 0
-        }
-        next
+  //TODO add optional int param to next
+  fun next(distance: Int = 0): Option<I> =
+    if (this.isComplete) {
+      none()
+    } else {
+      val next = Some(this.input[this.offset])
+      this.offset += 1
+      this.lineOffset += 1
+      if (next.value == "\n") {
+        this.line += 1
+        this.lineOffset = 0
       }
-
-  //  fun peek(distance: Int): List<I>? =
-  //    if (this.isComplete) { //TODO check length
-  //      null
-  //    } else {
-  //      this.input.slice(this.offset..this.offset+distance)
-  //    }
-  //
-  //  fun next(distance: Int): List<I>? =
-  //    if (this.isComplete) { //TODO check length
-  //      null
-  //    } else {
-  //      val next = this.input[this.offset]
-  //      this.offset += 1
-  //      this.lineOffset += 1
-  //      if (next == "\n") {
-  //        this.line += 1
-  //        this.lineOffset = 0
-  //      }
-  //      next
-  //    }
+      next
+    }
 
   // TODO needs tests
-  fun <O> check(nibbler: Nibbler<I, O>): List<O>? {
+  fun <O>check(nibbler: Nibbler<I, O>): Option<List<O>> {
     val startOfThisLoop = this.offset
 
-    val res = nibbler(this)
-    this.offset = startOfThisLoop
-    return res
+    return when(val res = nibbler(this)) {
+      is Some -> {
+        this.offset = startOfThisLoop
+        res
+      }
+      is None -> {
+        this.offset = startOfThisLoop
+        res
+      }
+    }
   }
 
-  fun <O> attempt(nibbler: Nibbler<I, O>): List<O>? {
+  fun <O>attempt(nibbler: Nibbler<I, O>): List<O>? {
     val startOfThisLoop = this.offset
 
-    return when (val res = nibbler(this)) {
+    return when(val res = nibbler(this)) {
       null -> {
         this.offset = startOfThisLoop
         res
@@ -83,24 +71,22 @@ class Gaze<I>(private val input: List<I>) {
       else -> res
     }
   }
-
+  
   val location: Location
     get() = Location(this.line, this.lineOffset)
 }
 
 typealias Nibbler<I, O> = (Gaze<I>) -> List<O>?
 
-fun <I, O, NO> Nibbler<I, O>.map(f: (List<O>) -> List<NO>): Nibbler<I, NO> = { gaze ->
-  when (val results = this(gaze)) {
+fun <I, O, NO>Nibbler<I, O>.map(f: (List<O>) -> List<NO>): Nibbler<I, NO> = { gaze ->
+  when(val results = this(gaze)) {
     null -> null
     else -> f(results)
   }
 }
 
-// abstract class Nibbler<I, O>: (Gaze<I>) -> Option<List<O>> {
+//abstract class Nibbler<I, O>: (Gaze<I>) -> Option<List<O>> {
 //  abstract fun apply(gaze: Gaze<I>): Option<List<O>>
-
-
 
 //  fun <NO>map(f: (List<O>) -> List<NO>): Nibbler<I, NO> = { gaze ->
 //    when(val results = this.apply(gaze)) {
@@ -109,12 +95,10 @@ fun <I, O, NO> Nibbler<I, O>.map(f: (List<O>) -> List<NO>): Nibbler<I, NO> = { g
 //    }
 //  }
 
-
-
 //  final fun as[NO](value: NO): Nibbler[I, NO] = { (gaze: Gaze[I]) =>
 //    this.apply(gaze) match {
 //      case None    => None
 //      case Some(_) => Some(List(value))
 //    }
 //  }
-// }
+//}

@@ -5,26 +5,37 @@
 package dev.ligature.wander.interpreter
 
 import arrow.core.Either.Right
-import dev.ligature.wander.model.Element
+import dev.ligature.IntegerLiteral
+import dev.ligature.wander.lexer.Token
+import dev.ligature.wander.parser.BooleanValue
+import dev.ligature.wander.parser.Else
+import dev.ligature.wander.parser.ElseIf
+import dev.ligature.wander.parser.FunctionCall
+import dev.ligature.wander.parser.IfExpression
+import dev.ligature.wander.parser.LetStatement
+import dev.ligature.wander.parser.LigatureValue
+import dev.ligature.wander.parser.Name
+import dev.ligature.wander.parser.Nothing
+import dev.ligature.wander.parser.Scope
+import dev.ligature.wander.parser.Script
+import dev.ligature.wander.parser.ScriptResult
 
-val ifExpression =
-    listOf(
-        TestInstance(
-            description = "if true",
-            script =
-                """if true {
+val ifExpression = listOf(
+  TestInstance(
+    description = "if true",
+    script = """if true {
                |  7
-               |}"""
-                    .trimMargin(),
-            result = Right(Element.IntegerLiteral(7))),
-        TestInstance(
-            description = "if false",
-            script = "if and(false true) { 24601 }",
-            result = Right(Element.Nothing)),
-        TestInstance(
-            description = "if else",
-            script =
-                """let x = true
+               |}""".trimMargin(),
+    result = Right(ScriptResult(LigatureValue(IntegerLiteral(7))))
+  ),
+  TestInstance(
+    description = "if false",
+    script = "if and(false true) { 24601 }",
+    result = Right(ScriptResult(Nothing))
+  ),
+  TestInstance(
+    description = "if else",
+    script = """let x = true
                |let y = false
                |if y {
                |    1
@@ -34,13 +45,12 @@ val ifExpression =
                |    3    
                |} else {
                |    4
-               |}"""
-                    .trimMargin(),
-            result = Right(Element.IntegerLiteral(2))),
-        TestInstance(
-            description = "else",
-            script =
-                """let x = true
+               |}""".trimMargin(),
+    result = Right(ScriptResult(LigatureValue(IntegerLiteral(2))))
+  ),
+  TestInstance(
+    description = "else",
+    script = """let x = true
                |let y = false
                |if y {
                |    1
@@ -48,6 +58,7 @@ val ifExpression =
                |    2
                |} else {
                |    3
-               |}"""
-                    .trimMargin(),
-            result = Right(Element.IntegerLiteral(3))))
+               |}""".trimMargin(),
+    result = Right(ScriptResult(LigatureValue(IntegerLiteral(3))))
+  )
+)

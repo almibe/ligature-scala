@@ -4,44 +4,39 @@
 
 package dev.ligature.http.xodus
 
-import dev.ligature.Ligature
-import dev.ligature.http.*
-import dev.ligature.http.testsuite.LigatureHttpSuite
 import dev.ligature.xodus.XodusLigature
-import io.kotest.common.runBlocking
-import io.kotest.core.test.TestCase
-import io.kotest.core.test.TestResult
-import io.ktor.server.application.*
+import dev.ligature.http.testsuite.LigatureHttpSuite
+import dev.ligature.http.LigatureHttp
+import dev.ligature.http.AuthMode
+import cats.effect.unsafe.implicits.global
+import com.comcast.ip4s.*
+
 import java.io.File
-import java.nio.file.Files
-import java.nio.file.Path
+import java.nio.file.{Files, Path}
 
-class LigatureHttpXodusSuite : LigatureHttpSuite() {
-  lateinit var path: Path
-  lateinit var ligatureInstance: Ligature
+class LigatureHttpXodusSuite extends LigatureHttpSuite {
+  var path: Path = null
+  var ligatureInstance: XodusLigature = null
 
-  override suspend fun beforeTest(testCase: TestCase) {
+  override def beforeEach(context: BeforeEach): Unit =
     path = Files.createTempDirectory("LigatureXodusTest")
-    ligatureInstance = XodusLigature(path.toFile())
-  }
 
-  override suspend fun afterTest(testCase: TestCase, testResult: TestResult) {
-    fun deleteRecursively(file: File) {
+  override def afterEach(context: AfterEach): Unit = {
+    def deleteRecursively(file: File): Unit = {
       if (file.isDirectory) {
-        file.listFiles().forEach { deleteRecursively(it) }
+        file.listFiles.foreach(deleteRecursively)
       }
-      if (file.exists() && !file.delete()) {
-        throw Exception("Unable to delete ${file.absolutePath}")
+      if (file.exists && !file.delete) {
+        throw new Exception(s"Unable to delete ${file.getAbsolutePath}")
       }
     }
 
-    runBlocking {
-      ligatureInstance.close()
-      deleteRecursively(path.toFile())
-    }
+    ligatureInstance.close().unsafeRunSync()
+    deleteRecursively(path.toFile)
   }
 
-  override fun Application.instanceModule() {
-    routes(ligatureInstance)
+  override def createInstance(): LigatureHttp = {
+    ligatureInstance = XodusLigature(path.toFile)
+    LigatureHttp(ligatureInstance, AuthMode.None, Port.fromInt(4202).get)
   }
 }

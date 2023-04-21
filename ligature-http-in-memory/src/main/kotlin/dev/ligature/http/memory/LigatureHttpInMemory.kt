@@ -4,12 +4,15 @@
 
 package dev.ligature.http.memory
 
-import dev.ligature.http.*
-import dev.ligature.inmemory.InMemoryLigature
 import io.ktor.server.engine.*
 import io.ktor.server.netty.*
 
+import dev.ligature.inmemory.InMemoryLigature
+import dev.ligature.http.*
+
 fun main() {
   val ligature = InMemoryLigature()
-  embeddedServer(Netty, port = 4200, host = "0.0.0.0") { routes(ligature) }.start(wait = true)
+  embeddedServer(Netty, port = 8080, host = "0.0.0.0") {
+    routes(ligature)
+  }.start(wait = true)
 }

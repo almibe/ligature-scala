@@ -4,10 +4,12 @@
 
 package dev.ligature.gaze
 
+import arrow.core.none
+import arrow.core.Some
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 
-class TakeSuite : FunSpec() {
+class TakeSuite: FunSpec() {
 
   init {
     test("multiple nibblers succeed") {
@@ -16,12 +18,12 @@ class TakeSuite : FunSpec() {
       val nibbler6 = take('6')
       val nibbler7 = take('7')
       val nibbler8 = take('8')
-      gaze.attempt(nibbler5) shouldBe listOf('5')
-      gaze.attempt(nibbler5) shouldBe null
-      gaze.attempt(nibbler6) shouldBe listOf('6')
-      gaze.attempt(nibbler7) shouldBe listOf('7')
-      gaze.attempt(nibbler8) shouldBe listOf('8')
-      gaze.attempt(nibbler8) shouldBe null
+      gaze.attempt(nibbler5) shouldBe Some(listOf('5'))
+      gaze.attempt(nibbler5) shouldBe none()
+      gaze.attempt(nibbler6) shouldBe Some(listOf('6'))
+      gaze.attempt(nibbler7) shouldBe Some(listOf('7'))
+      gaze.attempt(nibbler8) shouldBe Some(listOf('8'))
+      gaze.attempt(nibbler8) shouldBe none()
       gaze.isComplete shouldBe true
     }
   }

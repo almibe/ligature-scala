@@ -5,7 +5,6 @@
 package dev.ligature.idgen
 
 import io.kotest.core.spec.style.FunSpec
-import io.kotest.matchers.shouldBe
 
 class IDGenSuite : FunSpec() {
   init {
@@ -13,7 +12,7 @@ class IDGenSuite : FunSpec() {
       val regEx = "[0-9a-zA-Z_-]{12}".toRegex()
       for (i in 0..1000) {
         val id = genId()
-        regEx.matches(id).shouldBe(true)
+        assert(regEx.matches(id))
       }
     }
   }

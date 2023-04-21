@@ -2,14 +2,11 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-package dev.ligature.xodus
+package dev.ligature.wander
 
-import java.nio.file.*
+import dev.ligature.wander.parser.Script
+import arrow.core.Either
 
+data class TypeError(val message: String)
 
-
-
-
-// class InMemoryLigatureXodusSuite: LigatureTestSuite() {
-//  override fun createLigature(): Ligature = XodusLigature(null)
-// }
+fun typeCheck(script: Script): Either<List<TypeError>, Unit> = TODO()
