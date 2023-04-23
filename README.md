@@ -14,6 +14,7 @@ See additional documentation [here](https://github.com/almibe/ligature-documenta
 | ligature-xodus           | An implementation of Ligature using LMDB for persistence.                        | ✅   |   |
 | wander                   | A scripting language for working with Ligature.                                  | ✅   | ✅ |
 | gaze                     | A utility library for parsing text/data structures.                              | ✅   | ✅ |
+| ligature-repl            | A REPL for working with Wander and Ligature.                                     | ✅   |   |
 | ligature-http            | A JVM based server for Ligature following the ligature-http spec.                | ✅   |   |
 | ligature-http-test-suite | A test suite for ligature-http                                                   | ✅   |   |
 | ligature-http-in-memory  | An implementation of ligature-http that stores everything in memory.             | ✅   |   |
@@ -39,6 +40,12 @@ Use `test` to run tests.
 
 Use `scalafmtAll` to format code.
 
+### Running the console REPL
+
+To run the ligature-repl project run the following command outside of the sbt shell (sometimes if you run the REPL from within the sbt shell the two will cause issues, usually on the second time the REPL is ran).
+
+`sbt ligatureReplJVM/run`
+
 ### Running the Server
 
 The server can be ran using the `serve` command.
@@ -63,7 +70,7 @@ All ligature-http implementations accept the following arguemnts
 | Name   | Description                          | Default | Note                               |
 |--------|--------------------------------------|---------|------------------------------------|
 | --port | The port ligature-http is served on. | 4202    | Can be any valid port number.      |
- | --mode | The mode ligature-http is ran in.    | local   | Only local is currently supported. |
+| --mode | The mode ligature-http is ran in.    | local   | Only local is currently supported. |
 
 #### In Memory Configuration
 
