@@ -103,17 +103,16 @@ lazy val ligatureXodus = crossProject(JVMPlatform)
   .dependsOn(ligature, idgen, ligatureTestSuite % Test)
   .disablePlugins(RevolverPlugin)
 
-//TODO: test is broken for this project so I'm leaving it out for now, see #249
-//lazy val ligatureJS = crossProject(JSPlatform)
-//  .in(file("ligature-js"))
-//  .enablePlugins(ScalaJSPlugin)
-//  .jsSettings(
-//    name := "ligature-js",
-//    scalaVersion := scala3Version,
-//    scalaJSLinkerConfig ~= { _.withModuleKind(ModuleKind.ESModule) },
-//  )
-//  .dependsOn(ligature, wander)
-//  .disablePlugins(RevolverPlugin)
+lazy val ligatureJS = crossProject(JSPlatform)
+ .in(file("ligature-js"))
+ .enablePlugins(ScalaJSPlugin)
+ .jsSettings(
+   name := "ligature-js",
+   scalaVersion := scala3Version,
+   scalaJSLinkerConfig ~= { _.withModuleKind(ModuleKind.ESModule) },
+ )
+ .dependsOn(ligature, wander)
+ .disablePlugins(RevolverPlugin)
 
 lazy val ligatureRepl = crossProject(JVMPlatform)
   .in(file("ligature-repl"))
