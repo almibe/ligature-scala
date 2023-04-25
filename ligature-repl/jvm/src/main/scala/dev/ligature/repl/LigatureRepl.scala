@@ -10,6 +10,7 @@ import org.jline.reader.UserInterruptException
 import org.jline.reader.impl.DefaultParser
 import org.jline.terminal.Terminal
 import org.jline.terminal.TerminalBuilder
+import dev.ligature.wander.`new`.run
 
 @main def main() = {
   println("Welcome to Ligature's REPL!")
@@ -21,8 +22,8 @@ import org.jline.terminal.TerminalBuilder
     .build();
   var continue = true
   while (continue) {
-      val line: String = reader.readLine("> ")
-      System.out.println(line);
-      if (line.startsWith("q")) continue = false;
+    val line: String = reader.readLine("> ")
+    if (line.trim() == ":q") continue = false
+    else System.out.println(run(line))
   }
 }
