@@ -36,22 +36,20 @@ enum Token:
   case CloseParen
   case Arrow
 
-case class TokenizeError(message: String)
-
-def tokenize(input: String): Either[TokenizeError, Seq[Token]] = {
+def tokenize(input: String): Either[WanderError, Seq[Token]] = {
   val gaze = Gaze.from(input)
   gaze.attempt(tokensNib) match {
     case None =>
       if (gaze.isComplete) {
         Right(List())
       } else {
-        Left(TokenizeError("Error"))
+        Left(WanderError("Error"))
       }
     case Some(res) =>
       if (gaze.isComplete) {
         Right(res)
       } else {
-        Left(TokenizeError("Error"))
+        Left(WanderError("Error"))
       }
   }
 }

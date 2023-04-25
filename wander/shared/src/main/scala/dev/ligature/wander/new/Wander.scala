@@ -4,18 +4,34 @@
 
 package dev.ligature.wander.`new`
 
-def parse(tokens: List[Token]): List[Element] =
-    ???
+import dev.ligature.Identifier
 
-def interpret(elements: List[Element]): WanderValue =
-    ???
+def run(script: String): Either[WanderError, WanderValue] =
+  for
+    tokens      <- tokenize(script)
+    elements    <- parse(tokens)
+    expressions <- expressionize(elements)
+    result      <- eval(expressions)
+  yield result
 
-def run(script: String): String = {
-    script
-}
+def runPrint(script: String): String =
+  run(script) match
+    case Right(value) => printWanderValue(value)
+    case Left(err) => err.message
 
-enum Element:
-    case Integer(value: Long)
+case class WanderError(message: String)
 
 enum WanderValue:
     case Integer(value: Long)
+    case StringLiteral(value: String)
+    case BooleanLiteral(value: Boolean)
+    case Identifier(value: String)
+    case Nothing
+
+def printWanderValue(value: WanderValue): String =
+  value match
+    case WanderValue.Integer(value) => value.toString()
+    case WanderValue.StringLiteral(value) => s"\"$value\""
+    case WanderValue.Nothing => "nothing"
+    case WanderValue.BooleanLiteral(value) => value.toString()
+    case WanderValue.Identifier(value) => s"<$value>"

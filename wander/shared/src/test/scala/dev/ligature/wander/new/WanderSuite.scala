@@ -5,11 +5,42 @@
 package dev.ligature.wander.`new`
 
 import munit.FunSuite
+import munit.IgnoreSuite
 
 class WanderSuite extends FunSuite {
-  test("tokenize integers") {
-    val input = "5"
-    val expected = "5"
-    assertEquals(run(input), expected)
+  test("eval empty script") {
+    val input = ""
+    val expected = "nothing"
+    assertEquals(runPrint(input), expected)
+  }
+  test("eval nothing keyword") {
+    val input = "nothing"
+    val expected = "nothing"
+    assertEquals(runPrint(input), expected)
+  }
+  test("eval integer literal") {
+    val input = "-5"
+    val expected = "-5"
+    assertEquals(runPrint(input), expected)
+  }
+  test("eval integers") {
+    val input = "-1 0 500 -5000"
+    val expected = "-5000"
+    assertEquals(runPrint(input), expected)
+  }
+  test("eval string literal") {
+    val input = "\"hello\""
+    val expected = "\"hello\""
+    assertEquals(runPrint(input), expected)
+  }
+  test("eval boolean literal") {
+    val input = "false"
+    val expected = "false"
+    assertEquals(runPrint(input), expected)
+  }
+  test("eval Identifier") {
+    val input = "<hello>"
+    val expected = "<hello>"
+    assertEquals(runPrint(input), expected)
   }
 }
