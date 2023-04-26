@@ -73,7 +73,6 @@ def takeAllGrouped[I](
 }
 
 def takeString(toMatch: String): Nibbler[Char, Char] = {
-  //    let graphemes = to_match.graphemes(true).collect::<Vec<&str>>();
   val chars = toMatch.toVector
   return gaze => {
     var offset = 0
