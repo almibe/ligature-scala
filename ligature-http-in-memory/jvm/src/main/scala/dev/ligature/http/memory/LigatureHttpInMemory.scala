@@ -11,7 +11,7 @@ import dev.ligature.http.{AuthMode, runLigature}
 
 case class LigatureConfig(
    authMode: AuthMode = AuthMode.None,
-   port: Port = Port.fromInt(4202).get,
+   port: Port = Port.fromInt(4200).get,
 )
 
 object MainLigatureHttp extends IOApp {
@@ -19,12 +19,3 @@ object MainLigatureHttp extends IOApp {
     val config = LigatureConfig()
     runLigature(InMemoryLigature(), config.authMode, config.port)
 }
-
-//} else {
-//  IO {
-//  println("Could not start application.")
-//  println("A single mode argument is required.")
-//  println("Supported modes:")
-//  println("  --local")
-//  ExitCode.Error
-//}
