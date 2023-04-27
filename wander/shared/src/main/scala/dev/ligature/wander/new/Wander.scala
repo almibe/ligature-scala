@@ -8,30 +8,30 @@ import dev.ligature.Identifier
 
 def run(script: String): Either[WanderError, WanderValue] =
   for
-    tokens      <- tokenize(script)
-    elements    <- parse(tokens)
+    tokens <- tokenize(script)
+    elements <- parse(tokens)
     expressions <- expressionize(elements)
-    result      <- eval(expressions)
+    result <- eval(expressions)
   yield result
 
 def runPrint(script: String): String =
   run(script) match
     case Right(value) => printWanderValue(value)
-    case Left(err) => err.message
+    case Left(err)    => err.message
 
 case class WanderError(message: String)
 
 enum WanderValue:
-    case Integer(value: Long)
-    case StringLiteral(value: String)
-    case BooleanLiteral(value: Boolean)
-    case Identifier(value: String)
-    case Nothing
+  case Integer(value: Long)
+  case StringLiteral(value: String)
+  case BooleanLiteral(value: Boolean)
+  case Identifier(value: String)
+  case Nothing
 
 def printWanderValue(value: WanderValue): String =
   value match
-    case WanderValue.Integer(value) => value.toString()
-    case WanderValue.StringLiteral(value) => s"\"$value\""
-    case WanderValue.Nothing => "nothing"
+    case WanderValue.Integer(value)        => value.toString()
+    case WanderValue.StringLiteral(value)  => s"\"$value\""
+    case WanderValue.Nothing               => "nothing"
     case WanderValue.BooleanLiteral(value) => value.toString()
-    case WanderValue.Identifier(value) => s"<$value>"
+    case WanderValue.Identifier(value)     => s"<$value>"

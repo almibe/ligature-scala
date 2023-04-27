@@ -8,9 +8,9 @@ def eval(input: Seq[Expression]): Either[WanderError, WanderValue] =
   if input.isEmpty then Right(WanderValue.Nothing)
   else
     input.last match
-      case Expression.Integer(i) => Right(WanderValue.Integer(i))
-      case Expression.StringLiteral(s) => Right(WanderValue.StringLiteral(s))
-      case Expression.Nothing => Right(WanderValue.Nothing)
+      case Expression.Integer(i)        => Right(WanderValue.Integer(i))
+      case Expression.StringLiteral(s)  => Right(WanderValue.StringLiteral(s))
+      case Expression.Nothing           => Right(WanderValue.Nothing)
       case Expression.BooleanLiteral(b) => Right(WanderValue.BooleanLiteral(b))
-      case Expression.Identifier(i) => Right(WanderValue.Identifier(i))
-      case _ => Left(WanderError("Could not eval."))
+      case Expression.Identifier(i)     => Right(WanderValue.Identifier(i))
+      case _                            => Left(WanderError("Could not eval."))

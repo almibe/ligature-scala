@@ -31,47 +31,43 @@ def parse(input: Seq[Token]): Either[WanderError, Seq[Element]] = {
   val tokens = input.filter {
     _ match
       case Token.Space | Token.NewLine | Token.Comment(_) => false
-      case _ => true
+      case _                                              => true
   }
   val gaze = Gaze(tokens)
   gaze.attempt(elementsNib) match {
     case None =>
-      if gaze.isComplete then
-        Right(List())
-      else
-        Left(WanderError("Error"))
+      if gaze.isComplete then Right(List())
+      else Left(WanderError("Error"))
     case Some(res) =>
-      if gaze.isComplete then
-        Right(res)
-      else
-        Left(WanderError("Error"))
+      if gaze.isComplete then Right(res)
+      else Left(WanderError("Error"))
   }
 }
 
 val integerElementNib: Nibbler[Token, Element] = gaze =>
   gaze.next() match
     case Some(Token.Integer(i)) => Some(List(Element.Integer(i)))
-    case _ => None
+    case _                      => None
 
 val stringElementNib: Nibbler[Token, Element] = gaze =>
   gaze.next() match
     case Some(Token.StringLiteral(s)) => Some(List(Element.StringLiteral(s)))
-    case _ => None
+    case _                            => None
 
 val booleanElementNib: Nibbler[Token, Element] = gaze =>
   gaze.next() match
     case Some(Token.BooleanLiteral(b)) => Some(List(Element.BooleanLiteral(b)))
-    case _ => None
+    case _                             => None
 
 val nameElementNib: Nibbler[Token, Element] = gaze =>
   gaze.next() match
     case Some(Token.Name(n)) => Some(List(Element.Name(n)))
-    case _ => None
+    case _                   => None
 
 val identifierElementNib: Nibbler[Token, Element] = gaze =>
   gaze.next() match
     case Some(Token.Identifier(i)) => Some(List(Element.Identifier(i)))
-    case _ => None
+    case _                         => None
 
 val elementsNib: Nibbler[Token, Element] =
   repeat(
@@ -80,6 +76,6 @@ val elementsNib: Nibbler[Token, Element] =
       stringElementNib,
       nameElementNib,
       booleanElementNib,
-      identifierElementNib,
+      identifierElementNib
     )
   )
