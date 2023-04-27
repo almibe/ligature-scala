@@ -12,7 +12,7 @@ import com.comcast.ip4s.*
 import java.io.File
 
 case class LigatureConf(
-  port: Port = Port.fromInt(4202).get,
+  port: Port = Port.fromInt(4200).get,
   authMode: AuthMode = AuthMode.None,
   location: Option[String] = None
 )

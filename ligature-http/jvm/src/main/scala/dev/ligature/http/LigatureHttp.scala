@@ -18,7 +18,8 @@ import org.http4s.HttpRoutes
 import org.http4s.dsl.io.*
 import dev.ligature.{Dataset, Identifier, Ligature, LigatureError, Statement}
 import dev.ligature.lig.{LigError, read, write}
-import dev.ligature.wander.run
+import dev.ligature.wander.`new`.run
+import dev.ligature.wander.`new`.printWanderValue
 
 enum AuthMode:
   case None
@@ -42,18 +43,8 @@ class LigatureHttp(val ligature: Ligature, val mode: AuthMode, port: Port) {
 
   val routes = HttpRoutes
     .of[IO] {
-      case GET -> Root / "datasets"                => getDatasets()
-      case POST -> Root / "datasets" / datasetName => addDataset(datasetName)
-      case DELETE -> Root / "datasets" / datasetName =>
-        deleteDataset(datasetName)
-      case GET -> Root / "datasets" / datasetName / "statements" =>
-        getAllStatements(datasetName)
-      case req @ POST -> Root / "datasets" / datasetName / "statements" =>
-        addStatements(datasetName, req)
-      case req @ DELETE -> Root / "datasets" / datasetName / "statements" =>
-        deleteStatements(datasetName, req)
-      case req @ POST -> Root / "datasets" / datasetName / "wander" =>
-        runWanderQuery(datasetName, req)
+      case req @ POST -> Root / "wander" =>
+        runWanderQuery(req)
     }
     .orNotFound
 
@@ -152,18 +143,12 @@ class LigatureHttp(val ligature: Ligature, val mode: AuthMode, port: Port) {
     }
 
   def runWanderQuery(
-      datasetName: String,
       request: Request[IO]
   ): IO[Response[IO]] =
-    Dataset.fromString(datasetName) match {
-      case Right(dataset) =>
-        val body: IO[String] = request.bodyText.compile.string
-        body.map(script => run(script, dataset)).flatMap {
-          case Right(result) =>
-            Ok(result.toString)
-          case Left(err) => BadRequest(err.message)
-        }
-      case Left(err) =>
-        BadRequest(err.message)
+    val body: IO[String] = request.bodyText.compile.string
+    body.map(script => run(script)).flatMap {
+      case Right(result) =>
+        Ok(printWanderValue(result))
+      case Left(err) => BadRequest(err.message)
     }
 }

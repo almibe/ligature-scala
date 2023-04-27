@@ -94,18 +94,23 @@ def randomNanoId(random: Random, alphabet: Array[Char], size: Int): String = {
   val step: Int = Math.ceil(1.6 * mask * size / alphabet.length).toInt
   val idBuilder = StringBuilder()
 
-  while (true) {
+  var result: Option[String] = None
+
+  while (result.isEmpty) {
     val bytes = new Array[Byte](step)
     random.nextBytes(bytes)
-    for (i <- 0 to step) {
+    for (i <- 0 until step) {
       val alphabetIndex = bytes(i) & mask
       if (alphabetIndex < alphabet.length) {
         idBuilder.append(alphabet(alphabetIndex))
         if (idBuilder.length() == size) {
-          return idBuilder.toString()
+          result = Some(idBuilder.toString())
         }
       }
     }
   }
-  ??? // should never reach
+  result match {
+    case None => ???
+    case Some(value) => value
+  }
 }
