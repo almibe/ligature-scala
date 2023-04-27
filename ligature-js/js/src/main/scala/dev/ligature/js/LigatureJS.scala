@@ -10,5 +10,6 @@ import dev.ligature.wander.run as wanderRun
 import scala.scalajs.js.annotation.JSExportTopLevel
 
 @JSExportTopLevel("run")
-def run(script: String, dataset: Dataset): String =
+def run(script: String, dataset: Dataset): String = {
   wanderRun(script, dataset).toString
+}
