@@ -2,16 +2,15 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at https://mozilla.org/MPL/2.0/. */
 
-package dev.ligature.wander.`new`
+package dev.ligature.wander.command
 
 import dev.ligature.Identifier
 
 def run(script: String): Either[WanderError, WanderValue] =
   for
     tokens      <- tokenize(script)
-    elements    <- parse(tokens)
-    expressions <- expressionize(elements)
-    result      <- eval(expressions)
+    commands    <- parse(tokens)
+    result      <- eval(commands)
   yield result
 
 def runPrint(script: String): String =
@@ -26,6 +25,7 @@ enum WanderValue:
     case StringLiteral(value: String)
     case BooleanLiteral(value: Boolean)
     case Identifier(value: String)
+    case Tuple(values: Seq[WanderValue])
     case Nothing
 
 def printWanderValue(value: WanderValue): String =
@@ -35,3 +35,4 @@ def printWanderValue(value: WanderValue): String =
     case WanderValue.Nothing => "nothing"
     case WanderValue.BooleanLiteral(value) => value.toString()
     case WanderValue.Identifier(value) => s"<$value>"
+    case WanderValue.Tuple(values) => ???

@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-package dev.ligature.wander.`new`
+package dev.ligature.wander.command
 
 import dev.ligature.gaze.{
   Gaze,
@@ -29,12 +29,7 @@ enum Token:
   case StringLiteral(value: String)
   case EqualSign
   case Name(value: String)
-  case OpenBrace
-  case CloseBrace
-  case Colon
-  case OpenParen
-  case CloseParen
-  case Arrow
+  case OpenBrace, CloseBrace, Colon, OpenParen, CloseParen, OpenSquare, CloseSquare, Arrow
 
 def tokenize(input: String): Either[WanderError, Seq[Token]] = {
   val gaze = Gaze.from(input)
@@ -43,13 +38,13 @@ def tokenize(input: String): Either[WanderError, Seq[Token]] = {
       if (gaze.isComplete) {
         Right(List())
       } else {
-        Left(WanderError("Error"))
+        Left(WanderError(s"Error T1 - could not tokenize ${gaze.peek()}"))
       }
     case Some(res) =>
       if (gaze.isComplete) {
         Right(res)
       } else {
-        Left(WanderError("Error"))
+        Left(WanderError(s"Error T2 - could not tokenize ${gaze.peek()}"))
       }
   }
 }
@@ -92,6 +87,12 @@ val openBraceTokenNib =
 val closeBraceTokenNib =
   takeString("}").map(res => Seq(Token.CloseBrace))
 
+val openSquareTokenNib =
+  takeString("[").map(res => Seq(Token.OpenSquare))
+
+val closeSquareTokenNib =
+  takeString("]").map(res => Seq(Token.CloseSquare))
+
 val openParenTokenNib =
   takeString("(").map(res => Seq(Token.OpenParen))
 
@@ -117,6 +118,8 @@ val tokensNib: Nibbler[Char, Token] = repeat(
     colonTokenNib,
     openParenTokenNib,
     closeParenTokenNib,
+    openSquareTokenNib,
+    closeSquareTokenNib,
     arrowTokenNib,
     integerTokenNib,
     newLineTokenNib,
