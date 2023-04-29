@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at https://mozilla.org/MPL/2.0/. */
 
-package dev.ligature.wander.`new`
+package dev.ligature.wander.command
 
 import munit.FunSuite
 
@@ -27,5 +27,12 @@ class LexerSuite extends FunSuite {
       Token.CloseParen
       ))
     assertEquals(tokenize(input), expected)
+  }
+  test("tokenize tuple") {
+    val input = "[]"
+    val expected = Right(List(
+      Token.OpenSquare,
+      Token.CloseSquare
+    ))
   }
 }
