@@ -50,35 +50,35 @@ def expressionize(input: Seq[Element]): Either[WanderError, Seq[Expression]] = {
 private val integerExpressionNib: Nibbler[Element, Expression] = gaze =>
   gaze.next() match
     case Some(Element.Integer(i)) => Some(Seq(Expression.Integer(i)))
-    case _                        => None
+    case _ => None
 
 private val stringExpressionNib: Nibbler[Element, Expression] = gaze =>
   gaze.next() match
     case Some(Element.StringLiteral(s)) => Some(Seq(Expression.StringLiteral(s)))
-    case _                              => None
+    case _ => None
 
 private val nothingExpressionNib: Nibbler[Element, Expression] = gaze =>
   gaze.next() match
     case Some(Element.Name("nothing")) => Some(Seq(Expression.Nothing))
-    case _                             => None
+    case _ => None
 
 private val booleanExpressionNib: Nibbler[Element, Expression] = gaze =>
   gaze.next() match
     case Some(Element.BooleanLiteral(b)) => Some(Seq(Expression.BooleanLiteral(b)))
-    case _                               => None
+    case _ => None
 
 private val identifierExpressionNib: Nibbler[Element, Expression] = gaze =>
   gaze.next() match
     case (Some(Element.Identifier(i))) => Some(Seq(Expression.Identifier(i)))
-    case _                             => None
+    case _ => None
 
-val expressionsNib: Nibbler[Element, Expression] =
+val expressionsNib: Nibbler[Element, Expression] = 
   repeat(
     takeFirst(
       integerExpressionNib,
       stringExpressionNib,
       nothingExpressionNib,
       booleanExpressionNib,
-      identifierExpressionNib
+      identifierExpressionNib,
     )
   )
