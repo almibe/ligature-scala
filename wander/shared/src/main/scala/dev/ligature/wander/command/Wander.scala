@@ -8,31 +8,31 @@ import dev.ligature.Identifier
 
 def run(script: String): Either[WanderError, WanderValue] =
   for
-    tokens      <- tokenize(script)
-    commands    <- parse(tokens)
-    result      <- eval(commands)
+    tokens <- tokenize(script)
+    commands <- parse(tokens)
+    result <- eval(commands)
   yield result
 
 def runPrint(script: String): String =
   run(script) match
     case Right(value) => printWanderValue(value)
-    case Left(err) => err.message
+    case Left(err)    => err.message
 
 case class WanderError(message: String)
 
 enum WanderValue:
-    case Integer(value: Long)
-    case StringLiteral(value: String)
-    case BooleanLiteral(value: Boolean)
-    case Identifier(value: String)
-    case Tuple(values: Seq[WanderValue])
-    case Nothing
+  case Integer(value: Long)
+  case StringLiteral(value: String)
+  case BooleanLiteral(value: Boolean)
+  case Identifier(value: String)
+  case Tuple(values: Seq[WanderValue])
+  case Nothing
 
 def printWanderValue(value: WanderValue): String =
   value match
-    case WanderValue.Integer(value) => value.toString()
-    case WanderValue.StringLiteral(value) => s"\"$value\""
-    case WanderValue.Nothing => "nothing"
+    case WanderValue.Integer(value)        => value.toString()
+    case WanderValue.StringLiteral(value)  => s"\"$value\""
+    case WanderValue.Nothing               => "nothing"
     case WanderValue.BooleanLiteral(value) => value.toString()
-    case WanderValue.Identifier(value) => s"<$value>"
-    case WanderValue.Tuple(values) => ???
+    case WanderValue.Identifier(value)     => s"<$value>"
+    case WanderValue.Tuple(values)         => ???
