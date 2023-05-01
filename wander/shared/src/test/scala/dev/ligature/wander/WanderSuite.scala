@@ -7,9 +7,7 @@ package dev.ligature.wander
 import dev.ligature.wander.parser.parse
 import dev.ligature.wander.lexer.tokenize
 import munit.FunSuite
-import munit.IgnoreSuite
 
-@IgnoreSuite
 class WanderSuite extends FunSuite {
   val testLexer = true
   val testParser = true

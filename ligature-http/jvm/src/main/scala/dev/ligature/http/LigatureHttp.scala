@@ -18,8 +18,9 @@ import org.http4s.HttpRoutes
 import org.http4s.dsl.io.*
 import dev.ligature.{Dataset, Identifier, Ligature, LigatureError, Statement}
 import dev.ligature.lig.{LigError, read, write}
-import dev.ligature.wander.`new`.run
-import dev.ligature.wander.`new`.printWanderValue
+import dev.ligature.wander.run
+import dev.ligature.wander.printWanderValue
+import dev.ligature.wander.parser.ScriptResult
 
 enum AuthMode:
   case None
@@ -146,8 +147,8 @@ class LigatureHttp(val ligature: Ligature, val mode: AuthMode, port: Port) {
       request: Request[IO]
   ): IO[Response[IO]] =
     val body: IO[String] = request.bodyText.compile.string
-    body.map(script => run(script)).flatMap {
-      case Right(result) =>
+    body.map(script => run(script, null)).flatMap {
+      case Right(ScriptResult(result)) =>
         Ok(printWanderValue(result))
       case Left(err) => BadRequest(err.message)
     }
