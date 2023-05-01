@@ -14,29 +14,25 @@ class LexerSuite extends FunSuite {
   }
   test("tokenize parens") {
     val input = "()()(())))"
-    val expected = Right(
-      List(
-        Token.OpenParen,
-        Token.CloseParen,
-        Token.OpenParen,
-        Token.CloseParen,
-        Token.OpenParen,
-        Token.OpenParen,
-        Token.CloseParen,
-        Token.CloseParen,
-        Token.CloseParen,
-        Token.CloseParen
-      )
-    )
+    val expected = Right(List(
+      Token.OpenParen,
+      Token.CloseParen,
+      Token.OpenParen,
+      Token.CloseParen,
+      Token.OpenParen,
+      Token.OpenParen,
+      Token.CloseParen,
+      Token.CloseParen,
+      Token.CloseParen,
+      Token.CloseParen
+      ))
     assertEquals(tokenize(input), expected)
   }
   test("tokenize tuple") {
     val input = "[]"
-    val expected = Right(
-      List(
-        Token.OpenSquare,
-        Token.CloseSquare
-      )
-    )
+    val expected = Right(List(
+      Token.OpenSquare,
+      Token.CloseSquare
+    ))
   }
 }

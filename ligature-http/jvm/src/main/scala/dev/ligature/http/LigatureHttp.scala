@@ -25,12 +25,10 @@ enum AuthMode:
   case None
 
 def runLigature(ligature: Ligature, authMode: AuthMode, port: Port): IO[ExitCode] =
-  val instance = LigatureHttp(
-    ligature,
-    authMode,
-    port
-  )
-  instance.startLocal()
+    val instance = LigatureHttp(
+      ligature, authMode, port
+    )
+    instance.startLocal()
 
 class LigatureHttp(val ligature: Ligature, val mode: AuthMode, port: Port) {
   private[http] def startLocal(): IO[ExitCode] =
@@ -44,8 +42,9 @@ class LigatureHttp(val ligature: Ligature, val mode: AuthMode, port: Port) {
       .as(ExitCode.Success)
 
   val routes = HttpRoutes
-    .of[IO] { case req @ POST -> Root / "wander" =>
-      runWanderQuery(req)
+    .of[IO] {
+      case req @ POST -> Root / "wander" =>
+        runWanderQuery(req)
     }
     .orNotFound
 

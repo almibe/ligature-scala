@@ -11,10 +11,10 @@ def eval(input: Seq[Command]): Either[WanderError, WanderValue] =
   if input.isEmpty then Right(WanderValue.Nothing)
   else
     input.last match
-      case Command.AddStatement               => ???
-      case Command.Datasets                   => ???
-      case Command.RemoveStatement            => ???
-      case Command.Statements                 => ???
+      case Command.AddStatement => ???
+      case Command.Datasets => ???
+      case Command.RemoveStatement => ???
+      case Command.Statements => ???
       case Command.CreateDataset(datasetName) => ???
-      case Command.Literal(value)             => ???
+      case Command.Literal(value) => ???
       case Command.RemoveDataset(datasetName) => ???

@@ -110,7 +110,7 @@ def randomNanoId(random: Random, alphabet: Array[Char], size: Int): String = {
     }
   }
   result match {
-    case None        => ???
+    case None => ???
     case Some(value) => value
   }
 }

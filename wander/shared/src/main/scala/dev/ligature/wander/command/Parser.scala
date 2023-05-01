@@ -44,7 +44,7 @@ val commandNib: Nibbler[Token, Command] = repeat(
   takeFirst(
     datasetsNib,
     createDatasetNib,
-    removeDatasetNib
+    removeDatasetNib,
     // statementsNib,
     // addStatementNib,
     // removeStatementNib
@@ -55,16 +55,20 @@ def parse(input: Seq[Token]): Either[WanderError, Seq[Command]] = {
   val tokens = input.filter {
     _ match
       case Token.Space | Token.NewLine | Token.Comment(_) => false
-      case _                                              => true
+      case _ => true
   }
   val gaze = Gaze(tokens)
   gaze.attempt(commandsNib) match {
     case None =>
-      if gaze.isComplete then Right(List())
-      else Left(WanderError(s"Error P1 - Could not parse ${gaze.peek()}"))
+      if gaze.isComplete then
+        Right(List())
+      else
+        Left(WanderError(s"Error P1 - Could not parse ${gaze.peek()}"))
     case Some(res) =>
-      if gaze.isComplete then Right(res)
-      else Left(WanderError(s"Error P2 - Could not parser ${gaze.peek()}"))
+      if gaze.isComplete then
+        Right(res)
+      else
+        Left(WanderError(s"Error P2 - Could not parser ${gaze.peek()}"))
   }
 }
 
@@ -81,17 +85,17 @@ def parse(input: Seq[Token]): Either[WanderError, Seq[Command]] = {
 val integerCommandNib: Nibbler[Token, Command] = gaze =>
   gaze.next() match
     case Some(Token.Integer(i)) => Some(List(Command.Literal(i)))
-    case _                      => None
+    case _ => None
 
 val stringCommandNib: Nibbler[Token, Command] = gaze =>
   gaze.next() match
     case Some(Token.StringLiteral(s)) => Some(List(Command.Literal(s)))
-    case _                            => None
+    case _ => None
 
 val booleanCommandNib: Nibbler[Token, Command] = gaze =>
   gaze.next() match
     case Some(Token.BooleanLiteral(b)) => Some(List(Command.Literal(b)))
-    case _                             => None
+    case _ => None
 
 // val nameCommandNib: Nibbler[Token, Command] = gaze =>
 //   gaze.next() match
@@ -101,7 +105,7 @@ val booleanCommandNib: Nibbler[Token, Command] = gaze =>
 val identifierCommandNib: Nibbler[Token, Command] = gaze =>
   gaze.next() match
     case Some(Token.Identifier(i)) => Some(List(Command.Literal(i)))
-    case _                         => None
+    case _ => None
 
 val commandsNib: Nibbler[Token, Command] =
   repeat(
@@ -110,7 +114,7 @@ val commandsNib: Nibbler[Token, Command] =
       stringCommandNib,
 //      nameCommandNib,
       booleanCommandNib,
-      identifierCommandNib
+      identifierCommandNib,
 //      tupleCommandNib,
     )
   )
