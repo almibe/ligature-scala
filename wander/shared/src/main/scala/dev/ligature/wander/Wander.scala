@@ -37,21 +37,19 @@ def interpret(
   script.eval(bindings)
 }
 
-def printResult(result: Either[ScriptError, ScriptResult]): String = {
+def printResult(result: Either[ScriptError, ScriptResult]): String =
   result match {
-    case Left(value) => value.message
+    case Left(value)                => value.message
     case Right(ScriptResult(value)) => printWanderValue(value)
   }
-}
 
-def printWanderValue(value: WanderValue): String = {
+def printWanderValue(value: WanderValue): String =
   value match {
-    case BooleanValue(value) => value.toString()
-    case LigatureValue(value) => writeValue(value)
+    case BooleanValue(value)                      => value.toString()
+    case LigatureValue(value)                     => writeValue(value)
     case NativeFunction(parameters, body, output) => "[NativeFunction]"
-    case Nothing => "nothing"
-    case ResultStream(stream) => "[ResultStream]"
-    case StatementValue(value) => "[StatementValue]"
+    case Nothing                                  => "nothing"
+    case ResultStream(stream)                     => "[ResultStream]"
+    case StatementValue(value)                    => "[StatementValue]"
     case WanderFunction(parameters, output, body) => "[WanderFunction]"
   }
-}
