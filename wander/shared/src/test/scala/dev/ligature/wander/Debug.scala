@@ -24,7 +24,7 @@ import dev.ligature.wander.lexer.tokenize
   println("AST")
   println(ast.getOrElse(???))
   println("---")
-  val result = run(input, Dataset.fromString("test").getOrElse(???))
+  val result = run(input, Dataset.fromString("test").getOrElse(???), common())
   println("Result")
   println(result.getOrElse(???))
 }

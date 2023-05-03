@@ -16,23 +16,38 @@ import dev.ligature.wander.parser.{
 import dev.ligature.{Ligature, Dataset}
 import dev.ligature.wander.parser.WanderType
 
-def createStandardBindings(dataset: Dataset): Bindings = {
-  val bindings = common()
-  datasetModeBindings(bindings, dataset)
+def instanceMode(instance: Ligature): Bindings = {
+  var bindings = common()
+
+
+  //TODO datasets
+  //TODO addDataset
+  //TODO removeDataset
+  //TODO datasetExists
+  //TODO add
+  bindings
 }
 
+// def createStandardBindings(dataset: Dataset): Bindings = {
+//   val bindings = common()
+//   datasetModeBindings(bindings, dataset)
+// }
+
+/**
+ * 
+ */
 def common(): Bindings = {
   var stdLib = Bindings()
 
-  stdLib = stdLib
-    .bindVariable(
-      Name("log"),
-      NativeFunction(
-        List(Parameter(Name("message"), WanderType.String)),
-        (binding: Bindings) => ???
-      )
-    )
-    .getOrElse(???)
+  // stdLib = stdLib
+  //   .bindVariable(
+  //     Name("log"),
+  //     NativeFunction(
+  //       List(Parameter(Name("message"), WanderType.String)),
+  //       (binding: Bindings) => ???
+  //     )
+  //   )
+  //   .getOrElse(???)
 
   stdLib = stdLib
     .bindVariable(

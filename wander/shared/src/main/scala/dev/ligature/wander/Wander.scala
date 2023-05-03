@@ -19,21 +19,22 @@ import dev.ligature.wander.parser.WanderFunction
 
 def run(
     script: String,
-    dataset: Dataset
+    dataset: Dataset,
+    bindings: Bindings
 ): Either[ScriptError, ScriptResult] =
   for {
     tokens <- tokenize(script).left.map { (e: TokenizeError) =>
       ScriptError(e.message)
     }
     script <- parse(tokens).left.map(ScriptError(_))
-    result <- interpret(script, dataset)
+    result <- interpret(script, dataset, bindings)
   } yield result
 
 def interpret(
     script: Script,
-    dataset: Dataset
+    dataset: Dataset,
+    bindings: Bindings
 ): Either[ScriptError, ScriptResult] = {
-  val bindings = createStandardBindings(dataset)
   script.eval(bindings)
 }
 

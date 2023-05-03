@@ -50,7 +50,7 @@ class WanderSuite extends FunSuite {
         test(
           s"Interpreting -- ${testGroup.category} -- ${instance.description}"
         ) {
-          val result = run(instance.script, testGroup.dataset)
+          val result = run(instance.script, testGroup.dataset, common())
           assertEquals(
             result,
             instance.result,
