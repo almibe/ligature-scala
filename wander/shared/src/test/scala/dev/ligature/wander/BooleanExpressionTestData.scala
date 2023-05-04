@@ -4,7 +4,7 @@
 
 package dev.ligature.wander
 
-import dev.ligature.wander.lexer.{Token, TokenType}
+import dev.ligature.wander.Token
 import dev.ligature.wander.parser.{BooleanValue, FunctionCall, Name, Script, ScriptResult}
 
 val booleanExpression = List(
@@ -12,10 +12,10 @@ val booleanExpression = List(
     description = "not function",
     script = "not(true)",
     tokens = List(
-      Token("not", TokenType.Name),
-      Token("(", TokenType.OpenParen),
-      Token("true", TokenType.Boolean),
-      Token(")", TokenType.CloseParen)
+      Token.Name("not"),
+      Token.OpenParen,
+      Token.BooleanLiteral(true),
+      Token.CloseParen
     ),
     ast = Script(
       List(
@@ -28,17 +28,17 @@ val booleanExpression = List(
     description = "boolean1 test",
     script = "or(true and(false false))",
     tokens = List(
-      Token("or", TokenType.Name),
-      Token("(", TokenType.OpenParen),
-      Token("true", TokenType.Boolean),
-      Token(" ", TokenType.Spaces),
-      Token("and", TokenType.Name),
-      Token("(", TokenType.OpenParen),
-      Token("false", TokenType.Boolean),
-      Token(" ", TokenType.Spaces),
-      Token("false", TokenType.Boolean),
-      Token(")", TokenType.CloseParen),
-      Token(")", TokenType.CloseParen)
+      Token.Name("or"),
+      Token.OpenParen,
+      Token.BooleanLiteral(true),
+      Token.Spaces(" "),
+      Token.Name("and"),
+      Token.OpenParen,
+      Token.BooleanLiteral(false),
+      Token.Spaces(" "),
+      Token.BooleanLiteral(false),
+      Token.CloseParen,
+      Token.CloseParen
     ),
     ast = Script(
       List(
@@ -60,17 +60,17 @@ val booleanExpression = List(
     description = "boolean2 test",
     script = "and(or(true false) false)",
     tokens = List(
-      Token("and", TokenType.Name),
-      Token("(", TokenType.OpenParen),
-      Token("or", TokenType.Name),
-      Token("(", TokenType.OpenParen),
-      Token("true", TokenType.Boolean),
-      Token(" ", TokenType.Spaces),
-      Token("false", TokenType.Boolean),
-      Token(")", TokenType.CloseParen),
-      Token(" ", TokenType.Spaces),
-      Token("false", TokenType.Boolean),
-      Token(")", TokenType.CloseParen)
+      Token.Name("and"),
+      Token.OpenParen,
+      Token.Name("or"),
+      Token.OpenParen,
+      Token.BooleanLiteral(true),
+      Token.Spaces(" "),
+      Token.BooleanLiteral(false),
+      Token.CloseParen,
+      Token.Spaces(" "),
+      Token.BooleanLiteral(false),
+      Token.CloseParen
     ),
     ast = Script(
       List(

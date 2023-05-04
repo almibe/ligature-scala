@@ -6,7 +6,7 @@ package dev.ligature.wander
 
 import dev.ligature.Dataset
 import dev.ligature.wander.parser.parse
-import dev.ligature.wander.lexer.tokenize
+import dev.ligature.wander.tokenize
 import dev.ligature.wander.common
 
 @main def wanderDebug() = {

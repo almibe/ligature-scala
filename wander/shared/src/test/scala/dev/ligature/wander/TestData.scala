@@ -4,7 +4,7 @@
 
 package dev.ligature.wander
 
-import dev.ligature.wander.lexer.Token
+import dev.ligature.wander.Token
 import dev.ligature.wander.parser.{
   BooleanValue,
   Else,
@@ -23,7 +23,6 @@ import dev.ligature.wander.parser.{
   WanderFunction,
   WanderValue
 }
-import dev.ligature.wander.TokenType
 import dev.ligature.{Dataset, Identifier, IntegerLiteral, StringLiteral}
 
 case class TestData(

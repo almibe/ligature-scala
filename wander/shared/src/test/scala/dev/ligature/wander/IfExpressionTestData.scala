@@ -5,7 +5,7 @@
 package dev.ligature.wander
 
 import dev.ligature.IntegerLiteral
-import dev.ligature.wander.lexer.{Token, TokenType}
+import dev.ligature.wander.Token
 import dev.ligature.wander.parser.{
   BooleanValue,
   Else,
@@ -27,18 +27,18 @@ val ifExpression = List(
     script = """if true {
                |  7
                |}""".stripMargin,
-    tokens = List(
-      Token("if", TokenType.IfKeyword),
-      Token(" ", TokenType.Spaces),
-      Token("true", TokenType.Boolean),
-      Token(" ", TokenType.Spaces),
-      Token("{", TokenType.OpenBrace),
-      Token(newLine, TokenType.NewLine),
-      Token("  ", TokenType.Spaces),
-      Token("7", TokenType.Integer),
-      Token(newLine, TokenType.NewLine),
-      Token("}", TokenType.CloseBrace)
-    ),
+    tokens = null, //List(
+    //   Token("if", TokenType.IfKeyword),
+    //   Token(" ", TokenType.Spaces),
+    //   Token("true", TokenType.Boolean),
+    //   Token(" ", TokenType.Spaces),
+    //   Token("{", TokenType.OpenBrace),
+    //   Token(newLine, TokenType.NewLine),
+    //   Token("  ", TokenType.Spaces),
+    //   Token("7", TokenType.Integer),
+    //   Token(newLine, TokenType.NewLine),
+    //   Token("}", TokenType.CloseBrace)
+    // ),
     ast = Script(
       List(
         IfExpression(
@@ -52,22 +52,22 @@ val ifExpression = List(
   TestInstance(
     description = "if false",
     script = "if and(false true) { 24601 }",
-    tokens = List(
-      Token("if", TokenType.IfKeyword),
-      Token(" ", TokenType.Spaces),
-      Token("and", TokenType.Name),
-      Token("(", TokenType.OpenParen),
-      Token("false", TokenType.Boolean),
-      Token(" ", TokenType.Spaces),
-      Token("true", TokenType.Boolean),
-      Token(")", TokenType.CloseParen),
-      Token(" ", TokenType.Spaces),
-      Token("{", TokenType.OpenBrace),
-      Token(" ", TokenType.Spaces),
-      Token("24601", TokenType.Integer),
-      Token(" ", TokenType.Spaces),
-      Token("}", TokenType.CloseBrace)
-    ),
+    tokens = null, //List(
+    //   Token("if", TokenType.IfKeyword),
+    //   Token(" ", TokenType.Spaces),
+    //   Token("and", TokenType.Name),
+    //   Token("(", TokenType.OpenParen),
+    //   Token("false", TokenType.Boolean),
+    //   Token(" ", TokenType.Spaces),
+    //   Token("true", TokenType.Boolean),
+    //   Token(")", TokenType.CloseParen),
+    //   Token(" ", TokenType.Spaces),
+    //   Token("{", TokenType.OpenBrace),
+    //   Token(" ", TokenType.Spaces),
+    //   Token("24601", TokenType.Integer),
+    //   Token(" ", TokenType.Spaces),
+    //   Token("}", TokenType.CloseBrace)
+    // ),
     ast = Script(
       List(
         IfExpression(

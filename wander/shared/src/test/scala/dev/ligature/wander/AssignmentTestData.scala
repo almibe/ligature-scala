@@ -5,7 +5,7 @@
 package dev.ligature.wander
 
 import dev.ligature.IntegerLiteral
-import dev.ligature.wander.lexer.{Token, TokenType}
+import dev.ligature.wander.Token
 import dev.ligature.wander.parser.{
   BooleanValue,
   LetStatement,
@@ -22,13 +22,13 @@ val assignmentTestData = List(
     description = "basic let",
     script = "let x = 5",
     tokens = List(
-      Token("let", TokenType.LetKeyword),
-      Token(" ", TokenType.Spaces),
-      Token("x", TokenType.Name),
-      Token(" ", TokenType.Spaces),
-      Token("=", TokenType.EqualSign),
-      Token(" ", TokenType.Spaces),
-      Token("5", TokenType.Integer)
+      Token.LetKeyword,
+      Token.Spaces(" "),
+      Token.Name("x"),
+      Token.Spaces(" "),
+      Token.EqualSign,
+      Token.Spaces(" "),
+      Token.IntegerLiteral(5)
     ),
     ast = Script(List(LetStatement(Name("x"), LigatureValue(IntegerLiteral(5))))),
     result = Right(ScriptResult(Nothing))
@@ -37,13 +37,13 @@ val assignmentTestData = List(
     description = "make sure keyword parser is greedy",
     script = "let trued = true",
     tokens = List(
-      Token("let", TokenType.LetKeyword),
-      Token(" ", TokenType.Spaces),
-      Token("trued", TokenType.Name),
-      Token(" ", TokenType.Spaces),
-      Token("=", TokenType.EqualSign),
-      Token(" ", TokenType.Spaces),
-      Token("true", TokenType.Boolean)
+      Token.LetKeyword,
+      Token.Spaces(" "),
+      Token.Name("trued"),
+      Token.Spaces(" "),
+      Token.EqualSign,
+      Token.Spaces(" "),
+      Token.BooleanLiteral(true)
     ),
     ast = Script(List(LetStatement(Name("trued"), BooleanValue(true)))),
     result = Right(ScriptResult(Nothing))
@@ -53,15 +53,15 @@ val assignmentTestData = List(
     script = """let hello = 5
                |hello""".stripMargin,
     tokens = List(
-      Token("let", TokenType.LetKeyword),
-      Token(" ", TokenType.Spaces),
-      Token("hello", TokenType.Name),
-      Token(" ", TokenType.Spaces),
-      Token("=", TokenType.EqualSign),
-      Token(" ", TokenType.Spaces),
-      Token("5", TokenType.Integer),
-      Token(newLine, TokenType.NewLine),
-      Token("hello", TokenType.Name)
+      Token.LetKeyword,
+      Token.Spaces(" "),
+      Token.Name("hello"),
+      Token.Spaces(" "),
+      Token.EqualSign,
+      Token.Spaces(" "),
+      Token.IntegerLiteral(5),
+      Token.NewLine,
+      Token.Name("hello")
     ),
     ast = Script(
       List(
@@ -78,21 +78,21 @@ val assignmentTestData = List(
                |  x
                |}""".stripMargin,
     tokens = List(
-      Token("{", TokenType.OpenBrace),
-      Token(newLine, TokenType.NewLine),
-      Token("  ", TokenType.Spaces),
-      Token("let", TokenType.LetKeyword),
-      Token(" ", TokenType.Spaces),
-      Token("x", TokenType.Name),
-      Token(" ", TokenType.Spaces),
-      Token("=", TokenType.EqualSign),
-      Token(" ", TokenType.Spaces),
-      Token("7", TokenType.Integer),
-      Token(newLine, TokenType.NewLine),
-      Token("  ", TokenType.Spaces),
-      Token("x", TokenType.Name),
-      Token(newLine, TokenType.NewLine),
-      Token("}", TokenType.CloseBrace)
+      Token.OpenBrace,
+      Token.NewLine,
+      Token.Spaces("  "),
+      Token.LetKeyword,
+      Token.Spaces(" "),
+      Token.Name("x"),
+      Token.Spaces(" "),
+      Token.EqualSign,
+      Token.Spaces(" "),
+      Token.IntegerLiteral(7),
+      Token.NewLine,
+      Token.Spaces("  "),
+      Token.Name("x"),
+      Token.NewLine,
+      Token.CloseBrace
     ),
     ast = Script(
       List(
@@ -114,29 +114,29 @@ val assignmentTestData = List(
                |  x
                |}""".stripMargin,
     tokens = List(
-      Token("let", TokenType.LetKeyword),
-      Token(" ", TokenType.Spaces),
-      Token("x", TokenType.Name),
-      Token(" ", TokenType.Spaces),
-      Token("=", TokenType.EqualSign),
-      Token(" ", TokenType.Spaces),
-      Token("5", TokenType.Integer),
-      Token(newLine, TokenType.NewLine),
-      Token("{", TokenType.OpenBrace),
-      Token(newLine, TokenType.NewLine),
-      Token("  ", TokenType.Spaces),
-      Token("let", TokenType.LetKeyword),
-      Token(" ", TokenType.Spaces),
-      Token("x", TokenType.Name),
-      Token(" ", TokenType.Spaces),
-      Token("=", TokenType.EqualSign),
-      Token(" ", TokenType.Spaces),
-      Token("7", TokenType.Integer),
-      Token(newLine, TokenType.NewLine),
-      Token("  ", TokenType.Spaces),
-      Token("x", TokenType.Name),
-      Token(newLine, TokenType.NewLine),
-      Token("}", TokenType.CloseBrace)
+      Token.LetKeyword,
+      Token.Spaces(" "),
+      Token.Name("x"),
+      Token.Spaces(" "),
+      Token.EqualSign,
+      Token.Spaces(" "),
+      Token.IntegerLiteral(5),
+      Token.NewLine,
+      Token.OpenBrace,
+      Token.NewLine,
+      Token.Spaces("  "),
+      Token.LetKeyword,
+      Token.Spaces(" "),
+      Token.Name("x"),
+      Token.Spaces(" "),
+      Token.EqualSign,
+      Token.Spaces(" "),
+      Token.IntegerLiteral(7),
+      Token.NewLine,
+      Token.Spaces("  "),
+      Token.Name("x"),
+      Token.NewLine,
+      Token.CloseBrace
     ),
     ast = Script(
       List(
