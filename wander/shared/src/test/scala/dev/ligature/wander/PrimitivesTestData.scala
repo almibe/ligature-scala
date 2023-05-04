@@ -5,7 +5,7 @@
 package dev.ligature.wander
 
 import dev.ligature.{Identifier, IntegerLiteral, StringLiteral}
-import dev.ligature.wander.lexer.{Token, TokenType}
+import dev.ligature.wander.Token
 import dev.ligature.wander.parser.{BooleanValue, LigatureValue, Nothing, Script, ScriptResult}
 
 val primitivesTestData = List(

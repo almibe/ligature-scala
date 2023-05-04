@@ -5,7 +5,7 @@
 package dev.ligature.wander
 
 import dev.ligature.wander.parser.parse
-import dev.ligature.wander.lexer.tokenize
+import dev.ligature.wander.tokenize
 import munit.FunSuite
 
 class WanderSuite extends FunSuite {
@@ -50,7 +50,7 @@ class WanderSuite extends FunSuite {
         test(
           s"Interpreting -- ${testGroup.category} -- ${instance.description}"
         ) {
-          val result = run(instance.script, testGroup.dataset, common())
+          val result = run(instance.script, common())
           assertEquals(
             result,
             instance.result,
