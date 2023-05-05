@@ -10,8 +10,8 @@ import dev.ligature.inmemory.InMemoryLigature
 import dev.ligature.http.{AuthMode, runLigature}
 
 case class LigatureConfig(
-    authMode: AuthMode = AuthMode.None,
-    port: Port = Port.fromInt(4200).get
+   authMode: AuthMode = AuthMode.None,
+   port: Port = Port.fromInt(4200).get,
 )
 
 object MainLigatureHttp extends IOApp {
