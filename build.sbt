@@ -122,7 +122,7 @@ lazy val ligatureRepl = crossProject(JVMPlatform)
     libraryDependencies += "org.jline" % "jline" % "3.22.0",
     libraryDependencies += "org.jline" % "jline-terminal-jansi" % "3.22.0",
   )
-  .dependsOn(ligature, lig, wander)
+  .dependsOn(ligature, lig, wander, ligatureInMemory, ligatureXodus)
   .disablePlugins(RevolverPlugin)
 
 val http4sVersion = "1.0.0-M32"

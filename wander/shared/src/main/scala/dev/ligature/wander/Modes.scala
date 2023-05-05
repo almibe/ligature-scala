@@ -15,24 +15,53 @@ import dev.ligature.wander.parser.{
 }
 import dev.ligature.{Ligature, Dataset}
 import dev.ligature.wander.parser.WanderType
+import dev.ligature.wander.parser.LigatureValue
+import dev.ligature.Identifier
 
-def createStandardBindings(dataset: Dataset): Bindings = {
-  val bindings = common()
-  datasetModeBindings(bindings, dataset)
+def instanceMode(instance: Ligature): Bindings = {
+  var bindings = common()
+
+  bindings = bindings.bindVariable(Name("datasets"), NativeFunction(
+    List(),
+    (binding: Bindings) => Right(LigatureValue(Identifier.fromString("test").getOrElse(???)))
+  )).getOrElse(???)
+
+  bindings = bindings.bindVariable(Name("addDataset"), NativeFunction(
+    List(Parameter(Name("message"), WanderType.String)),
+    (binding: Bindings) => ???
+  )).getOrElse(???)
+
+  //TODO datasets
+  //TODO addDataset
+  //TODO removeDataset
+  //TODO datasetExists
+  //TODO addStatement
+  //TODO removeStatement
+  //TODO addAll
+  //TODO removeAll
+  bindings
 }
 
+// def createStandardBindings(dataset: Dataset): Bindings = {
+//   val bindings = common()
+//   datasetModeBindings(bindings, dataset)
+// }
+
+/**
+ * 
+ */
 def common(): Bindings = {
   var stdLib = Bindings()
 
-  stdLib = stdLib
-    .bindVariable(
-      Name("log"),
-      NativeFunction(
-        List(Parameter(Name("message"), WanderType.String)),
-        (binding: Bindings) => ???
-      )
-    )
-    .getOrElse(???)
+  // stdLib = stdLib
+  //   .bindVariable(
+  //     Name("log"),
+  //     NativeFunction(
+  //       List(Parameter(Name("message"), WanderType.String)),
+  //       (binding: Bindings) => ???
+  //     )
+  //   )
+  //   .getOrElse(???)
 
   stdLib = stdLib
     .bindVariable(

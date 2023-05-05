@@ -12,6 +12,8 @@ import org.jline.terminal.Terminal
 import org.jline.terminal.TerminalBuilder
 import dev.ligature.wander.run
 import dev.ligature.wander.printResult
+import dev.ligature.wander.instanceMode
+import dev.ligature.inmemory.InMemoryLigature
 
 @main def main() = {
   println("Welcome to Ligature's REPL!")
@@ -25,6 +27,6 @@ import dev.ligature.wander.printResult
   while (continue) {
     val line: String = reader.readLine("> ")
     if (line.trim() == ":q") continue = false
-    else println(printResult(run(line, null)))
+    else println(printResult(run(line, instanceMode(InMemoryLigature()))))
   }
 }

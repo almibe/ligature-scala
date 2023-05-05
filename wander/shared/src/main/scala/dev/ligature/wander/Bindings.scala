@@ -8,81 +8,26 @@ import dev.ligature.wander.parser.{Name, ScriptError, WanderValue}
 import dev.ligature.wander.parser.FunctionDefinition
 import dev.ligature.wander.parser.NativeFunction
 
-case class Scope(
-    variables: Map[Name, WanderValue],
-    functions: Map[Name, List[FunctionDefinition]]
-)
+case class Scope(variables: Map[Name, WanderValue])
 
-case class Bindings(scopes: List[Scope] = List(Scope(Map(), Map()))) {
+case class Bindings(scopes: List[Scope] = List(Scope(Map()))) {
   def newScope(): Bindings =
-    Bindings(this.scopes.appended(Scope(Map(), Map())))
+    Bindings(this.scopes.appended(Scope(Map())))
 
   def bindVariable(
       name: Name,
       wanderValue: WanderValue
   ): Either[ScriptError, Bindings] = {
     val currentScope = this.scopes.last
-    if (
-      currentScope.variables
-        .contains(name) || currentScope.functions.contains(name)
-    ) {
+    if (currentScope.variables.contains(name)) {
+      //TODO probably remove this to allow shadowing?
       Left(ScriptError(s"$name is already bound in current scope."))
     } else {
       val newVariables = currentScope.variables + (name -> wanderValue)
       val oldScope = this.scopes.dropRight(1)
       Right(
-        Bindings(oldScope.appended(Scope(newVariables, currentScope.functions)))
+        Bindings(oldScope.appended(Scope(newVariables)))
       )
-    }
-  }
-
-  def bindFunction(
-      name: Name,
-      functionDefinition: FunctionDefinition
-  ): Either[ScriptError, Bindings] = {
-    val currentScope = this.scopes.last
-    if (
-      currentScope.variables
-        .contains(name) || duplicateFunction(name, functionDefinition)
-    ) {
-      Left(ScriptError(s"$name is already bound in current scope."))
-    } else {
-      if (currentScope.functions.contains(name)) {
-        val newFunctionList =
-          currentScope.functions(name).appended(functionDefinition)
-        val newFunctions = currentScope.functions.updated(name, newFunctionList)
-        val oldScope = this.scopes.dropRight(1)
-        Right(
-          Bindings(
-            oldScope.appended(Scope(currentScope.variables, newFunctions))
-          )
-        )
-      } else {
-        val newFunctions =
-          currentScope.functions.updated(name, List(functionDefinition))
-        val oldScope = this.scopes.dropRight(1)
-        Right(
-          Bindings(
-            oldScope.appended(Scope(currentScope.variables, newFunctions))
-          )
-        )
-      }
-    }
-  }
-
-  private def duplicateFunction(
-      name: Name,
-      functionDefinition: FunctionDefinition
-  ): Boolean = {
-    val currentScope = this.scopes.last
-    if (currentScope.functions.contains(name)) {
-      val functions = currentScope.functions(name)
-      val dupe = functions.find { f =>
-        functionDefinition.parameters == f.parameters
-      }
-      dupe.isDefined
-    } else {
-      false
     }
   }
 
@@ -92,8 +37,6 @@ case class Bindings(scopes: List[Scope] = List(Scope(Map(), Map()))) {
       val currentScope = this.scopes(currentScopeOffset)
       if (currentScope.variables.contains(name)) {
         return Right(currentScope.variables(name))
-      } else if (currentScope.functions.contains(name)) {
-        ???
       }
       currentScopeOffset -= 1
     }

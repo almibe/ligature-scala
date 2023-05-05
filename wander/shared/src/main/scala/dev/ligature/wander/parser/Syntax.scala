@@ -9,6 +9,17 @@ import cats.effect.IO
 import dev.ligature.{Statement, Value}
 import fs2.Stream
 import scala.util.Success
+import dev.ligature.Identifier
+
+enum Term:
+  case Name(value: String)
+  case IdentifierLiteral(value: Identifier)
+  case IntegerLiteral(value: Long)
+  case StringLiteral(value: String)
+  case BooleanLiteral(value: Boolean)
+  case FunctionCall(name: String, parameters: Seq[Term])
+
+def eval(term: Term, bindings: Bindings): Either[ScriptError, EvalResult] = ???
 
 /** Represents the union of Statements and Expressions
   */
@@ -26,7 +37,7 @@ sealed trait WanderValue extends Expression
 
 case class ScriptError(message: String)
 case class ScriptResult(result: WanderValue)
-case class EvalResult(bindings: Bindings, result: WanderValue)
+case class EvalResult(result: WanderValue, bindings: Bindings)
 
 /** Represents a Name in the Wander language.
   */
@@ -34,7 +45,7 @@ final case class Name(name: String) extends Expression {
   override def eval(bindings: Bindings) =
     bindings.read(this) match {
       case Left(err)    => Left(err)
-      case Right(value) => Right(EvalResult(bindings, value))
+      case Right(value) => Right(EvalResult(value, bindings))
     }
 }
 
@@ -42,23 +53,18 @@ sealed trait FunctionDefinition(val parameters: List[Parameter]) extends WanderV
 
 case class LigatureValue(value: Value) extends WanderValue {
   override def eval(bindings: Bindings) = Right(
-    EvalResult(bindings, LigatureValue(value))
+    EvalResult(LigatureValue(value), bindings)
   )
 }
 
 case class BooleanValue(value: Boolean) extends WanderValue {
   override def eval(bindings: Bindings) = Right(
-    EvalResult(bindings, BooleanValue(value))
+    EvalResult(BooleanValue(value), bindings)
   )
 }
 
-//TODO is this needed?
-case class StatementValue(value: Statement) extends WanderValue {
-  override def eval(binding: Bindings) = ???
-}
-
 object Nothing extends WanderValue {
-  override def eval(bindings: Bindings) = Right(EvalResult(bindings, Nothing))
+  override def eval(bindings: Bindings) = Right(EvalResult(Nothing, bindings))
 }
 
 case class ResultStream(stream: Stream[IO, WanderValue]) extends WanderValue {
@@ -121,7 +127,7 @@ case class LetStatement(name: Name, expression: Expression) extends Element {
       case Right(value) =>
         bindings.bindVariable(this.name, value.result) match {
           case Left(err)          => Left(err)
-          case Right(newBindings) => Right(EvalResult(newBindings, Nothing))
+          case Right(newBindings) => Right(EvalResult(Nothing, newBindings))
         }
     }
   }
@@ -140,7 +146,7 @@ case class NativeFunction(
     //   case Left(err) => Left(err)
     //   case Right(res) => Right(EvalResult(binding, res))
     // }
-    Right(EvalResult(binding, this))
+    Right(EvalResult(this, binding))
 }
 
 /** Represents a full script that can be eval'd.
@@ -176,7 +182,7 @@ case class Scope(val elements: List[Element]) extends Expression {
           currentBindings = res.bindings
       }
     }
-    Right(EvalResult(bindings, result))
+    Right(EvalResult(result, bindings))
   }
 }
 
@@ -202,7 +208,7 @@ case class WanderFunction(
     body: Scope
 ) extends FunctionDefinition(parameters) {
   override def eval(bindings: Bindings) =
-    Right(EvalResult(bindings, this))
+    Right(EvalResult(this, bindings))
 }
 
 case class FunctionCall(val name: Name, val parameters: List[Expression]) extends Expression {
@@ -214,13 +220,13 @@ case class FunctionCall(val name: Name, val parameters: List[Expression]) extend
           updateFunctionCallBindings(bindings, wf.parameters)
         wf.body.eval(functionCallBindings) match {
           case left: Left[ScriptError, EvalResult] => left
-          case Right(value)                        => Right(EvalResult(bindings, value.result))
+          case Right(value)                        => Right(EvalResult(value.result, bindings))
         }
       case Right(nf: NativeFunction) =>
         val functionCallBindings =
           updateFunctionCallBindings(bindings, nf.parameters)
         val res = nf.body(functionCallBindings)
-        res.map(EvalResult(bindings, _))
+        res.map(EvalResult(_, bindings))
       case _ => Left(ScriptError(s"${name.name} is not a function."))
     }
   }
@@ -261,39 +267,39 @@ case class IfExpression(
     elseIfs: List[ElseIf] = List(),
     `else`: Option[Else] = None
 ) extends Expression {
-  def eval(bindings: Bindings) = {
-    val res = condition.eval(bindings) match {
-      case Right(EvalResult(_, BooleanValue(res))) => res
-      case Left(err)                               => return Left(err)
-      case _ =>
-        return Left(
-          ScriptError("Conditions in if expression must return BooleanValue.")
-        )
-    }
-    if (res) {
-      body.eval(bindings)
-    } else {
-      for (elseIf <- elseIfs) {
-        val res = elseIf.condition.eval(bindings) match {
-          case Right(EvalResult(_, BooleanValue(res))) => res
-          case Left(err)                               => return Left(err)
-          case _ =>
-            return Left(
-              ScriptError(
-                "Conditions in if expression must return BooleanValue."
-              )
-            )
-        }
-        if (res) {
-          return elseIf.body.eval(bindings)
-        }
-      }
-      `else` match {
-        case Some(e) => e.body.eval(bindings)
-        case None    => Right(EvalResult(bindings, Nothing))
-      }
-    }
-  }
+  def eval(bindings: Bindings) =
+    ???
+    // val res = condition.eval(bindings) match {
+    //   case Right(EvalResult(_, BooleanValue(res))) => res
+    //   case Left(err)                               => return Left(err)
+    //   case _ =>
+    //     return Left(
+    //       ScriptError("Conditions in if expression must return BooleanValue.")
+    //     )
+    // }
+    // if (res) {
+    //   body.eval(bindings)
+    // } else {
+    //   for (elseIf <- elseIfs) {
+    //     val res = elseIf.condition.eval(bindings) match {
+    //       case Right(EvalResult(_, BooleanValue(res))) => res
+    //       case Left(err)                               => return Left(err)
+    //       case _ =>
+    //         return Left(
+    //           ScriptError(
+    //             "Conditions in if expression must return BooleanValue."
+    //           )
+    //         )
+    //     }
+    //     if (res) {
+    //       return elseIf.body.eval(bindings)
+    //     }
+    //   }
+    //   `else` match {
+    //     case Some(e) => e.body.eval(bindings)
+    //     case None    => Right(EvalResult(Nothing, bindings))
+    //   }
+    // }
 }
 
 case class ElseIf(val condition: Expression, val body: Expression) {

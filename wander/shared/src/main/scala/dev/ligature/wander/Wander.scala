@@ -4,9 +4,8 @@
 
 package dev.ligature.wander
 
-import dev.ligature.wander.lexer.tokenize
+import dev.ligature.wander.tokenize
 import dev.ligature.wander.parser.{parse, Nothing, Script, ScriptError, ScriptResult}
-import dev.ligature.wander.lexer.TokenizeError
 import dev.ligature.{Dataset, Ligature}
 import dev.ligature.lig.writeValue
 import dev.ligature.wander.parser.WanderValue
@@ -14,26 +13,22 @@ import dev.ligature.wander.parser.BooleanValue
 import dev.ligature.wander.parser.LigatureValue
 import dev.ligature.wander.parser.NativeFunction
 import dev.ligature.wander.parser.ResultStream
-import dev.ligature.wander.parser.StatementValue
 import dev.ligature.wander.parser.WanderFunction
 
 def run(
     script: String,
-    dataset: Dataset
+    bindings: Bindings
 ): Either[ScriptError, ScriptResult] =
   for {
-    tokens <- tokenize(script).left.map { (e: TokenizeError) =>
-      ScriptError(e.message)
-    }
+    tokens <- tokenize(script)
     script <- parse(tokens).left.map(ScriptError(_))
-    result <- interpret(script, dataset)
+    result <- interpret(script, bindings)
   } yield result
 
 def interpret(
     script: Script,
-    dataset: Dataset
+    bindings: Bindings
 ): Either[ScriptError, ScriptResult] = {
-  val bindings = createStandardBindings(dataset)
   script.eval(bindings)
 }
 
@@ -51,7 +46,6 @@ def printWanderValue(value: WanderValue): String = {
     case NativeFunction(parameters, body, output) => "[NativeFunction]"
     case Nothing => "nothing"
     case ResultStream(stream) => "[ResultStream]"
-    case StatementValue(value) => "[StatementValue]"
     case WanderFunction(parameters, output, body) => "[WanderFunction]"
   }
 }
