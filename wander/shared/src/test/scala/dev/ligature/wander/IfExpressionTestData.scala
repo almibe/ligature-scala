@@ -27,7 +27,7 @@ val ifExpression = List(
     script = """if true {
                |  7
                |}""".stripMargin,
-    tokens = null, //List(
+    tokens = null, // List(
     //   Token("if", TokenType.IfKeyword),
     //   Token(" ", TokenType.Spaces),
     //   Token("true", TokenType.Boolean),
@@ -52,7 +52,7 @@ val ifExpression = List(
   TestInstance(
     description = "if false",
     script = "if and(false true) { 24601 }",
-    tokens = null, //List(
+    tokens = null, // List(
     //   Token("if", TokenType.IfKeyword),
     //   Token(" ", TokenType.Spaces),
     //   Token("and", TokenType.Name),

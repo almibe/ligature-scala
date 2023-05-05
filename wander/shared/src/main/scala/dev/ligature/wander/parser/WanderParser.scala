@@ -22,10 +22,10 @@ def parse(script: Seq[Token]): Either[String, Script] = {
   val filteredInput = script.filter {
     _ match
       case Token.Spaces(_) | Token.NewLine | Token.Comment => false
-      case _ => true
+      case _                                               => true
   }
   val gaze = Gaze(filteredInput)
-  val res: Option[Seq[Element]] =  None //gaze.attempt(scriptNib)
+  val res: Option[Seq[Element]] = None // gaze.attempt(scriptNib)
   res match {
     case None =>
       if (gaze.isComplete) {
@@ -46,27 +46,27 @@ def parse(script: Seq[Token]): Either[String, Script] = {
 val booleanNib: Nibbler[Token, Term] = gaze =>
   gaze.next() match
     case Some(Token.BooleanLiteral(b)) => Some(List(Term.BooleanLiteral(b)))
-    case _ => None
+    case _                             => None
 
 val identifierNib: Nibbler[Token, Term] = gaze =>
   gaze.next() match
     case Some(Token.Identifier(i)) => Some(List(Term.IdentifierLiteral(i)))
-    case _ => None
+    case _                         => None
 
 val intergerNib: Nibbler[Token, Term] = gaze =>
   gaze.next() match
     case Some(Token.IntegerLiteral(i)) => Some(List(Term.IntegerLiteral(i)))
-    case _ => None
+    case _                             => None
 
 val stringNib: Nibbler[Token, Term] = gaze =>
   gaze.next() match
     case Some(Token.StringLiteral(s)) => Some(List(Term.StringLiteral(s)))
-    case _ => None
+    case _                            => None
 
 val nameNib: Nibbler[Token, Term] = gaze =>
   gaze.next() match
     case Some(Token.Name(n)) => Some(List(Term.Name(n)))
-    case _ => None
+    case _                   => None
 
 // val openBraceNib = takeCond[Token](_.tokenType == TokenType.OpenBrace).map { _ =>
 //   Seq(OpenBrace)

@@ -24,29 +24,29 @@ val closureTestData = List(
     description = "function0 def",
     script = """let f = () -> Integer { 5 }
                |f()""".stripMargin,
-    tokens = null, //List(
-      // Token("let", TokenType.LetKeyword),
-      // Token(" ", TokenType.Spaces),
-      // Token("f", TokenType.Name),
-      // Token(" ", TokenType.Spaces),
-      // Token("=", TokenType.EqualSign),
-      // Token(" ", TokenType.Spaces),
-      // Token("(", TokenType.OpenParen),
-      // Token(")", TokenType.CloseParen),
-      // Token(" ", TokenType.Spaces),
-      // Token("->", TokenType.Arrow),
-      // Token(" ", TokenType.Spaces),
-      // Token("Integer", TokenType.Name),
-      // Token(" ", TokenType.Spaces),
-      // Token("{", TokenType.OpenBrace),
-      // Token(" ", TokenType.Spaces),
-      // Token("5", TokenType.Integer),
-      // Token(" ", TokenType.Spaces),
-      // Token("}", TokenType.CloseBrace),
-      // Token(newLine, TokenType.NewLine),
-      // Token("f", TokenType.Name),
-      // Token("(", TokenType.OpenParen),
-      // Token(")", TokenType.CloseParen)
+    tokens = null, // List(
+    // Token("let", TokenType.LetKeyword),
+    // Token(" ", TokenType.Spaces),
+    // Token("f", TokenType.Name),
+    // Token(" ", TokenType.Spaces),
+    // Token("=", TokenType.EqualSign),
+    // Token(" ", TokenType.Spaces),
+    // Token("(", TokenType.OpenParen),
+    // Token(")", TokenType.CloseParen),
+    // Token(" ", TokenType.Spaces),
+    // Token("->", TokenType.Arrow),
+    // Token(" ", TokenType.Spaces),
+    // Token("Integer", TokenType.Name),
+    // Token(" ", TokenType.Spaces),
+    // Token("{", TokenType.OpenBrace),
+    // Token(" ", TokenType.Spaces),
+    // Token("5", TokenType.Integer),
+    // Token(" ", TokenType.Spaces),
+    // Token("}", TokenType.CloseBrace),
+    // Token(newLine, TokenType.NewLine),
+    // Token("f", TokenType.Name),
+    // Token("(", TokenType.OpenParen),
+    // Token(")", TokenType.CloseParen)
 //    ),
     ast = Script(
       List(
@@ -68,37 +68,37 @@ val closureTestData = List(
     script = """let x = 5
                |let f = () -> Integer { x }
                |f()""".stripMargin,
-    tokens = null, //List(
-      // Token("let", TokenType.LetKeyword),
-      // Token(" ", TokenType.Spaces),
-      // Token("x", TokenType.Name),
-      // Token(" ", TokenType.Spaces),
-      // Token("=", TokenType.EqualSign),
-      // Token(" ", TokenType.Spaces),
-      // Token("5", TokenType.Integer),
-      // Token(newLine, TokenType.NewLine),
-      // Token("let", TokenType.LetKeyword),
-      // Token(" ", TokenType.Spaces),
-      // Token("f", TokenType.Name),
-      // Token(" ", TokenType.Spaces),
-      // Token("=", TokenType.EqualSign),
-      // Token(" ", TokenType.Spaces),
-      // Token("(", TokenType.OpenParen),
-      // Token(")", TokenType.CloseParen),
-      // Token(" ", TokenType.Spaces),
-      // Token("->", TokenType.Arrow),
-      // Token(" ", TokenType.Spaces),
-      // Token("Integer", TokenType.Name),
-      // Token(" ", TokenType.Spaces),
-      // Token("{", TokenType.OpenBrace),
-      // Token(" ", TokenType.Spaces),
-      // Token("x", TokenType.Name),
-      // Token(" ", TokenType.Spaces),
-      // Token("}", TokenType.CloseBrace),
-      // Token(newLine, TokenType.NewLine),
-      // Token("f", TokenType.Name),
-      // Token("(", TokenType.OpenParen),
-      // Token(")", TokenType.CloseParen)
+    tokens = null, // List(
+    // Token("let", TokenType.LetKeyword),
+    // Token(" ", TokenType.Spaces),
+    // Token("x", TokenType.Name),
+    // Token(" ", TokenType.Spaces),
+    // Token("=", TokenType.EqualSign),
+    // Token(" ", TokenType.Spaces),
+    // Token("5", TokenType.Integer),
+    // Token(newLine, TokenType.NewLine),
+    // Token("let", TokenType.LetKeyword),
+    // Token(" ", TokenType.Spaces),
+    // Token("f", TokenType.Name),
+    // Token(" ", TokenType.Spaces),
+    // Token("=", TokenType.EqualSign),
+    // Token(" ", TokenType.Spaces),
+    // Token("(", TokenType.OpenParen),
+    // Token(")", TokenType.CloseParen),
+    // Token(" ", TokenType.Spaces),
+    // Token("->", TokenType.Arrow),
+    // Token(" ", TokenType.Spaces),
+    // Token("Integer", TokenType.Name),
+    // Token(" ", TokenType.Spaces),
+    // Token("{", TokenType.OpenBrace),
+    // Token(" ", TokenType.Spaces),
+    // Token("x", TokenType.Name),
+    // Token(" ", TokenType.Spaces),
+    // Token("}", TokenType.CloseBrace),
+    // Token(newLine, TokenType.NewLine),
+    // Token("f", TokenType.Name),
+    // Token("(", TokenType.OpenParen),
+    // Token(")", TokenType.CloseParen)
 //    ),
     ast = Script(
       List(
@@ -125,7 +125,7 @@ val closureTestData = List(
                |  identifier
                |}
                |identity(<testEntity>)""".stripMargin,
-    tokens = null, //List(
+    tokens = null, // List(
     //   Token("let", TokenType.LetKeyword),
     //   Token(" ", TokenType.Spaces),
     //   Token("identity", TokenType.Name),
@@ -215,7 +215,7 @@ val closureTestData = List(
                |  value2
                |}
                |second(<testEntity> "hello")""".stripMargin,
-    tokens = null, //List(
+    tokens = null, // List(
     //   Token("let", TokenType.LetKeyword),
     //   Token(" ", TokenType.Spaces),
     //   Token("second", TokenType.Name),
@@ -284,7 +284,7 @@ val closureTestData = List(
                |  value2
                |}
                |middle(<testEntity> "hello" 24601)""".stripMargin,
-    tokens = null, //List(
+    tokens = null, // List(
     //   Token("let", TokenType.LetKeyword),
     //   Token(" ", TokenType.Spaces),
     //   Token("middle", TokenType.Name),

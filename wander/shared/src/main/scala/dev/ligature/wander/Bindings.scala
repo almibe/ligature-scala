@@ -20,7 +20,7 @@ case class Bindings(scopes: List[Scope] = List(Scope(Map()))) {
   ): Either[ScriptError, Bindings] = {
     val currentScope = this.scopes.last
     if (currentScope.variables.contains(name)) {
-      //TODO probably remove this to allow shadowing?
+      // TODO probably remove this to allow shadowing?
       Left(ScriptError(s"$name is already bound in current scope."))
     } else {
       val newVariables = currentScope.variables + (name -> wanderValue)

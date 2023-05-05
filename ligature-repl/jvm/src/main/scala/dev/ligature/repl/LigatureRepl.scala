@@ -19,7 +19,8 @@ import dev.ligature.inmemory.InMemoryLigature
   println("Welcome to Ligature's REPL!")
   val terminal: Terminal = TerminalBuilder.builder().build()
   val parser: DefaultParser = new DefaultParser()
-  val reader: LineReader = LineReaderBuilder.builder()
+  val reader: LineReader = LineReaderBuilder
+    .builder()
     .terminal(terminal)
     .parser(parser)
     .build();
