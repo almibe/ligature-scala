@@ -19,7 +19,10 @@ enum Term:
   case BooleanLiteral(value: Boolean)
   case FunctionCall(name: String, parameters: Seq[Term])
 
-def eval(term: Term, bindings: Bindings): Either[ScriptError, EvalResult] = ???
+def evalTerm(term: Term, bindings: Bindings): Either[ScriptError, EvalResult] =
+  term match
+    case Term.BooleanLiteral(value) => Right(EvalResult(BooleanValue(value), bindings))
+    case _ => ???
 
 /** Represents the union of Statements and Expressions
   */
@@ -151,12 +154,12 @@ case class NativeFunction(
 
 /** Represents a full script that can be eval'd.
   */
-case class Script(val elements: Seq[Element]) {
+case class Script(val terms: Seq[Term]) {
   def eval(bindings: Bindings): Either[ScriptError, ScriptResult] = {
     var result: WanderValue = Nothing
     var currentBindings: Bindings = bindings
-    elements.foreach { element =>
-      element.eval(currentBindings) match {
+    terms.foreach { term =>
+      evalTerm(term,currentBindings) match {
         case Left(err) => return Left(err)
         case Right(res) =>
           result = res.result
@@ -170,12 +173,12 @@ case class Script(val elements: Seq[Element]) {
 /** Represents a scope in Wander that can be eval'd and can contain it's own
   * bindings.
   */
-case class Scope(val elements: List[Element]) extends Expression {
+case class Scope(val elements: List[Term]) extends Expression {
   def eval(bindings: Bindings) = {
     var currentBindings = bindings.newScope()
     var result: WanderValue = Nothing
     elements.foreach { element =>
-      element.eval(currentBindings) match {
+      evalTerm(element, currentBindings) match {
         case Left(err) => return Left(err)
         case Right(res) =>
           result = res.result

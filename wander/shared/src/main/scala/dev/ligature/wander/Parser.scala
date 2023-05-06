@@ -25,7 +25,7 @@ def parse(script: Seq[Token]): Either[String, Script] = {
       case _ => true
   }
   val gaze = Gaze(filteredInput)
-  val res: Option[Seq[Element]] =  None //gaze.attempt(scriptNib)
+  val res: Option[Seq[Term]] =  gaze.attempt(scriptNib)
   res match {
     case None =>
       if (gaze.isComplete) {
@@ -53,7 +53,7 @@ val identifierNib: Nibbler[Token, Term] = gaze =>
     case Some(Token.Identifier(i)) => Some(List(Term.IdentifierLiteral(i)))
     case _ => None
 
-val intergerNib: Nibbler[Token, Term] = gaze =>
+val integerNib: Nibbler[Token, Term] = gaze =>
   gaze.next() match
     case Some(Token.IntegerLiteral(i)) => Some(List(Term.IntegerLiteral(i)))
     case _ => None
@@ -183,18 +183,18 @@ val nameNib: Nibbler[Token, Term] = gaze =>
 //   } yield Seq(FunctionCall(name.head, parameters.toList))
 // }
 
-// val expressionNib =
-//   takeFirst(
-//     ifExpressionNib,
-//     functionCallNib,
-//     nameNib,
-//     scopeNib,
-//     identifierNib,
-//     wanderFunctionNib,
-//     stringNib,
-//     integerNib,
-//     booleanNib
-//   )
+val expressionNib =
+  takeFirst(
+    // ifExpressionNib,
+    // functionCallNib,
+    // nameNib,
+    // scopeNib,
+    // identifierNib,
+    // wanderFunctionNib,
+    // stringNib,
+    integerNib,
+    booleanNib
+  )
 
 // val equalSignNib = takeCond[Token](_.tokenType == TokenType.EqualSign).map { _ =>
 //   Seq(EqualSign)
@@ -214,11 +214,11 @@ val nameNib: Nibbler[Token, Term] = gaze =>
 //   } yield Seq(LetStatement(name.head, expression.head))
 // }
 
-// val elementNib = takeFirst(expressionNib, letStatementNib)
+val elementNib = takeFirst(expressionNib)//, letStatementNib)
 
-// val scriptNib =
-//   optional(
-//     repeat(
-//       elementNib
-//     )
-//   )
+val scriptNib =
+  optional(
+    repeat(
+      elementNib
+    )
+  )
