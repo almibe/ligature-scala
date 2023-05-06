@@ -9,20 +9,23 @@ import dev.ligature.gaze.{
   Gaze,
   Nibbler,
   between,
+  take,
   takeAll,
   takeAllGrouped,
   takeCharacters,
   takeFirst,
   takeString,
   takeUntil,
-  takeWhile
+  takeWhile,
+  optional
 }
 import dev.ligature.{Identifier, IntegerLiteral, Statement, StringLiteral, Value}
 
 object LigNibblers {
   val whiteSpaceNibbler = takeCharacters(' ', '\t')
   val whiteSpaceAndNewLineNibbler = takeAll(takeFirst(takeString(" "), takeString("\n"), takeString("\r\n"), takeString("\t")))
-  val numberNibbler = takeCharacters(('0' to '9').toList.appended('-').toSeq*)
+  val numberNibbler =
+    takeAll(optional(take('-')), takeCharacters(('0' to '9').toSeq*))
 
   val identifierNibbler = between(
     takeString("<"),
