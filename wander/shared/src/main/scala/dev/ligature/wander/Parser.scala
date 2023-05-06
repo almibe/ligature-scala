@@ -189,9 +189,9 @@ val expressionNib =
     // functionCallNib,
     // nameNib,
     // scopeNib,
-    // identifierNib,
+    identifierNib,
     // wanderFunctionNib,
-    // stringNib,
+    stringNib,
     integerNib,
     booleanNib
   )
