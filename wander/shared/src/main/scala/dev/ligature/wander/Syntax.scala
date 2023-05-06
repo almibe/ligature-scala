@@ -98,43 +98,6 @@ object OpenParen extends Element {
   )
 }
 
-object CloseParen extends Element {
-  override def eval(binding: Bindings) = Left(
-    ScriptError("Cannot eval close paren.")
-  )
-}
-
-object Arrow extends Element {
-  override def eval(binding: Bindings) = Left(
-    ScriptError("Cannot eval arrow.")
-  )
-}
-
-object Colon extends Element {
-  override def eval(binding: Bindings) = Left(
-    ScriptError("Cannot eval colon.")
-  )
-}
-
-object LetKeyword extends Element {
-  override def eval(binding: Bindings) = Left(
-    ScriptError("Cannot eval let keyword.")
-  )
-}
-
-case class LetStatement(name: Name, expression: Expression) extends Element {
-  override def eval(bindings: Bindings) = {
-    val result = this.expression.eval(bindings)
-    result match {
-      case Left(_) => return result
-      case Right(value) =>
-        bindings.bindVariable(this.name, value.result) match {
-          case Left(err)          => Left(err)
-          case Right(newBindings) => Right(EvalResult(Nothing, newBindings))
-        }
-    }
-  }
-}
 
 /** Holds a reference to a function defined in Scala that can be called from
   * Wander.

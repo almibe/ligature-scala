@@ -9,28 +9,24 @@ import dev.ligature.wander.Token
 import dev.ligature.wander.{BooleanValue, LigatureValue, Nothing, Script, ScriptResult}
 
 class PrimitivesSuite extends munit.FunSuite {
+  def check(script: String, expected: Either[ScriptError, ScriptResult]) =
+    assertEquals(run(script, common()), expected)
+
   test("true boolean primitive") {
     val script = "true"
     val result = Right(ScriptResult(BooleanValue(true)))
-    assertEquals(run("true", common()), result)
+    check(script, result)
   }
-}
-
-val primitivesTestData = List(
-  // TestInstance(
-  //   description = "false boolean primitive",
-  //   script = "false",
-  //   tokens = List(Token.BooleanLiteral(false)),
-  //   ast = Script(List(BooleanValue(false))),
-  //   result = Right(ScriptResult(BooleanValue(false)))
-  // ),
-  // TestInstance(
-  //   description = "true boolean primitive with trailing whitespace",
-  //   script = "true   ",
-  //   tokens = List(Token.BooleanLiteral(true), Token.Spaces("   ")),
-  //   ast = Script(List(BooleanValue(true))),
-  //   result = Right(ScriptResult(BooleanValue(true)))
-  // ),
+  test("false boolean primitive") {
+    val script = "false"
+    val result = Right(ScriptResult(BooleanValue(false)))
+    check(script, result)
+  }
+  test("true boolean primitive with trailing whitespace") {
+    val script = "true   "
+    val result = Right(ScriptResult(BooleanValue(true)))
+    check(script, result)
+  }
   // TestInstance(
   //   description = "identifier",
   //   script = "<test>",
@@ -74,4 +70,4 @@ val primitivesTestData = List(
   //   ast = Script(List(LigatureValue(StringLiteral("hello world")))),
   //   result = Right(ScriptResult(LigatureValue(StringLiteral("hello world"))))
   // )
-)
+}
