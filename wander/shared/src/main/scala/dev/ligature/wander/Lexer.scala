@@ -19,7 +19,7 @@ import dev.ligature.gaze.{
 }
 import dev.ligature.lig.LigNibblers
 import dev.ligature.LigatureError
-import dev.ligature.wander.parser.ScriptError
+import dev.ligature.wander.ScriptError
 import dev.ligature.Identifier
 
 enum Token:

@@ -4,7 +4,7 @@
 
 package dev.ligature.wander
 
-import dev.ligature.wander.parser.Script
+import dev.ligature.wander.Script
 
 case class TypeError(message: String)
 

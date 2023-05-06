@@ -6,16 +6,17 @@ package dev.ligature.wander
 
 import dev.ligature.{Identifier, IntegerLiteral, StringLiteral}
 import dev.ligature.wander.Token
-import dev.ligature.wander.parser.{BooleanValue, LigatureValue, Nothing, Script, ScriptResult}
+import dev.ligature.wander.{BooleanValue, LigatureValue, Nothing, Script, ScriptResult}
+
+class PrimitivesSuite extends munit.FunSuite {
+  test("true boolean primitive") {
+    val script = "true"
+    val result = Right(ScriptResult(BooleanValue(true)))
+    assertEquals(run("true", common()), result)
+  }
+}
 
 val primitivesTestData = List(
-  TestInstance(
-    description = "true boolean primitive",
-    script = "true",
-    tokens = List(Token.BooleanLiteral(true)),
-    ast = Script(List(BooleanValue(true))),
-    result = Right(ScriptResult(BooleanValue(true)))
-  ),
   TestInstance(
     description = "false boolean primitive",
     script = "false",

@@ -6,7 +6,7 @@ package dev.ligature.wander
 
 import dev.ligature.IntegerLiteral
 import dev.ligature.wander.Token
-import dev.ligature.wander.parser.{
+import dev.ligature.wander.{
   BooleanValue,
   Else,
   ElseIf,

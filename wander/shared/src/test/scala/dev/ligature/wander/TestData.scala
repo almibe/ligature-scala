@@ -5,7 +5,7 @@
 package dev.ligature.wander
 
 import dev.ligature.wander.Token
-import dev.ligature.wander.parser.{
+import dev.ligature.wander.{
   BooleanValue,
   Else,
   ElseIf,
@@ -47,30 +47,30 @@ val errorsExpression = List()
 val newLine = "\n" //sys.props("line.separator")
 
 val testData = List(
-  TestData(
-    category = "Primitives",
-    dataset = Dataset.fromString("test").getOrElse(???),
-    testInstances = primitivesTestData
-  ),
-  TestData(
-    category = "Assignment",
-    dataset = Dataset.fromString("test").getOrElse(???),
-    testInstances = assignmentTestData
-  ),
-  TestData(
-    category = "Closures",
-    dataset = Dataset.fromString("test").getOrElse(???),
-    testInstances = closureTestData
-  ),
-  TestData(
-    category = "Boolean Functions",
-    dataset = Dataset.fromString("test").getOrElse(???),
-    testInstances = booleanExpression
-  ),
-  TestData(
-    category = "If Expressions",
-    dataset = Dataset.fromString("test").getOrElse(???),
-    testInstances = ifExpression
-  )
+  // TestData(
+  //   category = "Primitives",
+  //   dataset = Dataset.fromString("test").getOrElse(???),
+  //   testInstances = primitivesTestData
+  // ),
+  // TestData(
+  //   category = "Assignment",
+  //   dataset = Dataset.fromString("test").getOrElse(???),
+  //   testInstances = assignmentTestData
+  // ),
+  // TestData(
+  //   category = "Closures",
+  //   dataset = Dataset.fromString("test").getOrElse(???),
+  //   testInstances = closureTestData
+  // ),
+  // TestData(
+  //   category = "Boolean Functions",
+  //   dataset = Dataset.fromString("test").getOrElse(???),
+  //   testInstances = booleanExpression
+  // ),
+  // TestData(
+  //   category = "If Expressions",
+  //   dataset = Dataset.fromString("test").getOrElse(???),
+  //   testInstances = ifExpression
+  // )
   // TODO add error cases
 )

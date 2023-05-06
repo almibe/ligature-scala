@@ -4,16 +4,16 @@
 
 package dev.ligature.wander
 
-import dev.ligature.wander.tokenize
-import dev.ligature.wander.parser.{parse, Nothing, Script, ScriptError, ScriptResult}
+import dev.ligature.wander.{NativeFunction, BooleanValue, WanderFunction, WanderValue, ScriptError, Nothing, Script, ResultStream, LigatureValue, ScriptResult}
+import dev.ligature.wander.parse
 import dev.ligature.{Dataset, Ligature}
 import dev.ligature.lig.writeValue
-import dev.ligature.wander.parser.WanderValue
-import dev.ligature.wander.parser.BooleanValue
-import dev.ligature.wander.parser.LigatureValue
-import dev.ligature.wander.parser.NativeFunction
-import dev.ligature.wander.parser.ResultStream
-import dev.ligature.wander.parser.WanderFunction
+import dev.ligature.wander.WanderValue
+import dev.ligature.wander.BooleanValue
+import dev.ligature.wander.LigatureValue
+import dev.ligature.wander.NativeFunction
+import dev.ligature.wander.ResultStream
+import dev.ligature.wander.WanderFunction
 
 def run(
     script: String,

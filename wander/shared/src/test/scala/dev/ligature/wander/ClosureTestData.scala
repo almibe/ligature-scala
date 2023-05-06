@@ -6,7 +6,7 @@ package dev.ligature.wander
 
 import dev.ligature.{Identifier, IntegerLiteral, StringLiteral}
 import dev.ligature.wander.Token
-import dev.ligature.wander.parser.{
+import dev.ligature.wander.{
   FunctionCall,
   LetStatement,
   LigatureValue,
@@ -17,7 +17,7 @@ import dev.ligature.wander.parser.{
   ScriptResult,
   WanderFunction
 }
-import dev.ligature.wander.parser.WanderType
+import dev.ligature.wander.WanderType
 
 val closureTestData = List(
   TestInstance(

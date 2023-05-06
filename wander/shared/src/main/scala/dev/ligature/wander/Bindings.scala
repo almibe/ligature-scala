@@ -4,29 +4,25 @@
 
 package dev.ligature.wander
 
-import dev.ligature.wander.parser.{Name, ScriptError, WanderValue}
-import dev.ligature.wander.parser.FunctionDefinition
-import dev.ligature.wander.parser.NativeFunction
+import dev.ligature.wander.{Name, ScriptError, WanderValue}
+import dev.ligature.wander.NativeFunction
 
-case class Scope(variables: Map[Name, WanderValue])
-
-case class Bindings(scopes: List[Scope] = List(Scope(Map()))) {
-  def newScope(): Bindings =
-    Bindings(this.scopes.appended(Scope(Map())))
+case class Bindings(scopes: List[Map[Name, WanderValue]] = List((Map()))) {
+  def newScope(): Bindings = Bindings(this.scopes.appended(Map()))
 
   def bindVariable(
       name: Name,
       wanderValue: WanderValue
   ): Either[ScriptError, Bindings] = {
     val currentScope = this.scopes.last
-    if (currentScope.variables.contains(name)) {
+    if (currentScope.contains(name)) {
       //TODO probably remove this to allow shadowing?
       Left(ScriptError(s"$name is already bound in current scope."))
     } else {
-      val newVariables = currentScope.variables + (name -> wanderValue)
+      val newVariables = currentScope + (name -> wanderValue)
       val oldScope = this.scopes.dropRight(1)
       Right(
-        Bindings(oldScope.appended(Scope(newVariables)))
+        Bindings(oldScope.appended(newVariables))
       )
     }
   }
@@ -35,15 +31,11 @@ case class Bindings(scopes: List[Scope] = List(Scope(Map()))) {
     var currentScopeOffset = this.scopes.length - 1
     while (currentScopeOffset >= 0) {
       val currentScope = this.scopes(currentScopeOffset)
-      if (currentScope.variables.contains(name)) {
-        return Right(currentScope.variables(name))
+      if (currentScope.contains(name)) {
+        return Right(currentScope(name))
       }
       currentScopeOffset -= 1
     }
     Left(ScriptError(s"Could not find $name in scope."))
   }
 }
-
-//TODO this function will probably be used once I allow for ad-hoc polymorphism with functions.
-def createFunctionDelegate(): NativeFunction =
-  ???
