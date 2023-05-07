@@ -34,13 +34,14 @@ final class LmdbLigature(dbFile: File) extends Ligature {
   private val statementsDB = env.openDbi("Statements", MDB_CREATE)
 
   /** Returns all Datasets in a Ligature instance. */
-  override def allDatasets(): Stream[IO, Dataset] =
-    // read all keys from datasetNameDB
+  override def allDatasets(): Stream[IO, Dataset] = {
+    //read all keys from datasetNameDB
     ???
+  }
 
   /** Check if a given Dataset exists. */
   override def datasetExists(dataset: Dataset): IO[Boolean] = IO {
-    // check if key exists in datasetNameDB
+    //check if key exists in datasetNameDB
     ???
   }
 
@@ -48,32 +49,32 @@ final class LmdbLigature(dbFile: File) extends Ligature {
     * prefix.
     */
   override def matchDatasetsPrefix(prefix: String): Stream[IO, Dataset] =
-    // read cursor in datasetNamesDB
+    //read cursor in datasetNamesDB
     ???
 
   /** Returns all Datasets in a Ligature instance that are in a given range
     * (inclusive, exclusive].
     */
   override def matchDatasetsRange(start: String, end: String): Stream[IO, Dataset] =
-    // read cursor in datasetNamesDB
+    //read cursor in datasetNamesDB
     ???
 
   /** Creates a dataset with the given name. TODO should probably return its own
     * error type { InvalidDataset, DatasetExists, CouldNotCreateDataset }
     */
   override def createDataset(dataset: Dataset): IO[Unit] =
-    // check if dataset exists
-    // get next id
-    // store dataset in datasetNamesDB
+    //check if dataset exists
+    //get next id
+    //store dataset in datasetNamesDB
     ???
 
   /** Deletes a dataset with the given name. TODO should probably return its own
     * error type { InvalidDataset, CouldNotDeleteDataset }
     */
   override def deleteDataset(dataset: Dataset): IO[Unit] =
-    // check if dataset exists
-    // remove datasetName
-    // remove all Statements in Dataset
+    //check if dataset exists
+    //remove datasetName
+    //remove all Statements in Dataset
     ???
 
   /** Initializes a QueryTx TODO should probably return its own error type
