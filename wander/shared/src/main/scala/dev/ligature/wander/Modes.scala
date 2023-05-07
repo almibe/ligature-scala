@@ -4,18 +4,12 @@
 
 package dev.ligature.wander
 
-import dev.ligature.wander.parser.{
-  Name,
-  NativeFunction,
-  Parameter,
-  BooleanValue,
-  ScriptResult,
-  ScriptError,
-  WanderValue
-}
+import dev.ligature.wander.WanderValue
+import dev.ligature.wander.{Name, NativeFunction, Parameter, BooleanValue, ScriptResult, ScriptError}
+
 import dev.ligature.{Ligature, Dataset}
-import dev.ligature.wander.parser.WanderType
-import dev.ligature.wander.parser.LigatureValue
+import dev.ligature.wander.WanderType
+import dev.ligature.wander.LigatureValue
 import dev.ligature.Identifier
 
 def instanceMode(instance: Ligature): Bindings = {

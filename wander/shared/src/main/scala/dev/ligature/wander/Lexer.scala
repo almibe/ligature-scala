@@ -19,7 +19,7 @@ import dev.ligature.gaze.{
 }
 import dev.ligature.lig.LigNibblers
 import dev.ligature.LigatureError
-import dev.ligature.wander.parser.ScriptError
+import dev.ligature.wander.ScriptError
 import dev.ligature.Identifier
 
 enum Token:
@@ -30,7 +30,7 @@ enum Token:
   case StringLiteral(value: String)
   case Name(value: String)
   case OpenBrace, CloseBrace, Colon, OpenParen, CloseParen, NewLine,
-    Arrow, IfKeyword, ElseKeyword, EqualSign, LetKeyword, Comment
+    Arrow, IfKeyword, ElsifKeyword, ElseKeyword, EqualSign, LetKeyword, Comment
 
 def tokenize(input: String): Either[ScriptError, Seq[Token]] = {
   val gaze = Gaze.from(input)
@@ -75,6 +75,7 @@ val nameTokenNib = takeAll(
     value.mkString match {
       case "let"         => Seq(Token.LetKeyword)
       case "if"          => Seq(Token.IfKeyword)
+      case "elsif"       => Seq(Token.ElsifKeyword)
       case "else"        => Seq(Token.ElseKeyword)
       case "true"        => Seq(Token.BooleanLiteral(true))
       case "false"       => Seq(Token.BooleanLiteral(false))

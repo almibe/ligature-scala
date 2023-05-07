@@ -4,7 +4,7 @@
 
 package dev.ligature.wander
 
-import dev.ligature.wander.parser.{LigatureValue, Name}
+import dev.ligature.wander.{LigatureValue, Name}
 import dev.ligature.{Identifier, StringLiteral}
 import munit.FunSuite
 
