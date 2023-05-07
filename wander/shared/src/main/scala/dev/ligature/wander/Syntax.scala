@@ -14,23 +14,6 @@ import cats.Eval
 import dev.ligature.IntegerLiteral
 import dev.ligature.StringLiteral
 
-enum Term:
-  case Name(value: String)
-  case IdentifierLiteral(value: Identifier)
-  case IntegerLiteral(value: Long)
-  case StringLiteral(value: String)
-  case BooleanLiteral(value: Boolean)
-  case FunctionCall(name: String, parameters: Seq[Term])
-
-def evalTerm(term: Term, bindings: Bindings): Either[ScriptError, EvalResult] =
-  term match
-    case Term.BooleanLiteral(value) => Right(EvalResult(BooleanValue(value), bindings))
-    case Term.IdentifierLiteral(value) => Right(EvalResult(LigatureValue(value), bindings))
-    case Term.IntegerLiteral(value) => Right(EvalResult(LigatureValue(IntegerLiteral(value)), bindings))
-    case Term.StringLiteral(value) => Right(EvalResult(LigatureValue(StringLiteral(value)), bindings))
-    case Term.Name(value) => ???
-    case Term.FunctionCall(name, parameters) => ???
-
 /** Represents the union of Statements and Expressions
   */
 sealed trait Element {
