@@ -5,7 +5,14 @@
 package dev.ligature.wander
 
 import dev.ligature.wander.WanderValue
-import dev.ligature.wander.{Name, NativeFunction, Parameter, BooleanValue, ScriptResult, ScriptError}
+import dev.ligature.wander.{
+  Name,
+  NativeFunction,
+  Parameter,
+  BooleanValue,
+  ScriptResult,
+  ScriptError
+}
 
 import dev.ligature.{Ligature, Dataset}
 import dev.ligature.wander.WanderType
@@ -15,24 +22,34 @@ import dev.ligature.Identifier
 def instanceMode(instance: Ligature): Bindings = {
   var bindings = common()
 
-  bindings = bindings.bindVariable(Name("datasets"), NativeFunction(
-    List(),
-    (binding: Bindings) => Right(LigatureValue(Identifier.fromString("test").getOrElse(???)))
-  )).getOrElse(???)
+  bindings = bindings
+    .bindVariable(
+      Name("datasets"),
+      NativeFunction(
+        List(),
+        (binding: Bindings) => Right(LigatureValue(Identifier.fromString("test").getOrElse(???)))
+      )
+    )
+    .getOrElse(???)
 
-  bindings = bindings.bindVariable(Name("addDataset"), NativeFunction(
-    List(Parameter(Name("message"), WanderType.String)),
-    (binding: Bindings) => ???
-  )).getOrElse(???)
+  bindings = bindings
+    .bindVariable(
+      Name("addDataset"),
+      NativeFunction(
+        List(Parameter(Name("message"), WanderType.String)),
+        (binding: Bindings) => ???
+      )
+    )
+    .getOrElse(???)
 
-  //TODO datasets
-  //TODO addDataset
-  //TODO removeDataset
-  //TODO datasetExists
-  //TODO addStatement
-  //TODO removeStatement
-  //TODO addAll
-  //TODO removeAll
+  // TODO datasets
+  // TODO addDataset
+  // TODO removeDataset
+  // TODO datasetExists
+  // TODO addStatement
+  // TODO removeStatement
+  // TODO addAll
+  // TODO removeAll
   bindings
 }
 
@@ -42,8 +59,7 @@ def instanceMode(instance: Ligature): Bindings = {
 // }
 
 /**
- * 
- */
+  */
 def common(): Bindings = {
   var stdLib = Bindings()
 

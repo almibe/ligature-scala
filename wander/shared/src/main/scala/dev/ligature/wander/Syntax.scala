@@ -87,7 +87,7 @@ case class Script(val terms: Seq[Term]) {
     var result: WanderValue = Nothing
     var currentBindings: Bindings = bindings
     terms.foreach { term =>
-      evalTerm(term,currentBindings) match {
+      evalTerm(term, currentBindings) match {
         case Left(err) => return Left(err)
         case Right(res) =>
           result = res.result

@@ -4,7 +4,18 @@
 
 package dev.ligature.wander
 
-import dev.ligature.wander.{NativeFunction, BooleanValue, WanderFunction, WanderValue, ScriptError, Nothing, Script, ResultStream, LigatureValue, ScriptResult}
+import dev.ligature.wander.{
+  NativeFunction,
+  BooleanValue,
+  WanderFunction,
+  WanderValue,
+  ScriptError,
+  Nothing,
+  Script,
+  ResultStream,
+  LigatureValue,
+  ScriptResult
+}
 import dev.ligature.wander.parse
 import dev.ligature.{Dataset, Ligature}
 import dev.ligature.lig.writeValue
@@ -28,24 +39,21 @@ def run(
 def interpret(
     script: Script,
     bindings: Bindings
-): Either[ScriptError, ScriptResult] = {
+): Either[ScriptError, ScriptResult] =
   script.eval(bindings)
-}
 
-def printResult(result: Either[ScriptError, ScriptResult]): String = {
+def printResult(result: Either[ScriptError, ScriptResult]): String =
   result match {
-    case Left(value) => value.message
+    case Left(value)                => value.message
     case Right(ScriptResult(value)) => printWanderValue(value)
   }
-}
 
-def printWanderValue(value: WanderValue): String = {
+def printWanderValue(value: WanderValue): String =
   value match {
-    case BooleanValue(value) => value.toString()
-    case LigatureValue(value) => writeValue(value)
+    case BooleanValue(value)                      => value.toString()
+    case LigatureValue(value)                     => writeValue(value)
     case NativeFunction(parameters, body, output) => "[NativeFunction]"
-    case Nothing => "nothing"
-    case ResultStream(stream) => "[ResultStream]"
+    case Nothing                                  => "nothing"
+    case ResultStream(stream)                     => "[ResultStream]"
     case WanderFunction(parameters, output, body) => "[WanderFunction]"
   }
-}

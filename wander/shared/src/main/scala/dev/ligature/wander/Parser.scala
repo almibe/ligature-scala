@@ -28,21 +28,23 @@ enum Term:
 
 def evalTerm(term: Term, bindings: Bindings): Either[ScriptError, EvalResult] =
   term match
-    case Term.BooleanLiteral(value) => Right(EvalResult(BooleanValue(value), bindings))
+    case Term.BooleanLiteral(value)    => Right(EvalResult(BooleanValue(value), bindings))
     case Term.IdentifierLiteral(value) => Right(EvalResult(LigatureValue(value), bindings))
-    case Term.IntegerLiteral(value) => Right(EvalResult(LigatureValue(IntegerLiteral(value)), bindings))
-    case Term.StringLiteral(value) => Right(EvalResult(LigatureValue(StringLiteral(value)), bindings))
-    case Term.Name(value) => ???
+    case Term.IntegerLiteral(value) =>
+      Right(EvalResult(LigatureValue(IntegerLiteral(value)), bindings))
+    case Term.StringLiteral(value) =>
+      Right(EvalResult(LigatureValue(StringLiteral(value)), bindings))
+    case Term.Name(value)                    => ???
     case Term.FunctionCall(name, parameters) => ???
 
 def parse(script: Seq[Token]): Either[String, Script] = {
   val filteredInput = script.filter {
     _ match
       case Token.Spaces(_) | Token.NewLine | Token.Comment => false
-      case _ => true
+      case _                                               => true
   }
   val gaze = Gaze(filteredInput)
-  val res: Option[Seq[Term]] =  gaze.attempt(scriptNib)
+  val res: Option[Seq[Term]] = gaze.attempt(scriptNib)
   res match {
     case None =>
       if (gaze.isComplete) {
@@ -63,27 +65,27 @@ def parse(script: Seq[Token]): Either[String, Script] = {
 val booleanNib: Nibbler[Token, Term.BooleanLiteral] = gaze =>
   gaze.next() match
     case Some(Token.BooleanLiteral(b)) => Some(List(Term.BooleanLiteral(b)))
-    case _ => None
+    case _                             => None
 
 val identifierNib: Nibbler[Token, Term.IdentifierLiteral] = gaze =>
   gaze.next() match
     case Some(Token.Identifier(i)) => Some(List(Term.IdentifierLiteral(i)))
-    case _ => None
+    case _                         => None
 
 val integerNib: Nibbler[Token, Term.IntegerLiteral] = gaze =>
   gaze.next() match
     case Some(Token.IntegerLiteral(i)) => Some(List(Term.IntegerLiteral(i)))
-    case _ => None
+    case _                             => None
 
 val stringNib: Nibbler[Token, Term.StringLiteral] = gaze =>
   gaze.next() match
     case Some(Token.StringLiteral(s)) => Some(List(Term.StringLiteral(s)))
-    case _ => None
+    case _                            => None
 
 val nameNib: Nibbler[Token, Term.Name] = gaze =>
   gaze.next() match
     case Some(Token.Name(n)) => Some(List(Term.Name(n)))
-    case _ => None
+    case _                   => None
 
 // val scopeNib: Nibbler[Token, Scope] = { gaze =>
 //   for {
@@ -205,7 +207,7 @@ val expressionNib =
 //   } yield Seq(LetStatement(name.head, expression.head))
 // }
 
-val elementNib = takeFirst(expressionNib)//, letStatementNib)
+val elementNib = takeFirst(expressionNib) //, letStatementNib)
 
 val scriptNib =
   optional(
