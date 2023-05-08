@@ -17,12 +17,12 @@ def instanceMode(instance: Ligature): Bindings = {
 
   bindings = bindings.bindVariable(Name("datasets"), NativeFunction(
     List(),
-    (binding: Bindings) => Right(LigatureValue(Identifier.fromString("test").getOrElse(???)))
+    (arguments: Seq[Term], binding: Bindings) => Right(LigatureValue(Identifier.fromString("test").getOrElse(???)))
   )).getOrElse(???)
 
   bindings = bindings.bindVariable(Name("addDataset"), NativeFunction(
     List(Parameter(Name("message"), WanderType.String)),
-    (binding: Bindings) => ???
+    (arguments: Seq[Term], binding: Bindings) => ???
   )).getOrElse(???)
 
   //TODO datasets
@@ -62,16 +62,14 @@ def common(): Bindings = {
       Name("not"),
       NativeFunction(
         List(Parameter(Name("bool"), WanderType.Boolean)),
-        (bindings: Bindings) =>
-          bindings.read(Name("bool")) match {
-            case Right(b: BooleanValue) => Right(BooleanValue(!b.value))
-            case _ =>
-              Left(
-                ScriptError(
-                  s"not requires a Boolean, received ${bindings.read(Name("bool"))}"
-                )
-              )
-          }
+        (arguments: Seq[Term], bindings: Bindings) =>
+          if arguments.size != 1 then
+            Left(ScriptError("`not` function requires 1 argument."))
+          else
+            val evaledArgs = arguments.map(evalTerm(_, bindings))
+            evaledArgs.headOption match
+              case Some(Right(EvalResult(b: BooleanValue, _))) => Right(BooleanValue(!b.value))
+              case _ => Left(ScriptError("`not` function requires 1 boolean argument."))
       )
     )
     .getOrElse(???)
@@ -84,16 +82,18 @@ def common(): Bindings = {
           Parameter(Name("boolLeft"), WanderType.Boolean),
           Parameter(Name("boolRight"), WanderType.Boolean)
         ),
-        (bindings: Bindings) =>
-          for {
-            left <- bindings.read(Name("boolLeft"))
-            right <- bindings.read(Name("boolRight"))
-            res <- (left, right) match {
-              case (l: BooleanValue, r: BooleanValue) =>
+        (arguments: Seq[Term], bindings: Bindings) =>
+          if arguments.length == 2 then
+            val evaledArgs = arguments.map(evalTerm(_, bindings))
+            val left = evaledArgs(0) //bindings.read(Name("boolLeft"))
+            val right = evaledArgs(1) //bindings.read(Name("boolRight"))
+            (left, right) match {
+              case (Right(EvalResult(l: BooleanValue, _)), Right(EvalResult(r: BooleanValue, _))) =>
                 Right(BooleanValue(l.value && r.value))
-              case _ => Left(ScriptError("and requires two booleans"))
+              case _ => Left(ScriptError("`and` function requires two booleans"))
             }
-          } yield res
+          else 
+            Left(ScriptError("`and` function requires two booleans"))
       )
     )
     .getOrElse(???)
@@ -106,16 +106,18 @@ def common(): Bindings = {
           Parameter(Name("boolLeft"), WanderType.Boolean),
           Parameter(Name("boolRight"), WanderType.Boolean)
         ),
-        (bindings: Bindings) =>
-          for {
-            left <- bindings.read(Name("boolLeft"))
-            right <- bindings.read(Name("boolRight"))
-            res <- (left, right) match {
-              case (l: BooleanValue, r: BooleanValue) =>
+        (arguments: Seq[Term], bindings: Bindings) =>
+          if arguments.length == 2 then
+            val evaledArgs = arguments.map(evalTerm(_, bindings))
+            val left = evaledArgs(0) // bindings.read(Name("boolLeft"))
+            val right = evaledArgs(1) //bindings.read(Name("boolRight"))
+            (left, right) match {
+              case (Right(EvalResult(l: BooleanValue, _)), Right(EvalResult(r: BooleanValue, _))) =>
                 Right(BooleanValue(l.value || r.value))
-              case _ => Left(ScriptError("or requires two booleans"))
+              case _ => Left(ScriptError("`or` function requires two booleans"))
             }
-          } yield res
+          else
+            Left(ScriptError("`or` function requires two booleans"))
       )
     )
     .getOrElse(???)

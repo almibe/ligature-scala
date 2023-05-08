@@ -24,7 +24,7 @@ enum Term:
   case IntegerLiteral(value: Long)
   case StringLiteral(value: String)
   case BooleanLiteral(value: Boolean)
-  case FunctionCall(name: Name, parameters: Seq[Term])
+  case FunctionCall(name: Name, arguments: Seq[Term])
 
 def evalTerm(term: Term, bindings: Bindings): Either[ScriptError, EvalResult] =
   term match
@@ -33,7 +33,19 @@ def evalTerm(term: Term, bindings: Bindings): Either[ScriptError, EvalResult] =
     case Term.IntegerLiteral(value) => Right(EvalResult(LigatureValue(IntegerLiteral(value)), bindings))
     case Term.StringLiteral(value) => Right(EvalResult(LigatureValue(StringLiteral(value)), bindings))
     case Term.Name(value) => ???
-    case Term.FunctionCall(name, parameters) => ???
+    case Term.FunctionCall(name, arguments) =>
+      //TODO val evaldArgs = evalArguments(arguments)
+      bindings.read(Name(name.value)) match {
+        case Left(value) => Left(value)
+        case Right(value) =>
+          value match {
+            case NativeFunction(parameters, body, output) => {
+              body(arguments, bindings).map { value => EvalResult(value, bindings) }
+            }
+            case WanderFunction(parameters, body, output) => ???
+            case _ => ???
+          }
+      }
 
 def parse(script: Seq[Token]): Either[String, Script] = {
   val filteredInput = script.filter {

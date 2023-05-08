@@ -69,7 +69,7 @@ case class ResultStream(stream: Stream[IO, WanderValue]) extends WanderValue {
   */
 case class NativeFunction(
     override val parameters: List[Parameter],
-    body: (bindings: Bindings) => Either[ScriptError, WanderValue],
+    body: (arguments: Seq[Term], bindings: Bindings) => Either[ScriptError, WanderValue],
     output: WanderType = null
 ) extends FunctionDefinition(parameters) { // TODO eventually remove the default null value
   override def eval(binding: Bindings) =
