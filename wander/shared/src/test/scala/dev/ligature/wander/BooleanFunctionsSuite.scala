@@ -15,27 +15,27 @@ class BooleanFunctionsSuite extends munit.FunSuite {
 
   test("not function") {
     val script = "not(true)"
-    val result = Right(ScriptResult(BooleanValue(false)))
+    val result = Right(ScriptResult(WanderValue.BooleanValue(false)))
     check(script, result)
   }
   test("and function") {
     val script = "and(false false)"
-    val result = Right(ScriptResult(BooleanValue(false)))
+    val result = Right(ScriptResult(WanderValue.BooleanValue(false)))
     check(script, result)
   }
   test("or function") {
     val script = "or(true false)"
-    val result = Right(ScriptResult(BooleanValue(true)))
+    val result = Right(ScriptResult(WanderValue.BooleanValue(true)))
     check(script, result)
   }
   test("boolean expression 1") {
     val script = "or(true and(false false))"
-    val result = Right(ScriptResult(BooleanValue(true)))
+    val result = Right(ScriptResult(WanderValue.BooleanValue(true)))
     check(script, result)
   }
   test("boolean expression 2") {
     val script = "and(or(true false) false)"
-    val result = Right(ScriptResult(BooleanValue(false)))
+    val result = Right(ScriptResult(WanderValue.BooleanValue(false)))
     check(script, result)
   }
   //TODO add this test back after let statements are working

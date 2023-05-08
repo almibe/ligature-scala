@@ -4,14 +4,13 @@
 
 package dev.ligature.wander
 
-import dev.ligature.wander.{Name, ScriptError, WanderValue}
-import dev.ligature.wander.NativeFunction
+import dev.ligature.wander.{ScriptError, WanderValue}
 
-case class Bindings(scopes: List[Map[Name, WanderValue]] = List((Map()))) {
+case class Bindings(scopes: List[Map[WanderValue.Name, WanderValue]] = List((Map()))) {
   def newScope(): Bindings = Bindings(this.scopes.appended(Map()))
 
   def bindVariable(
-      name: Name,
+      name: WanderValue.Name,
       wanderValue: WanderValue
   ): Either[ScriptError, Bindings] = {
     val currentScope = this.scopes.last
@@ -27,7 +26,7 @@ case class Bindings(scopes: List[Map[Name, WanderValue]] = List((Map()))) {
     }
   }
 
-  def read(name: Name): Either[ScriptError, WanderValue] = {
+  def read(name: WanderValue.Name): Either[ScriptError, WanderValue] = {
     var currentScopeOffset = this.scopes.length - 1
     while (currentScopeOffset >= 0) {
       val currentScope = this.scopes(currentScopeOffset)

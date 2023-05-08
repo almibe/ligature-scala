@@ -4,16 +4,10 @@
 
 package dev.ligature.wander
 
-import dev.ligature.wander.{NativeFunction, BooleanValue, WanderFunction, WanderValue, ScriptError, Nothing, Script, ResultStream, LigatureValue, ScriptResult}
+import dev.ligature.wander.{WanderValue, ScriptError, Script, ScriptResult}
 import dev.ligature.wander.parse
 import dev.ligature.{Dataset, Ligature}
 import dev.ligature.lig.writeValue
-import dev.ligature.wander.WanderValue
-import dev.ligature.wander.BooleanValue
-import dev.ligature.wander.LigatureValue
-import dev.ligature.wander.NativeFunction
-import dev.ligature.wander.ResultStream
-import dev.ligature.wander.WanderFunction
 
 def run(
     script: String,
@@ -41,11 +35,12 @@ def printResult(result: Either[ScriptError, ScriptResult]): String = {
 
 def printWanderValue(value: WanderValue): String = {
   value match {
-    case BooleanValue(value) => value.toString()
-    case LigatureValue(value) => writeValue(value)
-    case NativeFunction(parameters, body, output) => "[NativeFunction]"
-    case Nothing => "nothing"
-    case ResultStream(stream) => "[ResultStream]"
-    case WanderFunction(parameters, output, body) => "[WanderFunction]"
+    case WanderValue.BooleanValue(value) => value.toString()
+    case WanderValue.LigatureValue(value) => writeValue(value)
+    case WanderValue.NativeFunction(parameters, body, output) => "[NativeFunction]"
+    case WanderValue.Nothing => "nothing"
+    case WanderValue.WanderFunction(parameters, output, body) => "[WanderFunction]"
+    case WanderValue.Name(name) => s"[Name:${name}]"
+    case WanderValue.Scope(contents) => "[Scope]"
   }
 }

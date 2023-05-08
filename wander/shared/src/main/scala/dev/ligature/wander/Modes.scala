@@ -5,23 +5,22 @@
 package dev.ligature.wander
 
 import dev.ligature.wander.WanderValue
-import dev.ligature.wander.{Name, NativeFunction, Parameter, BooleanValue, ScriptResult, ScriptError}
+import dev.ligature.wander.{Parameter, ScriptResult, ScriptError}
 
 import dev.ligature.{Ligature, Dataset}
 import dev.ligature.wander.WanderType
-import dev.ligature.wander.LigatureValue
 import dev.ligature.Identifier
 
 def instanceMode(instance: Ligature): Bindings = {
   var bindings = common()
 
-  bindings = bindings.bindVariable(Name("datasets"), NativeFunction(
+  bindings = bindings.bindVariable(WanderValue.Name("datasets"), WanderValue.NativeFunction(
     List(),
-    (arguments: Seq[Term], binding: Bindings) => Right(LigatureValue(Identifier.fromString("test").getOrElse(???)))
+    (arguments: Seq[Term], binding: Bindings) => Right(WanderValue.LigatureValue(Identifier.fromString("test").getOrElse(???)))
   )).getOrElse(???)
 
-  bindings = bindings.bindVariable(Name("addDataset"), NativeFunction(
-    List(Parameter(Name("message"), WanderType.String)),
+  bindings = bindings.bindVariable(WanderValue.Name("addDataset"), WanderValue.NativeFunction(
+    List(Parameter(WanderValue.Name("message"), WanderType.String)),
     (arguments: Seq[Term], binding: Bindings) => ???
   )).getOrElse(???)
 
@@ -59,16 +58,16 @@ def common(): Bindings = {
 
   stdLib = stdLib
     .bindVariable(
-      Name("not"),
-      NativeFunction(
-        List(Parameter(Name("bool"), WanderType.Boolean)),
+      WanderValue.Name("not"),
+      WanderValue.NativeFunction(
+        List(Parameter(WanderValue.Name("bool"), WanderType.Boolean)),
         (arguments: Seq[Term], bindings: Bindings) =>
           if arguments.size != 1 then
             Left(ScriptError("`not` function requires 1 argument."))
           else
             val evaledArgs = arguments.map(evalTerm(_, bindings))
             evaledArgs.headOption match
-              case Some(Right(EvalResult(b: BooleanValue, _))) => Right(BooleanValue(!b.value))
+              case Some(Right(EvalResult(b: WanderValue.BooleanValue, _))) => Right(WanderValue.BooleanValue(!b.value))
               case _ => Left(ScriptError("`not` function requires 1 boolean argument."))
       )
     )
@@ -76,11 +75,11 @@ def common(): Bindings = {
 
   stdLib = stdLib
     .bindVariable(
-      Name("and"),
-      NativeFunction(
+      WanderValue.Name("and"),
+      WanderValue.NativeFunction(
         List(
-          Parameter(Name("boolLeft"), WanderType.Boolean),
-          Parameter(Name("boolRight"), WanderType.Boolean)
+          Parameter(WanderValue.Name("boolLeft"), WanderType.Boolean),
+          Parameter(WanderValue.Name("boolRight"), WanderType.Boolean)
         ),
         (arguments: Seq[Term], bindings: Bindings) =>
           if arguments.length == 2 then
@@ -88,8 +87,8 @@ def common(): Bindings = {
             val left = evaledArgs(0) //bindings.read(Name("boolLeft"))
             val right = evaledArgs(1) //bindings.read(Name("boolRight"))
             (left, right) match {
-              case (Right(EvalResult(l: BooleanValue, _)), Right(EvalResult(r: BooleanValue, _))) =>
-                Right(BooleanValue(l.value && r.value))
+              case (Right(EvalResult(l: WanderValue.BooleanValue, _)), Right(EvalResult(r: WanderValue.BooleanValue, _))) =>
+                Right(WanderValue.BooleanValue(l.value && r.value))
               case _ => Left(ScriptError("`and` function requires two booleans"))
             }
           else 
@@ -100,11 +99,11 @@ def common(): Bindings = {
 
   stdLib = stdLib
     .bindVariable(
-      Name("or"),
-      NativeFunction(
+      WanderValue.Name("or"),
+      WanderValue.NativeFunction(
         List(
-          Parameter(Name("boolLeft"), WanderType.Boolean),
-          Parameter(Name("boolRight"), WanderType.Boolean)
+          Parameter(WanderValue.Name("boolLeft"), WanderType.Boolean),
+          Parameter(WanderValue.Name("boolRight"), WanderType.Boolean)
         ),
         (arguments: Seq[Term], bindings: Bindings) =>
           if arguments.length == 2 then
@@ -112,8 +111,8 @@ def common(): Bindings = {
             val left = evaledArgs(0) // bindings.read(Name("boolLeft"))
             val right = evaledArgs(1) //bindings.read(Name("boolRight"))
             (left, right) match {
-              case (Right(EvalResult(l: BooleanValue, _)), Right(EvalResult(r: BooleanValue, _))) =>
-                Right(BooleanValue(l.value || r.value))
+              case (Right(EvalResult(l: WanderValue.BooleanValue, _)), Right(EvalResult(r: WanderValue.BooleanValue, _))) =>
+                Right(WanderValue.BooleanValue(l.value || r.value))
               case _ => Left(ScriptError("`or` function requires two booleans"))
             }
           else

@@ -28,21 +28,21 @@ enum Term:
 
 def evalTerm(term: Term, bindings: Bindings): Either[ScriptError, EvalResult] =
   term match
-    case Term.BooleanLiteral(value) => Right(EvalResult(BooleanValue(value), bindings))
-    case Term.IdentifierLiteral(value) => Right(EvalResult(LigatureValue(value), bindings))
-    case Term.IntegerLiteral(value) => Right(EvalResult(LigatureValue(LigatureLiteral.IntegerLiteral(value)), bindings))
-    case Term.StringLiteral(value) => Right(EvalResult(LigatureValue(LigatureLiteral.StringLiteral(value)), bindings))
+    case Term.BooleanLiteral(value) => Right(EvalResult(WanderValue.BooleanValue(value), bindings))
+    case Term.IdentifierLiteral(value) => Right(EvalResult(WanderValue.LigatureValue(value), bindings))
+    case Term.IntegerLiteral(value) => Right(EvalResult(WanderValue.LigatureValue(LigatureLiteral.IntegerLiteral(value)), bindings))
+    case Term.StringLiteral(value) => Right(EvalResult(WanderValue.LigatureValue(LigatureLiteral.StringLiteral(value)), bindings))
     case Term.Name(value) => ???
     case Term.FunctionCall(name, arguments) =>
       //TODO val evaldArgs = evalArguments(arguments)
-      bindings.read(Name(name.value)) match {
+      bindings.read(WanderValue.Name(name.value)) match {
         case Left(value) => Left(value)
         case Right(value) =>
           value match {
-            case NativeFunction(parameters, body, output) => {
+            case WanderValue.NativeFunction(parameters, body, output) => {
               body(arguments, bindings).map { value => EvalResult(value, bindings) }
             }
-            case WanderFunction(parameters, body, output) => ???
+            case WanderValue.WanderFunction(parameters, body, output) => ???
             case _ => ???
           }
       }
