@@ -15,7 +15,7 @@ import dev.ligature.gaze.{
   takeString,
   repeat
 }
-import dev.ligature.{IntegerLiteral, Identifier, StringLiteral}
+import dev.ligature.{Identifier, LigatureLiteral}
 import dev.ligature.wander.Token
 
 enum Term:
@@ -30,8 +30,8 @@ def evalTerm(term: Term, bindings: Bindings): Either[ScriptError, EvalResult] =
   term match
     case Term.BooleanLiteral(value) => Right(EvalResult(BooleanValue(value), bindings))
     case Term.IdentifierLiteral(value) => Right(EvalResult(LigatureValue(value), bindings))
-    case Term.IntegerLiteral(value) => Right(EvalResult(LigatureValue(IntegerLiteral(value)), bindings))
-    case Term.StringLiteral(value) => Right(EvalResult(LigatureValue(StringLiteral(value)), bindings))
+    case Term.IntegerLiteral(value) => Right(EvalResult(LigatureValue(LigatureLiteral.IntegerLiteral(value)), bindings))
+    case Term.StringLiteral(value) => Right(EvalResult(LigatureValue(LigatureLiteral.StringLiteral(value)), bindings))
     case Term.Name(value) => ???
     case Term.FunctionCall(name, arguments) =>
       //TODO val evaldArgs = evalArguments(arguments)

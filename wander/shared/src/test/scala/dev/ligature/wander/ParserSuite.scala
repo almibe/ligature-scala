@@ -5,7 +5,7 @@
 package dev.ligature.wander
 
 import dev.ligature.wander.{LigatureValue, Name}
-import dev.ligature.{Identifier, StringLiteral}
+import dev.ligature.{Identifier, LigatureLiteral}
 import munit.FunSuite
 
 class ParserSuite extends FunSuite {

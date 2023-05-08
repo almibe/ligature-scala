@@ -4,7 +4,7 @@
 
 package dev.ligature.wander
 
-import dev.ligature.{Identifier, IntegerLiteral, StringLiteral}
+import dev.ligature.{Identifier, LigatureLiteral}
 import dev.ligature.wander.Token
 import dev.ligature.wander.{BooleanValue, LigatureValue, Nothing, Script, ScriptResult}
 
@@ -36,12 +36,12 @@ class PrimitivesSuite extends munit.FunSuite {
   }
   test("integer") {
     val script = "24601"
-    val result = Right(ScriptResult(LigatureValue(IntegerLiteral(24601))))
+    val result = Right(ScriptResult(LigatureValue(LigatureLiteral.IntegerLiteral(24601))))
     check(script, result)
   }
   test("negative integer") {
     val script = "-111"
-    val result = Right(ScriptResult(LigatureValue(IntegerLiteral(-111))))
+    val result = Right(ScriptResult(LigatureValue(LigatureLiteral.IntegerLiteral(-111))))
     check(script, result)
   }
   test("comment + nothing test") {
@@ -51,7 +51,7 @@ class PrimitivesSuite extends munit.FunSuite {
   }
   test("string primitives") {
     val script = "\"hello world\" "
-    val result = Right(ScriptResult(LigatureValue(StringLiteral("hello world"))))
+    val result = Right(ScriptResult(LigatureValue(LigatureLiteral.StringLiteral("hello world"))))
     check(script, result)
   }
 }

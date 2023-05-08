@@ -11,8 +11,6 @@ import fs2.Stream
 import scala.util.Success
 import dev.ligature.Identifier
 import cats.Eval
-import dev.ligature.IntegerLiteral
-import dev.ligature.StringLiteral
 
 /** Represents the union of Statements and Expressions
   */

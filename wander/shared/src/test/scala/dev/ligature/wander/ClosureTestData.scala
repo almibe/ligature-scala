@@ -4,7 +4,7 @@
 
 package dev.ligature.wander
 
-import dev.ligature.{Identifier, IntegerLiteral, StringLiteral}
+import dev.ligature.{Identifier, LigatureLiteral}
 import dev.ligature.wander.Token
 // import dev.ligature.wander.{
 //   FunctionCall,
