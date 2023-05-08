@@ -19,35 +19,17 @@ import dev.ligature.wander.Token
 // }
 import dev.ligature.wander.WanderType
 
-val closureTestData = List(
+class ClosureSuite extends munit.FunSuite {
+  def check(script: String, expected: Either[ScriptError, ScriptResult]) =
+    assertEquals(run(script, common()), expected)
+
+  // test("function0 def") {
+  //   val script = """let f = () -> Integer { 5 }
+  //                  |f()""".stripMargin
+  //   val result = Right(ScriptResult(WanderValue.Nothing))
+  //   check(script, result)
+  // }
 //   TestInstance(
-//     description = "function0 def",
-//     script = """let f = () -> Integer { 5 }
-//                |f()""".stripMargin,
-//     tokens = null, //List(
-//       // Token("let", TokenType.LetKeyword),
-//       // Token(" ", TokenType.Spaces),
-//       // Token("f", TokenType.Name),
-//       // Token(" ", TokenType.Spaces),
-//       // Token("=", TokenType.EqualSign),
-//       // Token(" ", TokenType.Spaces),
-//       // Token("(", TokenType.OpenParen),
-//       // Token(")", TokenType.CloseParen),
-//       // Token(" ", TokenType.Spaces),
-//       // Token("->", TokenType.Arrow),
-//       // Token(" ", TokenType.Spaces),
-//       // Token("Integer", TokenType.Name),
-//       // Token(" ", TokenType.Spaces),
-//       // Token("{", TokenType.OpenBrace),
-//       // Token(" ", TokenType.Spaces),
-//       // Token("5", TokenType.Integer),
-//       // Token(" ", TokenType.Spaces),
-//       // Token("}", TokenType.CloseBrace),
-//       // Token(newLine, TokenType.NewLine),
-//       // Token("f", TokenType.Name),
-//       // Token("(", TokenType.OpenParen),
-//       // Token(")", TokenType.CloseParen)
-// //    ),
 //     ast = Script(
 //       List(
 //         LetStatement(
@@ -63,6 +45,9 @@ val closureTestData = List(
 //     ),
 //     result = Right(ScriptResult(LigatureValue(IntegerLiteral(5))))
 //   ),
+}
+
+val closureTestData = List(
 //   TestInstance(
 //     description = "function0 def with closing over variable",
 //     script = """let x = 5

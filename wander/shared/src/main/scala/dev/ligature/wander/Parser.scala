@@ -25,6 +25,10 @@ enum Term:
   case StringLiteral(value: String)
   case BooleanLiteral(value: Boolean)
   case FunctionCall(name: Name, arguments: Seq[Term])
+  case Scope(elements: Seq[Term])
+  case WanderFunction(
+    parameters: Seq[String],
+    body: Scope)
 
 def evalTerm(term: Term, bindings: Bindings): Either[ScriptError, EvalResult] =
   term match
@@ -46,6 +50,10 @@ def evalTerm(term: Term, bindings: Bindings): Either[ScriptError, EvalResult] =
             case _ => ???
           }
       }
+    case Term.WanderFunction(parameters, body) => {
+      ???
+    }
+    case Term.Scope(terms) => ???
 
 def parse(script: Seq[Token]): Either[String, Script] = {
   val filteredInput = script.filter {
