@@ -29,7 +29,7 @@ object Dataset {
     }
 }
 
-final case class Identifier private (name: String) extends Value {
+final case class Identifier private (name: String) {
   @unused
   private def copy(): Unit = ()
 }
@@ -47,9 +47,11 @@ object Identifier {
 
 final case class LigatureError(message: String)
 
-sealed trait Value
-final case class StringLiteral(value: String) extends Value
-final case class IntegerLiteral(value: Long) extends Value
+enum LigatureLiteral:
+  case StringLiteral(value: String)
+  case IntegerLiteral(value: Long)
+
+type Value = LigatureLiteral | Identifier
 
 //sealed trait Range
 //final case class StringLiteralRange(start: String, end: String) extends Range

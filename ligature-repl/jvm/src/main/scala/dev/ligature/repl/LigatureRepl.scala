@@ -29,4 +29,5 @@ import dev.ligature.inmemory.InMemoryLigature
     if (line.trim() == ":q") continue = false
     else println(printResult(run(line, instanceMode(InMemoryLigature()))))
   }
+  terminal.close()
 }

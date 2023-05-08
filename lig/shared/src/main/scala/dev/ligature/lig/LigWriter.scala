@@ -4,7 +4,7 @@
 
 package dev.ligature.lig
 
-import dev.ligature.{Identifier, IntegerLiteral, Statement, StringLiteral, Value}
+import dev.ligature.{Identifier, Statement, Value, LigatureLiteral}
 
 def write(statements: Iterator[Statement]): String = {
   val sb = StringBuilder()
@@ -28,7 +28,7 @@ def writeIdentifier(identifier: Identifier): String = s"<${identifier.name}>"
 def writeValue(value: Value): String =
   value match {
     case id: Identifier        => writeIdentifier(id)
-    case IntegerLiteral(value) => value.toString()
-    case StringLiteral(value) =>
+    case LigatureLiteral.IntegerLiteral(value) => value.toString()
+    case LigatureLiteral.StringLiteral(value) =>
       s"\"${value}\"" // TODO this needs to handle escaping special characters
   }
