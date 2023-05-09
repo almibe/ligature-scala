@@ -182,3 +182,5 @@ lazy val ligatureHttpXodus = crossProject(JVMPlatform)
 addCommandAlias("serve", "ligature-http-xodusJVM/run")
 
 disablePlugins(RevolverPlugin)
+
+addCommandAlias("cd", "project")
