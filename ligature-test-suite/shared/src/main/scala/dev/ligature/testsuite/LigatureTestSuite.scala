@@ -148,10 +148,10 @@ abstract class LigatureTestSuite extends CatsEffectSuite {
       _ <- instance.write(testDataset) { tx =>
         for {
           _ <- tx.addStatement(Statement(entity1, a, entity2))
-          _ <- tx.addStatement(Statement(entity1, a, IntegerLiteral(100)))
-          _ <- tx.addStatement(Statement(entity1, a, IntegerLiteral(101)))
-          _ <- tx.addStatement(Statement(entity1, a, IntegerLiteral(100)))
-          _ <- tx.addStatement(Statement(entity2, a, IntegerLiteral(-243729)))
+          _ <- tx.addStatement(Statement(entity1, a, LigatureLiteral.IntegerLiteral(100)))
+          _ <- tx.addStatement(Statement(entity1, a, LigatureLiteral.IntegerLiteral(101)))
+          _ <- tx.addStatement(Statement(entity1, a, LigatureLiteral.IntegerLiteral(100)))
+          _ <- tx.addStatement(Statement(entity2, a, LigatureLiteral.IntegerLiteral(-243729)))
         } yield IO.unit
       }
       statements <- instance.query(testDataset) { tx =>
@@ -162,9 +162,9 @@ abstract class LigatureTestSuite extends CatsEffectSuite {
       res,
       Set(
         Statement(entity1, a, entity2),
-        Statement(entity1, a, IntegerLiteral(100)),
-        Statement(entity1, a, IntegerLiteral(101)),
-        Statement(entity2, a, IntegerLiteral(-243729))
+        Statement(entity1, a, LigatureLiteral.IntegerLiteral(100)),
+        Statement(entity1, a, LigatureLiteral.IntegerLiteral(101)),
+        Statement(entity2, a, LigatureLiteral.IntegerLiteral(-243729))
       )
     )
   }
@@ -176,10 +176,10 @@ abstract class LigatureTestSuite extends CatsEffectSuite {
       _ <- instance.write(testDataset) { tx =>
         for {
           _ <- tx.addStatement(Statement(entity1, a, entity2))
-          _ <- tx.addStatement(Statement(entity1, a, StringLiteral("text")))
-          _ <- tx.addStatement(Statement(entity1, a, StringLiteral("text2")))
-          _ <- tx.addStatement(Statement(entity1, a, StringLiteral("text")))
-          _ <- tx.addStatement(Statement(entity2, a, StringLiteral("text")))
+          _ <- tx.addStatement(Statement(entity1, a, LigatureLiteral.StringLiteral("text")))
+          _ <- tx.addStatement(Statement(entity1, a, LigatureLiteral.StringLiteral("text2")))
+          _ <- tx.addStatement(Statement(entity1, a, LigatureLiteral.StringLiteral("text")))
+          _ <- tx.addStatement(Statement(entity2, a, LigatureLiteral.StringLiteral("text")))
         } yield IO.unit
       }
       statements <- instance.query(testDataset) { tx =>
@@ -190,9 +190,9 @@ abstract class LigatureTestSuite extends CatsEffectSuite {
       res,
       Set(
         Statement(entity1, a, entity2),
-        Statement(entity1, a, StringLiteral("text")),
-        Statement(entity1, a, StringLiteral("text2")),
-        Statement(entity2, a, StringLiteral("text"))
+        Statement(entity1, a, LigatureLiteral.StringLiteral("text")),
+        Statement(entity1, a, LigatureLiteral.StringLiteral("text2")),
+        Statement(entity2, a, LigatureLiteral.StringLiteral("text"))
       )
     )
   }
@@ -266,17 +266,17 @@ abstract class LigatureTestSuite extends CatsEffectSuite {
       _ <- instance.createDataset(testDataset)
       _ <- instance.write(testDataset) { tx =>
         for {
-          _ <- tx.addStatement(Statement(entity1, a, StringLiteral("hello")))
-          _ <- tx.addStatement(Statement(entity1, a, StringLiteral("hello")))
-          _ <- tx.addStatement(Statement(entity2, a, StringLiteral("hello")))
-          _ <- tx.removeStatement(Statement(entity1, a, StringLiteral("hello")))
+          _ <- tx.addStatement(Statement(entity1, a, LigatureLiteral.StringLiteral("hello")))
+          _ <- tx.addStatement(Statement(entity1, a, LigatureLiteral.StringLiteral("hello")))
+          _ <- tx.addStatement(Statement(entity2, a, LigatureLiteral.StringLiteral("hello")))
+          _ <- tx.removeStatement(Statement(entity1, a, LigatureLiteral.StringLiteral("hello")))
         } yield ()
       }
       statements <- instance.query(testDataset) { tx =>
         tx.allStatements().compile.toList
       }
     } yield statements.toSet
-    assertIO(res, Set(Statement(entity2, a, StringLiteral("hello"))))
+    assertIO(res, Set(Statement(entity2, a, LigatureLiteral.StringLiteral("hello"))))
   }
 
   // test("allow canceling WriteTx by throwing exception") {
@@ -312,13 +312,13 @@ abstract class LigatureTestSuite extends CatsEffectSuite {
       _ <- instance.write(testDataset) { tx =>
         for {
           _ <- tx.addStatement(
-            Statement(entity1, a, StringLiteral("Hello"))
+            Statement(entity1, a, LigatureLiteral.StringLiteral("Hello"))
           )
           _ <- tx.addStatement(Statement(entity2, a, entity1))
           _ <- tx.addStatement(Statement(entity2, a, entity3))
           _ <- tx.addStatement(Statement(entity3, b, entity2))
           _ <- tx.addStatement(
-            Statement(entity3, b, StringLiteral("Hello"))
+            Statement(entity3, b, LigatureLiteral.StringLiteral("Hello"))
           )
         } yield ()
       }
@@ -327,11 +327,11 @@ abstract class LigatureTestSuite extends CatsEffectSuite {
           all <- tx.matchStatements().compile.toList
           as <- tx.matchStatements(None, Some(a)).compile.toList
           hellos <- tx
-            .matchStatements(None, None, Some(StringLiteral("Hello")))
+            .matchStatements(None, None, Some(LigatureLiteral.StringLiteral("Hello")))
             .compile
             .toList
           helloa <- tx
-            .matchStatements(None, Some(a), Some(StringLiteral("Hello")))
+            .matchStatements(None, Some(a), Some(LigatureLiteral.StringLiteral("Hello")))
             .compile
             .toList
         } yield (all.toSet, as.toSet, hellos.toSet, helloa.toSet)
@@ -341,17 +341,17 @@ abstract class LigatureTestSuite extends CatsEffectSuite {
       assertEquals(
         all,
         Set(
-          Statement(entity1, a, StringLiteral("Hello")),
+          Statement(entity1, a, LigatureLiteral.StringLiteral("Hello")),
           Statement(entity2, a, entity1),
           Statement(entity2, a, entity3),
           Statement(entity3, b, entity2),
-          Statement(entity3, b, StringLiteral("Hello"))
+          Statement(entity3, b, LigatureLiteral.StringLiteral("Hello"))
         )
       )
       assertEquals(
         as,
         Set(
-          Statement(entity1, a, StringLiteral("Hello")),
+          Statement(entity1, a, LigatureLiteral.StringLiteral("Hello")),
           Statement(entity2, a, entity1),
           Statement(entity2, a, entity3)
         )
@@ -359,14 +359,14 @@ abstract class LigatureTestSuite extends CatsEffectSuite {
       assertEquals(
         hellos,
         Set(
-          Statement(entity1, a, StringLiteral("Hello")),
-          Statement(entity3, b, StringLiteral("Hello"))
+          Statement(entity1, a, LigatureLiteral.StringLiteral("Hello")),
+          Statement(entity3, b, LigatureLiteral.StringLiteral("Hello"))
         )
       )
       assertEquals(
         helloa,
         Set(
-          Statement(entity1, a, StringLiteral("Hello"))
+          Statement(entity1, a, LigatureLiteral.StringLiteral("Hello"))
         )
       )
     }

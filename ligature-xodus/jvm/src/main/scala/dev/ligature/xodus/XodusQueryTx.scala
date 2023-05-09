@@ -44,7 +44,7 @@ class XodusQueryTx(
         Option(result)
     }
 
-  private def lookupStringLiteral(stringLiteral: StringLiteral): Option[ByteIterable] = {
+  private def lookupStringLiteral(stringLiteral: LigatureLiteral.StringLiteral): Option[ByteIterable] = {
     val store = xodusOperations.openStore(tx, LigatureStore.StringToIdStore)
     val result = store.get(
       tx,
@@ -64,11 +64,11 @@ class XodusQueryTx(
                 Array(ByteBinding.byteToEntry(LigatureValueType.Identifier.id), id)
               )
             )
-          case stringLiteral: StringLiteral =>
+          case stringLiteral: LigatureLiteral.StringLiteral =>
             lookupStringLiteral(stringLiteral).map(id =>
               CompoundByteIterable(Array(ByteBinding.byteToEntry(LigatureValueType.String.id), id))
             )
-          case integerLiteral: IntegerLiteral =>
+          case integerLiteral: LigatureLiteral.IntegerLiteral =>
             Some(
               CompoundByteIterable(
                 Array(
@@ -80,11 +80,11 @@ class XodusQueryTx(
         }
     }
 
-  private def lookupStringLiteral(internalIdentifier: ByteIterable): StringLiteral =
+  private def lookupStringLiteral(internalIdentifier: ByteIterable): LigatureLiteral.StringLiteral =
     val idToStringStore = xodusOperations.openStore(tx, LigatureStore.IdToStringStore)
     val result = idToStringStore.get(tx, CompoundByteIterable(Array(datasetID, internalIdentifier)))
     if (result != null) {
-      StringLiteral(StringBinding.entryToString(result))
+      LigatureLiteral.StringLiteral(StringBinding.entryToString(result))
     } else {
       ???
     }
@@ -92,7 +92,7 @@ class XodusQueryTx(
   private def constructValue(valueTypeId: Byte, valueContent: ByteIterable): Value =
     LigatureValueType.getValueType(valueTypeId) match {
       case LigatureValueType.Identifier => lookupIdentifier(valueContent)
-      case LigatureValueType.Integer    => IntegerLiteral(LongBinding.entryToLong(valueContent))
+      case LigatureValueType.Integer    => LigatureLiteral.IntegerLiteral(LongBinding.entryToLong(valueContent))
       case LigatureValueType.String     => lookupStringLiteral(valueContent)
       case LigatureValueType.Bytes      => ???
     }

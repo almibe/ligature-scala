@@ -20,7 +20,7 @@ import dev.ligature.{Dataset, Identifier, Ligature, LigatureError, Statement}
 import dev.ligature.lig.{LigError, read, write}
 import dev.ligature.wander.run
 import dev.ligature.wander.printWanderValue
-import dev.ligature.wander.parser.ScriptResult
+import dev.ligature.wander.ScriptResult
 
 enum AuthMode:
   case None

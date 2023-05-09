@@ -5,7 +5,7 @@
 package dev.ligature.lig
 
 import dev.ligature.gaze.Gaze
-import dev.ligature.{Identifier, IntegerLiteral, Statement, StringLiteral}
+import dev.ligature.{Identifier, Statement, LigatureLiteral}
 import munit.FunSuite
 
 class LigInputSuite extends FunSuite {
@@ -63,12 +63,12 @@ class LigInputSuite extends FunSuite {
       Statement(
         Identifier.fromString("e").getOrElse(???),
         Identifier.fromString("a").getOrElse(???),
-        IntegerLiteral(234)
+        LigatureLiteral.IntegerLiteral(234)
       ),
       Statement(
         Identifier.fromString("e").getOrElse(???),
         Identifier.fromString("a").getOrElse(???),
-        IntegerLiteral(432)
+        LigatureLiteral.IntegerLiteral(432)
       )
     )
     val res = read(input)
@@ -90,12 +90,12 @@ class LigInputSuite extends FunSuite {
       Statement(
         Identifier.fromString("e").getOrElse(???),
         Identifier.fromString("a").getOrElse(???),
-        IntegerLiteral(234)
+        LigatureLiteral.IntegerLiteral(234)
       ),
       Statement(
         Identifier.fromString("e2").getOrElse(???),
         Identifier.fromString("a").getOrElse(???),
-        IntegerLiteral(234)
+        LigatureLiteral.IntegerLiteral(234)
       )
     )
     val result = read(input)

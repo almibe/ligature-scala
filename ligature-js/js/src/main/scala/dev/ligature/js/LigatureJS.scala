@@ -4,12 +4,12 @@
 
 package dev.ligature.js
 
-import dev.ligature.Dataset
 import dev.ligature.wander.run as wanderRun
 
 import scala.scalajs.js.annotation.JSExportTopLevel
+import dev.ligature.wander.common
 
 @JSExportTopLevel("run")
-def run(script: String, dataset: Dataset): String = {
-  wanderRun(script, dataset).toString
+def run(script: String): String = {
+  wanderRun(script, common()).toString
 }
