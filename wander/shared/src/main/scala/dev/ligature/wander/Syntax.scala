@@ -11,6 +11,7 @@ import fs2.Stream
 import scala.util.Success
 import dev.ligature.Identifier
 import cats.Eval
+import dev.ligature.LigatureError
 
 /** Represents the union of Statements and Expressions
   */
@@ -22,8 +23,7 @@ import cats.Eval
   */
 //sealed trait Expression extends Element
 
-case class ScriptError(message: String)
-case class ScriptResult(result: WanderValue)
+type ScriptResult = WanderValue
 case class EvalResult(result: WanderValue, bindings: Bindings)
 
 /** Represents a Value in the Wander language.
@@ -35,7 +35,7 @@ enum WanderValue:
   case Nothing
   case NativeFunction(
     parameters: List[Parameter],
-    body: (arguments: Seq[Term], bindings: Bindings) => Either[ScriptError, WanderValue],
+    body: (arguments: Seq[Term], bindings: Bindings) => Either[LigatureError, WanderValue],
     output: WanderType = null)
   case WanderFunction(
     parameters: List[Parameter],
@@ -91,24 +91,6 @@ enum WanderValue:
 //     // }
 //     Right(EvalResult(this, binding))
 // }
-
-/** Represents a full script that can be eval'd.
-  */
-case class Script(val terms: Seq[Term]) {
-  def eval(bindings: Bindings): Either[ScriptError, ScriptResult] = {
-    var result: WanderValue = WanderValue.Nothing
-    var currentBindings: Bindings = bindings
-    terms.foreach { term =>
-      evalTerm(term,currentBindings) match {
-        case Left(err) => return Left(err)
-        case Right(res) =>
-          result = res.result
-          currentBindings = res.bindings
-      }
-    }
-    Right(ScriptResult(result))
-  }
-}
 
 /** Represents a scope in Wander that can be eval'd and can contain it's own
   * bindings.

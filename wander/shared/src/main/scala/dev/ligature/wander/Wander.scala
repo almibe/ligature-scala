@@ -4,32 +4,27 @@
 
 package dev.ligature.wander
 
-import dev.ligature.wander.{WanderValue, ScriptError, Script, ScriptResult}
+import dev.ligature.wander.{WanderValue, ScriptResult}
 import dev.ligature.wander.parse
 import dev.ligature.{Dataset, Ligature}
 import dev.ligature.lig.writeValue
+import dev.ligature.LigatureError
 
 def run(
     script: String,
     bindings: Bindings
-): Either[ScriptError, ScriptResult] =
+): Either[LigatureError, ScriptResult] =
   for {
     tokens <- tokenize(script)
-    script <- parse(tokens).left.map(ScriptError(_))
-    result <- interpret(script, bindings)
+    script <- parse(tokens)
+    result <- eval(script, bindings)
   } yield result
 
-def interpret(
-    script: Script,
-    bindings: Bindings
-): Either[ScriptError, ScriptResult] = {
-  script.eval(bindings)
-}
 
-def printResult(result: Either[ScriptError, ScriptResult]): String = {
+def printResult(result: Either[LigatureError, ScriptResult]): String = {
   result match {
-    case Left(value) => value.message
-    case Right(ScriptResult(value)) => printWanderValue(value)
+    case Left(value) => value.userMessage
+    case Right(value) => printWanderValue(value)
   }
 }
 

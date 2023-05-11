@@ -5,18 +5,20 @@
 package dev.ligature.wander
 
 import dev.ligature.wander.WanderValue
-import dev.ligature.wander.{Parameter, ScriptResult, ScriptError}
+import dev.ligature.wander.{Parameter, ScriptResult}
 
 import dev.ligature.{Ligature, Dataset}
 import dev.ligature.wander.WanderType
 import dev.ligature.Identifier
+import dev.ligature.LigatureError
 
 def instanceMode(instance: Ligature): Bindings = {
   var bindings = common()
 
   bindings = bindings.bindVariable(WanderValue.Name("datasets"), WanderValue.NativeFunction(
     List(),
-    (arguments: Seq[Term], binding: Bindings) => Right(WanderValue.LigatureValue(Identifier.fromString("test").getOrElse(???)))
+    (arguments: Seq[Term], binding: Bindings) =>
+      Right(WanderValue.LigatureValue(Identifier.fromString("test").getOrElse(???)))
   )).getOrElse(???)
 
   bindings = bindings.bindVariable(WanderValue.Name("addDataset"), WanderValue.NativeFunction(
@@ -63,12 +65,12 @@ def common(): Bindings = {
         List(Parameter(WanderValue.Name("bool"), WanderType.Boolean)),
         (arguments: Seq[Term], bindings: Bindings) =>
           if arguments.size != 1 then
-            Left(ScriptError("`not` function requires 1 argument."))
+            Left(LigatureError("`not` function requires 1 argument."))
           else
             val evaledArgs = arguments.map(evalTerm(_, bindings))
             evaledArgs.headOption match
               case Some(Right(EvalResult(b: WanderValue.BooleanValue, _))) => Right(WanderValue.BooleanValue(!b.value))
-              case _ => Left(ScriptError("`not` function requires 1 boolean argument."))
+              case _ => Left(LigatureError("`not` function requires 1 boolean argument."))
       )
     )
     .getOrElse(???)
@@ -89,10 +91,10 @@ def common(): Bindings = {
             (left, right) match {
               case (Right(EvalResult(l: WanderValue.BooleanValue, _)), Right(EvalResult(r: WanderValue.BooleanValue, _))) =>
                 Right(WanderValue.BooleanValue(l.value && r.value))
-              case _ => Left(ScriptError("`and` function requires two booleans"))
+              case _ => Left(LigatureError("`and` function requires two booleans"))
             }
           else 
-            Left(ScriptError("`and` function requires two booleans"))
+            Left(LigatureError("`and` function requires two booleans"))
       )
     )
     .getOrElse(???)
@@ -113,10 +115,10 @@ def common(): Bindings = {
             (left, right) match {
               case (Right(EvalResult(l: WanderValue.BooleanValue, _)), Right(EvalResult(r: WanderValue.BooleanValue, _))) =>
                 Right(WanderValue.BooleanValue(l.value || r.value))
-              case _ => Left(ScriptError("`or` function requires two booleans"))
+              case _ => Left(LigatureError("`or` function requires two booleans"))
             }
           else
-            Left(ScriptError("`or` function requires two booleans"))
+            Left(LigatureError("`or` function requires two booleans"))
       )
     )
     .getOrElse(???)

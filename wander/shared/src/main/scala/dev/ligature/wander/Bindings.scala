@@ -4,7 +4,8 @@
 
 package dev.ligature.wander
 
-import dev.ligature.wander.{ScriptError, WanderValue}
+import dev.ligature.LigatureError
+import dev.ligature.wander.{WanderValue}
 
 case class Bindings(scopes: List[Map[WanderValue.Name, WanderValue]] = List((Map()))) {
   def newScope(): Bindings = Bindings(this.scopes.appended(Map()))
@@ -12,11 +13,11 @@ case class Bindings(scopes: List[Map[WanderValue.Name, WanderValue]] = List((Map
   def bindVariable(
       name: WanderValue.Name,
       wanderValue: WanderValue
-  ): Either[ScriptError, Bindings] = {
+  ): Either[LigatureError, Bindings] = {
     val currentScope = this.scopes.last
     if (currentScope.contains(name)) {
       //TODO probably remove this to allow shadowing?
-      Left(ScriptError(s"$name is already bound in current scope."))
+      Left(LigatureError(s"$name is already bound in current scope."))
     } else {
       val newVariables = currentScope + (name -> wanderValue)
       val oldScope = this.scopes.dropRight(1)
@@ -26,7 +27,7 @@ case class Bindings(scopes: List[Map[WanderValue.Name, WanderValue]] = List((Map
     }
   }
 
-  def read(name: WanderValue.Name): Either[ScriptError, WanderValue] = {
+  def read(name: WanderValue.Name): Either[LigatureError, WanderValue] = {
     var currentScopeOffset = this.scopes.length - 1
     while (currentScopeOffset >= 0) {
       val currentScope = this.scopes(currentScopeOffset)
@@ -35,6 +36,6 @@ case class Bindings(scopes: List[Map[WanderValue.Name, WanderValue]] = List((Map
       }
       currentScopeOffset -= 1
     }
-    Left(ScriptError(s"Could not find $name in scope."))
+    Left(LigatureError(s"Could not find $name in scope."))
   }
 }

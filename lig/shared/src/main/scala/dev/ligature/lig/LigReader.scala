@@ -256,7 +256,7 @@ def parseIdentifier(
 }
 
 def handleIdGenId(input: String): Either[LigError, Identifier] =
-  Identifier.fromString(genIdId(input)).left.map(err => LigError(err.message))
+  Identifier.fromString(genIdId(input)).left.map(err => LigError(err.userMessage))
 
 def genIdId(input: String): String = {
   val itr = input.toCharArray.iterator
@@ -283,7 +283,7 @@ def handlePrefixedId(
       Identifier
         .fromString(prefixValue + postfix)
         .left
-        .map(err => LigError(err.message))
+        .map(err => LigError(err.userMessage))
   }
 }
 
@@ -299,7 +299,7 @@ def handlePrefixedGenId(
       Identifier
         .fromString(genIdId(prefixValue + postfix))
         .left
-        .map(err => LigError(err.message))
+        .map(err => LigError(err.userMessage))
   }
 }
 

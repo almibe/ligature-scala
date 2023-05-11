@@ -5,11 +5,11 @@
 package dev.ligature.wander
 
 import dev.ligature.wander.WanderValue
-import dev.ligature.{Identifier, LigatureLiteral}
+import dev.ligature.{Identifier, LigatureLiteral, LigatureError}
 import munit.FunSuite
 
 class LexerSuite extends FunSuite {
-  def check(script: String, tokens: Either[ScriptError, Seq[Token]]) =
+  def check(script: String, tokens: Either[LigatureError, Seq[Token]]) =
     assertEquals(tokenize(script), tokens)
   def ident(identifier: String): Token =
     Identifier.fromString(identifier) match

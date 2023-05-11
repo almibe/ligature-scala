@@ -4,7 +4,7 @@
 
 package dev.ligature.wander
 
-import dev.ligature.{Identifier, LigatureLiteral}
+import dev.ligature.{Identifier, LigatureLiteral, LigatureError}
 import dev.ligature.wander.Token
 // import dev.ligature.wander.{
 //   FunctionCall,
@@ -20,7 +20,7 @@ import dev.ligature.wander.Token
 import dev.ligature.wander.WanderType
 
 class ClosureSuite extends munit.FunSuite {
-  def check(script: String, expected: Either[ScriptError, ScriptResult]) =
+  def check(script: String, expected: Either[LigatureError, ScriptResult]) =
     assertEquals(run(script, common()), expected)
 
   // test("function0 def") {

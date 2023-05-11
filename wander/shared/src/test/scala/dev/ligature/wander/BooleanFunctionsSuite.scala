@@ -6,36 +6,36 @@ package dev.ligature.wander
 
 import dev.ligature
 import dev.ligature.wander.Token
-import dev.ligature.Identifier
+import dev.ligature.{Identifier, LigatureError}
 //import dev.ligature.wander.{BooleanValue, FunctionCall, Name, Script, ScriptResult}
 
 class BooleanFunctionsSuite extends munit.FunSuite {
-  def check(script: String, expected: Either[ScriptError, ScriptResult]) =
+  def check(script: String, expected: Either[LigatureError, ScriptResult]) =
     assertEquals(run(script, common()), expected)
 
   test("not function") {
     val script = "not(true)"
-    val result = Right(ScriptResult(WanderValue.BooleanValue(false)))
+    val result = Right(WanderValue.BooleanValue(false))
     check(script, result)
   }
   test("and function") {
     val script = "and(false false)"
-    val result = Right(ScriptResult(WanderValue.BooleanValue(false)))
+    val result = Right(WanderValue.BooleanValue(false))
     check(script, result)
   }
   test("or function") {
     val script = "or(true false)"
-    val result = Right(ScriptResult(WanderValue.BooleanValue(true)))
+    val result = Right(WanderValue.BooleanValue(true))
     check(script, result)
   }
   test("boolean expression 1") {
     val script = "or(true and(false false))"
-    val result = Right(ScriptResult(WanderValue.BooleanValue(true)))
+    val result = Right(WanderValue.BooleanValue(true))
     check(script, result)
   }
   test("boolean expression 2") {
     val script = "and(or(true false) false)"
-    val result = Right(ScriptResult(WanderValue.BooleanValue(false)))
+    val result = Right(WanderValue.BooleanValue(false))
     check(script, result)
   }
   //TODO add this test back after let statements are working
@@ -47,6 +47,6 @@ class BooleanFunctionsSuite extends munit.FunSuite {
   //              |res""".stripMargin,
   //   tokens = null,
   //   ast = null,
-  //   result = Right(ScriptResult(BooleanValue(true)))
+  //   result = Right(BooleanValue(true))
   // )
 }

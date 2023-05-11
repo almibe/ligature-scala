@@ -15,7 +15,7 @@ import dev.ligature.gaze.{
   takeString,
   repeat
 }
-import dev.ligature.{Identifier, LigatureLiteral}
+import dev.ligature.{Identifier, LigatureLiteral, LigatureError}
 import dev.ligature.wander.Token
 
 enum Term:
@@ -30,32 +30,7 @@ enum Term:
     parameters: Seq[String],
     body: Scope)
 
-def evalTerm(term: Term, bindings: Bindings): Either[ScriptError, EvalResult] =
-  term match
-    case Term.BooleanLiteral(value) => Right(EvalResult(WanderValue.BooleanValue(value), bindings))
-    case Term.IdentifierLiteral(value) => Right(EvalResult(WanderValue.LigatureValue(value), bindings))
-    case Term.IntegerLiteral(value) => Right(EvalResult(WanderValue.LigatureValue(LigatureLiteral.IntegerLiteral(value)), bindings))
-    case Term.StringLiteral(value) => Right(EvalResult(WanderValue.LigatureValue(LigatureLiteral.StringLiteral(value)), bindings))
-    case Term.Name(value) => ???
-    case Term.FunctionCall(name, arguments) =>
-      //TODO val evaldArgs = evalArguments(arguments)
-      bindings.read(WanderValue.Name(name.value)) match {
-        case Left(value) => Left(value)
-        case Right(value) =>
-          value match {
-            case WanderValue.NativeFunction(parameters, body, output) => {
-              body(arguments, bindings).map { value => EvalResult(value, bindings) }
-            }
-            case WanderValue.WanderFunction(parameters, body, output) => ???
-            case _ => ???
-          }
-      }
-    case Term.WanderFunction(parameters, body) => {
-      ???
-    }
-    case Term.Scope(terms) => ???
-
-def parse(script: Seq[Token]): Either[String, Script] = {
+def parse(script: Seq[Token]): Either[LigatureError, Seq[Term]] = {
   val filteredInput = script.filter {
     _ match
       case Token.Spaces(_) | Token.NewLine | Token.Comment => false
@@ -66,16 +41,16 @@ def parse(script: Seq[Token]): Either[String, Script] = {
   res match {
     case None =>
       if (gaze.isComplete) {
-        Right(Script(Seq()))
+        Right(Seq())
       } else {
-        Left("No Match")
+        Left(LigatureError(s"Error Parsing - No Match - Next Token: ${gaze.next()}"))
       }
     // TODO some case also needs to check if gaze is complete
     case Some(res) =>
       if (gaze.isComplete) {
-        Right(Script(res)) // .filter(_.isDefined).map(_.get)))
+        Right(res)
       } else {
-        Left("No Match")
+        Left(LigatureError(s"Error Parsing - No Match - Next Token: ${gaze.next()}"))
       }
   }
 }

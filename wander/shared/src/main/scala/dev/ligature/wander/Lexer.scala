@@ -18,9 +18,7 @@ import dev.ligature.gaze.{
   repeat
 }
 import dev.ligature.lig.LigNibblers
-import dev.ligature.LigatureError
-import dev.ligature.wander.ScriptError
-import dev.ligature.Identifier
+import dev.ligature.{Identifier, LigatureError}
 
 enum Token:
   case BooleanLiteral(value: Boolean)
@@ -32,20 +30,20 @@ enum Token:
   case OpenBrace, CloseBrace, Colon, OpenParen, CloseParen, NewLine,
     Arrow, IfKeyword, ElsifKeyword, ElseKeyword, EqualSign, LetKeyword, Comment
 
-def tokenize(input: String): Either[ScriptError, Seq[Token]] = {
+def tokenize(input: String): Either[LigatureError, Seq[Token]] = {
   val gaze = Gaze.from(input)
   gaze.attempt(tokensNib) match {
     case None =>
       if (gaze.isComplete) {
         Right(List())
       } else {
-        Left(ScriptError("Error"))
+        Left(LigatureError("Error"))
       }
     case Some(res) =>
       if (gaze.isComplete) {
         Right(res)
       } else {
-        Left(ScriptError("Error"))
+        Left(LigatureError("Error"))
       }
   }
 }
