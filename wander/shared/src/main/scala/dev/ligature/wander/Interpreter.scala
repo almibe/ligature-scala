@@ -6,34 +6,43 @@ package dev.ligature.wander
 
 import dev.ligature.LigatureError
 import dev.ligature.LigatureLiteral
+import cats.effect.IO
 
-/** Represents a full script that can be eval'd.
-  */
-def eval(script: Seq[Term], bindings: Bindings): Either[LigatureError, ScriptResult] = {
+def eval(script: Seq[Term], bindings: Bindings): IO[ScriptResult] = {
   var result: WanderValue = WanderValue.Nothing
+  var error: LigatureError | Unit = ()
   var currentBindings: Bindings = bindings
-  script.foreach { term =>
-    evalTerm(term,currentBindings) match {
-      case Left(err) => return Left(err)
-      case Right(res) =>
-        result = res.result
-        currentBindings = res.bindings
-    }
-  }
-  Right(result)
+  if script.isEmpty then
+    IO.pure(result)
+  else
+    evalTerm(script.last, bindings)
+      .map(_.result)
+  // var itr = script.iterator
+  // while itr.hasNext do
+  //   val term = itr.next()
+  //   evalTerm(term,currentBindings).map { res =>
+  //     res
+  //     // res match
+  //     //   case Left(value) => Left(value)
+  //     //   case Right(value) =>
+  //     //     result = value.result
+  //     //     currentBindings = value.bindings
+  //     //     Right(value)
+  //   }
+  //IO.pure(result)
 }
 
-def evalTerm(term: Term, bindings: Bindings): Either[LigatureError, EvalResult] =
+def evalTerm(term: Term, bindings: Bindings): IO[EvalResult] =
   term match
-    case Term.BooleanLiteral(value) => Right(EvalResult(WanderValue.BooleanValue(value), bindings))
-    case Term.IdentifierLiteral(value) => Right(EvalResult(WanderValue.LigatureValue(value), bindings))
-    case Term.IntegerLiteral(value) => Right(EvalResult(WanderValue.LigatureValue(LigatureLiteral.IntegerLiteral(value)), bindings))
-    case Term.StringLiteral(value) => Right(EvalResult(WanderValue.LigatureValue(LigatureLiteral.StringLiteral(value)), bindings))
+    case Term.BooleanLiteral(value) => IO.pure(EvalResult(WanderValue.BooleanValue(value), bindings))
+    case Term.IdentifierLiteral(value) => IO.pure(EvalResult(WanderValue.LigatureValue(value), bindings))
+    case Term.IntegerLiteral(value) => IO.pure(EvalResult(WanderValue.LigatureValue(LigatureLiteral.IntegerLiteral(value)), bindings))
+    case Term.StringLiteral(value) => IO.pure(EvalResult(WanderValue.LigatureValue(LigatureLiteral.StringLiteral(value)), bindings))
     case Term.Name(value) => ???
     case Term.FunctionCall(name, arguments) =>
       //TODO val evaldArgs = evalArguments(arguments)
       bindings.read(WanderValue.Name(name.value)) match {
-        case Left(value) => Left(value)
+        case Left(value) => ???///IO(Left(value))
         case Right(value) =>
           value match {
             case WanderValue.NativeFunction(parameters, body, output) => {

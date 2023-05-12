@@ -35,7 +35,7 @@ enum WanderValue:
   case Nothing
   case NativeFunction(
     parameters: List[Parameter],
-    body: (arguments: Seq[Term], bindings: Bindings) => Either[LigatureError, WanderValue],
+    body: (arguments: Seq[Term], bindings: Bindings) => IO[WanderValue], //Either[LigatureError, WanderValue],
     output: WanderType = null)
   case WanderFunction(
     parameters: List[Parameter],

@@ -11,6 +11,8 @@ import dev.ligature.{Ligature, Dataset}
 import dev.ligature.wander.WanderType
 import dev.ligature.Identifier
 import dev.ligature.LigatureError
+import dev.ligature.LigatureLiteral
+import cats.effect.IO
 
 def instanceMode(instance: Ligature): Bindings = {
   var bindings = common()
@@ -18,7 +20,8 @@ def instanceMode(instance: Ligature): Bindings = {
   bindings = bindings.bindVariable(WanderValue.Name("datasets"), WanderValue.NativeFunction(
     List(),
     (arguments: Seq[Term], binding: Bindings) =>
-      Right(WanderValue.LigatureValue(Identifier.fromString("test").getOrElse(???)))
+      //Right(WanderValue.LigatureValue(Identifier.fromString("test").getOrElse(???)))
+      instance.allDatasets().compile.toList.map { datasets => WanderValue.LigatureValue(LigatureLiteral.StringLiteral(datasets.toString())) }
   )).getOrElse(???)
 
   bindings = bindings.bindVariable(WanderValue.Name("addDataset"), WanderValue.NativeFunction(
@@ -65,12 +68,13 @@ def common(): Bindings = {
         List(Parameter(WanderValue.Name("bool"), WanderType.Boolean)),
         (arguments: Seq[Term], bindings: Bindings) =>
           if arguments.size != 1 then
-            Left(LigatureError("`not` function requires 1 argument."))
+            IO.raiseError(LigatureError("`not` function requires 1 argument."))
           else
-            val evaledArgs = arguments.map(evalTerm(_, bindings))
-            evaledArgs.headOption match
-              case Some(Right(EvalResult(b: WanderValue.BooleanValue, _))) => Right(WanderValue.BooleanValue(!b.value))
-              case _ => Left(LigatureError("`not` function requires 1 boolean argument."))
+            evalTerm(arguments.head, bindings).map { 
+              _ match
+                case EvalResult(b: WanderValue.BooleanValue, _) => WanderValue.BooleanValue(!b.value)
+                case _ => throw LigatureError("`not` function requires 1 boolean argument.")
+            }
       )
     )
     .getOrElse(???)
@@ -85,16 +89,17 @@ def common(): Bindings = {
         ),
         (arguments: Seq[Term], bindings: Bindings) =>
           if arguments.length == 2 then
-            val evaledArgs = arguments.map(evalTerm(_, bindings))
-            val left = evaledArgs(0) //bindings.read(Name("boolLeft"))
-            val right = evaledArgs(1) //bindings.read(Name("boolRight"))
-            (left, right) match {
-              case (Right(EvalResult(l: WanderValue.BooleanValue, _)), Right(EvalResult(r: WanderValue.BooleanValue, _))) =>
-                Right(WanderValue.BooleanValue(l.value && r.value))
-              case _ => Left(LigatureError("`and` function requires two booleans"))
+            val res = for {
+              left <- evalTerm(arguments(0), bindings)
+              right <- evalTerm(arguments(1), bindings)
+            } yield (left, right)
+            res.map { r =>
+              (r._1.result, r._2.result) match
+                case (WanderValue.BooleanValue(left), WanderValue.BooleanValue(right)) => WanderValue.BooleanValue(left && right)
+                case _ => throw LigatureError("`and` function requires two booleans")
             }
-          else 
-            Left(LigatureError("`and` function requires two booleans"))
+          else
+            IO.raiseError(LigatureError("`and` function requires two booleans"))
       )
     )
     .getOrElse(???)
@@ -109,16 +114,17 @@ def common(): Bindings = {
         ),
         (arguments: Seq[Term], bindings: Bindings) =>
           if arguments.length == 2 then
-            val evaledArgs = arguments.map(evalTerm(_, bindings))
-            val left = evaledArgs(0) // bindings.read(Name("boolLeft"))
-            val right = evaledArgs(1) //bindings.read(Name("boolRight"))
-            (left, right) match {
-              case (Right(EvalResult(l: WanderValue.BooleanValue, _)), Right(EvalResult(r: WanderValue.BooleanValue, _))) =>
-                Right(WanderValue.BooleanValue(l.value || r.value))
-              case _ => Left(LigatureError("`or` function requires two booleans"))
+            val res = for {
+              left <- evalTerm(arguments(0), bindings)
+              right <- evalTerm(arguments(1), bindings)
+            } yield (left, right)
+            res.map { r =>
+              (r._1.result, r._2.result) match
+                case (WanderValue.BooleanValue(left), WanderValue.BooleanValue(right)) => WanderValue.BooleanValue(left || right)
+                case _ => throw LigatureError("`or` function requires two booleans")
             }
           else
-            Left(LigatureError("`or` function requires two booleans"))
+            IO.raiseError(LigatureError("`or` function requires two booleans"))
       )
     )
     .getOrElse(???)

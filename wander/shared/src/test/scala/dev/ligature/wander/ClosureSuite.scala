@@ -18,10 +18,11 @@ import dev.ligature.wander.Token
 //   WanderFunction
 // }
 import dev.ligature.wander.WanderType
+import cats.effect.IO
 
-class ClosureSuite extends munit.FunSuite {
-  def check(script: String, expected: Either[LigatureError, ScriptResult]) =
-    assertEquals(run(script, common()), expected)
+class ClosureSuite extends munit.CatsEffectSuite {
+  def check(script: String, expected: ScriptResult) =
+    assertIO(run(script, common()), expected)
 
   // test("function0 def") {
   //   val script = """let f = () -> Integer { 5 }

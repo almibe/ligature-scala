@@ -9,17 +9,19 @@ import dev.ligature.wander.parse
 import dev.ligature.{Dataset, Ligature}
 import dev.ligature.lig.writeValue
 import dev.ligature.LigatureError
+import cats.effect.IO
 
 def run(
     script: String,
     bindings: Bindings
-): Either[LigatureError, ScriptResult] =
-  for {
+): IO[ScriptResult] =
+  val terms = for {
     tokens <- tokenize(script)
-    script <- parse(tokens)
-    result <- eval(script, bindings)
-  } yield result
-
+    terms <- parse(tokens)
+  } yield terms
+  terms match
+    case Left(value) => IO.raiseError(value)
+    case Right(value) => eval(value, bindings)
 
 def printResult(result: Either[LigatureError, ScriptResult]): String = {
   result match {

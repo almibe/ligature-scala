@@ -6,6 +6,7 @@ ThisBuild / organizationName := "ligature"
 
 val munitVersion = "0.7.29"
 val fs2Version = "3.2.7"
+val munitCatsEffect3Version = "1.0.7"
 
 lazy val ligature = crossProject(JSPlatform, JVMPlatform)
   .in(file("ligature"))
@@ -51,7 +52,8 @@ lazy val wander = crossProject(JSPlatform, JVMPlatform)
   .settings(
     name := "wander",
     scalaVersion := scala3Version,
-    libraryDependencies += "org.scalameta" %%% "munit" % munitVersion % Test
+    libraryDependencies += "org.scalameta" %%% "munit" % munitVersion % Test,
+    libraryDependencies += "org.typelevel" %%% "munit-cats-effect-3" % munitCatsEffect3Version
   )
   .dependsOn(ligature, lig, gaze)
   .disablePlugins(RevolverPlugin)
@@ -62,7 +64,7 @@ lazy val ligatureTestSuite = crossProject(JSPlatform, JVMPlatform)
     name := "ligature-test-suite",
     scalaVersion := scala3Version,
     libraryDependencies += "co.fs2" %%% "fs2-core" % fs2Version,
-    libraryDependencies += "org.typelevel" %%% "munit-cats-effect-3" % "1.0.7"
+    libraryDependencies += "org.typelevel" %%% "munit-cats-effect-3" % munitCatsEffect3Version
   )
   .dependsOn(ligature)
   .disablePlugins(RevolverPlugin)
@@ -98,7 +100,7 @@ lazy val ligatureXodus = crossProject(JVMPlatform)
     libraryDependencies += "org.jetbrains.xodus" % "xodus-environment" % "2.0.1",
     libraryDependencies += "org.scodec" % "scodec-core_3" % "2.1.0",
     libraryDependencies += "org.scalameta" %%% "munit" % munitVersion % Test,
-    libraryDependencies += "org.typelevel" %%% "munit-cats-effect-3" % "1.0.7" % Test
+    libraryDependencies += "org.typelevel" %%% "munit-cats-effect-3" % munitCatsEffect3Version % Test
   )
   .dependsOn(ligature, idgen, ligatureTestSuite % Test)
   .disablePlugins(RevolverPlugin)
@@ -151,7 +153,7 @@ lazy val ligatureHttpTestSuite = crossProject(JVMPlatform)
     libraryDependencies += "org.http4s" %% "http4s-ember-server" % http4sVersion,
     libraryDependencies += "org.http4s" %% "http4s-ember-client" % http4sVersion,
     libraryDependencies += "com.google.code.gson" % "gson" % "2.9.0",
-    libraryDependencies += "org.typelevel" %%% "munit-cats-effect-3" % "1.0.7"
+    libraryDependencies += "org.typelevel" %%% "munit-cats-effect-3" % munitCatsEffect3Version
   )
   .dependsOn(ligatureHttp, ligature, lig, wander)
   .disablePlugins(RevolverPlugin)
