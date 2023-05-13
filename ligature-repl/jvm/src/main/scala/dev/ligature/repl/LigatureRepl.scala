@@ -14,6 +14,10 @@ import dev.ligature.wander.run
 import dev.ligature.wander.printResult
 import dev.ligature.wander.instanceMode
 import dev.ligature.inmemory.InMemoryLigature
+import cats.effect.unsafe.implicits.global
+import dev.ligature.wander.WanderValue
+import dev.ligature.LigatureLiteral
+import dev.ligature.LigatureError
 
 @main def main() = {
   println("Welcome to Ligature's REPL!")
@@ -26,8 +30,16 @@ import dev.ligature.inmemory.InMemoryLigature
   var continue = true
   while (continue) {
     val line: String = reader.readLine("> ")
-    if (line.trim() == ":q") continue = false
-    else println(printResult(run(line, instanceMode(InMemoryLigature()))))
+    if (line.trim() == ":q")
+      continue = false
+    else
+      val res = run(line, instanceMode(InMemoryLigature()))
+      val res2 = res.handleError { e =>
+        e match
+          case LigatureError(userMessage) => WanderValue.LigatureValue(LigatureLiteral.StringLiteral(userMessage))
+          case e => WanderValue.LigatureValue(LigatureLiteral.StringLiteral(e.getMessage()))
+        }
+      println(printResult(res2.unsafeRunSync()))
   }
   terminal.close()
 }

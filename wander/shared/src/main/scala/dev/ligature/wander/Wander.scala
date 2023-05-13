@@ -23,11 +23,8 @@ def run(
     case Left(value) => IO.raiseError(value)
     case Right(value) => eval(value, bindings)
 
-def printResult(result: Either[LigatureError, ScriptResult]): String = {
-  result match {
-    case Left(value) => value.userMessage
-    case Right(value) => printWanderValue(value)
-  }
+def printResult(value: ScriptResult): String = {
+  printWanderValue(value)
 }
 
 def printWanderValue(value: WanderValue): String = {
