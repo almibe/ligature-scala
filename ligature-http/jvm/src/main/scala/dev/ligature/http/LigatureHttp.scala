@@ -68,7 +68,7 @@ class LigatureHttp(val ligature: Ligature, val mode: AuthMode, port: Port) {
           res <- Ok("Dataset added.")
         } yield res
       case Left(error) =>
-        BadRequest(error.message)
+        BadRequest(error.userMessage)
     }
 
   def deleteDataset(datasetName: String): IO[Response[IO]] =
@@ -79,7 +79,7 @@ class LigatureHttp(val ligature: Ligature, val mode: AuthMode, port: Port) {
           res <- Ok("Dataset deleted.")
         } yield res
       case Left(error) =>
-        BadRequest(error.message)
+        BadRequest(error.userMessage)
     }
 
   def getAllStatements(datasetName: String): IO[Response[IO]] =
@@ -92,7 +92,7 @@ class LigatureHttp(val ligature: Ligature, val mode: AuthMode, port: Port) {
           .map((statements: List[Statement]) => write(statements.iterator))
         Ok(statements)
       case Left(error) =>
-        BadRequest(error.message)
+        BadRequest(error.userMessage)
     }
 
   def addStatements(
@@ -116,7 +116,7 @@ class LigatureHttp(val ligature: Ligature, val mode: AuthMode, port: Port) {
           case Left(err) => BadRequest(err.message)
         }
       case Left(err) =>
-        BadRequest(err.message)
+        BadRequest(err.userMessage)
     }
 
   def deleteStatements(
@@ -137,10 +137,10 @@ class LigatureHttp(val ligature: Ligature, val mode: AuthMode, port: Port) {
               .flatMap { _ =>
                 Ok()
               }
-          case Left(err) => BadRequest(err.message)
+          case Left(err) => BadRequest(err.userMessage)
         }
       case Left(err) =>
-        BadRequest(err.message)
+        BadRequest(err.userMessage)
     }
 
   def runWanderQuery(
@@ -150,6 +150,6 @@ class LigatureHttp(val ligature: Ligature, val mode: AuthMode, port: Port) {
     body.map(script => run(script, null)).flatMap {
       case Right(ScriptResult(result)) =>
         Ok(printWanderValue(result))
-      case Left(err) => BadRequest(err.message)
+      case Left(err) => BadRequest(err.userMessage)
     }
 }
