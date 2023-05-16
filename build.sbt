@@ -1,12 +1,14 @@
-lazy val scala3Version = "3.1.2"
+lazy val scala3Version = "3.2.2"
 
 ThisBuild / version := "0.1.0-SNAPSHOT"
 ThisBuild / organization := "dev.ligature"
 ThisBuild / organizationName := "ligature"
 
-val munitVersion = "0.7.29"
-val fs2Version = "3.2.7"
+val munitVersion = "1.0.0-M7"
+val catsEffectVersion = "3.5.0"
+val fs2Version = "3.7.0"
 val munitCatsEffect3Version = "1.0.7"
+val jlineVersion = "3.23.0"
 
 lazy val ligature = crossProject(JSPlatform, JVMPlatform)
   .in(file("ligature"))
@@ -14,6 +16,7 @@ lazy val ligature = crossProject(JSPlatform, JVMPlatform)
     name := "ligature",
     scalaVersion := scala3Version,
     libraryDependencies += "co.fs2" %%% "fs2-core" % fs2Version,
+    libraryDependencies += "org.typelevel" %% "cats-effect" % catsEffectVersion,
     libraryDependencies += "org.scalameta" %%% "munit" % munitVersion % Test
   )
   .disablePlugins(RevolverPlugin)
@@ -113,7 +116,7 @@ lazy val ligatureJS = crossProject(JSPlatform)
    scalaVersion := scala3Version,
    scalaJSLinkerConfig ~= { _.withModuleKind(ModuleKind.ESModule) },
  )
- .dependsOn(ligature, wander)
+ .dependsOn(ligature, wander, ligatureInMemory)
  .disablePlugins(RevolverPlugin)
 
 lazy val ligatureRepl = crossProject(JVMPlatform)
@@ -121,8 +124,8 @@ lazy val ligatureRepl = crossProject(JVMPlatform)
   .settings(
     name := "ligature-repl",
     scalaVersion := scala3Version,
-    libraryDependencies += "org.jline" % "jline" % "3.22.0",
-    libraryDependencies += "org.jline" % "jline-terminal-jansi" % "3.22.0",
+    libraryDependencies += "org.jline" % "jline" % jlineVersion,
+    libraryDependencies += "org.jline" % "jline-terminal-jansi" % jlineVersion,
   )
   .dependsOn(ligature, lig, wander, ligatureInMemory, ligatureXodus)
   .disablePlugins(RevolverPlugin)
