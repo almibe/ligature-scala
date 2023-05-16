@@ -26,14 +26,45 @@ def instanceMode(instance: Ligature): Bindings = {
 
   bindings = bindings.bindVariable(WanderValue.Name("addDataset"), WanderValue.NativeFunction(
     List(Parameter(WanderValue.Name("message"), WanderType.String)),
-    (arguments: Seq[Term], binding: Bindings) => ???
+    (arguments: Seq[Term], binding: Bindings) =>
+      arguments.head match
+        case Term.StringLiteral(datasetName) =>
+          instance.createDataset(Dataset.fromString(datasetName).getOrElse(???)).map(_ => WanderValue.Nothing)
+        case _ => ???
   )).getOrElse(???)
 
-  //TODO datasets
-  //TODO addDataset
-  //TODO removeDataset
-  //TODO datasetExists
-  //TODO addStatement
+  bindings = bindings.bindVariable(WanderValue.Name("removeDataset"), WanderValue.NativeFunction(
+    List(Parameter(WanderValue.Name("message"), WanderType.String)),
+    (arguments: Seq[Term], binding: Bindings) =>
+      arguments.head match
+        case Term.StringLiteral(datasetName) =>
+          instance.deleteDataset(Dataset.fromString(datasetName).getOrElse(???)).map(_ => WanderValue.Nothing)
+        case _ => ???
+  )).getOrElse(???)
+
+  bindings = bindings.bindVariable(WanderValue.Name("datasetExists"), WanderValue.NativeFunction(
+    List(Parameter(WanderValue.Name("message"), WanderType.String)),
+    (arguments: Seq[Term], binding: Bindings) =>
+      arguments.head match
+        case Term.StringLiteral(datasetName) =>
+          instance.datasetExists(Dataset.fromString(datasetName).getOrElse(???)).map(res => WanderValue.BooleanValue(res))
+        case _ => ???
+  )).getOrElse(???)
+
+  bindings = bindings.bindVariable(WanderValue.Name("addStatement"), WanderValue.NativeFunction(
+    List(Parameter(WanderValue.Name("message"), WanderType.String)),
+    (arguments: Seq[Term], binding: Bindings) =>
+      (arguments(0), arguments(1), arguments(2), arguments(3)) match
+        case (Term.StringLiteral(datasetName), 
+              Term.IdentifierLiteral(entity), 
+              Term.IdentifierLiteral(attribute),
+              value: (Term.IdentifierLiteral | Term.StringLiteral | Term.IntegerLiteral)) =>
+                val dataset = Dataset.fromString(datasetName).getOrElse(???)
+                //instance.
+                ???
+        case _ => ???
+  )).getOrElse(???)
+
   //TODO removeStatement
   //TODO addAll
   //TODO removeAll
