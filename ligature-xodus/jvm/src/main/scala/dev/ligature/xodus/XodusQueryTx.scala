@@ -118,7 +118,7 @@ class XodusQueryTx(
   }
 
   /** Returns all Statements in this Dataset. */
-  override def allStatements(): Stream[IO, Statement] = Stream.emits {
+  def allStatements(): Stream[IO, Statement] = Stream.emits {
     val output: ArrayBuffer[Statement] = ArrayBuffer()
     val eavStore = xodusOperations.openStore(tx, LigatureStore.EAVStore)
     val eavCursor = eavStore.openCursor(tx)

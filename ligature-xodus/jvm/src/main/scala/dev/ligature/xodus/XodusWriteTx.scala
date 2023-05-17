@@ -19,7 +19,7 @@ class XodusWriteTx(
     private val tx: Transaction,
     private val xodusOperations: XodusOperations,
     private val datasetID: ByteIterable
-) extends WriteTx {
+) {//extends WriteTx {
 
   private def lookupIdentifier(identifier: Identifier): Option[ByteIterable] =
     val identifierToIdStore = xodusOperations.openStore(tx, LigatureStore.IdentifierToIdStore)
@@ -145,7 +145,7 @@ class XodusWriteTx(
 
   /** Returns an ID that doesn't exist within this Dataset.
     */
-  override def newIdentifier(prefix: String): IO[Identifier] = IO {
+  def newIdentifier(prefix: String): IO[Identifier] = IO {
     var newIdentifier = Identifier.fromString(s"$prefix${genId()}").getOrElse(???)
     var encodedIdentifier = StringBinding.stringToEntry(newIdentifier.name)
     var exists = true
@@ -164,7 +164,7 @@ class XodusWriteTx(
     * nothing happens (TODO maybe add it with a new context?). Note: Potentially
     * could trigger a ValidationError
     */
-  override def addStatement(statement: Statement): IO[Unit] = IO {
+  def addStatement(statement: Statement): IO[Unit] = IO {
     val entityID = lookupOrCreateIdentifier(statement.entity)
     val attributeID = lookupOrCreateIdentifier(statement.attribute)
     val encodedValue = encodeValue(statement.value)

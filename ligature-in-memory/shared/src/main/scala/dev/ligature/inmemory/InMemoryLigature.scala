@@ -35,7 +35,6 @@ final class InMemoryLigature(private val store: AtomicCell[IO, TreeMap[Dataset, 
   override def allDatasets(): Stream[IO, Dataset] = Stream.evalSeq {
     for {
       store <- store.get
-      _ <- IO (println(s"in allDatasets - ${store.keys}"))
     } yield store.keys.toSeq
   }
 
@@ -74,97 +73,60 @@ final class InMemoryLigature(private val store: AtomicCell[IO, TreeMap[Dataset, 
     for {
       _ <- store.evalUpdate { s => IO(s.updated(dataset, DatasetStore(0L, Set()))) } //TODO this needs to check if Dataset already exists
       s <- store.get
-      _ <- IO (println(s"hello - ${s}"))
     } yield ()
 
   /** Deletes a dataset with the given name. TODO should probably return its own
     * error type { InvalidDataset, CouldNotDeleteDataset }
     */
   override def deleteDataset(dataset: Dataset): IO[Unit] =
-    // for {
-    //   atomRef <- IO(store)
-    //   ref <- IO(store.get)
-    //   _ <- IO {
-    //     atomRef.set(ref.removed(dataset))
-    //   }
-    // } yield ()
-    ???
+    for {
+      _ <- store.evalUpdate { s => IO(s.removed(dataset)) }
+      s <- store.get
+    } yield ()
 
-  // val l = lock.writeLock()
-  // try {
-  //     l.lock()
-  //     if (store.contains(dataset)) {
-  //         val newStore = store - dataset
-  //         store = newStore
-  //         IO(Right(()))
-  //     } else {
-  //         IO(Right(()))
-  //     }
-  // } finally {
-  //     l.unlock()
-  // }
-
-  override def allStatements(dataset: Dataset): Stream[cats.effect.IO, Statement] = ???
-
+  override def allStatements(dataset: Dataset): Stream[IO, Statement] = Stream.evalSeq {
+    store.get.map { store =>
+      store.get(dataset) match
+        case None => ???
+        case Some(datasetStore) =>
+          datasetStore.statements.toSeq
+    }
+  }
+  
   /** Initializes a QueryTx TODO should probably return its own error type
     * CouldNotInitializeQueryTx
     */
   override def query[T](dataset: Dataset)(fn: QueryTx => IO[T]): IO[T] =
-    IO {
-//      val ds = this.store.get.get(dataset)
-      // ds match {
-      //   case Some(ds) =>
-      //     val tx = InMemoryQueryTx(ds)
-      //     tx
-      //   case None =>
-      //     throw RuntimeException("")
-      // }
-      ???
-    }//.bracket(tx => fn(tx))(_ => IO.unit)
+    store.get.map { store =>
+      store.get(dataset) match
+        case None => ???
+        case Some(datasetStore) =>
+          InMemoryQueryTx(datasetStore)
+    }.bracket(tx => fn(tx))(_ => IO.unit)
 
   override def addStatements(dataset: Dataset, statements: Stream[cats.effect.IO, Statement]): IO[Unit] =
-    IO {
-//      val dss = this.store.get.get(dataset)
-//      dss match {
-//        case Some(dss) =>
-          // for {
-          //   atomRef <- IO(store)
-          //   ref <- IO(store.get)
-          //   _ <- IO {
-          //     atomRef.set(ref.removed(dataset))
-          //   }
-          // } yield ()
-
-          // newDatasetStore = newDatasetStore.copy(statements = newDatasetStore.statements + statement)
-          //val newStore = this.store.get.updated(dataset, tx.modifiedDatasetStore())
-          //this.store.set(newStore)
-//        case None =>
-//          throw RuntimeException(s"Could not write to ${dataset.name}")
-//      }
-      ???
+    store.evalUpdate { store =>
+      store.get(dataset) match
+        case None => ???
+        case Some(datasetStore) =>
+          statements.compile.fold(datasetStore) { (datasetStore, statement) =>
+            datasetStore.copy(statements = datasetStore.statements + statement)
+          }.map { datasetStore => 
+            store.updated(dataset, datasetStore)
+          }
     }
 
-  override def removeStatements(dataset: Dataset, statements: Stream[cats.effect.IO, Statement]): IO[Unit] = ???
-
-  // def write(dataset: Dataset): Resource[IO, WriteTx] = { //TODO acquire write lock
-  //     val l = lock.writeLock()
-
-  //     val acquire: IO[InMemoryWriteTx] = IO {
-  //         l.lock()
-  //         new InMemoryWriteTx(store(dataset))
-  //     }
-
-  //     val release: InMemoryWriteTx => IO[Unit] = writeTx => IO {
-  //         if (!writeTx.isCanceled()) {
-  //             val newStore = this.store.updated(dataset, writeTx.newDatasetStore())
-  //             this.store = newStore
-  //         }
-  //         l.unlock()
-  //         ()
-  //     }
-
-  //     Resource.make(acquire)(release)
-  // }
+  override def removeStatements(dataset: Dataset, statements: Stream[cats.effect.IO, Statement]): IO[Unit] =
+    store.evalUpdate { store =>
+      store.get(dataset) match
+        case None => ???
+        case Some(datasetStore) =>
+          statements.compile.fold(datasetStore) { (datasetStore, statement) =>
+            datasetStore.copy(statements = datasetStore.statements - statement)
+          }.map { datasetStore => 
+            store.updated(dataset, datasetStore)
+          }
+    }
 
   override def close(): IO[Unit] =
     IO.unit
