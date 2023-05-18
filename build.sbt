@@ -7,8 +7,8 @@ ThisBuild / organizationName := "ligature"
 val munitVersion = "1.0.0-M7"
 val catsEffectVersion = "3.5.0"
 val fs2Version = "3.7.0"
-val munitCatsEffect3Version = "1.0.7"
-val jlineVersion = "3.23.0"
+val munitCatsEffect3Version = "2.0.0-M3"
+val http4sVersion = "1.0.0-M32"
 
 lazy val ligature = crossProject(JSPlatform, JVMPlatform)
   .in(file("ligature"))
@@ -56,7 +56,7 @@ lazy val wander = crossProject(JSPlatform, JVMPlatform)
     name := "wander",
     scalaVersion := scala3Version,
     libraryDependencies += "org.scalameta" %%% "munit" % munitVersion % Test,
-    libraryDependencies += "org.typelevel" %%% "munit-cats-effect-3" % munitCatsEffect3Version
+    libraryDependencies += "org.typelevel" %%% "munit-cats-effect" % munitCatsEffect3Version
   )
   .dependsOn(ligature, lig, gaze)
   .disablePlugins(RevolverPlugin)
@@ -67,7 +67,7 @@ lazy val ligatureTestSuite = crossProject(JSPlatform, JVMPlatform)
     name := "ligature-test-suite",
     scalaVersion := scala3Version,
     libraryDependencies += "co.fs2" %%% "fs2-core" % fs2Version,
-    libraryDependencies += "org.typelevel" %%% "munit-cats-effect-3" % munitCatsEffect3Version
+    libraryDependencies += "org.typelevel" %%% "munit-cats-effect" % munitCatsEffect3Version
   )
   .dependsOn(ligature)
   .disablePlugins(RevolverPlugin)
@@ -103,7 +103,7 @@ lazy val ligatureXodus = crossProject(JVMPlatform)
     libraryDependencies += "org.jetbrains.xodus" % "xodus-environment" % "2.0.1",
     libraryDependencies += "org.scodec" % "scodec-core_3" % "2.1.0",
     libraryDependencies += "org.scalameta" %%% "munit" % munitVersion % Test,
-    libraryDependencies += "org.typelevel" %%% "munit-cats-effect-3" % munitCatsEffect3Version % Test
+    libraryDependencies += "org.typelevel" %%% "munit-cats-effect" % munitCatsEffect3Version % Test
   )
   .dependsOn(ligature, idgen, ligatureTestSuite % Test)
   .disablePlugins(RevolverPlugin)
@@ -118,19 +118,6 @@ lazy val ligatureJS = crossProject(JSPlatform)
  )
  .dependsOn(ligature, wander, ligatureInMemory)
  .disablePlugins(RevolverPlugin)
-
-lazy val ligatureRepl = crossProject(JVMPlatform)
-  .in(file("ligature-repl"))
-  .settings(
-    name := "ligature-repl",
-    scalaVersion := scala3Version,
-    libraryDependencies += "org.jline" % "jline" % jlineVersion,
-    libraryDependencies += "org.jline" % "jline-terminal-jansi" % jlineVersion,
-  )
-  .dependsOn(ligature, lig, wander, ligatureInMemory, ligatureXodus)
-  .disablePlugins(RevolverPlugin)
-
-val http4sVersion = "1.0.0-M32"
 
 lazy val ligatureHttp = crossProject(JVMPlatform)
   .in(file("ligature-http"))
@@ -156,7 +143,7 @@ lazy val ligatureHttpTestSuite = crossProject(JVMPlatform)
     libraryDependencies += "org.http4s" %% "http4s-ember-server" % http4sVersion,
     libraryDependencies += "org.http4s" %% "http4s-ember-client" % http4sVersion,
     libraryDependencies += "com.google.code.gson" % "gson" % "2.9.0",
-    libraryDependencies += "org.typelevel" %%% "munit-cats-effect-3" % munitCatsEffect3Version
+    libraryDependencies += "org.typelevel" %%% "munit-cats-effect" % munitCatsEffect3Version
   )
   .dependsOn(ligatureHttp, ligature, lig, wander)
   .disablePlugins(RevolverPlugin)
