@@ -21,6 +21,7 @@ import dev.ligature.lig.{LigError, read, write}
 import dev.ligature.wander.run
 import dev.ligature.wander.printWanderValue
 import dev.ligature.wander.ScriptResult
+import dev.ligature.wander.instanceMode
 
 enum AuthMode:
   case None
@@ -60,96 +61,92 @@ class LigatureHttp(val ligature: Ligature, val mode: AuthMode, port: Port) {
       res <- Ok(s"[${out}]")
     } yield res
 
-  def addDataset(datasetName: String): IO[Response[IO]] =
-    Dataset.fromString(datasetName) match {
-      case Right(dataset) =>
-        for {
-          _ <- ligature.createDataset(dataset)
-          res <- Ok("Dataset added.")
-        } yield res
-      case Left(error) =>
-        BadRequest(error.userMessage)
-    }
+  // def addDataset(datasetName: String): IO[Response[IO]] =
+  //   Dataset.fromString(datasetName) match {
+  //     case Right(dataset) =>
+  //       for {
+  //         _ <- ligature.createDataset(dataset)
+  //         res <- Ok("Dataset added.")
+  //       } yield res
+  //     case Left(error) =>
+  //       BadRequest(error.userMessage)
+  //   }
 
-  def deleteDataset(datasetName: String): IO[Response[IO]] =
-    Dataset.fromString(datasetName) match {
-      case Right(dataset) =>
-        for {
-          _ <- ligature.deleteDataset(dataset)
-          res <- Ok("Dataset deleted.")
-        } yield res
-      case Left(error) =>
-        BadRequest(error.userMessage)
-    }
+  // def deleteDataset(datasetName: String): IO[Response[IO]] =
+  //   Dataset.fromString(datasetName) match {
+  //     case Right(dataset) =>
+  //       for {
+  //         _ <- ligature.deleteDataset(dataset)
+  //         res <- Ok("Dataset deleted.")
+  //       } yield res
+  //     case Left(error) =>
+  //       BadRequest(error.userMessage)
+  //   }
 
-  def getAllStatements(datasetName: String): IO[Response[IO]] =
-    Dataset.fromString(datasetName) match {
-      case Right(dataset) =>
-        val statements: IO[String] = ligature
-          .query(dataset) { qx =>
-            qx.allStatements().compile.toList
-          }
-          .map((statements: List[Statement]) => write(statements.iterator))
-        Ok(statements)
-      case Left(error) =>
-        BadRequest(error.userMessage)
-    }
+  // def getAllStatements(datasetName: String): IO[Response[IO]] =
+  //   Dataset.fromString(datasetName) match {
+  //     case Right(dataset) =>
+  //       val statements: IO[String] = ligature
+  //         .allStatements(dataset).compile.toList
+  //         .map((statements: List[Statement]) => write(statements.iterator))
+  //       Ok(statements)
+  //     case Left(error) =>
+  //       BadRequest(error.userMessage)
+  //   }
 
-  def addStatements(
-      datasetName: String,
-      request: Request[IO]
-  ): IO[Response[IO]] =
-    Dataset.fromString(datasetName) match {
-      case Right(dataset) =>
-        val body: IO[String] = request.bodyText.compile.string
-        body.map(read).flatMap {
-          case Right(statements) =>
-            ligature
-              .write(dataset) { tx =>
-                statements
-                  .map(statement => tx.addStatement(statement))
-                  .sequence_
-              }
-              .flatMap { _ =>
-                Ok()
-              }
-          case Left(err) => BadRequest(err.message)
-        }
-      case Left(err) =>
-        BadRequest(err.userMessage)
-    }
+  // def addStatements(
+  //     datasetName: String,
+  //     request: Request[IO]
+  // ): IO[Response[IO]] =
+  //   Dataset.fromString(datasetName) match {
+  //     case Right(dataset) =>
+  //       val body: IO[String] = request.bodyText.compile.string
+  //       body.map(read).flatMap {
+  //         case Right(statements) =>
+  //           ligature
+  //             .write(dataset) { tx =>
+  //               statements
+  //                 .map(statement => tx.addStatement(statement))
+  //                 .sequence_
+  //             }
+  //             .flatMap { _ =>
+  //               Ok()
+  //             }
+  //         case Left(err) => BadRequest(err.message)
+  //       }
+  //     case Left(err) =>
+  //       BadRequest(err.userMessage)
+  //   }
 
-  def deleteStatements(
-      datasetName: String,
-      request: Request[IO]
-  ): IO[Response[IO]] =
-    Dataset.fromString(datasetName) match {
-      case Right(dataset) =>
-        val body: IO[String] = request.bodyText.compile.string
-        body.map(read).flatMap {
-          case Right(statements) =>
-            ligature
-              .write(dataset) { tx =>
-                statements
-                  .map(statement => tx.removeStatement(statement))
-                  .sequence_
-              }
-              .flatMap { _ =>
-                Ok()
-              }
-          case Left(err) => BadRequest(err.userMessage)
-        }
-      case Left(err) =>
-        BadRequest(err.userMessage)
-    }
+  // def deleteStatements(
+  //     datasetName: String,
+  //     request: Request[IO]
+  // ): IO[Response[IO]] =
+  //   Dataset.fromString(datasetName) match {
+  //     case Right(dataset) =>
+  //       val body: IO[String] = request.bodyText.compile.string
+  //       body.map(read).flatMap {
+  //         case Right(statements) =>
+  //           ligature
+  //             .write(dataset) { tx =>
+  //               statements
+  //                 .map(statement => tx.removeStatement(statement))
+  //                 .sequence_
+  //             }
+  //             .flatMap { _ =>
+  //               Ok()
+  //             }
+  //         case Left(err) => BadRequest(err.userMessage)
+  //       }
+  //     case Left(err) =>
+  //       BadRequest(err.userMessage)
+  //   }
 
   def runWanderQuery(
       request: Request[IO]
   ): IO[Response[IO]] =
     val body: IO[String] = request.bodyText.compile.string
-    body.map(script => run(script, null)).flatMap {
-      case Right(ScriptResult(result)) =>
-        Ok(printWanderValue(result))
-      case Left(err) => BadRequest(err.userMessage)
+    body.flatMap(script => run(script, instanceMode(ligature))).flatMap { value =>
+        Ok(printWanderValue(value))
     }
 }
