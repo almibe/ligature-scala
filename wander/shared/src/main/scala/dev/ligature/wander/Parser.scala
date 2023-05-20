@@ -24,6 +24,7 @@ enum Term:
   case IntegerLiteral(value: Long)
   case StringLiteral(value: String)
   case BooleanLiteral(value: Boolean)
+  case List(value: Seq[Term])
   case FunctionCall(name: Name, arguments: Seq[Term])
   case Scope(elements: Seq[Term])
   case WanderFunction(
@@ -169,6 +170,14 @@ val functionCallNib: Nibbler[Token, Term] = { gaze =>
   yield Seq(Term.FunctionCall(name.head, parameters))
 }
 
+val listNib: Nibbler[Token, Term] = { gaze =>
+  for
+    _ <- gaze.attempt(take(Token.OpenBracket))
+    values <- gaze.attempt(optional(repeat(expressionNib)))
+    _ <- gaze.attempt(take(Token.CloseBracket))
+  yield Seq(Term.List(values))
+}
+
 val expressionNib =
   takeFirst(
     // ifExpressionNib,
@@ -179,6 +188,7 @@ val expressionNib =
     // wanderFunctionNib,
     stringNib,
     integerNib,
+    listNib,
     booleanNib
   )
 

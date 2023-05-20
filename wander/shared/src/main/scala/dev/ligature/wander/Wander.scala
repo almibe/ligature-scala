@@ -36,5 +36,7 @@ def printWanderValue(value: WanderValue): String = {
     case WanderValue.WanderFunction(parameters, output, body) => "[WanderFunction]"
     case WanderValue.Name(name) => s"[Name:${name}]"
     case WanderValue.Scope(contents) => "[Scope]"
+    case WanderValue.Itr(internal) => "[Stream]"
+    case WanderValue.ListValue(values) => "[List]"
   }
 }

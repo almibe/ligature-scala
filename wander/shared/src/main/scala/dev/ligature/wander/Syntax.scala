@@ -34,15 +34,16 @@ enum WanderValue:
   case BooleanValue(value: Boolean)
   case Nothing
   case NativeFunction(
-    parameters: List[Parameter],
+    parameters: Seq[Parameter],
     body: (arguments: Seq[Term], bindings: Bindings) => IO[WanderValue], //Either[LigatureError, WanderValue],
     output: WanderType = null)
   case WanderFunction(
-    parameters: List[Parameter],
+    parameters: Seq[Parameter],
     output: WanderType,
     body: Scope)
-  case Scope(elements: List[Term])
-
+  case Scope(elements: Seq[Term])
+  case ListValue(values: Seq[WanderValue])
+  case Itr(internal: Stream[IO, WanderValue])
 
 /** Represents a Name in the Wander language.
   */

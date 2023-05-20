@@ -32,6 +32,10 @@ def eval(script: Seq[Term], bindings: Bindings): IO[ScriptResult] = {
   //IO.pure(result)
 }
 
+def evalAll(terms: Seq[Term], bindings: Bindings): IO[Seq[WanderValue]] =
+  import cats.implicits._
+  terms.map { term => evalTerm(term, bindings) }.sequence.map { evalResult => evalResult.map { _.result } }
+
 def evalTerm(term: Term, bindings: Bindings): IO[EvalResult] =
   term match
     case Term.BooleanLiteral(value) => IO.pure(EvalResult(WanderValue.BooleanValue(value), bindings))
@@ -39,6 +43,11 @@ def evalTerm(term: Term, bindings: Bindings): IO[EvalResult] =
     case Term.IntegerLiteral(value) => IO.pure(EvalResult(WanderValue.LigatureValue(LigatureLiteral.IntegerLiteral(value)), bindings))
     case Term.StringLiteral(value) => IO.pure(EvalResult(WanderValue.LigatureValue(LigatureLiteral.StringLiteral(value)), bindings))
     case Term.Name(value) => ???
+    case Term.List(terms) =>
+      val values = evalAll(terms, bindings)
+      values.map { values =>
+        EvalResult(WanderValue.ListValue(values), bindings)
+      }
     case Term.FunctionCall(name, arguments) =>
       //TODO val evaldArgs = evalArguments(arguments)
       bindings.read(WanderValue.Name(name.value)) match {

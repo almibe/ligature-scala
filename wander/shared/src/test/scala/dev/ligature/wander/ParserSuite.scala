@@ -51,6 +51,16 @@ class ParserSuite extends FunSuite {
     val result = Right(Seq(Term.FunctionCall(Term.Name("not"), Seq(Term.BooleanLiteral(false)))))
     check(script, result)
   }
+  test("parse empty List") {
+    val script = "[]"
+    val result = Right(Seq(Term.List(Seq())))
+    check(script, result)
+  }
+  test("parse List") {
+    val script = "[1 2 \"three\"]"
+    val result = Right(Seq(Term.List(Seq(Term.IntegerLiteral(1), Term.IntegerLiteral(2), Term.StringLiteral("three")))))
+    check(script, result)
+  }
   // test("parse Scope") {
   //   val script = "{ 5 }"
   //   val result = Right(Seq(Term.Scope(Seq(Term.IntegerLiteral(5)))))
