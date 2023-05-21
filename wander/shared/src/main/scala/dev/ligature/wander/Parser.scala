@@ -33,7 +33,10 @@ enum Term:
   case WanderFunction(
     parameters: Seq[String],
     body: Scope)
-  case IfExpression(conditional: Term, ifBody: Term, elseBody: Term) //TODO add elsifs
+  case IfExpression(
+    conditional: Term,
+    ifBody: Term,
+    elseBody: Term)
 
 def parse(script: Seq[Token]): Either[LigatureError, Seq[Term]] = {
   val filteredInput = script.filter {

@@ -63,9 +63,9 @@ def evalTerm(term: Term, bindings: Bindings): IO[EvalResult] =
     }
     case Term.Scope(terms) =>
       eval(terms, bindings.newScope()).map { x => EvalResult(x, bindings) }
-    case Term.IfExpression(conditional, ifBody, elseBody) =>
+    case Term.IfExpression(ifConditional, ifBody, elseBody) =>
       for {
-        cond <- evalTerm(conditional, bindings)
+        cond <- evalTerm(ifConditional, bindings)
         res <- cond match
           case EvalResult(WanderValue.BooleanValue(true), bindings) => evalTerm(ifBody, bindings.newScope())
           case EvalResult(WanderValue.BooleanValue(false), bindings) => evalTerm(elseBody, bindings.newScope())
