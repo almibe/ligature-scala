@@ -4,22 +4,22 @@
 
 package dev.ligature.wander
 
-import dev.ligature.LigatureLiteral
+import dev.ligature.{Identifier, LigatureLiteral, LigatureError}
 import dev.ligature.wander.Token
-//import dev.ligature.wander.{
-  // BooleanValue,
-  // Else,
-  // ElseIf,
-  // FunctionCall,
-  // IfExpression,
-  // LetStatement,
-  // LigatureValue,
-  // Name,
-  // Nothing,
-  // Scope,
-  // Script,
-  // ScriptResult
-//}
+import dev.ligature.wander.ScriptResult
+import cats.effect.IO
+import dev.ligature.LigatureLiteral
+
+class IfExpressionSuite extends munit.CatsEffectSuite {
+  def check(script: String, expected: ScriptResult) =
+    assertIO(run(script, common()), expected)
+
+  test("if true") {
+    val script = "if true 7 else 6"
+    val result = WanderValue.LigatureValue(LigatureLiteral.IntegerLiteral(7))
+    check(script, result)
+  }
+}
 
 val ifExpression = List(
   // TestInstance(

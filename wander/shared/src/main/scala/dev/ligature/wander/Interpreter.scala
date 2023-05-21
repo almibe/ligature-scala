@@ -63,3 +63,11 @@ def evalTerm(term: Term, bindings: Bindings): IO[EvalResult] =
     }
     case Term.Scope(terms) =>
       eval(terms, bindings.newScope()).map { x => EvalResult(x, bindings) }
+    case Term.IfExpression(conditional, ifBody, elseBody) =>
+      for {
+        cond <- evalTerm(conditional, bindings)
+        res <- cond match
+          case EvalResult(WanderValue.BooleanValue(true), bindings) => evalTerm(ifBody, bindings.newScope())
+          case EvalResult(WanderValue.BooleanValue(false), bindings) => evalTerm(elseBody, bindings.newScope())
+          case _ => IO.raiseError(LigatureError("If expressions require Boolean values for conditionals."))
+      } yield EvalResult(res.result, bindings)

@@ -33,6 +33,7 @@ enum Term:
   case WanderFunction(
     parameters: Seq[String],
     body: Scope)
+  case IfExpression(conditional: Term, ifBody: Term, elseBody: Term) //TODO add elsifs
 
 def parse(script: Seq[Token]): Either[LigatureError, Seq[Term]] = {
   val filteredInput = script.filter {
@@ -121,16 +122,6 @@ val scopeNib: Nibbler[Token, Term.Scope] = { gaze =>
 //   take(Token("Value", TokenType.Name)).map(_ => List(WanderType.Value))
 // )
 
-// val ifKeywordNib =
-//   takeCond[Token](_.tokenType == TokenType.IfKeyword).map { _ =>
-//     Seq(LetKeyword)
-//   }
-
-// val elseKeywordNib =
-//   takeCond[Token](_.tokenType == TokenType.ElseKeyword).map { _ =>
-//     Seq(LetKeyword)
-//   }
-
 // val elseIfExpressionNib: Nibbler[Token, ElseIf] = { gaze =>
 //   for {
 //     _ <- gaze.attempt(elseKeywordNib)
@@ -140,29 +131,29 @@ val scopeNib: Nibbler[Token, Term.Scope] = { gaze =>
 //   } yield Seq(ElseIf(condition.head, body.head))
 // }
 
-// val elseExpressionNib: Nibbler[Token, Else] = { gaze =>
-//   for {
-//     _ <- gaze.attempt(elseKeywordNib)
-//     body <- gaze.attempt(expressionNib)
-//   } yield Seq(Else(body.head))
-// }
+val elseExpressionNib: Nibbler[Token, Term] = { gaze =>
+  for {
+    _ <- gaze.attempt(take(Token.ElseKeyword))
+    body <- gaze.attempt(expressionNib)
+  } yield body
+}
 
-// val ifExpressionNib: Nibbler[Token, IfExpression] = { gaze =>
-//   for {
-//     _ <- gaze.attempt(ifKeywordNib)
-//     condition <- gaze.attempt(expressionNib)
-//     body <- gaze.attempt(expressionNib)
-//     elseIfs <- gaze.attempt(optional(repeat(elseIfExpressionNib)))
-//     `else` <- gaze.attempt(optional(elseExpressionNib))
-//   } yield Seq(
-//     IfExpression(
-//       condition.head,
-//       body.head,
-//       elseIfs.toList,
-//       `else`.toList.find(_ => true)
-//     )
-//   )
-// }
+val ifExpressionNib: Nibbler[Token, Term.IfExpression] = { gaze =>
+  for {
+    _ <- gaze.attempt(take(Token.IfKeyword))
+    condition <- gaze.attempt(expressionNib)
+    body <- gaze.attempt(expressionNib)
+    //elseIfs <- gaze.attempt(optional(repeat(elseIfExpressionNib)))
+    `else` <- gaze.attempt(optional(elseExpressionNib))
+  } yield Seq(
+    Term.IfExpression(
+      condition.head,
+      body.head,
+      //elseIfs.toList,
+      `else`.head
+    )
+  )
+}
 
 val functionCallNib: Nibbler[Token, Term] = { gaze =>
   for
@@ -183,7 +174,7 @@ val listNib: Nibbler[Token, Term] = { gaze =>
 
 val expressionNib =
   takeFirst(
-    // ifExpressionNib,
+    ifExpressionNib,
     functionCallNib,
     nameNib,
     scopeNib,
