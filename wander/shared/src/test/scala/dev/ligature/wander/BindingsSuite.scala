@@ -9,8 +9,8 @@ import dev.ligature.{Identifier, LigatureLiteral}
 import munit.FunSuite
 
 class BindingsSuite extends FunSuite {
-  private val identifier: WanderValue.Name = WanderValue.Name("test")
-  private val identifier2: WanderValue.Name = WanderValue.Name("test2")
+  private val identifier = Name("test")
+  private val identifier2 = Name("test2")
 
   private val value1 = WanderValue.LigatureValue(LigatureLiteral.StringLiteral("this is a test"))
   private val value2 = WanderValue.LigatureValue(LigatureLiteral.StringLiteral("this is a test2"))

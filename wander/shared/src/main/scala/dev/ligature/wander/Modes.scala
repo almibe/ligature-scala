@@ -17,15 +17,15 @@ import cats.effect.IO
 def instanceMode(instance: Ligature): Bindings = {
   var bindings = common()
 
-  bindings = bindings.bindVariable(WanderValue.Name("datasets"), WanderValue.NativeFunction(
+  bindings = bindings.bindVariable(Name("datasets"), WanderValue.NativeFunction(
     List(),
     (arguments: Seq[Term], binding: Bindings) =>
       //Right(WanderValue.LigatureValue(Identifier.fromString("test").getOrElse(???)))
       instance.allDatasets().compile.toList.map { datasets => WanderValue.LigatureValue(LigatureLiteral.StringLiteral(datasets.toString())) }
   )).getOrElse(???)
 
-  bindings = bindings.bindVariable(WanderValue.Name("addDataset"), WanderValue.NativeFunction(
-    List(Parameter(WanderValue.Name("message"), WanderType.String)),
+  bindings = bindings.bindVariable(Name("addDataset"), WanderValue.NativeFunction(
+    List(Parameter(Name("message"), WanderType.String)),
     (arguments: Seq[Term], binding: Bindings) =>
       arguments.head match
         case Term.StringLiteral(datasetName) =>
@@ -33,8 +33,8 @@ def instanceMode(instance: Ligature): Bindings = {
         case _ => ???
   )).getOrElse(???)
 
-  bindings = bindings.bindVariable(WanderValue.Name("removeDataset"), WanderValue.NativeFunction(
-    List(Parameter(WanderValue.Name("message"), WanderType.String)),
+  bindings = bindings.bindVariable(Name("removeDataset"), WanderValue.NativeFunction(
+    List(Parameter(Name("message"), WanderType.String)),
     (arguments: Seq[Term], binding: Bindings) =>
       arguments.head match
         case Term.StringLiteral(datasetName) =>
@@ -42,8 +42,8 @@ def instanceMode(instance: Ligature): Bindings = {
         case _ => ???
   )).getOrElse(???)
 
-  bindings = bindings.bindVariable(WanderValue.Name("datasetExists"), WanderValue.NativeFunction(
-    List(Parameter(WanderValue.Name("message"), WanderType.String)),
+  bindings = bindings.bindVariable(Name("datasetExists"), WanderValue.NativeFunction(
+    List(Parameter(Name("message"), WanderType.String)),
     (arguments: Seq[Term], binding: Bindings) =>
       arguments.head match
         case Term.StringLiteral(datasetName) =>
@@ -51,8 +51,8 @@ def instanceMode(instance: Ligature): Bindings = {
         case _ => ???
   )).getOrElse(???)
 
-  bindings = bindings.bindVariable(WanderValue.Name("addStatement"), WanderValue.NativeFunction(
-    List(Parameter(WanderValue.Name("message"), WanderType.String)),
+  bindings = bindings.bindVariable(Name("addStatement"), WanderValue.NativeFunction(
+    List(Parameter(Name("message"), WanderType.String)),
     (arguments: Seq[Term], binding: Bindings) =>
       (arguments(0), arguments(1), arguments(2), arguments(3)) match
         case (Term.StringLiteral(datasetName), 
@@ -94,9 +94,9 @@ def common(): Bindings = {
 
   stdLib = stdLib
     .bindVariable(
-      WanderValue.Name("not"),
+      Name("not"),
       WanderValue.NativeFunction(
-        List(Parameter(WanderValue.Name("bool"), WanderType.Boolean)),
+        List(Parameter(Name("bool"), WanderType.Boolean)),
         (arguments: Seq[Term], bindings: Bindings) =>
           if arguments.size != 1 then
             IO.raiseError(LigatureError("`not` function requires 1 argument."))
@@ -112,11 +112,11 @@ def common(): Bindings = {
 
   stdLib = stdLib
     .bindVariable(
-      WanderValue.Name("and"),
+      Name("and"),
       WanderValue.NativeFunction(
         List(
-          Parameter(WanderValue.Name("boolLeft"), WanderType.Boolean),
-          Parameter(WanderValue.Name("boolRight"), WanderType.Boolean)
+          Parameter(Name("boolLeft"), WanderType.Boolean),
+          Parameter(Name("boolRight"), WanderType.Boolean)
         ),
         (arguments: Seq[Term], bindings: Bindings) =>
           if arguments.length == 2 then
@@ -137,11 +137,11 @@ def common(): Bindings = {
 
   stdLib = stdLib
     .bindVariable(
-      WanderValue.Name("or"),
+      Name("or"),
       WanderValue.NativeFunction(
         List(
-          Parameter(WanderValue.Name("boolLeft"), WanderType.Boolean),
-          Parameter(WanderValue.Name("boolRight"), WanderType.Boolean)
+          Parameter(Name("boolLeft"), WanderType.Boolean),
+          Parameter(Name("boolRight"), WanderType.Boolean)
         ),
         (arguments: Seq[Term], bindings: Bindings) =>
           if arguments.length == 2 then

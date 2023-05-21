@@ -4,6 +4,10 @@
 
 package dev.ligature.wander
 
+import dev.ligature.{Identifier, LigatureLiteral, LigatureError}
+import dev.ligature.wander.Token
+import dev.ligature.wander.ScriptResult
+import cats.effect.IO
 import dev.ligature.LigatureLiteral
 // import dev.ligature.wander.Token
 // import dev.ligature.wander.{
@@ -17,60 +21,25 @@ import dev.ligature.LigatureLiteral
 //   ScriptResult
 // }
 
+class LetSuite extends munit.CatsEffectSuite {
+  def check(script: String, expected: ScriptResult) =
+    assertIO(run(script, common()), expected)
+
+  test("basic let") {
+    val script = "let x = 5"
+    val result = WanderValue.Nothing
+    check(script, result)
+  }
+  test("make sure name parser is greedy") {
+    val script = "let trued = true trued"
+    val result = WanderValue.BooleanValue(true)
+    check(script, result)
+  }
+
+
+}
+
 val assignmentTestData = List(
-  // TestInstance(
-  //   description = "basic let",
-  //   script = "let x = 5",
-  //   tokens = List(
-  //     Token.LetKeyword,
-  //     Token.Spaces(" "),
-  //     Token.Name("x"),
-  //     Token.Spaces(" "),
-  //     Token.EqualSign,
-  //     Token.Spaces(" "),
-  //     Token.IntegerLiteral(5)
-  //   ),
-  //   ast = Script(List(LetStatement(Name("x"), LigatureValue(IntegerLiteral(5))))),
-  //   result = Right(ScriptResult(Nothing))
-  // ),
-  // TestInstance(
-  //   description = "make sure keyword parser is greedy",
-  //   script = "let trued = true",
-  //   tokens = List(
-  //     Token.LetKeyword,
-  //     Token.Spaces(" "),
-  //     Token.Name("trued"),
-  //     Token.Spaces(" "),
-  //     Token.EqualSign,
-  //     Token.Spaces(" "),
-  //     Token.BooleanLiteral(true)
-  //   ),
-  //   ast = Script(List(LetStatement(Name("trued"), BooleanValue(true)))),
-  //   result = Right(ScriptResult(Nothing))
-  // ),
-  // TestInstance(
-  //   description = "let with result",
-  //   script = """let hello = 5
-  //              |hello""".stripMargin,
-  //   tokens = List(
-  //     Token.LetKeyword,
-  //     Token.Spaces(" "),
-  //     Token.Name("hello"),
-  //     Token.Spaces(" "),
-  //     Token.EqualSign,
-  //     Token.Spaces(" "),
-  //     Token.IntegerLiteral(5),
-  //     Token.NewLine,
-  //     Token.Name("hello")
-  //   ),
-  //   ast = Script(
-  //     List(
-  //       LetStatement(Name("hello"), LigatureValue(IntegerLiteral(5))),
-  //       Name("hello")
-  //     )
-  //   ),
-  //   result = Right(ScriptResult(LigatureValue(IntegerLiteral(5))))
-  // ),
   // TestInstance(
   //   description = "basic scope",
   //   script = """{

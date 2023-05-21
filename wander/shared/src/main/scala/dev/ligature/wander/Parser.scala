@@ -18,13 +18,16 @@ import dev.ligature.gaze.{
 import dev.ligature.{Identifier, LigatureLiteral, LigatureError}
 import dev.ligature.wander.Token
 
+case class Name(name: String)
+
 enum Term:
-  case Name(value: String)
+  case NameTerm(value: Name)
   case IdentifierLiteral(value: Identifier)
   case IntegerLiteral(value: Long)
   case StringLiteral(value: String)
   case BooleanLiteral(value: Boolean)
   case List(value: Seq[Term])
+  case LetBinding(name: Name, value: Term)
   case FunctionCall(name: Name, arguments: Seq[Term])
   case Scope(elements: Seq[Term])
   case WanderFunction(
@@ -76,9 +79,9 @@ val stringNib: Nibbler[Token, Term.StringLiteral] = gaze =>
     case Some(Token.StringLiteral(s)) => Some(List(Term.StringLiteral(s)))
     case _ => None
 
-val nameNib: Nibbler[Token, Term.Name] = gaze =>
+val nameNib: Nibbler[Token, Term.NameTerm] = gaze =>
   gaze.next() match
-    case Some(Token.Name(n)) => Some(List(Term.Name(n)))
+    case Some(Token.Name(n)) => Some(List(Term.NameTerm(Name(n))))
     case _ => None
 
 // val scopeNib: Nibbler[Token, Scope] = { gaze =>
@@ -167,7 +170,7 @@ val functionCallNib: Nibbler[Token, Term] = { gaze =>
     _ <- gaze.attempt(take(Token.OpenParen))
     parameters <- gaze.attempt(optional(repeat(expressionNib)))
     _ <- gaze.attempt(take(Token.CloseParen))
-  yield Seq(Term.FunctionCall(name.head, parameters))
+  yield Seq(Term.FunctionCall(name.head.value, parameters))
 }
 
 val listNib: Nibbler[Token, Term] = { gaze =>
@@ -192,25 +195,16 @@ val expressionNib =
     booleanNib
   )
 
-// val equalSignNib = takeCond[Token](_.tokenType == TokenType.EqualSign).map { _ =>
-//   Seq(EqualSign)
-// }
+val letStatementNib: Nibbler[Token, Term] = { gaze =>
+  for {
+    _ <- gaze.attempt(take(Token.LetKeyword))
+    name <- gaze.attempt(nameNib)
+    _ <- gaze.attempt(take(Token.EqualSign))
+    expression <- gaze.attempt(expressionNib)
+  } yield Seq(Term.LetBinding(name.head.value, expression.head))
+}
 
-// val letKeywordNib =
-//   takeCond[Token](_.tokenType == TokenType.LetKeyword).map { _ =>
-//     Seq(LetKeyword)
-//   }
-
-// val letStatementNib: Nibbler[Token, LetStatement] = { gaze =>
-//   for {
-//     _ <- gaze.attempt(letKeywordNib)
-//     name <- gaze.attempt(nameNib)
-//     _ <- gaze.attempt(equalSignNib)
-//     expression <- gaze.attempt(expressionNib)
-//   } yield Seq(LetStatement(name.head, expression.head))
-// }
-
-val elementNib = takeFirst(expressionNib)//, letStatementNib)
+val elementNib = takeFirst(expressionNib, letStatementNib)
 
 val scriptNib =
   optional(

@@ -5,13 +5,13 @@
 package dev.ligature.wander
 
 import dev.ligature.LigatureError
-import dev.ligature.wander.{WanderValue}
+import dev.ligature.wander.WanderValue
 
-case class Bindings(scopes: List[Map[WanderValue.Name, WanderValue]] = List((Map()))) {
+case class Bindings(scopes: List[Map[Name, WanderValue]] = List((Map()))) {
   def newScope(): Bindings = Bindings(this.scopes.appended(Map()))
 
   def bindVariable(
-      name: WanderValue.Name,
+      name: Name,
       wanderValue: WanderValue
   ): Either[LigatureError, Bindings] = {
     val currentScope = this.scopes.last
@@ -27,7 +27,7 @@ case class Bindings(scopes: List[Map[WanderValue.Name, WanderValue]] = List((Map
     }
   }
 
-  def read(name: WanderValue.Name): Either[LigatureError, WanderValue] = {
+  def read(name: Name): Either[LigatureError, WanderValue] = {
     var currentScopeOffset = this.scopes.length - 1
     while (currentScopeOffset >= 0) {
       val currentScope = this.scopes(currentScopeOffset)
@@ -36,6 +36,6 @@ case class Bindings(scopes: List[Map[WanderValue.Name, WanderValue]] = List((Map
       }
       currentScopeOffset -= 1
     }
-    Left(LigatureError(s"Could not find $name in scope."))
+    Left(LigatureError(s"Could not find ${name} in scope."))
   }
 }

@@ -7,50 +7,47 @@ package dev.ligature.wander
 import dev.ligature.LigatureError
 import dev.ligature.LigatureLiteral
 import cats.effect.IO
+import cats.implicits._
 
 def eval(script: Seq[Term], bindings: Bindings): IO[ScriptResult] = {
-  var result: WanderValue = WanderValue.Nothing
-  var error: LigatureError | Unit = ()
-  var currentBindings: Bindings = bindings
-  if script.isEmpty then
-    IO.pure(result)
-  else
-    evalTerm(script.last, bindings)
-      .map(_.result)
-  // var itr = script.iterator
-  // while itr.hasNext do
-  //   val term = itr.next()
-  //   evalTerm(term,currentBindings).map { res =>
-  //     res
-  //     // res match
-  //     //   case Left(value) => Left(value)
-  //     //   case Right(value) =>
-  //     //     result = value.result
-  //     //     currentBindings = value.bindings
-  //     //     Right(value)
-  //   }
-  //IO.pure(result)
+  script.foldLeft(IO.pure(EvalResult(WanderValue.Nothing, bindings))) { (lastResult, term) =>
+    lastResult.flatMap { result =>
+      evalTerm(term, result.bindings)
+    }
+  }.map(_.result)
 }
 
 def evalAll(terms: Seq[Term], bindings: Bindings): IO[Seq[WanderValue]] =
-  import cats.implicits._
   terms.map { term => evalTerm(term, bindings) }.sequence.map { evalResult => evalResult.map { _.result } }
 
 def evalTerm(term: Term, bindings: Bindings): IO[EvalResult] =
   term match
-    case Term.BooleanLiteral(value) => IO.pure(EvalResult(WanderValue.BooleanValue(value), bindings))
-    case Term.IdentifierLiteral(value) => IO.pure(EvalResult(WanderValue.LigatureValue(value), bindings))
-    case Term.IntegerLiteral(value) => IO.pure(EvalResult(WanderValue.LigatureValue(LigatureLiteral.IntegerLiteral(value)), bindings))
-    case Term.StringLiteral(value) => IO.pure(EvalResult(WanderValue.LigatureValue(LigatureLiteral.StringLiteral(value)), bindings))
-    case Term.Name(value) => ???
+    case Term.BooleanLiteral(value) =>
+      IO.pure(EvalResult(WanderValue.BooleanValue(value), bindings))
+    case Term.IdentifierLiteral(value) =>
+      IO.pure(EvalResult(WanderValue.LigatureValue(value), bindings))
+    case Term.IntegerLiteral(value) =>
+      IO.pure(EvalResult(WanderValue.LigatureValue(LigatureLiteral.IntegerLiteral(value)), bindings))
+    case Term.StringLiteral(value) =>
+      IO.pure(EvalResult(WanderValue.LigatureValue(LigatureLiteral.StringLiteral(value)), bindings))
+    case Term.NameTerm(value) =>
+      bindings.read(value) match
+        case Left(value) => IO.raiseError(value)
+        case Right(value) => IO.pure(EvalResult(value, bindings))
+    case Term.LetBinding(name, term) =>
+      evalTerm(term, bindings).map { value =>
+        bindings.bindVariable(name, value.result) match
+          case Left(error) => throw error
+          case Right(newBindings) =>
+            EvalResult(WanderValue.Nothing, newBindings)
+      }
     case Term.List(terms) =>
-      val values = evalAll(terms, bindings)
-      values.map { values =>
+      evalAll(terms, bindings).map { values =>
         EvalResult(WanderValue.ListValue(values), bindings)
       }
     case Term.FunctionCall(name, arguments) =>
       //TODO val evaldArgs = evalArguments(arguments)
-      bindings.read(WanderValue.Name(name.value)) match {
+      bindings.read(name) match {
         case Left(value) => ???///IO(Left(value))
         case Right(value) =>
           value match {
