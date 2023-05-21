@@ -61,4 +61,5 @@ def evalTerm(term: Term, bindings: Bindings): IO[EvalResult] =
     case Term.WanderFunction(parameters, body) => {
       ???
     }
-    case Term.Scope(terms) => ???
+    case Term.Scope(terms) =>
+      eval(terms, bindings.newScope()).map { x => EvalResult(x, bindings) }

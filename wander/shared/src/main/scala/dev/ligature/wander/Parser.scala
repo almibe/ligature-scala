@@ -84,13 +84,13 @@ val nameNib: Nibbler[Token, Term.NameTerm] = gaze =>
     case Some(Token.Name(n)) => Some(List(Term.NameTerm(Name(n))))
     case _ => None
 
-// val scopeNib: Nibbler[Token, Scope] = { gaze =>
-//   for {
-//     _ <- gaze.attempt(openBraceNib)
-//     expression <- gaze.attempt(optional(repeat(elementNib)))
-//     _ <- gaze.attempt(closeBraceNib)
-//   } yield Seq(Scope(expression.toList))
-// }
+val scopeNib: Nibbler[Token, Term.Scope] = { gaze =>
+  for {
+    _ <- gaze.attempt(take(Token.OpenBrace))
+    expression <- gaze.attempt(optional(repeat(elementNib)))
+    _ <- gaze.attempt(take(Token.CloseBrace))
+  } yield Seq(Term.Scope(expression.toList))
+}
 
 // val parameterNib: Nibbler[Token, Parameter] = { gaze =>
 //   for {
@@ -186,7 +186,7 @@ val expressionNib =
     // ifExpressionNib,
     functionCallNib,
     nameNib,
-    // scopeNib,
+    scopeNib,
     identifierNib,
     // wanderFunctionNib,
     stringNib,

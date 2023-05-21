@@ -66,11 +66,11 @@ class ParserSuite extends FunSuite {
     val result = Right(Seq(Term.LetBinding(Name("x"), Term.IntegerLiteral(5))))
     check(script, result)
   }
-  // test("parse Scope") {
-  //   val script = "{ 5 }"
-  //   val result = Right(Seq(Term.Scope(Seq(Term.IntegerLiteral(5)))))
-  //   check(script, result)
-  // }
+  test("parse Scope") {
+    val script = "{ 5 }"
+    val result = Right(Seq(Term.Scope(Seq(Term.IntegerLiteral(5)))))
+    check(script, result)
+  }
   // test("parse WanderFunction") {
   //   val script = "{ x -> x }"
   //   val result = Right(Seq(Term.WanderFunction(Seq(Term.IntegerLiteral(5)))))
