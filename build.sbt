@@ -9,6 +9,7 @@ val catsEffectVersion = "3.5.0"
 val fs2Version = "3.7.0"
 val munitCatsEffect3Version = "2.0.0-M3"
 val http4sVersion = "1.0.0-M32"
+val jlineVersion = "3.23.0"
 
 lazy val ligature = crossProject(JSPlatform, JVMPlatform)
   .in(file("ligature"))
@@ -170,6 +171,17 @@ lazy val ligatureHttpXodus = crossProject(JVMPlatform)
     Compile / run / mainClass := Some("dev.ligature.http.xodus.MainLigatureHttp")
   )
   .dependsOn(ligatureHttp, ligatureXodus, ligatureHttpTestSuite % Test)
+
+lazy val ligatureRepl = crossProject(JVMPlatform)
+  .in(file("ligature-repl"))
+  .settings(
+    name := "ligature-repl",
+    scalaVersion := scala3Version,
+    libraryDependencies += "org.jline" % "jline" % jlineVersion,
+    libraryDependencies += "org.jline" % "jline-terminal-jansi" % jlineVersion,
+  )
+  .dependsOn(ligature, lig, wander, ligatureInMemory, ligatureXodus)
+  .disablePlugins(RevolverPlugin)
 
 addCommandAlias("serve", "ligature-http-xodusJVM/run")
 
