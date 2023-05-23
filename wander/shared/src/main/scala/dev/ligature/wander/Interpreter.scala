@@ -54,12 +54,30 @@ def evalTerm(term: Term, bindings: Bindings): IO[EvalResult] =
             case WanderValue.NativeFunction(parameters, body, output) => {
               body(arguments, bindings).map { value => EvalResult(value, bindings) }
             }
-            case WanderValue.WanderFunction(parameters, body, output) => ???
+            case WanderValue.WanderFunction(parameters, body) =>
+              if parameters.length == arguments.length then
+                var newScope = bindings.newScope()
+                arguments
+                  .map { term =>
+                    evalTerm(term, bindings)
+                  }.sequence.map { evalResults =>
+                    val args = evalResults.map(_.result)
+                    parameters.zip(args).foreach { (name, value) =>
+                      newScope.bindVariable(name, value) match
+                        case Left(value) => ???
+                        case Right(bindings) => 
+                          newScope = bindings
+                    }
+                  }.flatMap { _ =>
+                    eval(body, newScope).map { scriptResult => EvalResult(scriptResult, bindings) }
+                  }
+              else
+                IO.raiseError(LigatureError("Argument and parameter size must be the same."))
             case _ => ???
           }
       }
     case Term.WanderFunction(parameters, body) => {
-      ???
+      IO.pure(EvalResult(WanderValue.WanderFunction(parameters, body), bindings))
     }
     case Term.Scope(terms) =>
       eval(terms, bindings.newScope()).map { x => EvalResult(x, bindings) }

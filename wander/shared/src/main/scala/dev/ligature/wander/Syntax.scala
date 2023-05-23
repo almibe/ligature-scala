@@ -26,8 +26,6 @@ import dev.ligature.LigatureError
 type ScriptResult = WanderValue
 case class EvalResult(result: WanderValue, bindings: Bindings)
 
-opaque type Scope = Seq[Term]
-
 /** Represents a Value in the Wander language.
   */
 enum WanderValue:
@@ -39,9 +37,8 @@ enum WanderValue:
     body: (arguments: Seq[Term], bindings: Bindings) => IO[WanderValue], //Either[LigatureError, WanderValue],
     output: WanderType = null)
   case WanderFunction(
-    parameters: Seq[Parameter],
-    output: WanderType,
-    body: Scope)
+    parameters: Seq[Name],
+    body: Seq[Term])
   case ListValue(values: Seq[WanderValue])
   case Itr(internal: Stream[IO, WanderValue])
 

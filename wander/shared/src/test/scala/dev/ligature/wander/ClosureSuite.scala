@@ -24,146 +24,28 @@ class ClosureSuite extends munit.CatsEffectSuite {
   def check(script: String, expected: ScriptResult) =
     assertIO(run(script, common()), expected)
 
-  // test("function0 def") {
-  //   val script = """let f = () -> Integer { 5 }
-  //                  |f()""".stripMargin
-  //   val result = Right(ScriptResult(WanderValue.Nothing))
-  //   check(script, result)
-  // }
-//   TestInstance(
-//     ast = Script(
-//       List(
-//         LetStatement(
-//           Name("f"),
-//           WanderFunction(
-//             List(),
-//             WanderType.Integer,
-//             Scope(List(LigatureValue(IntegerLiteral(5))))
-//           )
-//         ),
-//         FunctionCall(Name("f"), List())
-//       )
-//     ),
-//     result = Right(ScriptResult(LigatureValue(IntegerLiteral(5))))
-//   ),
+  test("function0 def") {
+    val script = """let f = { -> 5 }
+                   |f()""".stripMargin
+    val result = WanderValue.LigatureValue(LigatureLiteral.IntegerLiteral(5))
+    check(script, result)
+  }
+  test("function0 def with closing over variable") {
+    val script = """let x = 5
+                   |let f = { -> x }
+                   |f()""".stripMargin
+    val result = WanderValue.LigatureValue(LigatureLiteral.IntegerLiteral(5))
+    check(script, result)
+  }
+  test("function1 def exact type") {
+    val script = """let identity = { i -> i }
+                   |identity(<testEntity>)""".stripMargin
+    val result = WanderValue.LigatureValue(Identifier.fromString("testEntity").getOrElse(???))
+    check(script, result)
+  }
 }
 
 val closureTestData = List(
-//   TestInstance(
-//     description = "function0 def with closing over variable",
-//     script = """let x = 5
-//                |let f = () -> Integer { x }
-//                |f()""".stripMargin,
-//     tokens = null, //List(
-//       // Token("let", TokenType.LetKeyword),
-//       // Token(" ", TokenType.Spaces),
-//       // Token("x", TokenType.Name),
-//       // Token(" ", TokenType.Spaces),
-//       // Token("=", TokenType.EqualSign),
-//       // Token(" ", TokenType.Spaces),
-//       // Token("5", TokenType.Integer),
-//       // Token(newLine, TokenType.NewLine),
-//       // Token("let", TokenType.LetKeyword),
-//       // Token(" ", TokenType.Spaces),
-//       // Token("f", TokenType.Name),
-//       // Token(" ", TokenType.Spaces),
-//       // Token("=", TokenType.EqualSign),
-//       // Token(" ", TokenType.Spaces),
-//       // Token("(", TokenType.OpenParen),
-//       // Token(")", TokenType.CloseParen),
-//       // Token(" ", TokenType.Spaces),
-//       // Token("->", TokenType.Arrow),
-//       // Token(" ", TokenType.Spaces),
-//       // Token("Integer", TokenType.Name),
-//       // Token(" ", TokenType.Spaces),
-//       // Token("{", TokenType.OpenBrace),
-//       // Token(" ", TokenType.Spaces),
-//       // Token("x", TokenType.Name),
-//       // Token(" ", TokenType.Spaces),
-//       // Token("}", TokenType.CloseBrace),
-//       // Token(newLine, TokenType.NewLine),
-//       // Token("f", TokenType.Name),
-//       // Token("(", TokenType.OpenParen),
-//       // Token(")", TokenType.CloseParen)
-// //    ),
-//     ast = Script(
-//       List(
-//         LetStatement(
-//           Name("x"),
-//           LigatureValue(IntegerLiteral(5))
-//         ),
-//         LetStatement(
-//           Name("f"),
-//           WanderFunction(
-//             List(),
-//             WanderType.Integer,
-//             Scope(List(Name("x")))
-//           )
-//         ),
-//         FunctionCall(Name("f"), List())
-//       )
-//     ),
-//     result = Right(ScriptResult(LigatureValue(IntegerLiteral(5))))
-//   ),
-//   TestInstance(
-//     description = "function1 def exact type",
-//     script = """let identity = (identifier:Identifier) -> Identifier {
-//                |  identifier
-//                |}
-//                |identity(<testEntity>)""".stripMargin,
-//     tokens = null, //List(
-//     //   Token("let", TokenType.LetKeyword),
-//     //   Token(" ", TokenType.Spaces),
-//     //   Token("identity", TokenType.Name),
-//     //   Token(" ", TokenType.Spaces),
-//     //   Token("=", TokenType.EqualSign),
-//     //   Token(" ", TokenType.Spaces),
-//     //   Token("(", TokenType.OpenParen),
-//     //   Token("identifier", TokenType.Name),
-//     //   Token(":", TokenType.Colon),
-//     //   Token("Identifier", TokenType.Name),
-//     //   Token(")", TokenType.CloseParen),
-//     //   Token(" ", TokenType.Spaces),
-//     //   Token("->", TokenType.Arrow),
-//     //   Token(" ", TokenType.Spaces),
-//     //   Token("Identifier", TokenType.Name),
-//     //   Token(" ", TokenType.Spaces),
-//     //   Token("{", TokenType.OpenBrace),
-//     //   Token(newLine, TokenType.NewLine),
-//     //   Token("  ", TokenType.Spaces),
-//     //   Token("identifier", TokenType.Name),
-//     //   Token(newLine, TokenType.NewLine),
-//     //   Token("}", TokenType.CloseBrace),
-//     //   Token(newLine, TokenType.NewLine),
-//     //   Token("identity", TokenType.Name),
-//     //   Token("(", TokenType.OpenParen),
-//     //   Token("testEntity", TokenType.Identifier),
-//     //   Token(")", TokenType.CloseParen)
-//     // ),
-//     ast = Script(
-//       List(
-//         LetStatement(
-//           Name("identity"),
-//           WanderFunction(
-//             List(Parameter(Name("identifier"), WanderType.Identifier)),
-//             WanderType.Identifier,
-//             Scope(List(Name("identifier")))
-//           )
-//         ),
-//         FunctionCall(
-//           Name("identity"),
-//           List(
-//             LigatureValue(Identifier.fromString("testEntity").getOrElse(???))
-//           )
-//         )
-//       )
-//     ),
-//     result = Right(
-//       ScriptResult(
-//         LigatureValue(Identifier.fromString("testEntity").getOrElse(???))
-//       )
-//     )
-//   ),
 //   TestInstance(
 //     description = "function1 def super type",
 //     script = """let identity = (value:Value) -> Value {

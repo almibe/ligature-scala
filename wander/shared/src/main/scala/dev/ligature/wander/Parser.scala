@@ -31,8 +31,8 @@ enum Term:
   case FunctionCall(name: Name, arguments: Seq[Term])
   case Scope(elements: Seq[Term])
   case WanderFunction(
-    parameters: Seq[String],
-    body: Scope)
+    parameters: Seq[Name],
+    body: Seq[Term])
   case IfExpression(
     conditional: Term,
     ifBody: Term,
@@ -96,26 +96,23 @@ val scopeNib: Nibbler[Token, Term.Scope] = { gaze =>
   } yield Seq(Term.Scope(expression.toList))
 }
 
-// val parameterNib: Nibbler[Token, Parameter] = { gaze =>
-//   for {
-//     name <- gaze.attempt(
-//       nameNib
-//     ) // .map { name => name.map(name => Parameter(name)) }
-//     _ <- gaze.attempt(colonNib)
-//     typeName <- gaze.attempt(typeNib)
-//   } yield Seq(Parameter(name.head, typeName.head))
-// }
+val parameterNib: Nibbler[Token, Name] = { gaze =>
+  for {
+    names <- gaze.attempt(
+      nameNib
+    )
+  } yield names.map(_.value)
+}
 
-// val wanderFunctionNib: Nibbler[Token, FunctionDefinition] = { gaze =>
-//   for {
-//     _ <- gaze.attempt(openParenNib)
-//     parameters <- gaze.attempt(optional(repeat(parameterNib)))
-//     _ <- gaze.attempt(closeParenNib)
-//     _ <- gaze.attempt(arrowNib)
-//     returnType <- gaze.attempt(typeNib)
-//     body <- gaze.attempt(scopeNib)
-//   } yield Seq(WanderFunction(parameters.toList, returnType.head, body.head))
-// }
+val wanderFunctionNib: Nibbler[Token, Term.WanderFunction] = { gaze =>
+  for {
+    _ <- gaze.attempt(take(Token.OpenBrace))
+    parameters <- gaze.attempt(optional(repeat(parameterNib)))
+    _ <- gaze.attempt(take(Token.Arrow))
+    body <- gaze.attempt(expressionNib)
+    _ <- gaze.attempt(take(Token.CloseBrace))
+  } yield Seq(Term.WanderFunction(parameters, body))
+}
 
 // val typeNib: Nibbler[Token, WanderType] = takeFirst(
 //   take(Token("Integer", TokenType.Name)).map(_ => List(WanderType.Integer)),
@@ -182,7 +179,7 @@ val expressionNib =
     nameNib,
     scopeNib,
     identifierNib,
-    // wanderFunctionNib,
+    wanderFunctionNib,
     stringNib,
     integerNib,
     listNib,

@@ -81,9 +81,12 @@ class ParserSuite extends FunSuite {
       )))
     check(script, result)
   }
-  // test("parse WanderFunction") {
-  //   val script = "{ x -> x }"
-  //   val result = Right(Seq(Term.WanderFunction(Seq(Term.IntegerLiteral(5)))))
-  //   check(script, result)
-  // }
+  test("parse WanderFunction") {
+    val script = "let id = { x -> x } id(6)"
+    val result = Right(Seq(
+      Term.LetBinding(Name("id"), Term.WanderFunction(Seq(Name("x")), Seq(Term.NameTerm(Name("x"))))),
+      Term.FunctionCall(Name("id"), Seq(Term.IntegerLiteral(6)))
+    ))
+    check(script, result)
+  }
 }
