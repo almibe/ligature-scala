@@ -43,7 +43,7 @@ object Identifier {
     }
 }
 
-case class LigatureError(val userMessage: String) extends Throwable
+case class LigatureError(val userMessage: String) extends Throwable(userMessage)
 
 enum LigatureLiteral:
   case StringLiteral(value: String)
