@@ -4,48 +4,38 @@
 
 package dev.ligature.wander
 
-import dev.ligature.wander.{NativeFunction, BooleanValue, WanderFunction, WanderValue, ScriptError, Nothing, Script, ResultStream, LigatureValue, ScriptResult}
+import dev.ligature.wander.{WanderValue, ScriptResult}
 import dev.ligature.wander.parse
 import dev.ligature.{Dataset, Ligature}
 import dev.ligature.lig.writeValue
-import dev.ligature.wander.WanderValue
-import dev.ligature.wander.BooleanValue
-import dev.ligature.wander.LigatureValue
-import dev.ligature.wander.NativeFunction
-import dev.ligature.wander.ResultStream
-import dev.ligature.wander.WanderFunction
+import dev.ligature.LigatureError
+import cats.effect.IO
 
 def run(
     script: String,
     bindings: Bindings
-): Either[ScriptError, ScriptResult] =
-  for {
+): IO[ScriptResult] =
+  val terms = for {
     tokens <- tokenize(script)
-    script <- parse(tokens).left.map(ScriptError(_))
-    result <- interpret(script, bindings)
-  } yield result
+    terms <- parse(tokens)
+  } yield terms
+  terms match
+    case Left(value) => IO.raiseError(value)
+    case Right(value) => eval(value, bindings)
 
-def interpret(
-    script: Script,
-    bindings: Bindings
-): Either[ScriptError, ScriptResult] = {
-  script.eval(bindings)
-}
-
-def printResult(result: Either[ScriptError, ScriptResult]): String = {
-  result match {
-    case Left(value) => value.message
-    case Right(ScriptResult(value)) => printWanderValue(value)
-  }
+def printResult(value: ScriptResult): String = {
+  printWanderValue(value)
 }
 
 def printWanderValue(value: WanderValue): String = {
   value match {
-    case BooleanValue(value) => value.toString()
-    case LigatureValue(value) => writeValue(value)
-    case NativeFunction(parameters, body, output) => "[NativeFunction]"
-    case Nothing => "nothing"
-    case ResultStream(stream) => "[ResultStream]"
-    case WanderFunction(parameters, output, body) => "[WanderFunction]"
+    case WanderValue.BooleanValue(value) => value.toString()
+    case WanderValue.LigatureValue(value) => writeValue(value)
+    case WanderValue.NativeFunction(parameters, body, output) => "[NativeFunction]"
+    case WanderValue.Nothing => "nothing"
+    case WanderValue.WanderFunction(parameters, body) => "[WanderFunction]"
+    case WanderValue.Itr(internal) => "[Stream]"
+    case WanderValue.ListValue(values) =>
+      "[" + values.map { value => printWanderValue(value) }.mkString(" ") + "]"
   }
 }

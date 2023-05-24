@@ -12,7 +12,6 @@ import dev.ligature.{
   QueryTx,
   Statement,
   Value,
-  WriteTx
 }
 import cats.effect.IO
 import fs2.Stream
@@ -74,6 +73,13 @@ object LigatureValueType:
     case LigatureValueType.Bytes.id      => LigatureValueType.Bytes
 
 final class XodusLigature(dbDirectory: File) extends Ligature with XodusOperations {
+
+  override def allStatements(dataset: Dataset): Stream[cats.effect.IO, Statement] = ???
+
+  override def addStatements(dataset: Dataset, statements: Stream[cats.effect.IO, Statement]): IO[Unit] = ???
+
+  override def removeStatements(dataset: Dataset, statements: Stream[cats.effect.IO, Statement]): IO[Unit] = ???
+
   private val environment = Environments.newInstance(dbDirectory, new EnvironmentConfig)
   setupStores()
 
@@ -296,26 +302,26 @@ final class XodusLigature(dbDirectory: File) extends Ligature with XodusOperatio
     * CouldNotInitializeWriteTx
     */
   // TODO try rewriting to use bracket, like query does
-  override def write(dataset: Dataset)(fn: WriteTx => IO[Unit]): IO[Unit] =
-    IO { // TODO rewrite with TransactionComputable
-      environment.beginTransaction()
-    }.bracket { tx =>
-      IO.defer {
-        fetchDatasetID(dataset) match {
-          case None => ???
-          case Some(datasetId) =>
-            val writeTx = XodusWriteTx(tx, this, datasetId)
-            fn(writeTx)
-        }
-      }
-    } { tx =>
-      IO.defer {
-        if (!tx.isFinished) {
-          tx.commit()
-        }
-        IO.unit
-      }
-    }
+  // override def write(dataset: Dataset)(fn: WriteTx => IO[Unit]): IO[Unit] =
+  //   IO { // TODO rewrite with TransactionComputable
+  //     environment.beginTransaction()
+  //   }.bracket { tx =>
+  //     IO.defer {
+  //       fetchDatasetID(dataset) match {
+  //         case None => ???
+  //         case Some(datasetId) =>
+  //           val writeTx = XodusWriteTx(tx, this, datasetId)
+  //           fn(writeTx)
+  //       }
+  //     }
+  //   } { tx =>
+  //     IO.defer {
+  //       if (!tx.isFinished) {
+  //         tx.commit()
+  //       }
+  //       IO.unit
+  //     }
+  //   }
 
   override def close(): IO[Unit] = IO {
     environment.close()

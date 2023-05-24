@@ -9,7 +9,10 @@ import dev.ligature.http.testsuite.LigatureHttpSuite
 import dev.ligature.http.LigatureHttp
 import dev.ligature.http.AuthMode
 import com.comcast.ip4s.*
+import dev.ligature.Ligature
+import cats.effect.kernel.Resource
+import dev.ligature.inmemory.createInMemoryLigature
 
 class LigatureHttpMemorySuite extends LigatureHttpSuite {
-  override def createInstance() = LigatureHttp(InMemoryLigature(), AuthMode.None, Port.fromInt(4202).get)
+  override def createLigature() = createInMemoryLigature()
 }

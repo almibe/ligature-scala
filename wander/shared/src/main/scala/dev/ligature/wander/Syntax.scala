@@ -11,111 +11,103 @@ import fs2.Stream
 import scala.util.Success
 import dev.ligature.Identifier
 import cats.Eval
-import dev.ligature.IntegerLiteral
-import dev.ligature.StringLiteral
+import dev.ligature.LigatureError
 
 /** Represents the union of Statements and Expressions
   */
-sealed trait Element {
-  def eval(bindings: Bindings): Either[ScriptError, EvalResult]
-}
+// sealed trait Element {
+//   def eval(bindings: Bindings): Either[ScriptError, EvalResult]
+// }
 
 /** An element of a Wander program that can be evaluated for a value.
   */
-sealed trait Expression extends Element
+//sealed trait Expression extends Element
+
+type ScriptResult = WanderValue
+case class EvalResult(result: WanderValue, bindings: Bindings)
 
 /** Represents a Value in the Wander language.
   */
-sealed trait WanderValue extends Expression
-
-case class ScriptError(message: String)
-case class ScriptResult(result: WanderValue)
-case class EvalResult(result: WanderValue, bindings: Bindings)
+enum WanderValue:
+  case LigatureValue(value: Value)
+  case BooleanValue(value: Boolean)
+  case Nothing
+  case NativeFunction(
+    parameters: Seq[Parameter],
+    body: (arguments: Seq[Term], bindings: Bindings) => IO[WanderValue], //Either[LigatureError, WanderValue],
+    output: WanderType = null)
+  case WanderFunction(
+    parameters: Seq[Name],
+    body: Seq[Term])
+  case ListValue(values: Seq[WanderValue])
+  case Itr(internal: Stream[IO, WanderValue])
 
 /** Represents a Name in the Wander language.
   */
-final case class Name(name: String) extends Expression {
-  override def eval(bindings: Bindings) =
-    bindings.read(this) match {
-      case Left(err)    => Left(err)
-      case Right(value) => Right(EvalResult(value, bindings))
-    }
-}
+// final case class Name(name: String) extends Expression {
+//   override def eval(bindings: Bindings) =
+//     bindings.read(this) match {
+//       case Left(err)    => Left(err)
+//       case Right(value) => Right(EvalResult(value, bindings))
+//     }
+// }
 
-sealed trait FunctionDefinition(val parameters: List[Parameter]) extends WanderValue
+//sealed trait FunctionDefinition(val parameters: List[Parameter]) extends WanderValue
 
-case class LigatureValue(value: Value) extends WanderValue {
-  override def eval(bindings: Bindings) = Right(
-    EvalResult(LigatureValue(value), bindings)
-  )
-}
+// case class LigatureValue(value: Value) extends WanderValue {
+//   override def eval(bindings: Bindings) = Right(
+//     EvalResult(LigatureValue(value), bindings)
+//   )
+// }
 
-case class BooleanValue(value: Boolean) extends WanderValue {
-  override def eval(bindings: Bindings) = Right(
-    EvalResult(BooleanValue(value), bindings)
-  )
-}
+// case class BooleanValue(value: Boolean) extends WanderValue {
+//   override def eval(bindings: Bindings) = Right(
+//     EvalResult(BooleanValue(value), bindings)
+//   )
+// }
 
-object Nothing extends WanderValue {
-  override def eval(bindings: Bindings) = Right(EvalResult(Nothing, bindings))
-}
+// object Nothing extends WanderValue {
+//   override def eval(bindings: Bindings) = Right(EvalResult(Nothing, bindings))
+// }
 
-case class ResultStream(stream: Stream[IO, WanderValue]) extends WanderValue {
-  override def eval(binding: Bindings) = ???
-}
+// case class ResultStream(stream: Stream[IO, WanderValue]) extends WanderValue {
+//   override def eval(binding: Bindings) = ???
+// }
 
 /** Holds a reference to a function defined in Scala that can be called from
   * Wander.
   */
-case class NativeFunction(
-    override val parameters: List[Parameter],
-    body: (bindings: Bindings) => Either[ScriptError, WanderValue],
-    output: WanderType = null
-) extends FunctionDefinition(parameters) { // TODO eventually remove the default null value
-  override def eval(binding: Bindings) =
-    // body(binding) match {
-    //   case Left(err) => Left(err)
-    //   case Right(res) => Right(EvalResult(binding, res))
-    // }
-    Right(EvalResult(this, binding))
-}
-
-/** Represents a full script that can be eval'd.
-  */
-case class Script(val terms: Seq[Term]) {
-  def eval(bindings: Bindings): Either[ScriptError, ScriptResult] = {
-    var result: WanderValue = Nothing
-    var currentBindings: Bindings = bindings
-    terms.foreach { term =>
-      evalTerm(term,currentBindings) match {
-        case Left(err) => return Left(err)
-        case Right(res) =>
-          result = res.result
-          currentBindings = res.bindings
-      }
-    }
-    Right(ScriptResult(result))
-  }
-}
+// case class NativeFunction(
+//     override val parameters: List[Parameter],
+//     body: (arguments: Seq[Term], bindings: Bindings) => Either[ScriptError, WanderValue],
+//     output: WanderType = null
+// ) extends FunctionDefinition(parameters) { // TODO eventually remove the default null value
+//   override def eval(binding: Bindings) =
+//     // body(binding) match {
+//     //   case Left(err) => Left(err)
+//     //   case Right(res) => Right(EvalResult(binding, res))
+//     // }
+//     Right(EvalResult(this, binding))
+// }
 
 /** Represents a scope in Wander that can be eval'd and can contain it's own
   * bindings.
   */
-case class Scope(val elements: List[Term]) extends Expression {
-  def eval(bindings: Bindings) = {
-    var currentBindings = bindings.newScope()
-    var result: WanderValue = Nothing
-    elements.foreach { element =>
-      evalTerm(element, currentBindings) match {
-        case Left(err) => return Left(err)
-        case Right(res) =>
-          result = res.result
-          currentBindings = res.bindings
-      }
-    }
-    Right(EvalResult(result, bindings))
-  }
-}
+// case class Scope(val elements: List[Term]) extends Expression {
+//   def eval(bindings: Bindings) = {
+//     var currentBindings = bindings.newScope()
+//     var result: WanderValue = Nothing
+//     elements.foreach { element =>
+//       evalTerm(element, currentBindings) match {
+//         case Left(err) => return Left(err)
+//         case Right(res) =>
+//           result = res.result
+//           currentBindings = res.bindings
+//       }
+//     }
+//     Right(EvalResult(result, bindings))
+//   }
+// }
 
 enum WanderType {
   case Value
@@ -133,14 +125,14 @@ case class Parameter(
 
 /** Holds a reference to a function defined in Wander.
   */
-case class WanderFunction(
-    override val parameters: List[Parameter],
-    output: WanderType,
-    body: Scope
-) extends FunctionDefinition(parameters) {
-  override def eval(bindings: Bindings) =
-    Right(EvalResult(this, bindings))
-}
+// case class WanderFunction(
+//     override val parameters: List[Parameter],
+//     output: WanderType,
+//     body: Scope
+// ) extends FunctionDefinition(parameters) {
+//   override def eval(bindings: Bindings) =
+//     Right(EvalResult(this, bindings))
+// }
 
 // case class FunctionCall(val name: Name, val parameters: List[Expression]) extends Expression {
 //   def eval(bindings: Bindings) = {
@@ -225,14 +217,4 @@ case class WanderFunction(
 //     //     case None    => Right(EvalResult(Nothing, bindings))
 //     //   }
 //     // }
-// }
-
-// case class ElseIf(val condition: Expression, val body: Expression) {
-//   def eval(bindings: Bindings) = // TODO is this needed?
-//     ???
-// }
-
-// case class Else(val body: Expression) {
-//   def eval(bindings: Bindings) = // TODO is this needed?
-//     ???
 // }

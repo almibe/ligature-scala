@@ -19,7 +19,7 @@ class XodusWriteTx(
     private val tx: Transaction,
     private val xodusOperations: XodusOperations,
     private val datasetID: ByteIterable
-) extends WriteTx {
+) {//extends WriteTx {
 
   private def lookupIdentifier(identifier: Identifier): Option[ByteIterable] =
     val identifierToIdStore = xodusOperations.openStore(tx, LigatureStore.IdentifierToIdStore)
@@ -44,7 +44,7 @@ class XodusWriteTx(
         internalId
     }
 
-  private def lookupStringLiteral(literal: StringLiteral): Option[ByteIterable] =
+  private def lookupStringLiteral(literal: LigatureLiteral.StringLiteral): Option[ByteIterable] =
     val stringToIdStore = xodusOperations.openStore(tx, LigatureStore.StringToIdStore)
     val encodedString = CompoundByteIterable(
       Array(datasetID, StringBinding.stringToEntry(literal.value))
@@ -53,7 +53,7 @@ class XodusWriteTx(
     Option(result)
 
   // TODO this function might be able to be merged with lookupOrCreateIdentifier
-  private def lookupOrCreateStringLiteral(literal: StringLiteral): ByteIterable =
+  private def lookupOrCreateStringLiteral(literal: LigatureLiteral.StringLiteral): ByteIterable =
     val stringToIdStore = xodusOperations.openStore(tx, LigatureStore.StringToIdStore)
     val encodedString = StringBinding.stringToEntry(literal.value)
     val encodedStringWithDataset = CompoundByteIterable(Array(datasetID, encodedString))
@@ -87,14 +87,14 @@ class XodusWriteTx(
           )
         )
         temp
-      case stringLiteral: StringLiteral =>
+      case stringLiteral: LigatureLiteral.StringLiteral =>
         CompoundByteIterable(
           Array(
             ByteBinding.byteToEntry(LigatureValueType.String.id),
             lookupOrCreateStringLiteral(stringLiteral)
           )
         )
-      case integerLiteral: IntegerLiteral =>
+      case integerLiteral: LigatureLiteral.IntegerLiteral =>
         CompoundByteIterable(
           Array(
             ByteBinding.byteToEntry(LigatureValueType.Integer.id),
@@ -145,7 +145,7 @@ class XodusWriteTx(
 
   /** Returns an ID that doesn't exist within this Dataset.
     */
-  override def newIdentifier(prefix: String): IO[Identifier] = IO {
+  def newIdentifier(prefix: String): IO[Identifier] = IO {
     var newIdentifier = Identifier.fromString(s"$prefix${genId()}").getOrElse(???)
     var encodedIdentifier = StringBinding.stringToEntry(newIdentifier.name)
     var exists = true
@@ -164,7 +164,7 @@ class XodusWriteTx(
     * nothing happens (TODO maybe add it with a new context?). Note: Potentially
     * could trigger a ValidationError
     */
-  override def addStatement(statement: Statement): IO[Unit] = IO {
+  def addStatement(statement: Statement): IO[Unit] = IO {
     val entityID = lookupOrCreateIdentifier(statement.entity)
     val attributeID = lookupOrCreateIdentifier(statement.attribute)
     val encodedValue = encodeValue(statement.value)
@@ -215,7 +215,7 @@ class XodusWriteTx(
               )
             )
         }
-      case stringLiteral: StringLiteral =>
+      case stringLiteral: LigatureLiteral.StringLiteral =>
         lookupStringLiteral(stringLiteral) match {
           case None => None
           case Some(stringId) =>
@@ -225,7 +225,7 @@ class XodusWriteTx(
               )
             )
         }
-      case IntegerLiteral(value) =>
+      case LigatureLiteral.IntegerLiteral(value) =>
         Some(LongBinding.longToEntry(value)) // TODO needs value type
     }
 
@@ -311,12 +311,12 @@ class XodusWriteTx(
     value match {
       case identifier: Identifier =>
         checkAndRemoveIdentifier(identifier, valueEncoded.subIterable(1, 8))
-      case stringLiteral: StringLiteral =>
+      case stringLiteral: LigatureLiteral.StringLiteral =>
         val stringToIdStore = xodusOperations.openStore(tx, LigatureStore.StringToIdStore)
         val idToStringStore = xodusOperations.openStore(tx, LigatureStore.IdToStringStore)
         stringToIdStore.delete(tx, StringBinding.stringToEntry(stringLiteral.value))
         idToStringStore.delete(tx, valueEncoded.subIterable(1, 8))
-      case _: IntegerLiteral => ()
+      case _: LigatureLiteral.IntegerLiteral => ()
       // TODO support bytes
     }
 }

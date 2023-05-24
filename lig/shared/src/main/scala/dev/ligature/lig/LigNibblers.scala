@@ -19,7 +19,7 @@ import dev.ligature.gaze.{
   takeWhile,
   optional
 }
-import dev.ligature.{Identifier, IntegerLiteral, Statement, StringLiteral, Value}
+import dev.ligature.{Identifier, Statement, LigatureLiteral, Value}
 
 object LigNibblers {
   val whiteSpaceNibbler = takeCharacters(' ', '\t')
