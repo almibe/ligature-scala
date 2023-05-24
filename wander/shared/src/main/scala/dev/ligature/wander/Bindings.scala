@@ -7,7 +7,7 @@ package dev.ligature.wander
 import dev.ligature.wander.{Name, ScriptError, WanderValue}
 import dev.ligature.wander.NativeFunction
 
-case class Bindings(scopes: List[Map[Name, WanderValue]] = List(Map())) {
+case class Bindings(scopes: List[Map[Name, WanderValue]] = List((Map()))) {
   def newScope(): Bindings = Bindings(this.scopes.appended(Map()))
 
   def bindVariable(
@@ -16,7 +16,7 @@ case class Bindings(scopes: List[Map[Name, WanderValue]] = List(Map())) {
   ): Either[ScriptError, Bindings] = {
     val currentScope = this.scopes.last
     if (currentScope.contains(name)) {
-      // TODO probably remove this to allow shadowing?
+      //TODO probably remove this to allow shadowing?
       Left(ScriptError(s"$name is already bound in current scope."))
     } else {
       val newVariables = currentScope + (name -> wanderValue)

@@ -52,8 +52,8 @@ abstract class LigatureTestSuite extends CatsEffectSuite {
     val res = for {
       _ <- instance.createDataset(testDataset)
       res1 <- instance.matchDatasetsPrefix("test/test").compile.toList
-    } yield res1.length
-    assertIO(res, 1)
+    } yield (res1.length)
+    assertIO(res, (1))
   }
 
   test("match datasets prefix") {

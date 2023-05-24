@@ -11,7 +11,7 @@ import munit.FunSuite
 class ParserSuite extends FunSuite {
   def ident(identifier: String): Term =
     Identifier.fromString(identifier) match
-      case Left(value)  => ??? // just crash
+      case Left(value) => ??? //just crash
       case Right(value) => Term.IdentifierLiteral(value)
 
   def check(script: String, expected: Either[ScriptError, Script]) =
@@ -33,9 +33,7 @@ class ParserSuite extends FunSuite {
   }
   test("parse Integer") {
     val script = "123 0 -321"
-    val result = Right(
-      Script(Seq(Term.IntegerLiteral(123), Term.IntegerLiteral(0), Term.IntegerLiteral(-321)))
-    )
+    val result = Right(Script(Seq(Term.IntegerLiteral(123), Term.IntegerLiteral(0), Term.IntegerLiteral(-321))))
     check(script, result)
   }
   test("parse String") {
@@ -45,15 +43,12 @@ class ParserSuite extends FunSuite {
   }
   test("parse Boolean") {
     val script = "true true false"
-    val result = Right(
-      Script(Seq(Term.BooleanLiteral(true), Term.BooleanLiteral(true), Term.BooleanLiteral(false)))
-    )
+    val result = Right(Script(Seq(Term.BooleanLiteral(true), Term.BooleanLiteral(true), Term.BooleanLiteral(false))))
     check(script, result)
   }
   test("parse Function Calls") {
     val script = "not(false)"
-    val result =
-      Right(Script(Seq(Term.FunctionCall(Term.Name("not"), Seq(Term.BooleanLiteral(false))))))
+    val result = Right(Script(Seq(Term.FunctionCall(Term.Name("not"), Seq(Term.BooleanLiteral(false))))))
     check(script, result)
   }
 }
