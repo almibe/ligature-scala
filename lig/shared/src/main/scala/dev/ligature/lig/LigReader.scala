@@ -84,19 +84,19 @@ def createIdentifier(id: String): Either[LigError, Identifier] =
     .map(_ => LigError("Invalid Identifier Id - $id"))
 
 
-def parseIntegerLiteral(gaze: Gaze[Char]): Either[LigError, IntegerLiteral] =
+def parseIntegerLiteral(gaze: Gaze[Char]): Either[LigError, LigatureLiteral.IntegerLiteral] =
   gaze.attempt(numberNibbler) match {
     case None => Left(LigError("Could not parse Integer."))
     case Some(i) =>
-      Right(IntegerLiteral(i.mkString.toLong)) // TODO toLong can throw
+      Right(LigatureLiteral.IntegerLiteral(i.mkString.toLong)) // TODO toLong can throw
   }
 
-def parseStringLiteral(gaze: Gaze[Char]): Either[LigError, StringLiteral] = {
+def parseStringLiteral(gaze: Gaze[Char]): Either[LigError, LigatureLiteral.StringLiteral] = {
   val res = gaze.attempt(takeAllGrouped(takeString("\""), stringContentNibbler))
 
   res match {
     case None      => Left(LigError("Could not parse String."))
-    case Some(res) => Right(StringLiteral(res(1).mkString))
+    case Some(res) => Right(LigatureLiteral.StringLiteral(res(1).mkString))
   }
 }
 
@@ -256,7 +256,7 @@ def parseIdentifier(
 }
 
 def handleIdGenId(input: String): Either[LigError, Identifier] =
-  Identifier.fromString(genIdId(input)).left.map(err => LigError(err.message))
+  Identifier.fromString(genIdId(input)).left.map(err => LigError(err.userMessage))
 
 def genIdId(input: String): String = {
   val itr = input.toCharArray.iterator
@@ -283,7 +283,7 @@ def handlePrefixedId(
       Identifier
         .fromString(prefixValue + postfix)
         .left
-        .map(err => LigError(err.message))
+        .map(err => LigError(err.userMessage))
   }
 }
 
@@ -299,7 +299,7 @@ def handlePrefixedGenId(
       Identifier
         .fromString(genIdId(prefixValue + postfix))
         .left
-        .map(err => LigError(err.message))
+        .map(err => LigError(err.userMessage))
   }
 }
 

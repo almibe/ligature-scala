@@ -4,17 +4,17 @@
 
 package dev.ligature.wander
 
-import dev.ligature.wander.parser.{LigatureValue, Name}
-import dev.ligature.{Identifier, StringLiteral}
+import dev.ligature.wander.WanderValue
+import dev.ligature.{Identifier, LigatureLiteral}
 import munit.FunSuite
 
 class BindingsSuite extends FunSuite {
   private val identifier = Name("test")
   private val identifier2 = Name("test2")
 
-  private val value1 = LigatureValue(StringLiteral("this is a test"))
-  private val value2 = LigatureValue(StringLiteral("this is a test2"))
-  private val value3 = LigatureValue(StringLiteral("this is a test3"))
+  private val value1 = WanderValue.LigatureValue(LigatureLiteral.StringLiteral("this is a test"))
+  private val value2 = WanderValue.LigatureValue(LigatureLiteral.StringLiteral("this is a test2"))
+  private val value3 = WanderValue.LigatureValue(LigatureLiteral.StringLiteral("this is a test3"))
 
   test("add single value and read") {
     val binding = Bindings()

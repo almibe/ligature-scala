@@ -10,12 +10,12 @@ object Gaze {
   def from(
       text: String
   ): Gaze[Char] = // TODO eventually handle unicode better and make this Gaze[String]
-    new Gaze(text.toVector)
+    new Gaze(text.toSeq)
 }
 
 case class Location(line: Int, lineOffset: Int)
 
-class Gaze[+I](private val input: Vector[I]) {
+class Gaze[+I](private val input: Seq[I]) {
   private var offset: Int = 0
   private var line: Int = 0
   private var lineOffset: Int = 0
