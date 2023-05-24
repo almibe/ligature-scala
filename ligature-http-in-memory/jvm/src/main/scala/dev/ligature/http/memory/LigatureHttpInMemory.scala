@@ -8,23 +8,17 @@ import cats.effect.*
 import com.comcast.ip4s.Port
 import dev.ligature.inmemory.InMemoryLigature
 import dev.ligature.http.{AuthMode, runLigature}
+import dev.ligature.inmemory.createInMemoryLigature
 
 case class LigatureConfig(
    authMode: AuthMode = AuthMode.None,
-   port: Port = Port.fromInt(4202).get,
+   port: Port = Port.fromInt(4200).get,
 )
 
 object MainLigatureHttp extends IOApp {
   def run(args: List[String]): IO[ExitCode] =
-    val config = LigatureConfig()
-    runLigature(InMemoryLigature(), config.authMode, config.port)
+    createInMemoryLigature().use { instance =>
+      val config = LigatureConfig()
+      runLigature(instance, config.authMode, config.port)  
+    }
 }
-
-//} else {
-//  IO {
-//  println("Could not start application.")
-//  println("A single mode argument is required.")
-//  println("Supported modes:")
-//  println("  --local")
-//  ExitCode.Error
-//}
