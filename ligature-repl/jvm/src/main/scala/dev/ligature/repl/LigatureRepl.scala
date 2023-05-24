@@ -28,17 +28,17 @@ import dev.ligature.wander.common
 
 case class TerminalResources(val terminal: Terminal, val reader: LineReader)
 
-val terminalResource: Resource[IO, TerminalResources] = 
-  Resource.make { 
+val terminalResource: Resource[IO, TerminalResources] =
+  Resource.make {
     val terminal: Terminal = TerminalBuilder.builder().build()
     val parser: DefaultParser = new DefaultParser()
-    val reader: LineReader = LineReaderBuilder.builder()
+    val reader: LineReader = LineReaderBuilder
+      .builder()
       .terminal(terminal)
       .parser(parser)
       .build();
     IO.pure(TerminalResources(terminal, reader))
   }(terminal => IO(terminal.terminal.close()))
-
 
 object Main extends IOApp {
   override def run(args: List[String]): IO[ExitCode] =
@@ -51,21 +51,20 @@ object Main extends IOApp {
       }
     }
 
-  def repl(ligature: Ligature, terminal: TerminalResources): IO[ExitCode] = {
-      for {
-        line <- IO.blocking { terminal.reader.readLine("> ") }
-        res <- 
-          if (line == ":q") { 
-            IO.println("Bye!").map { _ => ExitCode.Success } 
-          } else {
-            for {
-              res <- runWander(line, instanceMode(ligature))
-              _ <- IO.println(printResult(res))
-              code <- repl(ligature, terminal) 
-            } yield code
-          }
-      } yield ExitCode.Success
-  }
+  def repl(ligature: Ligature, terminal: TerminalResources): IO[ExitCode] =
+    for {
+      line <- IO.blocking(terminal.reader.readLine("> "))
+      res <-
+        if (line == ":q") {
+          IO.println("Bye!").map(_ => ExitCode.Success)
+        } else {
+          for {
+            res <- runWander(line, instanceMode(ligature))
+            _ <- IO.println(printResult(res))
+            code <- repl(ligature, terminal)
+          } yield code
+        }
+    } yield ExitCode.Success
 }
 
 //       val res2 = res.handleError { e =>
