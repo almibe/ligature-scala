@@ -10,7 +10,6 @@ class IDGenSuite extends FunSuite {
   test("check ids") {
     val regEx = "[0-9a-zA-Z_-]{12}".r
     val id = genId()
-    println("***" + id)
     assert(regEx.matches(id))
   }
 }

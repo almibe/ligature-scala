@@ -6,8 +6,6 @@ package dev.ligature
 
 import fs2.Stream
 import cats.effect.IO
-import cats.data.EitherT
-import cats.effect.kernel.Resource
 
 import scala.annotation.unused
 
@@ -29,7 +27,7 @@ object Dataset {
     }
 }
 
-final case class Identifier private (name: String) extends Value {
+final case class Identifier private (name: String) {
   @unused
   private def copy(): Unit = ()
 }
@@ -45,11 +43,13 @@ object Identifier {
     }
 }
 
-final case class LigatureError(message: String)
+case class LigatureError(val userMessage: String) extends Throwable(userMessage)
 
-sealed trait Value
-final case class StringLiteral(value: String) extends Value
-final case class IntegerLiteral(value: Long) extends Value
+enum LigatureLiteral:
+  case StringLiteral(value: String)
+  case IntegerLiteral(value: Long)
+
+type Value = LigatureLiteral | Identifier
 
 //sealed trait Range
 //final case class StringLiteralRange(start: String, end: String) extends Range
@@ -95,15 +95,16 @@ trait Ligature {
     */
   def deleteDataset(dataset: Dataset): IO[Unit]
 
+  def allStatements(dataset: Dataset): Stream[IO, Statement]
+
   /** Initializes a QueryTx TODO should probably return its own error type
     * CouldNotInitializeQueryTx
     */
   def query[T](dataset: Dataset)(fn: QueryTx => IO[T]): IO[T]
 
-  /** Initializes a WriteTx TODO should probably return IO[Either] w/ its own
-    * error type CouldNotInitializeWriteTx
-    */
-  def write(dataset: Dataset)(fn: WriteTx => IO[Unit]): IO[Unit]
+  def addStatements(dataset: Dataset, statements: Stream[IO, Statement]): IO[Unit]
+
+  def removeStatements(dataset: Dataset, statements: Stream[IO, Statement]): IO[Unit]
 
   def close(): IO[Unit]
 }
@@ -112,10 +113,6 @@ trait Ligature {
   * Dataset
   */
 trait QueryTx {
-
-  /** Returns all PersistedStatements in this Dataset. */
-  def allStatements(): Stream[IO, Statement]
-
   /** Returns all PersistedStatements that match the given criteria. If a
     * parameter is None then it matches all, so passing all Nones is the same as
     * calling allStatements.
@@ -134,30 +131,4 @@ trait QueryTx {
 //      attribute: Option[Identifier] = None,
 //      value: Range
 //  ): Stream[IO, Statement]
-}
-
-/** Represents a WriteTx within the context of a Ligature instance and a single
-  * Dataset
-  */
-trait WriteTx {
-
-  /** Creates a new, unique Entity within this Dataset by combining a UUID and
-    * an optional prefix. Note: Entities are shared across named graphs in a
-    * given Dataset.
-    */
-  def newIdentifier(prefix: String = ""): IO[Identifier]
-
-  /** Adds a given Statement to this Dataset. If the Statement already exists
-    * nothing happens.
-    */
-  def addStatement(statement: Statement): IO[Unit]
-
-  /** Removes a given PersistedStatement from this Dataset. If the
-    * PersistedStatement doesn't exist nothing happens and returns Ok(false).
-    * This function returns Ok(true) only if the given PersistedStatement was
-    * found and removed.
-    */
-  def removeStatement(
-      statement: Statement
-  ): IO[Unit]
 }
