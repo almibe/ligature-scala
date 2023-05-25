@@ -109,6 +109,20 @@ lazy val ligatureInMemory = crossProject(JSPlatform, JVMPlatform)
 //   .dependsOn(ligature, idgen, ligatureTestSuite % Test)
 //   .disablePlugins(RevolverPlugin)
 
+lazy val ligatureArcadeDb = crossProject(JVMPlatform)
+  .in(file("ligature-arcadedb"))
+  .settings(
+    name := "ligature-arcadedb",
+    scalaVersion := scala3Version,
+    libraryDependencies += "co.fs2" %%% "fs2-core" % fs2Version,
+    libraryDependencies += "com.arcadedb" % "arcadedb-engine" % "23.4.1",
+    libraryDependencies += "org.scodec" % "scodec-core_3" % "2.1.0",
+    libraryDependencies += "org.scalameta" %%% "munit" % munitVersion % Test,
+    libraryDependencies += "org.typelevel" %%% "munit-cats-effect" % munitCatsEffect3Version % Test
+  )
+  .dependsOn(ligature, idgen, ligatureTestSuite % Test)
+  .disablePlugins(RevolverPlugin)
+
 // lazy val ligatureJS = crossProject(JSPlatform)
 //  .in(file("ligature-js"))
 //  .enablePlugins(ScalaJSPlugin)
