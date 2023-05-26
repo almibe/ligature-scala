@@ -13,7 +13,6 @@ import cats.effect.IO
 
 class LigatureXodusSpec extends LigatureTestSuite {
   var path: Path = null
-  var ligatureInstance: Ligature = null
 
   override def beforeEach(context: BeforeEach): Unit =
     path = Files.createTempDirectory("LigatureXodusTest")
@@ -28,12 +27,9 @@ class LigatureXodusSpec extends LigatureTestSuite {
       }
     }
 
-    ligatureInstance.close().unsafeRunSync()
     deleteRecursively(path.toFile)
   }
 
   override def createLigature: Resource[IO, Ligature] =
-    Resource.make(???)(???)
-//    ligatureInstance = XodusLigature(path.toFile)
-//    ligatureInstance
+    createXodusLigature(path)
 }
