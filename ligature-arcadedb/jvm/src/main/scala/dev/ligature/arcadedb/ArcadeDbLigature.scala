@@ -22,13 +22,18 @@ import cats.effect.kernel.Resource
 protected case class DatasetStore(counter: Long, statements: Set[Statement])
 
 enum Location:
-  case InMemory
-  case File(path: String)
+  case Temporary
+  case Path(path: String)
 
 def openLigature(location: Location): Resource[IO, ArcadeDbLigature] =
-  Resource.make(
-    ???
-  )(???)
+  Resource.make {
+    location match
+      case Temporary => ???
+      case Path(path) =>
+        val factory = DatabaseFactory(path)
+        
+        ???
+  }(_.close())
 
 final class ArcadeDbLigature(location: Location) extends Ligature {
   /** Returns all Datasets in a Ligature instance. */
