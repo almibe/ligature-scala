@@ -19,7 +19,7 @@ class XodusWriteTx(
     private val tx: Transaction,
     private val xodusOperations: XodusOperations,
     private val datasetID: ByteIterable
-) { // extends WriteTx {
+) {//extends WriteTx {
 
   private def lookupIdentifier(identifier: Identifier): Option[ByteIterable] =
     val identifierToIdStore = xodusOperations.openStore(tx, LigatureStore.IdentifierToIdStore)

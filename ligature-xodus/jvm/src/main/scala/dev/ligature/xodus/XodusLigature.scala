@@ -4,7 +4,15 @@
 
 package dev.ligature.xodus
 
-import dev.ligature.{Dataset, Identifier, Ligature, LigatureError, QueryTx, Statement, Value}
+import dev.ligature.{
+  Dataset,
+  Identifier,
+  Ligature,
+  LigatureError,
+  QueryTx,
+  Statement,
+  Value,
+}
 import cats.effect.IO
 import fs2.Stream
 
@@ -68,15 +76,9 @@ final class XodusLigature(dbDirectory: File) extends Ligature with XodusOperatio
 
   override def allStatements(dataset: Dataset): Stream[cats.effect.IO, Statement] = ???
 
-  override def addStatements(
-      dataset: Dataset,
-      statements: Stream[cats.effect.IO, Statement]
-  ): IO[Unit] = ???
+  override def addStatements(dataset: Dataset, statements: Stream[cats.effect.IO, Statement]): IO[Unit] = ???
 
-  override def removeStatements(
-      dataset: Dataset,
-      statements: Stream[cats.effect.IO, Statement]
-  ): IO[Unit] = ???
+  override def removeStatements(dataset: Dataset, statements: Stream[cats.effect.IO, Statement]): IO[Unit] = ???
 
   private val environment = Environments.newInstance(dbDirectory, new EnvironmentConfig)
   setupStores()

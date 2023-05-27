@@ -38,7 +38,7 @@ class BooleanFunctionsSuite extends munit.CatsEffectSuite {
     val result = WanderValue.BooleanValue(false)
     check(script, result)
   }
-  // TODO add this test back after let statements are working
+  //TODO add this test back after let statements are working
   // TestInstance(
   //   description = "boolean3 test with variables",
   //   script = """let t = not(or(false false))
