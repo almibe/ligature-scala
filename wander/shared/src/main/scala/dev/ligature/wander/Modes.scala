@@ -17,57 +17,92 @@ import cats.effect.IO
 def instanceMode(instance: Ligature): Bindings = {
   var bindings = common()
 
-  bindings = bindings.bindVariable(Name("datasets"), WanderValue.NativeFunction(
-    List(),
-    (arguments: Seq[Term], binding: Bindings) =>
-      //Right(WanderValue.LigatureValue(Identifier.fromString("test").getOrElse(???)))
-      instance.allDatasets().compile.toList.map { datasets => WanderValue.LigatureValue(LigatureLiteral.StringLiteral(datasets.toString())) }
-  )).getOrElse(???)
+  bindings = bindings
+    .bindVariable(
+      Name("datasets"),
+      WanderValue.NativeFunction(
+        List(),
+        (arguments: Seq[Term], binding: Bindings) =>
+          // Right(WanderValue.LigatureValue(Identifier.fromString("test").getOrElse(???)))
+          instance.allDatasets().compile.toList.map { datasets =>
+            WanderValue.LigatureValue(LigatureLiteral.StringLiteral(datasets.toString()))
+          }
+      )
+    )
+    .getOrElse(???)
 
-  bindings = bindings.bindVariable(Name("addDataset"), WanderValue.NativeFunction(
-    List(Parameter(Name("message"), WanderType.String)),
-    (arguments: Seq[Term], binding: Bindings) =>
-      arguments.head match
-        case Term.StringLiteral(datasetName) =>
-          instance.createDataset(Dataset.fromString(datasetName).getOrElse(???)).map(_ => WanderValue.Nothing)
-        case _ => ???
-  )).getOrElse(???)
+  bindings = bindings
+    .bindVariable(
+      Name("addDataset"),
+      WanderValue.NativeFunction(
+        List(Parameter(Name("message"), WanderType.String)),
+        (arguments: Seq[Term], binding: Bindings) =>
+          arguments.head match
+            case Term.StringLiteral(datasetName) =>
+              instance
+                .createDataset(Dataset.fromString(datasetName).getOrElse(???))
+                .map(_ => WanderValue.Nothing)
+            case _ => ???
+      )
+    )
+    .getOrElse(???)
 
-  bindings = bindings.bindVariable(Name("removeDataset"), WanderValue.NativeFunction(
-    List(Parameter(Name("message"), WanderType.String)),
-    (arguments: Seq[Term], binding: Bindings) =>
-      arguments.head match
-        case Term.StringLiteral(datasetName) =>
-          instance.deleteDataset(Dataset.fromString(datasetName).getOrElse(???)).map(_ => WanderValue.Nothing)
-        case _ => ???
-  )).getOrElse(???)
+  bindings = bindings
+    .bindVariable(
+      Name("removeDataset"),
+      WanderValue.NativeFunction(
+        List(Parameter(Name("message"), WanderType.String)),
+        (arguments: Seq[Term], binding: Bindings) =>
+          arguments.head match
+            case Term.StringLiteral(datasetName) =>
+              instance
+                .deleteDataset(Dataset.fromString(datasetName).getOrElse(???))
+                .map(_ => WanderValue.Nothing)
+            case _ => ???
+      )
+    )
+    .getOrElse(???)
 
-  bindings = bindings.bindVariable(Name("datasetExists"), WanderValue.NativeFunction(
-    List(Parameter(Name("message"), WanderType.String)),
-    (arguments: Seq[Term], binding: Bindings) =>
-      arguments.head match
-        case Term.StringLiteral(datasetName) =>
-          instance.datasetExists(Dataset.fromString(datasetName).getOrElse(???)).map(res => WanderValue.BooleanValue(res))
-        case _ => ???
-  )).getOrElse(???)
+  bindings = bindings
+    .bindVariable(
+      Name("datasetExists"),
+      WanderValue.NativeFunction(
+        List(Parameter(Name("message"), WanderType.String)),
+        (arguments: Seq[Term], binding: Bindings) =>
+          arguments.head match
+            case Term.StringLiteral(datasetName) =>
+              instance
+                .datasetExists(Dataset.fromString(datasetName).getOrElse(???))
+                .map(res => WanderValue.BooleanValue(res))
+            case _ => ???
+      )
+    )
+    .getOrElse(???)
 
-  bindings = bindings.bindVariable(Name("addStatement"), WanderValue.NativeFunction(
-    List(Parameter(Name("message"), WanderType.String)),
-    (arguments: Seq[Term], binding: Bindings) =>
-      (arguments(0), arguments(1), arguments(2), arguments(3)) match
-        case (Term.StringLiteral(datasetName), 
-              Term.IdentifierLiteral(entity), 
-              Term.IdentifierLiteral(attribute),
-              value: (Term.IdentifierLiteral | Term.StringLiteral | Term.IntegerLiteral)) =>
-                val dataset = Dataset.fromString(datasetName).getOrElse(???)
-                //instance.
-                ???
-        case _ => ???
-  )).getOrElse(???)
+  bindings = bindings
+    .bindVariable(
+      Name("addStatement"),
+      WanderValue.NativeFunction(
+        List(Parameter(Name("message"), WanderType.String)),
+        (arguments: Seq[Term], binding: Bindings) =>
+          (arguments(0), arguments(1), arguments(2), arguments(3)) match
+            case (
+                  Term.StringLiteral(datasetName),
+                  Term.IdentifierLiteral(entity),
+                  Term.IdentifierLiteral(attribute),
+                  value: (Term.IdentifierLiteral | Term.StringLiteral | Term.IntegerLiteral)
+                ) =>
+              val dataset = Dataset.fromString(datasetName).getOrElse(???)
+              // instance.
+              ???
+            case _ => ???
+      )
+    )
+    .getOrElse(???)
 
-  //TODO removeStatement
-  //TODO addAll
-  //TODO removeAll
+  // TODO removeStatement
+  // TODO addAll
+  // TODO removeAll
   bindings
 }
 
@@ -77,8 +112,7 @@ def instanceMode(instance: Ligature): Bindings = {
 // }
 
 /**
- * 
- */
+  */
 def common(): Bindings = {
   var stdLib = Bindings()
 
@@ -101,9 +135,10 @@ def common(): Bindings = {
           if arguments.size != 1 then
             IO.raiseError(LigatureError("`not` function requires 1 argument."))
           else
-            evalTerm(arguments.head, bindings).map { 
+            evalTerm(arguments.head, bindings).map {
               _ match
-                case EvalResult(b: WanderValue.BooleanValue, _) => WanderValue.BooleanValue(!b.value)
+                case EvalResult(b: WanderValue.BooleanValue, _) =>
+                  WanderValue.BooleanValue(!b.value)
                 case _ => throw LigatureError("`not` function requires 1 boolean argument.")
             }
       )
@@ -126,11 +161,11 @@ def common(): Bindings = {
             } yield (left, right)
             res.map { r =>
               (r._1.result, r._2.result) match
-                case (WanderValue.BooleanValue(left), WanderValue.BooleanValue(right)) => WanderValue.BooleanValue(left && right)
+                case (WanderValue.BooleanValue(left), WanderValue.BooleanValue(right)) =>
+                  WanderValue.BooleanValue(left && right)
                 case _ => throw LigatureError("`and` function requires two booleans")
             }
-          else
-            IO.raiseError(LigatureError("`and` function requires two booleans"))
+          else IO.raiseError(LigatureError("`and` function requires two booleans"))
       )
     )
     .getOrElse(???)
@@ -151,11 +186,11 @@ def common(): Bindings = {
             } yield (left, right)
             res.map { r =>
               (r._1.result, r._2.result) match
-                case (WanderValue.BooleanValue(left), WanderValue.BooleanValue(right)) => WanderValue.BooleanValue(left || right)
+                case (WanderValue.BooleanValue(left), WanderValue.BooleanValue(right)) =>
+                  WanderValue.BooleanValue(left || right)
                 case _ => throw LigatureError("`or` function requires two booleans")
             }
-          else
-            IO.raiseError(LigatureError("`or` function requires two booleans"))
+          else IO.raiseError(LigatureError("`or` function requires two booleans"))
       )
     )
     .getOrElse(???)

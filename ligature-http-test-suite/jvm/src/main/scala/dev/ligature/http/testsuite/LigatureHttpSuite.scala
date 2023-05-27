@@ -24,7 +24,7 @@ import com.comcast.ip4s.Port
 abstract class LigatureHttpSuite extends CatsEffectSuite {
   def createLigature(): Resource[IO, Ligature]
 
-  def createInstance() = 
+  def createInstance() =
     createLigature().use { instance =>
       IO.pure(LigatureHttp(instance, AuthMode.None, Port.fromInt(4202).get))
     }
