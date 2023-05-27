@@ -23,8 +23,9 @@ import cats.effect.IOApp
 import cats.effect.ExitCode
 import dev.ligature.inmemory.createInMemoryLigature
 import dev.ligature.Ligature
-import dev.ligature.wander.run as runWander
+import dev.ligature.wander.evalString
 import dev.ligature.wander.common
+import dev.ligature.wander.Bindings
 
 case class TerminalResources(val terminal: Terminal, val reader: LineReader)
 
@@ -39,19 +40,19 @@ val terminalResource: Resource[IO, TerminalResources] =
     IO.pure(TerminalResources(terminal, reader))
   }(terminal => IO(terminal.terminal.close()))
 
-
 object Main extends IOApp {
   override def run(args: List[String]): IO[ExitCode] =
     createInMemoryLigature().use { ligature =>
       terminalResource.use { terminal =>
+        val bindings = instanceMode(ligature)
         for {
           _ <- IO.println("Welcome to Ligature's REPL!")
-          res <- repl(ligature, terminal)
+          res <- repl(terminal, bindings)
         } yield res
       }
     }
 
-  def repl(ligature: Ligature, terminal: TerminalResources): IO[ExitCode] = {
+  def repl(terminal: TerminalResources, bindings: Bindings): IO[ExitCode] = {
       for {
         line <- IO.blocking { terminal.reader.readLine("> ") }
         res <- 
@@ -59,9 +60,9 @@ object Main extends IOApp {
             IO.println("Bye!").map { _ => ExitCode.Success } 
           } else {
             for {
-              res <- runWander(line, instanceMode(ligature))
-              _ <- IO.println(printResult(res))
-              code <- repl(ligature, terminal) 
+              res <- evalString(line, bindings)
+              _ <- IO.println(printResult(res.result))
+              code <- repl(terminal, res.bindings)
             } yield code
           }
       } yield ExitCode.Success
