@@ -36,6 +36,8 @@ import jetbrains.exodus.env.{
 import jetbrains.exodus.bindings.{LongBinding, StringBinding}
 
 import scala.jdk.CollectionConverters.*
+import java.nio.file.Path
+import jetbrains.exodus.env.Environment
 
 trait XodusOperations {
   def openStore(tx: Transaction, store: LigatureStore): Store
@@ -72,23 +74,72 @@ object LigatureValueType:
     case LigatureValueType.String.id     => LigatureValueType.String
     case LigatureValueType.Bytes.id      => LigatureValueType.Bytes
 
-final class XodusLigature(dbDirectory: File) extends Ligature with XodusOperations {
+def createXodusLigature(path: Path): Resource[IO, Ligature] =
+  Resource.make{
+    IO {
+      val environment = Environments.newInstance(path.toFile(), new EnvironmentConfig)
+      val ligatureInstance = XodusLigature(environment)
+      ligatureInstance.setupStores()
+      ligatureInstance
+    }
+  }(_.close())
 
-  override def allStatements(dataset: Dataset): Stream[cats.effect.IO, Statement] = ???
+//TODO below should accept an Xodus instance not a File
+private final class XodusLigature(environment: Environment) extends Ligature with XodusOperations {
 
-  override def addStatements(dataset: Dataset, statements: Stream[cats.effect.IO, Statement]): IO[Unit] = ???
+  def readOnlyTransaction(): Stream[IO, Transaction] =
+    Stream.bracket(IO(environment.beginReadonlyTransaction())){
+      tx => IO {
+        if !tx.isFinished() then
+          tx.abort()
+      }
+    }
 
-  override def removeStatements(dataset: Dataset, statements: Stream[cats.effect.IO, Statement]): IO[Unit] = ???
+  def readWriteTransaction(): Stream[IO, Transaction] =
+    Stream.bracket(IO(environment.beginTransaction())) {
+      tx => IO {
+        if !tx.isFinished() then
+          tx.commit()
+      }
+    }
 
-  private val environment = Environments.newInstance(dbDirectory, new EnvironmentConfig)
-  setupStores()
+  override def allStatements(dataset: Dataset): Stream[IO, Statement] =
+    readOnlyTransaction().flatMap { tx =>
+      fetchDatasetID(dataset, tx) match
+        case None => ???
+        case Some(datasetId) =>
+          val queryTx = XodusQueryTx(tx, this, datasetId)
+          queryTx.allStatements()
+    }
+
+  override def addStatements(dataset: Dataset, statements: Stream[cats.effect.IO, Statement]): IO[Unit] =
+    readWriteTransaction().flatMap { tx =>
+      fetchDatasetID(dataset, tx) match
+        case None => ???
+        case Some(datasetId) =>
+          val writeTx = XodusWriteTx(tx, this, datasetId)
+          statements.foreach { statement =>
+            writeTx.addStatement(statement)
+          }
+    }.compile.drain
+
+  override def removeStatements(dataset: Dataset, statements: Stream[cats.effect.IO, Statement]): IO[Unit] =
+    readWriteTransaction().flatMap { tx =>
+      fetchDatasetID(dataset, tx) match
+        case None => ???
+        case Some(datasetId) =>
+          val writeTx = XodusWriteTx(tx, this, datasetId)
+          statements.foreach { statement =>
+            writeTx.removeStatement(statement)
+          }
+    }.compile.drain
 
   /** This method is ran once at the start to make sure all Stores exist.
     * This is done so that Stores can be opened in readonly mode.
     *  It also checks and initializes Counters
     * TODO: This method could probably check if the Environment exists and check the status of the Environment first.
     */
-  private def setupStores(): Unit = {
+  def setupStores(): Unit = {
     // create all Stores
     val createStoresTC: TransactionalComputable[Unit] = tx =>
       LigatureStore.values.foreach(openStore(tx, _))
@@ -137,22 +188,20 @@ final class XodusLigature(dbDirectory: File) extends Ligature with XodusOperatio
     environment.computeInReadonlyTransaction(tc).map(Dataset.fromString(_).getOrElse(???))
   }
 
-  private def fetchDatasetID(dataset: Dataset): Option[ByteIterable] = {
-    val tc: TransactionalComputable[Option[ByteIterable]] = tx => {
-      val datasetToIdStore = openStore(tx, LigatureStore.DatasetToIdStore)
-      val res = datasetToIdStore.get(tx, StringBinding.stringToEntry(dataset.name))
-      res match {
-        case null                => None
-        case bytes: ByteIterable => Some(bytes)
-      }
+  private def fetchDatasetID(dataset: Dataset, tx: Transaction): Option[ByteIterable] =
+    val datasetToIdStore = openStore(tx, LigatureStore.DatasetToIdStore)
+    val res = datasetToIdStore.get(tx, StringBinding.stringToEntry(dataset.name))
+    res match {
+      case null                => None
+      case bytes: ByteIterable => Some(bytes)
     }
-    environment.computeInReadonlyTransaction(tc)
-  }
 
   /** Check if a given Dataset exists. */
-  override def datasetExists(dataset: Dataset): IO[Boolean] = IO {
-    fetchDatasetID(dataset).isDefined
-  }
+  override def datasetExists(dataset: Dataset): IO[Boolean] =
+    readOnlyTransaction()
+      .map { tx => fetchDatasetID(dataset, tx).isDefined }
+      .compile
+      .onlyOrError
 
   /** Returns all Datasets in a Ligature instance that start with the given
     * prefix.
@@ -282,7 +331,7 @@ final class XodusLigature(dbDirectory: File) extends Ligature with XodusOperatio
       environment.beginReadonlyTransaction()
     }.bracket { tx =>
       IO.defer {
-        fetchDatasetID(dataset) match {
+        fetchDatasetID(dataset, tx) match {
           case None => ???
           case Some(datasetId) =>
             val queryTx = XodusQueryTx(tx, this, datasetId)
@@ -297,31 +346,6 @@ final class XodusLigature(dbDirectory: File) extends Ligature with XodusOperatio
         IO.unit
       }
     }
-
-  /** Initializes a WriteTx TODO should probably return its own error type
-    * CouldNotInitializeWriteTx
-    */
-  // TODO try rewriting to use bracket, like query does
-  // override def write(dataset: Dataset)(fn: WriteTx => IO[Unit]): IO[Unit] =
-  //   IO { // TODO rewrite with TransactionComputable
-  //     environment.beginTransaction()
-  //   }.bracket { tx =>
-  //     IO.defer {
-  //       fetchDatasetID(dataset) match {
-  //         case None => ???
-  //         case Some(datasetId) =>
-  //           val writeTx = XodusWriteTx(tx, this, datasetId)
-  //           fn(writeTx)
-  //       }
-  //     }
-  //   } { tx =>
-  //     IO.defer {
-  //       if (!tx.isFinished) {
-  //         tx.commit()
-  //       }
-  //       IO.unit
-  //     }
-  //   }
 
   override def close(): IO[Unit] = IO {
     environment.close()
