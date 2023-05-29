@@ -59,7 +59,7 @@ lazy val wander = crossProject(JSPlatform, JVMPlatform)
     libraryDependencies += "org.scalameta" %%% "munit" % munitVersion % Test,
     libraryDependencies += "org.typelevel" %%% "munit-cats-effect" % munitCatsEffect3Version
   )
-  .dependsOn(ligature, lig, gaze)
+  .dependsOn(ligature, lig, gaze, ligatureInMemory % Test)
   .disablePlugins(RevolverPlugin)
 
 lazy val ligatureTestSuite = crossProject(JSPlatform, JVMPlatform)
@@ -194,10 +194,10 @@ lazy val ligatureRepl = crossProject(JVMPlatform)
     libraryDependencies += "org.jline" % "jline" % jlineVersion,
     libraryDependencies += "org.jline" % "jline-terminal-jansi" % jlineVersion,
   )
-  .dependsOn(ligature, lig, wander, ligatureInMemory)//, ligatureXodus)
+  .dependsOn(ligature, lig, wander, ligatureInMemory, ligatureXodus)
   .disablePlugins(RevolverPlugin)
 
-//addCommandAlias("serve", "ligature-http-xodusJVM/run")
+addCommandAlias("serve", "ligature-http-xodusJVM/run")
 
 disablePlugins(RevolverPlugin)
 

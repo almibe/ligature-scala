@@ -48,7 +48,7 @@ def evalTerm(term: Term, bindings: Bindings): IO[EvalResult] =
     case Term.FunctionCall(name, arguments) =>
       //TODO val evaldArgs = evalArguments(arguments)
       bindings.read(name) match {
-        case Left(value) => ???///IO(Left(value))
+        case Left(value) => IO.raiseError(value)
         case Right(value) =>
           value match {
             case WanderValue.NativeFunction(parameters, body, output) => {
