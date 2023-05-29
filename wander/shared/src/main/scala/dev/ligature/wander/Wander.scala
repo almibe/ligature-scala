@@ -21,6 +21,18 @@ def run(
   } yield terms
   terms match
     case Left(value) => IO.raiseError(value)
+    case Right(value) => eval(value, bindings).map(_.result)
+
+def evalString(
+  script: String,
+  bindings: Bindings
+): IO[EvalResult] =
+  val terms = for {
+    tokens <- tokenize(script)
+    terms <- parse(tokens)
+  } yield terms
+  terms match
+    case Left(value) => IO.raiseError(value)
     case Right(value) => eval(value, bindings)
 
 def printResult(value: ScriptResult): String = {

@@ -4,7 +4,7 @@
 
 package dev.ligature.http.xodus
 
-import dev.ligature.xodus.XodusLigature
+import dev.ligature.xodus.createXodusLigature
 import dev.ligature.http.testsuite.LigatureHttpSuite
 import dev.ligature.http.LigatureHttp
 import dev.ligature.http.AuthMode
@@ -16,7 +16,6 @@ import java.nio.file.{Files, Path}
 
 class LigatureHttpXodusSuite extends LigatureHttpSuite {
   var path: Path = null
-  var ligatureInstance: XodusLigature = null
 
   override def beforeEach(context: BeforeEach): Unit =
     path = Files.createTempDirectory("LigatureXodusTest")
@@ -31,12 +30,8 @@ class LigatureHttpXodusSuite extends LigatureHttpSuite {
       }
     }
 
-    ligatureInstance.close().unsafeRunSync()
     deleteRecursively(path.toFile)
   }
 
-  override def createInstance(): LigatureHttp = {
-    ligatureInstance = XodusLigature(path.toFile)
-    LigatureHttp(ligatureInstance, AuthMode.None, Port.fromInt(4202).get)
-  }
+  override def createLigature() = createXodusLigature(path)
 }

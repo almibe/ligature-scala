@@ -9,12 +9,12 @@ import dev.ligature.LigatureLiteral
 import cats.effect.IO
 import cats.implicits._
 
-def eval(script: Seq[Term], bindings: Bindings): IO[ScriptResult] = {
+def eval(script: Seq[Term], bindings: Bindings): IO[EvalResult] = {
   script.foldLeft(IO.pure(EvalResult(WanderValue.Nothing, bindings))) { (lastResult, term) =>
     lastResult.flatMap { result =>
       evalTerm(term, result.bindings)
     }
-  }.map(_.result)
+  }
 }
 
 def evalAll(terms: Seq[Term], bindings: Bindings): IO[Seq[WanderValue]] =
@@ -48,7 +48,7 @@ def evalTerm(term: Term, bindings: Bindings): IO[EvalResult] =
     case Term.FunctionCall(name, arguments) =>
       //TODO val evaldArgs = evalArguments(arguments)
       bindings.read(name) match {
-        case Left(value) => ???///IO(Left(value))
+        case Left(value) => IO.raiseError(value)
         case Right(value) =>
           value match {
             case WanderValue.NativeFunction(parameters, body, output) => {
@@ -69,7 +69,7 @@ def evalTerm(term: Term, bindings: Bindings): IO[EvalResult] =
                           newScope = bindings
                     }
                   }.flatMap { _ =>
-                    eval(body, newScope).map { scriptResult => EvalResult(scriptResult, bindings) }
+                    eval(body, newScope).map { scriptResult => EvalResult(scriptResult.result, bindings) }
                   }
               else
                 IO.raiseError(LigatureError("Argument and parameter size must be the same."))
@@ -80,7 +80,7 @@ def evalTerm(term: Term, bindings: Bindings): IO[EvalResult] =
       IO.pure(EvalResult(WanderValue.WanderFunction(parameters, body), bindings))
     }
     case Term.Scope(terms) =>
-      eval(terms, bindings.newScope()).map { x => EvalResult(x, bindings) }
+      eval(terms, bindings.newScope()).map { x => EvalResult(x.result, bindings) }
     case Term.IfExpression(ifConditional, ifBody, elseBody) =>
       for {
         cond <- evalTerm(ifConditional, bindings)
