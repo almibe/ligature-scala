@@ -4,7 +4,15 @@
 
 package dev.ligature.arcadedb
 
-import dev.ligature.{Dataset, Identifier, Ligature, LigatureError, QueryTx, Statement, Value}
+import dev.ligature.{
+  Dataset,
+  Identifier,
+  Ligature,
+  LigatureError,
+  QueryTx,
+  Statement,
+  Value,
+}
 import cats.effect.IO
 import cats.effect.std.AtomicCell
 import fs2.Stream
@@ -23,12 +31,11 @@ def openLigature(location: Location): Resource[IO, ArcadeDbLigature] =
       case Temporary => ???
       case Path(path) =>
         val factory = DatabaseFactory(path)
-
+        
         ???
   }(_.close())
 
 final class ArcadeDbLigature(location: Location) extends Ligature {
-
   /** Returns all Datasets in a Ligature instance. */
   override def allDatasets(): Stream[IO, Dataset] = ???
 
@@ -59,21 +66,15 @@ final class ArcadeDbLigature(location: Location) extends Ligature {
   override def deleteDataset(dataset: Dataset): IO[Unit] = ???
 
   override def allStatements(dataset: Dataset): Stream[IO, Statement] = ???
-
+  
   /** Initializes a QueryTx TODO should probably return its own error type
     * CouldNotInitializeQueryTx
     */
   override def query[T](dataset: Dataset)(fn: QueryTx => IO[T]): IO[T] = ???
 
-  override def addStatements(
-      dataset: Dataset,
-      statements: Stream[cats.effect.IO, Statement]
-  ): IO[Unit] = ???
+  override def addStatements(dataset: Dataset, statements: Stream[cats.effect.IO, Statement]): IO[Unit] = ???
 
-  override def removeStatements(
-      dataset: Dataset,
-      statements: Stream[cats.effect.IO, Statement]
-  ): IO[Unit] = ???
+  override def removeStatements(dataset: Dataset, statements: Stream[cats.effect.IO, Statement]): IO[Unit] = ???
 
   override def close(): IO[Unit] = ???
 }

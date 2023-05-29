@@ -11,7 +11,7 @@ import munit.FunSuite
 class ParserSuite extends FunSuite {
   def ident(identifier: String): Term =
     Identifier.fromString(identifier) match
-      case Left(value)  => ??? // just crash
+      case Left(value) => ??? //just crash
       case Right(value) => Term.IdentifierLiteral(value)
 
   def check(script: String, expected: Either[LigatureError, Seq[Term]]) =
@@ -33,8 +33,7 @@ class ParserSuite extends FunSuite {
   }
   test("parse Integer") {
     val script = "123 0 -321"
-    val result =
-      Right(Seq(Term.IntegerLiteral(123), Term.IntegerLiteral(0), Term.IntegerLiteral(-321)))
+    val result = Right(Seq(Term.IntegerLiteral(123), Term.IntegerLiteral(0), Term.IntegerLiteral(-321)))
     check(script, result)
   }
   test("parse String") {
@@ -44,8 +43,7 @@ class ParserSuite extends FunSuite {
   }
   test("parse Boolean") {
     val script = "true true false"
-    val result =
-      Right(Seq(Term.BooleanLiteral(true), Term.BooleanLiteral(true), Term.BooleanLiteral(false)))
+    val result = Right(Seq(Term.BooleanLiteral(true), Term.BooleanLiteral(true), Term.BooleanLiteral(false)))
     check(script, result)
   }
   test("parse Function Calls") {
@@ -60,11 +58,7 @@ class ParserSuite extends FunSuite {
   }
   test("parse List") {
     val script = "[1 2 \"three\"]"
-    val result = Right(
-      Seq(
-        Term.List(Seq(Term.IntegerLiteral(1), Term.IntegerLiteral(2), Term.StringLiteral("three")))
-      )
-    )
+    val result = Right(Seq(Term.List(Seq(Term.IntegerLiteral(1), Term.IntegerLiteral(2), Term.StringLiteral("three")))))
     check(script, result)
   }
   test("parse let binding") {
@@ -79,28 +73,20 @@ class ParserSuite extends FunSuite {
   }
   test("parse conditionals") {
     val script = "if true false else true"
-    val result = Right(
-      Seq(
-        Term.IfExpression(
-          Term.BooleanLiteral(true),
-          Term.BooleanLiteral(false),
-          Term.BooleanLiteral(true)
-        )
-      )
-    )
+    val result = Right(Seq(
+      Term.IfExpression(
+        Term.BooleanLiteral(true), 
+        Term.BooleanLiteral(false),
+        Term.BooleanLiteral(true)
+      )))
     check(script, result)
   }
   test("parse WanderFunction") {
     val script = "let id = { x -> x } id(6)"
-    val result = Right(
-      Seq(
-        Term.LetBinding(
-          Name("id"),
-          Term.WanderFunction(Seq(Name("x")), Seq(Term.NameTerm(Name("x"))))
-        ),
-        Term.FunctionCall(Name("id"), Seq(Term.IntegerLiteral(6)))
-      )
-    )
+    val result = Right(Seq(
+      Term.LetBinding(Name("id"), Term.WanderFunction(Seq(Name("x")), Seq(Term.NameTerm(Name("x"))))),
+      Term.FunctionCall(Name("id"), Seq(Term.IntegerLiteral(6)))
+    ))
     check(script, result)
   }
 }

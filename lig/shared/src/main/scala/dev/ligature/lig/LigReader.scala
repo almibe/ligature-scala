@@ -7,12 +7,7 @@ package dev.ligature.lig
 import dev.ligature.*
 import dev.ligature.gaze.*
 import dev.ligature.idgen.genId
-import dev.ligature.lig.LigNibblers.{
-  numberNibbler,
-  stringContentNibbler,
-  whiteSpaceAndNewLineNibbler,
-  whiteSpaceNibbler
-}
+import dev.ligature.lig.LigNibblers.{numberNibbler, stringContentNibbler, whiteSpaceAndNewLineNibbler, whiteSpaceNibbler}
 import dev.ligature.lig.{createIdentifier, parseIntegerLiteral, parseStringLiteral}
 
 import scala.collection.mutable.{ArrayBuffer, HashMap}
@@ -87,6 +82,7 @@ def createIdentifier(id: String): Either[LigError, Identifier] =
     .fromString(id)
     .left
     .map(_ => LigError("Invalid Identifier Id - $id"))
+
 
 def parseIntegerLiteral(gaze: Gaze[Char]): Either[LigError, LigatureLiteral.IntegerLiteral] =
   gaze.attempt(numberNibbler) match {

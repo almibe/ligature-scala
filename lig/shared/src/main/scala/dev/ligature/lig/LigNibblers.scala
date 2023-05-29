@@ -23,9 +23,7 @@ import dev.ligature.{Identifier, Statement, LigatureLiteral, Value}
 
 object LigNibblers {
   val whiteSpaceNibbler = takeCharacters(' ', '\t')
-  val whiteSpaceAndNewLineNibbler = takeAll(
-    takeFirst(takeString(" "), takeString("\n"), takeString("\r\n"), takeString("\t"))
-  )
+  val whiteSpaceAndNewLineNibbler = takeAll(takeFirst(takeString(" "), takeString("\n"), takeString("\r\n"), takeString("\t")))
   val numberNibbler =
     takeAll(optional(take('-')), takeCharacters(('0' to '9').toSeq*))
 
@@ -98,8 +96,8 @@ object LigNibblers {
     (('a' to 'z') ++ ('A' to 'Z') ++ ('0' to '9')).toList.appended('_')
 
   val prefixNameNibbler = takeCharacters(
-    validPrefixName: _*
-  ) // matches _a-zA-Z0-9, TODO probably shouldn't make names that start with numbers
+      validPrefixName: _*
+    ) // matches _a-zA-Z0-9, TODO probably shouldn't make names that start with numbers
   val copyNibbler = takeString("^") // matches ^
 
   val idGenNibbler = takeString("{}") // matches {}
