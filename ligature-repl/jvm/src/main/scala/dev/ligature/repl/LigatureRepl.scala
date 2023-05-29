@@ -22,10 +22,12 @@ import cats.effect.{IO, Resource}
 import cats.effect.IOApp
 import cats.effect.ExitCode
 import dev.ligature.inmemory.createInMemoryLigature
+import dev.ligature.xodus.createXodusLigature
 import dev.ligature.Ligature
 import dev.ligature.wander.evalString
 import dev.ligature.wander.common
 import dev.ligature.wander.Bindings
+import java.nio.file.Path
 
 case class TerminalResources(val terminal: Terminal, val reader: LineReader)
 
@@ -42,7 +44,8 @@ val terminalResource: Resource[IO, TerminalResources] =
 
 object Main extends IOApp {
   override def run(args: List[String]): IO[ExitCode] =
-    createInMemoryLigature().use { ligature =>
+    val path = Path.of(s"${System.getProperty("user.home")}${System.getProperty("file.separator")}.ligature")
+    createXodusLigature(path).use { ligature =>
       terminalResource.use { terminal =>
         val bindings = instanceMode(ligature)
         for {
