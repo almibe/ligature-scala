@@ -27,5 +27,5 @@ import dev.ligature.wander.common
   println("---")
   val result = run(input, common())
   println("Result")
-  //println(result.getOrElse(???))
+  // println(result.getOrElse(???))
 }
