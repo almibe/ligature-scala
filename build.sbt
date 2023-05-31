@@ -1,4 +1,4 @@
-lazy val scala3Version = "3.2.2"
+lazy val scala3Version = "3.3.0"
 
 ThisBuild / version := "0.1.0-SNAPSHOT"
 ThisBuild / organization := "dev.ligature"
@@ -77,7 +77,7 @@ lazy val ligatureInMemory = crossProject(JSPlatform, JVMPlatform)
   .in(file("ligature-in-memory"))
   .settings(
     name := "ligature-in-memory",
-    scalaVersion := scala3Version,
+    scalaVersion := scala3Version
   )
   .dependsOn(ligature, idgen, ligatureTestSuite % Test)
   .disablePlugins(RevolverPlugin)
@@ -143,7 +143,7 @@ lazy val ligatureHttp = crossProject(JVMPlatform)
     libraryDependencies += "org.http4s" %% "http4s-dsl" % http4sVersion,
     libraryDependencies += "org.http4s" %% "http4s-ember-server" % http4sVersion,
     libraryDependencies += "org.http4s" %% "http4s-ember-client" % http4sVersion,
-    libraryDependencies += "com.google.code.gson" % "gson" % "2.9.0",
+    libraryDependencies += "com.google.code.gson" % "gson" % "2.9.0"
   )
   .dependsOn(ligature, lig, wander)
   .disablePlugins(RevolverPlugin)
@@ -192,7 +192,7 @@ lazy val ligatureRepl = crossProject(JVMPlatform)
     name := "ligature-repl",
     scalaVersion := scala3Version,
     libraryDependencies += "org.jline" % "jline" % jlineVersion,
-    libraryDependencies += "org.jline" % "jline-terminal-jansi" % jlineVersion,
+    libraryDependencies += "org.jline" % "jline-terminal-jansi" % jlineVersion
   )
   .dependsOn(ligature, lig, wander, ligatureInMemory, ligatureXodus)
   .disablePlugins(RevolverPlugin)
