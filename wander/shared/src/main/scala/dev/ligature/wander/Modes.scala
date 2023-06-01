@@ -99,9 +99,23 @@ def instanceMode(instance: Ligature): Bindings = {
         case _ => ???
   )).getOrElse(???)
 
-  //TODO removeStatement
-  //TODO addAll
-  //TODO removeAll
+  bindings = bindings.bindVariable(Name("query"), WanderValue.NativeFunction(
+    List(Parameter(Name("datasetName"), WanderType.String)),
+    (arguments: Seq[Term], bindings: Bindings) =>
+      (arguments(0), arguments(1), arguments(2), arguments(3)) match
+        case (Term.StringLiteral(datasetName), Term.IdentifierLiteral(entityIdentifier),
+          Term.IdentifierLiteral(attributeIdentifier), valueTerm) =>
+            val dataset = Dataset.fromString(datasetName).getOrElse(???)
+            val entity = Some(entityIdentifier)
+            val attribute = Some(attributeIdentifier)
+            val value = None
+            instance.query(dataset) { tx =>
+              tx.matchStatements(entity, attribute, value)
+                .map(statementToWanderValue)
+                .compile.toList.map(WanderValue.ListValue(_))
+            }
+        case _ => ???
+  )).getOrElse(???)
   bindings
 }
 
