@@ -4,15 +4,7 @@
 
 package dev.ligature.xodus
 
-import dev.ligature.{
-  Dataset,
-  Identifier,
-  Ligature,
-  LigatureError,
-  QueryTx,
-  Statement,
-  Value,
-}
+import dev.ligature.{Dataset, Identifier, Ligature, LigatureError, QueryTx, Statement, Value}
 import cats.effect.IO
 import fs2.Stream
 
@@ -75,7 +67,7 @@ object LigatureValueType:
     case LigatureValueType.Bytes.id      => LigatureValueType.Bytes
 
 def createXodusLigature(path: Path): Resource[IO, Ligature] =
-  Resource.make{
+  Resource.make {
     IO {
       val environment = Environments.newInstance(path.toFile(), new EnvironmentConfig)
       val ligatureInstance = XodusLigature(environment)
@@ -88,18 +80,16 @@ def createXodusLigature(path: Path): Resource[IO, Ligature] =
 private final class XodusLigature(environment: Environment) extends Ligature with XodusOperations {
 
   def readOnlyTransaction(): Stream[IO, Transaction] =
-    Stream.bracket(IO(environment.beginReadonlyTransaction())){
-      tx => IO {
-        if !tx.isFinished() then
-          tx.abort()
+    Stream.bracket(IO(environment.beginReadonlyTransaction())) { tx =>
+      IO {
+        if !tx.isFinished() then tx.abort()
       }
     }
 
   def readWriteTransaction(): Stream[IO, Transaction] =
-    Stream.bracket(IO(environment.beginTransaction())) {
-      tx => IO {
-        if !tx.isFinished() then
-          tx.commit()
+    Stream.bracket(IO(environment.beginTransaction())) { tx =>
+      IO {
+        if !tx.isFinished() then tx.commit()
       }
     }
 
@@ -112,27 +102,39 @@ private final class XodusLigature(environment: Environment) extends Ligature wit
           queryTx.allStatements()
     }
 
-  override def addStatements(dataset: Dataset, statements: Stream[cats.effect.IO, Statement]): IO[Unit] =
-    readWriteTransaction().flatMap { tx =>
-      fetchDatasetID(dataset, tx) match
-        case None => ???
-        case Some(datasetId) =>
-          val writeTx = XodusWriteTx(tx, this, datasetId)
-          statements.foreach { statement =>
-            writeTx.addStatement(statement)
-          }
-    }.compile.drain
+  override def addStatements(
+      dataset: Dataset,
+      statements: Stream[cats.effect.IO, Statement]
+  ): IO[Unit] =
+    readWriteTransaction()
+      .flatMap { tx =>
+        fetchDatasetID(dataset, tx) match
+          case None => ???
+          case Some(datasetId) =>
+            val writeTx = XodusWriteTx(tx, this, datasetId)
+            statements.foreach { statement =>
+              writeTx.addStatement(statement)
+            }
+      }
+      .compile
+      .drain
 
-  override def removeStatements(dataset: Dataset, statements: Stream[cats.effect.IO, Statement]): IO[Unit] =
-    readWriteTransaction().flatMap { tx =>
-      fetchDatasetID(dataset, tx) match
-        case None => ???
-        case Some(datasetId) =>
-          val writeTx = XodusWriteTx(tx, this, datasetId)
-          statements.foreach { statement =>
-            writeTx.removeStatement(statement)
-          }
-    }.compile.drain
+  override def removeStatements(
+      dataset: Dataset,
+      statements: Stream[cats.effect.IO, Statement]
+  ): IO[Unit] =
+    readWriteTransaction()
+      .flatMap { tx =>
+        fetchDatasetID(dataset, tx) match
+          case None => ???
+          case Some(datasetId) =>
+            val writeTx = XodusWriteTx(tx, this, datasetId)
+            statements.foreach { statement =>
+              writeTx.removeStatement(statement)
+            }
+      }
+      .compile
+      .drain
 
   /** This method is ran once at the start to make sure all Stores exist.
     * This is done so that Stores can be opened in readonly mode.
@@ -199,7 +201,7 @@ private final class XodusLigature(environment: Environment) extends Ligature wit
   /** Check if a given Dataset exists. */
   override def datasetExists(dataset: Dataset): IO[Boolean] =
     readOnlyTransaction()
-      .map { tx => fetchDatasetID(dataset, tx).isDefined }
+      .map(tx => fetchDatasetID(dataset, tx).isDefined)
       .compile
       .onlyOrError
 
