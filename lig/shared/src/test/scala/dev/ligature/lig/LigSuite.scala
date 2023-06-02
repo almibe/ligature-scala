@@ -62,7 +62,7 @@ class LigSuite extends FunSuite {
     val expectedStatements = Set(
       Statement(identifier("a"), identifier("b"), identifier("c")),
       Statement(identifier("a"), identifier("b"), LigatureLiteral.IntegerLiteral(123)),
-      Statement(identifier("a"), identifier("b"), LigatureLiteral.StringLiteral("Test"))
+      Statement(identifier("a"), identifier("b"), LigatureLiteral.StringLiteral("Test")),
     )
     val resStatements = read(statements)
     resStatements match {
