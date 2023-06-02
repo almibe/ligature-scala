@@ -26,6 +26,11 @@ class ParserSuite extends FunSuite {
     val result = Right(Seq(Term.NameTerm(Name("test")), Term.NameTerm(Name("test2"))))
     check(script, result)
   }
+  test("parse nothing keyword") {
+    val script = "nothing"
+    val result = Right(Seq(Term.NothingLiteral))
+    check(script, result)
+  }
   test("parse Identifier") {
     val script = "<test> <test2>"
     val result = Right(Seq(ident("test"), ident("test2")))
@@ -49,6 +54,11 @@ class ParserSuite extends FunSuite {
   test("parse Function Calls") {
     val script = "not(false)"
     val result = Right(Seq(Term.FunctionCall(Name("not"), Seq(Term.BooleanLiteral(false)))))
+    check(script, result)
+  }
+  test("parse Function Call with question mark argument") {
+    val script = "query(? ? ?)"
+    val result = Right(Seq(Term.FunctionCall(Name("query"), Seq(Term.QuestionMark, Term.QuestionMark, Term.QuestionMark))))
     check(script, result)
   }
   test("parse empty List") {

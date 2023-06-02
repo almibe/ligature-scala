@@ -60,14 +60,14 @@ class InstanceModeSuite extends WanderSuiteInstanceMode {
   }
   test("query Statements full wildcard match") {
     val input = """addDataset("hello") addStatements("hello" [[<a> <b> <c>][<a2> <b2> <c2>][<e> <f> <g>]]) 
-                  |query("hello" _ _ _)""".stripMargin
-    val result = "[[<a> <b> <c>][<a2> <b2> <c2>][<e> <f> <g>]]"
+                  |query("hello" ? ? ?)""".stripMargin
+    val result = "[[<a> <b> <c>] [<a2> <b2> <c2>] [<e> <f> <g>]]"
     check(input, result)
   }
-  test("query Statements partial wildcard match".ignore) {
+  test("query Statements partial wildcard match") {
     val input = """addDataset("hello") addStatements("hello" [[<a> <b> <c>][<a2> <b> <c2>][<e> <f> <g>]]) 
-                  |query("hello" _ <b> _)""".stripMargin
-    val result = "[[<a> <b> <c>][<a2> <b> <c2>]]"
+                  |query("hello" ? <b> ?)""".stripMargin
+    val result = "[[<a> <b> <c>] [<a2> <b> <c2>]]"
     check(input, result)
   }
 }

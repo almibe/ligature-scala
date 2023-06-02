@@ -89,3 +89,7 @@ def evalTerm(term: Term, bindings: Bindings): IO[EvalResult] =
           case EvalResult(WanderValue.BooleanValue(false), bindings) => evalTerm(elseBody, bindings.newScope())
           case _ => IO.raiseError(LigatureError("If expressions require Boolean values for conditionals."))
       } yield EvalResult(res.result, bindings)
+    case Term.NothingLiteral =>
+      IO.pure(EvalResult(WanderValue.Nothing, bindings))
+    case Term.QuestionMark =>
+      IO.pure(EvalResult(WanderValue.Nothing, bindings))

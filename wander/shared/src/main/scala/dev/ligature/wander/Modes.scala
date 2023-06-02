@@ -7,7 +7,7 @@ package dev.ligature.wander
 import dev.ligature.wander.WanderValue
 import dev.ligature.wander.{Parameter, ScriptResult}
 
-import dev.ligature.{Ligature, Dataset}
+import dev.ligature.{Ligature, Dataset, Value}
 import dev.ligature.wander.WanderType
 import dev.ligature.Identifier
 import dev.ligature.LigatureError
@@ -99,16 +99,27 @@ def instanceMode(instance: Ligature): Bindings = {
         case _ => ???
   )).getOrElse(???)
 
+  def termToIdentifierOption(term: Term): Option[Identifier] =
+    term match
+      case Term.NothingLiteral | Term.QuestionMark => None
+      case Term.IdentifierLiteral(identifier) => Some(identifier)
+      case _ => ???
+
+  def termToValueOption(term: Term): Option[Value] =
+    term match
+      case Term.NothingLiteral | Term.QuestionMark => None
+      case Term.IdentifierLiteral(identifier) => Some(identifier)
+      case _ => ???
+
   bindings = bindings.bindVariable(Name("query"), WanderValue.NativeFunction(
     List(Parameter(Name("datasetName"), WanderType.String)),
     (arguments: Seq[Term], bindings: Bindings) =>
       (arguments(0), arguments(1), arguments(2), arguments(3)) match
-        case (Term.StringLiteral(datasetName), Term.IdentifierLiteral(entityIdentifier),
-          Term.IdentifierLiteral(attributeIdentifier), valueTerm) =>
+        case (Term.StringLiteral(datasetName), entityTerm, attributeTerm, valueTerm) =>
             val dataset = Dataset.fromString(datasetName).getOrElse(???)
-            val entity = Some(entityIdentifier)
-            val attribute = Some(attributeIdentifier)
-            val value = None
+            val entity = termToIdentifierOption(entityTerm)
+            val attribute = termToIdentifierOption(attributeTerm)
+            val value = termToValueOption(valueTerm)
             instance.query(dataset) { tx =>
               tx.matchStatements(entity, attribute, value)
                 .map(statementToWanderValue)

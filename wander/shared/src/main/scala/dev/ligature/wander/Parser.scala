@@ -26,6 +26,8 @@ enum Term:
   case IntegerLiteral(value: Long)
   case StringLiteral(value: String)
   case BooleanLiteral(value: Boolean)
+  case NothingLiteral
+  case QuestionMark
   case List(value: Seq[Term])
   case LetBinding(name: Name, value: Term)
   case FunctionCall(name: Name, arguments: Seq[Term])
@@ -62,6 +64,16 @@ def parse(script: Seq[Token]): Either[LigatureError, Seq[Term]] = {
       }
   }
 }
+
+val nothingNib: Nibbler[Token, Term] = gaze =>
+  gaze.next() match
+    case Some(Token.NothingKeyword) => Some(List(Term.NothingLiteral))
+    case _ => None
+
+val questionMarkTermNib: Nibbler[Token, Term] = gaze =>
+  gaze.next() match
+    case Some(Token.QuestionMark) => Some(List(Term.QuestionMark))
+    case _ => None
 
 val booleanNib: Nibbler[Token, Term.BooleanLiteral] = gaze =>
   gaze.next() match
@@ -122,15 +134,6 @@ val wanderFunctionNib: Nibbler[Token, Term.WanderFunction] = { gaze =>
 //   take(Token("Value", TokenType.Name)).map(_ => List(WanderType.Value))
 // )
 
-// val elseIfExpressionNib: Nibbler[Token, ElseIf] = { gaze =>
-//   for {
-//     _ <- gaze.attempt(elseKeywordNib)
-//     _ <- gaze.attempt(ifKeywordNib)
-//     condition <- gaze.attempt(expressionNib)
-//     body <- gaze.attempt(expressionNib)
-//   } yield Seq(ElseIf(condition.head, body.head))
-// }
-
 val elseExpressionNib: Nibbler[Token, Term] = { gaze =>
   for {
     _ <- gaze.attempt(take(Token.ElseKeyword))
@@ -143,13 +146,11 @@ val ifExpressionNib: Nibbler[Token, Term.IfExpression] = { gaze =>
     _ <- gaze.attempt(take(Token.IfKeyword))
     condition <- gaze.attempt(expressionNib)
     body <- gaze.attempt(expressionNib)
-    //elseIfs <- gaze.attempt(optional(repeat(elseIfExpressionNib)))
     `else` <- gaze.attempt(optional(elseExpressionNib))
   } yield Seq(
     Term.IfExpression(
       condition.head,
       body.head,
-      //elseIfs.toList,
       `else`.head
     )
   )
@@ -183,7 +184,9 @@ val expressionNib =
     stringNib,
     integerNib,
     listNib,
-    booleanNib
+    booleanNib,
+    nothingNib,
+    questionMarkTermNib
   )
 
 val letStatementNib: Nibbler[Token, Term] = { gaze =>

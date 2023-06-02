@@ -43,10 +43,12 @@ class LexerSuite extends FunSuite {
     check(script, tokens)
   }
   test("tokenize symbols") {
-    val script = "{}:()][\n\r\n->if elsif else = let --test"
-    val tokens = Right(Seq(Token.OpenBrace, Token.CloseBrace, Token.Colon, Token.OpenParen, Token.CloseParen,
-    Token.CloseBracket, Token.OpenBracket, Token.NewLine, Token.NewLine,
-    Token.Arrow, Token.IfKeyword, sp, Token.ElsifKeyword, sp, Token.ElseKeyword, sp, Token.EqualSign, sp, Token.LetKeyword, sp, Token.Comment))
+    val script = "?{}:()][\n\r\n->if elsif else = let nothing --test"
+    val tokens = Right(Seq(
+      Token.QuestionMark, Token.OpenBrace, Token.CloseBrace, Token.Colon, Token.OpenParen, Token.CloseParen,
+      Token.CloseBracket, Token.OpenBracket, Token.NewLine, Token.NewLine,
+      Token.Arrow, Token.IfKeyword, sp, Token.ElsifKeyword, sp, Token.ElseKeyword, sp, Token.EqualSign,
+      sp, Token.LetKeyword, sp, Token.NothingKeyword, sp, Token.Comment))
     check(script, tokens)
   }
 }
