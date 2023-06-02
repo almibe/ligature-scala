@@ -29,7 +29,7 @@ enum Token:
   case Name(value: String)
   case OpenBrace, CloseBrace, Colon, OpenParen, CloseParen, NewLine,
     Arrow, IfKeyword, ElsifKeyword, ElseKeyword, EqualSign, LetKeyword, Comment,
-    OpenBracket, CloseBracket
+    OpenBracket, CloseBracket, NothingKeyword, QuestionMark
 
 def tokenize(input: String): Either[LigatureError, Seq[Token]] = {
   val gaze = Gaze.from(input)
@@ -78,9 +78,13 @@ val nameTokenNib = takeAll(
       case "else"        => Seq(Token.ElseKeyword)
       case "true"        => Seq(Token.BooleanLiteral(true))
       case "false"       => Seq(Token.BooleanLiteral(false))
+      case "nothing"     => Seq(Token.NothingKeyword)
       case value: String => Seq(Token.Name(value))
     }
   }
+
+val questionMarkNib =
+  takeString("?").map(res => Seq(Token.QuestionMark))
 
 val equalSignTokenNib =
   takeString("=").map(res => Seq(Token.EqualSign))
@@ -135,6 +139,7 @@ val tokensNib: Nibbler[Char, Token] = repeat(
     closeBracketTokenNib,
     stringTokenNib,
     commentTokenNib,
-    equalSignTokenNib
+    equalSignTokenNib,
+    questionMarkNib
   )
 )

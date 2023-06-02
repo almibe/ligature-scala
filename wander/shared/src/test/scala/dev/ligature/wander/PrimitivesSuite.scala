@@ -53,4 +53,9 @@ class PrimitivesSuite extends munit.CatsEffectSuite {
     val result = WanderValue.LigatureValue(LigatureLiteral.StringLiteral("hello world"))
     check(script, result)
   }
+  test("nothing literal") {
+    val script = "nothing"
+    val result = WanderValue.Nothing
+    check(script, result)
+  }
 }

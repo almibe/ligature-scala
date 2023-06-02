@@ -46,4 +46,28 @@ class InstanceModeSuite extends WanderSuiteInstanceMode {
     val result = "[[<a> <b> <c>] [<e> <f> <g>]]"
     check(input, result)
   }
+  test("query Statements") {
+    val input = """addDataset("hello") addStatements("hello" [[<a> <b> <c>][<a2> <b2> <c2>][<e> <f> <g>]]) 
+                  |query("hello" <a> <b> <c>)""".stripMargin
+    val result = "[[<a> <b> <c>]]"
+    check(input, result)
+  }
+  test("query Statements no match") {
+    val input = """addDataset("hello") addStatements("hello" [[<a> <b> <c>][<a2> <b2> <c2>][<e> <f> <g>]]) 
+                  |query("hello" <a1> <b> <c>)""".stripMargin
+    val result = "[]"
+    check(input, result)
+  }
+  test("query Statements full wildcard match") {
+    val input = """addDataset("hello") addStatements("hello" [[<a> <b> <c>][<a2> <b2> <c2>][<e> <f> <g>]]) 
+                  |query("hello" ? ? ?)""".stripMargin
+    val result = "[[<a> <b> <c>] [<a2> <b2> <c2>] [<e> <f> <g>]]"
+    check(input, result)
+  }
+  test("query Statements partial wildcard match") {
+    val input = """addDataset("hello") addStatements("hello" [[<a> <b> <c>][<a2> <b> <c2>][<e> <f> <g>]]) 
+                  |query("hello" ? <b> ?)""".stripMargin
+    val result = "[[<a> <b> <c>] [<a2> <b> <c2>]]"
+    check(input, result)
+  }
 }
