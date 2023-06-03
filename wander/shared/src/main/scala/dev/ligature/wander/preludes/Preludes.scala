@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-package dev.ligature.wander
+package dev.ligature.wander.preludes
 
 import dev.ligature.wander.WanderValue
 import dev.ligature.wander.{Parameter, ScriptResult}
@@ -16,8 +16,9 @@ import cats.effect.IO
 import dev.ligature.Statement
 import fs2.Stream
 import scala.collection.mutable.ListBuffer
+import dev.ligature.wander.*
 
-def instanceMode(instance: Ligature): Bindings = {
+def instancePrelude(instance: Ligature): Bindings = {
   var bindings = common()
 
   bindings = bindings.bindVariable(Name("datasets"), WanderValue.NativeFunction(
@@ -287,7 +288,7 @@ def common(): Bindings = {
 def datasetModeBindings(bindings: Bindings, dataset: Dataset): Bindings =
   bindings
 
-//def instanceModeBindings(bindings: Bindings): Bindings = {
+//def instancePreludeBindings(bindings: Bindings): Bindings = {
 //// function instanceScope(scope: ExecutionScope, bindings: Bindings) {
 ////     // allDatasets(): Promise<Array<Dataset>>;
 ////     bindings.bind(Name("allDatasets"), NativeFunction([], (_bindings: Bindings) => {

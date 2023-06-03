@@ -8,6 +8,7 @@ import dev.ligature.{Identifier, LigatureLiteral, LigatureError}
 import dev.ligature.wander.Token
 import dev.ligature.wander.ScriptResult
 import cats.effect.IO
+import dev.ligature.wander.preludes.common
 
 class PrimitivesSuite extends munit.CatsEffectSuite {
   def check(script: String, expected: ScriptResult) =

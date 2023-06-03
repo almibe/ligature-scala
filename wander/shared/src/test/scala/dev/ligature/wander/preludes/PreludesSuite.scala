@@ -2,17 +2,19 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-package dev.ligature.wander
+package dev.ligature.wander.preludes
 
 import dev.ligature.{Identifier, LigatureLiteral, LigatureError, Statement}
 import dev.ligature.wander.Token
 import dev.ligature.wander.ScriptResult
 import cats.effect.IO
 import scala.collection.mutable.ListBuffer
+import dev.ligature.wander.preludes.termsToStatements
+import dev.ligature.wander.*
 
 def i(i: String): Identifier = Identifier.fromString(i).getOrElse(???)
 
-class ModesSuite extends munit.FunSuite {
+class PreludesSuite extends munit.FunSuite {
   test("termsToStatements empty input") {
     val input = Seq()
     val expected = Right(Seq())
@@ -29,7 +31,7 @@ class ModesSuite extends munit.FunSuite {
   }
 }
 
-class InstanceModeSuite extends WanderSuiteInstanceMode {
+class InstancePreludeSuite extends WanderSuiteInstancePrelude {
   test("add/remove Datasets") {
     val input = """addDataset("hello") addDataset("hello2") removeDataset("hello2") datasets()"""
     val result = """["hello"]""" //WanderValue.ListValue(Seq(WanderValue.LigatureValue(LigatureLiteral.StringLiteral("hello"))))

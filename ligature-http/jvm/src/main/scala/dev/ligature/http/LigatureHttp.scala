@@ -21,7 +21,7 @@ import dev.ligature.lig.{LigError, read, write}
 import dev.ligature.wander.run
 import dev.ligature.wander.printWanderValue
 import dev.ligature.wander.ScriptResult
-import dev.ligature.wander.instanceMode
+import dev.ligature.wander.preludes.instancePrelude
 
 enum AuthMode:
   case None
@@ -146,7 +146,7 @@ class LigatureHttp(val ligature: Ligature, val mode: AuthMode, port: Port) {
       request: Request[IO]
   ): IO[Response[IO]] =
     val body: IO[String] = request.bodyText.compile.string
-    body.flatMap(script => run(script, instanceMode(ligature))).flatMap { value =>
+    body.flatMap(script => run(script, instancePrelude(ligature))).flatMap { value =>
         Ok(printWanderValue(value))
     }
 }

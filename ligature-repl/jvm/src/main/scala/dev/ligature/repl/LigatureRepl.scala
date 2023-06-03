@@ -12,7 +12,7 @@ import org.jline.terminal.Terminal
 import org.jline.terminal.TerminalBuilder
 import dev.ligature.wander.run
 import dev.ligature.wander.printResult
-import dev.ligature.wander.instanceMode
+import dev.ligature.wander.preludes.instancePrelude
 import dev.ligature.inmemory.InMemoryLigature
 import cats.effect.unsafe.implicits.global
 import dev.ligature.wander.WanderValue
@@ -25,7 +25,7 @@ import dev.ligature.inmemory.createInMemoryLigature
 import dev.ligature.xodus.createXodusLigature
 import dev.ligature.Ligature
 import dev.ligature.wander.evalString
-import dev.ligature.wander.common
+import dev.ligature.wander.preludes.common
 import dev.ligature.wander.Bindings
 import java.nio.file.Path
 
@@ -47,7 +47,7 @@ object Main extends IOApp {
     val path = Path.of(s"${System.getProperty("user.home")}${System.getProperty("file.separator")}.ligature")
     createXodusLigature(path).use { ligature =>
       terminalResource.use { terminal =>
-        val bindings = instanceMode(ligature)
+        val bindings = instancePrelude(ligature)
         for {
           _ <- IO.println("Welcome to Ligature's REPL!")
           res <- repl(terminal, bindings)

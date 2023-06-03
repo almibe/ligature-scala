@@ -10,16 +10,17 @@ import dev.ligature.wander.ScriptResult
 import cats.effect.IO
 import dev.ligature.LigatureLiteral
 import dev.ligature.inmemory.createInMemoryLigature
+import dev.ligature.wander.preludes.{instancePrelude, common}
 
 class WanderSuiteCommonMode extends munit.CatsEffectSuite {
   def check(script: String, expected: ScriptResult) =
     assertIO(run(script, common()), expected)
 }
 
-class WanderSuiteInstanceMode extends munit.CatsEffectSuite {
+class WanderSuiteInstancePrelude extends munit.CatsEffectSuite {
   def check(script: String, expected: String) =
     createInMemoryLigature().use { instance =>
-      val res = run(script, instanceMode(instance)).map(printWanderValue)
+      val res = run(script, instancePrelude(instance)).map(printWanderValue)
       assertIO(res, expected)
     }
 }
