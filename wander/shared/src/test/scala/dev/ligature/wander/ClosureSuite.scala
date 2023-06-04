@@ -19,6 +19,7 @@ import dev.ligature.wander.Token
 // }
 import dev.ligature.wander.WanderType
 import cats.effect.IO
+import dev.ligature.wander.preludes.common
 
 class ClosureSuite extends munit.CatsEffectSuite {
   def check(script: String, expected: ScriptResult) =

@@ -7,7 +7,7 @@ package dev.ligature.wander
 import dev.ligature.Dataset
 import dev.ligature.wander.parse
 import dev.ligature.wander.tokenize
-import dev.ligature.wander.common
+import dev.ligature.wander.preludes.common
 
 @main def wanderDebug() = {
   val input = """let identity = (value:Value) -> Value {
