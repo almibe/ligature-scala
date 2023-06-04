@@ -113,7 +113,6 @@ trait Ligature {
   * Dataset
   */
 trait QueryTx {
-
   /** Returns all PersistedStatements that match the given criteria. If a
     * parameter is None then it matches all, so passing all Nones is the same as
     * calling allStatements.

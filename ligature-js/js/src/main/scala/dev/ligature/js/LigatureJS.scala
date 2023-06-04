@@ -12,6 +12,7 @@ import dev.ligature.wander.instanceMode
 import dev.ligature.inmemory.InMemoryLigature
 
 @JSExportTopLevel("run")
-def run(script: String): String =
+def run(script: String): String = {
   ???
 //  wanderRun(script, instanceMode(InMemoryLigature())).toString
+}

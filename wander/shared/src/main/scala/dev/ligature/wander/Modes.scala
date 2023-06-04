@@ -20,183 +20,127 @@ import scala.collection.mutable.ListBuffer
 def instanceMode(instance: Ligature): Bindings = {
   var bindings = common()
 
-  bindings = bindings
-    .bindVariable(
-      Name("datasets"),
-      WanderValue.NativeFunction(
-        List(),
-        (arguments: Seq[Term], binding: Bindings) =>
+  bindings = bindings.bindVariable(Name("datasets"), WanderValue.NativeFunction(
+    List(),
+    (arguments: Seq[Term], binding: Bindings) =>
+      instance.allDatasets()
+        .compile.toList
+        .map { datasets => WanderValue.ListValue( datasets.map { ds => WanderValue.LigatureValue(LigatureLiteral.StringLiteral(ds.name.toString()))})}
+  )).getOrElse(???)
+
+  bindings = bindings.bindVariable(Name("addDataset"), WanderValue.NativeFunction(
+    List(Parameter(Name("message"), WanderType.String)),
+    (arguments: Seq[Term], binding: Bindings) =>
+      arguments.head match
+        case Term.StringLiteral(datasetName) =>
+          instance.createDataset(Dataset.fromString(datasetName).getOrElse(???)).map(_ => WanderValue.Nothing)
+        case _ => ???
+  )).getOrElse(???)
+
+  bindings = bindings.bindVariable(Name("removeDataset"), WanderValue.NativeFunction(
+    List(Parameter(Name("message"), WanderType.String)),
+    (arguments: Seq[Term], binding: Bindings) =>
+      arguments.head match
+        case Term.StringLiteral(datasetName) =>
+          instance.deleteDataset(Dataset.fromString(datasetName).getOrElse(???)).map(_ => WanderValue.Nothing)
+        case _ => ???
+  )).getOrElse(???)
+
+  bindings = bindings.bindVariable(Name("datasetExists"), WanderValue.NativeFunction(
+    List(Parameter(Name("message"), WanderType.String)),
+    (arguments: Seq[Term], binding: Bindings) =>
+      arguments.head match
+        case Term.StringLiteral(datasetName) =>
+          instance.datasetExists(Dataset.fromString(datasetName).getOrElse(???)).map(res => WanderValue.BooleanValue(res))
+        case _ => ???
+  )).getOrElse(???)
+
+  bindings = bindings.bindVariable(Name("allStatements"), WanderValue.NativeFunction(
+    List(),
+    (arguments: Seq[Term], binding: Bindings) =>
+      arguments.head match
+        case Term.StringLiteral(datasetName) =>
           instance
-            .allDatasets()
-            .compile
-            .toList
-            .map { datasets =>
-              WanderValue.ListValue(datasets.map { ds =>
-                WanderValue.LigatureValue(LigatureLiteral.StringLiteral(ds.name.toString()))
-              })
-            }
-      )
-    )
-    .getOrElse(???)
+            .allStatements(Dataset.fromString(datasetName).getOrElse(???))
+            .map(statementToWanderValue)
+            .compile.toList.map(WanderValue.ListValue(_))
+        case _ => ???
+  )).getOrElse(???)
 
-  bindings = bindings
-    .bindVariable(
-      Name("addDataset"),
-      WanderValue.NativeFunction(
-        List(Parameter(Name("message"), WanderType.String)),
-        (arguments: Seq[Term], binding: Bindings) =>
-          arguments.head match
-            case Term.StringLiteral(datasetName) =>
-              instance
-                .createDataset(Dataset.fromString(datasetName).getOrElse(???))
-                .map(_ => WanderValue.Nothing)
-            case _ => ???
-      )
-    )
-    .getOrElse(???)
+  bindings = bindings.bindVariable(Name("addStatements"), WanderValue.NativeFunction(
+    List(Parameter(Name("message"), WanderType.String)),
+    (arguments: Seq[Term], binding: Bindings) =>
+      (arguments(0), arguments(1)) match
+        case (Term.StringLiteral(datasetName),
+              Term.List(statementTerms)) =>
+                val dataset = Dataset.fromString(datasetName).getOrElse(???)
+                termsToStatements(statementTerms, ListBuffer()) match
+                  case Left(value) => ???
+                  case Right(statements) => 
+                    instance
+                      .addStatements(dataset, Stream.emits(statements))
+                      .map { _ => WanderValue.Nothing }
+        case _ => ???
+  )).getOrElse(???)
 
-  bindings = bindings
-    .bindVariable(
-      Name("removeDataset"),
-      WanderValue.NativeFunction(
-        List(Parameter(Name("message"), WanderType.String)),
-        (arguments: Seq[Term], binding: Bindings) =>
-          arguments.head match
-            case Term.StringLiteral(datasetName) =>
-              instance
-                .deleteDataset(Dataset.fromString(datasetName).getOrElse(???))
-                .map(_ => WanderValue.Nothing)
-            case _ => ???
-      )
-    )
-    .getOrElse(???)
-
-  bindings = bindings
-    .bindVariable(
-      Name("datasetExists"),
-      WanderValue.NativeFunction(
-        List(Parameter(Name("message"), WanderType.String)),
-        (arguments: Seq[Term], binding: Bindings) =>
-          arguments.head match
-            case Term.StringLiteral(datasetName) =>
-              instance
-                .datasetExists(Dataset.fromString(datasetName).getOrElse(???))
-                .map(res => WanderValue.BooleanValue(res))
-            case _ => ???
-      )
-    )
-    .getOrElse(???)
-
-  bindings = bindings
-    .bindVariable(
-      Name("allStatements"),
-      WanderValue.NativeFunction(
-        List(),
-        (arguments: Seq[Term], binding: Bindings) =>
-          arguments.head match
-            case Term.StringLiteral(datasetName) =>
-              instance
-                .allStatements(Dataset.fromString(datasetName).getOrElse(???))
-                .map(statementToWanderValue)
-                .compile
-                .toList
-                .map(WanderValue.ListValue(_))
-            case _ => ???
-      )
-    )
-    .getOrElse(???)
-
-  bindings = bindings
-    .bindVariable(
-      Name("addStatements"),
-      WanderValue.NativeFunction(
-        List(Parameter(Name("message"), WanderType.String)),
-        (arguments: Seq[Term], binding: Bindings) =>
-          (arguments(0), arguments(1)) match
-            case (Term.StringLiteral(datasetName), Term.List(statementTerms)) =>
-              val dataset = Dataset.fromString(datasetName).getOrElse(???)
-              termsToStatements(statementTerms, ListBuffer()) match
-                case Left(value) => ???
-                case Right(statements) =>
-                  instance
-                    .addStatements(dataset, Stream.emits(statements))
-                    .map(_ => WanderValue.Nothing)
-            case _ => ???
-      )
-    )
-    .getOrElse(???)
-
-  bindings = bindings
-    .bindVariable(
-      Name("removeStatements"),
-      WanderValue.NativeFunction(
-        List(Parameter(Name("message"), WanderType.String)),
-        (arguments: Seq[Term], binding: Bindings) =>
-          (arguments(0), arguments(1)) match
-            case (Term.StringLiteral(datasetName), Term.List(statementTerms)) =>
-              val dataset = Dataset.fromString(datasetName).getOrElse(???)
-              termsToStatements(statementTerms, ListBuffer()) match
-                case Left(value) => ???
-                case Right(statements) =>
-                  instance
-                    .removeStatements(dataset, Stream.emits(statements))
-                    .map(_ => WanderValue.Nothing)
-            case _ => ???
-      )
-    )
-    .getOrElse(???)
+  bindings = bindings.bindVariable(Name("removeStatements"), WanderValue.NativeFunction(
+    List(Parameter(Name("message"), WanderType.String)),
+    (arguments: Seq[Term], binding: Bindings) =>
+      (arguments(0), arguments(1)) match
+        case (Term.StringLiteral(datasetName),
+              Term.List(statementTerms)) =>
+                val dataset = Dataset.fromString(datasetName).getOrElse(???)
+                termsToStatements(statementTerms, ListBuffer()) match
+                  case Left(value) => ???
+                  case Right(statements) => 
+                    instance
+                      .removeStatements(dataset, Stream.emits(statements))
+                      .map { _ => WanderValue.Nothing }
+        case _ => ???
+  )).getOrElse(???)
 
   def termToIdentifierOption(term: Term): Option[Identifier] =
     term match
       case Term.NothingLiteral | Term.QuestionMark => None
-      case Term.IdentifierLiteral(identifier)      => Some(identifier)
-      case _                                       => ???
+      case Term.IdentifierLiteral(identifier) => Some(identifier)
+      case _ => ???
 
   def termToValueOption(term: Term): Option[Value] =
     term match
       case Term.NothingLiteral | Term.QuestionMark => None
-      case Term.IdentifierLiteral(identifier)      => Some(identifier)
-      case _                                       => ???
+      case Term.IdentifierLiteral(identifier) => Some(identifier)
+      case _ => ???
 
-  bindings = bindings
-    .bindVariable(
-      Name("query"),
-      WanderValue.NativeFunction(
-        List(Parameter(Name("datasetName"), WanderType.String)),
-        (arguments: Seq[Term], bindings: Bindings) =>
-          (arguments(0), arguments(1), arguments(2), arguments(3)) match
-            case (Term.StringLiteral(datasetName), entityTerm, attributeTerm, valueTerm) =>
-              val dataset = Dataset.fromString(datasetName).getOrElse(???)
-              val entity = termToIdentifierOption(entityTerm)
-              val attribute = termToIdentifierOption(attributeTerm)
-              val value = termToValueOption(valueTerm)
-              instance.query(dataset) { tx =>
-                tx.matchStatements(entity, attribute, value)
-                  .map(statementToWanderValue)
-                  .compile
-                  .toList
-                  .map(WanderValue.ListValue(_))
-              }
-            case _ => ???
-      )
-    )
-    .getOrElse(???)
+  bindings = bindings.bindVariable(Name("query"), WanderValue.NativeFunction(
+    List(Parameter(Name("datasetName"), WanderType.String)),
+    (arguments: Seq[Term], bindings: Bindings) =>
+      (arguments(0), arguments(1), arguments(2), arguments(3)) match
+        case (Term.StringLiteral(datasetName), entityTerm, attributeTerm, valueTerm) =>
+            val dataset = Dataset.fromString(datasetName).getOrElse(???)
+            val entity = termToIdentifierOption(entityTerm)
+            val attribute = termToIdentifierOption(attributeTerm)
+            val value = termToValueOption(valueTerm)
+            instance.query(dataset) { tx =>
+              tx.matchStatements(entity, attribute, value)
+                .map(statementToWanderValue)
+                .compile.toList.map(WanderValue.ListValue(_))
+            }
+        case _ => ???
+  )).getOrElse(???)
   bindings
 }
 
-def termsToStatements(
-    terms: Seq[Term],
-    statements: ListBuffer[Statement]
-): Either[LigatureError, Seq[Statement]] =
+def termsToStatements(terms: Seq[Term], statements: ListBuffer[Statement]): Either[LigatureError, Seq[Statement]] =
   if terms.nonEmpty then
     terms.head match
       case Term.List(statementTerms) =>
         termsToStatement(statementTerms) match
           case Right(statement) =>
             termsToStatements(terms.tail, statements += statement)
-          case Left(err) => Left(err)
+          case Left(err) => Left(err)        
       case _ => println(terms.head); ???
-  else Right(statements.toSeq)
+  else
+    Right(statements.toSeq)
 
 def termsToStatement(terms: Seq[Term]): Either[LigatureError, Statement] =
   if terms.size == 3 then
@@ -204,23 +148,18 @@ def termsToStatement(terms: Seq[Term]): Either[LigatureError, Statement] =
     val attribute = terms(1)
     val value = terms(2)
     (entity, attribute, value) match
-      case (
-            entity: Term.IdentifierLiteral,
-            attribute: Term.IdentifierLiteral,
-            value: Term.IdentifierLiteral
-          ) =>
+      case (entity: Term.IdentifierLiteral, attribute: Term.IdentifierLiteral, value: Term.IdentifierLiteral) =>
         Right(Statement(entity.value, attribute.value, value.value))
       case _ => ???
-  else ???
+  else
+    ???
 
 def statementToWanderValue(statement: Statement): WanderValue =
-  WanderValue.ListValue(
-    Seq(
-      WanderValue.LigatureValue(statement.entity),
-      WanderValue.LigatureValue(statement.attribute),
-      WanderValue.LigatureValue(statement.value)
-    )
-  )
+  WanderValue.ListValue(Seq(
+    WanderValue.LigatureValue(statement.entity),
+    WanderValue.LigatureValue(statement.attribute),
+    WanderValue.LigatureValue(statement.value)
+  ))
 
 // def createStandardBindings(dataset: Dataset): Bindings = {
 //   val bindings = common()
@@ -228,7 +167,8 @@ def statementToWanderValue(statement: Statement): WanderValue =
 // }
 
 /**
-  */
+ * 
+ */
 def common(): Bindings = {
   var stdLib = Bindings()
 
@@ -251,10 +191,9 @@ def common(): Bindings = {
           if arguments.size != 1 then
             IO.raiseError(LigatureError("`not` function requires 1 argument."))
           else
-            evalTerm(arguments.head, bindings).map {
+            evalTerm(arguments.head, bindings).map { 
               _ match
-                case EvalResult(b: WanderValue.BooleanValue, _) =>
-                  WanderValue.BooleanValue(!b.value)
+                case EvalResult(b: WanderValue.BooleanValue, _) => WanderValue.BooleanValue(!b.value)
                 case _ => throw LigatureError("`not` function requires 1 boolean argument.")
             }
       )
@@ -277,11 +216,11 @@ def common(): Bindings = {
             } yield (left, right)
             res.map { r =>
               (r._1.result, r._2.result) match
-                case (WanderValue.BooleanValue(left), WanderValue.BooleanValue(right)) =>
-                  WanderValue.BooleanValue(left && right)
+                case (WanderValue.BooleanValue(left), WanderValue.BooleanValue(right)) => WanderValue.BooleanValue(left && right)
                 case _ => throw LigatureError("`and` function requires two booleans")
             }
-          else IO.raiseError(LigatureError("`and` function requires two booleans"))
+          else
+            IO.raiseError(LigatureError("`and` function requires two booleans"))
       )
     )
     .getOrElse(???)
@@ -302,11 +241,11 @@ def common(): Bindings = {
             } yield (left, right)
             res.map { r =>
               (r._1.result, r._2.result) match
-                case (WanderValue.BooleanValue(left), WanderValue.BooleanValue(right)) =>
-                  WanderValue.BooleanValue(left || right)
+                case (WanderValue.BooleanValue(left), WanderValue.BooleanValue(right)) => WanderValue.BooleanValue(left || right)
                 case _ => throw LigatureError("`or` function requires two booleans")
             }
-          else IO.raiseError(LigatureError("`or` function requires two booleans"))
+          else
+            IO.raiseError(LigatureError("`or` function requires two booleans"))
       )
     )
     .getOrElse(???)
