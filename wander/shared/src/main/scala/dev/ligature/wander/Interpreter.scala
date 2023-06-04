@@ -9,16 +9,17 @@ import dev.ligature.LigatureLiteral
 import cats.effect.IO
 import cats.implicits._
 
-def eval(script: Seq[Term], bindings: Bindings): IO[EvalResult] = {
+def eval(script: Seq[Term], bindings: Bindings): IO[EvalResult] =
   script.foldLeft(IO.pure(EvalResult(WanderValue.Nothing, bindings))) { (lastResult, term) =>
     lastResult.flatMap { result =>
       evalTerm(term, result.bindings)
     }
   }
-}
 
 def evalAll(terms: Seq[Term], bindings: Bindings): IO[Seq[WanderValue]] =
-  terms.map { term => evalTerm(term, bindings) }.sequence.map { evalResult => evalResult.map { _.result } }
+  terms.map(term => evalTerm(term, bindings)).sequence.map { evalResult =>
+    evalResult.map(_.result)
+  }
 
 def evalTerm(term: Term, bindings: Bindings): IO[EvalResult] =
   term match
@@ -27,12 +28,14 @@ def evalTerm(term: Term, bindings: Bindings): IO[EvalResult] =
     case Term.IdentifierLiteral(value) =>
       IO.pure(EvalResult(WanderValue.LigatureValue(value), bindings))
     case Term.IntegerLiteral(value) =>
-      IO.pure(EvalResult(WanderValue.LigatureValue(LigatureLiteral.IntegerLiteral(value)), bindings))
+      IO.pure(
+        EvalResult(WanderValue.LigatureValue(LigatureLiteral.IntegerLiteral(value)), bindings)
+      )
     case Term.StringLiteral(value) =>
       IO.pure(EvalResult(WanderValue.LigatureValue(LigatureLiteral.StringLiteral(value)), bindings))
     case Term.NameTerm(value) =>
       bindings.read(value) match
-        case Left(value) => IO.raiseError(value)
+        case Left(value)  => IO.raiseError(value)
         case Right(value) => IO.pure(EvalResult(value, bindings))
     case Term.LetBinding(name, term) =>
       evalTerm(term, bindings).map { value =>
@@ -46,48 +49,53 @@ def evalTerm(term: Term, bindings: Bindings): IO[EvalResult] =
         EvalResult(WanderValue.ListValue(values), bindings)
       }
     case Term.FunctionCall(name, arguments) =>
-      //TODO val evaldArgs = evalArguments(arguments)
+      // TODO val evaldArgs = evalArguments(arguments)
       bindings.read(name) match {
         case Left(value) => IO.raiseError(value)
         case Right(value) =>
           value match {
-            case WanderValue.NativeFunction(parameters, body, output) => {
-              body(arguments, bindings).map { value => EvalResult(value, bindings) }
-            }
+            case WanderValue.NativeFunction(parameters, body, output) =>
+              body(arguments, bindings).map(value => EvalResult(value, bindings))
             case WanderValue.WanderFunction(parameters, body) =>
               if parameters.length == arguments.length then
                 var newScope = bindings.newScope()
                 arguments
                   .map { term =>
                     evalTerm(term, bindings)
-                  }.sequence.map { evalResults =>
+                  }
+                  .sequence
+                  .map { evalResults =>
                     val args = evalResults.map(_.result)
                     parameters.zip(args).foreach { (name, value) =>
                       newScope.bindVariable(name, value) match
                         case Left(value) => ???
-                        case Right(bindings) => 
+                        case Right(bindings) =>
                           newScope = bindings
                     }
-                  }.flatMap { _ =>
-                    eval(body, newScope).map { scriptResult => EvalResult(scriptResult.result, bindings) }
                   }
-              else
-                IO.raiseError(LigatureError("Argument and parameter size must be the same."))
+                  .flatMap { _ =>
+                    eval(body, newScope).map { scriptResult =>
+                      EvalResult(scriptResult.result, bindings)
+                    }
+                  }
+              else IO.raiseError(LigatureError("Argument and parameter size must be the same."))
             case _ => ???
           }
       }
-    case Term.WanderFunction(parameters, body) => {
+    case Term.WanderFunction(parameters, body) =>
       IO.pure(EvalResult(WanderValue.WanderFunction(parameters, body), bindings))
-    }
     case Term.Scope(terms) =>
-      eval(terms, bindings.newScope()).map { x => EvalResult(x.result, bindings) }
+      eval(terms, bindings.newScope()).map(x => EvalResult(x.result, bindings))
     case Term.IfExpression(ifConditional, ifBody, elseBody) =>
       for {
         cond <- evalTerm(ifConditional, bindings)
         res <- cond match
-          case EvalResult(WanderValue.BooleanValue(true), bindings) => evalTerm(ifBody, bindings.newScope())
-          case EvalResult(WanderValue.BooleanValue(false), bindings) => evalTerm(elseBody, bindings.newScope())
-          case _ => IO.raiseError(LigatureError("If expressions require Boolean values for conditionals."))
+          case EvalResult(WanderValue.BooleanValue(true), bindings) =>
+            evalTerm(ifBody, bindings.newScope())
+          case EvalResult(WanderValue.BooleanValue(false), bindings) =>
+            evalTerm(elseBody, bindings.newScope())
+          case _ =>
+            IO.raiseError(LigatureError("If expressions require Boolean values for conditionals."))
       } yield EvalResult(res.result, bindings)
     case Term.NothingLiteral =>
       IO.pure(EvalResult(WanderValue.Nothing, bindings))

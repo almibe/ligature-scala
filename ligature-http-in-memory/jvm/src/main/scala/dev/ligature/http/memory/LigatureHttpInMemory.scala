@@ -11,14 +11,14 @@ import dev.ligature.http.{AuthMode, runLigature}
 import dev.ligature.inmemory.createInMemoryLigature
 
 case class LigatureConfig(
-   authMode: AuthMode = AuthMode.None,
-   port: Port = Port.fromInt(4200).get,
+    authMode: AuthMode = AuthMode.None,
+    port: Port = Port.fromInt(4200).get
 )
 
 object MainLigatureHttp extends IOApp {
   def run(args: List[String]): IO[ExitCode] =
     createInMemoryLigature().use { instance =>
       val config = LigatureConfig()
-      runLigature(instance, config.authMode, config.port)  
+      runLigature(instance, config.authMode, config.port)
     }
 }
