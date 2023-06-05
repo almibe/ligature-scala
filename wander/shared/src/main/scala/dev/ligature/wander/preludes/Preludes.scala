@@ -107,17 +107,37 @@ def instancePrelude(instance: Ligature): Bindings = {
 
   bindings = bindings.bindVariable(Name("query"), WanderValue.NativeFunction(
     (arguments: Seq[Term], bindings: Bindings) =>
-      (arguments(0), arguments(1), arguments(2), arguments(3)) match
-        case (Term.StringLiteral(datasetName), entityTerm, attributeTerm, valueTerm) =>
-            val dataset = Dataset.fromString(datasetName).getOrElse(???)
-            val entity = termToIdentifierOption(entityTerm)
-            val attribute = termToIdentifierOption(attributeTerm)
-            val value = termToValueOption(valueTerm)
-            instance.query(dataset) { tx =>
-              tx.matchStatements(entity, attribute, value)
-                .map(statementToWanderValue)
-                .compile.toList.map(WanderValue.ListValue(_))
-            }
+      (arguments(0), arguments(1), arguments.lift(2), arguments.lift(3)) match
+        case (Term.StringLiteral(datasetName), entityTerm, Some(attributeTerm), Some(valueTerm)) =>
+          val dataset = Dataset.fromString(datasetName).getOrElse(???)
+          val entity = termToIdentifierOption(entityTerm)
+          val attribute = termToIdentifierOption(attributeTerm)
+          val value = termToValueOption(valueTerm)
+          instance.query(dataset) { tx =>
+            tx.matchStatements(entity, attribute, value)
+              .map(statementToWanderValue)
+              .compile.toList.map(WanderValue.ListValue(_))
+          }
+        case (Term.StringLiteral(datasetName), query: Term.WanderFunction, None, None) =>
+          query match
+            case Term.WanderFunction(name :: Nil, body) => 
+              val dataset = Dataset.fromString(datasetName).getOrElse(???)
+              instance.query(dataset) { tx =>
+                val matchFunction = WanderValue.NativeFunction((arguments, bindings) =>
+                  (arguments.lift(0), arguments.lift(1), arguments.lift(2)) match
+                    case (Some(entityTerm), Some(attributeTerm), Some(valueTerm)) =>
+                      val dataset = Dataset.fromString(datasetName).getOrElse(???)
+                      val entity = termToIdentifierOption(entityTerm)
+                      val attribute = termToIdentifierOption(attributeTerm)
+                      val value = termToValueOption(valueTerm)
+                      tx.matchStatements(entity, attribute, value)
+                        .map(statementToWanderValue)
+                        .compile.toList.map(WanderValue.ListValue(_))
+                    case _ => ???)
+                val newBindings = bindings.bindVariable(name, matchFunction).getOrElse(???)
+                eval(query.body, newBindings).map(_.result)
+              }
+            case _ => ???
         case _ => ???
   )).getOrElse(???)
   bindings
