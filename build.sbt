@@ -1,4 +1,4 @@
-lazy val scala3Version = "3.2.2"
+lazy val scala3Version = "3.3.0"
 
 ThisBuild / version := "0.1.0-SNAPSHOT"
 ThisBuild / organization := "dev.ligature"
@@ -8,8 +8,9 @@ val munitVersion = "1.0.0-M7"
 val catsEffectVersion = "3.5.0"
 val fs2Version = "3.7.0"
 val munitCatsEffect3Version = "2.0.0-M3"
-val http4sVersion = "1.0.0-M32"
+val http4sVersion = "1.0.0-M39"
 val jlineVersion = "3.23.0"
+val scodecVersion = "2.2.1"
 
 lazy val ligature = crossProject(JSPlatform, JVMPlatform)
   .in(file("ligature"))
@@ -102,7 +103,7 @@ lazy val ligatureXodus = crossProject(JVMPlatform)
     scalaVersion := scala3Version,
     libraryDependencies += "co.fs2" %%% "fs2-core" % fs2Version,
     libraryDependencies += "org.jetbrains.xodus" % "xodus-environment" % "2.0.1",
-    libraryDependencies += "org.scodec" % "scodec-core_3" % "2.1.0",
+    libraryDependencies += "org.scodec" % "scodec-core_3" % scodecVersion,
     libraryDependencies += "org.scalameta" %%% "munit" % munitVersion % Test,
     libraryDependencies += "org.typelevel" %%% "munit-cats-effect" % munitCatsEffect3Version % Test
   )
@@ -143,7 +144,6 @@ lazy val ligatureHttp = crossProject(JVMPlatform)
     libraryDependencies += "org.http4s" %% "http4s-dsl" % http4sVersion,
     libraryDependencies += "org.http4s" %% "http4s-ember-server" % http4sVersion,
     libraryDependencies += "org.http4s" %% "http4s-ember-client" % http4sVersion,
-    libraryDependencies += "com.google.code.gson" % "gson" % "2.9.0",
   )
   .dependsOn(ligature, lig, wander)
   .disablePlugins(RevolverPlugin)
@@ -157,7 +157,6 @@ lazy val ligatureHttpTestSuite = crossProject(JVMPlatform)
     libraryDependencies += "org.http4s" %% "http4s-dsl" % http4sVersion,
     libraryDependencies += "org.http4s" %% "http4s-ember-server" % http4sVersion,
     libraryDependencies += "org.http4s" %% "http4s-ember-client" % http4sVersion,
-    libraryDependencies += "com.google.code.gson" % "gson" % "2.9.0",
     libraryDependencies += "org.typelevel" %%% "munit-cats-effect" % munitCatsEffect3Version
   )
   .dependsOn(ligatureHttp, ligature, lig, wander)
