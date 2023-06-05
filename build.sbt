@@ -11,6 +11,7 @@ val munitCatsEffect3Version = "2.0.0-M3"
 val http4sVersion = "1.0.0-M39"
 val jlineVersion = "3.23.0"
 val scodecVersion = "2.2.1"
+val xodusVersion = "2.0.1"
 
 lazy val ligature = crossProject(JSPlatform, JVMPlatform)
   .in(file("ligature"))
@@ -102,7 +103,7 @@ lazy val ligatureXodus = crossProject(JVMPlatform)
     name := "ligature-xodus",
     scalaVersion := scala3Version,
     libraryDependencies += "co.fs2" %%% "fs2-core" % fs2Version,
-    libraryDependencies += "org.jetbrains.xodus" % "xodus-environment" % "2.0.1",
+    libraryDependencies += "org.jetbrains.xodus" % "xodus-environment" % xodusVersion,
     libraryDependencies += "org.scodec" % "scodec-core_3" % scodecVersion,
     libraryDependencies += "org.scalameta" %%% "munit" % munitVersion % Test,
     libraryDependencies += "org.typelevel" %%% "munit-cats-effect" % munitCatsEffect3Version % Test
