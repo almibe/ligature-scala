@@ -43,7 +43,7 @@ def printWanderValue(value: WanderValue): String = {
   value match {
     case WanderValue.BooleanValue(value) => value.toString()
     case WanderValue.LigatureValue(value) => writeValue(value)
-    case WanderValue.NativeFunction(parameters, body, output) => "[NativeFunction]"
+    case WanderValue.NativeFunction(body) => "[NativeFunction]"
     case WanderValue.Nothing => "nothing"
     case WanderValue.WanderFunction(parameters, body) => "[WanderFunction]"
     case WanderValue.Itr(internal) => "[Stream]"

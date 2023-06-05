@@ -51,7 +51,7 @@ def evalTerm(term: Term, bindings: Bindings): IO[EvalResult] =
         case Left(value) => IO.raiseError(value)
         case Right(value) =>
           value match {
-            case WanderValue.NativeFunction(parameters, body, output) => {
+            case WanderValue.NativeFunction(body) => {
               body(arguments, bindings).map { value => EvalResult(value, bindings) }
             }
             case WanderValue.WanderFunction(parameters, body) =>
