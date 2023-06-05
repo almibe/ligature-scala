@@ -72,4 +72,10 @@ class InstancePreludeSuite extends WanderSuiteInstancePrelude {
     val result = "[[<a> <b> <c>] [<a2> <b> <c2>]]"
     check(input, result)
   }
+  test("query with closure") {
+    val input = """addDataset("hello") addStatements("hello" [[<a> <b> <c>][<a2> <b> <c2>][<e> <f> <g>]]) 
+                  |query("hello" { match -> match(? <b> ?)})""".stripMargin
+    val result = "[[<a> <b> <c>] [<a2> <b> <c2>]]"
+    check(input, result)
+  }
 }
