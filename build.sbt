@@ -12,6 +12,7 @@ val http4sVersion = "1.0.0-M39"
 val jlineVersion = "3.23.0"
 val scodecVersion = "2.2.1"
 val xodusVersion = "2.0.1"
+val jeromqVersion = "0.5.3"
 
 lazy val ligature = crossProject(JSPlatform, JVMPlatform)
   .in(file("ligature"))
@@ -185,6 +186,17 @@ lazy val ligatureHttpXodus = crossProject(JVMPlatform)
     Compile / run / mainClass := Some("dev.ligature.http.xodus.MainLigatureHttp")
   )
   .dependsOn(ligatureHttp, ligatureXodus, ligatureHttpTestSuite % Test)
+
+lazy val ligatureZeroMQ = crossProject(JVMPlatform)
+  .in(file("ligature-zeromq"))
+  .settings(
+    name := "ligature-zeromq",
+    scalaVersion := scala3Version,
+    libraryDependencies += "co.fs2" %%% "fs2-core" % fs2Version,
+    libraryDependencies += "org.zeromq" % "jeromq" % jeromqVersion,
+  )
+  .dependsOn(ligature, lig, wander)
+  .disablePlugins(RevolverPlugin)
 
 lazy val ligatureRepl = crossProject(JVMPlatform)
   .in(file("ligature-repl"))
