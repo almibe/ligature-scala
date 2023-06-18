@@ -194,8 +194,9 @@ lazy val ligatureZeroMQ = crossProject(JVMPlatform)
     scalaVersion := scala3Version,
     libraryDependencies += "co.fs2" %%% "fs2-core" % fs2Version,
     libraryDependencies += "org.zeromq" % "jeromq" % jeromqVersion,
+    libraryDependencies += "org.typelevel" %%% "munit-cats-effect" % munitCatsEffect3Version % Test,
   )
-  .dependsOn(ligature, lig, wander)
+  .dependsOn(ligature, lig, wander, ligatureInMemory, ligatureXodus)
   .disablePlugins(RevolverPlugin)
 
 lazy val ligatureRepl = crossProject(JVMPlatform)

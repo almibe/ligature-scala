@@ -4,35 +4,46 @@
 
 package dev.ligature.zeromq
 
+import cats.effect.unsafe.implicits.global
 import cats.effect._
 import cats.implicits._
+
 import org.zeromq.{ZMQ, ZContext, SocketType}
 
+import dev.ligature.inmemory.createInMemoryLigature
+import dev.ligature.Ligature
+import dev.ligature.wander.run
+import dev.ligature.wander.preludes.instancePrelude
+import dev.ligature.wander.WanderValue
+import dev.ligature.wander.printWanderValue
+
 val zeromqResource = Resource.make(
-  IO(ZContext())
-)( context => IO(context.close()))
+  IO { 
+    ZContext() 
+  })
+  (context => IO(context.close()))
+
+def runServer(zContext: ZContext, ligature: Ligature, port: Int) = {
+  IO {
+    val socket = zContext.createSocket(SocketType.REP)
+    socket.bind(s"tcp://localhost:$port")
+    var continue = true
+    while (continue)
+      try
+        val query = String(socket.recv(0), ZMQ.CHARSET)
+        val res = run(query, instancePrelude(ligature)).unsafeRunSync()
+        socket.send(printWanderValue(res).getBytes(ZMQ.CHARSET), 0)
+      catch
+        case e => continue = false
+    ()
+  }
+}
 
 object Main extends IOApp.Simple {
-  val run = {
+  val run =
     zeromqResource.use { zContext =>
-      val test = IO {
-        println("test")
+      createInMemoryLigature().use { instance =>
+        runServer(zContext, instance, 4200)
       }
-      val rep = IO {
-        val socket = zContext.createSocket(SocketType.REP)
-        socket.bind("tcp://localhost:5555")
-        val bytes = socket.recv(0)
-        println(String(bytes, ZMQ.CHARSET))
-        socket.send("World".getBytes(ZMQ.CHARSET), 0)
-      }
-      val res = IO {
-        val socket = zContext.createSocket(SocketType.REQ)
-        socket.connect("tcp://localhost:5555")
-        socket.send("Hello".getBytes(ZMQ.CHARSET), 0)
-        val res = socket.recv(0)
-        println(String(res, ZMQ.CHARSET))
-      }
-      List(test, rep, res).parSequence.flatMap { _ => IO.pure(()) }
     }
-  }
 }

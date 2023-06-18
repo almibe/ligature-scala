@@ -9,8 +9,6 @@ import dev.ligature.lig.read
 import dev.ligature.http.LigatureHttp
 import cats.effect.IO
 import fs2.Stream
-import com.google.gson.*
-import com.google.gson.annotations.SerializedName
 import munit.*
 import org.http4s.*
 import org.http4s.client.dsl.io.*
