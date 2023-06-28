@@ -8,7 +8,6 @@ val munitVersion = "1.0.0-M7"
 val catsEffectVersion = "3.5.0"
 val fs2Version = "3.7.0"
 val munitCatsEffect3Version = "2.0.0-M3"
-val http4sVersion = "1.0.0-M39"
 val jlineVersion = "3.23.0"
 val scodecVersion = "2.2.1"
 val xodusVersion = "2.0.1"
@@ -126,67 +125,6 @@ lazy val ligatureXodus = crossProject(JVMPlatform)
 //   .dependsOn(ligature, idgen, ligatureTestSuite % Test)
 //   .disablePlugins(RevolverPlugin)
 
-// lazy val ligatureJS = crossProject(JSPlatform)
-//  .in(file("ligature-js"))
-//  .enablePlugins(ScalaJSPlugin)
-//  .jsSettings(
-//    name := "ligature-js",
-//    scalaVersion := scala3Version,
-//    scalaJSLinkerConfig ~= { _.withModuleKind(ModuleKind.ESModule) },
-//  )
-//  .dependsOn(ligature, wander, ligatureInMemory)
-//  .disablePlugins(RevolverPlugin)
-
-lazy val ligatureHttp = crossProject(JVMPlatform)
-  .in(file("ligature-http"))
-  .settings(
-    name := "ligature-http",
-    scalaVersion := scala3Version,
-    libraryDependencies += "co.fs2" %%% "fs2-core" % fs2Version,
-    libraryDependencies += "org.http4s" %% "http4s-dsl" % http4sVersion,
-    libraryDependencies += "org.http4s" %% "http4s-ember-server" % http4sVersion,
-    libraryDependencies += "org.http4s" %% "http4s-ember-client" % http4sVersion,
-  )
-  .dependsOn(ligature, lig, wander)
-  .disablePlugins(RevolverPlugin)
-
-lazy val ligatureHttpTestSuite = crossProject(JVMPlatform)
-  .in(file("ligature-http-test-suite"))
-  .settings(
-    name := "ligature-http-test-suite",
-    scalaVersion := scala3Version,
-    libraryDependencies += "co.fs2" %%% "fs2-core" % fs2Version,
-    libraryDependencies += "org.http4s" %% "http4s-dsl" % http4sVersion,
-    libraryDependencies += "org.http4s" %% "http4s-ember-server" % http4sVersion,
-    libraryDependencies += "org.http4s" %% "http4s-ember-client" % http4sVersion,
-    libraryDependencies += "org.typelevel" %%% "munit-cats-effect" % munitCatsEffect3Version
-  )
-  .dependsOn(ligatureHttp, ligature, lig, wander)
-  .disablePlugins(RevolverPlugin)
-
-lazy val ligatureHttpInMemory = crossProject(JVMPlatform)
-  .in(file("ligature-http-in-memory"))
-  .settings(
-    name := "ligature-http-in-memory",
-    scalaVersion := scala3Version,
-    libraryDependencies += "org.scalameta" %%% "munit" % munitVersion % Test,
-    testFrameworks += new TestFramework("munit.Framework"),
-    Compile / run / mainClass := Some("dev.ligature.http.memory.MainLigatureHttp")
-  )
-  .dependsOn(ligatureHttp, ligatureInMemory, ligatureHttpTestSuite % Test)
-  .disablePlugins(RevolverPlugin)
-
-lazy val ligatureHttpXodus = crossProject(JVMPlatform)
-  .in(file("ligature-http-xodus"))
-  .settings(
-    name := "ligature-http-xodus",
-    scalaVersion := scala3Version,
-    libraryDependencies += "org.scalameta" %%% "munit" % munitVersion % Test,
-    testFrameworks += new TestFramework("munit.Framework"),
-    Compile / run / mainClass := Some("dev.ligature.http.xodus.MainLigatureHttp")
-  )
-  .dependsOn(ligatureHttp, ligatureXodus, ligatureHttpTestSuite % Test)
-
 lazy val ligatureZeroMQ = crossProject(JVMPlatform)
   .in(file("ligature-zeromq"))
   .settings(
@@ -210,7 +148,7 @@ lazy val ligatureRepl = crossProject(JVMPlatform)
   .dependsOn(ligature, lig, wander, ligatureInMemory, ligatureXodus)
   .disablePlugins(RevolverPlugin)
 
-addCommandAlias("serve", "ligature-http-xodusJVM/run")
+addCommandAlias("serve", "ligature-zeromq/run")
 
 disablePlugins(RevolverPlugin)
 
