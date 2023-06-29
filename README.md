@@ -1,25 +1,20 @@
 # ligature-scala
 An implementation of [Ligature knowledge graph](https://ligature.dev) library written in Scala for the JVM/JS.
-See additional documentation [here](https://github.com/almibe/ligature-documentation).
 
 ### Projects
 
-| Name                     | Description                                                                      | JVM | JS |
-| ------------------------ | -------------------------------------------------------------------------------- | --- | -- |
-| ligature                 | Common data types and traits for Ligature                                        | ✅   | ✅ |
-| ligature-test-suite      | A shared test suite for Ligature                                                 | ✅   | ✅ |
-| idgen                    | A basic, unsecure, implementation of nanoid for use with Ligature                | ✅   | ✅ |
-| lig                      | A simple serialization format as well as DLig an input format for Ligature       | ✅   | ✅ |
-| ligature-in-memory       | An in-memory implementation of Ligature                                          | ✅   | ✅ |
-| ligature-xodus           | An implementation of Ligature using LMDB for persistence.                        | ✅   |   |
-| wander                   | A scripting language for working with Ligature.                                  | ✅   | ✅ |
-| gaze                     | A utility library for parsing text/data structures.                              | ✅   | ✅ |
-| ligature-js              | Scala.js support for Ligature.                                                   |     | ✅ |
-| ligature-repl            | A REPL for working with Wander and Ligature.                                     | ✅   |   |
-| ligature-http            | A JVM based server for Ligature following the ligature-http spec.                | ✅   |   |
-| ligature-http-test-suite | A test suite for ligature-http                                                   | ✅   |   |
-| ligature-http-in-memory  | An implementation of ligature-http that stores everything in memory.             | ✅   |   |
-| ligature-http-xodus      | An implementation of ligature-http that uses ligature-xodus for storage.         | ✅   |   |
+| Name                     | Description                                                                      |
+| ------------------------ | -------------------------------------------------------------------------------- |
+| ligature                 | Common data types and traits for Ligature                                        |
+| ligature-test-suite      | A shared test suite for Ligature                                                 |
+| idgen                    | A basic, unsecure, implementation of nanoid for use with Ligature                |
+| lig                      | A simple serialization format as well as DLig an input format for Ligature       |
+| ligature-in-memory       | An in-memory implementation of Ligature                                          |
+| ligature-xodus           | An implementation of Ligature using LMDB for persistence.                        |
+| wander                   | A scripting language for working with Ligature.                                  |
+| gaze                     | A utility library for parsing text/data structures.                              |
+| ligature-pad             | A simple desktop application for working with Wander and Ligature.               |
+| ligature-repl            | A REPL for working with Wander and Ligature.                                     |
 
 ## Building
 This project requires sbt to build.
@@ -45,7 +40,7 @@ Use `scalafmtAll` to format code.
 
 To run the ligature-repl project run the following command outside of the sbt shell (sometimes if you run the REPL from within the sbt shell the two will cause issues, usually on the second time the REPL is ran).
 
-`sbt ligatureReplJVM/run`
+`sbt ligatureZeromq/run`
 
 ### Running the Server
 
@@ -59,44 +54,6 @@ If you are using the interaction shell, I recommend using
 
 This will let you reload the server whenever you want by repeating the command.
 
-### Server Configuration
-
-For now ligature-http only accepts configuration via the command line.
-This is likely to change but for now just using command line arguments is very helpful during development.
-
-#### Common Configuration
-
-All ligature-http implementations accept the following arguemnts
-
-| Name   | Description                          | Default | Note                               |
-|--------|--------------------------------------|---------|------------------------------------|
-| --port | The port ligature-http is served on. | 4202    | Can be any valid port number.      |
-| --mode | The mode ligature-http is ran in.    | local   | Only local is currently supported. |
-
-#### In Memory Configuration
-
-The ligature-http-in-memory implementation only supports the common configuration.
-
-#### Xodus Configuration
-
-ligature-http-xodus adds the following configuration on top of the common configuration.
-
-| Name      | Description                                       | Default    | Note                                                                      |
-|-----------|---------------------------------------------------|------------|---------------------------------------------------------------------------|
-| --storage | The directory where the Xodus database is stored. | ~/ligature | Must be a valid directory, directory will be created if it doesn't exist. |
-
 ### Credits
 
 The idgen package contains a Scala port of https://github.com/aventrix/jnanoid.
-
-### JavaScript Notes
-
-The ligature-js project provides a way to build Ligature to run in the JavaScript ecosystem (Browser, Node, Deno, etc.).
-As mentioned above some projects target the JVM and are not included with this project.
-The api provided by ligature-js is currently very minimal and exists mostly for evaluating Wander code.
-This will likely expand over time.
-
-#### Building and Deploying `ligature-js`
-
-`sbt ligatureJSJS/fullLinkJS`
-
