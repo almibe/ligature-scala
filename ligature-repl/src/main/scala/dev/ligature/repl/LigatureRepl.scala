@@ -31,11 +31,12 @@ import java.nio.file.Path
 
 case class TerminalResources(val terminal: Terminal, val reader: LineReader)
 
-val terminalResource: Resource[IO, TerminalResources] = 
-  Resource.make { 
+val terminalResource: Resource[IO, TerminalResources] =
+  Resource.make {
     val terminal: Terminal = TerminalBuilder.builder().build()
     val parser: DefaultParser = new DefaultParser()
-    val reader: LineReader = LineReaderBuilder.builder()
+    val reader: LineReader = LineReaderBuilder
+      .builder()
       .terminal(terminal)
       .parser(parser)
       .build();
@@ -44,7 +45,8 @@ val terminalResource: Resource[IO, TerminalResources] =
 
 object Main extends IOApp {
   override def run(args: List[String]): IO[ExitCode] =
-    val path = Path.of(s"${System.getProperty("user.home")}${System.getProperty("file.separator")}.ligature")
+    val path =
+      Path.of(s"${System.getProperty("user.home")}${System.getProperty("file.separator")}.ligature")
     createXodusLigature(path).use { ligature =>
       terminalResource.use { terminal =>
         val bindings = instancePrelude(ligature)
@@ -55,21 +57,20 @@ object Main extends IOApp {
       }
     }
 
-  def repl(terminal: TerminalResources, bindings: Bindings): IO[ExitCode] = {
-      for {
-        line <- IO.blocking { terminal.reader.readLine("> ") }
-        res <- 
-          if (line == ":q") { 
-            IO.println("Bye!").map { _ => ExitCode.Success } 
-          } else {
-            for {
-              res <- evalString(line, bindings)
-              _ <- IO.println(printResult(res.result))
-              code <- repl(terminal, res.bindings)
-            } yield code
-          }
-      } yield ExitCode.Success
-  }
+  def repl(terminal: TerminalResources, bindings: Bindings): IO[ExitCode] =
+    for {
+      line <- IO.blocking(terminal.reader.readLine("> "))
+      res <-
+        if (line == ":q") {
+          IO.println("Bye!").map(_ => ExitCode.Success)
+        } else {
+          for {
+            res <- evalString(line, bindings)
+            _ <- IO.println(printResult(res.result))
+            code <- repl(terminal, res.bindings)
+          } yield code
+        }
+    } yield ExitCode.Success
 }
 
 //       val res2 = res.handleError { e =>
