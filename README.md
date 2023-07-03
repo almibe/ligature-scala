@@ -13,8 +13,6 @@ An implementation of [Ligature knowledge graph](https://ligature.dev) library wr
 | ligature-xodus           | An implementation of Ligature using LMDB for persistence.                        |
 | wander                   | A scripting language for working with Ligature.                                  |
 | gaze                     | A utility library for parsing text/data structures.                              |
-| ligature-pad             | A simple desktop application for working with Wander and Ligature.               |
-| ligature-repl            | A REPL for working with Wander and Ligature.                                     |
 
 ## Building
 This project requires sbt to build.
