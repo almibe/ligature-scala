@@ -134,9 +134,8 @@ lazy val ligatureZeroMQ = project
     libraryDependencies += "org.typelevel" %% "munit-cats-effect" % munitCatsEffect3Version % Test,
   )
   .dependsOn(ligature, lig, wander, ligatureInMemory, ligatureXodus)
-  .disablePlugins(RevolverPlugin)
 
-addCommandAlias("serve", "ligature-zeromq/run")
+addCommandAlias("serve", "ligatureZeroMQ/run")
 
 disablePlugins(RevolverPlugin)
 
