@@ -148,17 +148,6 @@ lazy val ligatureRepl = project
   .dependsOn(ligature, lig, wander, ligatureInMemory, ligatureXodus)
   .disablePlugins(RevolverPlugin)
 
-lazy val ligaturePad = project
-  .in(file("ligature-pad"))
-  .settings(
-    name := "ligature-pad",
-    scalaVersion := scala3Version,
-    libraryDependencies += "org.jline" % "jline" % jlineVersion,
-    libraryDependencies += "org.jline" % "jline-terminal-jansi" % jlineVersion,
-  )
-  .dependsOn(ligature, lig, wander, ligatureInMemory, ligatureXodus)
-  .disablePlugins(RevolverPlugin)
-
 addCommandAlias("serve", "ligature-zeromq/run")
 
 disablePlugins(RevolverPlugin)
