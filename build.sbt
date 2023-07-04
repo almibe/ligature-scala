@@ -8,7 +8,6 @@ val munitVersion = "1.0.0-M7"
 val catsEffectVersion = "3.5.0"
 val fs2Version = "3.7.0"
 val munitCatsEffect3Version = "2.0.0-M3"
-val jlineVersion = "3.23.0"
 val scodecVersion = "2.2.1"
 val xodusVersion = "2.0.1"
 val jeromqVersion = "0.5.3"
@@ -135,31 +134,8 @@ lazy val ligatureZeroMQ = project
     libraryDependencies += "org.typelevel" %% "munit-cats-effect" % munitCatsEffect3Version % Test,
   )
   .dependsOn(ligature, lig, wander, ligatureInMemory, ligatureXodus)
-  .disablePlugins(RevolverPlugin)
 
-lazy val ligatureRepl = project
-  .in(file("ligature-repl"))
-  .settings(
-    name := "ligature-repl",
-    scalaVersion := scala3Version,
-    libraryDependencies += "org.jline" % "jline" % jlineVersion,
-    libraryDependencies += "org.jline" % "jline-terminal-jansi" % jlineVersion,
-  )
-  .dependsOn(ligature, lig, wander, ligatureInMemory, ligatureXodus)
-  .disablePlugins(RevolverPlugin)
-
-lazy val ligaturePad = project
-  .in(file("ligature-pad"))
-  .settings(
-    name := "ligature-pad",
-    scalaVersion := scala3Version,
-    libraryDependencies += "org.jline" % "jline" % jlineVersion,
-    libraryDependencies += "org.jline" % "jline-terminal-jansi" % jlineVersion,
-  )
-  .dependsOn(ligature, lig, wander, ligatureInMemory, ligatureXodus)
-  .disablePlugins(RevolverPlugin)
-
-addCommandAlias("serve", "ligature-zeromq/run")
+addCommandAlias("serve", "ligatureZeroMQ/run")
 
 disablePlugins(RevolverPlugin)
 

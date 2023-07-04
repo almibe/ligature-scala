@@ -23,13 +23,9 @@
 package dev.ligature.idgen
 
 import scala.language.postfixOps
-//import java.security.SecureRandom
-//import java.util.Random
-import scala.util.Random
+import java.security.SecureRandom
 
-//NOTE: Just using scala.util.Random for now since Scala.js doesn't support SecureRandom yet.
-//private val DEFAULT_NUMBER_GENERATOR = new SecureRandom()
-private val DEFAULT_NUMBER_GENERATOR = Random()
+private val DEFAULT_NUMBER_GENERATOR = new SecureRandom()
 
 /** The default alphabet used by this class. Creates url-friendly NanoId Strings
   * using 64 unique symbols.
@@ -70,7 +66,7 @@ def randomNanoId(): String =
   * @return
   *   A randomly generated NanoId String.
   */
-def randomNanoId(random: Random, alphabet: Array[Char], size: Int): String = {
+def randomNanoId(random: SecureRandom, alphabet: Array[Char], size: Int): String = {
   if (random == null) {
     throw new IllegalArgumentException("random cannot be null.")
   }

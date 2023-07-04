@@ -1,20 +1,18 @@
 # ligature-scala
-An implementation of [Ligature knowledge graph](https://ligature.dev) library written in Scala for the JVM/JS.
+An implementation of [Ligature knowledge graph](https://ligature.dev) library written in Scala for the JVM.
 
 ### Projects
 
 | Name                     | Description                                                                      |
 | ------------------------ | -------------------------------------------------------------------------------- |
-| ligature                 | Common data types and traits for Ligature                                        |
-| ligature-test-suite      | A shared test suite for Ligature                                                 |
-| idgen                    | A basic, unsecure, implementation of nanoid for use with Ligature                |
-| lig                      | A simple serialization format as well as DLig an input format for Ligature       |
-| ligature-in-memory       | An in-memory implementation of Ligature                                          |
-| ligature-xodus           | An implementation of Ligature using LMDB for persistence.                        |
+| ligature                 | Common data types and traits for Ligature.                                       |
+| ligature-test-suite      | A shared test suite for Ligature instances.                                      |
+| idgen                    | A basic implementation of nanoid for use with Ligature.                          |
+| lig                      | A simple serialization format for Ligature.                                      |
+| ligature-in-memory       | An in-memory implementation of Ligature.                                         |
+| ligature-xodus           | An implementation of Ligature using Xodus's key-value store for persistence.     |
 | wander                   | A scripting language for working with Ligature.                                  |
 | gaze                     | A utility library for parsing text/data structures.                              |
-| ligature-pad             | A simple desktop application for working with Wander and Ligature.               |
-| ligature-repl            | A REPL for working with Wander and Ligature.                                     |
 
 ## Building
 This project requires sbt to build.
@@ -36,15 +34,11 @@ Use `test` to run tests.
 
 Use `scalafmtAll` to format code.
 
-### Running the console REPL
-
-To run the ligature-repl project run the following command outside of the sbt shell (sometimes if you run the REPL from within the sbt shell the two will cause issues, usually on the second time the REPL is ran).
-
-`sbt ligatureZeromq/run`
-
 ### Running the Server
 
-The server can be ran using the `serve` command.
+`sbt ligatureZeroMQ/run`
+
+The server can also be ran using the `serve` command.
 
 `sbt serve`
 
@@ -53,6 +47,9 @@ If you are using the interaction shell, I recommend using
 `reStart`
 
 This will let you reload the server whenever you want by repeating the command.
+To stop the server run.
+
+`reStop`
 
 ### Credits
 
