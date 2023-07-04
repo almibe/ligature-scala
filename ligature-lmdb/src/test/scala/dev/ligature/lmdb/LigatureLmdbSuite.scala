@@ -13,9 +13,8 @@ class LigatureLmdbSpec extends LigatureTestSuite() {
   var path: Path = null
   var ligatureInstance: Ligature = null
 
-  override def beforeEach(context: BeforeEach): Unit = {
+  override def beforeEach(context: BeforeEach): Unit =
     path = Files.createTempDirectory("LigatureLMDBTest")
-  }
 
   override def afterEach(context: AfterEach): Unit = {
     def deleteRecursively(file: File): Unit = {
