@@ -20,34 +20,32 @@ def run(
     terms <- parse(tokens)
   } yield terms
   terms match
-    case Left(value) => IO.raiseError(value)
+    case Left(value)  => IO.raiseError(value)
     case Right(value) => eval(value, bindings).map(_.result)
 
 def evalString(
-  script: String,
-  bindings: Bindings
+    script: String,
+    bindings: Bindings
 ): IO[EvalResult] =
   val terms = for {
     tokens <- tokenize(script)
     terms <- parse(tokens)
   } yield terms
   terms match
-    case Left(value) => IO.raiseError(value)
+    case Left(value)  => IO.raiseError(value)
     case Right(value) => eval(value, bindings)
 
-def printResult(value: ScriptResult): String = {
+def printResult(value: ScriptResult): String =
   printWanderValue(value)
-}
 
-def printWanderValue(value: WanderValue): String = {
+def printWanderValue(value: WanderValue): String =
   value match {
-    case WanderValue.BooleanValue(value) => value.toString()
-    case WanderValue.LigatureValue(value) => writeValue(value)
-    case WanderValue.NativeFunction(body) => "[NativeFunction]"
-    case WanderValue.Nothing => "nothing"
+    case WanderValue.BooleanValue(value)              => value.toString()
+    case WanderValue.LigatureValue(value)             => writeValue(value)
+    case WanderValue.NativeFunction(body)             => "[NativeFunction]"
+    case WanderValue.Nothing                          => "nothing"
     case WanderValue.WanderFunction(parameters, body) => "[WanderFunction]"
-    case WanderValue.Itr(internal) => "[Stream]"
+    case WanderValue.Itr(internal)                    => "[Stream]"
     case WanderValue.ListValue(values) =>
-      "[" + values.map { value => printWanderValue(value) }.mkString(" ") + "]"
+      "[" + values.map(value => printWanderValue(value)).mkString(" ") + "]"
   }
-}
