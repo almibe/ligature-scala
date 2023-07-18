@@ -4,15 +4,7 @@
 
 package dev.ligature.inmemory
 
-import dev.ligature.{
-  Dataset,
-  Identifier,
-  Ligature,
-  LigatureError,
-  QueryTx,
-  Statement,
-  Value,
-}
+import dev.ligature.{Dataset, Identifier, Ligature, LigatureError, QueryTx, Statement, Value}
 import cats.effect.IO
 import cats.effect.std.AtomicCell
 import fs2.Stream
@@ -28,7 +20,8 @@ def createInMemoryLigature(): Resource[IO, InMemoryLigature] =
     } yield InMemoryLigature(store)
   )(store => store.close())
 
-final class InMemoryLigature(private val store: AtomicCell[IO, TreeMap[Dataset, DatasetStore]]) extends Ligature {
+final class InMemoryLigature(private val store: AtomicCell[IO, TreeMap[Dataset, DatasetStore]])
+    extends Ligature {
 //  private val store = AtomicCell[IO].of(TreeMap[Dataset, DatasetStore]())
 
   /** Returns all Datasets in a Ligature instance. */
@@ -71,7 +64,9 @@ final class InMemoryLigature(private val store: AtomicCell[IO, TreeMap[Dataset, 
     */
   override def createDataset(dataset: Dataset): IO[Unit] =
     for {
-      _ <- store.evalUpdate { s => IO(s.updated(dataset, DatasetStore(0L, Set()))) } //TODO this needs to check if Dataset already exists
+      _ <- store.evalUpdate { s =>
+        IO(s.updated(dataset, DatasetStore(0L, Set())))
+      } // TODO this needs to check if Dataset already exists
       s <- store.get
     } yield ()
 
@@ -80,7 +75,7 @@ final class InMemoryLigature(private val store: AtomicCell[IO, TreeMap[Dataset, 
     */
   override def deleteDataset(dataset: Dataset): IO[Unit] =
     for {
-      _ <- store.evalUpdate { s => IO(s.removed(dataset)) }
+      _ <- store.evalUpdate(s => IO(s.removed(dataset)))
       s <- store.get
     } yield ()
 
@@ -92,40 +87,52 @@ final class InMemoryLigature(private val store: AtomicCell[IO, TreeMap[Dataset, 
           datasetStore.statements.toSeq
     }
   }
-  
+
   /** Initializes a QueryTx TODO should probably return its own error type
     * CouldNotInitializeQueryTx
     */
   override def query[T](dataset: Dataset)(fn: QueryTx => IO[T]): IO[T] =
-    store.get.map { store =>
-      store.get(dataset) match
-        case None => ???
-        case Some(datasetStore) =>
-          InMemoryQueryTx(datasetStore)
-    }.bracket(tx => fn(tx))(_ => IO.unit)
+    store.get
+      .map { store =>
+        store.get(dataset) match
+          case None => ???
+          case Some(datasetStore) =>
+            InMemoryQueryTx(datasetStore)
+      }
+      .bracket(tx => fn(tx))(_ => IO.unit)
 
-  override def addStatements(dataset: Dataset, statements: Stream[cats.effect.IO, Statement]): IO[Unit] =
+  override def addStatements(
+      dataset: Dataset,
+      statements: Stream[cats.effect.IO, Statement]
+  ): IO[Unit] =
     store.evalUpdate { store =>
       store.get(dataset) match
         case None => ???
         case Some(datasetStore) =>
-          statements.compile.fold(datasetStore) { (datasetStore, statement) =>
-            datasetStore.copy(statements = datasetStore.statements + statement)
-          }.map { datasetStore => 
-            store.updated(dataset, datasetStore)
-          }
+          statements.compile
+            .fold(datasetStore) { (datasetStore, statement) =>
+              datasetStore.copy(statements = datasetStore.statements + statement)
+            }
+            .map { datasetStore =>
+              store.updated(dataset, datasetStore)
+            }
     }
 
-  override def removeStatements(dataset: Dataset, statements: Stream[cats.effect.IO, Statement]): IO[Unit] =
+  override def removeStatements(
+      dataset: Dataset,
+      statements: Stream[cats.effect.IO, Statement]
+  ): IO[Unit] =
     store.evalUpdate { store =>
       store.get(dataset) match
         case None => ???
         case Some(datasetStore) =>
-          statements.compile.fold(datasetStore) { (datasetStore, statement) =>
-            datasetStore.copy(statements = datasetStore.statements - statement)
-          }.map { datasetStore => 
-            store.updated(dataset, datasetStore)
-          }
+          statements.compile
+            .fold(datasetStore) { (datasetStore, statement) =>
+              datasetStore.copy(statements = datasetStore.statements - statement)
+            }
+            .map { datasetStore =>
+              store.updated(dataset, datasetStore)
+            }
     }
 
   override def close(): IO[Unit] =

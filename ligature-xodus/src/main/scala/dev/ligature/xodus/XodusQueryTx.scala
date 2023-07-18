@@ -44,7 +44,9 @@ class XodusQueryTx(
         Option(result)
     }
 
-  private def lookupStringLiteral(stringLiteral: LigatureLiteral.StringLiteral): Option[ByteIterable] = {
+  private def lookupStringLiteral(
+      stringLiteral: LigatureLiteral.StringLiteral
+  ): Option[ByteIterable] = {
     val store = xodusOperations.openStore(tx, LigatureStore.StringToIdStore)
     val result = store.get(
       tx,
@@ -92,9 +94,10 @@ class XodusQueryTx(
   private def constructValue(valueTypeId: Byte, valueContent: ByteIterable): Value =
     LigatureValueType.getValueType(valueTypeId) match {
       case LigatureValueType.Identifier => lookupIdentifier(valueContent)
-      case LigatureValueType.Integer    => LigatureLiteral.IntegerLiteral(LongBinding.entryToLong(valueContent))
-      case LigatureValueType.String     => lookupStringLiteral(valueContent)
-      case LigatureValueType.Bytes      => ???
+      case LigatureValueType.Integer =>
+        LigatureLiteral.IntegerLiteral(LongBinding.entryToLong(valueContent))
+      case LigatureValueType.String => lookupStringLiteral(valueContent)
+      case LigatureValueType.Bytes  => ???
     }
 
   enum ReadStatementOffsets(val entityOffset: Int, val attributeOffset: Int, val valueOffset: Int):
