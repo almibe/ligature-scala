@@ -1,6 +1,11 @@
 # ligature-scala
 An implementation of [Ligature knowledge graph](https://ligature.dev) library written in Scala for the JVM.
 
+## Notice
+
+Work on this project is on hold.
+See [ligature-rs](https://github.com/almibe/ligature-rs/) for a Rust implementation of Ligature that is under active development.
+
 ### Projects
 
 | Name                     | Description                                                                      |
