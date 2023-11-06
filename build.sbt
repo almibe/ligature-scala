@@ -6,7 +6,7 @@ ThisBuild / organizationName := "ligature"
 
 val munitVersion = "1.0.0-M7"
 val catsEffectVersion = "3.5.0"
-val fs2Version = "3.7.0"
+val fs2Version = "3.9.2"
 val munitCatsEffect3Version = "2.0.0-M3"
 val scodecVersion = "2.2.1"
 val xodusVersion = "2.0.1"
@@ -78,7 +78,7 @@ lazy val ligatureInMemory = project
   .in(file("ligature-in-memory"))
   .settings(
     name := "ligature-in-memory",
-    scalaVersion := scala3Version,
+    scalaVersion := scala3Version
   )
   .dependsOn(ligature, idgen, ligatureTestSuite % Test)
   .disablePlugins(RevolverPlugin)
@@ -131,7 +131,7 @@ lazy val ligatureZeroMQ = project
     scalaVersion := scala3Version,
     libraryDependencies += "co.fs2" %% "fs2-core" % fs2Version,
     libraryDependencies += "org.zeromq" % "jeromq" % jeromqVersion,
-    libraryDependencies += "org.typelevel" %% "munit-cats-effect" % munitCatsEffect3Version % Test,
+    libraryDependencies += "org.typelevel" %% "munit-cats-effect" % munitCatsEffect3Version % Test
   )
   .dependsOn(ligature, lig, wander, ligatureInMemory, ligatureXodus)
 
