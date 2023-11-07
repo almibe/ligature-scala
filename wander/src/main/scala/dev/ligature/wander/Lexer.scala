@@ -18,12 +18,11 @@ import dev.ligature.gaze.{
   repeat
 }
 import dev.ligature.lig.LigNibblers
-import dev.ligature.{Identifier, LigatureError}
 
 enum Token:
   case BooleanLiteral(value: Boolean)
   case Spaces(value: String)
-  case Identifier(value: dev.ligature.Identifier)
+  case Identifier(value: dev.ligature.wander.Identifier)
   case IntegerLiteral(value: Long)
   case StringLiteral(value: String)
   case Name(value: String)
@@ -31,20 +30,20 @@ enum Token:
     Arrow, IfKeyword, ElsifKeyword, ElseKeyword, EqualSign, LetKeyword, Comment,
     OpenBracket, CloseBracket, NothingKeyword, QuestionMark
 
-def tokenize(input: String): Either[LigatureError, Seq[Token]] = {
+def tokenize(input: String): Either[WanderError, Seq[Token]] = {
   val gaze = Gaze.from(input)
   gaze.attempt(tokensNib) match {
     case None =>
       if (gaze.isComplete) {
         Right(List())
       } else {
-        Left(LigatureError("Error"))
+        Left(WanderError("Error"))
       }
     case Some(res) =>
       if (gaze.isComplete) {
         Right(res)
       } else {
-        Left(LigatureError("Error"))
+        Left(WanderError("Error"))
       }
   }
 }
@@ -120,7 +119,7 @@ val spacesTokenNib =
   takeWhile[Char](_ == ' ').map(res => Seq(Token.Spaces(res.mkString)))
 
 val identifierTokenNib =
-  LigNibblers.identifierNibbler.map(res => Seq(Token.Identifier(Identifier.fromString(res.mkString).getOrElse(???))))
+  LigNibblers.identifierNibbler.map(res => Seq(Token.Identifier(dev.ligature.wander.Identifier.fromString(res.mkString).getOrElse(???))))
 
 val tokensNib: Nibbler[Char, Token] = repeat(
   takeFirst(
