@@ -85,7 +85,7 @@
 //     val script = "if true false else true"
 //     val result = Right(Seq(
 //       Term.IfExpression(
-//         Term.BooleanLiteral(true), 
+//         Term.BooleanLiteral(true),
 //         Term.BooleanLiteral(false),
 //         Term.BooleanLiteral(true)
 //       )))

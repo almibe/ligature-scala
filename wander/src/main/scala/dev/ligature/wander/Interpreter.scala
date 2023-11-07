@@ -4,14 +4,13 @@
 
 package dev.ligature.wander
 
-def eval(script: Seq[Term], bindings: Bindings): Either[WanderError, EvalResult] = {
+def eval(script: Seq[Term], bindings: Bindings): Either[WanderError, EvalResult] =
   ???
   // script.foldLeft(IO.pure(EvalResult(WanderValue.Nothing, bindings))) { (lastResult, term) =>
   //   lastResult.flatMap { result =>
   //     evalTerm(term, result.bindings)
   //   }
   // }
-}
 
 // def evalAll(terms: Seq[Term], bindings: Bindings): Seq[WanderValue] =
 //   terms.map { term => evalTerm(term, bindings) }.sequence.map { evalResult => evalResult.map { _.result } }
@@ -61,7 +60,7 @@ def eval(script: Seq[Term], bindings: Bindings): Either[WanderError, EvalResult]
 //                     parameters.zip(args).foreach { (name, value) =>
 //                       newScope.bindVariable(name, value) match
 //                         case Left(value) => ???
-//                         case Right(bindings) => 
+//                         case Right(bindings) =>
 //                           newScope = bindings
 //                     }
 //                   }.flatMap { _ =>

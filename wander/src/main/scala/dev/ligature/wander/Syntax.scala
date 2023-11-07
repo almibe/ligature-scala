@@ -26,10 +26,10 @@ enum WanderValue:
 //  case LigatureValue(value: Value)
   case BooleanValue(value: Boolean)
   case Nothing
-  case NativeFunction(body: (arguments: Seq[Term], bindings: Bindings) => Either[WanderError, WanderValue])
-  case WanderFunction(
-    parameters: Seq[Name],
-    body: Seq[Term])
+  case NativeFunction(
+      body: (arguments: Seq[Term], bindings: Bindings) => Either[WanderError, WanderValue]
+  )
+  case WanderFunction(parameters: Seq[Name], body: Seq[Term])
   case ListValue(values: Seq[WanderValue])
 //  case Itr(internal: Stream[IO, WanderValue])
 

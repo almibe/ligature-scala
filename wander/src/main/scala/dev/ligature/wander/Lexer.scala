@@ -119,7 +119,9 @@ val spacesTokenNib =
   takeWhile[Char](_ == ' ').map(res => Seq(Token.Spaces(res.mkString)))
 
 val identifierTokenNib =
-  LigNibblers.identifierNibbler.map(res => Seq(Token.Identifier(dev.ligature.wander.Identifier.fromString(res.mkString).getOrElse(???))))
+  LigNibblers.identifierNibbler.map(res =>
+    Seq(Token.Identifier(dev.ligature.wander.Identifier.fromString(res.mkString).getOrElse(???)))
+  )
 
 val tokensNib: Nibbler[Char, Token] = repeat(
   takeFirst(

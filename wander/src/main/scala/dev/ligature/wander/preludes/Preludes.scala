@@ -71,7 +71,7 @@
 //                 val dataset = Dataset.fromString(datasetName).getOrElse(???)
 //                 termsToStatements(statementTerms, ListBuffer()) match
 //                   case Left(value) => ???
-//                   case Right(statements) => 
+//                   case Right(statements) =>
 //                     instance
 //                       .addStatements(dataset, Stream.emits(statements))
 //                       .map { _ => WanderValue.Nothing }
@@ -86,7 +86,7 @@
 //                 val dataset = Dataset.fromString(datasetName).getOrElse(???)
 //                 termsToStatements(statementTerms, ListBuffer()) match
 //                   case Left(value) => ???
-//                   case Right(statements) => 
+//                   case Right(statements) =>
 //                     instance
 //                       .removeStatements(dataset, Stream.emits(statements))
 //                       .map { _ => WanderValue.Nothing }
@@ -120,7 +120,7 @@
 //           }
 //         case (Term.StringLiteral(datasetName), query: Term.WanderFunction, None, None) =>
 //           query match
-//             case Term.WanderFunction(name :: Nil, body) => 
+//             case Term.WanderFunction(name :: Nil, body) =>
 //               val dataset = Dataset.fromString(datasetName).getOrElse(???)
 //               instance.query(dataset) { tx =>
 //                 val matchFunction = WanderValue.NativeFunction((arguments, bindings) =>
@@ -150,7 +150,7 @@
 //         termsToStatement(statementTerms) match
 //           case Right(statement) =>
 //             termsToStatements(terms.tail, statements += statement)
-//           case Left(err) => Left(err)        
+//           case Left(err) => Left(err)
 //       case _ => println(terms.head); ???
 //   else
 //     Right(statements.toSeq)
@@ -180,7 +180,7 @@
 // // }
 
 // /**
-//  * 
+//  *
 //  */
 // def common(): Bindings = {
 //   var stdLib = Bindings()
@@ -203,7 +203,7 @@
 //           if arguments.size != 1 then
 //             IO.raiseError(LigatureError("`not` function requires 1 argument."))
 //           else
-//             evalTerm(arguments.head, bindings).map { 
+//             evalTerm(arguments.head, bindings).map {
 //               _ match
 //                 case EvalResult(b: WanderValue.BooleanValue, _) => WanderValue.BooleanValue(!b.value)
 //                 case _ => throw LigatureError("`not` function requires 1 boolean argument.")
