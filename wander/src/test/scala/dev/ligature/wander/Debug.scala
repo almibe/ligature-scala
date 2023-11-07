@@ -7,7 +7,7 @@ package dev.ligature.wander
 import dev.ligature.Dataset
 import dev.ligature.wander.parse
 import dev.ligature.wander.tokenize
-import dev.ligature.wander.preludes.common
+//import dev.ligature.wander.preludes.common
 
 @main def wanderDebug() = {
   val input = """let identity = (value:Value) -> Value {
@@ -25,7 +25,7 @@ import dev.ligature.wander.preludes.common
   println("AST")
   println(ast.getOrElse(???))
   println("---")
-  val result = run(input, common())
-  println("Result")
+//  val result = run(input, common())
+//  println("Result")
   //println(result.getOrElse(???))
 }

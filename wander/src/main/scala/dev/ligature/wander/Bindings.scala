@@ -4,7 +4,6 @@
 
 package dev.ligature.wander
 
-import dev.ligature.LigatureError
 import dev.ligature.wander.WanderValue
 
 case class Bindings(scopes: List[Map[Name, WanderValue]] = List((Map()))) {
@@ -13,11 +12,11 @@ case class Bindings(scopes: List[Map[Name, WanderValue]] = List((Map()))) {
   def bindVariable(
       name: Name,
       wanderValue: WanderValue
-  ): Either[LigatureError, Bindings] = {
+  ): Either[WanderError, Bindings] = {
     val currentScope = this.scopes.last
     if (currentScope.contains(name)) {
       //TODO probably remove this to allow shadowing?
-      Left(LigatureError(s"$name is already bound in current scope."))
+      Left(WanderError(s"$name is already bound in current scope."))
     } else {
       val newVariables = currentScope + (name -> wanderValue)
       val oldScope = this.scopes.dropRight(1)
@@ -27,7 +26,7 @@ case class Bindings(scopes: List[Map[Name, WanderValue]] = List((Map()))) {
     }
   }
 
-  def read(name: Name): Either[LigatureError, WanderValue] = {
+  def read(name: Name): Either[WanderError, WanderValue] = {
     var currentScopeOffset = this.scopes.length - 1
     while (currentScopeOffset >= 0) {
       val currentScope = this.scopes(currentScopeOffset)
@@ -36,6 +35,6 @@ case class Bindings(scopes: List[Map[Name, WanderValue]] = List((Map()))) {
       }
       currentScopeOffset -= 1
     }
-    Left(LigatureError(s"Could not find ${name} in scope."))
+    Left(WanderError(s"Could not find ${name} in scope."))
   }
 }

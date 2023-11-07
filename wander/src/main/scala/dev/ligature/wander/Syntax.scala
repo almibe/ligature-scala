@@ -5,13 +5,7 @@
 package dev.ligature.wander
 
 import dev.ligature.wander.Bindings
-import cats.effect.IO
-import dev.ligature.{Statement, Value}
-import fs2.Stream
 import scala.util.Success
-import dev.ligature.Identifier
-import cats.Eval
-import dev.ligature.LigatureError
 
 /** Represents the union of Statements and Expressions
   */
@@ -29,15 +23,15 @@ case class EvalResult(result: WanderValue, bindings: Bindings)
 /** Represents a Value in the Wander language.
   */
 enum WanderValue:
-  case LigatureValue(value: Value)
+//  case LigatureValue(value: Value)
   case BooleanValue(value: Boolean)
   case Nothing
-  case NativeFunction(body: (arguments: Seq[Term], bindings: Bindings) => IO[WanderValue])
+  case NativeFunction(body: (arguments: Seq[Term], bindings: Bindings) => Either[WanderError, WanderValue])
   case WanderFunction(
     parameters: Seq[Name],
     body: Seq[Term])
   case ListValue(values: Seq[WanderValue])
-  case Itr(internal: Stream[IO, WanderValue])
+//  case Itr(internal: Stream[IO, WanderValue])
 
 /** Represents a Name in the Wander language.
   */

@@ -15,14 +15,13 @@ import dev.ligature.gaze.{
   takeString,
   repeat
 }
-import dev.ligature.{Identifier, LigatureLiteral, LigatureError}
 import dev.ligature.wander.Token
 
 case class Name(name: String)
 
 enum Term:
   case NameTerm(value: Name)
-  case IdentifierLiteral(value: Identifier)
+  case IdentifierLiteral(value: dev.ligature.wander.Identifier)
   case IntegerLiteral(value: Long)
   case StringLiteral(value: String)
   case BooleanLiteral(value: Boolean)
@@ -40,7 +39,7 @@ enum Term:
     ifBody: Term,
     elseBody: Term)
 
-def parse(script: Seq[Token]): Either[LigatureError, Seq[Term]] = {
+def parse(script: Seq[Token]): Either[WanderError, Seq[Term]] = {
   val filteredInput = script.filter {
     _ match
       case Token.Spaces(_) | Token.NewLine | Token.Comment => false
@@ -53,14 +52,14 @@ def parse(script: Seq[Token]): Either[LigatureError, Seq[Term]] = {
       if (gaze.isComplete) {
         Right(Seq())
       } else {
-        Left(LigatureError(s"Error Parsing - No Match - Next Token: ${gaze.next()}"))
+        Left(WanderError(s"Error Parsing - No Match - Next Token: ${gaze.next()}"))
       }
     // TODO some case also needs to check if gaze is complete
     case Some(res) =>
       if (gaze.isComplete) {
         Right(res)
       } else {
-        Left(LigatureError(s"Error Parsing - No Match - Next Token: ${gaze.next()}"))
+        Left(WanderError(s"Error Parsing - No Match - Next Token: ${gaze.next()}"))
       }
   }
 }

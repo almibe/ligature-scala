@@ -58,9 +58,8 @@ lazy val wander = project
     name := "wander",
     scalaVersion := scala3Version,
     libraryDependencies += "org.scalameta" %% "munit" % munitVersion % Test,
-    libraryDependencies += "org.typelevel" %% "munit-cats-effect" % munitCatsEffect3Version
   )
-  .dependsOn(ligature, lig, gaze, ligatureInMemory % Test)
+  .dependsOn(gaze, lig)
   .disablePlugins(RevolverPlugin)
 
 lazy val ligatureTestSuite = project
