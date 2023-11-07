@@ -33,7 +33,9 @@ enum WanderValue:
   case BooleanValue(value: Boolean)
   case Nothing
   case NativeFunction(body: (arguments: Seq[Term], bindings: Bindings) => IO[WanderValue])
-  case WanderFunction(parameters: Seq[Name], body: Seq[Term])
+  case WanderFunction(
+    parameters: Seq[Name],
+    body: Seq[Term])
   case ListValue(values: Seq[WanderValue])
   case Itr(internal: Stream[IO, WanderValue])
 

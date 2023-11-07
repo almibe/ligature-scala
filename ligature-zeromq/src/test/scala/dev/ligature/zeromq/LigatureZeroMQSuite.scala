@@ -13,11 +13,11 @@ import org.zeromq.{ZMQ, SocketType, ZContext}
 class LigatureZeroMQSuite extends CatsEffectSuite {
   val port = 4200
 
-  def runTest(request: String, expected: String) =
+  def runTest(request: String, expected: String) = {
     zeromqResource.use { zContext =>
       createInMemoryLigature().use { instance =>
         val server: IO[String] = runServer(zContext, instance, port).map(_ => "")
-
+        
         val runRequest: IO[String] = IO {
           val socket = zContext.createSocket(SocketType.REQ)
           socket.connect(s"tcp://localhost:$port")
@@ -27,10 +27,11 @@ class LigatureZeroMQSuite extends CatsEffectSuite {
           result
         }
 
-        val result = List(server, runRequest).parSequence.map(_(1))
+        val result = List(server, runRequest).parSequence.map{_(1)}
         assertIO(result, expected)
       }
     }
+  }
 
   test("eval literals") {
     val request = "true"

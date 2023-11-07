@@ -17,11 +17,13 @@ import dev.ligature.wander.preludes.instancePrelude
 import dev.ligature.wander.WanderValue
 import dev.ligature.wander.printWanderValue
 
-val zeromqResource = Resource.make(IO {
-  ZContext()
-})(context => IO(context.close()))
+val zeromqResource = Resource.make(
+  IO { 
+    ZContext() 
+  })
+  (context => IO(context.close()))
 
-def runServer(zContext: ZContext, ligature: Ligature, port: Int) =
+def runServer(zContext: ZContext, ligature: Ligature, port: Int) = {
   IO {
     val socket = zContext.createSocket(SocketType.REP)
     socket.bind(s"tcp://localhost:$port")
@@ -31,9 +33,11 @@ def runServer(zContext: ZContext, ligature: Ligature, port: Int) =
         val query = String(socket.recv(0), ZMQ.CHARSET)
         val res = run(query, instancePrelude(ligature)).unsafeRunSync()
         socket.send(printWanderValue(res).getBytes(ZMQ.CHARSET), 0)
-      catch case e => continue = false
+      catch
+        case e => continue = false
     ()
   }
+}
 
 object Main extends IOApp.Simple {
   val run =

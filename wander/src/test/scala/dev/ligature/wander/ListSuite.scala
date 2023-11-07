@@ -21,13 +21,10 @@ class ListSuite extends munit.CatsEffectSuite {
   }
   test("basic list") {
     val script = "[1 2 \"three\"]"
-    val result = WanderValue.ListValue(
-      Seq(
-        WanderValue.LigatureValue(LigatureLiteral.IntegerLiteral(1)),
-        WanderValue.LigatureValue(LigatureLiteral.IntegerLiteral(2)),
-        WanderValue.LigatureValue(LigatureLiteral.StringLiteral("three"))
-      )
-    )
+    val result = WanderValue.ListValue(Seq(
+      WanderValue.LigatureValue(LigatureLiteral.IntegerLiteral(1)),
+      WanderValue.LigatureValue(LigatureLiteral.IntegerLiteral(2)),
+      WanderValue.LigatureValue(LigatureLiteral.StringLiteral("three"))))
     check(script, result)
   }
 }
