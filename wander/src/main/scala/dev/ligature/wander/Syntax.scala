@@ -17,9 +17,6 @@ import scala.util.Success
   */
 //sealed trait Expression extends Element
 
-type ScriptResult = WanderValue
-case class EvalResult(result: WanderValue, bindings: Bindings)
-
 /** Represents a Value in the Wander language.
   */
 enum WanderValue:
@@ -102,18 +99,9 @@ enum WanderValue:
 //   }
 // }
 
-enum WanderType {
-  case Value
-  case Identifier
-  case Boolean
-  case String
-  case Integer
-  case Function(parameters: List[Parameter], output: WanderType)
-}
-
 case class Parameter(
     name: Name,
-    parameterType: WanderType
+    parameterType: Option[WanderValue]
 )
 
 /** Holds a reference to a function defined in Wander.

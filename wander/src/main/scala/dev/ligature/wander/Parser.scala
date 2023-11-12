@@ -37,6 +37,7 @@ enum Term:
     conditional: Term,
     ifBody: Term,
     elseBody: Term)
+  case Pipe
 
 def parse(script: Seq[Token]): Either[WanderError, Seq[Term]] = {
   val filteredInput = script.filter {
@@ -195,4 +196,4 @@ val expressionNib =
 //   } yield Seq(Term.LetExpression(name.head.value, expression.head))
 // }
 
-val scriptNib = expressionNib
+val scriptNib = repeat(expressionNib)

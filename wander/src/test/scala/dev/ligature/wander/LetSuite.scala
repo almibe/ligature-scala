@@ -5,7 +5,7 @@
 package dev.ligature.wander
 
 import dev.ligature.wander.Token
-import dev.ligature.wander.ScriptResult
+import dev.ligature.wander.WanderValue
 import dev.ligature.wander.preludes.common
 
 class LetSuite extends munit.FunSuite {

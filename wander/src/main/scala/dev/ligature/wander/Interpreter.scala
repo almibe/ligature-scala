@@ -4,8 +4,31 @@
 
 package dev.ligature.wander
 
-def eval(script: Seq[Term], bindings: Bindings): Either[WanderError, EvalResult] = {
-  ???
+enum Expression:
+  case Name(value: Name)
+  case IdentifierValue(value: Identifier)
+  case IntegerValue(value: Long)
+  case StringValue(value: String)
+  case BooleanValue(value: Boolean)
+  case Nothing
+  case QuestionMark
+  case List(value: Seq[Expression])
+  case LetExpression(decls: Seq[(Name, Expression)], body: Expression)
+  case FunctionCall(name: Name, arguments: Seq[Expression])
+  case WanderFunction(
+    parameters: Seq[Name],
+    body: Seq[Expression])
+  case IfExpression(
+    conditional: Expression,
+    ifBody: Expression,
+    elseBody: Expression)
+
+def eval(expression: Expression, bindings: Bindings): Either[WanderError, WanderValue] = {
+  expression match {
+    case Expression.QuestionMark => ???
+    case Expression.Nothing => ???
+    case _ => ???
+  }
   // script.foldLeft(IO.pure(EvalResult(WanderValue.Nothing, bindings))) { (lastResult, term) =>
   //   lastResult.flatMap { result =>
   //     evalTerm(term, result.bindings)
@@ -16,7 +39,7 @@ def eval(script: Seq[Term], bindings: Bindings): Either[WanderError, EvalResult]
 // def evalAll(terms: Seq[Term], bindings: Bindings): Seq[WanderValue] =
 //   terms.map { term => evalTerm(term, bindings) }.sequence.map { evalResult => evalResult.map { _.result } }
 
-def evalTerm(term: Term, bindings: Bindings): EvalResult = ???
+def evalTerm(term: Term, bindings: Bindings): WanderValue = ???
 //   term match
 //     case Term.BooleanLiteral(value) =>
 //       IO.pure(EvalResult(WanderValue.BooleanValue(value), bindings))

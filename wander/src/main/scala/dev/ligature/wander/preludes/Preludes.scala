@@ -4,11 +4,9 @@
 
 package dev.ligature.wander.preludes
 
-import dev.ligature.wander.WanderValue
-import dev.ligature.wander.{Parameter, ScriptResult}
+import dev.ligature.wander.{Parameter, WanderValue}
 
 //import dev.ligature.{Ligature, Dataset, Value}
-import dev.ligature.wander.WanderType
 // import dev.ligature.Identifier
 // import dev.ligature.LigatureError
 // import dev.ligature.LigatureLiteral

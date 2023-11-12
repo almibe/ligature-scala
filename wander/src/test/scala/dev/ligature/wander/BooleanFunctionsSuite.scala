@@ -4,13 +4,11 @@
 
 package dev.ligature.wander
 
-import dev.ligature
-import dev.ligature.wander.Token
 import dev.ligature.wander.preludes.common
-import dev.ligature.wander.{WanderValue, Name, ScriptResult}
+import dev.ligature.wander.{WanderValue, Name, Token}
 
 class BooleanFunctionsSuite extends munit.FunSuite {
-  def check(script: String, expected: Either[WanderError, ScriptResult]): Unit =
+  def check(script: String, expected: Either[WanderError, WanderValue]): Unit =
     assertEquals(run(script, common()), expected)
 
 //   test("not function") {
