@@ -59,7 +59,7 @@ lazy val wander = project
     scalaVersion := scala3Version,
     libraryDependencies += "org.scalameta" %% "munit" % munitVersion % Test,
   )
-  .dependsOn(gaze, lig)
+  .dependsOn(gaze)
   .disablePlugins(RevolverPlugin)
 
 lazy val ligatureTestSuite = project

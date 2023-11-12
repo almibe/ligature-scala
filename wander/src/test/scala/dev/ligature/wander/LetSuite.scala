@@ -4,11 +4,8 @@
 
 package dev.ligature.wander
 
-import dev.ligature.{Identifier, LigatureLiteral, LigatureError}
 import dev.ligature.wander.Token
 import dev.ligature.wander.ScriptResult
-import cats.effect.IO
-import dev.ligature.LigatureLiteral
 import dev.ligature.wander.preludes.common
 
 class LetSuite extends munit.FunSuite {

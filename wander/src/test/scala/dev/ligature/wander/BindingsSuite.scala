@@ -5,7 +5,6 @@
 package dev.ligature.wander
 
 import dev.ligature.wander.WanderValue
-import dev.ligature.{Identifier, LigatureLiteral}
 import munit.FunSuite
 
 class BindingsSuite extends FunSuite {

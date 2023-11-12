@@ -30,7 +30,7 @@ def evalTerm(term: Term, bindings: Bindings): EvalResult = ???
 //       bindings.read(value) match
 //         case Left(value) => IO.raiseError(value)
 //         case Right(value) => IO.pure(EvalResult(value, bindings))
-//     case Term.LetBinding(name, term) =>
+//     case Term.LetExpression(name, term) =>
 //       evalTerm(term, bindings).map { value =>
 //         bindings.bindVariable(name, value.result) match
 //           case Left(error) => throw error

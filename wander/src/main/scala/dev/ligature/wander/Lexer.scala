@@ -17,7 +17,6 @@ import dev.ligature.gaze.{
   takeWhile,
   repeat
 }
-import dev.ligature.lig.LigNibblers
 
 enum Token:
   case BooleanLiteral(value: Boolean)

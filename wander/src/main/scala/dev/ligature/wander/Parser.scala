@@ -28,9 +28,8 @@ enum Term:
   case NothingLiteral
   case QuestionMark
   case List(value: Seq[Term])
-  case LetBinding(name: Name, value: Term)
+  case LetExpression(decls: Seq[(Name, Term)], body: Term)
   case FunctionCall(name: Name, arguments: Seq[Term])
-  case Scope(elements: Seq[Term])
   case WanderFunction(
     parameters: Seq[Name],
     body: Seq[Term])
@@ -99,13 +98,13 @@ val nameNib: Nibbler[Token, Term.NameTerm] = gaze =>
     case Some(Token.Name(n)) => Some(List(Term.NameTerm(Name(n))))
     case _ => None
 
-val scopeNib: Nibbler[Token, Term.Scope] = { gaze =>
-  for {
-    _ <- gaze.attempt(take(Token.OpenBrace))
-    expression <- gaze.attempt(optional(repeat(elementNib)))
-    _ <- gaze.attempt(take(Token.CloseBrace))
-  } yield Seq(Term.Scope(expression.toList))
-}
+// val scopeNib: Nibbler[Token, Term.Scope] = { gaze =>
+//   for {
+//     _ <- gaze.attempt(take(Token.OpenBrace))
+//     expression <- gaze.attempt(optional(repeat(elementNib)))
+//     _ <- gaze.attempt(take(Token.CloseBrace))
+//   } yield Seq(Term.Scope(expression.toList))
+// }
 
 val parameterNib: Nibbler[Token, Name] = { gaze =>
   for {
@@ -177,7 +176,6 @@ val expressionNib =
     ifExpressionNib,
     functionCallNib,
     nameNib,
-    scopeNib,
     identifierNib,
     wanderFunctionNib,
     stringNib,
@@ -188,20 +186,13 @@ val expressionNib =
     questionMarkTermNib
   )
 
-val letStatementNib: Nibbler[Token, Term] = { gaze =>
-  for {
-    _ <- gaze.attempt(take(Token.LetKeyword))
-    name <- gaze.attempt(nameNib)
-    _ <- gaze.attempt(take(Token.EqualSign))
-    expression <- gaze.attempt(expressionNib)
-  } yield Seq(Term.LetBinding(name.head.value, expression.head))
-}
+// val letStatementNib: Nibbler[Token, Term] = { gaze =>
+//   for {
+//     _ <- gaze.attempt(take(Token.LetKeyword))
+//     name <- gaze.attempt(nameNib)
+//     _ <- gaze.attempt(take(Token.EqualSign))
+//     expression <- gaze.attempt(expressionNib)
+//   } yield Seq(Term.LetExpression(name.head.value, expression.head))
+// }
 
-val elementNib = takeFirst(expressionNib, letStatementNib)
-
-val scriptNib =
-  optional(
-    repeat(
-      elementNib
-    )
-  )
+val scriptNib = expressionNib

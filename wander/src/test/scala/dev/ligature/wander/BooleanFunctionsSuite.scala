@@ -6,7 +6,6 @@ package dev.ligature.wander
 
 import dev.ligature
 import dev.ligature.wander.Token
-import dev.ligature.{Identifier, LigatureError}
 import dev.ligature.wander.preludes.common
 import dev.ligature.wander.{WanderValue, Name, ScriptResult}
 
