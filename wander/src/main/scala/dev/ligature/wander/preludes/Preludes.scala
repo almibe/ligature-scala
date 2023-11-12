@@ -2,21 +2,21 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-// package dev.ligature.wander.preludes
+package dev.ligature.wander.preludes
 
-// import dev.ligature.wander.WanderValue
-// import dev.ligature.wander.{Parameter, ScriptResult}
+import dev.ligature.wander.WanderValue
+import dev.ligature.wander.{Parameter, ScriptResult}
 
-// //import dev.ligature.{Ligature, Dataset, Value}
-// import dev.ligature.wander.WanderType
-// // import dev.ligature.Identifier
-// // import dev.ligature.LigatureError
-// // import dev.ligature.LigatureLiteral
-// // import cats.effect.IO
-// // import dev.ligature.Statement
-// // import fs2.Stream
-// import scala.collection.mutable.ListBuffer
-// import dev.ligature.wander.*
+//import dev.ligature.{Ligature, Dataset, Value}
+import dev.ligature.wander.WanderType
+// import dev.ligature.Identifier
+// import dev.ligature.LigatureError
+// import dev.ligature.LigatureLiteral
+// import cats.effect.IO
+// import dev.ligature.Statement
+// import fs2.Stream
+import scala.collection.mutable.ListBuffer
+import dev.ligature.wander.*
 
 // def instancePrelude(instance: Ligature): Bindings = {
 //   var bindings = common()
@@ -179,114 +179,115 @@
 // //   datasetModeBindings(bindings, dataset)
 // // }
 
-// /**
-//  * 
-//  */
-// def common(): Bindings = {
-//   var stdLib = Bindings()
+/**
+ * 
+ */
+def common(): Bindings = {
+  var stdLib = Bindings()
 
-//   // stdLib = stdLib
-//   //   .bindVariable(
-//   //     Name("log"),
-//   //     NativeFunction(
-//   //       List(Parameter(Name("message"), WanderType.String)),
-//   //       (binding: Bindings) => ???
-//   //     )
-//   //   )
-//   //   .getOrElse(???)
+  // stdLib = stdLib
+  //   .bindVariable(
+  //     Name("log"),
+  //     NativeFunction(
+  //       List(Parameter(Name("message"), WanderType.String)),
+  //       (binding: Bindings) => ???
+  //     )
+  //   )
+  //   .getOrElse(???)
 
-//   stdLib = stdLib
-//     .bindVariable(
-//       Name("not"),
-//       WanderValue.NativeFunction(
-//         (arguments: Seq[Term], bindings: Bindings) =>
-//           if arguments.size != 1 then
-//             IO.raiseError(LigatureError("`not` function requires 1 argument."))
-//           else
-//             evalTerm(arguments.head, bindings).map { 
-//               _ match
-//                 case EvalResult(b: WanderValue.BooleanValue, _) => WanderValue.BooleanValue(!b.value)
-//                 case _ => throw LigatureError("`not` function requires 1 boolean argument.")
-//             }
-//       )
-//     )
-//     .getOrElse(???)
+  stdLib = stdLib
+    .bindVariable(
+      Name("Bool.not"),
+      WanderValue.NativeFunction(
+        (arguments: Seq[Term], bindings: Bindings) =>
+          if arguments.size != 1 then
+            Left(WanderError("`not` function requires 1 argument."))
+          else
+            ???
+            // evalTerm(arguments.head, bindings).map { 
+            //   _ match
+            //     case EvalResult(b: WanderValue.BooleanValue, _) => WanderValue.BooleanValue(!b.value)
+            //     case _ => throw LigatureError("`not` function requires 1 boolean argument.")
+            // }
+      )
+    )
+    .getOrElse(???)
 
-//   stdLib = stdLib
-//     .bindVariable(
-//       Name("and"),
-//       WanderValue.NativeFunction(
-//         (arguments: Seq[Term], bindings: Bindings) =>
-//           if arguments.length == 2 then
-//             val res = for {
-//               left <- evalTerm(arguments(0), bindings)
-//               right <- evalTerm(arguments(1), bindings)
-//             } yield (left, right)
-//             res.map { r =>
-//               (r._1.result, r._2.result) match
-//                 case (WanderValue.BooleanValue(left), WanderValue.BooleanValue(right)) => WanderValue.BooleanValue(left && right)
-//                 case _ => throw LigatureError("`and` function requires two booleans")
-//             }
-//           else
-//             IO.raiseError(LigatureError("`and` function requires two booleans"))
-//       )
-//     )
-//     .getOrElse(???)
+  stdLib = stdLib
+    .bindVariable(
+      Name("and"),
+      WanderValue.NativeFunction(
+        (arguments: Seq[Term], bindings: Bindings) => ???
+          // if arguments.length == 2 then
+          //   val res = for {
+          //     left <- evalTerm(arguments(0), bindings)
+          //     right <- evalTerm(arguments(1), bindings)
+          //   } yield (left, right)
+          //   res.map { r =>
+          //     (r._1.result, r._2.result) match
+          //       case (WanderValue.BooleanValue(left), WanderValue.BooleanValue(right)) => WanderValue.BooleanValue(left && right)
+          //       case _ => throw LigatureError("`and` function requires two booleans")
+          //   }
+          // else
+          //   IO.raiseError(LigatureError("`and` function requires two booleans"))
+      )
+    )
+    .getOrElse(???)
 
-//   stdLib = stdLib
-//     .bindVariable(
-//       Name("or"),
-//       WanderValue.NativeFunction(
-//         (arguments: Seq[Term], bindings: Bindings) =>
-//           if arguments.length == 2 then
-//             val res = for {
-//               left <- evalTerm(arguments(0), bindings)
-//               right <- evalTerm(arguments(1), bindings)
-//             } yield (left, right)
-//             res.map { r =>
-//               (r._1.result, r._2.result) match
-//                 case (WanderValue.BooleanValue(left), WanderValue.BooleanValue(right)) => WanderValue.BooleanValue(left || right)
-//                 case _ => throw LigatureError("`or` function requires two booleans")
-//             }
-//           else
-//             IO.raiseError(LigatureError("`or` function requires two booleans"))
-//       )
-//     )
-//     .getOrElse(???)
+  stdLib = stdLib
+    .bindVariable(
+      Name("or"),
+      WanderValue.NativeFunction(
+        (arguments: Seq[Term], bindings: Bindings) => ???
+          // if arguments.length == 2 then
+          //   val res = for {
+          //     left <- evalTerm(arguments(0), bindings)
+          //     right <- evalTerm(arguments(1), bindings)
+          //   } yield (left, right)
+          //   res.map { r =>
+          //     (r._1.result, r._2.result) match
+          //       case (WanderValue.BooleanValue(left), WanderValue.BooleanValue(right)) => WanderValue.BooleanValue(left || right)
+          //       case _ => throw LigatureError("`or` function requires two booleans")
+          //   }
+          // else
+          //   Left(WanderError("`or` function requires two booleans")))
+      )
+    )
+    .getOrElse(???)
 
-//   // class RangeResultStream implements ResultStream<bigint> {
-//   //     readonly start: bigint
-//   //     readonly stop: bigint
-//   //     private i: bigint
+  // class RangeResultStream implements ResultStream<bigint> {
+  //     readonly start: bigint
+  //     readonly stop: bigint
+  //     private i: bigint
 
-//   //     constructor(start: bigint, stop: bigint) {
-//   //         this.start = start
-//   //         this.stop = stop
-//   //         this.i = start
-//   //     }
+  //     constructor(start: bigint, stop: bigint) {
+  //         this.start = start
+  //         this.stop = stop
+  //         this.i = start
+  //     }
 
-//   //     next(): Promise<bigint | ResultComplete | ResultError> {
-//   //         if (this.i < this.stop) {
-//   //             val result = this.i
-//   //             this.i++;
-//   //             return Promise.resolve(result)
-//   //         } else {
-//   //             return Promise.resolve(ResultComplete(this.stop - this.start));
-//   //         }
-//   //     }
-//   //     toArray(): Promise<ResultComplete | ResultError | bigint[]> {
-//   //         throw Error("Method not implemented.");
-//   //     }
-//   // }
+  //     next(): Promise<bigint | ResultComplete | ResultError> {
+  //         if (this.i < this.stop) {
+  //             val result = this.i
+  //             this.i++;
+  //             return Promise.resolve(result)
+  //         } else {
+  //             return Promise.resolve(ResultComplete(this.stop - this.start));
+  //         }
+  //     }
+  //     toArray(): Promise<ResultComplete | ResultError | bigint[]> {
+  //         throw Error("Method not implemented.");
+  //     }
+  // }
 
-//   // // stdLib.bind(Name("range"), NativeFunction(["start", "stop"], (bindings: Bindings) => {
-//   // //     val start = bindings.read(Name("start")) as unknown as bigint //TODO check value
-//   // //     val stop = bindings.read(Name("stop")) as unknown as bigint //TODO check value
-//   // //     return RangeResultStream(start, stop)
-//   // // }))
+  // // stdLib.bind(Name("range"), NativeFunction(["start", "stop"], (bindings: Bindings) => {
+  // //     val start = bindings.read(Name("start")) as unknown as bigint //TODO check value
+  // //     val stop = bindings.read(Name("stop")) as unknown as bigint //TODO check value
+  // //     return RangeResultStream(start, stop)
+  // // }))
 
-//   stdLib
-// }
+  stdLib
+}
 
 // def datasetModeBindings(bindings: Bindings, dataset: Dataset): Bindings =
 //   bindings

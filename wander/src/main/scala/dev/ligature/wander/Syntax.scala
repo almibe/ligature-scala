@@ -24,6 +24,8 @@ case class EvalResult(result: WanderValue, bindings: Bindings)
   */
 enum WanderValue:
 //  case LigatureValue(value: Value)
+  case StringValue(value: String)
+  case IntValue(value: Long)
   case BooleanValue(value: Boolean)
   case Nothing
   case NativeFunction(body: (arguments: Seq[Term], bindings: Bindings) => Either[WanderError, WanderValue])

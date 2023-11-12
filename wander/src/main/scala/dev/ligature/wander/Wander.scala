@@ -41,6 +41,8 @@ def printResult(value: ScriptResult): String = {
 def printWanderValue(value: WanderValue): String = {
   value match {
     case WanderValue.BooleanValue(value) => value.toString()
+    case WanderValue.IntValue(value) => value.toString()
+    case WanderValue.StringValue(value) => value
 //    case WanderValue.LigatureValue(value) => writeValue(value)
     case WanderValue.NativeFunction(body) => "[NativeFunction]"
     case WanderValue.Nothing => "nothing"

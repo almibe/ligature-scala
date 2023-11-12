@@ -16,7 +16,7 @@ def eval(script: Seq[Term], bindings: Bindings): Either[WanderError, EvalResult]
 // def evalAll(terms: Seq[Term], bindings: Bindings): Seq[WanderValue] =
 //   terms.map { term => evalTerm(term, bindings) }.sequence.map { evalResult => evalResult.map { _.result } }
 
-// def evalTerm(term: Term, bindings: Bindings): EvalResult =
+def evalTerm(term: Term, bindings: Bindings): EvalResult = ???
 //   term match
 //     case Term.BooleanLiteral(value) =>
 //       IO.pure(EvalResult(WanderValue.BooleanValue(value), bindings))

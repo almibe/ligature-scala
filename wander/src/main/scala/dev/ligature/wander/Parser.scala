@@ -21,7 +21,7 @@ case class Name(name: String)
 
 enum Term:
   case NameTerm(value: Name)
-  case IdentifierLiteral(value: dev.ligature.wander.Identifier)
+  case IdentifierLiteral(value: Identifier)
   case IntegerLiteral(value: Long)
   case StringLiteral(value: String)
   case BooleanLiteral(value: Boolean)
