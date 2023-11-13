@@ -7,6 +7,7 @@ package dev.ligature.wander
 import dev.ligature.wander.WanderValue
 import dev.ligature.wander.parse
 import scala.annotation.unused
+import dev.ligature.wander.preludes.common
 
 case class WanderError(val userMessage: String) extends Throwable(userMessage)
 
@@ -32,6 +33,7 @@ def printWanderValue(value: WanderValue): String = {
     case WanderValue.BooleanValue(value) => value.toString()
     case WanderValue.IntValue(value) => value.toString()
     case WanderValue.StringValue(value) => value
+    case WanderValue.Identifier(value) => ???//value.toString()
 //    case WanderValue.LigatureValue(value) => writeValue(value)
     case WanderValue.NativeFunction(body) => "[NativeFunction]"
     case WanderValue.Nothing => "nothing"
@@ -56,4 +58,14 @@ object Identifier {
     } else {
       Left(WanderError(s"Invalid Identifier $name"))
     }
+}
+
+import scala.scalajs.js.annotation._
+
+@JSExportTopLevel("Wander")
+object Wander {
+  @JSExport
+  def main = {
+    run("5", common())
+  }
 }

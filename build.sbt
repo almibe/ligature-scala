@@ -25,6 +25,7 @@ lazy val ligature = project
 
 lazy val gaze = project
   .in(file("gaze"))
+  .enablePlugins(ScalaJSPlugin)
   .settings(
     name := "gaze",
     scalaVersion := scala3Version,
@@ -54,10 +55,15 @@ lazy val lig = project
 
 lazy val wander = project
   .in(file("wander"))
+  .enablePlugins(ScalaJSPlugin)
   .settings(
     name := "wander",
     scalaVersion := scala3Version,
     libraryDependencies += "org.scalameta" %% "munit" % munitVersion % Test,
+    //scalaJSUseMainModuleInitializer := true,
+    scalaJSLinkerConfig ~= {
+      _.withModuleKind(ModuleKind.ESModule)
+    },
   )
   .dependsOn(gaze)
   .disablePlugins(RevolverPlugin)
