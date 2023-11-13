@@ -21,6 +21,7 @@ import scala.util.Success
   */
 enum WanderValue:
 //  case LigatureValue(value: Value)
+  case Identifier(value: dev.ligature.wander.Identifier)
   case StringValue(value: String)
   case IntValue(value: Long)
   case BooleanValue(value: Boolean)

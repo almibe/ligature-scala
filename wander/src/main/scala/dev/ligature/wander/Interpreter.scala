@@ -5,13 +5,12 @@
 package dev.ligature.wander
 
 enum Expression:
-  case Name(value: Name)
+  case NameExpression(value: Name)
   case IdentifierValue(value: Identifier)
   case IntegerValue(value: Long)
   case StringValue(value: String)
   case BooleanValue(value: Boolean)
   case Nothing
-  case QuestionMark
   case List(value: Seq[Expression])
   case LetExpression(decls: Seq[(Name, Expression)], body: Expression)
   case FunctionCall(name: Name, arguments: Seq[Expression])
@@ -25,21 +24,10 @@ enum Expression:
 
 def eval(expression: Expression, bindings: Bindings): Either[WanderError, WanderValue] = {
   expression match {
-    case Expression.QuestionMark => ???
-    case Expression.Nothing => ???
+    case Expression.Nothing => Right(WanderValue.Nothing)
     case _ => ???
   }
-  // script.foldLeft(IO.pure(EvalResult(WanderValue.Nothing, bindings))) { (lastResult, term) =>
-  //   lastResult.flatMap { result =>
-  //     evalTerm(term, result.bindings)
-  //   }
-  // }
 }
-
-// def evalAll(terms: Seq[Term], bindings: Bindings): Seq[WanderValue] =
-//   terms.map { term => evalTerm(term, bindings) }.sequence.map { evalResult => evalResult.map { _.result } }
-
-def evalTerm(term: Term, bindings: Bindings): WanderValue = ???
 //   term match
 //     case Term.BooleanLiteral(value) =>
 //       IO.pure(EvalResult(WanderValue.BooleanValue(value), bindings))
