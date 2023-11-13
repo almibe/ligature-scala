@@ -34,6 +34,19 @@ Use `test` to run tests.
 
 Use `scalafmtAll` to format code.
 
+### Building Wander's NPM Artifact
+
+To build the Scala.js artifact for Wander follow these steps in the command line from the root of this project.
+
+```
+sbt
+project wander
+fullOptJS
+exit
+cd wander
+npm publish
+```
+
 ### Running the Server
 
 `sbt ligatureZeroMQ/run`
