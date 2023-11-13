@@ -1,11 +1,6 @@
 # ligature-scala
 An implementation of [Ligature knowledge graph](https://ligature.dev) library written in Scala for the JVM.
 
-## Notice
-
-Work on this project is on hold.
-See [ligature-rs](https://github.com/almibe/ligature-rs/) for a Rust implementation of Ligature that is under active development.
-
 ### Projects
 
 | Name                     | Description                                                                      |
@@ -38,6 +33,19 @@ Use `compile` to compile code.
 Use `test` to run tests.
 
 Use `scalafmtAll` to format code.
+
+### Building Wander's NPM Artifact
+
+To build the Scala.js artifact for Wander follow these steps in the command line from the root of this project.
+
+```
+sbt
+project wander
+fullOptJS
+exit
+cd wander
+npm publish
+```
 
 ### Running the Server
 
