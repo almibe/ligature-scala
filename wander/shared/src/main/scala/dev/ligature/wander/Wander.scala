@@ -8,17 +8,17 @@ import dev.ligature.wander.WanderValue
 import dev.ligature.wander.parse
 import scala.annotation.unused
 import dev.ligature.wander.preludes.common
-import scala.scalajs.js.annotation._
+//import scala.scalajs.js.annotation._
 
 case class WanderError(val userMessage: String) extends Throwable(userMessage)
 
-@JSExportTopLevel("Wander")
-object Wander {
-  @JSExport
-  def run(script: String) = {
-    dev.ligature.wander.run(script, common())
-  }
-}
+// @JSExportTopLevel("Wander")
+// object Wander {
+//   @JSExport
+//   def run(script: String) = {
+//     dev.ligature.wander.run(script, common())
+//   }
+// }
 
 def run(
     script: String,
