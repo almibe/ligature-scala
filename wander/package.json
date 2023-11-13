@@ -14,6 +14,5 @@
       "./target/scala-3.3.0/wander-opt/main.js"
     ],
     "exports": "./target/scala-3.3.0/wander-opt/main.js",
-    "type": "module",
-    "homepage": "https://github.com/almibe/wander"
+    "homepage": "https://wander-lang.dev"
 }
