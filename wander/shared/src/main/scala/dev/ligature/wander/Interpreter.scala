@@ -4,6 +4,8 @@
 
 package dev.ligature.wander
 
+import scala.collection.mutable.ListBuffer
+
 enum Expression:
   case NameExpression(value: Name)
   case IdentifierValue(value: Identifier)
@@ -11,10 +13,12 @@ enum Expression:
   case StringValue(value: String)
   case BooleanValue(value: Boolean)
   case Nothing
-  case List(value: Seq[Expression])
+  case Array(value: Seq[Expression])
+  case Set(value: Seq[Expression])
+  case Record(entires: Seq[(Name, Expression)])
   case LetExpression(decls: Seq[(Name, Expression)], body: Expression)
-  case FunctionCall(name: Name, arguments: Seq[Expression])
-  case WanderFunction(
+  case Application(name: Name, arguments: Seq[Expression])
+  case Lambda(
     parameters: Seq[Name],
     body: Seq[Expression])
   case IfExpression(
@@ -29,9 +33,49 @@ def eval(expression: Expression, bindings: Bindings): Either[WanderError, Wander
     case Expression.IntegerValue(value) => Right(WanderValue.IntValue(value))
     case Expression.StringValue(value) => Right(WanderValue.StringValue(value))
     case Expression.IdentifierValue(value) => Right(WanderValue.Identifier(value))
+    case Expression.Array(value) => handleArray(value, bindings)
+    case Expression.Set(value) => handleSet(value, bindings)
+    case Expression.Record(entries) => handleRecord(entries, bindings)
     case _ => ???
   }
 }
+
+def handleRecord(entries: Seq[(Name, Expression)], bindings: Bindings): Either[WanderError, WanderValue.Record] = {
+  val record = entries.map((name, expression) => {
+    eval(expression, bindings) match {
+      case Left(value) => ???
+      case Right(value) => (name, value)
+    }
+  })
+  Right(WanderValue.Record(record))
+}
+
+def handleArray(expressions: Seq[Expression], bindings: Bindings): Either[WanderError, WanderValue.Array] = {
+  val res = ListBuffer[WanderValue]()
+  val itre = expressions.iterator
+  var continue = true
+  while continue && itre.hasNext
+  do
+    val expression = itre.next()
+    eval(expression, bindings) match
+      case Left(err) => return Left(err)
+      case Right(value) => res += value    
+  Right(WanderValue.Array(res.toList))
+}
+
+def handleSet(expressions: Seq[Expression], bindings: Bindings): Either[WanderError, WanderValue.Set] = {
+  val res = ListBuffer[WanderValue]()
+  val itre = expressions.iterator
+  var continue = true
+  while continue && itre.hasNext
+  do
+    val expression = itre.next()
+    eval(expression, bindings) match
+      case Left(err) => return Left(err)
+      case Right(value) => res += value    
+  Right(WanderValue.Set(res.toSet))
+}
+
 //   term match
 //     case Term.BooleanLiteral(value) =>
 //       IO.pure(EvalResult(WanderValue.BooleanValue(value), bindings))

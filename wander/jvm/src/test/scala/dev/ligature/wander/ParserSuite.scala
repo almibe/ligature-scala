@@ -14,29 +14,15 @@ class ParserSuite extends FunSuite {
       case Right(value) => Term.IdentifierLiteral(value)
 
   def check(script: String): Either[WanderError, Seq[Term]] =
-    println("aa")
     val tokens = tokenize(script) match
       case Left(err) => return Left(err)
       case Right(tokens) => tokens
-    println("bb" + tokens)
     parse(tokens)
 
-  test("hello") {
-    val obtained = 42
-    val expected = 42
-    assertEquals(obtained, expected)
-  }
   test("parse Name") {
-    println(tokenize("test"))
-    tokenize("test") match {
-      case Left(value) => ???
-      case Right(value) => {
-        println("??"+parse(value))
-      }
-    }
-    // val input = check("test test2")
-    // val expected = Right(Seq(Term.NameTerm(Name("test")), Term.NameTerm(Name("test2"))))
-    // assertEquals(input, expected)
+    val input = check("test test2")
+    val expected = Right(Seq(Term.NameTerm(Name("test")), Term.NameTerm(Name("test2"))))
+    assertEquals(input, expected)
   }
   // test("parse nothing keyword") {
   //   val script = "nothing"
@@ -105,7 +91,4 @@ class ParserSuite extends FunSuite {
   //   ))
   //   check(script, result)
   // }
-  test("fail") {
-    fail("")
-  }
 }

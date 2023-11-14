@@ -20,7 +20,6 @@ import scala.util.Success
 /** Represents a Value in the Wander language.
   */
 enum WanderValue:
-//  case LigatureValue(value: Value)
   case Identifier(value: dev.ligature.wander.Identifier)
   case StringValue(value: String)
   case IntValue(value: Long)
@@ -30,18 +29,9 @@ enum WanderValue:
   case WanderFunction(
     parameters: Seq[Name],
     body: Seq[Term])
-  case ListValue(values: Seq[WanderValue])
-//  case Itr(internal: Stream[IO, WanderValue])
-
-/** Represents a Name in the Wander language.
-  */
-// final case class Name(name: String) extends Expression {
-//   override def eval(bindings: Bindings) =
-//     bindings.read(this) match {
-//       case Left(err)    => Left(err)
-//       case Right(value) => Right(EvalResult(value, bindings))
-//     }
-// }
+  case Array(values: Seq[WanderValue])
+  case Set(values: scala.collection.Set[WanderValue])
+  case Record(entires: Seq[(Name, WanderValue)])
 
 //sealed trait FunctionDefinition(val parameters: List[Parameter]) extends WanderValue
 
