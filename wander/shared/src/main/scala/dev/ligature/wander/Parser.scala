@@ -159,11 +159,9 @@ val ifExpressionNib: Nibbler[Token, Term.IfExpression] = { gaze =>
 
 val applicationNib: Nibbler[Token, Term.Application] = { gaze =>
   for
-    name <- gaze.attempt(nameNib)
-//    _ <- gaze.attempt(take(Token.OpenParen))
+    name <- gaze.attempt(nameNib) //TODO this should also allow literals
     terms <- gaze.attempt(optional(repeat(expressionNib)))
-//    _ <- gaze.attempt(take(Token.CloseParen))
-  yield Seq(Term.Application(terms))
+  yield Seq(Term.Application(name ++ terms))
 }
 
 val setNib: Nibbler[Token, Term.Set] = { gaze =>

@@ -19,9 +19,9 @@ class ParserSuite extends FunSuite {
       case Right(tokens) => tokens
     parse(tokens)
 
-  test("parse Name") {
-    val input = check("test test2")
-    val expected = Right(Seq(Term.NameTerm(Name("test")), Term.NameTerm(Name("test2"))))
+  test("parse Application") {
+    val input = check("testing 1 2 3")
+    val expected = Right(Seq(Term.Application(Seq(Term.NameTerm(Name("testing")), Term.IntegerLiteral(1), Term.IntegerLiteral(2), Term.IntegerLiteral(3)))))
     assertEquals(input, expected)
   }
   // test("parse nothing keyword") {
