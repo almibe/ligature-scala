@@ -39,13 +39,18 @@ Use `scalafmtAll` to format code.
 To build the Scala.js artifact for Wander follow these steps in the command line from the root of this project.
 
 ```
-sbt
-project wander
-fullOptJS
-exit
+sbt "project wanderJS" fullOptJS
 cd wander
 npm publish
 ```
+
+### Running Wander's Test Suite
+
+Check out https://github.com/almibe/wander-test-suite.
+
+Set an environment variable called WANDER_TEST_SUITE to point to this directory.
+
+Now you should be able to run Wander's full test suite.
 
 ### Running the Server
 
