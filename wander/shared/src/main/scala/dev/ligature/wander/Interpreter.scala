@@ -25,6 +25,10 @@ enum Expression:
 def eval(expression: Expression, bindings: Bindings): Either[WanderError, WanderValue] = {
   expression match {
     case Expression.Nothing => Right(WanderValue.Nothing)
+    case Expression.BooleanValue(value) => Right(WanderValue.BooleanValue(value))
+    case Expression.IntegerValue(value) => Right(WanderValue.IntValue(value))
+    case Expression.StringValue(value) => Right(WanderValue.StringValue(value))
+    case Expression.IdentifierValue(value) => Right(WanderValue.Identifier(value))
     case _ => ???
   }
 }

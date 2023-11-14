@@ -27,10 +27,12 @@ enum Term:
   case BooleanLiteral(value: Boolean)
   case NothingLiteral
   case QuestionMark
-  case List(value: Seq[Term])
+  case Array(value: Seq[Term])
+  case Set(value: Seq[Term])
+  case Record(entires: Seq[(Name, Term)])
   case LetExpression(decls: Seq[(Name, Term)], body: Term)
-  case FunctionCall(name: Name, arguments: Seq[Term])
-  case WanderFunction(
+  case Application(terms: Seq[Term])
+  case Lambda(
     parameters: Seq[Name],
     body: Seq[Term])
   case IfExpression(
@@ -115,14 +117,14 @@ val parameterNib: Nibbler[Token, Name] = { gaze =>
   } yield names.map(_.value)
 }
 
-val wanderFunctionNib: Nibbler[Token, Term.WanderFunction] = { gaze =>
+val lambdaNib: Nibbler[Token, Term.Lambda] = { gaze =>
   for {
     _ <- gaze.attempt(take(Token.OpenBrace))
     parameters <- gaze.attempt(optional(repeat(parameterNib)))
     _ <- gaze.attempt(take(Token.Arrow))
     body <- gaze.attempt(expressionNib)
     _ <- gaze.attempt(take(Token.CloseBrace))
-  } yield Seq(Term.WanderFunction(parameters, body))
+  } yield Seq(Term.Lambda(parameters, body))
 }
 
 // val typeNib: Nibbler[Token, WanderType] = takeFirst(
@@ -155,33 +157,33 @@ val ifExpressionNib: Nibbler[Token, Term.IfExpression] = { gaze =>
   )
 }
 
-val functionCallNib: Nibbler[Token, Term] = { gaze =>
+val applicationNib: Nibbler[Token, Term] = { gaze =>
   for
     name <- gaze.attempt(nameNib)
-    _ <- gaze.attempt(take(Token.OpenParen))
-    parameters <- gaze.attempt(optional(repeat(expressionNib)))
-    _ <- gaze.attempt(take(Token.CloseParen))
-  yield Seq(Term.FunctionCall(name.head.value, parameters))
+//    _ <- gaze.attempt(take(Token.OpenParen))
+    terms <- gaze.attempt(optional(repeat(expressionNib)))
+//    _ <- gaze.attempt(take(Token.CloseParen))
+  yield Seq(Term.Application(terms))
 }
 
-val listNib: Nibbler[Token, Term] = { gaze =>
+val arrayNib: Nibbler[Token, Term] = { gaze =>
   for
     _ <- gaze.attempt(take(Token.OpenBracket))
     values <- gaze.attempt(optional(repeat(expressionNib)))
     _ <- gaze.attempt(take(Token.CloseBracket))
-  yield Seq(Term.List(values))
+  yield Seq(Term.Array(values))
 }
 
 val expressionNib =
   takeFirst(
     ifExpressionNib,
-    functionCallNib,
+    applicationNib,
     nameNib,
     identifierNib,
-    wanderFunctionNib,
+    lambdaNib,
     stringNib,
     integerNib,
-    listNib,
+    arrayNib,
     booleanNib,
     nothingNib,
     questionMarkTermNib
@@ -196,4 +198,4 @@ val expressionNib =
 //   } yield Seq(Term.LetExpression(name.head.value, expression.head))
 // }
 
-val scriptNib = repeat(expressionNib)
+val scriptNib = expressionNib

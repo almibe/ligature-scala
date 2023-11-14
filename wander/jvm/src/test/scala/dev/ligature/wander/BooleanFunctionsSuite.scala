@@ -11,11 +11,11 @@ class BooleanFunctionsSuite extends munit.FunSuite {
   def check(script: String, expected: Either[WanderError, WanderValue]): Unit =
     assertEquals(run(script, common()), expected)
 
-//   test("not function") {
-//     val script = "not(true)"
-//     val result = Right(WanderValue.BooleanValue(false))
-//     check(script, result)
-//   }
+  // test("not function") {
+  //   val script = "not(true)"
+  //   val result = Right(WanderValue.BooleanValue(false))
+  //   check(script, result)
+  // }
 //   test("and function") {
 //     val script = "and(false false)"
 //     val result = Right(WanderValue.BooleanValue(false))

@@ -8,17 +8,8 @@ import dev.ligature.wander.WanderValue
 import dev.ligature.wander.parse
 import scala.annotation.unused
 import dev.ligature.wander.preludes.common
-//import scala.scalajs.js.annotation._
 
 case class WanderError(val userMessage: String) extends Throwable(userMessage)
-
-// @JSExportTopLevel("Wander")
-// object Wander {
-//   @JSExport
-//   def run(script: String) = {
-//     dev.ligature.wander.run(script, common())
-//   }
-// }
 
 def run(
     script: String,
@@ -32,6 +23,29 @@ def run(
   expression match
     case Left(value) => Left(value)
     case Right(value) => eval(value, bindings)
+
+case class Introspect(
+  tokens: Either[WanderError, Seq[Token]], 
+  terms: Either[WanderError, Seq[Term]],
+  expression: Either[WanderError, Expression])
+
+def introspect(script: String): Introspect = {
+  val tokens = tokenize(script)
+  
+  val terms = if (tokens.isRight) {
+    parse(tokens.getOrElse(???))
+  } else {
+    Left(WanderError("Previous error."))
+  }
+
+  val expression = if (terms.isRight) {
+    process(terms.getOrElse(???))
+  } else {
+    Left(WanderError("Previous error."))
+  }
+  
+  Introspect(tokens, terms, expression)
+}
 
 def printResult(value: WanderValue): String = {
   printWanderValue(value)
