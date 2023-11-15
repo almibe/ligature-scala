@@ -37,13 +37,13 @@ def tokenize(input: String): Either[WanderError, Seq[Token]] = {
       if (gaze.isComplete) {
         Right(List())
       } else {
-        Left(WanderError("Error"))
+        Left(WanderError("Error tokenizing."))
       }
     case Some(res) =>
       if (gaze.isComplete) {
         Right(res)
       } else {
-        Left(WanderError("Error"))
+        Left(WanderError("Error tokenizing."))
       }
   }
 }
@@ -120,6 +120,9 @@ val backtickTokenNib =
 val arrowTokenNib =
   takeString("->").map(res => Seq(Token.Arrow))
 
+val lambdaTokenNib =
+  takeString("\\").map(res => Seq(Token.Lambda))
+
 val integerTokenNib =
   LigNibblers.numberNibbler.map(res => Seq(Token.IntegerLiteral(res.mkString.toLong)))
 
@@ -137,6 +140,7 @@ val tokensNib: Nibbler[Char, Token] = repeat(
     openParenTokenNib,
     closeParenTokenNib,
     arrowTokenNib,
+    lambdaTokenNib,
     integerTokenNib,
     newLineTokenNib,
     identifierTokenNib,

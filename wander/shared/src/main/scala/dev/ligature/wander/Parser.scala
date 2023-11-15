@@ -34,7 +34,7 @@ enum Term:
   case Application(terms: Seq[Term])
   case Lambda(
     parameters: Seq[Name],
-    body: Seq[Term])
+    body: Term)
   case IfExpression(
     conditional: Term,
     ifBody: Term,
@@ -119,11 +119,10 @@ val parameterNib: Nibbler[Token, Name] = { gaze =>
 
 val lambdaNib: Nibbler[Token, Term.Lambda] = { gaze =>
   for {
-    _ <- gaze.attempt(take(Token.OpenBrace))
+    _ <- gaze.attempt(take(Token.Lambda))
     parameters <- gaze.attempt(optional(repeat(parameterNib)))
     _ <- gaze.attempt(take(Token.Arrow))
     body <- gaze.attempt(expressionNib)
-    _ <- gaze.attempt(take(Token.CloseBrace))
   } yield Seq(Term.Lambda(parameters, body))
 }
 
@@ -157,11 +156,20 @@ val ifExpressionNib: Nibbler[Token, Term.IfExpression] = { gaze =>
   )
 }
 
-val applicationNib: Nibbler[Token, Term.Application] = { gaze =>
-  for
+//NOTE: this will return either an Application or a Name.
+val applicationNib: Nibbler[Token, Term] = { gaze =>
+  val res = for
     name <- gaze.attempt(nameNib) //TODO this should also allow literals
     terms <- gaze.attempt(optional(repeat(expressionNib)))
-  yield Seq(Term.Application(name ++ terms))
+  yield name ++ terms
+  res match {
+    case None => None
+    case Some(value) =>
+      value match {
+        case head :: Nil => Some(Seq(head))
+        case _ => Some(Seq(Term.Application(value)))
+      }
+  }
 }
 
 val setNib: Nibbler[Token, Term.Set] = { gaze =>
@@ -187,7 +195,6 @@ val fieldNib: Nibbler[Token, (Name, Term)] = { gaze =>
     _ <- gaze.attempt(take(Token.EqualSign))
     expression <- gaze.attempt(expressionNib)
   yield (name, expression)
-  println("!!! " + res)
   res match {
     case Some(Seq(Term.NameTerm(name)), Seq(term: Term)) => Some(Seq((name, term)))
     case _ => None
@@ -197,18 +204,20 @@ val fieldNib: Nibbler[Token, (Name, Term)] = { gaze =>
 val recordNib: Nibbler[Token, Term.Record] = { gaze =>
   for
     _ <- gaze.attempt(take(Token.OpenBrace))
-    decls <- gaze.attempt(repeat(optional(fieldNib)))
+    decls <- gaze.attempt(optional(repeat(fieldNib)))
     _ <- gaze.attempt(take(Token.CloseBrace))
-  yield Seq(Term.Record(Seq()))//decls))
+  yield Seq(Term.Record(decls))
 }
 
 val letExpressionNib: Nibbler[Token, Term.LetExpression] = { gaze =>
   for {
     _ <- gaze.attempt(take(Token.LetKeyword))
-    name <- gaze.attempt(nameNib)
-    _ <- gaze.attempt(take(Token.EqualSign))
-    expression <- gaze.attempt(expressionNib)
-  } yield Seq(Term.LetExpression(Seq(), Term.NothingLiteral))
+    decls <- gaze.attempt(optional(repeat(fieldNib)))
+    _ <- gaze.attempt(take(Token.InKeyword))
+    body <- gaze.attempt(expressionNib)
+    body <- body.lift(0)
+    _ <- gaze.attempt(take(Token.EndKeyword))
+  } yield Seq(Term.LetExpression(decls, body))
 }
 
 val expressionNib =

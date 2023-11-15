@@ -35,14 +35,31 @@ def process(term: Term): Either[WanderError, Expression] =
     case Term.Set(terms) => processSet(terms)
     case Term.BooleanLiteral(value) => Right(Expression.BooleanValue(value))
     case Term.Record(decls) => processRecord(decls)
-    case Term.LetExpression(decls, body) => ???
+    case Term.LetExpression(decls, body) => processLetExpression(decls, body)
     case Term.IntegerLiteral(value) => Right(Expression.IntegerValue(value))
     case Term.NameTerm(value) => Right(Expression.NameExpression(value))
     case Term.StringLiteral(value) => Right(Expression.StringValue(value))
-    case Term.Application(terms) => ???
-    case Term.Lambda(parameters, body) => ???
+    case Term.Application(terms) => Right(Expression.Nothing)//???
+    case Term.Lambda(parameters, body) => processLambda(parameters, body)
     case Term.IfExpression(conditional, ifBody, elseBody) => ???
   }
+
+def processLambda(parameters: Seq[Name], body: Term): Either[WanderError, Expression.Lambda] = {
+  ???
+}
+
+def processLetExpression(decls: Seq[(Name, Term)], body: Term): Either[WanderError, Expression.LetExpression] = {
+  val expressions = decls.map((name, term) => {
+    process(term) match {
+      case Left(value) => ???
+      case Right(expression) => (name, expression)
+    }
+  })
+  process(body) match {
+    case Left(value) => ???
+    case Right(body) => Right(Expression.LetExpression(expressions, body))
+  }
+}
 
 def processRecord(decls: Seq[(Name, Term)]): Either[WanderError, Expression.Record] = {
   val expressions = decls.map((name, term) => {

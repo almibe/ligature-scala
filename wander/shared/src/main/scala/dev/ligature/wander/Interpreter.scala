@@ -36,7 +36,11 @@ def eval(expression: Expression, bindings: Bindings): Either[WanderError, Wander
     case Expression.Array(value) => handleArray(value, bindings)
     case Expression.Set(value) => handleSet(value, bindings)
     case Expression.Record(entries) => handleRecord(entries, bindings)
-    case _ => ???
+    case Expression.Application(name, arguments) => Right(WanderValue.Nothing) //???
+    case Expression.NameExpression(name) => Right(WanderValue.Nothing) //???
+    case Expression.LetExpression(decls, body) => Right(WanderValue.Nothing) //???
+    case Expression.Lambda(parameters, body) => ???
+    case Expression.IfExpression(conditional, ifBody, elseBody) => ???
   }
 }
 

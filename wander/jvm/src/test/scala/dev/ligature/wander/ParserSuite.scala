@@ -24,71 +24,81 @@ class ParserSuite extends FunSuite {
     val expected = Right(Seq(Term.Application(Seq(Term.NameTerm(Name("testing")), Term.IntegerLiteral(1), Term.IntegerLiteral(2), Term.IntegerLiteral(3)))))
     assertEquals(input, expected)
   }
-  // test("parse nothing keyword") {
-  //   val script = "nothing"
-  //   val result = Right(Seq(Term.NothingLiteral))
-  //   check(script, result)
-  // }
-  // test("parse Identifier") {
-  //   val script = "<test> <test2>"
-  //   val result = Right(Seq(ident("test"), ident("test2")))
-  //   check(script, result)
-  // }
-  // test("parse Integer") {
-  //   val script = "123 0 -321"
-  //   val result = Right(Seq(Term.IntegerLiteral(123), Term.IntegerLiteral(0), Term.IntegerLiteral(-321)))
-  //   check(script, result)
-  // }
-  // test("parse String") {
-  //   val script = "\"hello\" \"world\""
-  //   val result = Right(Seq(Term.StringLiteral("hello"), Term.StringLiteral("world")))
-  //   check(script, result)
-  // }
-  // test("parse Boolean") {
-  //   val script = "true true false"
-  //   val result = Right(Seq(Term.BooleanLiteral(true), Term.BooleanLiteral(true), Term.BooleanLiteral(false)))
-  //   check(script, result)
-  // }
-  // test("parse Function Calls") {
-  //   val script = "not false"
-  //   val result = Right(Seq(Term.Application(Seq(Term.NameTerm(Name("not")), Term.BooleanLiteral(false)))))
-  //   check(script, result)
-  // }
-  // test("parse Function Call with question mark argument") {
-  //   val script = "query ? ? ?"
-  //   val result = Right(Seq(Term.Application(Seq(Term.NameTerm(Name("query")), Term.QuestionMark, Term.QuestionMark, Term.QuestionMark))))
-  //   check(script, result)
-  // }
-  // test("parse empty List") {
-  //   val script = "[]"
-  //   val result = Right(Seq(Term.Array(Seq())))
-  //   check(script, result)
-  // }
-  // test("parse List") {
-  //   val script = "[1 2 \"three\"]"
-  //   val result = Right(Seq(Term.Array(Seq(Term.IntegerLiteral(1), Term.IntegerLiteral(2), Term.StringLiteral("three")))))
-  //   check(script, result)
-  // }
-  // test("parse let expression") {
-  //   val script = "let x = 5 in x end"
-  //   val result = Right(Seq(Term.LetExpression(Seq((Name("x"), Term.IntegerLiteral(5))), Term.NameTerm(Name("x")))))
-  //   check(script, result)
-  // }
-  // test("parse conditionals") {
-  //   val script = "if true false else true"
-  //   val result = Right(Seq(
-  //     Term.IfExpression(
-  //       Term.BooleanLiteral(true), 
-  //       Term.BooleanLiteral(false),
-  //       Term.BooleanLiteral(true)
-  //     )))
-  //   check(script, result)
-  // }
-  // test("parse Lambda") {
-  //   val script = "\\x -> x"
-  //   val result = Right(Seq(
-  //     Term.Lambda(Seq(Name("x")), Seq(Term.NameTerm(Name("x"))))
-  //   ))
-  //   check(script, result)
-  // }
+  test("parse nothing keyword") {
+    val result = check("nothing")
+    val expected = Right(Seq(Term.NothingLiteral))
+    assertEquals(result, expected)
+  }
+  test("parse Identifier") {
+    val result = check("<test2>")
+    val expected = Right(Seq(ident("test2")))
+    assertEquals(result, expected)
+  }
+  test("parse Integer") {
+    val result = check("-321")
+    val expected = Right(Seq(Term.IntegerLiteral(-321)))
+    assertEquals(result, expected)
+  }
+  test("parse String") {
+    val result = check("\"hello\"")
+    val expected = Right(Seq(Term.StringLiteral("hello")))
+    assertEquals(result, expected)
+  }
+  test("parse Boolean") {
+    val result = check("false")
+    val expected = Right(Seq(Term.BooleanLiteral(false)))
+    assertEquals(result, expected)
+  }
+  test("parse Function Calls") {
+    val input = check("not true")
+    val expected = Right(Seq(Term.Application(Seq(Term.NameTerm(Name("not")), Term.BooleanLiteral(true)))))
+    assertEquals(input, expected)
+  }
+  test("parse Function Call with question mark argument") {
+    val result = check("query ? ? ?")
+    val expected = Right(Seq(Term.Application(Seq(Term.NameTerm(Name("query")), Term.QuestionMark, Term.QuestionMark, Term.QuestionMark))))
+    assertEquals(result, expected)
+  }
+  test("parse empty List") {
+    val result = check("[]")
+    val expected = Right(Seq(Term.Array(Seq())))
+    assertEquals(result, expected)
+  }
+  test("parse List") {
+    val result = check("[1 2 \"three\"]")
+    val expected = Right(Seq(Term.Array(Seq(Term.IntegerLiteral(1), Term.IntegerLiteral(2), Term.StringLiteral("three")))))
+    assertEquals(result, expected)
+  }
+  test("parse let expression") {
+    val result = check("let x = 5 in x end")
+    val expected = Right(Seq(Term.LetExpression(Seq((Name("x"), Term.IntegerLiteral(5))), Term.NameTerm(Name("x")))))
+    assertEquals(result, expected)
+  }
+  test("parse conditionals") {
+    val result = check("if true false else true")
+    val expected = Right(Seq(
+      Term.IfExpression(
+        Term.BooleanLiteral(true), 
+        Term.BooleanLiteral(false),
+        Term.BooleanLiteral(true)
+      )))
+    assertEquals(result, expected)
+  }
+  test("parse Lambda") {
+    val result = check("\\x -> x")
+    val expected = Right(Seq(
+      Term.Lambda(Seq(Name("x")), Seq(Term.NameTerm(Name("x"))))
+    ))
+    assertEquals(result, expected)
+  }
+  test("parse empty Record") {
+    val result = check("{}")
+    val expected = Right(Seq(Term.Record(Seq())))
+    assertEquals(result, expected)
+  }
+  test("parse empty Record") {
+    val result = check("{x = 5}")
+    val expected = Right(Seq(Term.Record(Seq((Name("x"), Term.IntegerLiteral(5))))))
+    assertEquals(result, expected)
+  }
 }
