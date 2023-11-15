@@ -41,11 +41,26 @@ def process(term: Term): Either[WanderError, Expression] =
     case Term.StringLiteral(value) => Right(Expression.StringValue(value))
     case Term.Application(terms) => Right(Expression.Nothing)//???
     case Term.Lambda(parameters, body) => processLambda(parameters, body)
-    case Term.IfExpression(conditional, ifBody, elseBody) => ???
+    case Term.IfExpression(conditional, ifBody, elseBody) => processIfExpression(conditional, ifBody, elseBody)
   }
 
+def processIfExpression(conditional: Term, ifBody: Term, elseBody: Term): Either[WanderError, Expression.IfExpression] = {
+  val res = for {
+    c <- process(conditional)
+    i <- process(ifBody)
+    e <- process(elseBody)
+  } yield (c, i, e)
+  res match {
+    case Right((c, i, e)) => Right(Expression.IfExpression(c, i, e))
+    case Left(e) => Left(e)
+  }
+}
+
 def processLambda(parameters: Seq[Name], body: Term): Either[WanderError, Expression.Lambda] = {
-  ???
+  process(body) match {
+    case Left(value) => Left(value)
+    case Right(value) => Right(Expression.Lambda(parameters, value))
+  }
 }
 
 def processLetExpression(decls: Seq[(Name, Term)], body: Term): Either[WanderError, Expression.LetExpression] = {

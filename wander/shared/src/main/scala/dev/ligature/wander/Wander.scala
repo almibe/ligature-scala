@@ -67,6 +67,7 @@ def printWanderValue(value: WanderValue): String = {
       "[" + values.map { value => printWanderValue(value) }.mkString(" ") + "]"
     case WanderValue.Set(values) =>
       "#[" + values.map { value => printWanderValue(value) }.mkString(" ") + "]"
+    case WanderValue.Lambda(lambda) => ???
   }
 }
 

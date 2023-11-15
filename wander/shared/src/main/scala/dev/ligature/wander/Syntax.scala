@@ -32,6 +32,7 @@ enum WanderValue:
   case Array(values: Seq[WanderValue])
   case Set(values: scala.collection.Set[WanderValue])
   case Record(entires: Seq[(Name, WanderValue)])
+  case Lambda(lambda: Expression.Lambda)
 
 //sealed trait FunctionDefinition(val parameters: List[Parameter]) extends WanderValue
 

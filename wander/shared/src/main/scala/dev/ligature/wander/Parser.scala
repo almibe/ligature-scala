@@ -123,7 +123,7 @@ val lambdaNib: Nibbler[Token, Term.Lambda] = { gaze =>
     parameters <- gaze.attempt(optional(repeat(parameterNib)))
     _ <- gaze.attempt(take(Token.Arrow))
     body <- gaze.attempt(expressionNib)
-  } yield Seq(Term.Lambda(parameters, body))
+  } yield Seq(Term.Lambda(parameters, body(0))) //TODO handle this body better
 }
 
 // val typeNib: Nibbler[Token, WanderType] = takeFirst(

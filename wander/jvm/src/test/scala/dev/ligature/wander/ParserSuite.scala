@@ -87,7 +87,7 @@ class ParserSuite extends FunSuite {
   test("parse Lambda") {
     val result = check("\\x -> x")
     val expected = Right(Seq(
-      Term.Lambda(Seq(Name("x")), Seq(Term.NameTerm(Name("x"))))
+      Term.Lambda(Seq(Name("x")), Term.NameTerm(Name("x")))
     ))
     assertEquals(result, expected)
   }
@@ -99,6 +99,20 @@ class ParserSuite extends FunSuite {
   test("parse empty Record") {
     val result = check("{x = 5}")
     val expected = Right(Seq(Term.Record(Seq((Name("x"), Term.IntegerLiteral(5))))))
+    assertEquals(result, expected)
+  }
+  test("parse lambda inside of Record") {
+    val result = check("{id = \\x -> x}")
+    val expected = Right(Seq(Term.Record(Seq((Name("id"), Term.Lambda(Seq(Name("x")), Term.NameTerm(Name("x"))))))))
+    assertEquals(result, expected)
+  }
+  test("parse let expression with lambda") {
+    val result = check("let id = \\x -> x in id end")
+    val expected = Right(
+      Seq(
+        Term.LetExpression(
+          Seq((Name("id"), Term.Lambda(Seq(Name("x")), Term.NameTerm(Name("x"))))),
+          Term.NameTerm(Name("id")))))
     assertEquals(result, expected)
   }
 }

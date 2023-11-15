@@ -20,7 +20,7 @@ enum Expression:
   case Application(name: Name, arguments: Seq[Expression])
   case Lambda(
     parameters: Seq[Name],
-    body: Seq[Expression])
+    body: Expression)
   case IfExpression(
     conditional: Expression,
     ifBody: Expression,
@@ -39,8 +39,20 @@ def eval(expression: Expression, bindings: Bindings): Either[WanderError, Wander
     case Expression.Application(name, arguments) => Right(WanderValue.Nothing) //???
     case Expression.NameExpression(name) => Right(WanderValue.Nothing) //???
     case Expression.LetExpression(decls, body) => Right(WanderValue.Nothing) //???
-    case Expression.Lambda(parameters, body) => ???
-    case Expression.IfExpression(conditional, ifBody, elseBody) => ???
+    case lambda: Expression.Lambda => Right(WanderValue.Lambda(lambda))
+    case Expression.IfExpression(conditional, ifBody, elseBody) => handleIfExpression(conditional, ifBody, elseBody, bindings)
+  }
+}
+
+def handleIfExpression(conditional: Expression, ifBody: Expression, elseBody: Expression, bindings: Bindings): Either[WanderError, WanderValue] = {
+  eval(conditional, bindings) match {
+    case Left(value) => ???
+    case Right(value) => {
+      value match
+        case WanderValue.BooleanValue(true) => eval(ifBody, bindings)
+        case WanderValue.BooleanValue(false) => eval(elseBody, bindings)
+        case _ => ???
+    }
   }
 }
 
