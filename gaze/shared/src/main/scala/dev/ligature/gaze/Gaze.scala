@@ -45,7 +45,7 @@ class Gaze[+I](private val input: Seq[I]) {
     }
 
   // TODO needs tests
-  def check[O](nibbler: Nibbler[I, O]): Option[Seq[O]] = {
+  def check[O](nibbler: Nibbler[I, O]): Option[O] = {
     val startOfThisLoop = this.offset
     val res = nibbler(this)
 
@@ -59,7 +59,7 @@ class Gaze[+I](private val input: Seq[I]) {
     }
   }
 
-  def attempt[O](nibbler: Nibbler[I, O]): Option[Seq[O]] = {
+  def attempt[O](nibbler: Nibbler[I, O]): Option[O] = {
     val startOfThisLoop = this.offset
     val res = nibbler(this)
 
@@ -77,9 +77,9 @@ class Gaze[+I](private val input: Seq[I]) {
 }
 
 abstract class Nibbler[-I, +O] {
-  def apply(gaze: Gaze[I]): Option[Seq[O]]
+  def apply(gaze: Gaze[I]): Option[O]
 
-  final def map[NO](f: Seq[O] => Seq[NO]): Nibbler[I, NO] = { (gaze: Gaze[I]) =>
+  final def map[NO](f: O => NO): Nibbler[I, NO] = { (gaze: Gaze[I]) =>
     this.apply(gaze) match {
       case None        => None
       case Some(value) => Some(f(value))
@@ -89,7 +89,7 @@ abstract class Nibbler[-I, +O] {
   final def as[NO](value: NO): Nibbler[I, NO] = { (gaze: Gaze[I]) =>
     this.apply(gaze) match {
       case None    => None
-      case Some(_) => Some(List(value))
+      case Some(_) => Some(value)
     }
   }
 }

@@ -7,13 +7,14 @@ package dev.ligature.gaze
 import dev.ligature.gaze.Gaze
 import scala.collection.mutable.ArrayBuffer
 import scala.collection.mutable
+import scala.collection.mutable.ListBuffer
 
 /** A Nibbler that takes a single item.
   */
 def take[I](toMatch: I): Nibbler[I, I] = { gaze =>
   gaze.next() match {
     case Some(i) =>
-      if (toMatch == i) { Some(List(toMatch)) }
+      if (toMatch == i) { Some(toMatch) }
       else { None }
     case None => None
   }
@@ -24,7 +25,7 @@ def take[I](toMatch: I): Nibbler[I, I] = { gaze =>
 def takeCond[I](cond: (I) => Boolean): Nibbler[I, I] = { gaze =>
   gaze.next() match {
     case Some(i) =>
-      if (cond(i)) { Some(List(i)) }
+      if (cond(i)) { Some(i) }
       else { None }
     case None => None
   }
@@ -32,13 +33,13 @@ def takeCond[I](cond: (I) => Boolean): Nibbler[I, I] = { gaze =>
 
 def takeAll[I, O](
     nibblers: Nibbler[I, O]*
-): Nibbler[I, O] = { (gaze: Gaze[I]) =>
-  val results = ArrayBuffer[O]()
+): Nibbler[I, Seq[O]] = { (gaze: Gaze[I]) =>
+  val results = ListBuffer[O]()
   val res = nibblers.forall { nibbler =>
     val res = gaze.attempt(nibbler)
     res match {
       case Some(res) =>
-        results.appendAll(res)
+        results += res
         true
       case None =>
         false
@@ -51,28 +52,28 @@ def takeAll[I, O](
   }
 }
 
-def takeAllGrouped[I](
-    nibblers: Nibbler[I, I]*
-): Nibbler[I, Seq[I]] = { (gaze: Gaze[I]) =>
-  val results = ArrayBuffer[Seq[I]]()
-  val res = nibblers.forall { nibbler =>
-    val res = gaze.attempt(nibbler)
-    res match {
-      case Some(res) =>
-        results.append(res)
-        true
-      case None =>
-        false
-    }
-  }
-  if (res) {
-    Some(results.toList)
-  } else {
-    None
-  }
-}
+// def takeAllGrouped[I](
+//     nibblers: Nibbler[I, I]*
+// ): Nibbler[I, Seq[I]] = { (gaze: Gaze[I]) =>
+//   val results = ArrayBuffer[Seq[I]]()
+//   val res = nibblers.forall { nibbler =>
+//     val res = gaze.attempt(nibbler)
+//     res match {
+//       case Some(res) =>
+//         results.append(res)
+//         true
+//       case None =>
+//         false
+//     }
+//   }
+//   if (res) {
+//     Some(results.toList)
+//   } else {
+//     None
+//   }
+// }
 
-def takeString(toMatch: String): Nibbler[Char, Char] = {
+def takeString(toMatch: String): Nibbler[Char, Seq[Char]] = {
   val chars = toMatch.toVector
   return gaze => {
     var offset = 0
@@ -98,7 +99,7 @@ def takeString(toMatch: String): Nibbler[Char, Char] = {
   }
 }
 
-def takeUntil[I](toMatch: I): Nibbler[I, I] =
+def takeUntil[I](toMatch: I): Nibbler[I, Seq[I]] =
   return gaze => {
     val result = ArrayBuffer[I]()
     var matched = false
@@ -120,7 +121,7 @@ def takeUntil[I](toMatch: I): Nibbler[I, I] =
   }
 
 //TODO needs tests
-def takeUntil[I](toMatch: Nibbler[I, I]): Nibbler[I, I] =
+def takeUntil[I](toMatch: Nibbler[I, I]): Nibbler[I, Seq[I]] =
   return gaze => {
     val result = ArrayBuffer[I]()
     var matched = false
@@ -144,7 +145,7 @@ def takeUntil[I](toMatch: Nibbler[I, I]): Nibbler[I, I] =
 
 def takeWhile[I](
     predicate: (toMatch: I) => Boolean
-): Nibbler[I, I] =
+): Nibbler[I, Seq[I]] =
   return (gaze: Gaze[I]) => {
     val res = ArrayBuffer[I]()
     var matched = true
@@ -179,21 +180,21 @@ def takeWhile[I](
     }
   }
 
-def optional[I, O](nibbler: Nibbler[I, O]): Nibbler[I, O] = { (gaze: Gaze[I]) =>
-  gaze.attempt(nibbler) match {
-    case res: Some[_] => res
-    case None         => Some(Seq())
-  }
-}
+// def optional[I, O](nibbler: Nibbler[I, O]): Nibbler[I, O] = { (gaze: Gaze[I]) =>
+//   gaze.attempt(nibbler) match {
+//     case res: Some[_] => res
+//     case None         => Some(Seq())
+//   }
+// }
 
-def takeCharacters(chars: Char*): Nibbler[Char, Char] = takeWhile {
+def takeCharacters(chars: Char*): Nibbler[Char, Seq[Char]] = takeWhile {
   chars.contains(_)
 }
 
 def takeFirst[I, O](
     nibblers: Nibbler[I, O]*
 ): Nibbler[I, O] = { (gaze: Gaze[I]) =>
-  var finalRes: Option[Seq[O]] = None
+  var finalRes: Option[O] = None
   val nibbler = nibblers.find { nibbler =>
     finalRes = gaze.attempt(nibbler)
     finalRes.isDefined
@@ -203,13 +204,13 @@ def takeFirst[I, O](
 
 def repeat[I, O](
     nibbler: Nibbler[I, O]
-): Nibbler[I, O] = { (gaze: Gaze[I]) =>
+): Nibbler[I, Seq[O]] = { (gaze: Gaze[I]) =>
   val allMatches = ArrayBuffer[O]()
   var continue = true
   while (!gaze.isComplete && continue)
     gaze.attempt(nibbler) match {
       case None    => continue = false
-      case Some(v) => allMatches.appendAll(v)
+      case Some(v) => allMatches += v
     }
   if (allMatches.isEmpty) {
     None
@@ -221,10 +222,10 @@ def repeat[I, O](
 def between[I](
     wrapper: Nibbler[I, I],
     content: Nibbler[I, I]
-) = takeAllGrouped(wrapper, content, wrapper).map(_(1))
+) = takeAll(wrapper, content, wrapper).map(_(1))
 
 def between[I](
     open: Nibbler[I, I],
     content: Nibbler[I, I],
     close: Nibbler[I, I]
-) = takeAllGrouped(open, content, close).map(_(1))
+) = takeAll(open, content, close).map(_(1))
