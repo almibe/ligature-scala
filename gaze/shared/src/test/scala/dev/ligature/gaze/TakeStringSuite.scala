@@ -16,19 +16,19 @@ private val worldStep = takeString("world")
 class TakeStringSuite extends FunSuite {
   test("empty input") {
     val gaze = Gaze.from("")
-    assertEquals(gaze.attempt(fiveStep), None)
+    assertEquals(gaze.attempt(fiveStep), Result.NoMatch)
     assert(gaze.isComplete)
   }
 
   test("single 5 input") {
     val gaze = Gaze.from("5")
-    assertEquals(gaze.attempt(fiveStep), Some(Seq('5')))
+    assertEquals(gaze.attempt(fiveStep), Result.Match(Seq('5')))
     assert(gaze.isComplete)
   }
 
   test("single 4 input") {
     val gaze = Gaze.from("4")
-    assertEquals(gaze.attempt(fiveStep), None)
+    assertEquals(gaze.attempt(fiveStep), Result.NoMatch)
     assert(!gaze.isComplete)
   }
 
@@ -38,8 +38,8 @@ class TakeStringSuite extends FunSuite {
     while (!gaze.isComplete) {
       val nres = gaze.attempt(fiveStep)
       nres match {
-        case Some(m) => res.appendAll(m)
-        case None    => throw new Error("Should not happen")
+        case Result.Match(m) => res.appendAll(m)
+        case Result.NoMatch | Result.EmptyMatch => throw new Error("Should not happen")
       }
     }
     assertEquals(res.toList, List('5', '5', '5', '5', '5'))
@@ -47,15 +47,15 @@ class TakeStringSuite extends FunSuite {
 
   test("hello world test") {
     val gaze = Gaze.from("hello world")
-    assertEquals(gaze.attempt(helloStep), Some("hello".toSeq))
-    assertEquals(gaze.attempt(spaceStep), Some(" ".toSeq))
-    assertEquals(gaze.attempt(worldStep), Some("world".toSeq))
+    assertEquals(gaze.attempt(helloStep), Result.Match("hello".toSeq))
+    assertEquals(gaze.attempt(spaceStep), Result.Match(" ".toSeq))
+    assertEquals(gaze.attempt(worldStep), Result.Match("world".toSeq))
     assert(gaze.isComplete)
   }
 
   test("map test") {
     val gaze = Gaze.from("1")
     val oneDigit = takeString("1").map(_.map(_.asDigit))
-    assertEquals(gaze.attempt(oneDigit), Some(Seq(1)))
+    assertEquals(gaze.attempt(oneDigit), Result.Match(Seq(1)))
   }
 }

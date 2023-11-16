@@ -13,10 +13,11 @@ import scala.collection.mutable.ListBuffer
   */
 def take[I](toMatch: I): Nibbler[I, I] = { gaze =>
   gaze.next() match {
-    case Some(i) =>
-      if (toMatch == i) { Some(toMatch) }
-      else { None }
-    case None => None
+    case Result.Match(i) =>
+      if (toMatch == i) { Result.Match(toMatch) }
+      else { Result.NoMatch }
+    case Result.NoMatch => Result.NoMatch
+    case Result.EmptyMatch => ???
   }
 }
 
@@ -24,10 +25,11 @@ def take[I](toMatch: I): Nibbler[I, I] = { gaze =>
   */
 def takeCond[I](cond: (I) => Boolean): Nibbler[I, I] = { gaze =>
   gaze.next() match {
-    case Some(i) =>
-      if (cond(i)) { Some(i) }
-      else { None }
-    case None => None
+    case Result.Match(i) =>
+      if (cond(i)) { Result.Match(i) }
+      else { Result.NoMatch }
+    case Result.NoMatch => Result.NoMatch
+    case Result.EmptyMatch => ???
   }
 }
 
@@ -38,17 +40,18 @@ def takeAll[I, O](
   val res = nibblers.forall { nibbler =>
     val res = gaze.attempt(nibbler)
     res match {
-      case Some(res) =>
+      case Result.Match(res) =>
         results += res
         true
-      case None =>
+      case Result.NoMatch =>
         false
+      case Result.EmptyMatch => true
     }
   }
   if (res) {
-    Some(results.toSeq)
+    Result.Match(results.toSeq)
   } else {
-    None
+    Result.NoMatch
   }
 }
 
@@ -73,6 +76,24 @@ def takeAll[I, O](
 //   }
 // }
 
+def takeChar(toMatch: Char): Nibbler[Char, Char] = {
+  return gaze => {
+    var matched = true
+    val nextChar = gaze.next()
+    nextChar match {
+      case Result.Match(c) =>
+        if (toMatch == c) {
+          Result.Match(toMatch)
+        } else {
+          Result.NoMatch
+        }
+      case Result.NoMatch =>
+        Result.NoMatch
+      case Result.EmptyMatch => ???
+    }
+  }
+}
+
 def takeString(toMatch: String): Nibbler[Char, Seq[Char]] = {
   val chars = toMatch.toVector
   return gaze => {
@@ -81,20 +102,21 @@ def takeString(toMatch: String): Nibbler[Char, Seq[Char]] = {
     while (matched && offset < chars.length) {
       val nextChar = gaze.next()
       nextChar match {
-        case Some(c) =>
+        case Result.Match(c) =>
           if (chars(offset) == c) {
             offset += 1;
           } else {
             matched = false
           }
-        case None =>
+        case Result.NoMatch =>
           matched = false
+        case Result.EmptyMatch => ???
       }
     }
     if (matched) {
-      Some(chars)
+      Result.Match(chars)
     } else {
-      None
+      Result.NoMatch
     }
   }
 }
@@ -106,18 +128,19 @@ def takeUntil[I](toMatch: I): Nibbler[I, Seq[I]] =
     while (!matched) {
       val next = gaze.peek()
       next match {
-        case Some(v) =>
+        case Result.Match(v) =>
           if (v == toMatch) {
             matched = true
           } else {
             gaze.next()
             result.append(v)
           }
-        case None =>
+        case Result.NoMatch =>
           matched = true
+        case Result.EmptyMatch => ???
       }
     }
-    Some(result.toSeq)
+    Result.Match(result.toSeq)
   }
 
 //TODO needs tests
@@ -128,19 +151,21 @@ def takeUntil[I](toMatch: Nibbler[I, I]): Nibbler[I, Seq[I]] =
     while (!matched) {
       val next = gaze.peek()
       next match {
-        case Some(v) =>
+        case Result.Match(v) =>
           val check = gaze.check(toMatch)
           check match {
-            case Some(_) => matched = true
-            case None =>
+            case Result.Match(_) => matched = true
+            case Result.NoMatch =>
               gaze.next()
               result.append(v)
+            case Result.EmptyMatch => ???
           }
-        case None =>
+        case Result.NoMatch =>
           matched = true
+        case Result.EmptyMatch => ???
       }
     }
-    Some(result.toSeq)
+    Result.Match(result.toSeq)
   }
 
 def takeWhile[I](
@@ -154,7 +179,7 @@ def takeWhile[I](
       val peek = gaze.peek();
 
       peek match {
-        case Some(c) =>
+        case Result.Match(c) =>
           if (predicate(c)) {
             gaze.next();
             res += c;
@@ -164,28 +189,29 @@ def takeWhile[I](
           } else {
             continue = false
           }
-        case None =>
+        case Result.NoMatch =>
           if (res.length == 0) {
             matched = false
             continue = false
           } else {
             continue = false
           }
+        case Result.EmptyMatch => ???
       }
     }
     if (matched) {
-      Some(res.toSeq)
+      Result.Match(res.toSeq)
     } else {
-      None
+      Result.NoMatch
     }
   }
 
-// def optional[I, O](nibbler: Nibbler[I, O]): Nibbler[I, O] = { (gaze: Gaze[I]) =>
-//   gaze.attempt(nibbler) match {
-//     case res: Some[_] => res
-//     case None         => Some(Seq())
-//   }
-// }
+def optional[I, O](nibbler: Nibbler[I, O]): Nibbler[I, O] = { (gaze: Gaze[I]) =>
+  gaze.attempt(nibbler) match {
+    case res: Result.Match[_] => res
+    case Result.NoMatch | Result.EmptyMatch => Result.EmptyMatch
+  }
+}
 
 def takeCharacters(chars: Char*): Nibbler[Char, Seq[Char]] = takeWhile {
   chars.contains(_)
@@ -194,10 +220,13 @@ def takeCharacters(chars: Char*): Nibbler[Char, Seq[Char]] = takeWhile {
 def takeFirst[I, O](
     nibblers: Nibbler[I, O]*
 ): Nibbler[I, O] = { (gaze: Gaze[I]) =>
-  var finalRes: Option[O] = None
+  var finalRes: Result[O] = Result.NoMatch
   val nibbler = nibblers.find { nibbler =>
     finalRes = gaze.attempt(nibbler)
-    finalRes.isDefined
+    finalRes match {
+      case Result.EmptyMatch | Result.Match(_) => true
+      case Result.NoMatch => false
+    }
   }
   finalRes
 }
@@ -209,13 +238,14 @@ def repeat[I, O](
   var continue = true
   while (!gaze.isComplete && continue)
     gaze.attempt(nibbler) match {
-      case None    => continue = false
-      case Some(v) => allMatches += v
+      case Result.NoMatch    => continue = false
+      case Result.Match(v) => allMatches += v
+      case Result.EmptyMatch => ???
     }
   if (allMatches.isEmpty) {
-    None
+    Result.NoMatch
   } else {
-    Some(allMatches.toSeq)
+    Result.Match(allMatches.toSeq)
   }
 }
 

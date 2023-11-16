@@ -7,26 +7,26 @@ package dev.ligature.gaze
 import munit.FunSuite
 
 class RepeatSuite extends FunSuite {
-  val repeatHello: Nibbler[Char, Char] = repeat(takeString("hello"))
+  val repeatHello: Nibbler[Char, Seq[Char]] = repeat(takeChar('a'))
 
   test("empty repeat test") {
     val gaze = Gaze.from("")
-    assertEquals(gaze.attempt(repeatHello), None)
+    assertEquals(gaze.attempt(repeatHello), Result.NoMatch)
   }
 
   test("one match repeat test") {
-    val gaze = Gaze.from("hello")
-    assertEquals(gaze.attempt(repeatHello), Some("hello".toSeq))
+    val gaze = Gaze.from("a")
+    assertEquals(gaze.attempt(repeatHello), Result.Match("a".toSeq))
   }
 
   test("two match repeat test") {
-    val gaze = Gaze.from("hellohello")
-    assertEquals(gaze.attempt(repeatHello), Some("hellohello".toSeq))
+    val gaze = Gaze.from("aa")
+    assertEquals(gaze.attempt(repeatHello), Result.Match("aa".toSeq))
   }
 
   test("two match repeat test with remaining text") {
-    val gaze = Gaze.from("hellohellohell")
-    assertEquals(gaze.attempt(repeatHello), Some("hellohello".toSeq))
+    val gaze = Gaze.from("aab")
+    assertEquals(gaze.attempt(repeatHello), Result.Match("aa".toSeq))
     assert(!gaze.isComplete)
   }
 }

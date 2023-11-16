@@ -14,34 +14,34 @@ private val digitStep = takeWhile[Char](_.isDigit)
 class TakeWhileSuite extends FunSuite {
   test("empty input") {
     val gaze = Gaze.from("")
-    assertEquals(gaze.attempt(fiveStep), None)
-    assertEquals(gaze.attempt(eatAllStep), None)
-    assertEquals(gaze.attempt(spaceStep), None)
-    assertEquals(gaze.attempt(digitStep), None)
+    assertEquals(gaze.attempt(fiveStep), Result.NoMatch)
+    assertEquals(gaze.attempt(eatAllStep), Result.NoMatch)
+    assertEquals(gaze.attempt(spaceStep), Result.NoMatch)
+    assertEquals(gaze.attempt(digitStep), Result.NoMatch)
     assert(gaze.isComplete)
   }
 
   test("single 5 input") {
     val gaze = Gaze.from("5")
-    assertEquals(gaze.attempt(fiveStep), Some(Seq('5')))
+    assertEquals(gaze.attempt(fiveStep), Result.Match(Seq('5')))
     assert(gaze.isComplete)
   }
 
   test("single 4 input") {
     val gaze = Gaze.from("4")
-    assertEquals(gaze.attempt(fiveStep), None)
+    assertEquals(gaze.attempt(fiveStep), Result.NoMatch)
     assert(!gaze.isComplete)
   }
 
   test("multiple 5s input") {
     val gaze = Gaze.from("55555")
     val res = gaze.attempt(fiveStep)
-    assertEquals(res, Some(Seq('5', '5', '5', '5', '5')))
+    assertEquals(res, Result.Match(Seq('5', '5', '5', '5', '5')))
   }
 
   test("eat all nibbler test") {
     val gaze = Gaze.from("hello world")
-    assertEquals(gaze.attempt(eatAllStep), Some("hello world".toSeq))
+    assertEquals(gaze.attempt(eatAllStep), Result.Match("hello world".toSeq))
     assert(gaze.isComplete)
   }
 }

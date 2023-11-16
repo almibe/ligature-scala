@@ -15,19 +15,19 @@ class TakeUntilSuite extends FunSuite {
     val gaze3 = Gaze.from("    \n   ")
     val gaze4 = Gaze.from("123\n")
 
-    assertEquals(gaze1.attempt(nibbler), Some(Seq()))
+    assertEquals(gaze1.attempt(nibbler), Result.Match(Seq()))
     assert(gaze1.isComplete)
 
-    assertEquals(gaze2.attempt(nibbler), Some(Seq()))
+    assertEquals(gaze2.attempt(nibbler), Result.Match(Seq()))
     assert(!gaze2.isComplete)
-    assertEquals(gaze2.attempt(takeNewLine), Some(Seq('\n')))
+    assertEquals(gaze2.attempt(takeNewLine), Result.Match(Seq('\n')))
     assert(gaze2.isComplete)
 
-    assertEquals(gaze3.attempt(nibbler), Some(Seq(' ', ' ', ' ', ' ')))
+    assertEquals(gaze3.attempt(nibbler), Result.Match(Seq(' ', ' ', ' ', ' ')))
 
-    assertEquals(gaze4.attempt(nibbler), Some(Seq('1', '2', '3')))
+    assertEquals(gaze4.attempt(nibbler), Result.Match(Seq('1', '2', '3')))
     assert(!gaze4.isComplete)
-    assertEquals(gaze4.attempt(takeNewLine), Some(Seq('\n')))
+    assertEquals(gaze4.attempt(takeNewLine), Result.Match(Seq('\n')))
     assert(gaze4.isComplete)
   }
 }

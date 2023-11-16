@@ -13,12 +13,12 @@ class TakeSuite extends FunSuite {
     val nibbler6 = take('6')
     val nibbler7 = take('7')
     val nibbler8 = take('8')
-    assertEquals(gaze.attempt(nibbler5), Some(List('5')))
-    assertEquals(gaze.attempt(nibbler5), None)
-    assertEquals(gaze.attempt(nibbler6), Some(List('6')))
-    assertEquals(gaze.attempt(nibbler7), Some(List('7')))
-    assertEquals(gaze.attempt(nibbler8), Some(List('8')))
-    assertEquals(gaze.attempt(nibbler8), None)
+    assertEquals(gaze.attempt(nibbler5), Result.Match('5'))
+    assertEquals(gaze.attempt(nibbler5), Result.NoMatch)
+    assertEquals(gaze.attempt(nibbler6), Result.Match('6'))
+    assertEquals(gaze.attempt(nibbler7), Result.Match('7'))
+    assertEquals(gaze.attempt(nibbler8), Result.Match('8'))
+    assertEquals(gaze.attempt(nibbler8), Result.NoMatch)
     assertEquals(gaze.isComplete, true)
   }
 }

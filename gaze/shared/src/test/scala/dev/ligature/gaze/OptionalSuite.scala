@@ -7,14 +7,13 @@ package dev.ligature.gaze
 import munit.FunSuite
 
 class OptionSuite extends FunSuite {
-  val ello = takeString("ello")
-  val optionalHello = takeAll(optional(takeString("h")), takeString("ello"))
+  val optionalHello = takeAll(optional(takeChar('a')), takeChar('b'))
 
   test("option test") {
-    val gaze = Gaze.from("hello")
-    assertEquals(gaze.attempt(optionalHello), Some("hello".toSeq))
+    val gaze = Gaze.from("ab")
+    assertEquals(gaze.attempt(optionalHello), Result.Match("ab".toSeq))
 
-    val gaze2 = Gaze.from("ello")
-    assertEquals(gaze2.attempt(optionalHello), Some("ello".toSeq))
+    val gaze2 = Gaze.from("b")
+    assertEquals(gaze2.attempt(optionalHello), Result.Match("b".toSeq))
   }
 }
