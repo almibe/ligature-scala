@@ -83,13 +83,32 @@ class StringGaze(input: String) extends Gaze[Char](input.toList) {
       }
       next
     }
-
   def location: Location = {
     Location(this.line, this.lineOffset)
   }
 }
 
 enum Result[+T]:
+  def map[U](f: T => U): Result[U] =
+    this match {
+      case EmptyMatch => EmptyMatch
+      case NoMatch => NoMatch
+      case Match(value) => Match(f(value))
+    }
+    //if (isEmpty) None else Some(f(this.get))
+  def flatten[U](implicit ev: T <:< Result[U]): Result[U] =
+    this match {
+      case EmptyMatch => EmptyMatch
+      case NoMatch => NoMatch
+      case Match(value) => ev(value)
+    }
+  def flatMap[U](f: T => Result[U]): Result[U] =
+    this match {
+      case EmptyMatch => EmptyMatch
+      case NoMatch => NoMatch
+      case Match(value) => f(value)
+    }
+  //  if (isEmpty) None else f(this.get)
   case Match(value: T)
   case EmptyMatch
   case NoMatch
@@ -107,7 +126,7 @@ abstract class Nibbler[-I, +O] {
 
   final def as[NO](value: NO): Nibbler[I, NO] = { (gaze: Gaze[I]) =>
     this.apply(gaze) match {
-      case Result.NoMatch    => Result.NoMatch
+      case Result.NoMatch => Result.NoMatch
       case Result.Match(_) | Result.EmptyMatch => Result.Match(value)
     }
   }

@@ -11,7 +11,6 @@ import dev.ligature.gaze.{
   between,
   take,
   takeAll,
-  takeAllGrouped,
   takeCharacters,
   takeFirst,
   takeString,
@@ -19,6 +18,8 @@ import dev.ligature.gaze.{
   takeWhile,
   optional
 }
+import dev.ligature.gaze.takeChar
+import dev.ligature.gaze.Result
 
 object LigNibblers {
   val whiteSpaceNibbler = takeCharacters(' ', '\t')
@@ -26,15 +27,15 @@ object LigNibblers {
   val numberNibbler =
     takeAll(optional(take('-')), takeCharacters(('0' to '9').toSeq*))
 
-  val identifierNibbler = between(
-    takeString("<"),
-    takeWhile { c =>
-      "[a-zA-Z0-9-._~:/?#\\[\\]@!$&'()*+,;%=]".r.matches(c.toString)
-    },
-    takeString(">")
-  )
+  // val identifierNibbler: Nibbler[Char, Seq[Token]] = between(
+  //   takeChar('<').map[Char, Seq[Char]](_ => Seq[Char]()),
+  //   takeWhile { (c: Char) =>
+  //     "[a-zA-Z0-9-._~:/?#\\[\\]@!$&'()*+,;%=]".r.matches(c.toString())
+  //   },
+  //   takeChar('>').map(_ => Seq[Char]())
+  // )
 
-  val stringContentNibbler: Nibbler[Char, Char] =
+  val stringContentNibbler: Nibbler[Char, Seq[Char]] =
     (gaze: Gaze[Char]) => {
       // Full pattern \"(([^\x00-\x1F\"\\]|\\[\"\\/bfnrt]|\\u[0-9a-fA-F]{4})*)\"
       val commandChars = 0x00.toChar to 0x1f.toChar
@@ -46,8 +47,10 @@ object LigNibblers {
       var offset = 0 // TODO delete
       var fail = false
       var complete = false
-      while (!complete && !fail && gaze.peek().isDefined) {
-        val c = gaze.next().get
+      while (!complete && !fail && !gaze.isComplete) {
+        val c = gaze.next() match
+          case Result.Match(value) => value
+          case _ => ??? //should never reach
         if (commandChars.contains(c)) {
           fail = true
         } else if (c == '"') {
@@ -55,38 +58,40 @@ object LigNibblers {
         } else if (c == '\\') {
           sb.append(c)
           gaze.next() match {
-            case None => fail = true
-            case Some(c) =>
+            case Result.NoMatch => fail = true
+            case Result.Match(c) =>
               c match {
                 case '\\' | '"' | 'b' | 'f' | 'n' | 'r' | 't' => sb.append(c)
                 case 'u' =>
                   sb.append(c)
                   val res = gaze.attempt(hexNibbler)
                   res match {
-                    case None => fail = true
-                    case Some(res) =>
+                    case Result.NoMatch => fail = true
+                    case Result.Match(res) =>
                       if (res.length == 4) {
                         sb.appendAll(res)
                       } else {
                         fail = true
                       }
+                    case Result.EmptyMatch => ???
                   }
                 case _ =>
                   fail = true
               }
+            case Result.EmptyMatch => ???
           }
         } else {
           sb.append(c)
         }
       }
       if (fail) {
-        None
+        Result.NoMatch
       } else {
-        Some(sb.toSeq)
+        Result.Match(sb.toSeq)
       }
     }
 
-  val stringNibbler = takeAllGrouped(
+  val stringNibbler = takeAll(
     takeString("\""),
     stringContentNibbler
   ) // TODO should be a between but stringContentNibbler consumes the last " currently

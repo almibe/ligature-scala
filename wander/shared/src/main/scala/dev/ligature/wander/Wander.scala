@@ -26,7 +26,7 @@ def run(
 
 case class Introspect(
   tokens: Either[WanderError, Seq[Token]], 
-  terms: Either[WanderError, Seq[Term]],
+  terms: Either[WanderError, Term],
   expression: Either[WanderError, Expression])
 
 def introspect(script: String): Introspect = {
