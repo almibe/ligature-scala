@@ -240,7 +240,7 @@ def repeat[I, O](
     gaze.attempt(nibbler) match {
       case Result.NoMatch    => continue = false
       case Result.Match(v) => allMatches += v
-      case Result.EmptyMatch => ???
+      case Result.EmptyMatch => continue = true
     }
   if (allMatches.isEmpty) {
     Result.NoMatch
@@ -249,13 +249,13 @@ def repeat[I, O](
   }
 }
 
-def between[I](
-    wrapper: Nibbler[I, I],
-    content: Nibbler[I, I]
+def between[I, O](
+    wrapper: Nibbler[I, O],
+    content: Nibbler[I, O]
 ) = takeAll(wrapper, content, wrapper).map(_(1))
 
-def between[I](
-    open: Nibbler[I, I],
-    content: Nibbler[I, I],
-    close: Nibbler[I, I]
+def between[I, O](
+    open: Nibbler[I, O],
+    content: Nibbler[I, O],
+    close: Nibbler[I, O]
 ) = takeAll(open, content, close).map(_(1))
