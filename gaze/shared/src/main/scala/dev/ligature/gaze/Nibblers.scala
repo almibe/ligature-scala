@@ -94,7 +94,7 @@ def takeChar(toMatch: Char): Nibbler[Char, Char] = {
   }
 }
 
-def takeString(toMatch: String): Nibbler[Char, Seq[Char]] = {
+def takeString(toMatch: String): Nibbler[String, String] = {
   val chars = toMatch.toVector
   return gaze => {
     var offset = 0
@@ -103,7 +103,7 @@ def takeString(toMatch: String): Nibbler[Char, Seq[Char]] = {
       val nextChar = gaze.next()
       nextChar match {
         case Result.Match(c) =>
-          if (chars(offset) == c) {
+          if (chars(offset).toString() == c) {
             offset += 1;
           } else {
             matched = false
@@ -114,7 +114,7 @@ def takeString(toMatch: String): Nibbler[Char, Seq[Char]] = {
       }
     }
     if (matched) {
-      Result.Match(chars)
+      Result.Match(chars.mkString)
     } else {
       Result.NoMatch
     }
@@ -168,43 +168,43 @@ def takeUntil[I](toMatch: Nibbler[I, I]): Nibbler[I, Seq[I]] =
     Result.Match(result.toSeq)
   }
 
-def takeWhile[I](
-    predicate: (toMatch: I) => Boolean
-): Nibbler[I, Seq[I]] =
-  return (gaze: Gaze[I]) => {
-    val res = ArrayBuffer[I]()
-    var matched = true
-    var continue = true
-    while (continue) {
-      val peek = gaze.peek();
+// def takeWhile[I, O](
+//     predicate: (toMatch: I) => Boolean
+// ): Nibbler[I, Seq[O]] =
+//   return (gaze: Gaze[I]) => {
+//     val res = ArrayBuffer[I]()
+//     var matched = true
+//     var continue = true
+//     while (continue) {
+//       val peek = gaze.peek();
 
-      peek match {
-        case Result.Match(c) =>
-          if (predicate(c)) {
-            gaze.next();
-            res += c;
-          } else if (res.length == 0) {
-            matched = false
-            continue = false
-          } else {
-            continue = false
-          }
-        case Result.NoMatch =>
-          if (res.length == 0) {
-            matched = false
-            continue = false
-          } else {
-            continue = false
-          }
-        case Result.EmptyMatch => ???
-      }
-    }
-    if (matched) {
-      Result.Match(res.toSeq)
-    } else {
-      Result.NoMatch
-    }
-  }
+//       peek match {
+//         case Result.Match(c) =>
+//           if (predicate(c)) {
+//             gaze.next();
+//             res += c;
+//           } else if (res.length == 0) {
+//             matched = false
+//             continue = false
+//           } else {
+//             continue = false
+//           }
+//         case Result.NoMatch =>
+//           if (res.length == 0) {
+//             matched = false
+//             continue = false
+//           } else {
+//             continue = false
+//           }
+//         case Result.EmptyMatch => ???
+//       }
+//     }
+//     if (matched) {
+//       Result.Match(res.toSeq)
+//     } else {
+//       Result.NoMatch
+//     }
+//   }
 
 def optional[I, O](nibbler: Nibbler[I, O]): Nibbler[I, O] = { (gaze: Gaze[I]) =>
   gaze.attempt(nibbler) match {
@@ -213,9 +213,9 @@ def optional[I, O](nibbler: Nibbler[I, O]): Nibbler[I, O] = { (gaze: Gaze[I]) =>
   }
 }
 
-def takeCharacters(chars: Char*): Nibbler[Char, Seq[Char]] = takeWhile {
-  chars.contains(_)
-}
+// def takeCharacters(chars: Char*): Nibbler[Char, Seq[Char]] = takeWhile {
+//   chars.contains(_)
+// }
 
 def takeFirst[I, O](
     nibblers: Nibbler[I, O]*
@@ -259,3 +259,11 @@ def between[I, O](
     content: Nibbler[I, O],
     close: Nibbler[I, O]
 ) = takeAll(open, content, close).map(_(1))
+
+def concat(nibbler: Nibbler[String, Seq[String]]): Nibbler[String, String] = { (gaze: Gaze[String]) =>
+  gaze.attempt(nibbler) match {
+    case Result.EmptyMatch => Result.EmptyMatch
+    case Result.NoMatch => Result.NoMatch
+    case Result.Match(value) => Result.Match(value.mkString)
+  }
+}

@@ -17,7 +17,7 @@ class GazeSuite extends FunSuite {
   }
 
   test("init Gaze with zero values") {
-    val gaze = new Gaze(Vector())
+    val gaze = new Gaze(SeqSource(Vector()))
     assert(gaze.isComplete)
     assertEquals(gaze.peek(), Result.NoMatch)
     assertEquals(gaze.next(), Result.NoMatch)
@@ -25,7 +25,7 @@ class GazeSuite extends FunSuite {
   }
 
   test("init Gaze with one value") {
-    val gaze = new Gaze(Vector(5));
+    val gaze = new Gaze(SeqSource(Vector(5)))
     assert(!gaze.isComplete)
     assertEquals(gaze.peek(), Result.Match(5))
     assertEquals(gaze.next(), Result.Match(5))
@@ -36,10 +36,10 @@ class GazeSuite extends FunSuite {
   }
 
   test("init Gaze with single char string") {
-    val gaze = Gaze.from("5");
+    val gaze = Gaze.from("5")
     assert(!gaze.isComplete)
-    assertEquals(gaze.peek(), Result.Match('5'))
-    assertEquals(gaze.next(), Result.Match('5'))
+    assertEquals(gaze.peek(), Result.Match("5"))
+    assertEquals(gaze.next(), Result.Match("5"))
     assert(gaze.isComplete)
     assertEquals(gaze.peek(), Result.NoMatch)
     assertEquals(gaze.next(), Result.NoMatch)

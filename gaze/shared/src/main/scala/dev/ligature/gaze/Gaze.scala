@@ -9,30 +9,30 @@ import scala.collection.mutable.ArrayBuffer
 object Gaze {
   def from(
       text: String
-  ): Gaze[Char] = // TODO eventually handle unicode better and make this Gaze[String]
-    new Gaze(text.toSeq)
+  ): Gaze[String] =
+    new Gaze(StringSource(text))
 }
 
 case class Location(line: Int, lineOffset: Int)
 
-sealed class Gaze[+I](private val input: Seq[I]) {
+sealed class Gaze[+I](private val input: Source[I]) {
   protected var offset: Int = 0
 
   def isComplete: Boolean =
-    this.offset >= this.input.length
+    this.offset >= this.input.length()
 
   def peek(): Result[I] =
     if (this.isComplete) {
       Result.NoMatch
     } else {
-      Result.Match(this.input(this.offset))
+      Result.Match(this.input(this.offset).get)
     }
 
   def next(): Result[I] =
     if (this.isComplete) {
       Result.NoMatch
     } else {
-      val next = Result.Match(this.input(this.offset))
+      val next = Result.Match(this.input(this.offset).get)
       this.offset += 1
       next
     }
@@ -65,19 +65,19 @@ sealed class Gaze[+I](private val input: Seq[I]) {
   }
 }
 
-class StringGaze(input: String) extends Gaze[Char](input.toList) {
+class StringGaze(input: StringSource) extends Gaze[String](input) {
   //TODO location info might not update correctly when a Nibble fails?
   private var line: Int = 0
   private var lineOffset: Int = 0
 
-  override def next(): Result[Char] =
+  override def next(): Result[String] =
     if (this.isComplete) {
       Result.NoMatch
     } else {
-      val next: Result.Match[Char] = Result.Match(this.input(this.offset))
+      val next: Result.Match[String] = Result.Match(this.input(this.offset).get)
       this.offset += 1
       this.lineOffset += 1
-      if (next.value == '\n') {
+      if (next.value == "\n") {
         this.line += 1
         this.lineOffset = 0
       }

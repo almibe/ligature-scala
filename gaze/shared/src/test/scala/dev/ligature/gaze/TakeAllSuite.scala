@@ -7,16 +7,16 @@ package dev.ligature.gaze
 import munit.FunSuite
 
 class TakeAllSuite extends FunSuite {
-  val nibbler5 = take('5')
-  val nibbler6 = take('6')
-  val nibbler7 = take('7')
-  val nibbler8 = take('8')
+  val nibbler5 = take("5")
+  val nibbler6 = take("6")
+  val nibbler7 = take("7")
+  val nibbler8 = take("8")
 
   test("multiple nibblers succeed") {
     val gaze = Gaze.from("5678")
     val takeAllNib = takeAll(nibbler5, nibbler6, nibbler7, nibbler8)
     val res = gaze.attempt(takeAllNib)
-    assertEquals(res, Result.Match(List('5', '6', '7', '8')))
+    assertEquals(res, Result.Match(List("5", "6", "7", "8")))
     assert(gaze.isComplete)
   }
 
@@ -30,7 +30,7 @@ class TakeAllSuite extends FunSuite {
 
     val takeAllSucceed = takeAll(nibbler5, nibbler6, nibbler7, nibbler8)
     val res2 = gaze.attempt(takeAllSucceed)
-    assertEquals(res2, Result.Match(List('5', '6', '7', '8')))
+    assertEquals(res2, Result.Match(List("5", "6", "7", "8")))
     assert(gaze.isComplete)
   }
 }

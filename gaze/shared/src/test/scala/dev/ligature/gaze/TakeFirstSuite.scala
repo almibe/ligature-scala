@@ -11,7 +11,7 @@ class TakeFirstSuite extends FunSuite {
   val takeSpace = takeString(" ")
   val takeWorld = takeString("world")
 
-  val takeFirstEmpty: Nibbler[Char, Char] = takeFirst()
+  val takeFirstEmpty: Nibbler[String, String] = takeFirst()
   val takeFirstSingle = takeFirst(takeHello)
   val takeFirst3 = takeFirst(takeHello, takeSpace, takeWorld)
 
@@ -38,8 +38,8 @@ class TakeFirstSuite extends FunSuite {
     val gaze2 = Gaze.from("hello world")
     val gaze3 = Gaze.from("hello world")
     assertEquals(gaze.attempt(takeFirstEmpty), Result.NoMatch)
-    assertEquals(gaze2.attempt(takeFirstSingle), Result.Match("hello".toSeq))
-    assertEquals(gaze3.attempt(takeFirst3), Result.Match("hello".toSeq))
+    assertEquals(gaze2.attempt(takeFirstSingle), Result.Match("hello"))
+    assertEquals(gaze3.attempt(takeFirst3), Result.Match("hello"))
   }
 
   test("middle match take first") {
@@ -48,7 +48,7 @@ class TakeFirstSuite extends FunSuite {
     val gaze3 = Gaze.from(" helloworld")
     assertEquals(gaze.attempt(takeFirstEmpty), Result.NoMatch)
     assertEquals(gaze2.attempt(takeFirstSingle), Result.NoMatch)
-    assertEquals(gaze3.attempt(takeFirst3), Result.Match(" ".toSeq))
+    assertEquals(gaze3.attempt(takeFirst3), Result.Match(" "))
   }
 
   test("last match take first") {
@@ -57,15 +57,15 @@ class TakeFirstSuite extends FunSuite {
     val gaze3 = Gaze.from("world hello")
     assertEquals(gaze.attempt(takeFirstEmpty), Result.NoMatch)
     assertEquals(gaze2.attempt(takeFirstSingle), Result.NoMatch)
-    assertEquals(gaze3.attempt(takeFirst3), Result.Match("world".toSeq))
+    assertEquals(gaze3.attempt(takeFirst3), Result.Match("world"))
   }
 
   test("take first with repeats") {
     val gaze = Gaze.from("hellohellohello")
     assertEquals(gaze.attempt(takeFirstEmpty), Result.NoMatch)
-    assertEquals(gaze.attempt(takeFirstSingle), Result.Match("hello".toSeq))
-    assertEquals(gaze.attempt(takeFirst3), Result.Match("hello".toSeq))
-    assertEquals(gaze.attempt(takeFirst3), Result.Match("hello".toSeq))
+    assertEquals(gaze.attempt(takeFirstSingle), Result.Match("hello"))
+    assertEquals(gaze.attempt(takeFirst3), Result.Match("hello"))
+    assertEquals(gaze.attempt(takeFirst3), Result.Match("hello"))
     assert(gaze.isComplete)
   }
 }

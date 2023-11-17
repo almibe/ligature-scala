@@ -7,21 +7,21 @@ package dev.ligature.gaze
 import munit.FunSuite
 
 class BetweenSuite extends FunSuite {
-  val quote = takeChar('\'')
-  val open = takeChar('<')
-  val close = takeChar('>')
-  val content = takeChar('a')
+  val quote = takeString("'")
+  val open = takeString("<")
+  val close = takeString(">")
+  val content = takeString("a")
 
   test("quote wrap test") {
     val gaze = Gaze.from("'a'")
-    assertEquals(gaze.attempt(between(quote, content)), Result.Match('a'))
+    assertEquals(gaze.attempt(between(quote, content)), Result.Match("a"))
   }
 
   test("angle bracket test") {
     val gaze = Gaze.from("<a>")
     assertEquals(
       gaze.attempt(between(open, content, close)),
-      Result.Match('a')
+      Result.Match("a")
     )
   }
 }

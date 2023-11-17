@@ -8,7 +8,7 @@ import munit.FunSuite
 
 class TakeUntilSuite extends FunSuite {
   test("take until basic cases") {
-    val nibbler = takeUntil('\n')
+    val nibbler = takeUntil("\n")
     val takeNewLine = takeString("\n")
     val gaze1 = Gaze.from("")
     val gaze2 = Gaze.from("\n")
@@ -20,14 +20,14 @@ class TakeUntilSuite extends FunSuite {
 
     assertEquals(gaze2.attempt(nibbler), Result.Match(Seq()))
     assert(!gaze2.isComplete)
-    assertEquals(gaze2.attempt(takeNewLine), Result.Match(Seq('\n')))
+    assertEquals(gaze2.attempt(takeNewLine), Result.Match("\n"))
     assert(gaze2.isComplete)
 
-    assertEquals(gaze3.attempt(nibbler), Result.Match(Seq(' ', ' ', ' ', ' ')))
+    assertEquals(gaze3.attempt(nibbler), Result.Match(Seq(" ", " ", " ", " ")))
 
-    assertEquals(gaze4.attempt(nibbler), Result.Match(Seq('1', '2', '3')))
+    assertEquals(gaze4.attempt(nibbler), Result.Match(Seq("1", "2", "3")))
     assert(!gaze4.isComplete)
-    assertEquals(gaze4.attempt(takeNewLine), Result.Match(Seq('\n')))
+    assertEquals(gaze4.attempt(takeNewLine), Result.Match("\n"))
     assert(gaze4.isComplete)
   }
 }

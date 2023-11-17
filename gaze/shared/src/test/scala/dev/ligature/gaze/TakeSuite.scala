@@ -9,15 +9,15 @@ import munit.FunSuite
 class TakeSuite extends FunSuite {
   test("multiple nibblers succeed") {
     val gaze = Gaze.from("5678")
-    val nibbler5 = take('5')
-    val nibbler6 = take('6')
-    val nibbler7 = take('7')
-    val nibbler8 = take('8')
-    assertEquals(gaze.attempt(nibbler5), Result.Match('5'))
+    val nibbler5 = take("5")
+    val nibbler6 = take("6")
+    val nibbler7 = take("7")
+    val nibbler8 = take("8")
+    assertEquals(gaze.attempt(nibbler5), Result.Match("5"))
     assertEquals(gaze.attempt(nibbler5), Result.NoMatch)
-    assertEquals(gaze.attempt(nibbler6), Result.Match('6'))
-    assertEquals(gaze.attempt(nibbler7), Result.Match('7'))
-    assertEquals(gaze.attempt(nibbler8), Result.Match('8'))
+    assertEquals(gaze.attempt(nibbler6), Result.Match("6"))
+    assertEquals(gaze.attempt(nibbler7), Result.Match("7"))
+    assertEquals(gaze.attempt(nibbler8), Result.Match("8"))
     assertEquals(gaze.attempt(nibbler8), Result.NoMatch)
     assertEquals(gaze.isComplete, true)
   }

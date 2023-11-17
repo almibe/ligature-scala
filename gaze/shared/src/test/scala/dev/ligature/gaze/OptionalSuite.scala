@@ -7,13 +7,13 @@ package dev.ligature.gaze
 import munit.FunSuite
 
 class OptionSuite extends FunSuite {
-  val optionalHello = takeAll(optional(takeChar('a')), takeChar('b'))
+  val optionalHello: Nibbler[String, String] = concat(takeAll(optional(takeString("a")), takeString("b")))
 
   test("option test") {
     val gaze = Gaze.from("ab")
-    assertEquals(gaze.attempt(optionalHello), Result.Match("ab".toSeq))
+    assertEquals(gaze.attempt(optionalHello), Result.Match("ab"))
 
     val gaze2 = Gaze.from("b")
-    assertEquals(gaze2.attempt(optionalHello), Result.Match("b".toSeq))
+    assertEquals(gaze2.attempt(optionalHello), Result.Match("b"))
   }
 }
