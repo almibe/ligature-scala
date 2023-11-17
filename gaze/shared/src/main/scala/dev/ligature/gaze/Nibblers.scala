@@ -33,7 +33,7 @@ def takeCond[I](cond: (I) => Boolean): Nibbler[I, I] = { gaze =>
   }
 }
 
-def takeWhile[I](predicate: (I) => Boolean) = repeat(takeCond[I](predicate))
+def takeWhile[I](predicate: I => Boolean) = repeat(takeCond[I](predicate))
 
 //def takeWhile[I](predicate: (I) => Boolean) = repeat[I, Seq[I]](takeCond[I](predicate))
 
@@ -185,6 +185,13 @@ def optional[I, O](nibbler: Nibbler[I, O]): Nibbler[I, O] = { (gaze: Gaze[I]) =>
   gaze.attempt(nibbler) match {
     case res: Result.Match[_] => res
     case Result.NoMatch | Result.EmptyMatch => Result.EmptyMatch
+  }
+}
+
+def optionalSeq[I, O](nibbler: Nibbler[I, Seq[O]]): Nibbler[I, Seq[O]] = { (gaze: Gaze[I]) =>
+  gaze.attempt(nibbler) match {
+    case res: Result.Match[_] => res
+    case Result.NoMatch | Result.EmptyMatch => Result.Match(Seq())
   }
 }
 

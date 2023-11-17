@@ -18,6 +18,7 @@ import dev.ligature.gaze.{
 import dev.ligature.wander.Token
 import dev.ligature.gaze.Result
 import dev.ligature.gaze.SeqSource
+import dev.ligature.gaze.optionalSeq
 
 case class Name(name: String)
 
@@ -183,7 +184,7 @@ val setNib: Nibbler[Token, Term.Set] = { gaze =>
 val arrayNib: Nibbler[Token, Term.Array] = { gaze =>
   for
     _ <- gaze.attempt(take(Token.OpenBracket))
-    values <- gaze.attempt(optional(repeat(expressionNib)))
+    values <- gaze.attempt(optionalSeq(repeat(expressionNib)))
     _ <- gaze.attempt(take(Token.CloseBracket))
   yield Term.Array(values)
 }
@@ -205,7 +206,7 @@ val fieldNib: Nibbler[Token, (Name, Term)] = { gaze =>
 val recordNib: Nibbler[Token, Term.Record] = { gaze =>
   for
     _ <- gaze.attempt(take(Token.OpenBrace))
-    decls <- gaze.attempt(optional(repeat(fieldNib)))
+    decls <- gaze.attempt(optionalSeq(repeat(fieldNib)))
     _ <- gaze.attempt(take(Token.CloseBrace))
   yield Term.Record(decls)
 }
@@ -213,7 +214,7 @@ val recordNib: Nibbler[Token, Term.Record] = { gaze =>
 val letExpressionNib: Nibbler[Token, Term.LetExpression] = { gaze =>
   for {
     _ <- gaze.attempt(take(Token.LetKeyword))
-    decls <- gaze.attempt(optional(repeat(fieldNib)))
+    decls <- gaze.attempt(optionalSeq(repeat(fieldNib)))
     _ <- gaze.attempt(take(Token.InKeyword))
     body <- gaze.attempt(expressionNib)
     _ <- gaze.attempt(take(Token.EndKeyword))
@@ -224,7 +225,6 @@ val expressionNib =
   takeFirst(
     ifExpressionNib,
     applicationNib,
-    nameNib,
     identifierNib,
     lambdaNib,
     stringNib,
