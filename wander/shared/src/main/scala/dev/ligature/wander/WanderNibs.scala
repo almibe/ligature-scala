@@ -11,21 +11,23 @@ import dev.ligature.gaze.{
   between,
   take,
   takeAll,
-  takeCharacters,
   takeFirst,
   takeString,
   takeUntil,
   takeWhile,
   optional
 }
-import dev.ligature.gaze.takeChar
+import dev.ligature.gaze.take
 import dev.ligature.gaze.Result
+import dev.ligature.gaze.takeAny
+import dev.ligature.gaze.seq
+import dev.ligature.gaze.concat
 
 object LigNibblers {
-  val whiteSpaceNibbler = takeCharacters(' ', '\t')
+  val whiteSpaceNibbler = takeAll(take(" "), take("\t"))
   val whiteSpaceAndNewLineNibbler = takeAll(takeFirst(takeString(" "), takeString("\n"), takeString("\r\n"), takeString("\t")))
   val numberNibbler =
-    takeAll(optional(take('-')), takeCharacters(('0' to '9').toSeq*))
+    takeAll(seq(optional(take('-'))), takeAny(('0' to '9').map((c: Char) => take(c.toString())).toSeq*))
 
   // val identifierNibbler: Nibbler[Char, Seq[Token]] = between(
   //   takeChar('<').map[Char, Seq[Char]](_ => Seq[Char]()),
@@ -35,61 +37,62 @@ object LigNibblers {
   //   takeChar('>').map(_ => Seq[Char]())
   // )
 
-  val stringContentNibbler: Nibbler[Char, Seq[Char]] =
-    (gaze: Gaze[Char]) => {
-      // Full pattern \"(([^\x00-\x1F\"\\]|\\[\"\\/bfnrt]|\\u[0-9a-fA-F]{4})*)\"
-      val commandChars = 0x00.toChar to 0x1f.toChar
-      val validHexChar = (c: Char) =>
-        ('0' to '9' contains c) || ('a' to 'f' contains c) || ('A' to 'F' contains c)
-      val hexNibbler = takeWhile(validHexChar)
+  val stringContentNibbler: Nibbler[String, String] = ???
+    // (gaze: Gaze[Char]) => {
+    //   // Full pattern \"(([^\x00-\x1F\"\\]|\\[\"\\/bfnrt]|\\u[0-9a-fA-F]{4})*)\"
+    //   val commandChars = 0x00.toChar to 0x1f.toChar
+    //   val validHexChar: (String) => Boolean = (c: String) =>
+    //     ('0' to '9' contains c) || ('a' to 'f' contains c) || ('A' to 'F' contains c)
+    //   val t: Nibbler[String, Seq[String]] = takeWhile(validHexChar)
+    //   val hexNibbler: Nibbler[String, String] = concat(???)
 
-      var sb = ArrayBuffer[Char]()
-      var offset = 0 // TODO delete
-      var fail = false
-      var complete = false
-      while (!complete && !fail && !gaze.isComplete) {
-        val c = gaze.next() match
-          case Result.Match(value) => value
-          case _ => ??? //should never reach
-        if (commandChars.contains(c)) {
-          fail = true
-        } else if (c == '"') {
-          complete = true
-        } else if (c == '\\') {
-          sb.append(c)
-          gaze.next() match {
-            case Result.NoMatch => fail = true
-            case Result.Match(c) =>
-              c match {
-                case '\\' | '"' | 'b' | 'f' | 'n' | 'r' | 't' => sb.append(c)
-                case 'u' =>
-                  sb.append(c)
-                  val res = gaze.attempt(hexNibbler)
-                  res match {
-                    case Result.NoMatch => fail = true
-                    case Result.Match(res) =>
-                      if (res.length == 4) {
-                        sb.appendAll(res)
-                      } else {
-                        fail = true
-                      }
-                    case Result.EmptyMatch => ???
-                  }
-                case _ =>
-                  fail = true
-              }
-            case Result.EmptyMatch => ???
-          }
-        } else {
-          sb.append(c)
-        }
-      }
-      if (fail) {
-        Result.NoMatch
-      } else {
-        Result.Match(sb.toSeq)
-      }
-    }
+    //   var sb = ArrayBuffer[Char]()
+    //   var offset = 0 // TODO delete
+    //   var fail = false
+    //   var complete = false
+    //   while (!complete && !fail && !gaze.isComplete) {
+    //     val c = gaze.next() match
+    //       case Result.Match(value) => value
+    //       case _ => ??? //should never reach
+    //     if (commandChars.contains(c)) {
+    //       fail = true
+    //     } else if (c == '"') {
+    //       complete = true
+    //     } else if (c == '\\') {
+    //       sb.append(c)
+    //       gaze.next() match {
+    //         case Result.NoMatch => fail = true
+    //         case Result.Match(c) =>
+    //           c match {
+    //             case '\\' | '"' | 'b' | 'f' | 'n' | 'r' | 't' => sb.append(c)
+    //             case 'u' =>
+    //               sb.append(c)
+    //               val res = gaze.attempt(hexNibbler)
+    //               res match {
+    //                 case Result.NoMatch => fail = true
+    //                 case Result.Match(res) =>
+    //                   if (res.length == 4) {
+    //                     sb.appendAll(res)
+    //                   } else {
+    //                     fail = true
+    //                   }
+    //                 case Result.EmptyMatch => ???
+    //               }
+    //             case _ =>
+    //               fail = true
+    //           }
+    //         case Result.EmptyMatch => ???
+    //       }
+    //     } else {
+    //       sb.append(c)
+    //     }
+    //   }
+    //   if (fail) {
+    //     Result.NoMatch
+    //   } else {
+    //     Result.Match(sb.toSeq)
+    //   }
+    // }
 
   val stringNibbler = takeAll(
     takeString("\""),

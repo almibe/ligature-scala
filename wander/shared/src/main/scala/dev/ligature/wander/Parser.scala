@@ -17,6 +17,7 @@ import dev.ligature.gaze.{
 }
 import dev.ligature.wander.Token
 import dev.ligature.gaze.Result
+import dev.ligature.gaze.SeqSource
 
 case class Name(name: String)
 
@@ -48,7 +49,7 @@ def parse(script: Seq[Token]): Either[WanderError, Term] = {
       case Token.Spaces(_) | Token.NewLine | Token.Comment => false
       case _ => true
   }
-  val gaze = Gaze(filteredInput)
+  val gaze = Gaze(SeqSource(filteredInput))
   val res: Result[Term] = gaze.attempt(scriptNib)
   res match {
     case Result.NoMatch =>
@@ -63,7 +64,7 @@ def parse(script: Seq[Token]): Either[WanderError, Term] = {
       } else {
         Left(WanderError(s"Error Parsing - No Match - Next Token: ${gaze.next()}"))
       }
-    case Result.EmptyMatch => ???
+    case Result.EmptyMatch => Right(Term.NothingLiteral)
   }
 }
 
@@ -166,7 +167,7 @@ val applicationNib: Nibbler[Token, Term] = { gaze =>
       if terms.isEmpty then
         Result.Match(name)
       else Result.Match(Term.Application(Seq(name) ++ terms))
-    case Result.EmptyMatch => ???
+    case Result.EmptyMatch => Result.EmptyMatch
   }
 }
 
@@ -187,6 +188,8 @@ val arrayNib: Nibbler[Token, Term.Array] = { gaze =>
   yield Term.Array(values)
 }
 
+val fieldsNib: Nibbler[Token, Seq[(Name, Term)]] = repeat(fieldNib)
+
 val fieldNib: Nibbler[Token, (Name, Term)] = { gaze =>
   val res = for
     name <- gaze.attempt(nameNib)
@@ -202,7 +205,7 @@ val fieldNib: Nibbler[Token, (Name, Term)] = { gaze =>
 val recordNib: Nibbler[Token, Term.Record] = { gaze =>
   for
     _ <- gaze.attempt(take(Token.OpenBrace))
-    decls <- gaze.attempt(repeat(fieldNib))
+    decls <- gaze.attempt(optional(repeat(fieldNib)))
     _ <- gaze.attempt(take(Token.CloseBrace))
   yield Term.Record(decls)
 }
@@ -210,7 +213,7 @@ val recordNib: Nibbler[Token, Term.Record] = { gaze =>
 val letExpressionNib: Nibbler[Token, Term.LetExpression] = { gaze =>
   for {
     _ <- gaze.attempt(take(Token.LetKeyword))
-    decls <- gaze.attempt(repeat(fieldNib))
+    decls <- gaze.attempt(optional(repeat(fieldNib)))
     _ <- gaze.attempt(take(Token.InKeyword))
     body <- gaze.attempt(expressionNib)
     _ <- gaze.attempt(take(Token.EndKeyword))
