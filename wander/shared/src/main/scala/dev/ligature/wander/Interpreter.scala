@@ -67,7 +67,6 @@ def handleRecord(entries: Seq[(Name, Expression)], bindings: Bindings): Either[W
 }
 
 def handleArray(expressions: Seq[Expression], bindings: Bindings): Either[WanderError, WanderValue.Array] = {
-  println("in ha")
   val res = ListBuffer[WanderValue]()
   val itre = expressions.iterator
   var continue = true

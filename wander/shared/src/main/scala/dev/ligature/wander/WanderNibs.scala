@@ -30,13 +30,12 @@ object LigNibblers {
   val numberNibbler =
     concat(flatten(takeAll(seq(optional(take("-"))), takeAny(('0' to '9').map((c: Char) => take(c.toString())).toSeq*))))
 
-  // val identifierNibbler: Nibbler[Char, Seq[Token]] = between(
-  //   takeChar('<').map[Char, Seq[Char]](_ => Seq[Char]()),
-  //   takeWhile { (c: Char) =>
-  //     "[a-zA-Z0-9-._~:/?#\\[\\]@!$&'()*+,;%=]".r.matches(c.toString())
-  //   },
-  //   takeChar('>').map(_ => Seq[Char]())
-  // )
+  val identifierNibbler: Nibbler[String, String] = between(
+    takeString("<"),
+    concat(takeWhile { (c: String) =>
+      "[a-zA-Z0-9-._~:/?#\\[\\]@!$&'()*+,;%=]".r.matches(c)
+    }),
+    takeString(">"))
 
   val stringContentNibbler: Nibbler[String, String] =
     (gaze: Gaze[String]) => {

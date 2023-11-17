@@ -67,7 +67,7 @@ val commentTokenNib = takeAll(
   takeUntil(takeFirst(takeString("\n"), takeString("\r\n")))
 ).map(results => Token.Comment)
 
-val nameNib: Nibbler[String, String] =
+val nameValueNib: Nibbler[String, String] =
   concat(flatten(takeAll(
     seq(takeCond((c: String) => c(0).isLetter || c == "_")),
     optional(takeWhile { (c: String) => c(0).isLetter || c(0).isDigit || c == "_" })
@@ -76,7 +76,7 @@ val nameNib: Nibbler[String, String] =
 // /** This nibbler matches both names and keywords. After the initial match all
 //   * keywords are checked and if none match and name is returned.
 //   */
-val nameTokenNib: Nibbler[String, Token] = nameNib.map { values =>
+val nameTokenNib: Nibbler[String, Token] = nameValueNib.map { values =>
     values match {
       case "let"         => Token.LetKeyword
       case "if"          => Token.IfKeyword
@@ -136,8 +136,8 @@ val spacesTokenNib =
   concat(takeWhile[String](_ == " "))
     .map(res => Token.Spaces(res.mkString))
 
-// val identifierTokenNib: Nibbler[String, Token] =
-//   LigNibblers.identifierNibbler.map(res => Token.Identifier(dev.ligature.wander.Identifier.fromString(res.mkString).getOrElse(???)))
+val identifierTokenNib: Nibbler[String, Token] =
+  LigNibblers.identifierNibbler.map(res => Token.Identifier(dev.ligature.wander.Identifier.fromString(res.mkString).getOrElse(???)))
 
 val tokensNib: Nibbler[String, Seq[Token]] = repeat(
   takeFirst(
@@ -150,7 +150,7 @@ val tokensNib: Nibbler[String, Seq[Token]] = repeat(
     lambdaTokenNib,
     integerTokenNib,
     newLineTokenNib,
-//    identifierTokenNib,
+    identifierTokenNib,
     openBraceTokenNib,
     closeBraceTokenNib,
     openBracketTokenNib,

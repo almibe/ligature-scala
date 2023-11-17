@@ -104,14 +104,6 @@ val nameNib: Nibbler[Token, Term.NameTerm] = gaze =>
     case Result.Match(Token.Name(n)) => Result.Match(Term.NameTerm(Name(n)))
     case _ => Result.NoMatch
 
-// val scopeNib: Nibbler[Token, Term.Scope] = { gaze =>
-//   for {
-//     _ <- gaze.attempt(take(Token.OpenBrace))
-//     expression <- gaze.attempt(optional(repeat(elementNib)))
-//     _ <- gaze.attempt(take(Token.CloseBrace))
-//   } yield Seq(Term.Scope(expression.toList))
-// }
-
 val parameterNib: Nibbler[Token, Name] = { gaze =>
   for {
     name <- gaze.attempt(nameNib)
@@ -121,7 +113,7 @@ val parameterNib: Nibbler[Token, Name] = { gaze =>
 val lambdaNib: Nibbler[Token, Term.Lambda] = { gaze =>
   for {
     _ <- gaze.attempt(take(Token.Lambda))
-    parameters <- gaze.attempt(optional(repeat(parameterNib)))
+    parameters <- gaze.attempt(optionalSeq(repeat(parameterNib)))
     _ <- gaze.attempt(take(Token.Arrow))
     body <- gaze.attempt(expressionNib)
   } yield Term.Lambda(parameters, body) //TODO handle this body better
@@ -160,7 +152,7 @@ val ifExpressionNib: Nibbler[Token, Term.IfExpression] = { gaze =>
 val applicationNib: Nibbler[Token, Term] = { gaze =>
   val res = for
     name <- gaze.attempt(nameNib) //TODO this should also allow literals
-    terms <- gaze.attempt(optional(repeat(expressionNib)))
+    terms <- gaze.attempt(optionalSeq(repeat(expressionNib)))
   yield (name, terms)
   res match {
     case Result.NoMatch => Result.NoMatch
@@ -176,7 +168,7 @@ val setNib: Nibbler[Token, Term.Set] = { gaze =>
   for
     _ <- gaze.attempt(take(Token.Hash))
     _ <- gaze.attempt(take(Token.OpenBracket))
-    values <- gaze.attempt(optional(repeat(expressionNib)))
+    values <- gaze.attempt(optionalSeq(repeat(expressionNib)))
     _ <- gaze.attempt(take(Token.CloseBracket))
   yield Term.Set(values)
 }
@@ -195,7 +187,7 @@ val fieldNib: Nibbler[Token, (Name, Term)] = { gaze =>
   val res = for
     name <- gaze.attempt(nameNib)
     _ <- gaze.attempt(take(Token.EqualSign))
-    expression <- gaze.attempt(expressionNib)
+    expression <- gaze.attempt(fieldExpressionNib)
   yield (name, expression)
   res match {
     case Result.Match((Term.NameTerm(name), term: Term)) => Result.Match((name, term))
@@ -219,6 +211,28 @@ val letExpressionNib: Nibbler[Token, Term.LetExpression] = { gaze =>
     body <- gaze.attempt(expressionNib)
     _ <- gaze.attempt(take(Token.EndKeyword))
   } yield Term.LetExpression(decls, body)
+}
+
+// Reads an expression after the equals sign for a field.
+// It should always read at least one term but after the first
+// it needs to look ahead for the in keyword or equals signs.
+val fieldExpressionNib: Nibbler[Token, Term] = { gaze =>
+  val innerExpressionNib = takeFirst(
+    ifExpressionNib,
+    nameNib,
+    identifierNib,
+    lambdaNib,
+    stringNib,
+    integerNib,
+    recordNib,
+    letExpressionNib,
+    arrayNib,
+    setNib,
+    booleanNib,
+    nothingNib,
+    questionMarkTermNib
+  )
+  gaze.attempt(innerExpressionNib)
 }
 
 val expressionNib =
