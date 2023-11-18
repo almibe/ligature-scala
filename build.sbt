@@ -66,6 +66,28 @@ lazy val wander = crossProject(JSPlatform, JVMPlatform)
   .dependsOn(gaze)
   .disablePlugins(RevolverPlugin)
 
+lazy val wanderPad = crossProject(JVMPlatform)
+  .in(file("wander-pad"))
+  .settings(
+    fork := true,
+    name := "wander-pad",
+    scalaVersion := scala3Version,
+    libraryDependencies += "org.scalameta" %% "munit" % munitVersion % Test,
+    libraryDependencies += "org.scalafx" %% "scalafx" % "16.0.0-R24",
+    libraryDependencies ++= {
+      lazy val osName = System.getProperty("os.name") match {
+        case n if n.startsWith("Linux") => "linux"
+        case n if n.startsWith("Mac") => "mac"
+        case n if n.startsWith("Windows") => "win"
+        case _ => throw new Exception("Unknown platform!")
+      }
+      Seq("base", "controls", "fxml", "graphics", "media", "swing", "web")
+        .map(m => "org.openjfx" % s"javafx-$m" % "16" classifier osName)
+    }
+  )
+  .dependsOn(gaze, wander)
+  .disablePlugins(RevolverPlugin)
+
 // lazy val ligatureTestSuite = project
 //   .in(file("ligature-test-suite"))
 //   .settings(
