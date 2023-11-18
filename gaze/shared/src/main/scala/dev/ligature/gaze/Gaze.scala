@@ -21,18 +21,18 @@ sealed class Gaze[+I](private val input: Source[I]) {
   def isComplete: Boolean =
     this.offset >= this.input.length()
 
-  def peek(): Result[I] =
+  def peek(): Option[I] =
     if (this.isComplete) {
-      Result.NoMatch
+      None
     } else {
-      Result.Match(this.input(this.offset).get)
+      Some(this.input(this.offset).get)
     }
 
-  def next(): Result[I] =
+  def next(): Option[I] =
     if (this.isComplete) {
-      Result.NoMatch
+      None
     } else {
-      val next = Result.Match(this.input(this.offset).get)
+      val next = Some(this.input(this.offset).get)
       this.offset += 1
       next
     }
@@ -70,11 +70,11 @@ class StringGaze(input: StringSource) extends Gaze[String](input) {
   private var line: Int = 0
   private var lineOffset: Int = 0
 
-  override def next(): Result[String] =
+  override def next(): Option[String] =
     if (this.isComplete) {
-      Result.NoMatch
+      None
     } else {
-      val next: Result.Match[String] = Result.Match(this.input(this.offset).get)
+      val next = Some(this.input(this.offset).get)
       this.offset += 1
       this.lineOffset += 1
       if (next.value == "\n") {

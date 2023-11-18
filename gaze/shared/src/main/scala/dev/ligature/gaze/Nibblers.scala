@@ -13,11 +13,10 @@ import scala.collection.mutable.ListBuffer
   */
 def take[I](toMatch: I): Nibbler[I, I] = { gaze =>
   gaze.next() match {
-    case Result.Match(i) =>
+    case Some(i) =>
       if (toMatch == i) { Result.Match(toMatch) }
       else { Result.NoMatch }
-    case Result.NoMatch => Result.NoMatch
-    case Result.EmptyMatch => ???
+    case None => Result.NoMatch
   }
 }
 
@@ -25,11 +24,10 @@ def take[I](toMatch: I): Nibbler[I, I] = { gaze =>
   */
 def takeCond[I](cond: (I) => Boolean): Nibbler[I, I] = { gaze =>
   gaze.next() match {
-    case Result.Match(i) =>
+    case Some(i) =>
       if (cond(i)) { Result.Match(i) }
       else { Result.NoMatch }
-    case Result.NoMatch => Result.NoMatch
-    case Result.EmptyMatch => ???
+    case None => Result.NoMatch
   }
 }
 
@@ -115,15 +113,14 @@ def takeString(toMatch: String): Nibbler[String, String] = {
     while (matched && offset < chars.length) {
       val nextChar = gaze.next()
       nextChar match {
-        case Result.Match(c) =>
+        case Some(c) =>
           if (chars(offset).toString() == c) {
             offset += 1;
           } else {
             matched = false
           }
-        case Result.NoMatch =>
+        case None =>
           matched = false
-        case Result.EmptyMatch => ???
       }
     }
     if (matched) {
@@ -141,16 +138,15 @@ def takeUntil[I](toMatch: I): Nibbler[I, Seq[I]] =
     while (!matched) {
       val next = gaze.peek()
       next match {
-        case Result.Match(v) =>
+        case Some(v) =>
           if (v == toMatch) {
             matched = true
           } else {
             gaze.next()
             result.append(v)
           }
-        case Result.NoMatch =>
+        case None =>
           matched = true
-        case Result.EmptyMatch => ???
       }
     }
     Result.Match(result.toSeq)
@@ -164,7 +160,7 @@ def takeUntil[I](toMatch: Nibbler[I, I]): Nibbler[I, Seq[I]] =
     while (!matched) {
       val next = gaze.peek()
       next match {
-        case Result.Match(v) =>
+        case Some(v) =>
           val check = gaze.check(toMatch)
           check match {
             case Result.Match(_) => matched = true
@@ -173,9 +169,8 @@ def takeUntil[I](toMatch: Nibbler[I, I]): Nibbler[I, Seq[I]] =
               result.append(v)
             case Result.EmptyMatch => ???
           }
-        case Result.NoMatch =>
+        case None =>
           matched = true
-        case Result.EmptyMatch => ???
       }
     }
     Result.Match(result.toSeq)
