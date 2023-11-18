@@ -59,15 +59,14 @@ def printWanderValue(value: WanderValue): String = {
     case WanderValue.Record(value) => ???
     case WanderValue.Identifier(value) => s"<${value.name}>"
 //    case WanderValue.LigatureValue(value) => writeValue(value)
-    case WanderValue.NativeFunction(body) => "[NativeFunction]"
+    case WanderValue.HostFunction(body) => "[HostFunction]"
     case WanderValue.Nothing => "nothing"
-    case WanderValue.WanderFunction(parameters, body) => "[WanderFunction]"
+    case WanderValue.Lambda(lambda) => "[Lambda]"
 //    case WanderValue.Itr(internal) => "[Stream]"
     case WanderValue.Array(values) =>
       "[" + values.map { value => printWanderValue(value) }.mkString(" ") + "]"
     case WanderValue.Set(values) =>
       "#[" + values.map { value => printWanderValue(value) }.mkString(" ") + "]"
-    case WanderValue.Lambda(lambda) => ???
   }
 }
 

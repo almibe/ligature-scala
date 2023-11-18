@@ -17,6 +17,7 @@ import dev.ligature.gaze.{
   takeWhile,
   repeat
 }
+import scala.collection.mutable.ListBuffer
 
 def process(terms: Seq[Term]): Either[WanderError, Expression] = {
   if terms.isEmpty then
@@ -39,10 +40,35 @@ def process(term: Term): Either[WanderError, Expression] =
     case Term.IntegerLiteral(value) => Right(Expression.IntegerValue(value))
     case Term.NameTerm(value) => Right(Expression.NameExpression(value))
     case Term.StringLiteral(value) => Right(Expression.StringValue(value))
-    case Term.Application(terms) => Right(Expression.Nothing)//???
+    case Term.Application(terms) => processApplication(terms)
     case Term.Lambda(parameters, body) => processLambda(parameters, body)
     case Term.IfExpression(conditional, ifBody, elseBody) => processIfExpression(conditional, ifBody, elseBody)
   }
+
+def processApplication(terms: Seq[Term]): Either[WanderError, Expression.Application] = {
+  if terms.length < 2 then
+    Left(WanderError("Applications require a function name and at least one arguement."))
+  else
+    var error: Option[WanderError] = None
+    var name: Option[Name] = None
+    val itr = terms.iterator
+    itr.next() match {
+      case Term.NameTerm(value) => name = Some(value)
+      case _ => error = Some(WanderError("Head of an Application must be a name.")) //TODO true, until I add pipes
+    }
+    val buffer = ListBuffer[Expression]()
+    while (itr.hasNext && error.isEmpty) {
+      val token = itr.next()
+      process(token) match {
+        case Left(value) => error = Some(value)
+        case Right(value) => buffer += value
+      }
+    }
+    if error.isEmpty then
+      Right(Expression.Application(name.get, buffer.toSeq))
+    else
+      Left(error.get)
+}
 
 def processIfExpression(conditional: Term, ifBody: Term, elseBody: Term): Either[WanderError, Expression.IfExpression] = {
   val res = for {

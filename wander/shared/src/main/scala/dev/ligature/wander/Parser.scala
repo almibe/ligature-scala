@@ -19,6 +19,7 @@ import dev.ligature.wander.Token
 import dev.ligature.gaze.Result
 import dev.ligature.gaze.SeqSource
 import dev.ligature.gaze.optionalSeq
+import scala.collection.mutable.ListBuffer
 
 case class Name(name: String)
 
@@ -71,37 +72,37 @@ def parse(script: Seq[Token]): Either[WanderError, Term] = {
 
 val nothingNib: Nibbler[Token, Term] = gaze =>
   gaze.next() match
-    case Result.Match(Token.NothingKeyword) => Result.Match(Term.NothingLiteral)
+    case Some(Token.NothingKeyword) => Result.Match(Term.NothingLiteral)
     case _ => Result.NoMatch
 
 val questionMarkTermNib: Nibbler[Token, Term] = gaze =>
   gaze.next() match
-    case Result.Match(Token.QuestionMark) => Result.Match(Term.QuestionMark)
+    case Some(Token.QuestionMark) => Result.Match(Term.QuestionMark)
     case _ => Result.NoMatch
 
 val booleanNib: Nibbler[Token, Term.BooleanLiteral] = gaze =>
   gaze.next() match
-    case Result.Match(Token.BooleanLiteral(b)) => Result.Match(Term.BooleanLiteral(b))
+    case Some(Token.BooleanLiteral(b)) => Result.Match(Term.BooleanLiteral(b))
     case _ => Result.NoMatch
 
 val identifierNib: Nibbler[Token, Term.IdentifierLiteral] = gaze =>
   gaze.next() match
-    case Result.Match(Token.Identifier(i)) => Result.Match(Term.IdentifierLiteral(i))
+    case Some(Token.Identifier(i)) => Result.Match(Term.IdentifierLiteral(i))
     case _ => Result.NoMatch
 
 val integerNib: Nibbler[Token, Term.IntegerLiteral] = gaze =>
   gaze.next() match
-    case Result.Match(Token.IntegerLiteral(i)) => Result.Match(Term.IntegerLiteral(i))
+    case Some(Token.IntegerLiteral(i)) => Result.Match(Term.IntegerLiteral(i))
     case _ => Result.NoMatch
 
 val stringNib: Nibbler[Token, Term.StringLiteral] = gaze =>
   gaze.next() match
-    case Result.Match(Token.StringLiteral(s)) => Result.Match(Term.StringLiteral(s))
+    case Some(Token.StringLiteral(s)) => Result.Match(Term.StringLiteral(s))
     case _ => Result.NoMatch
 
 val nameNib: Nibbler[Token, Term.NameTerm] = gaze =>
   gaze.next() match
-    case Result.Match(Token.Name(n)) => Result.Match(Term.NameTerm(Name(n)))
+    case Some(Token.Name(n)) => Result.Match(Term.NameTerm(Name(n)))
     case _ => Result.NoMatch
 
 val parameterNib: Nibbler[Token, Name] = { gaze =>
@@ -232,7 +233,22 @@ val fieldExpressionNib: Nibbler[Token, Term] = { gaze =>
     nothingNib,
     questionMarkTermNib
   )
-  gaze.attempt(innerExpressionNib)
+  val firstPart = gaze.attempt(innerExpressionNib) match
+    case Result.Match(value) => value
+    case Result.NoMatch | Result.EmptyMatch => ???  
+  val rest = ListBuffer[Term]()
+  var continue = true
+  while (continue) {
+    gaze.attempt(innerExpressionNib) match {
+      case Result.EmptyMatch => ???
+      case Result.NoMatch => continue = false
+      case Result.Match(value) => rest += value
+    }
+  }
+  if rest.isEmpty then
+    Result.Match(firstPart)
+  else
+    Result.Match(Term.Application(Seq(firstPart) ++ rest))
 }
 
 val expressionNib =

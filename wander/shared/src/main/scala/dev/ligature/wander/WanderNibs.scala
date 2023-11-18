@@ -50,8 +50,8 @@ object LigNibblers {
       var fail = false
       var complete = false
       while (!complete && !fail && !gaze.isComplete) {
-        val c = gaze.next() match
-          case Result.Match(value) => value
+        val c: String = gaze.next() match
+          case Some(value) => value
           case _ => ??? //should never reach
         if (commandChars.contains(c)) {
           fail = true
@@ -60,8 +60,8 @@ object LigNibblers {
         } else if (c == "\\") {
           sb.append(c)
           gaze.next() match {
-            case Result.NoMatch => fail = true
-            case Result.Match(c) =>
+            case None => fail = true
+            case Some(c) =>
               c match {
                 case "\\" | "\"" | "b" | "f" | "n" | "r" | "t" => sb.append(c)
                 case "u" =>
@@ -80,7 +80,6 @@ object LigNibblers {
                 case _ =>
                   fail = true
               }
-            case Result.EmptyMatch => ???
           }
         } else {
           sb.append(c)

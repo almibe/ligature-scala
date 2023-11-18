@@ -20,19 +20,16 @@ import scala.util.Success
 /** Represents a Value in the Wander language.
   */
 enum WanderValue:
-  case Identifier(value: dev.ligature.wander.Identifier)
-  case StringValue(value: String)
+  case Nothing
   case IntValue(value: Long)
   case BooleanValue(value: Boolean)
-  case Nothing
-  case NativeFunction(body: (arguments: Seq[Term], bindings: Bindings) => Either[WanderError, WanderValue])
-  case WanderFunction(
-    parameters: Seq[Name],
-    body: Seq[Term])
+  case StringValue(value: String)
+  case Identifier(value: dev.ligature.wander.Identifier)
   case Array(values: Seq[WanderValue])
   case Set(values: scala.collection.Set[WanderValue])
   case Record(entires: Seq[(Name, WanderValue)])
   case Lambda(lambda: Expression.Lambda)
+  case HostFunction(body: (arguments: Seq[Expression], bindings: Bindings) => Either[WanderError, WanderValue])
 
 //sealed trait FunctionDefinition(val parameters: List[Parameter]) extends WanderValue
 

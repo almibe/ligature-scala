@@ -70,7 +70,7 @@ val commentTokenNib = takeAll(
 val nameValueNib: Nibbler[String, String] =
   concat(flatten(takeAll(
     seq(takeCond((c: String) => c(0).isLetter || c == "_")),
-    optional(takeWhile { (c: String) => c(0).isLetter || c(0).isDigit || c == "_" })
+    optional(takeWhile { (c: String) => c(0).isLetter || c(0).isDigit || c == "_" || c == "." })
   )))
 
 // /** This nibbler matches both names and keywords. After the initial match all

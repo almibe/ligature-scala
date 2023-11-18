@@ -36,11 +36,38 @@ def eval(expression: Expression, bindings: Bindings): Either[WanderError, Wander
     case Expression.Array(value) => handleArray(value, bindings)
     case Expression.Set(value) => handleSet(value, bindings)
     case Expression.Record(entries) => handleRecord(entries, bindings)
-    case Expression.Application(name, arguments) => Right(WanderValue.Nothing) //???
+    case Expression.Application(name, arguments) => handleApplication(name, arguments, bindings)
     case Expression.NameExpression(name) => Right(WanderValue.Nothing) //???
     case Expression.LetExpression(decls, body) => Right(WanderValue.Nothing) //???
     case lambda: Expression.Lambda => Right(WanderValue.Lambda(lambda))
     case Expression.IfExpression(conditional, ifBody, elseBody) => handleIfExpression(conditional, ifBody, elseBody, bindings)
+  }
+}
+
+def handleApplication(name: Name, arguments: Seq[Expression], bindings: Bindings): Either[WanderError, WanderValue] = {
+  bindings.read(name) match {
+    case Left(err) => Left(err)
+    case Right(value) => {
+      value match {
+        case WanderValue.Lambda(Expression.Lambda(parameters, body)) => {
+          var fnScope = bindings.newScope()
+          assert(arguments.size == parameters.size)
+          parameters.zipWithIndex.foreach { (param, index) =>
+            val argument = eval(arguments(index), bindings) match {
+              case Left(value) => ???
+              case Right(value) => {
+                val x = fnScope.bindVariable(param, value)
+                ???
+              }
+            }
+          }
+          //TODO bind parameters
+          eval(body, fnScope)
+        }
+        case WanderValue.HostFunction(fn) => fn(arguments, bindings)
+        case _ => Left(WanderError(s"Could not call function ${name.name}."))
+      }
+    }
   }
 }
 

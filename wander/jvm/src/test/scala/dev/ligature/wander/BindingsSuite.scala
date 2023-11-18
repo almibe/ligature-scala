@@ -17,7 +17,7 @@ class BindingsSuite extends FunSuite {
 
   test("add single value and read") {
     val binding = Bindings()
-    val binding2 = binding.bindVariable(identifier, value1).getOrElse(???)
+    val binding2 = binding.bindVariable(identifier, value1)
     val res = binding.read(identifier)
     val res2 = binding2.read(identifier)
 
@@ -29,14 +29,14 @@ class BindingsSuite extends FunSuite {
 
   test("test scoping") {
     val bindings = Bindings()
-    val bindings2 = bindings.bindVariable(identifier, value1).getOrElse(???)
+    val bindings2 = bindings.bindVariable(identifier, value1)
     assertEquals(bindings2.read(identifier), Right(value1))
 
     val bindings3 = bindings2.newScope()
     assertEquals(bindings3.read(identifier), Right(value1))
 
-    val bindings4 = bindings3.bindVariable(identifier, value2).getOrElse(???)
-    val bindings5 = bindings4.bindVariable(identifier2, value3).getOrElse(???)
+    val bindings4 = bindings3.bindVariable(identifier, value2)
+    val bindings5 = bindings4.bindVariable(identifier2, value3)
     assertEquals(bindings5.read(identifier), Right(value2))
     assertEquals(bindings5.read(identifier2), Right(value3))
   }

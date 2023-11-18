@@ -12,18 +12,11 @@ case class Bindings(scopes: List[Map[Name, WanderValue]] = List((Map()))) {
   def bindVariable(
       name: Name,
       wanderValue: WanderValue
-  ): Either[WanderError, Bindings] = {
+  ): Bindings = {
     val currentScope = this.scopes.last
-    if (currentScope.contains(name)) {
-      //TODO probably remove this to allow shadowing?
-      Left(WanderError(s"$name is already bound in current scope."))
-    } else {
-      val newVariables = currentScope + (name -> wanderValue)
-      val oldScope = this.scopes.dropRight(1)
-      Right(
-        Bindings(oldScope.appended(newVariables))
-      )
-    }
+    val newVariables = currentScope + (name -> wanderValue)
+    val oldScope = this.scopes.dropRight(1)
+    Bindings(oldScope.appended(newVariables))
   }
 
   def read(name: Name): Either[WanderError, WanderValue] = {
