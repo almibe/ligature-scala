@@ -28,6 +28,17 @@ sealed class Gaze[+I](private val input: Source[I]) {
       Some(this.input(this.offset).get)
     }
 
+  def peek(offset: Int): Option[I] =
+    if (this.isComplete) {
+      None
+    } else {
+      if this.input.length() >= (this.offset + offset) then
+        Some(this.input(this.offset + offset).get)
+      else
+        None
+    }
+
+
   def next(): Option[I] =
     if (this.isComplete) {
       None

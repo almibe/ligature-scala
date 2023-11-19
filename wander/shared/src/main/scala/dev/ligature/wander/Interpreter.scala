@@ -37,11 +37,24 @@ def eval(expression: Expression, bindings: Bindings): Either[WanderError, Wander
     case Expression.Set(value) => handleSet(value, bindings)
     case Expression.Record(entries) => handleRecord(entries, bindings)
     case Expression.Application(name, arguments) => handleApplication(name, arguments, bindings)
-    case Expression.NameExpression(name) => Right(WanderValue.Nothing) //???
-    case Expression.LetExpression(decls, body) => Right(WanderValue.Nothing) //???
+    case Expression.NameExpression(name) => bindings.read(name)
+    case Expression.LetExpression(decls, body) => handleLetExpression(decls, body, bindings)
     case lambda: Expression.Lambda => Right(WanderValue.Lambda(lambda))
     case Expression.IfExpression(conditional, ifBody, elseBody) => handleIfExpression(conditional, ifBody, elseBody, bindings)
   }
+}
+
+def handleLetExpression(decls: Seq[(Name, Expression)], body: Expression, bindings: Bindings): Either[WanderError, WanderValue] = {
+  var newScope = bindings.newScope()
+  decls.foreach((name, expression) => {
+    eval(expression, newScope) match {
+      case Left(value) => ???
+      case Right(value) => {
+        newScope = newScope.bindVariable(name, value)
+      }
+    }
+  })
+  eval(body, newScope)
 }
 
 def handleApplication(name: Name, arguments: Seq[Expression], bindings: Bindings): Either[WanderError, WanderValue] = {
@@ -56,12 +69,10 @@ def handleApplication(name: Name, arguments: Seq[Expression], bindings: Bindings
             val argument = eval(arguments(index), bindings) match {
               case Left(value) => ???
               case Right(value) => {
-                val x = fnScope.bindVariable(param, value)
-                ???
+                fnScope = fnScope.bindVariable(param, value)
               }
             }
           }
-          //TODO bind parameters
           eval(body, fnScope)
         }
         case WanderValue.HostFunction(fn) => fn(arguments, bindings)

@@ -233,22 +233,39 @@ val fieldExpressionNib: Nibbler[Token, Term] = { gaze =>
     nothingNib,
     questionMarkTermNib
   )
-  val firstPart = gaze.attempt(innerExpressionNib) match
+  val obligatoryPart = gaze.attempt(innerExpressionNib) match
     case Result.Match(value) => value
     case Result.NoMatch | Result.EmptyMatch => ???  
   val rest = ListBuffer[Term]()
   var continue = true
   while (continue) {
-    gaze.attempt(innerExpressionNib) match {
-      case Result.EmptyMatch => ???
-      case Result.NoMatch => continue = false
-      case Result.Match(value) => rest += value
+    gaze.peek() match {
+      case Some(Token.InKeyword) | Some(Token.EndKeyword) | Some(Token.CloseBrace) => {
+        continue = false
+      }
+      case Some(Token.Name(_)) => {
+        gaze.peek(1) match {
+          case Some(Token.EqualSign) => continue = false
+          case _ => ()
+        }
+      }
+      case _ => ()
+    }
+
+    if (continue) {
+      gaze.attempt(innerExpressionNib) match {
+        case Result.EmptyMatch => ???
+        case Result.NoMatch => continue = false
+        case Result.Match(value) => {
+          rest += value
+        }
+      }
     }
   }
   if rest.isEmpty then
-    Result.Match(firstPart)
+    Result.Match(obligatoryPart)
   else
-    Result.Match(Term.Application(Seq(firstPart) ++ rest))
+    Result.Match(Term.Application(Seq(obligatoryPart) ++ rest))
 }
 
 val expressionNib =
