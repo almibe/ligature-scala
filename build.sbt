@@ -58,7 +58,7 @@ lazy val wander = crossProject(JSPlatform, JVMPlatform)
     name := "wander",
     scalaVersion := scala3Version,
     libraryDependencies += "org.scalameta" %% "munit" % munitVersion % Test,
-    //scalaJSUseMainModuleInitializer := true,
+    // scalaJSUseMainModuleInitializer := true,
     scalaJSLinkerConfig ~= {
       _.withModuleKind(ModuleKind.CommonJSModule)
     }
@@ -76,13 +76,13 @@ lazy val wanderPad = crossProject(JVMPlatform)
     libraryDependencies += "org.scalafx" %% "scalafx" % "16.0.0-R24",
     libraryDependencies ++= {
       lazy val osName = System.getProperty("os.name") match {
-        case n if n.startsWith("Linux") => "linux"
-        case n if n.startsWith("Mac") => "mac"
+        case n if n.startsWith("Linux")   => "linux"
+        case n if n.startsWith("Mac")     => "mac"
         case n if n.startsWith("Windows") => "win"
-        case _ => throw new Exception("Unknown platform!")
+        case _                            => throw new Exception("Unknown platform!")
       }
       Seq("base", "controls", "fxml", "graphics", "media", "swing", "web")
-        .map(m => "org.openjfx" % s"javafx-$m" % "16" classifier osName)
+        .map(m => ("org.openjfx" % s"javafx-$m" % "21.0.1").classifier(osName))
     }
   )
   .dependsOn(gaze, wander)
