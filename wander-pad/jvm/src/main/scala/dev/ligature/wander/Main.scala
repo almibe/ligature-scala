@@ -25,8 +25,13 @@ object ScalaFXHelloWorld extends JFXApp3 {
     val runButton = Button("Run")
     runButton.onAction = { (e) =>
         val script = editorInput.getText()
+        val intro = introspect(script)
         val result = run(script, common())
-        resultOutput.text = result.toString()
+        resultOutput.text = 
+          "Tokens      :" + intro.tokens.toString() + "\n" +
+          "Terms       :" + intro.terms.toString() + "\n" +
+          "Expressions :" + intro.expression.toString() + "\n" +
+          "Result      :" + result.toString() + "\n"
     }
 
     stage = new JFXApp3.PrimaryStage {
