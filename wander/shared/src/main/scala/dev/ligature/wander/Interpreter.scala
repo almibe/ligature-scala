@@ -16,7 +16,7 @@ enum Expression:
   case Array(value: Seq[Expression])
   case Set(value: Seq[Expression])
   case Record(entires: Seq[(Name, Expression)])
-  case LetExpression(decls: Seq[(Name, Expression)], body: Expression)
+  case LetExpression(name: Name, value: Expression)
   case Application(name: Name, arguments: Seq[Expression])
   case Lambda(
     parameters: Seq[Name],
@@ -38,23 +38,21 @@ def eval(expression: Expression, bindings: Bindings): Either[WanderError, Wander
     case Expression.Record(entries) => handleRecord(entries, bindings)
     case Expression.Application(name, arguments) => handleApplication(name, arguments, bindings)
     case Expression.NameExpression(name) => bindings.read(name)
-    case Expression.LetExpression(decls, body) => handleLetExpression(decls, body, bindings)
+    case Expression.LetExpression(name, value) => handleLetExpression(name, value, bindings)
     case lambda: Expression.Lambda => Right(WanderValue.Lambda(lambda))
     case Expression.IfExpression(conditional, ifBody, elseBody) => handleIfExpression(conditional, ifBody, elseBody, bindings)
   }
 }
 
-def handleLetExpression(decls: Seq[(Name, Expression)], body: Expression, bindings: Bindings): Either[WanderError, WanderValue] = {
+def handleLetExpression(name: Name, value: Expression, bindings: Bindings): Either[WanderError, WanderValue] = {
   var newScope = bindings.newScope()
-  decls.foreach((name, expression) => {
-    eval(expression, newScope) match {
-      case Left(value) => ???
-      case Right(value) => {
-        newScope = newScope.bindVariable(name, value)
-      }
+  eval(value, newScope) match {
+    case Left(value) => ???
+    case Right(value) => {
+      newScope = newScope.bindVariable(name, value)
     }
-  })
-  eval(body, newScope)
+  }
+  Right(WanderValue.Nothing)
 }
 
 def handleApplication(name: Name, arguments: Seq[Expression], bindings: Bindings): Either[WanderError, WanderValue] = {

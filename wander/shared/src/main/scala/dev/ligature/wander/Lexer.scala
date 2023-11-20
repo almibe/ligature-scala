@@ -30,9 +30,9 @@ enum Token:
   case StringLiteral(value: String)
   case Name(value: String)
   case OpenBrace, CloseBrace, Colon, OpenParen, CloseParen, NewLine,
-    Arrow, IfKeyword, ElseKeyword, EqualSign, LetKeyword, Comment,
+    Arrow, WhenKeyword, EqualSign, LetKeyword, Comment,
     OpenBracket, CloseBracket, NothingKeyword, QuestionMark, InKeyword,
-    EndKeyword, ThenKeyword, Period, Backtick, Hash, Lambda, Pipe
+    EndKeyword, ThenKeyword, Period, Backtick, Hash, Lambda, Pipe, Comma
 
 def tokenize(input: String): Either[WanderError, Seq[Token]] = {
   val gaze = Gaze.from(input)
@@ -79,11 +79,10 @@ val nameValueNib: Nibbler[String, String] =
 val nameTokenNib: Nibbler[String, Token] = nameValueNib.map { values =>
     values match {
       case "let"         => Token.LetKeyword
-      case "if"          => Token.IfKeyword
+      case "when"        => Token.WhenKeyword
       case "end"         => Token.EndKeyword
       case "in"          => Token.InKeyword
       case "then"        => Token.ThenKeyword
-      case "else"        => Token.ElseKeyword
       case "true"        => Token.BooleanLiteral(true)
       case "false"       => Token.BooleanLiteral(false)
       case "nothing"     => Token.NothingKeyword
@@ -123,6 +122,9 @@ val hashTokenNib =
 val backtickTokenNib =
   takeString("`").map(res => Token.Backtick)
 
+val commaTokenNib =
+  takeString(",").map(res => Token.Comma)
+
 val arrowTokenNib =
   takeString("->").map(res => Token.Arrow)
 
@@ -144,6 +146,7 @@ val tokensNib: Nibbler[String, Seq[Token]] = repeat(
     spacesTokenNib,
     nameTokenNib,
     colonTokenNib,
+    commaTokenNib,
     openParenTokenNib,
     closeParenTokenNib,
     arrowTokenNib,

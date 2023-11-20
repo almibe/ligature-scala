@@ -222,6 +222,30 @@ def repeat[I, O](
   }
 }
 
+def repeatSep[I, O](
+    nibbler: Nibbler[I, O], seperator: I
+): Nibbler[I, Seq[O]] = { (gaze: Gaze[I]) =>
+  val allMatches = ArrayBuffer[O]()
+  var continue = true
+  while (!gaze.isComplete && continue) {
+    gaze.attempt(nibbler) match {
+      case Result.NoMatch    => continue = false
+      case Result.Match(v) => allMatches += v
+      case Result.EmptyMatch => continue = true
+    }
+    if (gaze.peek() == Some(seperator)) {
+      gaze.next()
+    } else {
+      continue = false
+    }
+  }
+  if (allMatches.isEmpty) {
+    Result.NoMatch
+  } else {
+    Result.Match(allMatches.toSeq)
+  }
+}
+
 def between[I, O](
     wrapper: Nibbler[I, O],
     content: Nibbler[I, O]
@@ -233,6 +257,7 @@ def between[I, O](
     close: Nibbler[I, O]
 ) = takeAll(open, content, close).map(_(1))
 
+// Concat a Seq of Strings together.
 def concat(nibbler: Nibbler[String, Seq[String]]): Nibbler[String, String] = { (gaze: Gaze[String]) =>
   gaze.attempt(nibbler) match {
     case Result.EmptyMatch => Result.EmptyMatch
@@ -241,6 +266,7 @@ def concat(nibbler: Nibbler[String, Seq[String]]): Nibbler[String, String] = { (
   }
 }
 
+// Wraps a value in a Seq.
 def seq[I, O](nibbler: Nibbler[I, O]): Nibbler[I, Seq[O]] = { (gaze: Gaze[I]) =>
   gaze.attempt(nibbler) match {
     case Result.EmptyMatch => Result.EmptyMatch
@@ -249,6 +275,7 @@ def seq[I, O](nibbler: Nibbler[I, O]): Nibbler[I, Seq[O]] = { (gaze: Gaze[I]) =>
   }
 }
 
+// Removes one layer of Seqs.
 def flatten[I, O](nibbler: Nibbler[I, Seq[Seq[O]]]): Nibbler[I, Seq[O]] = { (gaze: Gaze[I]) =>
   gaze.attempt(nibbler) match {
     case Result.EmptyMatch => Result.EmptyMatch

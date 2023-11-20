@@ -8,7 +8,7 @@ import dev.ligature.wander.Token
 import dev.ligature.wander.WanderValue
 import dev.ligature.wander.preludes.common
 
-class PrimitivesSuite extends munit.FunSuite {
+class LiteralsSuite extends munit.FunSuite {
   def check(script: String, expected: WanderValue) =
     assertEquals(run(script, common()), Right(expected))
 

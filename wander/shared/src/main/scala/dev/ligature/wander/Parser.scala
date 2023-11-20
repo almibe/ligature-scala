@@ -20,6 +20,7 @@ import dev.ligature.gaze.Result
 import dev.ligature.gaze.SeqSource
 import dev.ligature.gaze.optionalSeq
 import scala.collection.mutable.ListBuffer
+import dev.ligature.gaze.repeatSep
 
 case class Name(name: String)
 
@@ -34,15 +35,12 @@ enum Term:
   case Array(value: Seq[Term])
   case Set(value: Seq[Term])
   case Record(entires: Seq[(Name, Term)])
-  case LetExpression(decls: Seq[(Name, Term)], body: Term)
+  case LetExpression(name: Name, term: Term)
   case Application(terms: Seq[Term])
+  case Grouping(terms: Seq[Term])
   case Lambda(
     parameters: Seq[Name],
     body: Term)
-  case IfExpression(
-    conditional: Term,
-    ifBody: Term,
-    elseBody: Term)
   case Pipe
 
 def parse(script: Seq[Token]): Either[WanderError, Term] = {
@@ -128,26 +126,26 @@ val lambdaNib: Nibbler[Token, Term.Lambda] = { gaze =>
 //   take(Token("Value", TokenType.Name)).map(_ => List(WanderType.Value))
 // )
 
-val elseExpressionNib: Nibbler[Token, Term] = { gaze =>
-  for {
-    _ <- gaze.attempt(take(Token.ElseKeyword))
-    body <- gaze.attempt(expressionNib)
-  } yield body
-}
+// val elseExpressionNib: Nibbler[Token, Term] = { gaze =>
+//   for {
+//     _ <- gaze.attempt(take(Token.ElseKeyword))
+//     body <- gaze.attempt(expressionNib)
+//   } yield body
+// }
 
-val ifExpressionNib: Nibbler[Token, Term.IfExpression] = { gaze =>
-  for {
-    _ <- gaze.attempt(take(Token.IfKeyword))
-    condition <- gaze.attempt(expressionNib)
-    body <- gaze.attempt(expressionNib)
-    `else` <- gaze.attempt(optional(elseExpressionNib))
-  } yield
-    Term.IfExpression(
-      condition,
-      body,
-      `else`
-    )
-}
+// val ifExpressionNib: Nibbler[Token, Term.IfExpression] = { gaze =>
+//   for {
+//     _ <- gaze.attempt(take(Token.IfKeyword))
+//     condition <- gaze.attempt(expressionNib)
+//     body <- gaze.attempt(expressionNib)
+//     `else` <- gaze.attempt(optional(elseExpressionNib))
+//   } yield
+//     Term.IfExpression(
+//       condition,
+//       body,
+//       `else`
+//     )
+// }
 
 //NOTE: this will return either an Application or a Name.
 val applicationNib: Nibbler[Token, Term] = { gaze =>
@@ -177,7 +175,7 @@ val setNib: Nibbler[Token, Term.Set] = { gaze =>
 val arrayNib: Nibbler[Token, Term.Array] = { gaze =>
   for
     _ <- gaze.attempt(take(Token.OpenBracket))
-    values <- gaze.attempt(optionalSeq(repeat(expressionNib)))
+    values <- gaze.attempt(optionalSeq(repeatSep(expressionNib, Token.Comma)))
     _ <- gaze.attempt(take(Token.CloseBracket))
   yield Term.Array(values)
 }
@@ -199,7 +197,7 @@ val fieldNib: Nibbler[Token, (Name, Term)] = { gaze =>
 val recordNib: Nibbler[Token, Term.Record] = { gaze =>
   for
     _ <- gaze.attempt(take(Token.OpenBrace))
-    decls <- gaze.attempt(optionalSeq(repeat(fieldNib)))
+    decls <- gaze.attempt(optionalSeq(repeatSep(fieldNib, Token.Comma)))
     _ <- gaze.attempt(take(Token.CloseBrace))
   yield Term.Record(decls)
 }
@@ -207,11 +205,9 @@ val recordNib: Nibbler[Token, Term.Record] = { gaze =>
 val letExpressionNib: Nibbler[Token, Term.LetExpression] = { gaze =>
   for {
     _ <- gaze.attempt(take(Token.LetKeyword))
-    decls <- gaze.attempt(optionalSeq(repeat(fieldNib)))
-    _ <- gaze.attempt(take(Token.InKeyword))
-    body <- gaze.attempt(expressionNib)
-    _ <- gaze.attempt(take(Token.EndKeyword))
-  } yield Term.LetExpression(decls, body)
+    name <- gaze.attempt(nameNib)
+    value <- gaze.attempt(expressionNib)
+  } yield Term.LetExpression(name.value, value)
 }
 
 // Reads an expression after the equals sign for a field.
@@ -219,7 +215,7 @@ val letExpressionNib: Nibbler[Token, Term.LetExpression] = { gaze =>
 // it needs to look ahead for the in keyword or equals signs.
 val fieldExpressionNib: Nibbler[Token, Term] = { gaze =>
   val innerExpressionNib = takeFirst(
-    ifExpressionNib,
+   // ifExpressionNib,
     nameNib,
     identifierNib,
     lambdaNib,
@@ -233,12 +229,13 @@ val fieldExpressionNib: Nibbler[Token, Term] = { gaze =>
     nothingNib,
     questionMarkTermNib
   )
-  val obligatoryPart = gaze.attempt(innerExpressionNib) match
+  var obligatoryPart = gaze.attempt(innerExpressionNib) match
     case Result.Match(value) => value
-    case Result.NoMatch | Result.EmptyMatch => ???  
+    case Result.NoMatch | Result.EmptyMatch => ???
   val rest = ListBuffer[Term]()
   var continue = true
   while (continue) {
+    //TODO instead of doing peeks here, I should do attempts or checks with innerExpressionNibs
     gaze.peek() match {
       case Some(Token.InKeyword) | Some(Token.EndKeyword) | Some(Token.CloseBrace) => {
         continue = false
@@ -248,6 +245,10 @@ val fieldExpressionNib: Nibbler[Token, Term] = { gaze =>
           case Some(Token.EqualSign) => continue = false
           case _ => ()
         }
+      }
+      case Some(Token.EqualSign) => {
+        //TODO shouldn't reach this, this case just exists for debugging
+        ???
       }
       case _ => ()
     }
@@ -270,7 +271,7 @@ val fieldExpressionNib: Nibbler[Token, Term] = { gaze =>
 
 val expressionNib =
   takeFirst(
-    ifExpressionNib,
+//    ifExpressionNib,
     applicationNib,
     identifierNib,
     lambdaNib,

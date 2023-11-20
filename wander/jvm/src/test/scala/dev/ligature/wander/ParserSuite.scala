@@ -65,25 +65,25 @@ class ParserSuite extends FunSuite {
     assertEquals(result, expected)
   }
   test("parse List") {
-    val result = check("[1 2 \"three\"]")
+    val result = check("[1, 2, \"three\"]")
     val expected = Right(Term.Array(Seq(Term.IntegerLiteral(1), Term.IntegerLiteral(2), Term.StringLiteral("three"))))
     assertEquals(result, expected)
   }
   test("parse let expression") {
-    val result = check("let x = 5 in x end")
-    val expected = Right(Term.LetExpression(Seq((Name("x"), Term.IntegerLiteral(5))), Term.NameTerm(Name("x"))))
+    val result = check("let x 5")
+    val expected = Right(Term.LetExpression(Name("x"), Term.IntegerLiteral(5)))
     assertEquals(result, expected)
   }
-  test("parse conditionals") {
-    val result = check("if true false else true")
-    val expected = Right(
-      Term.IfExpression(
-        Term.BooleanLiteral(true), 
-        Term.BooleanLiteral(false),
-        Term.BooleanLiteral(true)
-      ))
-    assertEquals(result, expected)
-  }
+  // test("parse conditionals") {
+  //   val result = check("if true false else true")
+  //   val expected = Right(
+  //     Term.IfExpression(
+  //       Term.BooleanLiteral(true), 
+  //       Term.BooleanLiteral(false),
+  //       Term.BooleanLiteral(true)
+  //     ))
+  //   assertEquals(result, expected)
+  // }
   test("parse Lambda") {
     val result = check("\\x -> x")
     val expected = Right(
@@ -106,12 +106,17 @@ class ParserSuite extends FunSuite {
     val expected = Right(Term.Record(Seq((Name("id"), Term.Lambda(Seq(Name("x")), Term.NameTerm(Name("x")))))))
     assertEquals(result, expected)
   }
+  test("parse multi value record") {
+    val result = check("{a = 5, id = \\x -> x, b = \"hello\"}")
+    val expected = Right(Term.Record(Seq(
+        (Name("a"), Term.IntegerLiteral(5)),
+        (Name("id"), Term.Lambda(Seq(Name("x")), Term.NameTerm(Name("x")))),
+        (Name("b"), Term.StringLiteral("hello")))))
+    assertEquals(result, expected)
+  }
   test("parse let expression with lambda") {
-    val result = check("let id = \\x -> x in id end")
-    val expected = Right(
-        Term.LetExpression(
-          Seq((Name("id"), Term.Lambda(Seq(Name("x")), Term.NameTerm(Name("x"))))),
-          Term.NameTerm(Name("id"))))
+    val result = check("let id \\x -> x")
+    val expected = Right(Term.LetExpression(Name("id"), Term.Lambda(Seq(Name("x")), Term.NameTerm(Name("x")))))
     assertEquals(result, expected)
   }
 }

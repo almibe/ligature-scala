@@ -42,11 +42,11 @@ class LexerSuite extends FunSuite {
     check(script, tokens)
   }
   test("tokenize symbols") {
-    val script = "?{}:()][\n\r\n->if else = let nothing --test"
+    val script = "?{}:()][\n\r\n->= let nothing --test"
     val tokens = Right(Seq(
       Token.QuestionMark, Token.OpenBrace, Token.CloseBrace, Token.Colon, Token.OpenParen, Token.CloseParen,
       Token.CloseBracket, Token.OpenBracket, Token.NewLine, Token.NewLine,
-      Token.Arrow, Token.IfKeyword, sp, Token.ElseKeyword, sp, Token.EqualSign,
+      Token.Arrow, Token.EqualSign,
       sp, Token.LetKeyword, sp, Token.NothingKeyword, sp, Token.Comment))
     check(script, tokens)
   }

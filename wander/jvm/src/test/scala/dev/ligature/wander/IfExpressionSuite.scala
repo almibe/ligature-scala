@@ -8,13 +8,13 @@ import dev.ligature.wander.Token
 import dev.ligature.wander.preludes.common
 
 class IfExpressionSuite extends munit.FunSuite {
-  def check(script: String) = run(script, common()).getOrElse(???)
+  // def check(script: String) = run(script, common()).getOrElse(???)
 
-  test("if true") {
-    val result = check("if true 7 else 6")
-    val expected = WanderValue.IntValue(7)
-    assertEquals(result, expected)
-  }
+  // test("if true") {
+  //   val result = check("if true 7 else 6")
+  //   val expected = WanderValue.IntValue(7)
+  //   assertEquals(result, expected)
+  // }
 //   test("if false w/ function call") {
 //     val result = check("if and(false true) 24601 else -1")
 //     val expected = WanderValue.IntValue(24601)
