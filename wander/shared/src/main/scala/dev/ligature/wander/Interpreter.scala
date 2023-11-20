@@ -5,6 +5,8 @@
 package dev.ligature.wander
 
 import scala.collection.mutable.ListBuffer
+import scala.util.boundary
+import scala.util.boundary, boundary.break
 
 enum Expression:
   case NameExpression(value: Name)
@@ -21,10 +23,8 @@ enum Expression:
   case Lambda(
     parameters: Seq[Name],
     body: Expression)
-  case IfExpression(
-    conditional: Expression,
-    ifBody: Expression,
-    elseBody: Expression)
+  case WhenExpression(conditionals: Seq[(Expression, Expression)])
+  case Grouping(expressions: Seq[Expression])
 
 def eval(expression: Expression, bindings: Bindings): Either[WanderError, WanderValue] = {
   expression match {
@@ -40,7 +40,24 @@ def eval(expression: Expression, bindings: Bindings): Either[WanderError, Wander
     case Expression.NameExpression(name) => bindings.read(name)
     case Expression.LetExpression(name, value) => handleLetExpression(name, value, bindings)
     case lambda: Expression.Lambda => Right(WanderValue.Lambda(lambda))
-    case Expression.IfExpression(conditional, ifBody, elseBody) => handleIfExpression(conditional, ifBody, elseBody, bindings)
+    case Expression.WhenExpression(conditionals) => handleWhenExpression(conditionals, bindings)
+    case Expression.Grouping(expressions) => handleGrouping(expressions, bindings)
+  }
+}
+
+def handleGrouping(expressions: Seq[Expression], bindings: Bindings): Either[WanderError, WanderValue] = {
+  var error: Option[WanderError] = None
+  var res: Option[WanderValue] = None
+  val itr = expressions.iterator
+  while error.isEmpty && itr.hasNext do
+    eval(itr.next(), bindings) match {
+      case Left(err) => error = Some(err)
+      case Right(value) => res = Some(value)
+    }
+  (error, res) match {
+    case (Some(err), _) => Left(err)
+    case (_, Some(res)) => Right(res)
+    case (_, None) => Right(WanderValue.Nothing)
   }
 }
 
@@ -50,9 +67,9 @@ def handleLetExpression(name: Name, value: Expression, bindings: Bindings): Eith
     case Left(value) => ???
     case Right(value) => {
       newScope = newScope.bindVariable(name, value)
+      Right(value)
     }
   }
-  Right(WanderValue.Nothing)
 }
 
 def handleApplication(name: Name, arguments: Seq[Expression], bindings: Bindings): Either[WanderError, WanderValue] = {
@@ -80,26 +97,28 @@ def handleApplication(name: Name, arguments: Seq[Expression], bindings: Bindings
   }
 }
 
-def handleIfExpression(conditional: Expression, ifBody: Expression, elseBody: Expression, bindings: Bindings): Either[WanderError, WanderValue] = {
-  eval(conditional, bindings) match {
-    case Left(value) => ???
-    case Right(value) => {
-      value match
-        case WanderValue.BooleanValue(true) => eval(ifBody, bindings)
-        case WanderValue.BooleanValue(false) => eval(elseBody, bindings)
-        case _ => ???
-    }
-  }
+def handleWhenExpression(conditionals: Seq[(Expression, Expression)], bindings: Bindings): Either[WanderError, WanderValue] = {
+  ???
+  // eval(conditional, bindings) match {
+  //   case Left(value) => ???
+  //   case Right(value) => {
+  //     value match
+  //       case WanderValue.BooleanValue(true) => eval(ifBody, bindings)
+  //       case WanderValue.BooleanValue(false) => eval(elseBody, bindings)
+  //       case _ => ???
+  //   }
+  // }
 }
 
 def handleRecord(entries: Seq[(Name, Expression)], bindings: Bindings): Either[WanderError, WanderValue.Record] = {
-  val record = entries.map((name, expression) => {
-    eval(expression, bindings) match {
-      case Left(value) => ???
-      case Right(value) => (name, value)
-    }
-  })
-  Right(WanderValue.Record(record))
+  boundary:
+    val record = entries.map((name, expression) => {
+      eval(expression, bindings) match {
+        case Left(value) => break(Left(value))
+        case Right(value) => (name, value)
+      }
+    })
+    Right(WanderValue.Record(record))
 }
 
 def handleArray(expressions: Seq[Expression], bindings: Bindings): Either[WanderError, WanderValue.Array] = {
@@ -127,76 +146,3 @@ def handleSet(expressions: Seq[Expression], bindings: Bindings): Either[WanderEr
       case Right(value) => res += value    
   Right(WanderValue.Set(res.toSet))
 }
-
-//   term match
-//     case Term.BooleanLiteral(value) =>
-//       IO.pure(EvalResult(WanderValue.BooleanValue(value), bindings))
-//     case Term.IdentifierLiteral(value) =>
-//       IO.pure(EvalResult(WanderValue.LigatureValue(value), bindings))
-//     case Term.IntegerLiteral(value) =>
-//       IO.pure(EvalResult(WanderValue.LigatureValue(LigatureLiteral.IntegerLiteral(value)), bindings))
-//     case Term.StringLiteral(value) =>
-//       IO.pure(EvalResult(WanderValue.LigatureValue(LigatureLiteral.StringLiteral(value)), bindings))
-//     case Term.NameTerm(value) =>
-//       bindings.read(value) match
-//         case Left(value) => IO.raiseError(value)
-//         case Right(value) => IO.pure(EvalResult(value, bindings))
-//     case Term.LetExpression(name, term) =>
-//       evalTerm(term, bindings).map { value =>
-//         bindings.bindVariable(name, value.result) match
-//           case Left(error) => throw error
-//           case Right(newBindings) =>
-//             EvalResult(WanderValue.Nothing, newBindings)
-//       }
-//     case Term.List(terms) =>
-//       evalAll(terms, bindings).map { values =>
-//         EvalResult(WanderValue.ListValue(values), bindings)
-//       }
-//     case Term.FunctionCall(name, arguments) =>
-//       //TODO val evaldArgs = evalArguments(arguments)
-//       bindings.read(name) match {
-//         case Left(value) => IO.raiseError(value)
-//         case Right(value) =>
-//           value match {
-//             case WanderValue.NativeFunction(body) => {
-//               body(arguments, bindings).map { value => EvalResult(value, bindings) }
-//             }
-//             case WanderValue.WanderFunction(parameters, body) =>
-//               if parameters.length == arguments.length then
-//                 var newScope = bindings.newScope()
-//                 arguments
-//                   .map { term =>
-//                     evalTerm(term, bindings)
-//                   }.sequence.map { evalResults =>
-//                     val args = evalResults.map(_.result)
-//                     parameters.zip(args).foreach { (name, value) =>
-//                       newScope.bindVariable(name, value) match
-//                         case Left(value) => ???
-//                         case Right(bindings) => 
-//                           newScope = bindings
-//                     }
-//                   }.flatMap { _ =>
-//                     eval(body, newScope).map { scriptResult => EvalResult(scriptResult.result, bindings) }
-//                   }
-//               else
-//                 IO.raiseError(LigatureError("Argument and parameter size must be the same."))
-//             case _ => ???
-//           }
-//       }
-//     case Term.WanderFunction(parameters, body) => {
-//       IO.pure(EvalResult(WanderValue.WanderFunction(parameters, body), bindings))
-//     }
-//     case Term.Scope(terms) =>
-//       eval(terms, bindings.newScope()).map { x => EvalResult(x.result, bindings) }
-//     case Term.IfExpression(ifConditional, ifBody, elseBody) =>
-//       for {
-//         cond <- evalTerm(ifConditional, bindings)
-//         res <- cond match
-//           case EvalResult(WanderValue.BooleanValue(true), bindings) => evalTerm(ifBody, bindings.newScope())
-//           case EvalResult(WanderValue.BooleanValue(false), bindings) => evalTerm(elseBody, bindings.newScope())
-//           case _ => IO.raiseError(LigatureError("If expressions require Boolean values for conditionals."))
-//       } yield EvalResult(res.result, bindings)
-//     case Term.NothingLiteral =>
-//       IO.pure(EvalResult(WanderValue.Nothing, bindings))
-//     case Term.QuestionMark =>
-//       IO.pure(EvalResult(WanderValue.Nothing, bindings))

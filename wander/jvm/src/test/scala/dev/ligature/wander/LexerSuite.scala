@@ -50,4 +50,9 @@ class LexerSuite extends FunSuite {
       sp, Token.LetKeyword, sp, Token.NothingKeyword, sp, Token.Comment))
     check(script, tokens)
   }
+  test("tokenize grouping") {
+    val script = "(hello 2)"
+    val tokens = Right(Seq(Token.OpenParen, Token.Name("hello"), sp, Token.IntegerLiteral(2), Token.CloseParen))
+    check(script, tokens)
+  }
 }

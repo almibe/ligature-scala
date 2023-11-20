@@ -42,8 +42,24 @@ def process(term: Term): Either[WanderError, Expression] =
     case Term.StringLiteral(value) => Right(Expression.StringValue(value))
     case Term.Application(terms) => processApplication(terms)
     case Term.Lambda(parameters, body) => processLambda(parameters, body)
-    case Term.Grouping(terms) => ???
+    case Term.Grouping(terms) => processGrouping(terms)
+    case Term.WhenExpression(conditionals) => processWhenExpression(conditionals)
   }
+
+def processGrouping(terms: Seq[Term]): Either[WanderError, Expression.Grouping] = {
+  var error: Option[WanderError] = None
+  val res = ListBuffer[Expression]()
+  val itr = terms.iterator
+  while error.isEmpty && itr.hasNext do
+    process(itr.next()) match {
+      case Left(err) => error = Some(err)
+      case Right(value) => res += value
+    }
+  if error.isDefined then
+    Left(error.get)
+  else
+    Right(Expression.Grouping(res.toSeq))
+}
 
 def processApplication(terms: Seq[Term]): Either[WanderError, Expression.Application] = {
   if terms.length < 2 then
@@ -70,16 +86,17 @@ def processApplication(terms: Seq[Term]): Either[WanderError, Expression.Applica
       Left(error.get)
 }
 
-def processIfExpression(conditional: Term, ifBody: Term, elseBody: Term): Either[WanderError, Expression.IfExpression] = {
-  val res = for {
-    c <- process(conditional)
-    i <- process(ifBody)
-    e <- process(elseBody)
-  } yield (c, i, e)
-  res match {
-    case Right((c, i, e)) => Right(Expression.IfExpression(c, i, e))
-    case Left(e) => Left(e)
-  }
+def processWhenExpression(conditionals: Seq[(Term, Term)]): Either[WanderError, Expression.WhenExpression] = {
+  ???
+  // val res = for {
+  //   c <- process(conditional)
+  //   i <- process(ifBody)
+  //   e <- process(elseBody)
+  // } yield (c, i, e)
+  // res match {
+  //   case Right((c, i, e)) => Right(Expression.IfExpression(c, i, e))
+  //   case Left(e) => Left(e)
+  // }
 }
 
 def processLambda(parameters: Seq[Name], body: Term): Either[WanderError, Expression.Lambda] = {

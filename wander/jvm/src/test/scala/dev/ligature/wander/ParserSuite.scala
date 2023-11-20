@@ -119,4 +119,22 @@ class ParserSuite extends FunSuite {
     val expected = Right(Term.LetExpression(Name("id"), Term.Lambda(Seq(Name("x")), Term.NameTerm(Name("x")))))
     assertEquals(result, expected)
   }
+  test("parse empty grouping") {
+    val result = check("()")
+    val expected = Right(
+      Term.Grouping(Seq())
+    )
+    assertEquals(result, expected)
+  }
+  test("parse grouping") {
+    val result = check("(let y true, \\x -> x, Bool.not y)")
+    val expected = Right(
+      Term.Grouping(Seq(
+        Term.LetExpression(Name("y"), Term.BooleanLiteral(true)),
+        Term.Lambda(Seq(Name("x")), Term.NameTerm(Name("x"))),
+        Term.Application(Seq(Term.NameTerm(Name("Bool.not")), Term.NameTerm(Name("y"))))
+      ))
+    )
+    assertEquals(result, expected)
+  }
 }

@@ -9,22 +9,26 @@ import scala.io.Source
 import dev.ligature.wander.preludes.common
 
 class ScriptSuite extends munit.FunSuite {
-    // val dir = sys.env("WANDER_TEST_SUITE")
-    // val files = File(dir).listFiles.filter(_.isFile)
-    //     .filter(_.getName.endsWith(".test.wander"))
-    //     .map(_.getPath).toList
-    // files.foreach(f => {
-    //     test(f) {
-    //         val script = Source.fromFile(f).mkString
-    //         run(script, common()) match {
-    //             case Right(WanderValue.Array(values)) => {
-    //                 runTests(f, values)
-    //             }
-    //             case Left(value) => fail(value.toString())
-    //             case _ => fail(s"File ${f} is not a valid test file.")
-    //         }
-    //     }
-    // })
+    sys.env.get("WANDER_TEST_SUITE") match {
+        case Some(dir) => {
+            val files = File(dir).listFiles.filter(_.isFile)
+                .filter(_.getName.endsWith(".test.wander"))
+                .map(_.getPath).toList
+            files.foreach(f => {
+                test(f) {
+                    val script = Source.fromFile(f).mkString
+                    run(script, common()) match {
+                        case Right(WanderValue.Array(values)) => {
+                            runTests(f, values)
+                        }
+                        case Left(value) => fail(value.toString())
+                        case _ => fail(s"File ${f} is not a valid test file.")
+                    }
+                }
+            })
+        }
+        case None => ()
+    }
 
     def runTests(fileName: String, values: Seq[WanderValue]) = {
         values.foreach(_ match {

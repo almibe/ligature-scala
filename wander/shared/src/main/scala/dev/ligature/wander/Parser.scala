@@ -36,6 +36,7 @@ enum Term:
   case Set(value: Seq[Term])
   case Record(entires: Seq[(Name, Term)])
   case LetExpression(name: Name, term: Term)
+  case WhenExpression(conditionals: Seq[(Term, Term)])
   case Application(terms: Seq[Term])
   case Grouping(terms: Seq[Term])
   case Lambda(
@@ -50,7 +51,7 @@ def parse(script: Seq[Token]): Either[WanderError, Term] = {
       case _ => true
   }
   val gaze = Gaze(SeqSource(filteredInput))
-  val res: Result[Term] = gaze.attempt(scriptNib)
+  val res: Result[Seq[Term]] = gaze.attempt(scriptNib)
   res match {
     case Result.NoMatch =>
       if (gaze.isComplete) {
@@ -60,7 +61,10 @@ def parse(script: Seq[Token]): Either[WanderError, Term] = {
       }
     case Result.Match(res) =>
       if (gaze.isComplete) {
-        Right(res)
+        if res.length == 1 then
+          Right(res.head)
+        else
+          Right(Term.Grouping(res))
       } else {
         Left(WanderError(s"Error Parsing - No Match - Next Token: ${gaze.next()}"))
       }
@@ -167,7 +171,7 @@ val setNib: Nibbler[Token, Term.Set] = { gaze =>
   for
     _ <- gaze.attempt(take(Token.Hash))
     _ <- gaze.attempt(take(Token.OpenBracket))
-    values <- gaze.attempt(optionalSeq(repeat(expressionNib)))
+    values <- gaze.attempt(optionalSeq(repeatSep(expressionNib, Token.Comma)))
     _ <- gaze.attempt(take(Token.CloseBracket))
   yield Term.Set(values)
 }
@@ -180,13 +184,11 @@ val arrayNib: Nibbler[Token, Term.Array] = { gaze =>
   yield Term.Array(values)
 }
 
-val fieldsNib: Nibbler[Token, Seq[(Name, Term)]] = repeat(fieldNib)
-
 val fieldNib: Nibbler[Token, (Name, Term)] = { gaze =>
   val res = for
     name <- gaze.attempt(nameNib)
     _ <- gaze.attempt(take(Token.EqualSign))
-    expression <- gaze.attempt(fieldExpressionNib)
+    expression <- gaze.attempt(expressionNib)
   yield (name, expression)
   res match {
     case Result.Match((Term.NameTerm(name), term: Term)) => Result.Match((name, term))
@@ -202,6 +204,14 @@ val recordNib: Nibbler[Token, Term.Record] = { gaze =>
   yield Term.Record(decls)
 }
 
+val groupingNib: Nibbler[Token, Term.Grouping] = { gaze =>
+  for
+    _ <- gaze.attempt(take(Token.OpenParen))
+    decls <- gaze.attempt(optionalSeq(repeatSep(expressionNib, Token.Comma)))
+    _ <- gaze.attempt(take(Token.CloseParen))
+  yield Term.Grouping(decls)
+}
+
 val letExpressionNib: Nibbler[Token, Term.LetExpression] = { gaze =>
   for {
     _ <- gaze.attempt(take(Token.LetKeyword))
@@ -210,71 +220,56 @@ val letExpressionNib: Nibbler[Token, Term.LetExpression] = { gaze =>
   } yield Term.LetExpression(name.value, value)
 }
 
-// Reads an expression after the equals sign for a field.
-// It should always read at least one term but after the first
-// it needs to look ahead for the in keyword or equals signs.
-val fieldExpressionNib: Nibbler[Token, Term] = { gaze =>
-  val innerExpressionNib = takeFirst(
-   // ifExpressionNib,
-    nameNib,
-    identifierNib,
-    lambdaNib,
-    stringNib,
-    integerNib,
-    recordNib,
-    letExpressionNib,
-    arrayNib,
-    setNib,
-    booleanNib,
-    nothingNib,
-    questionMarkTermNib
-  )
-  var obligatoryPart = gaze.attempt(innerExpressionNib) match
-    case Result.Match(value) => value
-    case Result.NoMatch | Result.EmptyMatch => ???
-  val rest = ListBuffer[Term]()
-  var continue = true
-  while (continue) {
-    //TODO instead of doing peeks here, I should do attempts or checks with innerExpressionNibs
-    gaze.peek() match {
-      case Some(Token.InKeyword) | Some(Token.EndKeyword) | Some(Token.CloseBrace) => {
-        continue = false
-      }
-      case Some(Token.Name(_)) => {
-        gaze.peek(1) match {
-          case Some(Token.EqualSign) => continue = false
-          case _ => ()
-        }
-      }
-      case Some(Token.EqualSign) => {
-        //TODO shouldn't reach this, this case just exists for debugging
-        ???
-      }
-      case _ => ()
-    }
+// // Reads an expression after the equals sign for a field.
+// // It should always read at least one term but after the first
+// // it needs to look ahead for the in keyword or equals signs.
+// val fieldExpressionNib: Nibbler[Token, Term] = { gaze =>
+//   var obligatoryPart = gaze.attempt(innerExpressionNib) match
+//     case Result.Match(value) => value
+//     case Result.NoMatch | Result.EmptyMatch => ???
+//   val rest = ListBuffer[Term]()
+//   var continue = true
+//   while (continue) {
+//     //TODO instead of doing peeks here, I should do attempts or checks with innerExpressionNibs
+//     gaze.peek() match {
+//       case Some(Token.InKeyword) | Some(Token.EndKeyword) | Some(Token.CloseBrace) => {
+//         continue = false
+//       }
+//       case Some(Token.Name(_)) => {
+//         gaze.peek(1) match {
+//           case Some(Token.EqualSign) => continue = false
+//           case _ => ()
+//         }
+//       }
+//       case Some(Token.EqualSign) => {
+//         //TODO shouldn't reach this, this case just exists for debugging
+//         ???
+//       }
+//       case _ => ()
+//     }
 
-    if (continue) {
-      gaze.attempt(innerExpressionNib) match {
-        case Result.EmptyMatch => ???
-        case Result.NoMatch => continue = false
-        case Result.Match(value) => {
-          rest += value
-        }
-      }
-    }
-  }
-  if rest.isEmpty then
-    Result.Match(obligatoryPart)
-  else
-    Result.Match(Term.Application(Seq(obligatoryPart) ++ rest))
-}
+//     if (continue) {
+//       gaze.attempt(innerExpressionNib) match {
+//         case Result.EmptyMatch => ???
+//         case Result.NoMatch => continue = false
+//         case Result.Match(value) => {
+//           rest += value
+//         }
+//       }
+//     }
+//   }
+//   if rest.isEmpty then
+//     Result.Match(obligatoryPart)
+//   else
+//     Result.Match(Term.Application(Seq(obligatoryPart) ++ rest))
+// }
 
 val expressionNib =
   takeFirst(
-//    ifExpressionNib,
     applicationNib,
     identifierNib,
     lambdaNib,
+    groupingNib,
     stringNib,
     integerNib,
     recordNib,
@@ -286,4 +281,4 @@ val expressionNib =
     questionMarkTermNib
   )
 
-val scriptNib = expressionNib
+val scriptNib = optionalSeq(repeatSep(expressionNib, Token.Comma))
