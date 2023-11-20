@@ -8,15 +8,15 @@ import dev.ligature.wander.preludes.common
 
 @main
 def main(args: String*) =
-    val script = args.mkString(" ")
-    val intro = introspect(script)
-    println("\n")
-    println("Script     : " + script)
-    println("Tokens     : " + intro.tokens)
-    println("Terms      : " + intro.terms)
-    println("Expression : " + intro.expression)
-    run(script, common()) match {
-        case Left(value) => println("Err        : " + value)
-        case Right(value) => println("Result     : " + value)
-    }
-    println("\n")
+  val script = args.mkString(" ")
+  val intro = introspect(script)
+  println("\n")
+  println("Script     : " + script)
+  println("Tokens     : " + intro.tokens)
+  println("Terms      : " + intro.terms)
+  println("Expression : " + intro.expression)
+  run(script, common()) match {
+    case Left(value)  => println("Err        : " + value)
+    case Right(value) => println("Result     : " + value)
+  }
+  println("\n")

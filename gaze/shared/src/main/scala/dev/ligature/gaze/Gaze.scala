@@ -34,10 +34,8 @@ sealed class Gaze[+I](private val input: Source[I]) {
     } else {
       if this.input.length() >= (this.offset + offset) then
         Some(this.input(this.offset + offset).get)
-      else
-        None
+      else None
     }
-
 
   def next(): Option[I] =
     if (this.isComplete) {
@@ -77,7 +75,7 @@ sealed class Gaze[+I](private val input: Source[I]) {
 }
 
 class StringGaze(input: StringSource) extends Gaze[String](input) {
-  //TODO location info might not update correctly when a Nibble fails?
+  // TODO location info might not update correctly when a Nibble fails?
   private var line: Int = 0
   private var lineOffset: Int = 0
 
@@ -94,29 +92,28 @@ class StringGaze(input: StringSource) extends Gaze[String](input) {
       }
       next
     }
-  def location: Location = {
+  def location: Location =
     Location(this.line, this.lineOffset)
-  }
 }
 
 enum Result[+T]:
   def map[U](f: T => U): Result[U] =
     this match {
-      case EmptyMatch => EmptyMatch
-      case NoMatch => NoMatch
+      case EmptyMatch   => EmptyMatch
+      case NoMatch      => NoMatch
       case Match(value) => Match(f(value))
     }
-    //if (isEmpty) None else Some(f(this.get))
+    // if (isEmpty) None else Some(f(this.get))
   def flatten[U](implicit ev: T <:< Result[U]): Result[U] =
     this match {
-      case EmptyMatch => EmptyMatch
-      case NoMatch => NoMatch
+      case EmptyMatch   => EmptyMatch
+      case NoMatch      => NoMatch
       case Match(value) => ev(value)
     }
   def flatMap[U](f: T => Result[U]): Result[U] =
     this match {
-      case EmptyMatch => EmptyMatch
-      case NoMatch => NoMatch
+      case EmptyMatch   => EmptyMatch
+      case NoMatch      => NoMatch
       case Match(value) => f(value)
     }
   //  if (isEmpty) None else f(this.get)
@@ -129,15 +126,15 @@ abstract class Nibbler[-I, +O] {
 
   final def map[NO](f: O => NO): Nibbler[I, NO] = { (gaze: Gaze[I]) =>
     this.apply(gaze) match {
-      case Result.NoMatch => Result.NoMatch
+      case Result.NoMatch         => Result.NoMatch
       case Result.Match[O](value) => Result.Match(f(value))
-      case Result.EmptyMatch => Result.EmptyMatch
+      case Result.EmptyMatch      => Result.EmptyMatch
     }
   }
 
   final def as[NO](value: NO): Nibbler[I, NO] = { (gaze: Gaze[I]) =>
     this.apply(gaze) match {
-      case Result.NoMatch => Result.NoMatch
+      case Result.NoMatch                      => Result.NoMatch
       case Result.Match(_) | Result.EmptyMatch => Result.Match(value)
     }
   }

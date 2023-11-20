@@ -39,16 +39,14 @@ enum Term:
   case WhenExpression(conditionals: Seq[(Term, Term)])
   case Application(terms: Seq[Term])
   case Grouping(terms: Seq[Term])
-  case Lambda(
-    parameters: Seq[Name],
-    body: Term)
+  case Lambda(parameters: Seq[Name], body: Term)
   case Pipe
 
 def parse(script: Seq[Token]): Either[WanderError, Term] = {
   val filteredInput = script.filter {
     _ match
       case Token.Spaces(_) | Token.NewLine | Token.Comment => false
-      case _ => true
+      case _                                               => true
   }
   val gaze = Gaze(SeqSource(filteredInput))
   val res: Result[Seq[Term]] = gaze.attempt(scriptNib)
@@ -61,10 +59,8 @@ def parse(script: Seq[Token]): Either[WanderError, Term] = {
       }
     case Result.Match(res) =>
       if (gaze.isComplete) {
-        if res.length == 1 then
-          Right(res.head)
-        else
-          Right(Term.Grouping(res))
+        if res.length == 1 then Right(res.head)
+        else Right(Term.Grouping(res))
       } else {
         Left(WanderError(s"Error Parsing - No Match - Next Token: ${gaze.next()}"))
       }
@@ -75,37 +71,37 @@ def parse(script: Seq[Token]): Either[WanderError, Term] = {
 val nothingNib: Nibbler[Token, Term] = gaze =>
   gaze.next() match
     case Some(Token.NothingKeyword) => Result.Match(Term.NothingLiteral)
-    case _ => Result.NoMatch
+    case _                          => Result.NoMatch
 
 val questionMarkTermNib: Nibbler[Token, Term] = gaze =>
   gaze.next() match
     case Some(Token.QuestionMark) => Result.Match(Term.QuestionMark)
-    case _ => Result.NoMatch
+    case _                        => Result.NoMatch
 
 val booleanNib: Nibbler[Token, Term.BooleanLiteral] = gaze =>
   gaze.next() match
     case Some(Token.BooleanLiteral(b)) => Result.Match(Term.BooleanLiteral(b))
-    case _ => Result.NoMatch
+    case _                             => Result.NoMatch
 
 val identifierNib: Nibbler[Token, Term.IdentifierLiteral] = gaze =>
   gaze.next() match
     case Some(Token.Identifier(i)) => Result.Match(Term.IdentifierLiteral(i))
-    case _ => Result.NoMatch
+    case _                         => Result.NoMatch
 
 val integerNib: Nibbler[Token, Term.IntegerLiteral] = gaze =>
   gaze.next() match
     case Some(Token.IntegerLiteral(i)) => Result.Match(Term.IntegerLiteral(i))
-    case _ => Result.NoMatch
+    case _                             => Result.NoMatch
 
 val stringNib: Nibbler[Token, Term.StringLiteral] = gaze =>
   gaze.next() match
     case Some(Token.StringLiteral(s)) => Result.Match(Term.StringLiteral(s))
-    case _ => Result.NoMatch
+    case _                            => Result.NoMatch
 
 val nameNib: Nibbler[Token, Term.NameTerm] = gaze =>
   gaze.next() match
     case Some(Token.Name(n)) => Result.Match(Term.NameTerm(Name(n)))
-    case _ => Result.NoMatch
+    case _                   => Result.NoMatch
 
 val parameterNib: Nibbler[Token, Name] = { gaze =>
   for {
@@ -149,7 +145,7 @@ val whenExpressionNib: Nibbler[Token, Term.WhenExpression] = { gaze =>
   for {
     _ <- gaze.attempt(takeAll(take(Token.WhenKeyword), take(Token.OpenParen)))
     conditionals <- gaze.attempt(optionalSeq(repeatSep(conditionalsNib, Token.Comma)))
-    //`else` <- gaze.attempt(optional(elseExpressionNib))
+    // `else` <- gaze.attempt(optional(elseExpressionNib))
     _ <- gaze.attempt(take(Token.CloseParen))
   } yield Term.WhenExpression(conditionals)
 }
@@ -157,14 +153,13 @@ val whenExpressionNib: Nibbler[Token, Term.WhenExpression] = { gaze =>
 //NOTE: this will return either an Application or a Name.
 val applicationNib: Nibbler[Token, Term] = { gaze =>
   val res = for
-    name <- gaze.attempt(nameNib) //TODO this should also allow literals
+    name <- gaze.attempt(nameNib) // TODO this should also allow literals
     terms <- gaze.attempt(optionalSeq(repeat(expressionNib)))
   yield (name, terms)
   res match {
     case Result.NoMatch => Result.NoMatch
     case Result.Match((name, terms)) =>
-      if terms.isEmpty then
-        Result.Match(name)
+      if terms.isEmpty then Result.Match(name)
       else Result.Match(Term.Application(Seq(name) ++ terms))
     case Result.EmptyMatch => Result.EmptyMatch
   }
@@ -195,8 +190,8 @@ val fieldNib: Nibbler[Token, (Name, Term)] = { gaze =>
   yield (name, expression)
   res match {
     case Result.Match((Term.NameTerm(name), term: Term)) => Result.Match((name, term))
-    case _ => Result.NoMatch
-  } 
+    case _                                               => Result.NoMatch
+  }
 }
 
 val recordNib: Nibbler[Token, Term.Record] = { gaze =>

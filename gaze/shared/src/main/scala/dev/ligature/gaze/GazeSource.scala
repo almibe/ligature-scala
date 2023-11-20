@@ -5,8 +5,8 @@
 package dev.ligature.gaze
 
 trait Source[+T] {
-    def apply(index: Int): Option[T]
-    def length(): Int
+  def apply(index: Int): Option[T]
+  def length(): Int
 }
 
 class StringSource(private val source: String) extends Source[String] {

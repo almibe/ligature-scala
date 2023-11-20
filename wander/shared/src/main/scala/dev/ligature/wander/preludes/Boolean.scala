@@ -17,15 +17,14 @@ def bindBooleanPrelude(bindings: Bindings): Bindings = {
   var stdLib = bindings
     .bindVariable(
       Name("Bool.not"),
-      WanderValue.HostFunction(
-        (arguments, bindings) =>
-          if arguments.size != 1 then
-            Left(WanderError("`not` function requires 1 argument."))
-          else
-            eval(arguments.head, bindings).map { _ match
-                case (WanderValue.BooleanValue(b), _) => (WanderValue.BooleanValue(!b), bindings)
-                case _ => throw WanderError("`not` function requires 1 boolean argument.")
-            }
+      WanderValue.HostFunction((arguments, bindings) =>
+        if arguments.size != 1 then Left(WanderError("`not` function requires 1 argument."))
+        else
+          eval(arguments.head, bindings).map {
+            _ match
+              case (WanderValue.BooleanValue(b), _) => (WanderValue.BooleanValue(!b), bindings)
+              case _ => throw WanderError("`not` function requires 1 boolean argument.")
+          }
       )
     )
 

@@ -38,7 +38,7 @@ class TakeStringSuite extends FunSuite {
     while (!gaze.isComplete) {
       val nres = gaze.attempt(fiveStep)
       nres match {
-        case Result.Match(m) => res += m
+        case Result.Match(m)                    => res += m
         case Result.NoMatch | Result.EmptyMatch => throw new Error("Should not happen")
       }
     }

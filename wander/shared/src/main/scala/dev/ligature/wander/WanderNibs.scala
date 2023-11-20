@@ -26,16 +26,26 @@ import dev.ligature.gaze.flatten
 
 object LigNibblers {
   val whiteSpaceNibbler = takeAll(take(" "), take("\t"))
-  val whiteSpaceAndNewLineNibbler = takeAll(takeFirst(takeString(" "), takeString("\n"), takeString("\r\n"), takeString("\t")))
+  val whiteSpaceAndNewLineNibbler = takeAll(
+    takeFirst(takeString(" "), takeString("\n"), takeString("\r\n"), takeString("\t"))
+  )
   val numberNibbler =
-    concat(flatten(takeAll(seq(optional(take("-"))), takeAny(('0' to '9').map((c: Char) => take(c.toString())).toSeq*))))
+    concat(
+      flatten(
+        takeAll(
+          seq(optional(take("-"))),
+          takeAny(('0' to '9').map((c: Char) => take(c.toString())).toSeq*)
+        )
+      )
+    )
 
   val identifierNibbler: Nibbler[String, String] = between(
     takeString("<"),
     concat(takeWhile { (c: String) =>
       "[a-zA-Z0-9-._~:/?#\\[\\]@!$&'()*+,;%=]".r.matches(c)
     }),
-    takeString(">"))
+    takeString(">")
+  )
 
   val stringContentNibbler: Nibbler[String, String] =
     (gaze: Gaze[String]) => {
@@ -52,7 +62,7 @@ object LigNibblers {
       while (!complete && !fail && !gaze.isComplete) {
         val c: String = gaze.next() match
           case Some(value) => value
-          case _ => ??? //should never reach
+          case _           => ??? // should never reach
         if (commandChars.contains(c)) {
           fail = true
         } else if (c == "\"") {

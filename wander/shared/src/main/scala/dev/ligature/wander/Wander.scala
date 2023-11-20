@@ -21,17 +21,18 @@ def run(
     expression <- process(terms)
   } yield expression
   expression match
-    case Left(value) => Left(value)
+    case Left(value)  => Left(value)
     case Right(value) => eval(value, bindings).map(_._1)
 
 case class Introspect(
-  tokens: Either[WanderError, Seq[Token]], 
-  terms: Either[WanderError, Term],
-  expression: Either[WanderError, Expression])
+    tokens: Either[WanderError, Seq[Token]],
+    terms: Either[WanderError, Term],
+    expression: Either[WanderError, Expression]
+)
 
 def introspect(script: String): Introspect = {
   val tokens = tokenize(script)
-  
+
   val terms = if (tokens.isRight) {
     parse(tokens.getOrElse(???))
   } else {
@@ -43,32 +44,30 @@ def introspect(script: String): Introspect = {
   } else {
     Left(WanderError("Previous error."))
   }
-  
+
   Introspect(tokens, terms, expression)
 }
 
-def printResult(value: WanderValue): String = {
+def printResult(value: WanderValue): String =
   printWanderValue(value)
-}
 
-def printWanderValue(value: WanderValue): String = {
+def printWanderValue(value: WanderValue): String =
   value match {
     case WanderValue.BooleanValue(value) => value.toString()
-    case WanderValue.IntValue(value) => value.toString()
-    case WanderValue.StringValue(value) => value
-    case WanderValue.Record(value) => ???
-    case WanderValue.Identifier(value) => s"<${value.name}>"
+    case WanderValue.IntValue(value)     => value.toString()
+    case WanderValue.StringValue(value)  => value
+    case WanderValue.Record(value)       => ???
+    case WanderValue.Identifier(value)   => s"<${value.name}>"
 //    case WanderValue.LigatureValue(value) => writeValue(value)
     case WanderValue.HostFunction(body) => "[HostFunction]"
-    case WanderValue.Nothing => "nothing"
-    case WanderValue.Lambda(lambda) => "[Lambda]"
+    case WanderValue.Nothing            => "nothing"
+    case WanderValue.Lambda(lambda)     => "[Lambda]"
 //    case WanderValue.Itr(internal) => "[Stream]"
     case WanderValue.Array(values) =>
-      "[" + values.map { value => printWanderValue(value) }.mkString(" ") + "]"
+      "[" + values.map(value => printWanderValue(value)).mkString(" ") + "]"
     case WanderValue.Set(values) =>
-      "#[" + values.map { value => printWanderValue(value) }.mkString(" ") + "]"
+      "#[" + values.map(value => printWanderValue(value)).mkString(" ") + "]"
   }
-}
 
 final case class Identifier private (name: String) {
   @unused

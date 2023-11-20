@@ -10,55 +10,53 @@ import scala.collection.mutable.ListBuffer
 import dev.ligature.wander.*
 
 /**
- * 
- */
+  */
 def common(): Bindings = {
   var stdLib = Bindings()
   stdLib = bindBooleanPrelude(stdLib)
   stdLib
 }
 
-  // stdLib = stdLib
-  //   .bindVariable(
-  //     Name("log"),
-  //     NativeFunction(
-  //       List(Parameter(Name("message"), WanderType.String)),
-  //       (binding: Bindings) => ???
-  //     )
-  //   )
-  //   .getOrElse(???)
+// stdLib = stdLib
+//   .bindVariable(
+//     Name("log"),
+//     NativeFunction(
+//       List(Parameter(Name("message"), WanderType.String)),
+//       (binding: Bindings) => ???
+//     )
+//   )
+//   .getOrElse(???)
 
+// class RangeResultStream implements ResultStream<bigint> {
+//     readonly start: bigint
+//     readonly stop: bigint
+//     private i: bigint
 
-  // class RangeResultStream implements ResultStream<bigint> {
-  //     readonly start: bigint
-  //     readonly stop: bigint
-  //     private i: bigint
+//     constructor(start: bigint, stop: bigint) {
+//         this.start = start
+//         this.stop = stop
+//         this.i = start
+//     }
 
-  //     constructor(start: bigint, stop: bigint) {
-  //         this.start = start
-  //         this.stop = stop
-  //         this.i = start
-  //     }
+//     next(): Promise<bigint | ResultComplete | ResultError> {
+//         if (this.i < this.stop) {
+//             val result = this.i
+//             this.i++;
+//             return Promise.resolve(result)
+//         } else {
+//             return Promise.resolve(ResultComplete(this.stop - this.start));
+//         }
+//     }
+//     toArray(): Promise<ResultComplete | ResultError | bigint[]> {
+//         throw Error("Method not implemented.");
+//     }
+// }
 
-  //     next(): Promise<bigint | ResultComplete | ResultError> {
-  //         if (this.i < this.stop) {
-  //             val result = this.i
-  //             this.i++;
-  //             return Promise.resolve(result)
-  //         } else {
-  //             return Promise.resolve(ResultComplete(this.stop - this.start));
-  //         }
-  //     }
-  //     toArray(): Promise<ResultComplete | ResultError | bigint[]> {
-  //         throw Error("Method not implemented.");
-  //     }
-  // }
-
-  // // stdLib.bind(Name("range"), NativeFunction(["start", "stop"], (bindings: Bindings) => {
-  // //     val start = bindings.read(Name("start")) as unknown as bigint //TODO check value
-  // //     val stop = bindings.read(Name("stop")) as unknown as bigint //TODO check value
-  // //     return RangeResultStream(start, stop)
-  // // }))
+// // stdLib.bind(Name("range"), NativeFunction(["start", "stop"], (bindings: Bindings) => {
+// //     val start = bindings.read(Name("start")) as unknown as bigint //TODO check value
+// //     val stop = bindings.read(Name("stop")) as unknown as bigint //TODO check value
+// //     return RangeResultStream(start, stop)
+// // }))
 
 // function readScope(scope: ExecutionScope, bindings: Bindings) {
 //     //      allStatements(): Promise<Array<Statement>>
@@ -158,7 +156,7 @@ def common(): Bindings = {
 //                 val dataset = Dataset.fromString(datasetName).getOrElse(???)
 //                 termsToStatements(statementTerms, ListBuffer()) match
 //                   case Left(value) => ???
-//                   case Right(statements) => 
+//                   case Right(statements) =>
 //                     instance
 //                       .addStatements(dataset, Stream.emits(statements))
 //                       .map { _ => WanderValue.Nothing }
@@ -173,7 +171,7 @@ def common(): Bindings = {
 //                 val dataset = Dataset.fromString(datasetName).getOrElse(???)
 //                 termsToStatements(statementTerms, ListBuffer()) match
 //                   case Left(value) => ???
-//                   case Right(statements) => 
+//                   case Right(statements) =>
 //                     instance
 //                       .removeStatements(dataset, Stream.emits(statements))
 //                       .map { _ => WanderValue.Nothing }
@@ -207,7 +205,7 @@ def common(): Bindings = {
 //           }
 //         case (Term.StringLiteral(datasetName), query: Term.WanderFunction, None, None) =>
 //           query match
-//             case Term.WanderFunction(name :: Nil, body) => 
+//             case Term.WanderFunction(name :: Nil, body) =>
 //               val dataset = Dataset.fromString(datasetName).getOrElse(???)
 //               instance.query(dataset) { tx =>
 //                 val matchFunction = WanderValue.NativeFunction((arguments, bindings) =>
@@ -237,7 +235,7 @@ def common(): Bindings = {
 //         termsToStatement(statementTerms) match
 //           case Right(statement) =>
 //             termsToStatements(terms.tail, statements += statement)
-//           case Left(err) => Left(err)        
+//           case Left(err) => Left(err)
 //       case _ => println(terms.head); ???
 //   else
 //     Right(statements.toSeq)

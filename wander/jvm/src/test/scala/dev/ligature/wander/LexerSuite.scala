@@ -12,7 +12,7 @@ class LexerSuite extends FunSuite {
     assertEquals(tokenize(script), tokens)
   def ident(identifier: String): Token =
     Identifier.fromString(identifier) match
-      case Left(value) => ??? //just crash
+      case Left(value)  => ??? // just crash
       case Right(value) => Token.Identifier(value)
   val sp = Token.Spaces(" ")
 
@@ -23,12 +23,15 @@ class LexerSuite extends FunSuite {
   }
   test("tokenize Identifiers") {
     val script = "<hello><123><_4><https://ligature.dev>"
-    val tokens = Right(Seq(ident("hello"), ident("123"), ident("_4"), ident("https://ligature.dev")))
+    val tokens =
+      Right(Seq(ident("hello"), ident("123"), ident("_4"), ident("https://ligature.dev")))
     check(script, tokens)
   }
   test("tokenize Integers") {
     val script = "123 0 -123"
-    val tokens = Right(Seq(Token.IntegerLiteral(123), sp, Token.IntegerLiteral(0), sp, Token.IntegerLiteral(-123)))
+    val tokens = Right(
+      Seq(Token.IntegerLiteral(123), sp, Token.IntegerLiteral(0), sp, Token.IntegerLiteral(-123))
+    )
     check(script, tokens)
   }
   test("tokenize Strings") {
@@ -38,21 +41,53 @@ class LexerSuite extends FunSuite {
   }
   test("tokenize Names") {
     val script = "hello world _test also_a_321test123"
-    val tokens = Right(Seq(Token.Name("hello"), sp, Token.Name("world"), sp, Token.Name("_test"), sp, Token.Name("also_a_321test123")))
+    val tokens = Right(
+      Seq(
+        Token.Name("hello"),
+        sp,
+        Token.Name("world"),
+        sp,
+        Token.Name("_test"),
+        sp,
+        Token.Name("also_a_321test123")
+      )
+    )
     check(script, tokens)
   }
   test("tokenize symbols") {
     val script = "when ?{}:()][\n\r\n->=>= let nothing --test"
-    val tokens = Right(Seq(
-      Token.WhenKeyword, sp, Token.QuestionMark, Token.OpenBrace, Token.CloseBrace, Token.Colon, Token.OpenParen, Token.CloseParen,
-      Token.CloseBracket, Token.OpenBracket, Token.NewLine, Token.NewLine,
-      Token.Arrow, Token.WideArrow, Token.EqualSign,
-      sp, Token.LetKeyword, sp, Token.NothingKeyword, sp, Token.Comment))
+    val tokens = Right(
+      Seq(
+        Token.WhenKeyword,
+        sp,
+        Token.QuestionMark,
+        Token.OpenBrace,
+        Token.CloseBrace,
+        Token.Colon,
+        Token.OpenParen,
+        Token.CloseParen,
+        Token.CloseBracket,
+        Token.OpenBracket,
+        Token.NewLine,
+        Token.NewLine,
+        Token.Arrow,
+        Token.WideArrow,
+        Token.EqualSign,
+        sp,
+        Token.LetKeyword,
+        sp,
+        Token.NothingKeyword,
+        sp,
+        Token.Comment
+      )
+    )
     check(script, tokens)
   }
   test("tokenize grouping") {
     val script = "(hello 2)"
-    val tokens = Right(Seq(Token.OpenParen, Token.Name("hello"), sp, Token.IntegerLiteral(2), Token.CloseParen))
+    val tokens = Right(
+      Seq(Token.OpenParen, Token.Name("hello"), sp, Token.IntegerLiteral(2), Token.CloseParen)
+    )
     check(script, tokens)
   }
 }

@@ -54,7 +54,7 @@ def tokenize(input: String): Either[WanderError, Seq[Token]] = {
 }
 
 val stringTokenNib: Nibbler[String, Token] =
- LigNibblers.stringNibbler.map(results => Token.StringLiteral(results(1).toString()))
+  LigNibblers.stringNibbler.map(results => Token.StringLiteral(results(1).toString()))
 
 //NOTE: New lines are hard coded as \n because sometimes on Windows
 //the two types of new lines get mixed up in the codebase between the editor and Scalafmt.
@@ -68,24 +68,29 @@ val commentTokenNib = takeAll(
 ).map(results => Token.Comment)
 
 val nameValueNib: Nibbler[String, String] =
-  concat(flatten(takeAll(
-    seq(takeCond((c: String) => c(0).isLetter || c == "_")),
-    optional(takeWhile { (c: String) => c(0).isLetter || c(0).isDigit || c == "_" || c == "." })
-  )))
+  concat(
+    flatten(
+      takeAll(
+        seq(takeCond((c: String) => c(0).isLetter || c == "_")),
+        optional(takeWhile((c: String) => c(0).isLetter || c(0).isDigit || c == "_" || c == "."))
+      )
+    )
+  )
 
 // /** This nibbler matches both names and keywords. After the initial match all
 //   * keywords are checked and if none match and name is returned.
 //   */
 val nameTokenNib: Nibbler[String, Token] = nameValueNib.map { values =>
-    values match {
-      case "let"         => Token.LetKeyword
-      case "when"        => Token.WhenKeyword
-      case "end"         => Token.EndKeyword
-      case "true"        => Token.BooleanLiteral(true)
-      case "false"       => Token.BooleanLiteral(false)
-      case "nothing"     => Token.NothingKeyword
-      case value: String => Token.Name(value)
-    }}
+  values match {
+    case "let"         => Token.LetKeyword
+    case "when"        => Token.WhenKeyword
+    case "end"         => Token.EndKeyword
+    case "true"        => Token.BooleanLiteral(true)
+    case "false"       => Token.BooleanLiteral(false)
+    case "nothing"     => Token.NothingKeyword
+    case value: String => Token.Name(value)
+  }
+}
 
 val questionMarkNib =
   takeString("?").map(res => Token.QuestionMark)
@@ -135,12 +140,14 @@ val lambdaTokenNib =
 val integerTokenNib =
   LigNibblers.numberNibbler.map(res => Token.IntegerLiteral(res.mkString.toLong))
 
-val spacesTokenNib = 
+val spacesTokenNib =
   concat(takeWhile[String](_ == " "))
     .map(res => Token.Spaces(res.mkString))
 
 val identifierTokenNib: Nibbler[String, Token] =
-  LigNibblers.identifierNibbler.map(res => Token.Identifier(dev.ligature.wander.Identifier.fromString(res.mkString).getOrElse(???)))
+  LigNibblers.identifierNibbler.map(res =>
+    Token.Identifier(dev.ligature.wander.Identifier.fromString(res.mkString).getOrElse(???))
+  )
 
 val tokensNib: Nibbler[String, Seq[Token]] = repeat(
   takeFirst(
@@ -165,6 +172,6 @@ val tokensNib: Nibbler[String, Seq[Token]] = repeat(
     commentTokenNib,
     equalSignTokenNib,
     questionMarkNib,
-    hashTokenNib,
+    hashTokenNib
   )
 )

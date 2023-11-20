@@ -6,6 +6,5 @@ package dev.ligature.wander.preludes
 
 import dev.ligature.wander.Bindings
 
-def bindArrayPrelude(bindings: Bindings) = {
-    ???
-}
+def bindArrayPrelude(bindings: Bindings) =
+  ???

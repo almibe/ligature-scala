@@ -6,7 +6,7 @@ package dev.ligature.wander
 
 import dev.ligature.wander.WanderValue
 
-case class Bindings(scopes: List[Map[Name, WanderValue]] = List((Map()))) {
+case class Bindings(scopes: List[Map[Name, WanderValue]] = List(Map())) {
   def newScope(): Bindings = Bindings(this.scopes.appended(Map()))
 
   def bindVariable(

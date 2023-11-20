@@ -7,7 +7,9 @@ package dev.ligature.gaze
 import munit.FunSuite
 
 class OptionSuite extends FunSuite {
-  val optionalHello: Nibbler[String, String] = concat(takeAll(optional(takeString("a")), takeString("b")))
+  val optionalHello: Nibbler[String, String] = concat(
+    takeAll(optional(takeString("a")), takeString("b"))
+  )
 
   test("option test") {
     val gaze = Gaze.from("ab")
