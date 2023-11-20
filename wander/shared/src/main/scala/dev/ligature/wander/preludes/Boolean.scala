@@ -23,7 +23,7 @@ def bindBooleanPrelude(bindings: Bindings): Bindings = {
             Left(WanderError("`not` function requires 1 argument."))
           else
             eval(arguments.head, bindings).map { _ match
-                case WanderValue.BooleanValue(b) => WanderValue.BooleanValue(!b)
+                case (WanderValue.BooleanValue(b), _) => (WanderValue.BooleanValue(!b), bindings)
                 case _ => throw WanderError("`not` function requires 1 boolean argument.")
             }
       )

@@ -29,7 +29,7 @@ enum WanderValue:
   case Set(values: scala.collection.Set[WanderValue])
   case Record(entires: Seq[(Name, WanderValue)])
   case Lambda(lambda: Expression.Lambda)
-  case HostFunction(body: (arguments: Seq[Expression], bindings: Bindings) => Either[WanderError, WanderValue])
+  case HostFunction(body: (arguments: Seq[Expression], bindings: Bindings) => Either[WanderError, (WanderValue, Bindings)])
 
 //sealed trait FunctionDefinition(val parameters: List[Parameter]) extends WanderValue
 

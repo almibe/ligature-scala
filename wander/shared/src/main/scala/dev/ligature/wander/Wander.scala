@@ -22,7 +22,7 @@ def run(
   } yield expression
   expression match
     case Left(value) => Left(value)
-    case Right(value) => eval(value, bindings)
+    case Right(value) => eval(value, bindings).map(_._1)
 
 case class Introspect(
   tokens: Either[WanderError, Seq[Token]], 

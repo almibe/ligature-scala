@@ -26,53 +26,52 @@ enum Expression:
   case WhenExpression(conditionals: Seq[(Expression, Expression)])
   case Grouping(expressions: Seq[Expression])
 
-def eval(expression: Expression, bindings: Bindings): Either[WanderError, WanderValue] = {
+def eval(expression: Expression, bindings: Bindings): Either[WanderError, (WanderValue, Bindings)] = {
   expression match {
-    case Expression.Nothing => Right(WanderValue.Nothing)
-    case Expression.BooleanValue(value) => Right(WanderValue.BooleanValue(value))
-    case Expression.IntegerValue(value) => Right(WanderValue.IntValue(value))
-    case Expression.StringValue(value) => Right(WanderValue.StringValue(value))
-    case Expression.IdentifierValue(value) => Right(WanderValue.Identifier(value))
+    case Expression.Nothing => Right((WanderValue.Nothing, bindings))
+    case Expression.BooleanValue(value) => Right((WanderValue.BooleanValue(value), bindings))
+    case Expression.IntegerValue(value) => Right((WanderValue.IntValue(value), bindings))
+    case Expression.StringValue(value) => Right((WanderValue.StringValue(value), bindings))
+    case Expression.IdentifierValue(value) => Right((WanderValue.Identifier(value), bindings))
     case Expression.Array(value) => handleArray(value, bindings)
     case Expression.Set(value) => handleSet(value, bindings)
     case Expression.Record(entries) => handleRecord(entries, bindings)
     case Expression.Application(name, arguments) => handleApplication(name, arguments, bindings)
-    case Expression.NameExpression(name) => bindings.read(name)
+    case Expression.NameExpression(name) => bindings.read(name).map((_, bindings))
     case Expression.LetExpression(name, value) => handleLetExpression(name, value, bindings)
-    case lambda: Expression.Lambda => Right(WanderValue.Lambda(lambda))
+    case lambda: Expression.Lambda => Right((WanderValue.Lambda(lambda), bindings))
     case Expression.WhenExpression(conditionals) => handleWhenExpression(conditionals, bindings)
     case Expression.Grouping(expressions) => handleGrouping(expressions, bindings)
   }
 }
 
-def handleGrouping(expressions: Seq[Expression], bindings: Bindings): Either[WanderError, WanderValue] = {
+def handleGrouping(expressions: Seq[Expression], bindings: Bindings): Either[WanderError, (WanderValue, Bindings)] = {
   var error: Option[WanderError] = None
-  var res: Option[WanderValue] = None
+  var res: (WanderValue, Bindings) = (WanderValue.Nothing, bindings)
   val itr = expressions.iterator
   while error.isEmpty && itr.hasNext do
-    eval(itr.next(), bindings) match {
+    eval(itr.next(), res._2) match {
       case Left(err) => error = Some(err)
-      case Right(value) => res = Some(value)
+      case Right(value) => res = value
     }
-  (error, res) match {
-    case (Some(err), _) => Left(err)
-    case (_, Some(res)) => Right(res)
-    case (_, None) => Right(WanderValue.Nothing)
-  }
+  if error.isDefined then
+    Left(error.get)
+  else
+    Right(res)
 }
 
-def handleLetExpression(name: Name, value: Expression, bindings: Bindings): Either[WanderError, WanderValue] = {
+def handleLetExpression(name: Name, value: Expression, bindings: Bindings): Either[WanderError, (WanderValue, Bindings)] = {
   var newScope = bindings.newScope()
   eval(value, newScope) match {
     case Left(value) => ???
     case Right(value) => {
-      newScope = newScope.bindVariable(name, value)
-      Right(value)
+      newScope = newScope.bindVariable(name, value._1)
+      Right((value._1, newScope))
     }
   }
 }
 
-def handleApplication(name: Name, arguments: Seq[Expression], bindings: Bindings): Either[WanderError, WanderValue] = {
+def handleApplication(name: Name, arguments: Seq[Expression], bindings: Bindings): Either[WanderError, (WanderValue, Bindings)] = {
   bindings.read(name) match {
     case Left(err) => Left(err)
     case Right(value) => {
@@ -84,7 +83,7 @@ def handleApplication(name: Name, arguments: Seq[Expression], bindings: Bindings
             val argument = eval(arguments(index), bindings) match {
               case Left(value) => ???
               case Right(value) => {
-                fnScope = fnScope.bindVariable(param, value)
+                fnScope = fnScope.bindVariable(param, value._1)
               }
             }
           }
@@ -97,7 +96,7 @@ def handleApplication(name: Name, arguments: Seq[Expression], bindings: Bindings
   }
 }
 
-def handleWhenExpression(conditionals: Seq[(Expression, Expression)], bindings: Bindings): Either[WanderError, WanderValue] = {
+def handleWhenExpression(conditionals: Seq[(Expression, Expression)], bindings: Bindings): Either[WanderError, (WanderValue, Bindings)] = {
   ???
   // eval(conditional, bindings) match {
   //   case Left(value) => ???
@@ -110,18 +109,18 @@ def handleWhenExpression(conditionals: Seq[(Expression, Expression)], bindings: 
   // }
 }
 
-def handleRecord(entries: Seq[(Name, Expression)], bindings: Bindings): Either[WanderError, WanderValue.Record] = {
+def handleRecord(entries: Seq[(Name, Expression)], bindings: Bindings): Either[WanderError, (WanderValue.Record, Bindings)] = {
   boundary:
     val record = entries.map((name, expression) => {
       eval(expression, bindings) match {
         case Left(value) => break(Left(value))
-        case Right(value) => (name, value)
+        case Right(value) => (name, value._1)
       }
     })
-    Right(WanderValue.Record(record))
+    Right((WanderValue.Record(record), bindings))
 }
 
-def handleArray(expressions: Seq[Expression], bindings: Bindings): Either[WanderError, WanderValue.Array] = {
+def handleArray(expressions: Seq[Expression], bindings: Bindings): Either[WanderError, (WanderValue.Array, Bindings)] = {
   val res = ListBuffer[WanderValue]()
   val itre = expressions.iterator
   var continue = true
@@ -130,11 +129,11 @@ def handleArray(expressions: Seq[Expression], bindings: Bindings): Either[Wander
     val expression = itre.next()
     eval(expression, bindings) match
       case Left(err) => return Left(err)
-      case Right(value) => res += value    
-  Right(WanderValue.Array(res.toList))
+      case Right(value) => res += value._1
+  Right((WanderValue.Array(res.toList), bindings))
 }
 
-def handleSet(expressions: Seq[Expression], bindings: Bindings): Either[WanderError, WanderValue.Set] = {
+def handleSet(expressions: Seq[Expression], bindings: Bindings): Either[WanderError, (WanderValue.Set, Bindings)] = {
   val res = ListBuffer[WanderValue]()
   val itre = expressions.iterator
   var continue = true
@@ -143,6 +142,6 @@ def handleSet(expressions: Seq[Expression], bindings: Bindings): Either[WanderEr
     val expression = itre.next()
     eval(expression, bindings) match
       case Left(err) => return Left(err)
-      case Right(value) => res += value    
-  Right(WanderValue.Set(res.toSet))
+      case Right(value) => res += value._1 
+  Right((WanderValue.Set(res.toSet), bindings))
 }

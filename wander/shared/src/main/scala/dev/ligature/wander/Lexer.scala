@@ -31,8 +31,8 @@ enum Token:
   case Name(value: String)
   case OpenBrace, CloseBrace, Colon, OpenParen, CloseParen, NewLine,
     Arrow, WhenKeyword, EqualSign, LetKeyword, Comment,
-    OpenBracket, CloseBracket, NothingKeyword, QuestionMark, InKeyword,
-    EndKeyword, ThenKeyword, Period, Backtick, Hash, Lambda, Pipe, Comma
+    OpenBracket, CloseBracket, NothingKeyword, QuestionMark,
+    EndKeyword, Period, Backtick, Hash, Lambda, Pipe, Comma
 
 def tokenize(input: String): Either[WanderError, Seq[Token]] = {
   val gaze = Gaze.from(input)
@@ -81,8 +81,6 @@ val nameTokenNib: Nibbler[String, Token] = nameValueNib.map { values =>
       case "let"         => Token.LetKeyword
       case "when"        => Token.WhenKeyword
       case "end"         => Token.EndKeyword
-      case "in"          => Token.InKeyword
-      case "then"        => Token.ThenKeyword
       case "true"        => Token.BooleanLiteral(true)
       case "false"       => Token.BooleanLiteral(false)
       case "nothing"     => Token.NothingKeyword
