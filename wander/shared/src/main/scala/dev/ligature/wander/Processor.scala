@@ -18,6 +18,7 @@ import dev.ligature.gaze.{
   repeat
 }
 import scala.collection.mutable.ListBuffer
+import scala.util.boundary, boundary.break
 
 def process(terms: Seq[Term]): Either[WanderError, Expression] = {
   if terms.isEmpty then
@@ -87,16 +88,19 @@ def processApplication(terms: Seq[Term]): Either[WanderError, Expression.Applica
 }
 
 def processWhenExpression(conditionals: Seq[(Term, Term)]): Either[WanderError, Expression.WhenExpression] = {
-  ???
-  // val res = for {
-  //   c <- process(conditional)
-  //   i <- process(ifBody)
-  //   e <- process(elseBody)
-  // } yield (c, i, e)
-  // res match {
-  //   case Right((c, i, e)) => Right(Expression.IfExpression(c, i, e))
-  //   case Left(e) => Left(e)
-  // }
+  boundary:
+    val expressionConditionals = conditionals.map((c, b) => {
+      val conditional = process(c) match {
+        case Left(value) => break(Left(value))
+        case Right(value) => value
+      }
+      val body = process(b) match {
+        case Left(value) => break(Left(value))
+        case Right(value) => value
+      }
+      (conditional, body)
+    })
+    Right(Expression.WhenExpression(expressionConditionals))
 }
 
 def processLambda(parameters: Seq[Name], body: Term): Either[WanderError, Expression.Lambda] = {

@@ -30,7 +30,7 @@ enum Token:
   case StringLiteral(value: String)
   case Name(value: String)
   case OpenBrace, CloseBrace, Colon, OpenParen, CloseParen, NewLine,
-    Arrow, WhenKeyword, EqualSign, LetKeyword, Comment,
+    Arrow, WideArrow, WhenKeyword, EqualSign, LetKeyword, Comment,
     OpenBracket, CloseBracket, NothingKeyword, QuestionMark,
     EndKeyword, Period, Backtick, Hash, Lambda, Pipe, Comma
 
@@ -126,6 +126,9 @@ val commaTokenNib =
 val arrowTokenNib =
   takeString("->").map(res => Token.Arrow)
 
+val wideArrowTokenNib =
+  takeString("=>").map(res => Token.WideArrow)
+
 val lambdaTokenNib =
   takeString("\\").map(res => Token.Lambda)
 
@@ -147,6 +150,7 @@ val tokensNib: Nibbler[String, Seq[Token]] = repeat(
     commaTokenNib,
     openParenTokenNib,
     closeParenTokenNib,
+    wideArrowTokenNib,
     arrowTokenNib,
     lambdaTokenNib,
     integerTokenNib,

@@ -5,7 +5,6 @@
 package dev.ligature.wander
 
 import scala.collection.mutable.ListBuffer
-import scala.util.boundary
 import scala.util.boundary, boundary.break
 
 enum Expression:
@@ -97,16 +96,19 @@ def handleApplication(name: Name, arguments: Seq[Expression], bindings: Bindings
 }
 
 def handleWhenExpression(conditionals: Seq[(Expression, Expression)], bindings: Bindings): Either[WanderError, (WanderValue, Bindings)] = {
-  ???
-  // eval(conditional, bindings) match {
-  //   case Left(value) => ???
-  //   case Right(value) => {
-  //     value match
-  //       case WanderValue.BooleanValue(true) => eval(ifBody, bindings)
-  //       case WanderValue.BooleanValue(false) => eval(elseBody, bindings)
-  //       case _ => ???
-  //   }
-  // }
+  boundary:
+    conditionals.find((conditional, _) => {
+      eval(conditional, bindings) match {
+        case Right((value, _)) => value match {
+          case WanderValue.BooleanValue(value) => value
+          case _ => break(Left(WanderError("Conditionals must evaluate to Bool.")))
+        }
+        case Left(err) => break(Left(err))
+      }
+    }) match {
+      case None => Left(WanderError("No matching cases."))
+      case Some((_, body)) => eval(body, bindings)
+    }
 }
 
 def handleRecord(entries: Seq[(Name, Expression)], bindings: Bindings): Either[WanderError, (WanderValue.Record, Bindings)] = {

@@ -137,19 +137,22 @@ val lambdaNib: Nibbler[Token, Term.Lambda] = { gaze =>
 //   } yield body
 // }
 
-// val ifExpressionNib: Nibbler[Token, Term.IfExpression] = { gaze =>
-//   for {
-//     _ <- gaze.attempt(take(Token.IfKeyword))
-//     condition <- gaze.attempt(expressionNib)
-//     body <- gaze.attempt(expressionNib)
-//     `else` <- gaze.attempt(optional(elseExpressionNib))
-//   } yield
-//     Term.IfExpression(
-//       condition,
-//       body,
-//       `else`
-//     )
-// }
+val conditionalsNib: Nibbler[Token, (Term, Term)] = { gaze =>
+  for {
+    condition <- gaze.attempt(expressionNib)
+    _ <- gaze.attempt(take(Token.WideArrow))
+    body <- gaze.attempt(expressionNib)
+  } yield (condition, body)
+}
+
+val whenExpressionNib: Nibbler[Token, Term.WhenExpression] = { gaze =>
+  for {
+    _ <- gaze.attempt(takeAll(take(Token.WhenKeyword), take(Token.OpenParen)))
+    conditionals <- gaze.attempt(optionalSeq(repeatSep(conditionalsNib, Token.Comma)))
+    //`else` <- gaze.attempt(optional(elseExpressionNib))
+    _ <- gaze.attempt(take(Token.CloseParen))
+  } yield Term.WhenExpression(conditionals)
+}
 
 //NOTE: this will return either an Application or a Name.
 val applicationNib: Nibbler[Token, Term] = { gaze =>
@@ -274,6 +277,7 @@ val expressionNib =
     integerNib,
     recordNib,
     letExpressionNib,
+    whenExpressionNib,
     arrayNib,
     setNib,
     booleanNib,
