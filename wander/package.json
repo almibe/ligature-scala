@@ -3,16 +3,16 @@
     "collaborators": [
       "Alex Michael Berry <alexmiberry@gmail.com>"
     ],
-    "description": "JS support for Wander.",
-    "version": "0.5.3",
+    "description": "JS support for Wander, compiled from Scala 3 source code.",
+    "version": "0.6.1",
     "license": "MPL-2.0",
     "repository": {
       "type": "git",
       "url": "https://github.com/almibe/ligature-scala.git"
     },
     "files": [
-      "./target/scala-3.3.0/wander-opt/main.js"
+      "./js/target/scala-3.3.0/wander-opt/main.js"
     ],
-    "exports": "./target/scala-3.3.0/wander-opt/main.js",
+    "exports": "./js/target/scala-3.3.0/wander-opt/main.js",
     "homepage": "https://wander-lang.dev"
 }
