@@ -10,10 +10,18 @@ import scala.annotation.unused
 import dev.ligature.wander.preludes.common
 import scala.scalajs.js.annotation._
 
-@JSExportTopLevel("Wander")
+@JSExportTopLevel("default")
 object Wander {
   @JSExport
-  def run(script: String) = {
-    dev.ligature.wander.run(script, common())
+  def run(script: String): String = {
+    dev.ligature.wander.run(script, common()) match {
+      case Left(err) => err.toString()
+      case Right(value) => printWanderValue(value)
+    }
   }
+  @JSExport
+  def introspect(script: String): String = {
+    dev.ligature.wander.introspect(script)
+    ""
+  }  
 }

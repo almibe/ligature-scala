@@ -60,7 +60,7 @@ lazy val wander = crossProject(JSPlatform, JVMPlatform)
     libraryDependencies += "org.scalameta" %% "munit" % munitVersion % Test,
     //scalaJSUseMainModuleInitializer := true,
     scalaJSLinkerConfig ~= {
-      _.withModuleKind(ModuleKind.CommonJSModule)
+      _.withModuleKind(ModuleKind.ESModule)
     }
   )
   .dependsOn(gaze)
