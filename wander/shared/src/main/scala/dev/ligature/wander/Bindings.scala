@@ -5,9 +5,20 @@
 package dev.ligature.wander
 
 import dev.ligature.wander.WanderValue
+import scala.collection.mutable.Set
 
-case class Bindings(scopes: List[Map[Name, WanderValue]] = List(Map())) {
-  def newScope(): Bindings = Bindings(this.scopes.appended(Map()))
+case class Statement(entity: Identifier, attribute: Identifier, value: WanderValue)
+
+def statement(value: WanderValue): Statement = {
+  value match {
+    case WanderValue.Triple(entity, attribute, value) => Statement(entity, attribute, value)
+    case WanderValue.Quad(entity, attribute, value, _) => Statement(entity, attribute, value)
+    case _ => ???
+  }
+}
+
+case class Bindings(graphs: scala.collection.mutable.Map[String, Set[Statement]] = scala.collection.mutable.Map(), scopes: List[Map[Name, WanderValue]] = List(Map())) {
+  def newScope(): Bindings = Bindings(this.graphs, this.scopes.appended(Map()))
 
   def bindVariable(
       name: Name,
@@ -16,7 +27,7 @@ case class Bindings(scopes: List[Map[Name, WanderValue]] = List(Map())) {
     val currentScope = this.scopes.last
     val newVariables = currentScope + (name -> wanderValue)
     val oldScope = this.scopes.dropRight(1)
-    Bindings(oldScope.appended(newVariables))
+    Bindings(this.graphs, oldScope.appended(newVariables))
   }
 
   def read(name: Name): Either[WanderError, WanderValue] = {
@@ -29,5 +40,31 @@ case class Bindings(scopes: List[Map[Name, WanderValue]] = List(Map())) {
       currentScopeOffset -= 1
     }
     Left(WanderError(s"Could not find ${name} in scope."))
+  }
+
+  def addTriple(triple: WanderValue.Triple): Either[WanderError, Unit] = {
+    if (this.graphs.contains("")) {
+      val graph = this.graphs.get("").get
+      graph.add(statement(triple))
+      println(graph.size)
+      Right(())
+    } else {
+      this.graphs += ("" -> Set(statement(triple)))
+      Right(())
+    }
+  }
+
+  def name(quad: WanderValue.Quad): String = quad.graph.name
+
+  def addQuad(quad: WanderValue.Quad): Either[WanderError, Unit] = {
+    val graphName = name(quad)
+    if (this.graphs.contains(graphName)) {
+      val graph = this.graphs.get(graphName).get
+      graph.add(statement(quad))
+      Right(())
+    } else {
+      this.graphs += (graphName -> Set(statement(quad)))
+      Right(())
+    }
   }
 }

@@ -14,7 +14,24 @@ import dev.ligature.wander.*
 def common(): Bindings = {
   var stdLib = Bindings()
   stdLib = bindBooleanPrelude(stdLib)
+  stdLib = bindCore(stdLib)
   stdLib
+}
+
+def bindCore(bindings: Bindings): Bindings = {
+  bindings.bindVariable(Name("count"), WanderValue.HostFunction((arguments, bindings) =>
+        if arguments.size != 1 then Left(WanderError("`not` function requires 1 argument."))
+        else
+          if (bindings.graphs.contains("")) {
+            Right((WanderValue.IntValue(bindings.graphs.get("").get.size), bindings))
+          } else {
+            Right((WanderValue.IntValue(0), bindings))
+          }
+          // eval(arguments.head, bindings).map {
+          //   _ match
+          //     case _ => (WanderValue.IntValue(5), bindings)
+          // }
+      ))
 }
 
 // stdLib = stdLib

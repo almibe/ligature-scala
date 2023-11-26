@@ -23,10 +23,17 @@ object ScalaFXHelloWorld extends JFXApp3 {
     val editorInput = TextArea("")
     val resultOutput = TextArea("")
     val runButton = Button("Run")
+    val introButton = Button("Intro")
     runButton.onAction = { (e) =>
+        val script = editorInput.getText()
+        val result = run(script, common())
+        resultOutput.text = printResult(result)
+    }
+    introButton.onAction = { (e) =>
         val script = editorInput.getText()
         val intro = introspect(script)
         val result = run(script, common())
+
         resultOutput.text = 
           "Tokens      :" + intro.tokens.toString() + "\n" +
           "Terms       :" + intro.terms.toString() + "\n" +
@@ -42,7 +49,8 @@ object ScalaFXHelloWorld extends JFXApp3 {
           children = Seq(
             new HBox {
                 children = Seq(
-                    runButton
+                    runButton,
+                    introButton
                 )
             },
             editorInput,

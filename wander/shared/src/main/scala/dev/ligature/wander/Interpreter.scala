@@ -16,12 +16,13 @@ enum Expression:
   case Nothing
   case Array(value: Seq[Expression])
   case Set(value: Seq[Expression])
-  case Record(entires: Seq[(Name, Expression)])
   case LetExpression(name: Name, value: Expression)
   case Application(name: Name, arguments: Seq[Expression])
   case Lambda(parameters: Seq[Name], body: Expression)
   case WhenExpression(conditionals: Seq[(Expression, Expression)])
   case Grouping(expressions: Seq[Expression])
+  case Triple(entity: Expression, attribute: Expression, value: Expression)
+  case Quad(entity: Expression, attribute: Expression, value: Expression, graph: Expression)
 
 def eval(expression: Expression, bindings: Bindings): Either[WanderError, (WanderValue, Bindings)] =
   expression match {
@@ -32,14 +33,39 @@ def eval(expression: Expression, bindings: Bindings): Either[WanderError, (Wande
     case Expression.IdentifierValue(value) => Right((WanderValue.Identifier(value), bindings))
     case Expression.Array(value)           => handleArray(value, bindings)
     case Expression.Set(value)             => handleSet(value, bindings)
-    case Expression.Record(entries)        => handleRecord(entries, bindings)
     case Expression.Application(name, arguments) => handleApplication(name, arguments, bindings)
     case Expression.NameExpression(name)         => bindings.read(name).map((_, bindings))
     case Expression.LetExpression(name, value)   => handleLetExpression(name, value, bindings)
     case lambda: Expression.Lambda               => Right((WanderValue.Lambda(lambda), bindings))
     case Expression.WhenExpression(conditionals) => handleWhenExpression(conditionals, bindings)
     case Expression.Grouping(expressions)        => handleGrouping(expressions, bindings)
+    case Expression.Triple(entity, attribute, value) => handleTriple(entity, attribute, value, bindings)
+    case Expression.Quad(entity, attribute, value, graph) => handleQuad(entity, attribute, value, graph, bindings)
   }
+
+def handleTriple(entity: Expression, attribute: Expression, value: Expression, bindings: Bindings): Either[WanderError, (WanderValue, Bindings)] = {
+  for {
+    entityRes <- eval(entity, bindings)
+    attributeRes <- eval(attribute, bindings)
+    valueRes <- eval(value, bindings)
+  } yield (entityRes._1, attributeRes._1, valueRes._1) match {
+    case (WanderValue.Identifier(entity), WanderValue.Identifier(attribute), value) => {
+      val triple: WanderValue.Triple = WanderValue.Triple(entity, attribute, value)
+      bindings.addTriple(triple)
+      (triple, bindings)
+    }
+    case _ => ???
+  }
+}
+
+def handleQuad(entity: Expression, attribute: Expression, value: Expression, graph: Expression, bindings: Bindings): Either[WanderError, (WanderValue, Bindings)] = {
+  for {
+    entityRes <- eval(entity, bindings)
+    attributeRes <- eval(attribute, bindings)
+    valueRes <- eval(value, bindings)
+    graphRes <- eval(graph, bindings)
+  } yield (WanderValue.Array(Seq(entityRes._1, attributeRes._1, valueRes._1, graphRes._1)), bindings)
+}
 
 def handleGrouping(
     expressions: Seq[Expression],
@@ -114,19 +140,6 @@ def handleWhenExpression(
       case None            => Left(WanderError("No matching cases."))
       case Some((_, body)) => eval(body, bindings)
     }
-
-def handleRecord(
-    entries: Seq[(Name, Expression)],
-    bindings: Bindings
-): Either[WanderError, (WanderValue.Record, Bindings)] =
-  boundary:
-    val record = entries.map { (name, expression) =>
-      eval(expression, bindings) match {
-        case Left(value)  => break(Left(value))
-        case Right(value) => (name, value._1)
-      }
-    }
-    Right((WanderValue.Record(record), bindings))
 
 def handleArray(
     expressions: Seq[Expression],

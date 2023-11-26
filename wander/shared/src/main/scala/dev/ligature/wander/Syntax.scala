@@ -27,7 +27,6 @@ enum WanderValue:
   case Identifier(value: dev.ligature.wander.Identifier)
   case Array(values: Seq[WanderValue])
   case Set(values: scala.collection.Set[WanderValue])
-  case Record(entires: Seq[(Name, WanderValue)])
   case Lambda(lambda: Expression.Lambda)
   case HostFunction(
       body: (
@@ -35,6 +34,8 @@ enum WanderValue:
           bindings: Bindings
       ) => Either[WanderError, (WanderValue, Bindings)]
   )
+  case Triple(entity: dev.ligature.wander.Identifier, attribute: dev.ligature.wander.Identifier, value: dev.ligature.wander.WanderValue)
+  case Quad(entity: dev.ligature.wander.Identifier, attribute: dev.ligature.wander.Identifier, value: WanderValue, graph: dev.ligature.wander.Identifier)
 
 //sealed trait FunctionDefinition(val parameters: List[Parameter]) extends WanderValue
 

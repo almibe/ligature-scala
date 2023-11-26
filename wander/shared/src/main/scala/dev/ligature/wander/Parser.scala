@@ -34,12 +34,13 @@ enum Term:
   case QuestionMark
   case Array(value: Seq[Term])
   case Set(value: Seq[Term])
-  case Record(entires: Seq[(Name, Term)])
   case LetExpression(name: Name, term: Term)
   case WhenExpression(conditionals: Seq[(Term, Term)])
   case Application(terms: Seq[Term])
   case Grouping(terms: Seq[Term])
   case Lambda(parameters: Seq[Name], body: Term)
+  case Triple(entity: Term, attribute: Term, value: Term)
+  case Quad(entity: Term, attribute: Term, value: Term, graph: Term)
   case Pipe
 
 def parse(script: Seq[Token]): Either[WanderError, Term] = {
@@ -118,21 +119,6 @@ val lambdaNib: Nibbler[Token, Term.Lambda] = { gaze =>
   } yield Term.Lambda(parameters, body) //TODO handle this body better
 }
 
-// val typeNib: Nibbler[Token, WanderType] = takeFirst(
-//   take(Token("Integer", TokenType.Name)).map(_ => List(WanderType.Integer)),
-//   take(Token("Identifier", TokenType.Name)).map { _ =>
-//     List(WanderType.Identifier)
-//   },
-//   take(Token("Value", TokenType.Name)).map(_ => List(WanderType.Value))
-// )
-
-// val elseExpressionNib: Nibbler[Token, Term] = { gaze =>
-//   for {
-//     _ <- gaze.attempt(take(Token.ElseKeyword))
-//     body <- gaze.attempt(expressionNib)
-//   } yield body
-// }
-
 val conditionalsNib: Nibbler[Token, (Term, Term)] = { gaze =>
   for {
     condition <- gaze.attempt(expressionNib)
@@ -194,14 +180,6 @@ val fieldNib: Nibbler[Token, (Name, Term)] = { gaze =>
   }
 }
 
-val recordNib: Nibbler[Token, Term.Record] = { gaze =>
-  for
-    _ <- gaze.attempt(take(Token.OpenBrace))
-    decls <- gaze.attempt(optionalSeq(repeatSep(fieldNib, Token.Comma)))
-    _ <- gaze.attempt(take(Token.CloseBrace))
-  yield Term.Record(decls)
-}
-
 val groupingNib: Nibbler[Token, Term.Grouping] = { gaze =>
   for
     _ <- gaze.attempt(take(Token.OpenParen))
@@ -218,59 +196,33 @@ val letExpressionNib: Nibbler[Token, Term.LetExpression] = { gaze =>
   } yield Term.LetExpression(name.value, value)
 }
 
-// // Reads an expression after the equals sign for a field.
-// // It should always read at least one term but after the first
-// // it needs to look ahead for the in keyword or equals signs.
-// val fieldExpressionNib: Nibbler[Token, Term] = { gaze =>
-//   var obligatoryPart = gaze.attempt(innerExpressionNib) match
-//     case Result.Match(value) => value
-//     case Result.NoMatch | Result.EmptyMatch => ???
-//   val rest = ListBuffer[Term]()
-//   var continue = true
-//   while (continue) {
-//     //TODO instead of doing peeks here, I should do attempts or checks with innerExpressionNibs
-//     gaze.peek() match {
-//       case Some(Token.InKeyword) | Some(Token.EndKeyword) | Some(Token.CloseBrace) => {
-//         continue = false
-//       }
-//       case Some(Token.Name(_)) => {
-//         gaze.peek(1) match {
-//           case Some(Token.EqualSign) => continue = false
-//           case _ => ()
-//         }
-//       }
-//       case Some(Token.EqualSign) => {
-//         //TODO shouldn't reach this, this case just exists for debugging
-//         ???
-//       }
-//       case _ => ()
-//     }
+val tripleNib: Nibbler[Token, Term.Triple] = { gaze =>
+  for
+    entity <- gaze.attempt(takeFirst(nothingNib, identifierNib))
+    attribute <- gaze.attempt(takeFirst(nothingNib, identifierNib))
+    value <- gaze.attempt(takeFirst(nothingNib, identifierNib))
+  yield Term.Triple(entity, attribute, value)
+}
 
-//     if (continue) {
-//       gaze.attempt(innerExpressionNib) match {
-//         case Result.EmptyMatch => ???
-//         case Result.NoMatch => continue = false
-//         case Result.Match(value) => {
-//           rest += value
-//         }
-//       }
-//     }
-//   }
-//   if rest.isEmpty then
-//     Result.Match(obligatoryPart)
-//   else
-//     Result.Match(Term.Application(Seq(obligatoryPart) ++ rest))
-// }
+val quadNib: Nibbler[Token, Term.Quad] = { gaze =>
+  for
+    entity <- gaze.attempt(takeFirst(nothingNib, identifierNib))
+    attribute <- gaze.attempt(takeFirst(nothingNib, identifierNib))
+    value <- gaze.attempt(takeFirst(nothingNib, identifierNib))
+    graph <- gaze.attempt(takeFirst(nothingNib, identifierNib))
+  yield Term.Quad(entity, attribute, value, graph)
+}
 
 val expressionNib =
   takeFirst(
     applicationNib,
-    identifierNib,
     lambdaNib,
+    tripleNib,
+    quadNib,
+    identifierNib,
     groupingNib,
     stringNib,
     integerNib,
-    recordNib,
     letExpressionNib,
     whenExpressionNib,
     arrayNib,

@@ -33,7 +33,6 @@ def process(term: Term): Either[WanderError, Expression] =
     case Term.Array(terms)                 => processArray(terms)
     case Term.Set(terms)                   => processSet(terms)
     case Term.BooleanLiteral(value)        => Right(Expression.BooleanValue(value))
-    case Term.Record(decls)                => processRecord(decls)
     case Term.LetExpression(name, value)   => processLetExpression(name, value)
     case Term.IntegerLiteral(value)        => Right(Expression.IntegerValue(value))
     case Term.NameTerm(value)              => Right(Expression.NameExpression(value))
@@ -42,7 +41,26 @@ def process(term: Term): Either[WanderError, Expression] =
     case Term.Lambda(parameters, body)     => processLambda(parameters, body)
     case Term.Grouping(terms)              => processGrouping(terms)
     case Term.WhenExpression(conditionals) => processWhenExpression(conditionals)
+    case Term.Triple(entity, attribute, value) => processTriple(entity, attribute, value)
+    case Term.Quad(entity, attribute, value, graph) => processQuad(entity, attribute, value, graph)
   }
+
+def processTriple(entity: Term, attribute: Term, value: Term): Either[WanderError, Expression.Triple] = {
+  for {
+    entity <- process(entity)
+    attribute <- process(attribute)
+    value <- process(value)
+  } yield Expression.Triple(entity, attribute, value)
+}
+
+def processQuad(entity: Term, attribute: Term, value: Term, graph: Term): Either[WanderError, Expression.Quad] = {
+  for {
+    entity <- process(entity)
+    attribute <- process(attribute)
+    value <- process(value)
+    graph <- process(graph)
+  } yield Expression.Quad(entity, attribute, value, graph)
+}
 
 def processGrouping(terms: Seq[Term]): Either[WanderError, Expression.Grouping] = {
   var error: Option[WanderError] = None
@@ -110,16 +128,6 @@ def processLetExpression(name: Name, value: Term): Either[WanderError, Expressio
     case Left(value)       => ???
     case Right(expression) => Right(Expression.LetExpression(name, expression))
   }
-
-def processRecord(decls: Seq[(Name, Term)]): Either[WanderError, Expression.Record] = {
-  val expressions = decls.map { (name, term) =>
-    process(term) match {
-      case Left(value)       => ???
-      case Right(expression) => (name, expression)
-    }
-  }
-  Right(Expression.Record(expressions))
-}
 
 def processArray(terms: Seq[Term]): Either[WanderError, Expression.Array] = {
   val expressions = terms.map { t =>
