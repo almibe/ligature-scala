@@ -11,6 +11,7 @@ val munitCatsEffect3Version = "2.0.0-M3"
 val scodecVersion = "2.2.1"
 val xodusVersion = "2.0.1"
 val jeromqVersion = "0.5.3"
+val jlineVersion = "3.23.0"
 
 // lazy val ligature = project
 //   .in(file("ligature"))
@@ -84,6 +85,19 @@ lazy val wanderPad = crossProject(JVMPlatform)
       Seq("base", "controls", "fxml", "graphics", "media", "swing", "web")
         .map(m => "org.openjfx" % s"javafx-$m" % "16" classifier osName)
     }
+  )
+  .dependsOn(gaze, wander)
+  .disablePlugins(RevolverPlugin)
+
+lazy val wanderRepl = crossProject(JVMPlatform)
+  .in(file("wander-repl"))
+  .settings(
+    name := "wander-repl",
+    scalaVersion := scala3Version,
+    libraryDependencies += "org.scalameta" %% "munit" % munitVersion % Test,
+    libraryDependencies += "org.jline" % "jline" % jlineVersion,
+    libraryDependencies += "org.jline" % "jline-terminal-jansi" % jlineVersion,
+    libraryDependencies += "org.fusesource.jansi" % "jansi" % "2.4.1",
   )
   .dependsOn(gaze, wander)
   .disablePlugins(RevolverPlugin)
