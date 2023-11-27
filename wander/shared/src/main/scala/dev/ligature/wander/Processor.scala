@@ -28,7 +28,7 @@ def process(term: Term): Either[WanderError, Expression] =
   term match {
     case Term.NothingLiteral               => Right(Expression.Nothing)
     case Term.Pipe                         => ???
-    case Term.QuestionMark                 => Right(Expression.Nothing)
+    case Term.QuestionMark                 => Right(Expression.QuestionMark)
     case Term.IdentifierLiteral(value)     => Right(Expression.IdentifierValue(value))
     case Term.Array(terms)                 => processArray(terms)
     case Term.Set(terms)                   => processSet(terms)

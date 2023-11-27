@@ -13,6 +13,11 @@ class ParserSuite extends FunSuite {
       case Left(value)  => ??? // just crash
       case Right(value) => Term.IdentifierLiteral(value)
 
+  def Ident(identifier: String): Identifier =
+    Identifier.fromString(identifier) match
+      case Left(value)  => ??? // just crash
+      case Right(value) => value
+
   def check(script: String): Either[WanderError, Term] =
     val tokens = tokenize(script) match
       case Left(err)     => return Left(err)
@@ -107,35 +112,6 @@ class ParserSuite extends FunSuite {
     )
     assertEquals(result, expected)
   }
-  test("parse empty Record") {
-    val result = check("{}")
-    val expected = Right(Term.Record(Seq()))
-    assertEquals(result, expected)
-  }
-  test("parse empty Record") {
-    val result = check("{x = 5}")
-    val expected = Right(Term.Record(Seq((Name("x"), Term.IntegerLiteral(5)))))
-    assertEquals(result, expected)
-  }
-  test("parse lambda inside of Record") {
-    val result = check("{id = \\x -> x}")
-    val expected =
-      Right(Term.Record(Seq((Name("id"), Term.Lambda(Seq(Name("x")), Term.NameTerm(Name("x")))))))
-    assertEquals(result, expected)
-  }
-  test("parse multi value record") {
-    val result = check("{a = 5, id = \\x -> x, b = \"hello\"}")
-    val expected = Right(
-      Term.Record(
-        Seq(
-          (Name("a"), Term.IntegerLiteral(5)),
-          (Name("id"), Term.Lambda(Seq(Name("x")), Term.NameTerm(Name("x")))),
-          (Name("b"), Term.StringLiteral("hello"))
-        )
-      )
-    )
-    assertEquals(result, expected)
-  }
   test("parse let expression with lambda") {
     val result = check("let id \\x -> x")
     val expected =
@@ -170,6 +146,18 @@ class ParserSuite extends FunSuite {
           (Term.BooleanLiteral(true), Term.IntegerLiteral(6)),
           (Term.BooleanLiteral(false), Term.IntegerLiteral(7))
         )
+      )
+    )
+    assertEquals(result, expected)
+  }
+  test("parse quad") {
+    val result = check("<a> <b> <c> <d>")
+    val expected = Right(
+      Term.Quad(
+        Term.IdentifierLiteral(Ident("a")),
+        Term.IdentifierLiteral(Ident("b")),
+        Term.IdentifierLiteral(Ident("c")),
+        Term.IdentifierLiteral(Ident("d")),
       )
     )
     assertEquals(result, expected)

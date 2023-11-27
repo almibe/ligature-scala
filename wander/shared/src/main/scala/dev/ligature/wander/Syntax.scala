@@ -36,6 +36,7 @@ enum WanderValue:
   )
   case Triple(entity: dev.ligature.wander.Identifier, attribute: dev.ligature.wander.Identifier, value: dev.ligature.wander.WanderValue)
   case Quad(entity: dev.ligature.wander.Identifier, attribute: dev.ligature.wander.Identifier, value: WanderValue, graph: dev.ligature.wander.Identifier)
+  case QuestionMark
 
 //sealed trait FunctionDefinition(val parameters: List[Parameter]) extends WanderValue
 

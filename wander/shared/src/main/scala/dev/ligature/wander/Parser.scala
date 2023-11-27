@@ -198,18 +198,18 @@ val letExpressionNib: Nibbler[Token, Term.LetExpression] = { gaze =>
 
 val tripleNib: Nibbler[Token, Term.Triple] = { gaze =>
   for
-    entity <- gaze.attempt(takeFirst(nothingNib, identifierNib))
-    attribute <- gaze.attempt(takeFirst(nothingNib, identifierNib))
-    value <- gaze.attempt(takeFirst(nothingNib, identifierNib))
+    entity <- gaze.attempt(takeFirst(questionMarkTermNib, identifierNib))
+    attribute <- gaze.attempt(takeFirst(questionMarkTermNib, identifierNib))
+    value <- gaze.attempt(takeFirst(questionMarkTermNib, identifierNib))
   yield Term.Triple(entity, attribute, value)
 }
 
 val quadNib: Nibbler[Token, Term.Quad] = { gaze =>
   for
-    entity <- gaze.attempt(takeFirst(nothingNib, identifierNib))
-    attribute <- gaze.attempt(takeFirst(nothingNib, identifierNib))
-    value <- gaze.attempt(takeFirst(nothingNib, identifierNib))
-    graph <- gaze.attempt(takeFirst(nothingNib, identifierNib))
+    entity <- gaze.attempt(takeFirst(questionMarkTermNib, identifierNib))
+    attribute <- gaze.attempt(takeFirst(questionMarkTermNib, identifierNib))
+    value <- gaze.attempt(takeFirst(questionMarkTermNib, identifierNib))
+    graph <- gaze.attempt(takeFirst(questionMarkTermNib, identifierNib))
   yield Term.Quad(entity, attribute, value, graph)
 }
 
@@ -217,8 +217,8 @@ val expressionNib =
   takeFirst(
     applicationNib,
     lambdaNib,
-    tripleNib,
     quadNib,
+    tripleNib,
     identifierNib,
     groupingNib,
     stringNib,

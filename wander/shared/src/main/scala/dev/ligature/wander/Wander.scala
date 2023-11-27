@@ -14,7 +14,7 @@ case class WanderError(val userMessage: String) extends Throwable(userMessage)
 def run(
     script: String,
     bindings: Bindings
-): Either[WanderError, WanderValue] =
+): Either[WanderError, (WanderValue, Bindings)] =
   val expression = for {
     tokens <- tokenize(script)
     terms <- parse(tokens)
@@ -22,7 +22,7 @@ def run(
   } yield expression
   expression match
     case Left(value)  => Left(value)
-    case Right(value) => eval(value, bindings).map(_._1)
+    case Right(value) => eval(value, bindings)
 
 case class Introspect(
     tokens: Either[WanderError, Seq[Token]],
@@ -48,14 +48,15 @@ def introspect(script: String): Introspect = {
   Introspect(tokens, terms, expression)
 }
 
-def printResult(value: Either[WanderError, WanderValue]): String =
+def printResult(value: Either[WanderError, (WanderValue, Bindings)]): String =
   value match {
     case Left(value) => "Error: " + value.userMessage
-    case Right(value) => printWanderValue(value)
+    case Right(value) => printWanderValue(value._1)
   }
 
 def printWanderValue(value: WanderValue): String =
   value match {
+    case WanderValue.QuestionMark => "?"
     case WanderValue.Triple(entity, attribute, value) => s"<${entity.name}> <${attribute.name}> ${printWanderValue(value)},"
     case WanderValue.Quad(entity, attribute, value, graph) => s"<${entity.name}> <${attribute.name}> ${printWanderValue(value)} <${graph.name}>,"
     case WanderValue.BooleanValue(value) => value.toString()

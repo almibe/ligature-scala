@@ -46,7 +46,6 @@ case class Bindings(graphs: scala.collection.mutable.Map[String, Set[Statement]]
     if (this.graphs.contains("")) {
       val graph = this.graphs.get("").get
       graph.add(statement(triple))
-      println(graph.size)
       Right(())
     } else {
       this.graphs += ("" -> Set(statement(triple)))
