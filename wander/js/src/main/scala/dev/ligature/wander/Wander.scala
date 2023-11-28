@@ -14,14 +14,10 @@ import scala.scalajs.js.annotation._
 object Wander {
   @JSExport
   def run(script: String): String = {
-    dev.ligature.wander.run(script, common()) match {
-      case Left(err) => err.toString()
-      case Right(value) => printWanderValue(value)
-    }
+    printResult(dev.ligature.wander.run(script, common()))
   }
   @JSExport
   def introspect(script: String): String = {
-    dev.ligature.wander.introspect(script)
-    ""
+    dev.ligature.wander.introspect(script).toString()
   }  
 }

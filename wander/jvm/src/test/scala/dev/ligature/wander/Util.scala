@@ -8,8 +8,8 @@ import dev.ligature.wander.Token
 import dev.ligature.wander.preludes.common
 
 class WanderSuiteCommonMode extends munit.FunSuite {
-  def check(script: String, expected: Either[WanderError, WanderValue]) =
-    assertEquals(run(script, common()), expected)
+  def check(script: String, expected: WanderValue) =
+    assertEquals(run(script, common()).getOrElse(???)._1, expected)
 }
 
 // class WanderSuiteInstancePrelude extends munit.FunSuite {

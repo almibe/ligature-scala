@@ -9,8 +9,8 @@ import dev.ligature.wander.WanderValue
 import dev.ligature.wander.preludes.common
 
 class LetSuite extends munit.FunSuite {
-  def check(script: String, expected: Either[WanderError, WanderValue]) =
-    assertEquals(run(script, common()), expected)
+  def check(script: String, expected: WanderValue) =
+    assertEquals(run(script, common()).getOrElse(???)._1, expected)
 
   // test("basic let") {
   //   val script = "let x = 5"

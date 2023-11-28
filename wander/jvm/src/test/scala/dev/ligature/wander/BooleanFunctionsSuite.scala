@@ -8,8 +8,8 @@ import dev.ligature.wander.preludes.common
 import dev.ligature.wander.{WanderValue, Name, Token}
 
 class BooleanFunctionsSuite extends munit.FunSuite {
-  def check(script: String, expected: Either[WanderError, WanderValue]): Unit =
-    assertEquals(run(script, common()), expected)
+  def check(script: String, expected: WanderValue): Unit =
+    assertEquals(run(script, common()).getOrElse(???)._1, expected)
 
   // test("not function") {
   //   val script = "not(true)"
