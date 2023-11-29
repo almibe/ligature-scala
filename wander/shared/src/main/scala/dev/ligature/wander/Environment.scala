@@ -17,10 +17,12 @@ def statement(value: WanderValue): Statement =
   }
 
 case class Environment(
+    functions: List[HostFunction] = List(),
     graphs: scala.collection.mutable.Map[String, Set[Statement]] = scala.collection.mutable.Map(),
     scopes: List[Map[Name, WanderValue]] = List(Map())
 ) {
-  def newScope(): Environment = Environment(this.graphs, this.scopes.appended(Map()))
+  def newScope(): Environment =
+    Environment(this.functions, this.graphs, this.scopes.appended(Map()))
 
   def bindVariable(
       name: Name,
@@ -29,7 +31,7 @@ case class Environment(
     val currentScope = this.scopes.last
     val newVariables = currentScope + (name -> wanderValue)
     val oldScope = this.scopes.dropRight(1)
-    Environment(this.graphs, oldScope.appended(newVariables))
+    Environment(this.functions, this.graphs, oldScope.appended(newVariables))
   }
 
   def read(name: Name): Either[WanderError, WanderValue] = {
@@ -41,8 +43,15 @@ case class Environment(
       }
       currentScopeOffset -= 1
     }
+    this.functions.find(_.name == name.name) match {
+      case None           => ()
+      case Some(function) => return Right(WanderValue.HostFunction(function))
+    }
     Left(WanderError(s"Could not find ${name} in scope."))
   }
+
+  def addHostFunctions(functions: Seq[HostFunction]): Environment =
+    this.copy(functions = this.functions ++ functions)
 
   def addTriple(triple: WanderValue.Triple): Either[WanderError, Unit] =
     if (this.graphs.contains("")) {

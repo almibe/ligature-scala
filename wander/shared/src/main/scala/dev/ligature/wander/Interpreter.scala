@@ -201,7 +201,7 @@ def handleApplication(
             }
           }
           eval(body, fnScope)
-        case WanderValue.HostFunction(fn) => fn(arguments, bindings)
+        case WanderValue.HostFunction(fn) => fn.fn(arguments, bindings)
         case _ => Left(WanderError(s"Could not call function ${name.name}."))
       }
   }

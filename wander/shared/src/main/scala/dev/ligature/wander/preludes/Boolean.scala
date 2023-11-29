@@ -12,19 +12,24 @@ import dev.ligature.wander.Name
 import dev.ligature.wander.WanderError
 import dev.ligature.wander.eval
 import dev.ligature.wander.Expression
+import dev.ligature.wander.HostFunction
 
-def bindBooleanPrelude(environments: Environment): Environment = {
-  var stdLib = environments
-    .bindVariable(
-      Name("Bool.not"),
-      WanderValue.HostFunction((arguments, environments) =>
-        if arguments.size != 1 then Left(WanderError("`not` function requires 1 argument."))
-        else
-          eval(arguments.head, environments).map {
-            _ match
-              case (WanderValue.BooleanValue(b), _) => (WanderValue.BooleanValue(!b), environments)
-              case _ => throw WanderError("`not` function requires 1 boolean argument.")
-          }
+def bindBooleanPrelude(environments: Environment): Environment =
+  environments
+    .addHostFunctions(
+      Seq(
+        HostFunction(
+          "Bool.not",
+          (arguments, environments) =>
+            if arguments.size != 1 then Left(WanderError("`not` function requires 1 argument."))
+            else
+              eval(arguments.head, environments).map {
+                _ match
+                  case (WanderValue.BooleanValue(b), _) =>
+                    (WanderValue.BooleanValue(!b), environments)
+                  case _ => throw WanderError("`not` function requires 1 boolean argument.")
+              }
+        )
       )
     )
 
@@ -69,5 +74,3 @@ def bindBooleanPrelude(environments: Environment): Environment = {
 //       )
 //     )
 //     .getOrElse(???)
-  stdLib
-}

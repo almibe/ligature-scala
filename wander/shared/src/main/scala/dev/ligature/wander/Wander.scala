@@ -20,12 +20,7 @@ enum WanderValue:
   case Array(values: Seq[WanderValue])
   case Set(values: scala.collection.Set[WanderValue])
   case Lambda(lambda: Expression.Lambda)
-  case HostFunction(
-      body: (
-          arguments: Seq[Expression],
-          bindings: Environment
-      ) => Either[WanderError, (WanderValue, Environment)]
-  )
+  case HostFunction(hostFunction: dev.ligature.wander.HostFunction)
   case Triple(
       entity: dev.ligature.wander.Identifier,
       attribute: dev.ligature.wander.Identifier,
@@ -41,13 +36,18 @@ enum WanderValue:
 
 case class HostFunction(
     name: String,
-    body: (
+    fn: (
         arguments: Seq[Expression],
         bindings: Environment
     ) => Either[WanderError, (WanderValue, Environment)]
 )
 
-case class HostProperty()
+case class HostProperty(
+    name: String,
+    read: (
+        bindings: Environment
+    ) => Either[WanderError, (WanderValue, Environment)]
+)
 
 case class Parameter(
     name: Name,

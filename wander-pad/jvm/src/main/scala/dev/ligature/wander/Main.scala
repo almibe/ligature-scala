@@ -41,7 +41,7 @@ object ScalaFXHelloWorld extends JFXApp3 {
       resultOutput.text = printResult(result)
     }
 
-    introButton.onAction = { e =>
+    def runIntro() = {
       val script = editorInput.getText()
       val intro = introspect(script)
       val result = run(script, common())
@@ -52,18 +52,33 @@ object ScalaFXHelloWorld extends JFXApp3 {
         "Result      :" + result.toString() + "\n"
     }
 
+    introButton.onAction = { e =>
+      runIntro()
+    }
+
     stage = new JFXApp3.PrimaryStage {
       title = "WanderPad"
       width = 800
       height = 600
       scene = new Scene {
-        onShown = {_ => editorInput.requestFocus() }
-        addEventFilter(KeyEvent.KeyPressed, (event => {
-            if (event.getCode() == KeyCode.R && event.isControlDown()) {
+        onShown = { _ => editorInput.requestFocus() }
+        addEventFilter(
+          KeyEvent.KeyPressed,
+          event => {
+            if (
+              (event.getCode() == KeyCode.R ||
+                event.getCode() == KeyCode.ENTER)
+              && event.isControlDown()
+            ) {
               runScript()
               event.consume()
             }
-        }))
+            if (event.getCode() == KeyCode.I && event.isControlDown()) {
+              runIntro()
+              event.consume()
+            }
+          }
+        )
         fill = Color.rgb(255, 255, 255)
         root = new BorderPane {
           style = "-fx-font-family: Consolas, monospace"
@@ -80,7 +95,6 @@ object ScalaFXHelloWorld extends JFXApp3 {
         }
       }
     }
-
     editorInput.requestFocus()
   }
 }
