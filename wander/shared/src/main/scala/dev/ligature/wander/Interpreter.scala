@@ -25,7 +25,10 @@ enum Expression:
   case Quad(entity: Expression, attribute: Expression, value: Expression, graph: Expression)
   case QuestionMark
 
-def eval(expression: Expression, bindings: Environment): Either[WanderError, (WanderValue, Environment)] =
+def eval(
+    expression: Expression,
+    bindings: Environment
+): Either[WanderError, (WanderValue, Environment)] =
   expression match {
     case Expression.Nothing                => Right((WanderValue.Nothing, bindings))
     case Expression.BooleanValue(value)    => Right((WanderValue.BooleanValue(value), bindings))
@@ -40,52 +43,67 @@ def eval(expression: Expression, bindings: Environment): Either[WanderError, (Wa
     case lambda: Expression.Lambda               => Right((WanderValue.Lambda(lambda), bindings))
     case Expression.WhenExpression(conditionals) => handleWhenExpression(conditionals, bindings)
     case Expression.Grouping(expressions)        => handleGrouping(expressions, bindings)
-    case Expression.Triple(entity, attribute, value) => handleTriple(entity, attribute, value, bindings)
-    case Expression.Quad(entity, attribute, value, graph) => handleQuad(entity, attribute, value, graph, bindings)
+    case Expression.Triple(entity, attribute, value) =>
+      handleTriple(entity, attribute, value, bindings)
+    case Expression.Quad(entity, attribute, value, graph) =>
+      handleQuad(entity, attribute, value, graph, bindings)
     case Expression.QuestionMark => Right((WanderValue.QuestionMark, bindings))
   }
 
-def handleQuery(entity: WanderValue, attribute: WanderValue, value: WanderValue, graphName: String, bindings: Environment): Either[WanderError, (WanderValue, Environment)] = {
+def handleQuery(
+    entity: WanderValue,
+    attribute: WanderValue,
+    value: WanderValue,
+    graphName: String,
+    bindings: Environment
+): Either[WanderError, (WanderValue, Environment)] = {
   val e = entity match {
-    case WanderValue.QuestionMark => None
+    case WanderValue.QuestionMark      => None
     case WanderValue.Identifier(value) => Some(value)
-    case _ => ???
+    case _                             => ???
   }
   val a = attribute match {
-    case WanderValue.QuestionMark => None
+    case WanderValue.QuestionMark      => None
     case WanderValue.Identifier(value) => Some(value)
-    case _ => ???
+    case _                             => ???
   }
   val v = value match {
     case WanderValue.QuestionMark => None
-    case value => Some(value)
+    case value                    => Some(value)
   }
   if (bindings.graphs.contains(graphName)) {
     val graph = bindings.graphs(graphName)
-    val filtered = graph.filter {statement =>
-      val ee = e match {
-        case None => true
-        case Some(value) => statement.entity == value
+    val filtered = graph
+      .filter { statement =>
+        val ee = e match {
+          case None        => true
+          case Some(value) => statement.entity == value
+        }
+        val aa = a match {
+          case None        => true
+          case Some(value) => statement.attribute == value
+        }
+        val vv = v match {
+          case None        => true
+          case Some(value) => statement.value == value
+        }
+        ee && aa && vv
       }
-      val aa = a match {
-        case None => true
-        case Some(value) => statement.attribute == value
-      }
-      val vv = v match {
-        case None => true
-        case Some(value) => statement.value == value
-      }
-      ee && aa && vv
-    }.map { statement =>
+      .map { statement =>
         WanderValue.Triple(statement.entity, statement.attribute, statement.value)
-    }
+      }
     Right((WanderValue.Array(filtered.toSeq), bindings))
   } else {
     Right((WanderValue.Array(Seq()), bindings))
   }
 }
 
-def handleTriple(entity: Expression, attribute: Expression, value: Expression, bindings: Environment): Either[WanderError, (WanderValue, Environment)] = {
+def handleTriple(
+    entity: Expression,
+    attribute: Expression,
+    value: Expression,
+    bindings: Environment
+): Either[WanderError, (WanderValue, Environment)] = {
   val res = for {
     entityRes <- eval(entity, bindings)
     attributeRes <- eval(attribute, bindings)
@@ -93,32 +111,45 @@ def handleTriple(entity: Expression, attribute: Expression, value: Expression, b
   } yield (entityRes._1, attributeRes._1, valueRes._1)
   res match {
     case Left(value) => Left(value)
-    case Right(value) => value match {
-      case (WanderValue.Identifier(entity), WanderValue.Identifier(attribute), value: WanderValue) => {
-        val triple: WanderValue.Triple = WanderValue.Triple(entity, attribute, value)
-        bindings.addTriple(triple)
-        Right(triple, bindings)
+    case Right(value) =>
+      value match {
+        case (
+              WanderValue.Identifier(entity),
+              WanderValue.Identifier(attribute),
+              value: WanderValue
+            ) =>
+          val triple: WanderValue.Triple = WanderValue.Triple(entity, attribute, value)
+          bindings.addTriple(triple)
+          Right(triple, bindings)
+        case (e: WanderValue, a: WanderValue, v: WanderValue) => handleQuery(e, a, v, "", bindings)
       }
-      case (e: WanderValue, a: WanderValue, v: WanderValue) => handleQuery(e, a, v, "", bindings)
-    }
   }
 }
 
-def handleQuad(entity: Expression, attribute: Expression, value: Expression, graph: Expression, bindings: Environment): Either[WanderError, (WanderValue.Quad, Environment)] = {
+def handleQuad(
+    entity: Expression,
+    attribute: Expression,
+    value: Expression,
+    graph: Expression,
+    bindings: Environment
+): Either[WanderError, (WanderValue.Quad, Environment)] =
   for {
     entityRes <- eval(entity, bindings)
     attributeRes <- eval(attribute, bindings)
     valueRes <- eval(value, bindings)
-    graphRes <- eval(graph, bindings)    
+    graphRes <- eval(graph, bindings)
   } yield (entityRes._1, attributeRes._1, valueRes._1, graphRes._1) match {
-    case (WanderValue.Identifier(entity), WanderValue.Identifier(attribute), value, WanderValue.Identifier(graph)) => {
+    case (
+          WanderValue.Identifier(entity),
+          WanderValue.Identifier(attribute),
+          value,
+          WanderValue.Identifier(graph)
+        ) =>
       val quad: WanderValue.Quad = WanderValue.Quad(entity, attribute, value, graph)
       bindings.addQuad(quad)
       (quad, bindings)
-    }
     case _ => ???
   }
-}
 
 def handleGrouping(
     expressions: Seq[Expression],

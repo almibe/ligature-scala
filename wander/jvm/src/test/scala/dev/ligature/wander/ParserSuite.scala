@@ -157,7 +157,7 @@ class ParserSuite extends FunSuite {
         Term.IdentifierLiteral(Ident("a")),
         Term.IdentifierLiteral(Ident("b")),
         Term.IdentifierLiteral(Ident("c")),
-        Term.IdentifierLiteral(Ident("d")),
+        Term.IdentifierLiteral(Ident("d"))
       )
     )
     assertEquals(result, expected)

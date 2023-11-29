@@ -26,7 +26,7 @@ abstract class LigatureTestSuite extends CatsEffectSuite {
   val label3 = Label("c")
 
   test("create and close store") {
-    createLigature.use { instance => 
+    createLigature.use { instance =>
       assertIO(instance.allDatasets().compile.toList, List())
     }
   }
@@ -48,7 +48,7 @@ abstract class LigatureTestSuite extends CatsEffectSuite {
         exists1 <- instance.datasetExists(testDataset)
         exists2 <- instance.datasetExists(testDataset2)
       } yield (exists1, exists2)
-      assertIO(res, (true, false))      
+      assertIO(res, (true, false))
     }
   }
 
@@ -57,8 +57,8 @@ abstract class LigatureTestSuite extends CatsEffectSuite {
       val res = for {
         _ <- instance.createDataset(testDataset)
         res1 <- instance.matchDatasetsPrefix("test/test").compile.toList
-      } yield (res1.length)
-      assertIO(res, (1))      
+      } yield res1.length
+      assertIO(res, 1)
     }
   }
 
@@ -72,12 +72,12 @@ abstract class LigatureTestSuite extends CatsEffectSuite {
         res2 <- instance.matchDatasetsPrefix("test/").compile.toList
         res3 <- instance.matchDatasetsPrefix("snoo").compile.toList
       } yield (res1.length, res2.length, res3.length)
-      assertIO(res, (3, 2, 0))      
+      assertIO(res, (3, 2, 0))
     }
   }
 
   test("match datasets range") {
-    createLigature.use {instance => 
+    createLigature.use { instance =>
       val res = for {
         _ <- instance.createDataset(Dataset.fromString("a").getOrElse(???))
         _ <- instance.createDataset(Dataset.fromString("app").getOrElse(???))
@@ -100,7 +100,7 @@ abstract class LigatureTestSuite extends CatsEffectSuite {
         res2 <- instance.matchDatasetsRange("be", "test3").compile.toList
         res3 <- instance.matchDatasetsRange("snoo", "zz").compile.toList
       } yield (res1.length, res2.length, res3.length)
-      assertIO(res, (2, 4, 5)) // TODO check instances not just counts      
+      assertIO(res, (2, 4, 5)) // TODO check instances not just counts
     }
   }
 
@@ -112,7 +112,7 @@ abstract class LigatureTestSuite extends CatsEffectSuite {
         _ <- instance.deleteDataset(testDataset2)
         res <- instance.allDatasets().compile.toList
       } yield res
-      assertIO(res, List())      
+      assertIO(res, List())
     }
   }
 
@@ -122,7 +122,7 @@ abstract class LigatureTestSuite extends CatsEffectSuite {
         _ <- instance.createDataset(testDataset)
         res <- instance.allEdges(testDataset).compile.toList
       } yield res
-      assertIO(res, List())      
+      assertIO(res, List())
     }
   }
 
@@ -130,11 +130,16 @@ abstract class LigatureTestSuite extends CatsEffectSuite {
     createLigature.use { instance =>
       val res = for {
         _ <- instance.createDataset(testDataset)
-        _ <- instance.addEdges(testDataset, Stream.emits(Seq(
-          Edge(label1, a, label2),
-          Edge(label1, a, label2), // dupe
-          Edge(label1, a, label3),
-        )))
+        _ <- instance.addEdges(
+          testDataset,
+          Stream.emits(
+            Seq(
+              Edge(label1, a, label2),
+              Edge(label1, a, label2), // dupe
+              Edge(label1, a, label3)
+            )
+          )
+        )
         statements <- instance.allEdges(testDataset).compile.toList
       } yield statements.toSet
       assertIO(
@@ -143,7 +148,7 @@ abstract class LigatureTestSuite extends CatsEffectSuite {
           Edge(label1, a, label2),
           Edge(label1, a, label3)
         )
-      )      
+      )
     }
   }
 
@@ -151,12 +156,18 @@ abstract class LigatureTestSuite extends CatsEffectSuite {
     createLigature.use { instance =>
       val res = for {
         _ <- instance.createDataset(testDataset)
-        _ <- instance.addEdges(testDataset, Stream.emits(Seq(
-            Edge(label1, a, label2),
-            Edge(label1, a, LigatureLiteral.IntegerLiteral(100)),
-            Edge(label1, a, LigatureLiteral.IntegerLiteral(101)),
-            Edge(label1, a, LigatureLiteral.IntegerLiteral(100)),
-            Edge(label2, a, LigatureLiteral.IntegerLiteral(-243729)))))
+        _ <- instance.addEdges(
+          testDataset,
+          Stream.emits(
+            Seq(
+              Edge(label1, a, label2),
+              Edge(label1, a, LigatureLiteral.IntegerLiteral(100)),
+              Edge(label1, a, LigatureLiteral.IntegerLiteral(101)),
+              Edge(label1, a, LigatureLiteral.IntegerLiteral(100)),
+              Edge(label2, a, LigatureLiteral.IntegerLiteral(-243729))
+            )
+          )
+        )
         statements <- instance.allEdges(testDataset).compile.toList
       } yield statements.toSet
       assertIO(
@@ -175,12 +186,18 @@ abstract class LigatureTestSuite extends CatsEffectSuite {
     createLigature.use { instance =>
       val res = for {
         _ <- instance.createDataset(testDataset)
-        _ <- instance.addEdges(testDataset, Stream.emits(Seq(
-            Edge(label1, a, label2),
-            Edge(label1, a, LigatureLiteral.StringLiteral("text")),
-            Edge(label1, a, LigatureLiteral.StringLiteral("text2")),
-            Edge(label1, a, LigatureLiteral.StringLiteral("text")),
-            Edge(label2, a, LigatureLiteral.StringLiteral("text")))))
+        _ <- instance.addEdges(
+          testDataset,
+          Stream.emits(
+            Seq(
+              Edge(label1, a, label2),
+              Edge(label1, a, LigatureLiteral.StringLiteral("text")),
+              Edge(label1, a, LigatureLiteral.StringLiteral("text2")),
+              Edge(label1, a, LigatureLiteral.StringLiteral("text")),
+              Edge(label2, a, LigatureLiteral.StringLiteral("text"))
+            )
+          )
+        )
         statements <- instance.allEdges(testDataset).compile.toList
       } yield statements.toSet
       assertIO(
@@ -191,7 +208,7 @@ abstract class LigatureTestSuite extends CatsEffectSuite {
           Edge(label1, a, LigatureLiteral.StringLiteral("text2")),
           Edge(label2, a, LigatureLiteral.StringLiteral("text"))
         )
-      )      
+      )
     }
   }
 
@@ -226,10 +243,13 @@ abstract class LigatureTestSuite extends CatsEffectSuite {
       val res = for {
         _ <- instance.createDataset(testDataset)
         _ <- instance.addEdges(testDataset, Stream.emit(Edge(label1, a, label2)))
-        _ <- instance.removeEdges(testDataset, Stream.emits(Seq(Edge(label1, a, label2), Edge(label1, a, label2))))
+        _ <- instance.removeEdges(
+          testDataset,
+          Stream.emits(Seq(Edge(label1, a, label2), Edge(label1, a, label2)))
+        )
         statements <- instance.allEdges(testDataset).compile.toList
       } yield statements
-      assertIO(res, List())      
+      assertIO(res, List())
     }
   }
 
@@ -237,14 +257,16 @@ abstract class LigatureTestSuite extends CatsEffectSuite {
     createLigature.use { instance =>
       val res = for {
         _ <- instance.createDataset(testDataset)
-        _ <- instance.addEdges(testDataset, Stream.emits(Seq(
-          Edge(label1, a, label2),
-          Edge(label3, a, label2),
-          Edge(label1, a, label2))))
+        _ <- instance.addEdges(
+          testDataset,
+          Stream.emits(
+            Seq(Edge(label1, a, label2), Edge(label3, a, label2), Edge(label1, a, label2))
+          )
+        )
         _ <- instance.removeEdges(testDataset, Stream.emit(Edge(label1, a, label2)))
         statements <- instance.allEdges(testDataset).compile.toList
       } yield statements
-      assertIO(res, List(Edge(label3, a, label2)))      
+      assertIO(res, List(Edge(label3, a, label2)))
     }
   }
 
@@ -252,14 +274,23 @@ abstract class LigatureTestSuite extends CatsEffectSuite {
     createLigature.use { instance =>
       val res = for {
         _ <- instance.createDataset(testDataset)
-        _ <- instance.addEdges(testDataset, Stream.emits(Seq(
-          Edge(label1, a, LigatureLiteral.StringLiteral("hello")),
-          Edge(label1, a, LigatureLiteral.StringLiteral("hello")),
-          Edge(label2, a, LigatureLiteral.StringLiteral("hello")))))
-        _ <- instance.removeEdges(testDataset, Stream.emit(Edge(label1, a, LigatureLiteral.StringLiteral("hello"))))
+        _ <- instance.addEdges(
+          testDataset,
+          Stream.emits(
+            Seq(
+              Edge(label1, a, LigatureLiteral.StringLiteral("hello")),
+              Edge(label1, a, LigatureLiteral.StringLiteral("hello")),
+              Edge(label2, a, LigatureLiteral.StringLiteral("hello"))
+            )
+          )
+        )
+        _ <- instance.removeEdges(
+          testDataset,
+          Stream.emit(Edge(label1, a, LigatureLiteral.StringLiteral("hello")))
+        )
         statements <- instance.allEdges(testDataset).compile.toList
       } yield statements.toSet
-      assertIO(res, Set(Edge(label2, a, LigatureLiteral.StringLiteral("hello"))))      
+      assertIO(res, Set(Edge(label2, a, LigatureLiteral.StringLiteral("hello"))))
     }
   }
 
@@ -293,12 +324,18 @@ abstract class LigatureTestSuite extends CatsEffectSuite {
     createLigature.use { instance =>
       val res = for {
         _ <- instance.createDataset(testDataset)
-        _ <- instance.addEdges(testDataset, Stream.emits(Seq(
-          Edge(label1, a, LigatureLiteral.StringLiteral("Hello")),
-          Edge(label2, a, label1),
-          Edge(label2, a, label3),
-          Edge(label3, b, label2),
-          Edge(label3, b, LigatureLiteral.StringLiteral("Hello")))))
+        _ <- instance.addEdges(
+          testDataset,
+          Stream.emits(
+            Seq(
+              Edge(label1, a, LigatureLiteral.StringLiteral("Hello")),
+              Edge(label2, a, label1),
+              Edge(label2, a, label3),
+              Edge(label3, b, label2),
+              Edge(label3, b, LigatureLiteral.StringLiteral("Hello"))
+            )
+          )
+        )
         res <- instance.query(testDataset) { tx =>
           for {
             all <- tx.matchEdges().compile.toList

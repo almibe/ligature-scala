@@ -13,11 +13,9 @@ import scala.scalajs.js.annotation._
 @JSExportTopLevel("default")
 object Wander {
   @JSExport
-  def run(script: String): String = {
+  def run(script: String): String =
     printResult(dev.ligature.wander.run(script, common()))
-  }
   @JSExport
-  def introspect(script: String): String = {
+  def introspect(script: String): String =
     dev.ligature.wander.introspect(script).toString()
-  }  
 }

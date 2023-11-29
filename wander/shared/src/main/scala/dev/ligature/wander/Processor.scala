@@ -26,41 +26,48 @@ def process(terms: Seq[Term]): Either[WanderError, Expression] =
 
 def process(term: Term): Either[WanderError, Expression] =
   term match {
-    case Term.NothingLiteral               => Right(Expression.Nothing)
-    case Term.Pipe                         => ???
-    case Term.QuestionMark                 => Right(Expression.QuestionMark)
-    case Term.IdentifierLiteral(value)     => Right(Expression.IdentifierValue(value))
-    case Term.Array(terms)                 => processArray(terms)
-    case Term.Set(terms)                   => processSet(terms)
-    case Term.BooleanLiteral(value)        => Right(Expression.BooleanValue(value))
-    case Term.LetExpression(name, value)   => processLetExpression(name, value)
-    case Term.IntegerLiteral(value)        => Right(Expression.IntegerValue(value))
-    case Term.NameTerm(value)              => Right(Expression.NameExpression(value))
-    case Term.StringLiteral(value)         => Right(Expression.StringValue(value))
-    case Term.Application(terms)           => processApplication(terms)
-    case Term.Lambda(parameters, body)     => processLambda(parameters, body)
-    case Term.Grouping(terms)              => processGrouping(terms)
-    case Term.WhenExpression(conditionals) => processWhenExpression(conditionals)
-    case Term.Triple(entity, attribute, value) => processTriple(entity, attribute, value)
+    case Term.NothingLiteral                        => Right(Expression.Nothing)
+    case Term.Pipe                                  => ???
+    case Term.QuestionMark                          => Right(Expression.QuestionMark)
+    case Term.IdentifierLiteral(value)              => Right(Expression.IdentifierValue(value))
+    case Term.Array(terms)                          => processArray(terms)
+    case Term.Set(terms)                            => processSet(terms)
+    case Term.BooleanLiteral(value)                 => Right(Expression.BooleanValue(value))
+    case Term.LetExpression(name, value)            => processLetExpression(name, value)
+    case Term.IntegerLiteral(value)                 => Right(Expression.IntegerValue(value))
+    case Term.NameTerm(value)                       => Right(Expression.NameExpression(value))
+    case Term.StringLiteral(value)                  => Right(Expression.StringValue(value))
+    case Term.Application(terms)                    => processApplication(terms)
+    case Term.Lambda(parameters, body)              => processLambda(parameters, body)
+    case Term.Grouping(terms)                       => processGrouping(terms)
+    case Term.WhenExpression(conditionals)          => processWhenExpression(conditionals)
+    case Term.Triple(entity, attribute, value)      => processTriple(entity, attribute, value)
     case Term.Quad(entity, attribute, value, graph) => processQuad(entity, attribute, value, graph)
   }
 
-def processTriple(entity: Term, attribute: Term, value: Term): Either[WanderError, Expression.Triple] = {
+def processTriple(
+    entity: Term,
+    attribute: Term,
+    value: Term
+): Either[WanderError, Expression.Triple] =
   for {
     entity <- process(entity)
     attribute <- process(attribute)
     value <- process(value)
   } yield Expression.Triple(entity, attribute, value)
-}
 
-def processQuad(entity: Term, attribute: Term, value: Term, graph: Term): Either[WanderError, Expression.Quad] = {
+def processQuad(
+    entity: Term,
+    attribute: Term,
+    value: Term,
+    graph: Term
+): Either[WanderError, Expression.Quad] =
   for {
     entity <- process(entity)
     attribute <- process(attribute)
     value <- process(value)
     graph <- process(graph)
   } yield Expression.Quad(entity, attribute, value, graph)
-}
 
 def processGrouping(terms: Seq[Term]): Either[WanderError, Expression.Grouping] = {
   var error: Option[WanderError] = None

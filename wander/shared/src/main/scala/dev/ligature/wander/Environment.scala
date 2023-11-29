@@ -9,15 +9,17 @@ import scala.collection.mutable.Set
 
 case class Statement(entity: Identifier, attribute: Identifier, value: WanderValue)
 
-def statement(value: WanderValue): Statement = {
+def statement(value: WanderValue): Statement =
   value match {
-    case WanderValue.Triple(entity, attribute, value) => Statement(entity, attribute, value)
+    case WanderValue.Triple(entity, attribute, value)  => Statement(entity, attribute, value)
     case WanderValue.Quad(entity, attribute, value, _) => Statement(entity, attribute, value)
-    case _ => ???
+    case _                                             => ???
   }
-}
 
-case class Environment(graphs: scala.collection.mutable.Map[String, Set[Statement]] = scala.collection.mutable.Map(), scopes: List[Map[Name, WanderValue]] = List(Map())) {
+case class Environment(
+    graphs: scala.collection.mutable.Map[String, Set[Statement]] = scala.collection.mutable.Map(),
+    scopes: List[Map[Name, WanderValue]] = List(Map())
+) {
   def newScope(): Environment = Environment(this.graphs, this.scopes.appended(Map()))
 
   def bindVariable(
@@ -42,7 +44,7 @@ case class Environment(graphs: scala.collection.mutable.Map[String, Set[Statemen
     Left(WanderError(s"Could not find ${name} in scope."))
   }
 
-  def addTriple(triple: WanderValue.Triple): Either[WanderError, Unit] = {
+  def addTriple(triple: WanderValue.Triple): Either[WanderError, Unit] =
     if (this.graphs.contains("")) {
       val graph = this.graphs.get("").get
       graph.add(statement(triple))
@@ -51,7 +53,6 @@ case class Environment(graphs: scala.collection.mutable.Map[String, Set[Statemen
       this.graphs += ("" -> Set(statement(triple)))
       Right(())
     }
-  }
 
   def name(quad: WanderValue.Quad): String = quad.graph.name
 

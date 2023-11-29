@@ -19,21 +19,22 @@ def common(): Environment = {
   stdLib
 }
 
-def bindCore(environment: Environment): Environment = {
-  environment.bindVariable(Name("count"), WanderValue.HostFunction((arguments, environment) =>
-        if arguments.size != 1 then Left(WanderError("`not` function requires 1 argument."))
-        else
-          if (environment.graphs.contains("")) {
-            Right((WanderValue.IntValue(environment.graphs.get("").get.size), environment))
-          } else {
-            Right((WanderValue.IntValue(0), environment))
-          }
-          // eval(arguments.head, environment).map {
-          //   _ match
-          //     case _ => (WanderValue.IntValue(5), environment)
-          // }
-      ))
-}
+def bindCore(environment: Environment): Environment =
+  environment.bindVariable(
+    Name("count"),
+    WanderValue.HostFunction((arguments, environment) =>
+      if arguments.size != 1 then Left(WanderError("`not` function requires 1 argument."))
+      else if (environment.graphs.contains("")) {
+        Right((WanderValue.IntValue(environment.graphs.get("").get.size), environment))
+      } else {
+        Right((WanderValue.IntValue(0), environment))
+      }
+      // eval(arguments.head, environment).map {
+      //   _ match
+      //     case _ => (WanderValue.IntValue(5), environment)
+      // }
+    )
+  )
 
 // stdLib = stdLib
 //   .bindVariable(

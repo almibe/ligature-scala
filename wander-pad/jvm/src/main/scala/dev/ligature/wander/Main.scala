@@ -17,6 +17,9 @@ import scalafx.scene.layout.VBox
 import scalafx.scene.control.Button
 import scalafx.stage.StageStyle
 import dev.ligature.wander.preludes.common
+import scalafx.scene.layout.BorderPane
+import scalafx.scene.control.SplitPane
+import scalafx.geometry.Orientation
 
 object ScalaFXHelloWorld extends JFXApp3 {
   override def start(): Unit = {
@@ -24,38 +27,39 @@ object ScalaFXHelloWorld extends JFXApp3 {
     val resultOutput = TextArea("")
     val runButton = Button("Run")
     val introButton = Button("Intro")
-    runButton.onAction = { (e) =>
-        val script = editorInput.getText()
-        val result = run(script, common())
-        resultOutput.text = printResult(result)
+    runButton.onAction = { e =>
+      val script = editorInput.getText()
+      val result = run(script, common())
+      resultOutput.text = printResult(result)
     }
-    introButton.onAction = { (e) =>
-        val script = editorInput.getText()
-        val intro = introspect(script)
-        val result = run(script, common())
+    introButton.onAction = { e =>
+      val script = editorInput.getText()
+      val intro = introspect(script)
+      val result = run(script, common())
 
-        resultOutput.text = 
-          "Tokens      :" + intro.tokens.toString() + "\n" +
-          "Terms       :" + intro.terms.toString() + "\n" +
-          "Expressions :" + intro.expression.toString() + "\n" +
-          "Result      :" + result.toString() + "\n"
+      resultOutput.text = "Tokens      :" + intro.tokens.toString() + "\n" +
+        "Terms       :" + intro.terms.toString() + "\n" +
+        "Expressions :" + intro.expression.toString() + "\n" +
+        "Result      :" + result.toString() + "\n"
+    }
+
+    val sp = new SplitPane {
+      items ++= Seq(editorInput, resultOutput)
+      orientation = Orientation.Vertical
     }
 
     stage = new JFXApp3.PrimaryStage {
       title = "Wander Pad"
       scene = new Scene {
-        fill = Color.rgb(255,255,255)
-        content = new VBox {
-          children = Seq(
-            new HBox {
-                children = Seq(
-                    runButton,
-                    introButton
-                )
-            },
-            editorInput,
-            resultOutput
-          )
+        fill = Color.rgb(255, 255, 255)
+        root = new BorderPane {
+          top = new HBox {
+            children = Seq(
+              runButton,
+              introButton
+            )
+          }
+          center = sp
         }
       }
     }

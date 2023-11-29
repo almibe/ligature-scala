@@ -6,5 +6,4 @@ package dev.ligature
 
 import munit.FunSuite
 
-class LigatureSuite extends FunSuite {
-}
+class LigatureSuite extends FunSuite {}
