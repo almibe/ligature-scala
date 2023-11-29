@@ -8,28 +8,29 @@ import dev.ligature.wander.{Parameter, WanderValue}
 
 import scala.collection.mutable.ListBuffer
 import dev.ligature.wander.*
+import dev.ligature.wander.Environment
 
 /**
   */
-def common(): Bindings = {
-  var stdLib = Bindings()
+def common(): Environment = {
+  var stdLib = Environment()
   stdLib = bindBooleanPrelude(stdLib)
   stdLib = bindCore(stdLib)
   stdLib
 }
 
-def bindCore(bindings: Bindings): Bindings = {
-  bindings.bindVariable(Name("count"), WanderValue.HostFunction((arguments, bindings) =>
+def bindCore(environment: Environment): Environment = {
+  environment.bindVariable(Name("count"), WanderValue.HostFunction((arguments, environment) =>
         if arguments.size != 1 then Left(WanderError("`not` function requires 1 argument."))
         else
-          if (bindings.graphs.contains("")) {
-            Right((WanderValue.IntValue(bindings.graphs.get("").get.size), bindings))
+          if (environment.graphs.contains("")) {
+            Right((WanderValue.IntValue(environment.graphs.get("").get.size), environment))
           } else {
-            Right((WanderValue.IntValue(0), bindings))
+            Right((WanderValue.IntValue(0), environment))
           }
-          // eval(arguments.head, bindings).map {
+          // eval(arguments.head, environment).map {
           //   _ match
-          //     case _ => (WanderValue.IntValue(5), bindings)
+          //     case _ => (WanderValue.IntValue(5), environment)
           // }
       ))
 }
@@ -39,7 +40,7 @@ def bindCore(bindings: Bindings): Bindings = {
 //     Name("log"),
 //     NativeFunction(
 //       List(Parameter(Name("message"), WanderType.String)),
-//       (binding: Bindings) => ???
+//       (environment: Environment) => ???
 //     )
 //   )
 //   .getOrElse(???)
@@ -69,44 +70,44 @@ def bindCore(bindings: Bindings): Bindings = {
 //     }
 // }
 
-// // stdLib.bind(Name("range"), NativeFunction(["start", "stop"], (bindings: Bindings) => {
-// //     val start = bindings.read(Name("start")) as unknown as bigint //TODO check value
-// //     val stop = bindings.read(Name("stop")) as unknown as bigint //TODO check value
+// // stdLib.bind(Name("range"), NativeFunction(["start", "stop"], (environment: Environment) => {
+// //     val start = environment.read(Name("start")) as unknown as bigint //TODO check value
+// //     val stop = environment.read(Name("stop")) as unknown as bigint //TODO check value
 // //     return RangeResultStream(start, stop)
 // // }))
 
-// function readScope(scope: ExecutionScope, bindings: Bindings) {
+// function readScope(scope: ExecutionScope, environment: Environment) {
 //     //      allStatements(): Promise<Array<Statement>>
-//     bindings.bind(Name("allStatements"), NativeFunction([], (_bindings: Bindings) => {
+//     environment.bind(Name("allStatements"), NativeFunction([], (_environment: Environment) => {
 //         return TODO()
 //     }))
 //     //      matchStatements(entity: Entity | null, attribute: Attribute | null, value: Value | null | LiteralRange, context: Entity | null): Promise<Array<Statement>>
-//     bindings.bind(Name("matchStatements"), NativeFunction(["entity", "attribute", "value", "context"], (_bindings: Bindings) => {
+//     environment.bind(Name("matchStatements"), NativeFunction(["entity", "attribute", "value", "context"], (_environment: Environment) => {
 //         return TODO()
 //     }))
 // }
 
-// function writeScope(scope: ExecutionScope, bindings: Bindings) {
+// function writeScope(scope: ExecutionScope, environment: Environment) {
 //     // /**
 //     //  * Returns a new, unique to this collection identifier in the form _:UUID
 //     //  */
 //     //  generateEntity(prefix: string): Promise<Entity>
-//     bindings.bind(Name("newEntity"), NativeFunction(["prefix"], (_bindings: Bindings) => {
+//     environment.bind(Name("newEntity"), NativeFunction(["prefix"], (_environment: Environment) => {
 //         return TODO()
 //     }))
 //     //  addStatement(statement: Statement): Promise<Statement>
-//     bindings.bind(Name("addStatement"), NativeFunction(["statement"], (_bindings: Bindings) => {
+//     environment.bind(Name("addStatement"), NativeFunction(["statement"], (_environment: Environment) => {
 //         return TODO()
 //     }))
 //     //  removeStatement(statement: Statement): Promise<Statement>
-//     bindings.bind(Name("removeStatement"), NativeFunction(["statement"], (_bindings: Bindings) => {
+//     environment.bind(Name("removeStatement"), NativeFunction(["statement"], (_environment: Environment) => {
 //         return TODO()
 //     }))
 //     //  /**
 //     //   * Cancels this transaction.
 //     //   */
 //     //  cancel(): any //TODO figure out return type
-//     bindings.bind(Name("cancel"), NativeFunction([], (_bindings: Bindings) => {
+//     environment.bind(Name("cancel"), NativeFunction([], (_environment: Environment) => {
 //         return TODO()
 //     }))
 // }
@@ -115,47 +116,47 @@ def bindCore(bindings: Bindings): Bindings = {
 // Below is code that needs to be moved to ligature.
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-// // def createStandardBindings(dataset: Dataset): Bindings = {
-// //   val bindings = common()
-// //   datasetModeBindings(bindings, dataset)
+// // def createStandardEnvironment(dataset: Dataset): Environment = {
+// //   val environment = common()
+// //   datasetModeEnvironment(environment, dataset)
 // // }
 
-// def instancePrelude(instance: Ligature): Bindings = {
-//   var bindings = common()
+// def instancePrelude(instance: Ligature): Environment = {
+//   var environment = common()
 
-//   bindings = bindings.bindVariable(Name("datasets"), WanderValue.NativeFunction(
-//     (arguments: Seq[Term], binding: Bindings) =>
+//   environment = environment.bindVariable(Name("datasets"), WanderValue.NativeFunction(
+//     (arguments: Seq[Term], environment: Environment) =>
 //       instance.allDatasets()
 //         .compile.toList
 //         .map { datasets => WanderValue.ListValue( datasets.map { ds => WanderValue.LigatureValue(LigatureLiteral.StringLiteral(ds.name.toString()))})}
 //   )).getOrElse(???)
 
-//   bindings = bindings.bindVariable(Name("addDataset"), WanderValue.NativeFunction(
-//     (arguments: Seq[Term], binding: Bindings) =>
+//   environment = environment.bindVariable(Name("addDataset"), WanderValue.NativeFunction(
+//     (arguments: Seq[Term], environment: Environment) =>
 //       arguments.head match
 //         case Term.StringLiteral(datasetName) =>
 //           instance.createDataset(Dataset.fromString(datasetName).getOrElse(???)).map(_ => WanderValue.Nothing)
 //         case _ => ???
 //   )).getOrElse(???)
 
-//   bindings = bindings.bindVariable(Name("removeDataset"), WanderValue.NativeFunction(
-//     (arguments: Seq[Term], binding: Bindings) =>
+//   environment = environment.bindVariable(Name("removeDataset"), WanderValue.NativeFunction(
+//     (arguments: Seq[Term], environment: Environment) =>
 //       arguments.head match
 //         case Term.StringLiteral(datasetName) =>
 //           instance.deleteDataset(Dataset.fromString(datasetName).getOrElse(???)).map(_ => WanderValue.Nothing)
 //         case _ => ???
 //   )).getOrElse(???)
 
-//   bindings = bindings.bindVariable(Name("datasetExists"), WanderValue.NativeFunction(
-//     (arguments: Seq[Term], binding: Bindings) =>
+//   environment = environment.bindVariable(Name("datasetExists"), WanderValue.NativeFunction(
+//     (arguments: Seq[Term], environment: Environment) =>
 //       arguments.head match
 //         case Term.StringLiteral(datasetName) =>
 //           instance.datasetExists(Dataset.fromString(datasetName).getOrElse(???)).map(res => WanderValue.BooleanValue(res))
 //         case _ => ???
 //   )).getOrElse(???)
 
-//   bindings = bindings.bindVariable(Name("allStatements"), WanderValue.NativeFunction(
-//     (arguments: Seq[Term], binding: Bindings) =>
+//   environment = environment.bindVariable(Name("allStatements"), WanderValue.NativeFunction(
+//     (arguments: Seq[Term], environment: Environment) =>
 //       arguments.head match
 //         case Term.StringLiteral(datasetName) =>
 //           instance
@@ -165,8 +166,8 @@ def bindCore(bindings: Bindings): Bindings = {
 //         case _ => ???
 //   )).getOrElse(???)
 
-//   bindings = bindings.bindVariable(Name("addStatements"), WanderValue.NativeFunction(
-//     (arguments: Seq[Term], binding: Bindings) =>
+//   environment = environment.bindVariable(Name("addStatements"), WanderValue.NativeFunction(
+//     (arguments: Seq[Term], environment: Environment) =>
 //       (arguments(0), arguments(1)) match
 //         case (Term.StringLiteral(datasetName),
 //               Term.List(statementTerms)) =>
@@ -180,8 +181,8 @@ def bindCore(bindings: Bindings): Bindings = {
 //         case _ => ???
 //   )).getOrElse(???)
 
-//   bindings = bindings.bindVariable(Name("removeStatements"), WanderValue.NativeFunction(
-//     (arguments: Seq[Term], binding: Bindings) =>
+//   environment = environment.bindVariable(Name("removeStatements"), WanderValue.NativeFunction(
+//     (arguments: Seq[Term], environment: Environment) =>
 //       (arguments(0), arguments(1)) match
 //         case (Term.StringLiteral(datasetName),
 //               Term.List(statementTerms)) =>
@@ -207,8 +208,8 @@ def bindCore(bindings: Bindings): Bindings = {
 //       case Term.IdentifierLiteral(identifier) => Some(identifier)
 //       case _ => ???
 
-//   bindings = bindings.bindVariable(Name("query"), WanderValue.NativeFunction(
-//     (arguments: Seq[Term], bindings: Bindings) =>
+//   environment = environment.bindVariable(Name("query"), WanderValue.NativeFunction(
+//     (arguments: Seq[Term], environment: Environment) =>
 //       (arguments(0), arguments(1), arguments.lift(2), arguments.lift(3)) match
 //         case (Term.StringLiteral(datasetName), entityTerm, Some(attributeTerm), Some(valueTerm)) =>
 //           val dataset = Dataset.fromString(datasetName).getOrElse(???)
@@ -225,7 +226,7 @@ def bindCore(bindings: Bindings): Bindings = {
 //             case Term.WanderFunction(name :: Nil, body) =>
 //               val dataset = Dataset.fromString(datasetName).getOrElse(???)
 //               instance.query(dataset) { tx =>
-//                 val matchFunction = WanderValue.NativeFunction((arguments, bindings) =>
+//                 val matchFunction = WanderValue.NativeFunction((arguments, environment) =>
 //                   (arguments.lift(0), arguments.lift(1), arguments.lift(2)) match
 //                     case (Some(entityTerm), Some(attributeTerm), Some(valueTerm)) =>
 //                       val dataset = Dataset.fromString(datasetName).getOrElse(???)
@@ -236,13 +237,13 @@ def bindCore(bindings: Bindings): Bindings = {
 //                         .map(statementToWanderValue)
 //                         .compile.toList.map(WanderValue.ListValue(_))
 //                     case _ => ???)
-//                 val newBindings = bindings.bindVariable(name, matchFunction).getOrElse(???)
-//                 eval(query.body, newBindings).map(_.result)
+//                 val newEnvironment = environment.bindVariable(name, matchFunction).getOrElse(???)
+//                 eval(query.body, newEnvironment).map(_.result)
 //               }
 //             case _ => ???
 //         case _ => ???
 //   )).getOrElse(???)
-//   bindings
+//   environment
 // }
 
 // def termsToStatements(terms: Seq[Term], statements: ListBuffer[Statement]): Either[LigatureError, Seq[Statement]] =
@@ -276,44 +277,44 @@ def bindCore(bindings: Bindings): Bindings = {
 //     WanderValue.LigatureValue(statement.value)
 //   ))
 
-// def datasetModeBindings(bindings: Bindings, dataset: Dataset): Bindings =
-//   bindings
+// def datasetModeEnvironment(environment: Environment, dataset: Dataset): Environment =
+//   environment
 
-//def instancePreludeBindings(bindings: Bindings): Bindings = {
-//// function instanceScope(scope: ExecutionScope, bindings: Bindings) {
+//def instancePreludeEnvironment(environment: Environment): Environment = {
+//// function instanceScope(scope: ExecutionScope, environment: Environment) {
 ////     // allDatasets(): Promise<Array<Dataset>>;
-////     bindings.bind(Name("allDatasets"), NativeFunction([], (_bindings: Bindings) => {
+////     environment.bind(Name("allDatasets"), NativeFunction([], (_environment: Environment) => {
 ////         return TODO()
 ////     }))
 ////     // datasetExists(dataset: Dataset): Promise<boolean>;
-////     bindings.bind(Name("datasetExists"), NativeFunction(["dataset"], (_bindings: Bindings) => {
+////     environment.bind(Name("datasetExists"), NativeFunction(["dataset"], (_environment: Environment) => {
 ////         return TODO()
 ////     }))
 ////     // matchDatasetPrefix(prefix: string): Promise<Array<Dataset>>;
-////     bindings.bind(Name("matchDatasetPrefix"), NativeFunction(["prefix"], (_bindings: Bindings) => {
+////     environment.bind(Name("matchDatasetPrefix"), NativeFunction(["prefix"], (_environment: Environment) => {
 ////         return TODO()
 ////     }))
 ////     // matchDatasetRange(start: string, end: string): Promise<Array<Dataset>>;
-////     bindings.bind(Name("matchDatasetRange"), NativeFunction(["start", "end"], (_bindings: Bindings) => {
+////     environment.bind(Name("matchDatasetRange"), NativeFunction(["start", "end"], (_environment: Environment) => {
 ////         return TODO()
 ////     }))
 ////     // createDataset(dataset: Dataset): Promise<Dataset>;
-////     bindings.bind(Name("createDataset"), NativeFunction(["dataset"], (_bindings: Bindings) => {
+////     environment.bind(Name("createDataset"), NativeFunction(["dataset"], (_environment: Environment) => {
 ////         return TODO()
 ////     }))
 ////     // deleteDataset(dataset: Dataset): Promise<Dataset>;
-////     bindings.bind(Name("deleteDataset"), NativeFunction(["dataset"], (_bindings: Bindings) => {
+////     environment.bind(Name("deleteDataset"), NativeFunction(["dataset"], (_environment: Environment) => {
 ////         return TODO()
 ////     }))
 ////     // query<T>(dataset: Dataset, fn: (readTx: ReadTx) => Promise<T>): Promise<T>;
-////     bindings.bind(Name("query"), NativeFunction(["dataset", "fn"], (_bindings: Bindings) => {
+////     environment.bind(Name("query"), NativeFunction(["dataset", "fn"], (_environment: Environment) => {
 ////         return TODO()
 ////     }))
 ////     // write<T>(dataset: Dataset, fn: (writeTx: WriteTx) => Promise<T>): Promise<T>;
-////     bindings.bind(Name("write"), NativeFunction(["dataset", "fn"], (_bindings: Bindings) => {
+////     environment.bind(Name("write"), NativeFunction(["dataset", "fn"], (_environment: Environment) => {
 ////         return TODO()
 ////     }))
 //// }
 //
-//  bindings
+//  environment
 //}

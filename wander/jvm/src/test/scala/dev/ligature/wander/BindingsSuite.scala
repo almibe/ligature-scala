@@ -7,7 +7,7 @@ package dev.ligature.wander
 import dev.ligature.wander.WanderValue
 import munit.FunSuite
 
-class BindingsSuite extends FunSuite {
+class EnvironmentSuite extends FunSuite {
   private val identifier = Name("test")
   private val identifier2 = Name("test2")
 
@@ -16,28 +16,28 @@ class BindingsSuite extends FunSuite {
   private val value3 = WanderValue.StringValue("this is a test3")
 
   test("add single value and read") {
-    val binding = Bindings()
-    val binding2 = binding.bindVariable(identifier, value1)
-    val res = binding.read(identifier)
-    val res2 = binding2.read(identifier)
+    val environment = Environment()
+    val environment2 = environment.bindVariable(identifier, value1)
+    val res = environment.read(identifier)
+    val res2 = environment2.read(identifier)
 
     assert(res.isLeft)
-    assert(binding.read(identifier2).isLeft)
+    assert(environment.read(identifier2).isLeft)
     assertEquals(res2, Right(value1))
-    assert(binding2.read(identifier2).isLeft)
+    assert(environment2.read(identifier2).isLeft)
   }
 
   test("test scoping") {
-    val bindings = Bindings()
-    val bindings2 = bindings.bindVariable(identifier, value1)
-    assertEquals(bindings2.read(identifier), Right(value1))
+    val environments = Environment()
+    val environments2 = environments.bindVariable(identifier, value1)
+    assertEquals(environments2.read(identifier), Right(value1))
 
-    val bindings3 = bindings2.newScope()
-    assertEquals(bindings3.read(identifier), Right(value1))
+    val environments3 = environments2.newScope()
+    assertEquals(environments3.read(identifier), Right(value1))
 
-    val bindings4 = bindings3.bindVariable(identifier, value2)
-    val bindings5 = bindings4.bindVariable(identifier2, value3)
-    assertEquals(bindings5.read(identifier), Right(value2))
-    assertEquals(bindings5.read(identifier2), Right(value3))
+    val environments4 = environments3.bindVariable(identifier, value2)
+    val environments5 = environments4.bindVariable(identifier2, value3)
+    assertEquals(environments5.read(identifier), Right(value2))
+    assertEquals(environments5.read(identifier2), Right(value3))
   }
 }

@@ -4,7 +4,7 @@
 
 package dev.ligature.wander.preludes
 
-import dev.ligature.wander.Bindings
+import dev.ligature.wander.Environment
 
-def bindStringPrelude(bindings: Bindings) =
+def bindStringPrelude(environment: Environment) =
   ???

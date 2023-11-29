@@ -27,21 +27,7 @@ object Dataset {
     }
 }
 
-final case class Identifier private (name: String) {
-  @unused
-  private def copy(): Unit = ()
-}
-
-object Identifier {
-  private val pattern = "^[a-zA-Z0-9-._~:/?#\\[\\]@!$&'()*+,;%=]+$".r
-
-  def fromString(name: String): Either[LigatureError, Identifier] =
-    if (pattern.matches(name)) {
-      Right(Identifier(name))
-    } else {
-      Left(LigatureError(s"Invalid Identifier $name"))
-    }
-}
+final case class Label(text: String)
 
 case class LigatureError(val userMessage: String) extends Throwable(userMessage)
 
@@ -49,16 +35,15 @@ enum LigatureLiteral:
   case StringLiteral(value: String)
   case IntegerLiteral(value: Long)
 
-type Value = LigatureLiteral | Identifier
+type Value = LigatureLiteral | Label
 
 //sealed trait Range
 //final case class StringLiteralRange(start: String, end: String) extends Range
 //final case class IntegerLiteralRange(start: Long, end: Long) extends Range
-
-final case class Statement(
-    entity: Identifier,
-    attribute: Identifier,
-    value: Value
+final case class Edge(
+    source: Label,
+    label: Label,
+    target: Value
 )
 
 /** A trait that all Ligature implementations implement. */
@@ -95,16 +80,16 @@ trait Ligature {
     */
   def deleteDataset(dataset: Dataset): IO[Unit]
 
-  def allStatements(dataset: Dataset): Stream[IO, Statement]
+  def allEdges(dataset: Dataset): Stream[IO, Edge]
 
   /** Initializes a QueryTx TODO should probably return its own error type
     * CouldNotInitializeQueryTx
     */
   def query[T](dataset: Dataset)(fn: QueryTx => IO[T]): IO[T]
 
-  def addStatements(dataset: Dataset, statements: Stream[IO, Statement]): IO[Unit]
+  def addEdges(dataset: Dataset, edges: Stream[IO, Edge]): IO[Unit]
 
-  def removeStatements(dataset: Dataset, statements: Stream[IO, Statement]): IO[Unit]
+  def removeEdges(dataset: Dataset, edges: Stream[IO, Edge]): IO[Unit]
 
   def close(): IO[Unit]
 }
@@ -113,22 +98,22 @@ trait Ligature {
   * Dataset
   */
 trait QueryTx {
-  /** Returns all PersistedStatements that match the given criteria. If a
+  /** Returns all PersistedEdges that match the given criteria. If a
     * parameter is None then it matches all, so passing all Nones is the same as
-    * calling allStatements.
+    * calling allEdges.
     */
-  def matchStatements(
-      entity: Option[Identifier] = None,
-      attribute: Option[Identifier] = None,
-      value: Option[Value] = None
-  ): Stream[IO, Statement]
+  def matchEdges(
+      source: Option[Label] = None,
+      label: Option[Label] = None,
+      target: Option[Value] = None
+  ): Stream[IO, Edge]
 
-//  /** Returns all PersistedStatements that match the given criteria. If a
+//  /** Returns all PersistedEdges that match the given criteria. If a
 //    * parameter is None then it matches all.
 //    */
-//  def matchStatementsRange(
-//      entity: Option[Identifier] = None,
-//      attribute: Option[Identifier] = None,
-//      value: Range
-//  ): Stream[IO, Statement]
+//  def matchEdgesRange(
+//      source: Option[Identifier] = None,
+//      label: Option[Identifier] = None,
+//      target: Range
+//  ): Stream[IO, Edge]
 }

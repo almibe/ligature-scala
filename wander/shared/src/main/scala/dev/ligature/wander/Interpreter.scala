@@ -25,7 +25,7 @@ enum Expression:
   case Quad(entity: Expression, attribute: Expression, value: Expression, graph: Expression)
   case QuestionMark
 
-def eval(expression: Expression, bindings: Bindings): Either[WanderError, (WanderValue, Bindings)] =
+def eval(expression: Expression, bindings: Environment): Either[WanderError, (WanderValue, Environment)] =
   expression match {
     case Expression.Nothing                => Right((WanderValue.Nothing, bindings))
     case Expression.BooleanValue(value)    => Right((WanderValue.BooleanValue(value), bindings))
@@ -45,7 +45,7 @@ def eval(expression: Expression, bindings: Bindings): Either[WanderError, (Wande
     case Expression.QuestionMark => Right((WanderValue.QuestionMark, bindings))
   }
 
-def handleQuery(entity: WanderValue, attribute: WanderValue, value: WanderValue, graphName: String, bindings: Bindings): Either[WanderError, (WanderValue, Bindings)] = {
+def handleQuery(entity: WanderValue, attribute: WanderValue, value: WanderValue, graphName: String, bindings: Environment): Either[WanderError, (WanderValue, Environment)] = {
   val e = entity match {
     case WanderValue.QuestionMark => None
     case WanderValue.Identifier(value) => Some(value)
@@ -85,7 +85,7 @@ def handleQuery(entity: WanderValue, attribute: WanderValue, value: WanderValue,
   }
 }
 
-def handleTriple(entity: Expression, attribute: Expression, value: Expression, bindings: Bindings): Either[WanderError, (WanderValue, Bindings)] = {
+def handleTriple(entity: Expression, attribute: Expression, value: Expression, bindings: Environment): Either[WanderError, (WanderValue, Environment)] = {
   val res = for {
     entityRes <- eval(entity, bindings)
     attributeRes <- eval(attribute, bindings)
@@ -104,7 +104,7 @@ def handleTriple(entity: Expression, attribute: Expression, value: Expression, b
   }
 }
 
-def handleQuad(entity: Expression, attribute: Expression, value: Expression, graph: Expression, bindings: Bindings): Either[WanderError, (WanderValue.Quad, Bindings)] = {
+def handleQuad(entity: Expression, attribute: Expression, value: Expression, graph: Expression, bindings: Environment): Either[WanderError, (WanderValue.Quad, Environment)] = {
   for {
     entityRes <- eval(entity, bindings)
     attributeRes <- eval(attribute, bindings)
@@ -122,10 +122,10 @@ def handleQuad(entity: Expression, attribute: Expression, value: Expression, gra
 
 def handleGrouping(
     expressions: Seq[Expression],
-    bindings: Bindings
-): Either[WanderError, (WanderValue, Bindings)] = {
+    bindings: Environment
+): Either[WanderError, (WanderValue, Environment)] = {
   var error: Option[WanderError] = None
-  var res: (WanderValue, Bindings) = (WanderValue.Nothing, bindings)
+  var res: (WanderValue, Environment) = (WanderValue.Nothing, bindings)
   val itr = expressions.iterator
   while error.isEmpty && itr.hasNext do
     eval(itr.next(), res._2) match {
@@ -139,8 +139,8 @@ def handleGrouping(
 def handleLetExpression(
     name: Name,
     value: Expression,
-    bindings: Bindings
-): Either[WanderError, (WanderValue, Bindings)] = {
+    bindings: Environment
+): Either[WanderError, (WanderValue, Environment)] = {
   var newScope = bindings.newScope()
   eval(value, newScope) match {
     case Left(value) => ???
@@ -153,8 +153,8 @@ def handleLetExpression(
 def handleApplication(
     name: Name,
     arguments: Seq[Expression],
-    bindings: Bindings
-): Either[WanderError, (WanderValue, Bindings)] =
+    bindings: Environment
+): Either[WanderError, (WanderValue, Environment)] =
   bindings.read(name) match {
     case Left(err) => Left(err)
     case Right(value) =>
@@ -177,8 +177,8 @@ def handleApplication(
 
 def handleWhenExpression(
     conditionals: Seq[(Expression, Expression)],
-    bindings: Bindings
-): Either[WanderError, (WanderValue, Bindings)] =
+    bindings: Environment
+): Either[WanderError, (WanderValue, Environment)] =
   boundary:
     conditionals.find { (conditional, _) =>
       eval(conditional, bindings) match {
@@ -196,8 +196,8 @@ def handleWhenExpression(
 
 def handleArray(
     expressions: Seq[Expression],
-    bindings: Bindings
-): Either[WanderError, (WanderValue.Array, Bindings)] = {
+    bindings: Environment
+): Either[WanderError, (WanderValue.Array, Environment)] = {
   val res = ListBuffer[WanderValue]()
   val itre = expressions.iterator
   var continue = true
@@ -212,8 +212,8 @@ def handleArray(
 
 def handleSet(
     expressions: Seq[Expression],
-    bindings: Bindings
-): Either[WanderError, (WanderValue.Set, Bindings)] = {
+    bindings: Environment
+): Either[WanderError, (WanderValue.Set, Environment)] = {
   val res = ListBuffer[WanderValue]()
   val itre = expressions.iterator
   var continue = true

@@ -20,26 +20,26 @@ class XodusWriteTx(
     private val xodusOperations: XodusOperations,
     private val datasetID: ByteIterable
 ) {
-  private def lookupIdentifier(identifier: Identifier): Option[ByteIterable] =
-    val identifierToIdStore = xodusOperations.openStore(tx, LigatureStore.IdentifierToIdStore)
+  private def lookupLabel(label: Label): Option[ByteIterable] =
+    val labelToIdStore = xodusOperations.openStore(tx, LigatureStore.LabelToIdStore)
     val encodedName = CompoundByteIterable(
-      Array(datasetID, StringBinding.stringToEntry(identifier.name))
+      Array(datasetID, StringBinding.stringToEntry(label.name))
     )
-    val result = identifierToIdStore.get(tx, encodedName)
+    val result = labelToIdStore.get(tx, encodedName)
     Option(result)
 
-  private def lookupOrCreateIdentifier(identifier: Identifier): ByteIterable =
-    val encodedName = StringBinding.stringToEntry(identifier.name)
-    lookupIdentifier(identifier) match {
+  private def lookupOrCreateLabel(label: Label): ByteIterable =
+    val encodedName = StringBinding.stringToEntry(label.name)
+    lookupLabel(label) match {
       case Some(res) => res
       case None =>
-        val identifierToIdStore = xodusOperations.openStore(tx, LigatureStore.IdentifierToIdStore)
+        val labelToIdStore = xodusOperations.openStore(tx, LigatureStore.LabelToIdStore)
         val internalId = xodusOperations.nextID(tx)
         val internalIdWithDataset = CompoundByteIterable(Array(datasetID, internalId))
         val encodedNameWithDataset = CompoundByteIterable(Array(datasetID, encodedName))
-        val idToIdentifierStore = xodusOperations.openStore(tx, LigatureStore.IdToIdentifierStore)
-        identifierToIdStore.put(tx, encodedNameWithDataset, internalId)
-        idToIdentifierStore.put(tx, internalIdWithDataset, encodedName)
+        val idToLabelStore = xodusOperations.openStore(tx, LigatureStore.IdToLabelStore)
+        labelToIdStore.put(tx, encodedNameWithDataset, internalId)
+        idToLabelStore.put(tx, internalIdWithDataset, encodedName)
         internalId
     }
 
@@ -51,7 +51,7 @@ class XodusWriteTx(
     val result = stringToIdStore.get(tx, encodedString)
     Option(result)
 
-  // TODO this function might be able to be merged with lookupOrCreateIdentifier
+  // TODO this function might be able to be merged with lookupOrCreateLabel
   private def lookupOrCreateStringLiteral(literal: LigatureLiteral.StringLiteral): ByteIterable =
     val stringToIdStore = xodusOperations.openStore(tx, LigatureStore.StringToIdStore)
     val encodedString = StringBinding.stringToEntry(literal.value)
@@ -71,18 +71,18 @@ class XodusWriteTx(
   /** Takes a value and returns a ByteIterable that can be stored.
     * The ByteIterable is made up of a Byte that represents the Type and
     * a 8 Byte value that represents the value that can be stored.
-    * Identifier -> Identifier's Internal ID
+    * Label -> Label's Internal ID
     * String -> String Internal ID
     * Long -> Value
     * Bytes -> Bytes Internal ID
     */
   private def encodeValue(value: Value): ByteIterable =
     value match {
-      case identifier: Identifier =>
+      case label: Label =>
         val temp = CompoundByteIterable(
           Array(
-            ByteBinding.byteToEntry(LigatureValueType.Identifier.id),
-            lookupOrCreateIdentifier(identifier)
+            ByteBinding.byteToEntry(LigatureValueType.Label.id),
+            lookupOrCreateLabel(label)
           )
         )
         temp
@@ -103,24 +103,24 @@ class XodusWriteTx(
       // TODO Bytes
     }
 
-  private def statementExists(
-      entity: ByteIterable,
-      attribute: ByteIterable,
+  private def edgeExists(
+      source: ByteIterable,
+      label: ByteIterable,
       value: ByteIterable
   ): Boolean = {
     val eavStore = xodusOperations.openStore(tx, LigatureStore.EAVStore)
-    val encodedStatement = CompoundByteIterable(Array(datasetID, entity, attribute, value))
-    eavStore.get(tx, encodedStatement) != null
+    val encodedEdge = CompoundByteIterable(Array(datasetID, source, label, value))
+    eavStore.get(tx, encodedEdge) != null
   }
 
-  private def storeStatement(
-      entity: ByteIterable,
-      attribute: ByteIterable,
+  private def storeEdge(
+      source: ByteIterable,
+      label: ByteIterable,
       value: ByteIterable
   ): Unit = {
     val d = datasetID
-    val e = entity
-    val a = attribute
+    val e = source
+    val a = label
     val v = value
     // EAV
     val eavStore = xodusOperations.openStore(tx, LigatureStore.EAVStore)
@@ -144,73 +144,73 @@ class XodusWriteTx(
 
   /** Returns an ID that doesn't exist within this Dataset.
     */
-  def newIdentifier(prefix: String): IO[Identifier] = IO {
-    var newIdentifier = Identifier.fromString(s"$prefix${genId()}").getOrElse(???)
-    var encodedIdentifier = StringBinding.stringToEntry(newIdentifier.name)
+  def newLabel(prefix: String): IO[Label] = IO {
+    var newLabel = Label.fromString(s"$prefix${genId()}").getOrElse(???)
+    var encodedLabel = StringBinding.stringToEntry(newLabel.name)
     var exists = true
-    val store = xodusOperations.openStore(tx, LigatureStore.IdentifierToIdStore)
+    val store = xodusOperations.openStore(tx, LigatureStore.LabelToIdStore)
     while (exists) {
-      exists = store.get(tx, encodedIdentifier) != null
+      exists = store.get(tx, encodedLabel) != null
       if (exists) {
-        newIdentifier = Identifier.fromString(s"$prefix${genId()}").getOrElse(???)
-        encodedIdentifier = StringBinding.stringToEntry(newIdentifier.name)
+        newLabel = Label.fromString(s"$prefix${genId()}").getOrElse(???)
+        encodedLabel = StringBinding.stringToEntry(newLabel.name)
       }
     }
-    newIdentifier
+    newLabel
   }
 
-  /** Adds a given Statement to this Dataset. If the Statement already exists
+  /** Adds a given Edge to this Dataset. If the Edge already exists
     * nothing happens (TODO maybe add it with a new context?). Note: Potentially
     * could trigger a ValidationError
     */
-  def addStatement(statement: Statement): IO[Unit] = IO {
-    val entityID = lookupOrCreateIdentifier(statement.entity)
-    val attributeID = lookupOrCreateIdentifier(statement.attribute)
-    val encodedValue = encodeValue(statement.value)
-    if (statementExists(entityID, attributeID, encodedValue)) {
+  def addEdge(edge: Edge): IO[Unit] = IO {
+    val sourceID = lookupOrCreateLabel(edge.source)
+    val labelID = lookupOrCreateLabel(edge.label)
+    val encodedValue = encodeValue(edge.target)
+    if (edgeExists(sourceID, labelID, encodedValue)) {
       ()
     } else {
-      storeStatement(entityID, attributeID, encodedValue)
+      storeEdge(sourceID, labelID, encodedValue)
     }
   }
 
-  /** Removes a given Statement from this Dataset. If the Statement doesn't
+  /** Removes a given Edge from this Dataset. If the Edge doesn't
     * exist nothing happens and returns Ok(false). This function returns
-    * Ok(true) only if the given Statement was found and removed. Note:
+    * Ok(true) only if the given Edge was found and removed. Note:
     * Potentially could trigger a ValidationError.
     */
-  def removeStatement(statement: Statement): IO[Unit] = IO {
-    val entityID = lookupIdentifier(statement.entity)
-    val attributeID = lookupIdentifier(statement.attribute)
-    val encodedValue = lookupValue(statement.value)
+  def removeEdge(edge: Edge): IO[Unit] = IO {
+    val sourceID = lookupLabel(edge.source)
+    val labelID = lookupLabel(edge.label)
+    val encodedValue = lookupValue(edge.target)
     if (
-      entityID.isDefined && attributeID.isDefined && encodedValue.isDefined && statementExists(
-        entityID.get,
-        attributeID.get,
+      sourceID.isDefined && labelID.isDefined && encodedValue.isDefined && edgeExists(
+        sourceID.get,
+        labelID.get,
         encodedValue.get
       )
     ) {
-      removeStatement(statement, entityID.get, attributeID.get, encodedValue.get)
+      removeEdge(edge, sourceID.get, labelID.get, encodedValue.get)
     } else {
       ()
     }
   }
 
   /** This method checks if a Value exists in a Dataset.
-    * If the Value is an Identifier it checks IdentifierToIdStore.
+    * If the Value is an Label it checks LabelToIdStore.
     * If the Value is a String it checks StringToIdStore.
     * If the Value is a Bytes it check IntegerToIdStore.
     * If the Value is an Integer it returns the encoded value.
     */
   private def lookupValue(value: Value): Option[ByteIterable] =
     value match {
-      case identifier: Identifier =>
-        lookupIdentifier(identifier) match {
+      case label: Label =>
+        lookupLabel(label) match {
           case None => None
           case Some(id) =>
             Some(
               CompoundByteIterable(
-                Array(ByteBinding.byteToEntry(LigatureValueType.Identifier.id), id)
+                Array(ByteBinding.byteToEntry(LigatureValueType.Label.id), id)
               )
             )
         }
@@ -228,18 +228,18 @@ class XodusWriteTx(
         Some(LongBinding.longToEntry(value)) // TODO needs value type
     }
 
-  private def removeStatement(
-      statement: Statement,
-      entityID: ByteIterable,
-      attributeID: ByteIterable,
+  private def removeEdge(
+      edge: Edge,
+      sourceID: ByteIterable,
+      labelID: ByteIterable,
       encodedValue: ByteIterable
   ): Unit = {
-    // remove Statement from all six of the index Stores
-    // check if any of the Identifiers contained in the Statement are used anywhere else
+    // remove Edge from all six of the index Stores
+    // check if any of the Labels contained in the Edge are used anywhere else
     // if the value contains a String or Bytes remove the references
     val d = datasetID
-    val e = entityID
-    val a = attributeID
+    val e = sourceID
+    val a = labelID
     val v = encodedValue
 
     // remove eav
@@ -261,13 +261,13 @@ class XodusWriteTx(
     val vaeStore = xodusOperations.openStore(tx, LigatureStore.VAEStore)
     vaeStore.delete(tx, CompoundByteIterable(Array(d, v, a, e)))
 
-    checkAndRemoveIdentifier(statement.entity, entityID)
-    checkAndRemoveIdentifier(statement.attribute, attributeID)
-    cleanUpValue(statement.value, encodedValue)
+    checkAndRemoveLabel(edge.source, sourceID)
+    checkAndRemoveLabel(edge.label, labelID)
+    cleanUpValue(edge.target, encodedValue)
   }
 
-  private def checkAndRemoveIdentifier(identifier: Identifier, id: ByteIterable): Unit =
-    // check if an identifier is used in any position in any Statement in the Dataset
+  private def checkAndRemoveLabel(label: Label, id: ByteIterable): Unit =
+    // check if an label is used in any position in any Edge in the Dataset
     val eavResult = startsWith(LigatureStore.EAVStore, CompoundByteIterable(Array(datasetID, id)))
 
     if (eavResult) {
@@ -277,17 +277,17 @@ class XodusWriteTx(
         val veaResult = startsWith(
           LigatureStore.VEAStore,
           CompoundByteIterable(
-            Array(datasetID, ByteBinding.byteToEntry(LigatureValueType.Identifier.id), id)
+            Array(datasetID, ByteBinding.byteToEntry(LigatureValueType.Label.id), id)
           )
         )
 
         if (veaResult) {
-          val idToIdentifierStore = xodusOperations.openStore(tx, LigatureStore.IdToIdentifierStore)
-          val identifierToIdStore = xodusOperations.openStore(tx, LigatureStore.IdentifierToIdStore)
-          idToIdentifierStore.delete(tx, CompoundByteIterable(Array(datasetID, id)))
-          identifierToIdStore.delete(
+          val idToLabelStore = xodusOperations.openStore(tx, LigatureStore.IdToLabelStore)
+          val labelToIdStore = xodusOperations.openStore(tx, LigatureStore.LabelToIdStore)
+          idToLabelStore.delete(tx, CompoundByteIterable(Array(datasetID, id)))
+          labelToIdStore.delete(
             tx,
-            CompoundByteIterable(Array(datasetID, StringBinding.stringToEntry(identifier.name)))
+            CompoundByteIterable(Array(datasetID, StringBinding.stringToEntry(label.name)))
           )
         }
       }
@@ -303,13 +303,13 @@ class XodusWriteTx(
   }
 
   private def cleanUpValue(value: Value, valueEncoded: ByteIterable): Unit =
-    // if value is an Identifier call checkAndRemoveIdentifier
+    // if value is an Label call checkAndRemoveLabel
     // if value is a String remove it from stringToId and idToString stores
     // if value is a Bytes remove it from bytesToId and idToBytes stores
     // if value is an Integer do nothing
     value match {
-      case identifier: Identifier =>
-        checkAndRemoveIdentifier(identifier, valueEncoded.subIterable(1, 8))
+      case label: Label =>
+        checkAndRemoveLabel(label, valueEncoded.subIterable(1, 8))
       case stringLiteral: LigatureLiteral.StringLiteral =>
         val stringToIdStore = xodusOperations.openStore(tx, LigatureStore.StringToIdStore)
         val idToStringStore = xodusOperations.openStore(tx, LigatureStore.IdToStringStore)

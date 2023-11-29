@@ -6,11 +6,11 @@ package dev.ligature.inmemory
 
 import dev.ligature.{
   Dataset,
-  Identifier,
+  Label,
   Ligature,
   LigatureError,
   QueryTx,
-  Statement,
+  Edge,
   Value,
 }
 import cats.effect.IO
@@ -19,7 +19,7 @@ import fs2.Stream
 import scala.collection.immutable.TreeMap
 import cats.effect.kernel.Resource
 
-protected case class DatasetStore(counter: Long, statements: Set[Statement])
+protected case class DatasetStore(counter: Long, edges: Set[Edge])
 
 def createInMemoryLigature(): Resource[IO, InMemoryLigature] =
   Resource.make(
@@ -84,12 +84,12 @@ final class InMemoryLigature(private val store: AtomicCell[IO, TreeMap[Dataset, 
       s <- store.get
     } yield ()
 
-  override def allStatements(dataset: Dataset): Stream[IO, Statement] = Stream.evalSeq {
+  override def allEdges(dataset: Dataset): Stream[IO, Edge] = Stream.evalSeq {
     store.get.map { store =>
       store.get(dataset) match
         case None => ???
         case Some(datasetStore) =>
-          datasetStore.statements.toSeq
+          datasetStore.edges.toSeq
     }
   }
   
@@ -104,25 +104,25 @@ final class InMemoryLigature(private val store: AtomicCell[IO, TreeMap[Dataset, 
           InMemoryQueryTx(datasetStore)
     }.bracket(tx => fn(tx))(_ => IO.unit)
 
-  override def addStatements(dataset: Dataset, statements: Stream[cats.effect.IO, Statement]): IO[Unit] =
+  override def addEdges(dataset: Dataset, edges: Stream[cats.effect.IO, Edge]): IO[Unit] =
     store.evalUpdate { store =>
       store.get(dataset) match
         case None => ???
         case Some(datasetStore) =>
-          statements.compile.fold(datasetStore) { (datasetStore, statement) =>
-            datasetStore.copy(statements = datasetStore.statements + statement)
+          edges.compile.fold(datasetStore) { (datasetStore, edge) =>
+            datasetStore.copy(edges = datasetStore.edges + edge)
           }.map { datasetStore => 
             store.updated(dataset, datasetStore)
           }
     }
 
-  override def removeStatements(dataset: Dataset, statements: Stream[cats.effect.IO, Statement]): IO[Unit] =
+  override def removeEdges(dataset: Dataset, edges: Stream[cats.effect.IO, Edge]): IO[Unit] =
     store.evalUpdate { store =>
       store.get(dataset) match
         case None => ???
         case Some(datasetStore) =>
-          statements.compile.fold(datasetStore) { (datasetStore, statement) =>
-            datasetStore.copy(statements = datasetStore.statements - statement)
+          edges.compile.fold(datasetStore) { (datasetStore, edge) =>
+            datasetStore.copy(edges = datasetStore.edges - edge)
           }.map { datasetStore => 
             store.updated(dataset, datasetStore)
           }

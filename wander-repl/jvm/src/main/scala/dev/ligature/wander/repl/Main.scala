@@ -18,7 +18,7 @@ import dev.ligature.wander.run
 import dev.ligature.wander.printResult
 import dev.ligature.wander.WanderError
 import dev.ligature.wander.WanderValue
-import dev.ligature.wander.Bindings
+import dev.ligature.wander.Environment
 
 @main def main = 
 //  val path = Path.of(s"${System.getProperty("user.home")}${System.getProperty("file.separator")}.ligature")
@@ -29,7 +29,7 @@ import dev.ligature.wander.Bindings
     .parser(parser)
     .build()
   var continue = true
-  var lastResult: Either[WanderError, (WanderValue, Bindings)] = null
+  var lastResult: Either[WanderError, (WanderValue, Environment)] = null
   while (continue) {
     val script = reader.readLine("> ")
     if (script == ":q")
@@ -37,12 +37,12 @@ import dev.ligature.wander.Bindings
       println("Bye!")
     else
       val intro = introspect(script)
-      val bindings = if (lastResult == null) {
+      val environment = if (lastResult == null) {
         common()
       } else {
         lastResult.getOrElse(???)._2
       }
-      lastResult = run(script, bindings)
+      lastResult = run(script, environment)
       println(printResult(lastResult))
   }
   terminal.close()

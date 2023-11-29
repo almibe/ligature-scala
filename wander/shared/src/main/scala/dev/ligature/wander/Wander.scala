@@ -13,8 +13,8 @@ case class WanderError(val userMessage: String) extends Throwable(userMessage)
 
 def run(
     script: String,
-    bindings: Bindings
-): Either[WanderError, (WanderValue, Bindings)] =
+    environments: Environment
+): Either[WanderError, (WanderValue, Environment)] =
   val expression = for {
     tokens <- tokenize(script)
     terms <- parse(tokens)
@@ -22,7 +22,7 @@ def run(
   } yield expression
   expression match
     case Left(value)  => Left(value)
-    case Right(value) => eval(value, bindings)
+    case Right(value) => eval(value, environments)
 
 case class Introspect(
     tokens: Either[WanderError, Seq[Token]],
@@ -48,7 +48,7 @@ def introspect(script: String): Introspect = {
   Introspect(tokens, terms, expression)
 }
 
-def printResult(value: Either[WanderError, (WanderValue, Bindings)]): String =
+def printResult(value: Either[WanderError, (WanderValue, Environment)]): String =
   value match {
     case Left(value) => "Error: " + value.userMessage
     case Right(value) => printWanderValue(value._1)

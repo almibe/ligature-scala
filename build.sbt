@@ -64,7 +64,7 @@ lazy val wander = crossProject(JSPlatform, JVMPlatform)
       _.withModuleKind(ModuleKind.ESModule)
     }
   )
-  .dependsOn(gaze)
+  .dependsOn(gaze, ligature, ligatureInMemory)
   .disablePlugins(RevolverPlugin)
 
 lazy val wanderPad = crossProject(JVMPlatform)
@@ -135,19 +135,19 @@ lazy val ligatureInMemory = crossProject(JSPlatform, JVMPlatform)
 //  .dependsOn(ligature, idgen, ligatureTestSuite % Test)
 //  .disablePlugins(RevolverPlugin)
 
-lazy val ligatureXodus = crossProject(JSPlatform, JVMPlatform)
-  .in(file("ligature-xodus"))
-  .settings(
-    name := "ligature-xodus",
-    scalaVersion := scala3Version,
-    libraryDependencies += "co.fs2" %% "fs2-core" % fs2Version,
-    libraryDependencies += "org.jetbrains.xodus" % "xodus-environment" % xodusVersion,
-    libraryDependencies += "org.scodec" % "scodec-core_3" % scodecVersion,
-    libraryDependencies += "org.scalameta" %% "munit" % munitVersion % Test,
-    libraryDependencies += "org.typelevel" %% "munit-cats-effect" % munitCatsEffect3Version % Test
-  )
-  .dependsOn(ligature, idgen, ligatureTestSuite % Test)
-  .disablePlugins(RevolverPlugin)
+// lazy val ligatureXodus = crossProject(JVMPlatform)
+//   .in(file("ligature-xodus"))
+//   .settings(
+//     name := "ligature-xodus",
+//     scalaVersion := scala3Version,
+//     libraryDependencies += "co.fs2" %% "fs2-core" % fs2Version,
+//     libraryDependencies += "org.jetbrains.xodus" % "xodus-environment" % xodusVersion,
+//     libraryDependencies += "org.scodec" % "scodec-core_3" % scodecVersion,
+//     libraryDependencies += "org.scalameta" %% "munit" % munitVersion % Test,
+//     libraryDependencies += "org.typelevel" %% "munit-cats-effect" % munitCatsEffect3Version % Test
+//   )
+//   .dependsOn(ligature, idgen, ligatureTestSuite % Test)
+//   .disablePlugins(RevolverPlugin)
 
 // lazy val ligatureArcadeDb = crossProject(JVMPlatform)
 //   .in(file("ligature-arcadedb"))

@@ -17,17 +17,17 @@ def statement(value: WanderValue): Statement = {
   }
 }
 
-case class Bindings(graphs: scala.collection.mutable.Map[String, Set[Statement]] = scala.collection.mutable.Map(), scopes: List[Map[Name, WanderValue]] = List(Map())) {
-  def newScope(): Bindings = Bindings(this.graphs, this.scopes.appended(Map()))
+case class Environment(graphs: scala.collection.mutable.Map[String, Set[Statement]] = scala.collection.mutable.Map(), scopes: List[Map[Name, WanderValue]] = List(Map())) {
+  def newScope(): Environment = Environment(this.graphs, this.scopes.appended(Map()))
 
   def bindVariable(
       name: Name,
       wanderValue: WanderValue
-  ): Bindings = {
+  ): Environment = {
     val currentScope = this.scopes.last
     val newVariables = currentScope + (name -> wanderValue)
     val oldScope = this.scopes.dropRight(1)
-    Bindings(this.graphs, oldScope.appended(newVariables))
+    Environment(this.graphs, oldScope.appended(newVariables))
   }
 
   def read(name: Name): Either[WanderError, WanderValue] = {

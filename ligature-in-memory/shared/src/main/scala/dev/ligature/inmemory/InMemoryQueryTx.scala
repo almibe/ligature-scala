@@ -13,49 +13,49 @@ import fs2.Stream
   */
 class InMemoryQueryTx(private val store: DatasetStore) extends QueryTx {
 
-  /** Returns all PersistedStatements in this Dataset. */
-  def allStatements(): Stream[IO, Statement] =
-    Stream.emits(store.statements.toSeq)
+  /** Returns all PersistedEdges in this Dataset. */
+  def allEdges(): Stream[IO, Edge] =
+    Stream.emits(store.edges.toSeq)
 
-  /** Returns all PersistedStatements that match the given criteria. If a
+  /** Returns all PersistedEdges that match the given criteria. If a
     * parameter is None then it matches all, so passing all Nones is the same as
-    * calling allStatements.
+    * calling allEdges.
     */
-  override def matchStatements(
-      entity: Option[Identifier],
-      attribute: Option[Identifier],
-      value: Option[Value]
-  ): Stream[IO, Statement] = {
-    var res = Stream.emits(store.statements.toSeq)
-    if (entity.isDefined) {
-      res = res.filter(_.entity == entity.get)
+  override def matchEdges(
+      source: Option[Label],
+      label: Option[Label],
+      target: Option[Value]
+  ): Stream[IO, Edge] = {
+    var res = Stream.emits(store.edges.toSeq)
+    if (source.isDefined) {
+      res = res.filter(_.source == source.get)
     }
-    if (attribute.isDefined) {
-      res = res.filter(_.attribute == attribute.get)
+    if (label.isDefined) {
+      res = res.filter(_.label == label.get)
     }
-    if (value.isDefined) {
-      res = res.filter(_.value == value.get)
+    if (target.isDefined) {
+      res = res.filter(_.target == target.get)
     }
     res
   }
 
-//  /** Returns all PersistedStatements that match the given criteria. If a
+//  /** Returns all PersistedEdges that match the given criteria. If a
 //    * parameter is None then it matches all.
 //    */
-//  override def matchStatementsRange(
-//      entity: Option[Identifier],
-//      attribute: Option[Identifier],
+//  override def matchEdgesRange(
+//      source: Option[Identifier],
+//      label: Option[Identifier],
 //      range: dev.ligature.Range
-//  ): Stream[IO, Statement] = {
-//    var res = Stream.emits(store.statements.toSeq)
-//    if (entity.isDefined) {
-//      res = res.filter(_.entity == entity.get)
+//  ): Stream[IO, Edge] = {
+//    var res = Stream.emits(store.edges.toSeq)
+//    if (source.isDefined) {
+//      res = res.filter(_.source == source.get)
 //    }
-//    if (attribute.isDefined) {
-//      res = res.filter(_.attribute == attribute.get)
+//    if (label.isDefined) {
+//      res = res.filter(_.label == label.get)
 //    }
 //    res = res.filter { ps =>
-//      val testValue = ps.value
+//      val testValue = ps.target
 //      (testValue, range) match {
 //        case (StringLiteral(v), StringLiteralRange(start, end)) =>
 //          v >= start && v < end

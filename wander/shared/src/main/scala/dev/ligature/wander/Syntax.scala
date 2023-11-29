@@ -4,13 +4,12 @@
 
 package dev.ligature.wander
 
-import dev.ligature.wander.Bindings
 import scala.util.Success
 
 /** Represents the union of Statements and Expressions
   */
 // sealed trait Element {
-//   def eval(bindings: Bindings): Either[ScriptError, EvalResult]
+//   def eval(bindings: Environment): Either[ScriptError, EvalResult]
 // }
 
 /** An element of a Wander program that can be evaluated for a value.
@@ -31,8 +30,8 @@ enum WanderValue:
   case HostFunction(
       body: (
           arguments: Seq[Expression],
-          bindings: Bindings
-      ) => Either[WanderError, (WanderValue, Bindings)]
+          bindings: Environment
+      ) => Either[WanderError, (WanderValue, Environment)]
   )
   case Triple(entity: dev.ligature.wander.Identifier, attribute: dev.ligature.wander.Identifier, value: dev.ligature.wander.WanderValue)
   case Quad(entity: dev.ligature.wander.Identifier, attribute: dev.ligature.wander.Identifier, value: WanderValue, graph: dev.ligature.wander.Identifier)
@@ -41,23 +40,23 @@ enum WanderValue:
 //sealed trait FunctionDefinition(val parameters: List[Parameter]) extends WanderValue
 
 // case class LigatureValue(value: Value) extends WanderValue {
-//   override def eval(bindings: Bindings) = Right(
+//   override def eval(bindings: Environment) = Right(
 //     EvalResult(LigatureValue(value), bindings)
 //   )
 // }
 
 // case class BooleanValue(value: Boolean) extends WanderValue {
-//   override def eval(bindings: Bindings) = Right(
+//   override def eval(bindings: Environment) = Right(
 //     EvalResult(BooleanValue(value), bindings)
 //   )
 // }
 
 // object Nothing extends WanderValue {
-//   override def eval(bindings: Bindings) = Right(EvalResult(Nothing, bindings))
+//   override def eval(bindings: Environment) = Right(EvalResult(Nothing, bindings))
 // }
 
 // case class ResultStream(stream: Stream[IO, WanderValue]) extends WanderValue {
-//   override def eval(binding: Bindings) = ???
+//   override def eval(binding: Environment) = ???
 // }
 
 /** Holds a reference to a function defined in Scala that can be called from
@@ -65,10 +64,10 @@ enum WanderValue:
   */
 // case class NativeFunction(
 //     override val parameters: List[Parameter],
-//     body: (arguments: Seq[Term], bindings: Bindings) => Either[ScriptError, WanderValue],
+//     body: (arguments: Seq[Term], bindings: Environment) => Either[ScriptError, WanderValue],
 //     output: WanderType = null
 // ) extends FunctionDefinition(parameters) { // TODO eventually remove the default null value
-//   override def eval(binding: Bindings) =
+//   override def eval(binding: Environment) =
 //     // body(binding) match {
 //     //   case Left(err) => Left(err)
 //     //   case Right(res) => Right(EvalResult(binding, res))
@@ -80,15 +79,15 @@ enum WanderValue:
   * bindings.
   */
 // case class Scope(val elements: List[Term]) extends Expression {
-//   def eval(bindings: Bindings) = {
-//     var currentBindings = bindings.newScope()
+//   def eval(bindings: Environment) = {
+//     var currentEnvironment = bindings.newScope()
 //     var result: WanderValue = Nothing
 //     elements.foreach { element =>
-//       evalTerm(element, currentBindings) match {
+//       evalTerm(element, currentEnvironment) match {
 //         case Left(err) => return Left(err)
 //         case Right(res) =>
 //           result = res.result
-//           currentBindings = res.bindings
+//           currentEnvironment = res.bindings
 //       }
 //     }
 //     Right(EvalResult(result, bindings))
@@ -107,47 +106,47 @@ case class Parameter(
 //     output: WanderType,
 //     body: Scope
 // ) extends FunctionDefinition(parameters) {
-//   override def eval(bindings: Bindings) =
+//   override def eval(bindings: Environment) =
 //     Right(EvalResult(this, bindings))
 // }
 
 // case class FunctionCall(val name: Name, val parameters: List[Expression]) extends Expression {
-//   def eval(bindings: Bindings) = {
+//   def eval(bindings: Environment) = {
 //     val func = bindings.read(name)
 //     func match {
 //       case Right(wf: WanderFunction) =>
-//         val functionCallBindings =
-//           updateFunctionCallBindings(bindings, wf.parameters)
-//         wf.body.eval(functionCallBindings) match {
+//         val functionCallEnvironment =
+//           updateFunctionCallEnvironment(bindings, wf.parameters)
+//         wf.body.eval(functionCallEnvironment) match {
 //           case left: Left[ScriptError, EvalResult] => left
 //           case Right(value)                        => Right(EvalResult(value.result, bindings))
 //         }
 //       case Right(nf: NativeFunction) =>
-//         val functionCallBindings =
-//           updateFunctionCallBindings(bindings, nf.parameters)
-//         val res = nf.body(functionCallBindings)
+//         val functionCallEnvironment =
+//           updateFunctionCallEnvironment(bindings, nf.parameters)
+//         val res = nf.body(functionCallEnvironment)
 //         res.map(EvalResult(_, bindings))
 //       case _ => Left(ScriptError(s"${name.name} is not a function."))
 //     }
 //   }
 
 //   // TODO: this function should probably return an Either instead of throwing an exception
-//   def updateFunctionCallBindings(
-//       bindings: Bindings,
+//   def updateFunctionCallEnvironment(
+//       bindings: Environment,
 //       args: List[Parameter]
-//   ): Bindings =
+//   ): Environment =
 //     if (args.length == parameters.length) {
-//       var currentBindings = bindings.newScope()
+//       var currentEnvironment = bindings.newScope()
 //       for (i <- args.indices) {
 //         val arg = args(i)
 //         val param = parameters(i)
-//         val paramRes = param.eval(currentBindings).getOrElse(???)
-//         currentBindings.bindVariable(arg.name, paramRes.result) match {
+//         val paramRes = param.eval(currentEnvironment).getOrElse(???)
+//         currentEnvironment.bindVariable(arg.name, paramRes.result) match {
 //           case Left(err)    => Left(err)
-//           case Right(value) => currentBindings = value
+//           case Right(value) => currentEnvironment = value
 //         }
 //       }
-//       currentBindings
+//       currentEnvironment
 //     } else {
 //       throw RuntimeException(
 //         s"Argument number ${args.length} != Parameter number ${parameters.length}"
@@ -161,7 +160,7 @@ case class Parameter(
 //     elseIfs: List[ElseIf] = List(),
 //     `else`: Option[Else] = None
 // ) extends Expression {
-//   def eval(bindings: Bindings) =
+//   def eval(bindings: Environment) =
 //     ???
 //     // val res = condition.eval(bindings) match {
 //     //   case Right(EvalResult(_, BooleanValue(res))) => res

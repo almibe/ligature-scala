@@ -70,10 +70,10 @@ class ParserSuite extends FunSuite {
     assertEquals(input, expected)
   }
   test("parse Function Call with question mark argument") {
-    val result = check("query ? ? ?")
+    val result = check("query ?")
     val expected = Right(
       Term.Application(
-        Seq(Term.NameTerm(Name("query")), Term.QuestionMark, Term.QuestionMark, Term.QuestionMark)
+        Seq(Term.NameTerm(Name("query")), Term.QuestionMark)
       )
     )
     assertEquals(result, expected)
