@@ -20,18 +20,27 @@ import dev.ligature.wander.preludes.common
 import scalafx.scene.layout.BorderPane
 import scalafx.scene.control.SplitPane
 import scalafx.geometry.Orientation
+import scalafx.scene.input.KeyEvent
+import scalafx.event.EventHandler
+import javafx.scene.input.KeyCode
 
 object ScalaFXHelloWorld extends JFXApp3 {
   override def start(): Unit = {
     val editorInput = TextArea("")
     val resultOutput = TextArea("")
+    resultOutput.editable = false
     val runButton = Button("Run")
     val introButton = Button("Intro")
     runButton.onAction = { e =>
+      runScript()
+    }
+
+    def runScript() = {
       val script = editorInput.getText()
       val result = run(script, common())
       resultOutput.text = printResult(result)
     }
+
     introButton.onAction = { e =>
       val script = editorInput.getText()
       val intro = introspect(script)
@@ -43,25 +52,35 @@ object ScalaFXHelloWorld extends JFXApp3 {
         "Result      :" + result.toString() + "\n"
     }
 
-    val sp = new SplitPane {
-      items ++= Seq(editorInput, resultOutput)
-      orientation = Orientation.Vertical
-    }
-
     stage = new JFXApp3.PrimaryStage {
-      title = "Wander Pad"
+      title = "WanderPad"
+      width = 800
+      height = 600
       scene = new Scene {
+        onShown = {_ => editorInput.requestFocus() }
+        addEventFilter(KeyEvent.KeyPressed, (event => {
+            if (event.getCode() == KeyCode.R && event.isControlDown()) {
+              runScript()
+              event.consume()
+            }
+        }))
         fill = Color.rgb(255, 255, 255)
         root = new BorderPane {
+          style = "-fx-font-family: Consolas, monospace"
           top = new HBox {
             children = Seq(
               runButton,
               introButton
             )
           }
-          center = sp
+          center = new SplitPane {
+            items ++= Seq(editorInput, resultOutput)
+            orientation = Orientation.Vertical
+          }
         }
       }
     }
+
+    editorInput.requestFocus()
   }
 }
