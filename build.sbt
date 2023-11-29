@@ -7,7 +7,7 @@ ThisBuild / organizationName := "ligature"
 val munitVersion = "1.0.0-M7"
 val catsEffectVersion = "3.5.0"
 val fs2Version = "3.7.0"
-val munitCatsEffect3Version = "2.0.0-M3"
+val munitCatsEffect3Version = "2.0.0-M4"
 val scodecVersion = "2.2.1"
 val xodusVersion = "2.0.1"
 val jeromqVersion = "0.5.3"
@@ -59,7 +59,7 @@ lazy val wander = crossProject(JSPlatform, JVMPlatform)
     name := "wander",
     scalaVersion := scala3Version,
     libraryDependencies += "org.scalameta" %% "munit" % munitVersion % Test,
-    //scalaJSUseMainModuleInitializer := true,
+    // scalaJSUseMainModuleInitializer := true,
     scalaJSLinkerConfig ~= {
       _.withModuleKind(ModuleKind.ESModule)
     }
@@ -77,13 +77,13 @@ lazy val wanderPad = crossProject(JVMPlatform)
     libraryDependencies += "org.scalafx" %% "scalafx" % "16.0.0-R24",
     libraryDependencies ++= {
       lazy val osName = System.getProperty("os.name") match {
-        case n if n.startsWith("Linux") => "linux"
-        case n if n.startsWith("Mac") => "mac"
+        case n if n.startsWith("Linux")   => "linux"
+        case n if n.startsWith("Mac")     => "mac"
         case n if n.startsWith("Windows") => "win"
-        case _ => throw new Exception("Unknown platform!")
+        case _                            => throw new Exception("Unknown platform!")
       }
       Seq("base", "controls", "fxml", "graphics", "media", "swing", "web")
-        .map(m => "org.openjfx" % s"javafx-$m" % "16" classifier osName)
+        .map(m => ("org.openjfx" % s"javafx-$m" % "16").classifier(osName))
     }
   )
   .dependsOn(gaze, wander)
@@ -97,7 +97,7 @@ lazy val wanderRepl = crossProject(JVMPlatform)
     libraryDependencies += "org.scalameta" %% "munit" % munitVersion % Test,
     libraryDependencies += "org.jline" % "jline" % jlineVersion,
     libraryDependencies += "org.jline" % "jline-terminal-jansi" % jlineVersion,
-    libraryDependencies += "org.fusesource.jansi" % "jansi" % "2.4.1",
+    libraryDependencies += "org.fusesource.jansi" % "jansi" % "2.4.1"
   )
   .dependsOn(gaze, wander)
   .disablePlugins(RevolverPlugin)
@@ -117,7 +117,7 @@ lazy val ligatureInMemory = crossProject(JSPlatform, JVMPlatform)
   .in(file("ligature-in-memory"))
   .settings(
     name := "ligature-in-memory",
-    scalaVersion := scala3Version,
+    scalaVersion := scala3Version
   )
   .dependsOn(ligature, idgen, ligatureTestSuite % Test)
   .disablePlugins(RevolverPlugin)
