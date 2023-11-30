@@ -4,9 +4,7 @@
 
 package dev.ligature.inmemory
 
-import cats.effect.IO
 import dev.ligature.*
-import fs2.Stream
 
 /** Represents a QueryTx within the context of a Ligature instance and a single
   * Dataset
@@ -14,8 +12,7 @@ import fs2.Stream
 class InMemoryQueryTx(private val store: DatasetStore) extends QueryTx {
 
   /** Returns all PersistedEdges in this Dataset. */
-  def allEdges(): Stream[IO, Edge] =
-    Stream.emits(store.edges.toSeq)
+  def allEdges(): Iterator[Edge] = store.edges.iterator
 
   /** Returns all PersistedEdges that match the given criteria. If a
     * parameter is None then it matches all, so passing all Nones is the same as
@@ -25,8 +22,8 @@ class InMemoryQueryTx(private val store: DatasetStore) extends QueryTx {
       source: Option[Label],
       label: Option[Label],
       target: Option[Value]
-  ): Stream[IO, Edge] = {
-    var res = Stream.emits(store.edges.toSeq)
+  ): Iterator[Edge] = {
+    var res = store.edges.iterator
     if (source.isDefined) {
       res = res.filter(_.source == source.get)
     }
@@ -46,7 +43,7 @@ class InMemoryQueryTx(private val store: DatasetStore) extends QueryTx {
 //      source: Option[Identifier],
 //      label: Option[Identifier],
 //      range: dev.ligature.Range
-//  ): Stream[IO, Edge] = {
+//  ): Iterator[Edge] = {
 //    var res = Stream.emits(store.edges.toSeq)
 //    if (source.isDefined) {
 //      res = res.filter(_.source == source.get)

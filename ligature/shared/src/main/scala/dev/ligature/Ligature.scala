@@ -4,29 +4,11 @@
 
 package dev.ligature
 
-import fs2.Stream
-import cats.effect.IO
-
 import scala.annotation.unused
 
-final case class Dataset private (name: String) extends Ordered[Dataset] {
-  @unused
-  private def copy(): Unit = ()
-
-  override def compare(that: Dataset): Int = this.name.compare(that.name)
+final case class Dataset(name: String) extends Ordered[Dataset] {
+    override def compare(that: Dataset): Int = this.name.compare(that.name)
 }
-
-object Dataset {
-  private val pattern = "^([a-zA-Z_][a-zA-Z0-9_]*)(/[a-zA-Z_][a-zA-Z0-9_]*)*$".r
-
-  def fromString(name: String): Either[LigatureError, Dataset] =
-    if (pattern.matches(name)) {
-      Right(Dataset(name))
-    } else {
-      Left(LigatureError(s"Could not make Dataset from $name"))
-    }
-}
-
 final case class Label(text: String)
 
 case class LigatureError(val userMessage: String) extends Throwable(userMessage)
@@ -50,17 +32,17 @@ final case class Edge(
 trait Ligature {
 
   /** Returns all Datasets in a Ligature instance. */
-  def allDatasets(): Stream[IO, Dataset]
+  def allDatasets(): Iterator[Dataset]
 
   /** Check if a given Dataset exists. */
-  def datasetExists(dataset: Dataset): IO[Boolean]
+  def datasetExists(dataset: Dataset): Boolean
 
   /** Returns all Datasets in a Ligature instance that start with the given
     * prefix.
     */
   def matchDatasetsPrefix(
       prefix: String
-  ): Stream[IO, Dataset]
+  ): Iterator[Dataset]
 
   /** Returns all Datasets in a Ligature instance that are in a given range
     * (inclusive, exclusive].
@@ -68,30 +50,30 @@ trait Ligature {
   def matchDatasetsRange(
       start: String,
       end: String
-  ): Stream[IO, Dataset]
+  ): Iterator[Dataset]
 
   /** Creates a dataset with the given name. TODO should probably return its own
     * error type { InvalidDataset, DatasetExists, CouldNotCreateDataset }
     */
-  def createDataset(dataset: Dataset): IO[Unit]
+  def createDataset(dataset: Dataset): Unit
 
   /** Deletes a dataset with the given name. TODO should probably return its own
     * error type { InvalidDataset, CouldNotDeleteDataset }
     */
-  def deleteDataset(dataset: Dataset): IO[Unit]
+  def deleteDataset(dataset: Dataset): Unit
 
-  def allEdges(dataset: Dataset): Stream[IO, Edge]
+  def allEdges(dataset: Dataset): Iterator[Edge]
 
   /** Initializes a QueryTx TODO should probably return its own error type
     * CouldNotInitializeQueryTx
     */
-  def query[T](dataset: Dataset)(fn: QueryTx => IO[T]): IO[T]
+  def query[T](dataset: Dataset)(fn: QueryTx => T): T
 
-  def addEdges(dataset: Dataset, edges: Stream[IO, Edge]): IO[Unit]
+  def addEdges(dataset: Dataset, edges: Iterator[Edge]): Unit
 
-  def removeEdges(dataset: Dataset, edges: Stream[IO, Edge]): IO[Unit]
+  def removeEdges(dataset: Dataset, edges: Iterator[Edge]): Unit
 
-  def close(): IO[Unit]
+  def close(): Unit
 }
 
 /** Represents a QueryTx within the context of a Ligature instance and a single
@@ -107,7 +89,7 @@ trait QueryTx {
       source: Option[Label] = None,
       label: Option[Label] = None,
       target: Option[Value] = None
-  ): Stream[IO, Edge]
+  ): Iterator[Edge]
 
 //  /** Returns all PersistedEdges that match the given criteria. If a
 //    * parameter is None then it matches all.

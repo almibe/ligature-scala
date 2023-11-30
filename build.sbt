@@ -4,22 +4,18 @@ ThisBuild / version := "0.1.0-SNAPSHOT"
 ThisBuild / organization := "dev.ligature"
 ThisBuild / organizationName := "ligature"
 
-val munitVersion = "1.0.0-M7"
-val catsEffectVersion = "3.5.0"
-val fs2Version = "3.7.0"
-val munitCatsEffect3Version = "2.0.0-M3"
-val scodecVersion = "2.2.1"
-val xodusVersion = "2.0.1"
-val jeromqVersion = "0.5.3"
-val jlineVersion = "3.23.0"
+val munitVersion   = "1.0.0-M7"
+val xodusVersion   = "2.0.1"
+val jeromqVersion  = "0.5.3"
+val jlineVersion   = "3.23.0"
+val scalafxVersion = "16.0.0-R24"
+val jansiVersion   = "2.4.1"
 
 lazy val ligature = crossProject(JSPlatform, JVMPlatform)
   .in(file("ligature"))
   .settings(
     name := "ligature",
     scalaVersion := scala3Version,
-    libraryDependencies += "co.fs2" %% "fs2-core" % fs2Version,
-    libraryDependencies += "org.typelevel" %% "cats-effect" % catsEffectVersion,
     libraryDependencies += "org.scalameta" %% "munit" % munitVersion % Test
   )
   .disablePlugins(RevolverPlugin)
@@ -47,7 +43,6 @@ lazy val lig = crossProject(JSPlatform, JVMPlatform)
   .settings(
     name := "lig",
     scalaVersion := scala3Version,
-    libraryDependencies += "co.fs2" %% "fs2-core" % fs2Version,
     libraryDependencies += "org.scalameta" %% "munit" % munitVersion % Test
   )
   .dependsOn(ligature, gaze, idgen)
@@ -74,7 +69,7 @@ lazy val wanderPad = crossProject(JVMPlatform)
     name := "wander-pad",
     scalaVersion := scala3Version,
     libraryDependencies += "org.scalameta" %% "munit" % munitVersion % Test,
-    libraryDependencies += "org.scalafx" %% "scalafx" % "16.0.0-R24",
+    libraryDependencies += "org.scalafx" %% "scalafx" % scalafxVersion,
     libraryDependencies ++= {
       lazy val osName = System.getProperty("os.name") match {
         case n if n.startsWith("Linux") => "linux"
@@ -97,7 +92,7 @@ lazy val wanderRepl = crossProject(JVMPlatform)
     libraryDependencies += "org.scalameta" %% "munit" % munitVersion % Test,
     libraryDependencies += "org.jline" % "jline" % jlineVersion,
     libraryDependencies += "org.jline" % "jline-terminal-jansi" % jlineVersion,
-    libraryDependencies += "org.fusesource.jansi" % "jansi" % "2.4.1",
+    libraryDependencies += "org.fusesource.jansi" % "jansi" % jansiVersion,
   )
   .dependsOn(gaze, wander)
   .disablePlugins(RevolverPlugin)
@@ -107,8 +102,7 @@ lazy val ligatureTestSuite = crossProject(JSPlatform, JVMPlatform)
   .settings(
     name := "ligature-test-suite",
     scalaVersion := scala3Version,
-    libraryDependencies += "co.fs2" %% "fs2-core" % fs2Version,
-    libraryDependencies += "org.typelevel" %% "munit-cats-effect" % munitCatsEffect3Version
+    libraryDependencies += "org.scalameta" %% "munit" % munitVersion,
   )
   .dependsOn(ligature)
   .disablePlugins(RevolverPlugin)
@@ -140,11 +134,8 @@ lazy val ligatureInMemory = crossProject(JSPlatform, JVMPlatform)
 //   .settings(
 //     name := "ligature-xodus",
 //     scalaVersion := scala3Version,
-//     libraryDependencies += "co.fs2" %% "fs2-core" % fs2Version,
 //     libraryDependencies += "org.jetbrains.xodus" % "xodus-environment" % xodusVersion,
-//     libraryDependencies += "org.scodec" % "scodec-core_3" % scodecVersion,
 //     libraryDependencies += "org.scalameta" %% "munit" % munitVersion % Test,
-//     libraryDependencies += "org.typelevel" %% "munit-cats-effect" % munitCatsEffect3Version % Test
 //   )
 //   .dependsOn(ligature, idgen, ligatureTestSuite % Test)
 //   .disablePlugins(RevolverPlugin)

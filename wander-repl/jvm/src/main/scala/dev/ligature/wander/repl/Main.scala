@@ -19,6 +19,7 @@ import dev.ligature.wander.printResult
 import dev.ligature.wander.WanderError
 import dev.ligature.wander.WanderValue
 import dev.ligature.wander.Environment
+import dev.ligature.inmemory.LigatureInMemory
 
 @main def main =
 //  val path = Path.of(s"${System.getProperty("user.home")}${System.getProperty("file.separator")}.ligature")
@@ -39,7 +40,7 @@ import dev.ligature.wander.Environment
     else
       val intro = introspect(script)
       val environment = if (lastResult == null) {
-        common()
+        common(LigatureInMemory())
       } else {
         lastResult.getOrElse(???)._2
       }

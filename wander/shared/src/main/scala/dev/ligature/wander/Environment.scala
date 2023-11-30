@@ -6,6 +6,7 @@ package dev.ligature.wander
 
 import dev.ligature.wander.WanderValue
 import scala.collection.mutable.Set
+import dev.ligature.Ligature
 
 case class Statement(entity: Identifier, attribute: Identifier, value: WanderValue)
 
@@ -17,12 +18,13 @@ def statement(value: WanderValue): Statement =
   }
 
 case class Environment(
+    ligature: Ligature,
     functions: List[HostFunction] = List(),
     graphs: scala.collection.mutable.Map[String, Set[Statement]] = scala.collection.mutable.Map(),
     scopes: List[Map[Name, WanderValue]] = List(Map())
 ) {
   def newScope(): Environment =
-    Environment(this.functions, this.graphs, this.scopes.appended(Map()))
+    Environment(this.ligature, this.functions, this.graphs, this.scopes.appended(Map()))
 
   def bindVariable(
       name: Name,
@@ -31,7 +33,7 @@ case class Environment(
     val currentScope = this.scopes.last
     val newVariables = currentScope + (name -> wanderValue)
     val oldScope = this.scopes.dropRight(1)
-    Environment(this.functions, this.graphs, oldScope.appended(newVariables))
+    Environment(this.ligature, this.functions, this.graphs, oldScope.appended(newVariables))
   }
 
   def read(name: Name): Either[WanderError, WanderValue] = {

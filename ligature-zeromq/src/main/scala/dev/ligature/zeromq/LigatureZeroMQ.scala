@@ -10,7 +10,7 @@ import cats.implicits._
 
 import org.zeromq.{ZMQ, ZContext, SocketType}
 
-import dev.ligature.inmemory.createInMemoryLigature
+import dev.ligature.inmemory.createLigatureInMemory
 import dev.ligature.Ligature
 import dev.ligature.wander.run
 import dev.ligature.wander.preludes.instancePrelude
@@ -42,7 +42,7 @@ def runServer(zContext: ZContext, ligature: Ligature, port: Int) = {
 object Main extends IOApp.Simple {
   val run =
     zeromqResource.use { zContext =>
-      createInMemoryLigature().use { instance =>
+      createLigatureInMemory().use { instance =>
         runServer(zContext, instance, 4200)
       }
     }

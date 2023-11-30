@@ -7,7 +7,7 @@ package dev.ligature.zeromq
 import munit.*
 import cats.implicits._
 import cats.effect.IO
-import dev.ligature.inmemory.createInMemoryLigature
+import dev.ligature.inmemory.createLigatureInMemory
 import org.zeromq.{ZMQ, SocketType, ZContext}
 
 class LigatureZeroMQSuite extends CatsEffectSuite {
@@ -15,7 +15,7 @@ class LigatureZeroMQSuite extends CatsEffectSuite {
 
   def runTest(request: String, expected: String) = {
     zeromqResource.use { zContext =>
-      createInMemoryLigature().use { instance =>
+      createLigatureInMemory().use { instance =>
         val server: IO[String] = runServer(zContext, instance, port).map(_ => "")
         
         val runRequest: IO[String] = IO {

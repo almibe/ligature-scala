@@ -5,6 +5,7 @@
 package dev.ligature.wander
 
 import dev.ligature.wander.preludes.common
+import dev.ligature.inmemory.LigatureInMemory
 
 @main
 def main(args: String*) =
@@ -15,8 +16,11 @@ def main(args: String*) =
   println("Tokens     : " + intro.tokens)
   println("Terms      : " + intro.terms)
   println("Expression : " + intro.expression)
-  run(script, common()) match {
-    case Left(value)  => println("Err        : " + value)
-    case Right(value) => println("Result     : " + value)
-  }
+  // createLigatureInMemory().use {instance => 
+  //   run(script, common(instance)) match {
+  //     case Left(value)  => println("Err        : " + value)
+  //     case Right(value) => println("Result     : " + value)
+  //   }
+  //   IO.pure(())
+  // }.unsafeRunSync()
   println("\n")

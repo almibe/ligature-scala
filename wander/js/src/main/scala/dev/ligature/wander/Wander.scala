@@ -12,10 +12,16 @@ import scala.scalajs.js.annotation._
 
 @JSExportTopLevel("default")
 object Wander {
-  @JSExport
-  def run(script: String): String =
-    printResult(dev.ligature.wander.run(script, common()))
-  @JSExport
-  def introspect(script: String): String =
-    dev.ligature.wander.introspect(script).toString()
+  // def inMemoryRun(script: String): Either[WanderError, (WanderValue, Environment)] = {
+  //     createLigatureInMemory().use { instance => 
+  //       IO.pure(dev.ligature.wander.run(script, common(instance)))
+  //     }.unsafeRunSync()
+  // }
+  // @JSExport
+  // def run(script: String): String = {
+  //   printResult(inMemoryRun(script))
+  // }
+  // @JSExport
+  // def introspect(script: String): String =
+  //   dev.ligature.wander.introspect(script).toString()
 }

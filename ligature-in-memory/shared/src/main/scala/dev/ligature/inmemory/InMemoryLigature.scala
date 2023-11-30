@@ -5,46 +5,25 @@
 package dev.ligature.inmemory
 
 import dev.ligature.{Dataset, Label, Ligature, LigatureError, QueryTx, Edge, Value}
-import cats.effect.IO
-import cats.effect.std.AtomicCell
-import fs2.Stream
 import scala.collection.immutable.TreeMap
-import cats.effect.kernel.Resource
 
 protected case class DatasetStore(counter: Long, edges: Set[Edge])
 
-def createInMemoryLigature(): Resource[IO, InMemoryLigature] =
-  Resource.make(
-    for {
-      store <- AtomicCell[IO].of(TreeMap[Dataset, DatasetStore]())
-    } yield InMemoryLigature(store)
-  )(store => store.close())
-
-final class InMemoryLigature(private val store: AtomicCell[IO, TreeMap[Dataset, DatasetStore]])
+final class LigatureInMemory(private var store: TreeMap[Dataset, DatasetStore] = TreeMap[Dataset, DatasetStore]())
     extends Ligature {
 //  private val store = AtomicCell[IO].of(TreeMap[Dataset, DatasetStore]())
 
   /** Returns all Datasets in a Ligature instance. */
-  override def allDatasets(): Stream[IO, Dataset] = Stream.evalSeq {
-    for {
-      store <- store.get
-    } yield store.keys.toSeq
-  }
+  override def allDatasets(): Iterator[Dataset] = store.keySet.iterator
 
   /** Check if a given Dataset exists. */
-  override def datasetExists(dataset: Dataset): IO[Boolean] =
-    for {
-      store <- store.get
-    } yield store.contains(dataset)
+  override def datasetExists(dataset: Dataset): Boolean = store.contains(dataset)
 
   /** Returns all Datasets in a Ligature instance that start with the given
     * prefix.
     */
-  override def matchDatasetsPrefix(prefix: String): Stream[IO, Dataset] = Stream.evalSeq {
-    for {
-      store <- store.get
-    } yield store.keys.filter(_.name.startsWith(prefix)).toSeq
-  }
+  override def matchDatasetsPrefix(prefix: String): Iterator[Dataset] = 
+    store.keys.filter(_.name.startsWith(prefix)).iterator
 
   /** Returns all Datasets in a Ligature instance that are in a given range
     * (inclusive, exclusive].
@@ -52,83 +31,72 @@ final class InMemoryLigature(private val store: AtomicCell[IO, TreeMap[Dataset, 
   override def matchDatasetsRange(
       start: String,
       end: String
-  ): Stream[IO, Dataset] =
-    Stream.evalSeq {
-      for {
-        store <- store.get
-      } yield store.keys.filter(k => k.name >= start && k.name < end).toSeq
-    }
+  ): Iterator[Dataset] =
+    store.keys.filter(k => k.name >= start && k.name < end).iterator
 
   /** Creates a dataset with the given name. TODO should probably return its own
     * error type { InvalidDataset, DatasetExists, CouldNotCreateDataset }
     */
-  override def createDataset(dataset: Dataset): IO[Unit] =
-    for {
-      _ <- store.evalUpdate { s =>
-        IO(s.updated(dataset, DatasetStore(0L, Set())))
-      } // TODO this needs to check if Dataset already exists
-      s <- store.get
-    } yield ()
+  override def createDataset(dataset: Dataset): Unit =
+      ???
 
   /** Deletes a dataset with the given name. TODO should probably return its own
     * error type { InvalidDataset, CouldNotDeleteDataset }
     */
-  override def deleteDataset(dataset: Dataset): IO[Unit] =
-    for {
-      _ <- store.evalUpdate(s => IO(s.removed(dataset)))
-      s <- store.get
-    } yield ()
+  override def deleteDataset(dataset: Dataset): Unit =
+    ???
+    // for {
+    //   _ <- store.evalUpdate(s => IO(s.removed(dataset)))
+    //   s <- store.get
+    // } yield ()
 
-  override def allEdges(dataset: Dataset): Stream[IO, Edge] = Stream.evalSeq {
-    store.get.map { store =>
-      store.get(dataset) match
-        case None => ???
-        case Some(datasetStore) =>
-          datasetStore.edges.toSeq
-    }
-  }
+  override def allEdges(dataset: Dataset): Iterator[Edge] =
+    ???
+  //   store.get.map { store =>
+  //     store.get(dataset) match
+  //       case None => ???
+  //       case Some(datasetStore) =>
+  //         datasetStore.edges.toSeq
+  //   }
+  // }
 
   /** Initializes a QueryTx TODO should probably return its own error type
     * CouldNotInitializeQueryTx
     */
-  override def query[T](dataset: Dataset)(fn: QueryTx => IO[T]): IO[T] =
-    store.get
-      .map { store =>
+  override def query[T](dataset: Dataset)(fn: QueryTx => T): T =
         store.get(dataset) match
           case None => ???
           case Some(datasetStore) =>
-            InMemoryQueryTx(datasetStore)
-      }
-      .bracket(tx => fn(tx))(_ => IO.unit)
+            val tx = InMemoryQueryTx(datasetStore)
+            fn(tx)
 
-  override def addEdges(dataset: Dataset, edges: Stream[cats.effect.IO, Edge]): IO[Unit] =
-    store.evalUpdate { store =>
-      store.get(dataset) match
-        case None => ???
-        case Some(datasetStore) =>
-          edges.compile
-            .fold(datasetStore) { (datasetStore, edge) =>
-              datasetStore.copy(edges = datasetStore.edges + edge)
-            }
-            .map { datasetStore =>
-              store.updated(dataset, datasetStore)
-            }
-    }
+  override def addEdges(dataset: Dataset, edges: Iterator[Edge]): Unit =
+    ???
+      // store.get(dataset) match
+      //   case None => ???
+      //   case Some(datasetStore) =>
+      //     edges
+      //       .fold(datasetStore) { (datasetStore, edge) =>
+      //         ???
+      //         //datasetStore.copy(edges = datasetStore.edges + edge)
+      //       }
+      //       .map { datasetStore =>
+      //         store.updated(dataset, datasetStore)
+      //       }
 
-  override def removeEdges(dataset: Dataset, edges: Stream[cats.effect.IO, Edge]): IO[Unit] =
-    store.evalUpdate { store =>
-      store.get(dataset) match
-        case None => ???
-        case Some(datasetStore) =>
-          edges.compile
-            .fold(datasetStore) { (datasetStore, edge) =>
-              datasetStore.copy(edges = datasetStore.edges - edge)
-            }
-            .map { datasetStore =>
-              store.updated(dataset, datasetStore)
-            }
-    }
+  override def removeEdges(dataset: Dataset, edges: Iterator[Edge]): Unit =
+    ???
+      // store.get(dataset) match
+      //   case None => ???
+      //   case Some(datasetStore) =>
+      //     edges
+      //       .fold(datasetStore) { (datasetStore, edge) =>
+      //         datasetStore.copy(edges = datasetStore.edges - edge)
+      //       }
+      //       .map { datasetStore =>
+      //         store.updated(dataset, datasetStore)
+      //       }
 
-  override def close(): IO[Unit] =
-    IO.unit
+  override def close(): Unit =
+    ()
 }

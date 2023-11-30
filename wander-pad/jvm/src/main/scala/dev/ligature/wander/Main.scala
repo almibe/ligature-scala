@@ -35,21 +35,28 @@ object ScalaFXHelloWorld extends JFXApp3 {
       runScript()
     }
 
+    def inMemoryRun(script: String): Either[WanderError, (WanderValue, Environment)] = {
+      // createLigatureInMemory().use { instance => 
+      //   IO.pure(run(script, common(instance)))
+      // }.unsafeRunSync()
+      ???
+    }
+
     def runScript() = {
       val script = editorInput.getText()
-      val result = run(script, common())
+      val result = inMemoryRun(script)
       resultOutput.text = printResult(result)
     }
 
     def runIntro() = {
       val script = editorInput.getText()
       val intro = introspect(script)
-      val result = run(script, common())
+      val result = inMemoryRun(script)
 
       resultOutput.text = "Tokens      :" + intro.tokens.toString() + "\n" +
         "Terms       :" + intro.terms.toString() + "\n" +
         "Expressions :" + intro.expression.toString() + "\n" +
-        "Result      :" + result.toString() + "\n"
+        "Result      :" + result.toString() + "\n "
     }
 
     introButton.onAction = { e =>
