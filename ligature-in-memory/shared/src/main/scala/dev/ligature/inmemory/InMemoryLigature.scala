@@ -4,98 +4,96 @@
 
 package dev.ligature.inmemory
 
-import dev.ligature.{Dataset, Label, Ligature, LigatureError, QueryTx, Edge, Value}
-import scala.collection.immutable.TreeMap
+import dev.ligature.{Graph, Label, Ligature, LigatureError, QueryTx, Edge, Value}
+import scala.collection.mutable.{Set, TreeMap}
 
-protected case class DatasetStore(counter: Long, edges: Set[Edge])
+protected case class GraphStore(var counter: Long = 0, val edges: Set[Edge] = Set())
 
-final class LigatureInMemory(private var store: TreeMap[Dataset, DatasetStore] = TreeMap[Dataset, DatasetStore]())
-    extends Ligature {
-//  private val store = AtomicCell[IO].of(TreeMap[Dataset, DatasetStore]())
+final class LigatureInMemory(
+    private val store: TreeMap[Graph, GraphStore] = TreeMap[Graph, GraphStore]()
+) extends Ligature {
+//  private val store = AtomicCell[IO].of(TreeMap[Graph, GraphStore]())
 
-  /** Returns all Datasets in a Ligature instance. */
-  override def allDatasets(): Iterator[Dataset] = store.keySet.iterator
+  /** Returns all Graphs in a Ligature instance. */
+  override def allGraphs(): Iterator[Graph] = store.keySet.iterator
 
-  /** Check if a given Dataset exists. */
-  override def datasetExists(dataset: Dataset): Boolean = store.contains(dataset)
+  /** Check if a given Graph exists. */
+  override def graphExists(graph: Graph): Boolean = store.contains(graph)
 
-  /** Returns all Datasets in a Ligature instance that start with the given
+  /** Returns all Graphs in a Ligature instance that start with the given
     * prefix.
     */
-  override def matchDatasetsPrefix(prefix: String): Iterator[Dataset] = 
+  override def matchGraphsPrefix(prefix: String): Iterator[Graph] =
     store.keys.filter(_.name.startsWith(prefix)).iterator
 
-  /** Returns all Datasets in a Ligature instance that are in a given range
+  /** Returns all Graphs in a Ligature instance that are in a given range
     * (inclusive, exclusive].
     */
-  override def matchDatasetsRange(
+  override def matchGraphsRange(
       start: String,
       end: String
-  ): Iterator[Dataset] =
+  ): Iterator[Graph] =
     store.keys.filter(k => k.name >= start && k.name < end).iterator
 
-  /** Creates a dataset with the given name. TODO should probably return its own
-    * error type { InvalidDataset, DatasetExists, CouldNotCreateDataset }
+  /** Creates a graph with the given name. TODO should probably return its own
+    * error type { InvalidGraph, GraphExists, CouldNotCreateGraph }
     */
-  override def createDataset(dataset: Dataset): Unit =
-      ???
+  override def createGraph(graph: Graph): Unit =
+    if !this.store.contains(graph) then this.store += (graph -> GraphStore())
 
-  /** Deletes a dataset with the given name. TODO should probably return its own
-    * error type { InvalidDataset, CouldNotDeleteDataset }
+  /** Deletes a graph with the given name. TODO should probably return its own
+    * error type { InvalidGraph, CouldNotDeleteGraph }
     */
-  override def deleteDataset(dataset: Dataset): Unit =
-    ???
-    // for {
-    //   _ <- store.evalUpdate(s => IO(s.removed(dataset)))
-    //   s <- store.get
-    // } yield ()
+  override def deleteGraph(graph: Graph): Unit =
+    this.store.remove(graph)
 
-  override def allEdges(dataset: Dataset): Iterator[Edge] =
-    ???
-  //   store.get.map { store =>
-  //     store.get(dataset) match
-  //       case None => ???
-  //       case Some(datasetStore) =>
-  //         datasetStore.edges.toSeq
-  //   }
-  // }
+  override def allEdges(graph: Graph): Iterator[Edge] =
+    this.store.get(graph) match
+      case None        => Iterator.empty
+      case Some(value) => value.edges.iterator
 
   /** Initializes a QueryTx TODO should probably return its own error type
     * CouldNotInitializeQueryTx
     */
-  override def query[T](dataset: Dataset)(fn: QueryTx => T): T =
-        store.get(dataset) match
-          case None => ???
-          case Some(datasetStore) =>
-            val tx = InMemoryQueryTx(datasetStore)
-            fn(tx)
+  override def query[T](graph: Graph)(fn: QueryTx => T): T =
+    store.get(graph) match
+      case None => ???
+      case Some(graphStore) =>
+        val tx = InMemoryQueryTx(graphStore)
+        fn(tx)
 
-  override def addEdges(dataset: Dataset, edges: Iterator[Edge]): Unit =
-    ???
-      // store.get(dataset) match
-      //   case None => ???
-      //   case Some(datasetStore) =>
-      //     edges
-      //       .fold(datasetStore) { (datasetStore, edge) =>
-      //         ???
-      //         //datasetStore.copy(edges = datasetStore.edges + edge)
-      //       }
-      //       .map { datasetStore =>
-      //         store.updated(dataset, datasetStore)
-      //       }
+  override def addEdges(graph: Graph, edges: Iterator[Edge]): Unit =
+    this.store.get(graph) match {
+      case None        => ???
+      case Some(store) => store.edges.addAll(edges)
+    }
+    // store.get(graph) match
+    //   case None => ???
+    //   case Some(graphStore) =>
+    //     edges
+    //       .fold(graphStore) { (graphStore, edge) =>
+    //         ???
+    //         //graphStore.copy(edges = graphStore.edges + edge)
+    //       }
+    //       .map { graphStore =>
+    //         store.updated(graph, graphStore)
+    //       }
 
-  override def removeEdges(dataset: Dataset, edges: Iterator[Edge]): Unit =
-    ???
-      // store.get(dataset) match
-      //   case None => ???
-      //   case Some(datasetStore) =>
-      //     edges
-      //       .fold(datasetStore) { (datasetStore, edge) =>
-      //         datasetStore.copy(edges = datasetStore.edges - edge)
-      //       }
-      //       .map { datasetStore =>
-      //         store.updated(dataset, datasetStore)
-      //       }
+  override def removeEdges(graph: Graph, edges: Iterator[Edge]): Unit =
+    this.store.get(graph) match {
+      case None        => ???
+      case Some(store) => store.edges.subtractAll(edges)
+    }
+    // store.get(graph) match
+    //   case None => ???
+    //   case Some(graphStore) =>
+    //     edges
+    //       .fold(graphStore) { (graphStore, edge) =>
+    //         graphStore.copy(edges = graphStore.edges - edge)
+    //       }
+    //       .map { graphStore =>
+    //         store.updated(graph, graphStore)
+    //       }
 
   override def close(): Unit =
     ()

@@ -6,8 +6,8 @@ package dev.ligature
 
 import scala.annotation.unused
 
-final case class Dataset(name: String) extends Ordered[Dataset] {
-    override def compare(that: Dataset): Int = this.name.compare(that.name)
+final case class Graph(name: String) extends Ordered[Graph] {
+  override def compare(that: Graph): Int = this.name.compare(that.name)
 }
 final case class Label(text: String)
 
@@ -31,53 +31,53 @@ final case class Edge(
 /** A trait that all Ligature implementations implement. */
 trait Ligature {
 
-  /** Returns all Datasets in a Ligature instance. */
-  def allDatasets(): Iterator[Dataset]
+  /** Returns all Graphs in a Ligature instance. */
+  def allGraphs(): Iterator[Graph]
 
-  /** Check if a given Dataset exists. */
-  def datasetExists(dataset: Dataset): Boolean
+  /** Check if a given Graph exists. */
+  def graphExists(graph: Graph): Boolean
 
-  /** Returns all Datasets in a Ligature instance that start with the given
+  /** Returns all Graphs in a Ligature instance that start with the given
     * prefix.
     */
-  def matchDatasetsPrefix(
+  def matchGraphsPrefix(
       prefix: String
-  ): Iterator[Dataset]
+  ): Iterator[Graph]
 
-  /** Returns all Datasets in a Ligature instance that are in a given range
+  /** Returns all Graphs in a Ligature instance that are in a given range
     * (inclusive, exclusive].
     */
-  def matchDatasetsRange(
+  def matchGraphsRange(
       start: String,
       end: String
-  ): Iterator[Dataset]
+  ): Iterator[Graph]
 
-  /** Creates a dataset with the given name. TODO should probably return its own
-    * error type { InvalidDataset, DatasetExists, CouldNotCreateDataset }
+  /** Creates a graph with the given name. TODO should probably return its own
+    * error type { InvalidGraph, GraphExists, CouldNotCreateGraph }
     */
-  def createDataset(dataset: Dataset): Unit
+  def createGraph(graph: Graph): Unit
 
-  /** Deletes a dataset with the given name. TODO should probably return its own
-    * error type { InvalidDataset, CouldNotDeleteDataset }
+  /** Deletes a graph with the given name. TODO should probably return its own
+    * error type { InvalidGraph, CouldNotDeleteGraph }
     */
-  def deleteDataset(dataset: Dataset): Unit
+  def deleteGraph(graph: Graph): Unit
 
-  def allEdges(dataset: Dataset): Iterator[Edge]
+  def allEdges(graph: Graph): Iterator[Edge]
 
   /** Initializes a QueryTx TODO should probably return its own error type
     * CouldNotInitializeQueryTx
     */
-  def query[T](dataset: Dataset)(fn: QueryTx => T): T
+  def query[T](graph: Graph)(fn: QueryTx => T): T
 
-  def addEdges(dataset: Dataset, edges: Iterator[Edge]): Unit
+  def addEdges(graph: Graph, edges: Iterator[Edge]): Unit
 
-  def removeEdges(dataset: Dataset, edges: Iterator[Edge]): Unit
+  def removeEdges(graph: Graph, edges: Iterator[Edge]): Unit
 
   def close(): Unit
 }
 
 /** Represents a QueryTx within the context of a Ligature instance and a single
-  * Dataset
+  * Graph
   */
 trait QueryTx {
 

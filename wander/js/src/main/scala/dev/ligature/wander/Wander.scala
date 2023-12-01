@@ -13,7 +13,7 @@ import scala.scalajs.js.annotation._
 @JSExportTopLevel("default")
 object Wander {
   // def inMemoryRun(script: String): Either[WanderError, (WanderValue, Environment)] = {
-  //     createLigatureInMemory().use { instance => 
+  //     createLigatureInMemory().use { instance =>
   //       IO.pure(dev.ligature.wander.run(script, common(instance)))
   //     }.unsafeRunSync()
   // }

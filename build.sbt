@@ -4,12 +4,13 @@ ThisBuild / version := "0.1.0-SNAPSHOT"
 ThisBuild / organization := "dev.ligature"
 ThisBuild / organizationName := "ligature"
 
-val munitVersion   = "1.0.0-M7"
-val xodusVersion   = "2.0.1"
-val jeromqVersion  = "0.5.3"
-val jlineVersion   = "3.23.0"
-val scalafxVersion = "16.0.0-R24"
-val jansiVersion   = "2.4.1"
+val munitVersion    = "1.0.0-M7"
+val xodusVersion    = "2.0.1"
+val jeromqVersion   = "0.5.3"
+val jlineVersion    = "3.23.0"
+val scalafxVersion  = "16.0.0-R24"
+val jansiVersion    = "2.4.1"
+val arcadeDBVersion = "23.10.1"
 
 lazy val ligature = crossProject(JSPlatform, JVMPlatform)
   .in(file("ligature"))
@@ -140,19 +141,16 @@ lazy val ligatureInMemory = crossProject(JSPlatform, JVMPlatform)
 //   .dependsOn(ligature, idgen, ligatureTestSuite % Test)
 //   .disablePlugins(RevolverPlugin)
 
-// lazy val ligatureArcadeDb = crossProject(JVMPlatform)
-//   .in(file("ligature-arcadedb"))
-//   .settings(
-//     name := "ligature-arcadedb",
-//     scalaVersion := scala3Version,
-//     libraryDependencies += "co.fs2" %% "fs2-core" % fs2Version,
-//     libraryDependencies += "com.arcadedb" % "arcadedb-engine" % "23.4.1",
-//     libraryDependencies += "org.scodec" % "scodec-core_3" % "2.1.0",
-//     libraryDependencies += "org.scalameta" %% "munit" % munitVersion % Test,
-//     libraryDependencies += "org.typelevel" %% "munit-cats-effect" % munitCatsEffect3Version % Test
-//   )
-//   .dependsOn(ligature, idgen, ligatureTestSuite % Test)
-//   .disablePlugins(RevolverPlugin)
+lazy val ligatureArcadeDb = crossProject(JVMPlatform)
+  .in(file("ligature-arcadedb"))
+  .settings(
+    name := "ligature-arcadedb",
+    scalaVersion := scala3Version,
+    libraryDependencies += "com.arcadedb" % "arcadedb-engine" % arcadeDBVersion,
+    libraryDependencies += "org.scalameta" %% "munit" % munitVersion % Test,
+  )
+  .dependsOn(ligature, idgen, ligatureTestSuite % Test)
+  .disablePlugins(RevolverPlugin)
 
 // lazy val ligatureZeroMQ = project
 //   .in(file("ligature-zeromq"))

@@ -9,3 +9,4 @@ target/
 .lsp
 .psc-ide-port
 index.js
+/log

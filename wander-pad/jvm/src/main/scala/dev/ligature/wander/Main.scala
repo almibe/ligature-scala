@@ -23,6 +23,7 @@ import scalafx.geometry.Orientation
 import scalafx.scene.input.KeyEvent
 import scalafx.event.EventHandler
 import javafx.scene.input.KeyCode
+import dev.ligature.inmemory.LigatureInMemory
 
 object ScalaFXHelloWorld extends JFXApp3 {
   override def start(): Unit = {
@@ -35,12 +36,8 @@ object ScalaFXHelloWorld extends JFXApp3 {
       runScript()
     }
 
-    def inMemoryRun(script: String): Either[WanderError, (WanderValue, Environment)] = {
-      // createLigatureInMemory().use { instance => 
-      //   IO.pure(run(script, common(instance)))
-      // }.unsafeRunSync()
-      ???
-    }
+    def inMemoryRun(script: String): Either[WanderError, (WanderValue, Environment)] =
+      run(script, common(LigatureInMemory()))
 
     def runScript() = {
       val script = editorInput.getText()
