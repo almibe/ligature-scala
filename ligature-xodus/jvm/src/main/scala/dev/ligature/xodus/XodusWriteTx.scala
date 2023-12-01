@@ -4,7 +4,6 @@
 
 package dev.ligature.xodus
 
-import cats.effect.IO
 import dev.ligature.*
 import dev.ligature.idgen.genId
 import jetbrains.exodus.{ByteIterable, CompoundByteIterable}

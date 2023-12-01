@@ -13,13 +13,8 @@ import dev.ligature.{
   Statement,
   Value,
 }
-import cats.effect.IO
-import fs2.Stream
-
 import scala.collection.immutable.TreeMap
 import scala.collection.mutable.{ArrayBuffer, ListBuffer}
-import cats.effect.kernel.Resource
-import cats.effect.kernel.Ref
 import jetbrains.exodus.ByteIterable
 
 import java.io.File

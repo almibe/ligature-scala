@@ -4,9 +4,7 @@
 
 package dev.ligature.xodus
 
-import cats.effect.IO
 import dev.ligature.*
-import fs2.Stream
 import jetbrains.exodus.{ByteIterable, CompoundByteIterable}
 import jetbrains.exodus.bindings.{ByteBinding, LongBinding, StringBinding}
 import jetbrains.exodus.env.Transaction
@@ -22,24 +20,24 @@ class XodusQueryTx(
     private val datasetID: ByteIterable
 ) extends QueryTx {
 
-  private def lookupIdentifier(internalIdentifier: ByteIterable): Identifier =
-    val idToIdentifierStore = xodusOperations.openStore(tx, LigatureStore.IdToIdentifierStore)
+  private def lookupLable(internalLable: ByteIterable): Lable =
+    val idToLableStore = xodusOperations.openStore(tx, LigatureStore.IdToLableStore)
     val result =
-      idToIdentifierStore.get(tx, CompoundByteIterable(Array(datasetID, internalIdentifier)))
+      idToLableStore.get(tx, CompoundByteIterable(Array(datasetID, internalLable)))
     if (result != null) {
-      Identifier.fromString(StringBinding.entryToString(result)).getOrElse(???)
+      Lable.fromString(StringBinding.entryToString(result)).getOrElse(???)
     } else {
       ???
     }
 
-  private def lookupIdentifier(identifier: Option[Identifier]): Option[ByteIterable] =
-    identifier match {
+  private def lookupLable(lable: Option[Lable]): Option[ByteIterable] =
+    lable match {
       case None => None
-      case Some(identifier) =>
-        val store = xodusOperations.openStore(tx, LigatureStore.IdentifierToIdStore)
+      case Some(lable) =>
+        val store = xodusOperations.openStore(tx, LigatureStore.LableToIdStore)
         val result = store.get(
           tx,
-          CompoundByteIterable(Array(datasetID, StringBinding.stringToEntry(identifier.name)))
+          CompoundByteIterable(Array(datasetID, StringBinding.stringToEntry(lable.name)))
         )
         Option(result)
     }
@@ -58,10 +56,10 @@ class XodusQueryTx(
       case None => None
       case Some(value) =>
         value match {
-          case identifier: Identifier =>
-            lookupIdentifier(Some(identifier)).map(id =>
+          case lable: Lable =>
+            lookupLable(Some(lable)).map(id =>
               CompoundByteIterable(
-                Array(ByteBinding.byteToEntry(LigatureValueType.Identifier.id), id)
+                Array(ByteBinding.byteToEntry(LigatureValueType.Lable.id), id)
               )
             )
           case stringLiteral: LigatureLiteral.StringLiteral =>
@@ -80,9 +78,9 @@ class XodusQueryTx(
         }
     }
 
-  private def lookupStringLiteral(internalIdentifier: ByteIterable): LigatureLiteral.StringLiteral =
+  private def lookupStringLiteral(internalLable: ByteIterable): LigatureLiteral.StringLiteral =
     val idToStringStore = xodusOperations.openStore(tx, LigatureStore.IdToStringStore)
-    val result = idToStringStore.get(tx, CompoundByteIterable(Array(datasetID, internalIdentifier)))
+    val result = idToStringStore.get(tx, CompoundByteIterable(Array(datasetID, internalLable)))
     if (result != null) {
       LigatureLiteral.StringLiteral(StringBinding.entryToString(result))
     } else {
@@ -91,7 +89,7 @@ class XodusQueryTx(
 
   private def constructValue(valueTypeId: Byte, valueContent: ByteIterable): Value =
     LigatureValueType.getValueType(valueTypeId) match {
-      case LigatureValueType.Identifier => lookupIdentifier(valueContent)
+      case LigatureValueType.Lable => lookupLable(valueContent)
       case LigatureValueType.Integer    => LigatureLiteral.IntegerLiteral(LongBinding.entryToLong(valueContent))
       case LigatureValueType.String     => lookupStringLiteral(valueContent)
       case LigatureValueType.Bytes      => ???
@@ -105,10 +103,10 @@ class XodusQueryTx(
 
   private def readStatement(bytes: ByteIterable, offsets: ReadStatementOffsets): Statement = {
     val entityID = bytes.subIterable(offsets.entityOffset, 8)
-    val entity = lookupIdentifier(entityID)
+    val entity = lookupLable(entityID)
 
     val attributeID = bytes.subIterable(offsets.attributeOffset, 8)
-    val attribute = lookupIdentifier(attributeID)
+    val attribute = lookupLable(attributeID)
 
     val valueTypeId = ByteBinding.entryToByte(bytes.subIterable(offsets.valueOffset, 1))
     val valueContent = bytes.subIterable(offsets.valueOffset + 1, 8)
@@ -140,12 +138,12 @@ class XodusQueryTx(
     * calling allStatements.
     */
   override def matchStatements(
-      entity: Option[Identifier],
-      attribute: Option[Identifier],
+      entity: Option[Lable],
+      attribute: Option[Lable],
       value: Option[Value]
   ): Stream[IO, Statement] = {
-    val luEntity = lookupIdentifier(entity)
-    val luAttribute = lookupIdentifier(attribute)
+    val luEntity = lookupLable(entity)
+    val luAttribute = lookupLable(attribute)
     val luValue = lookupValue(value)
 
     if (entity.isEmpty && attribute.isEmpty && value.isEmpty) {
@@ -272,12 +270,12 @@ class XodusQueryTx(
 //    * parameter is None then it matches all.
 //    */
 //  override def matchStatementsRange(
-//      entity: Option[Identifier],
-//      attribute: Option[Identifier],
+//      entity: Option[Lable],
+//      attribute: Option[Lable],
 //      range: Range
 //  ): Stream[IO, Statement] = {
-//    val luEntity = lookupIdentifier(entity)
-//    val luAttribute = lookupIdentifier(attribute)
+//    val luEntity = lookupLable(entity)
+//    val luAttribute = lookupLable(attribute)
 //
 //    if (entity.isDefined) {
 //      if (attribute.isDefined) {
