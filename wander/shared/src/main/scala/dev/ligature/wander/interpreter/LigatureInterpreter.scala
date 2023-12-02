@@ -11,36 +11,38 @@ import scala.util.boundary, boundary.break
 
 class LigatureInterpreter extends Interpreter {
   def eval(
-    expression: Expression,
-    bindings: Environment
+      expression: Expression,
+      environment: Environment
   ): Either[WanderError, (WanderValue, Environment)] =
     expression match {
-        case Expression.Nothing                => Right((WanderValue.Nothing, bindings))
-        case Expression.BooleanValue(value)    => Right((WanderValue.BooleanValue(value), bindings))
-        case Expression.IntegerValue(value)    => Right((WanderValue.IntValue(value), bindings))
-        case Expression.StringValue(value)     => Right((WanderValue.StringValue(value), bindings))
-        case Expression.IdentifierValue(value) => Right((WanderValue.Identifier(value), bindings))
-        case Expression.Array(value)           => handleArray(value, bindings)
-        case Expression.Set(value)             => handleSet(value, bindings)
-        case Expression.Application(name, arguments) => handleApplication(name, arguments, bindings)
-        case Expression.NameExpression(name)         => bindings.read(name).map((_, bindings))
-        case Expression.LetExpression(name, value)   => handleLetExpression(name, value, bindings)
-        case lambda: Expression.Lambda               => Right((WanderValue.Lambda(lambda), bindings))
-        case Expression.WhenExpression(conditionals) => handleWhenExpression(conditionals, bindings)
-        case Expression.Grouping(expressions)        => handleGrouping(expressions, bindings)
-        case Expression.Triple(entity, attribute, value) =>
-          handleTriple(entity, attribute, value, bindings)
-        case Expression.Quad(entity, attribute, value, graph) =>
-          handleQuad(entity, attribute, value, graph, bindings)
-        case Expression.QuestionMark => Right((WanderValue.QuestionMark, bindings))
-  }
+      case Expression.Nothing             => Right((WanderValue.Nothing, environment))
+      case Expression.BooleanValue(value) => Right((WanderValue.BooleanValue(value), environment))
+      case Expression.IntegerValue(value) => Right((WanderValue.IntValue(value), environment))
+      case Expression.StringValue(value)  => Right((WanderValue.StringValue(value), environment))
+      case Expression.IdentifierValue(value) => Right((WanderValue.Identifier(value), environment))
+      case Expression.Array(value)           => handleArray(value, environment)
+      case Expression.Set(value)             => handleSet(value, environment)
+      case Expression.Application(name, arguments) =>
+        handleApplication(name, arguments, environment)
+      case Expression.NameExpression(name)       => environment.read(name).map((_, environment))
+      case Expression.LetExpression(name, value) => handleLetExpression(name, value, environment)
+      case lambda: Expression.Lambda             => Right((WanderValue.Lambda(lambda), environment))
+      case Expression.WhenExpression(conditionals) =>
+        handleWhenExpression(conditionals, environment)
+      case Expression.Grouping(expressions) => handleGrouping(expressions, environment)
+      case Expression.Triple(entity, attribute, value) =>
+        handleTriple(entity, attribute, value, environment)
+      case Expression.Quad(entity, attribute, value, graph) =>
+        handleQuad(entity, attribute, value, graph, environment)
+      case Expression.QuestionMark => Right((WanderValue.QuestionMark, environment))
+    }
 
   def handleQuery(
-    entity: WanderValue,
-    attribute: WanderValue,
-    value: WanderValue,
-    graphName: String,
-    bindings: Environment
+      entity: WanderValue,
+      attribute: WanderValue,
+      value: WanderValue,
+      graphName: String,
+      environment: Environment
   ): Either[WanderError, (WanderValue, Environment)] = {
     val e = entity match {
       case WanderValue.QuestionMark      => None
@@ -56,8 +58,8 @@ class LigatureInterpreter extends Interpreter {
       case WanderValue.QuestionMark => None
       case value                    => Some(value)
     }
-    if (bindings.graphs.contains(graphName)) {
-      val graph = bindings.graphs(graphName)
+    if (environment.graphs.contains(graphName)) {
+      val graph = environment.graphs(graphName)
       val filtered = graph
         .filter { statement =>
           val ee = e match {
@@ -77,9 +79,9 @@ class LigatureInterpreter extends Interpreter {
         .map { statement =>
           WanderValue.Triple(statement.entity, statement.attribute, statement.value)
         }
-      Right((WanderValue.Array(filtered.toSeq), bindings))
+      Right((WanderValue.Array(filtered.toSeq), environment))
     } else {
-      Right((WanderValue.Array(Seq()), bindings))
+      Right((WanderValue.Array(Seq()), environment))
     }
   }
 
@@ -87,12 +89,12 @@ class LigatureInterpreter extends Interpreter {
       entity: Expression,
       attribute: Expression,
       value: Expression,
-      bindings: Environment
+      environment: Environment
   ): Either[WanderError, (WanderValue, Environment)] = {
     val res = for {
-      entityRes <- eval(entity, bindings)
-      attributeRes <- eval(attribute, bindings)
-      valueRes <- eval(value, bindings)
+      entityRes <- eval(entity, environment)
+      attributeRes <- eval(attribute, environment)
+      valueRes <- eval(value, environment)
     } yield (entityRes._1, attributeRes._1, valueRes._1)
     res match {
       case Left(value) => Left(value)
@@ -104,9 +106,10 @@ class LigatureInterpreter extends Interpreter {
                 value: WanderValue
               ) =>
             val triple: WanderValue.Triple = WanderValue.Triple(entity, attribute, value)
-            bindings.addTriple(triple)
-            Right(triple, bindings)
-          case (e: WanderValue, a: WanderValue, v: WanderValue) => handleQuery(e, a, v, "", bindings)
+            environment.addTriple(triple)
+            Right(triple, environment)
+          case (e: WanderValue, a: WanderValue, v: WanderValue) =>
+            handleQuery(e, a, v, "", environment)
         }
     }
   }
@@ -116,13 +119,13 @@ class LigatureInterpreter extends Interpreter {
       attribute: Expression,
       value: Expression,
       graph: Expression,
-      bindings: Environment
+      environment: Environment
   ): Either[WanderError, (WanderValue.Quad, Environment)] =
     for {
-      entityRes <- eval(entity, bindings)
-      attributeRes <- eval(attribute, bindings)
-      valueRes <- eval(value, bindings)
-      graphRes <- eval(graph, bindings)
+      entityRes <- eval(entity, environment)
+      attributeRes <- eval(attribute, environment)
+      valueRes <- eval(value, environment)
+      graphRes <- eval(graph, environment)
     } yield (entityRes._1, attributeRes._1, valueRes._1, graphRes._1) match {
       case (
             WanderValue.Identifier(entity),
@@ -131,17 +134,17 @@ class LigatureInterpreter extends Interpreter {
             WanderValue.Identifier(graph)
           ) =>
         val quad: WanderValue.Quad = WanderValue.Quad(entity, attribute, value, graph)
-        bindings.addQuad(quad)
-        (quad, bindings)
+        environment.addQuad(quad)
+        (quad, environment)
       case _ => ???
     }
 
   def handleGrouping(
       expressions: Seq[Expression],
-      bindings: Environment
+      environment: Environment
   ): Either[WanderError, (WanderValue, Environment)] = {
     var error: Option[WanderError] = None
-    var res: (WanderValue, Environment) = (WanderValue.Nothing, bindings)
+    var res: (WanderValue, Environment) = (WanderValue.Nothing, environment)
     val itr = expressions.iterator
     while error.isEmpty && itr.hasNext do
       eval(itr.next(), res._2) match {
@@ -155,9 +158,9 @@ class LigatureInterpreter extends Interpreter {
   def handleLetExpression(
       name: Name,
       value: Expression,
-      bindings: Environment
+      environment: Environment
   ): Either[WanderError, (WanderValue, Environment)] = {
-    var newScope = bindings.newScope()
+    var newScope = environment.newScope()
     eval(value, newScope) match {
       case Left(value) => ???
       case Right(value) =>
@@ -169,35 +172,35 @@ class LigatureInterpreter extends Interpreter {
   def handleApplication(
       name: Name,
       arguments: Seq[Expression],
-      bindings: Environment
+      environment: Environment
   ): Either[WanderError, (WanderValue, Environment)] =
-    bindings.read(name) match {
+    environment.read(name) match {
       case Left(err) => Left(err)
       case Right(value) =>
         value match {
           case WanderValue.Lambda(Expression.Lambda(parameters, body)) =>
-            var fnScope = bindings.newScope()
+            var fnScope = environment.newScope()
             assert(arguments.size == parameters.size)
             parameters.zipWithIndex.foreach { (param, index) =>
-              val argument = eval(arguments(index), bindings) match {
+              val argument = eval(arguments(index), environment) match {
                 case Left(value) => ???
                 case Right(value) =>
                   fnScope = fnScope.bindVariable(param, value._1)
               }
             }
             eval(body, fnScope)
-          case WanderValue.HostFunction(fn) => fn.fn(arguments, bindings)
+          case WanderValue.HostFunction(fn) => fn.fn(arguments, environment)
           case _ => Left(WanderError(s"Could not call function ${name.name}."))
         }
     }
 
   def handleWhenExpression(
       conditionals: Seq[(Expression, Expression)],
-      bindings: Environment
+      environment: Environment
   ): Either[WanderError, (WanderValue, Environment)] =
     boundary:
       conditionals.find { (conditional, _) =>
-        eval(conditional, bindings) match {
+        eval(conditional, environment) match {
           case Right((value, _)) =>
             value match {
               case WanderValue.BooleanValue(value) => value
@@ -207,12 +210,12 @@ class LigatureInterpreter extends Interpreter {
         }
       } match {
         case None            => Left(WanderError("No matching cases."))
-        case Some((_, body)) => eval(body, bindings)
+        case Some((_, body)) => eval(body, environment)
       }
 
   def handleArray(
       expressions: Seq[Expression],
-      bindings: Environment
+      environment: Environment
   ): Either[WanderError, (WanderValue.Array, Environment)] = {
     val res = ListBuffer[WanderValue]()
     val itre = expressions.iterator
@@ -220,15 +223,15 @@ class LigatureInterpreter extends Interpreter {
     while continue && itre.hasNext
     do
       val expression = itre.next()
-      eval(expression, bindings) match
+      eval(expression, environment) match
         case Left(err)    => return Left(err)
         case Right(value) => res += value._1
-    Right((WanderValue.Array(res.toList), bindings))
+    Right((WanderValue.Array(res.toList), environment))
   }
 
   def handleSet(
       expressions: Seq[Expression],
-      bindings: Environment
+      environment: Environment
   ): Either[WanderError, (WanderValue.Set, Environment)] = {
     val res = ListBuffer[WanderValue]()
     val itre = expressions.iterator
@@ -236,9 +239,9 @@ class LigatureInterpreter extends Interpreter {
     while continue && itre.hasNext
     do
       val expression = itre.next()
-      eval(expression, bindings) match
+      eval(expression, environment) match
         case Left(err)    => return Left(err)
         case Right(value) => res += value._1
-    Right((WanderValue.Set(res.toSet), bindings))
+    Right((WanderValue.Set(res.toSet), environment))
   }
 }

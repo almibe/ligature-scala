@@ -5,7 +5,7 @@
 package dev.ligature.wander
 
 import dev.ligature.wander.WanderValue
-import dev.ligature.wander.interpreter.* 
+import dev.ligature.wander.interpreter.*
 import dev.ligature.wander.parse
 import scala.annotation.unused
 import dev.ligature.wander.preludes.common
@@ -59,7 +59,7 @@ case class WanderError(val userMessage: String) extends Throwable(userMessage)
 
 def run(
     script: String,
-    environments: Environment
+    environment: Environment
 ): Either[WanderError, (WanderValue, Environment)] =
   val expression = for {
     tokens <- tokenize(script)
@@ -68,7 +68,7 @@ def run(
   } yield expression
   expression match
     case Left(value)  => Left(value)
-    case Right(value) => environments.interpreter.eval(value, environments)
+    case Right(value) => environment.interpreter.eval(value, environment)
 
 case class Introspect(
     tokens: Either[WanderError, Seq[Token]],

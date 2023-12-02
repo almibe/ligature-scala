@@ -9,8 +9,10 @@ import scala.util.boundary, boundary.break
 import dev.ligature.wander.*
 
 trait Interpreter:
-  def eval(expression: Expression, bindings: Environment):
-    Either[WanderError, (WanderValue, Environment)]
+  def eval(
+      expression: Expression,
+      bindings: Environment
+  ): Either[WanderError, (WanderValue, Environment)]
 
 enum Expression:
   case NameExpression(value: Name)

@@ -12,7 +12,10 @@ import dev.ligature.inmemory.LigatureInMemory
 
 class LetSuite extends munit.FunSuite {
   def check(script: String, expected: WanderValue) =
-    assertEquals(run(script, common(LigatureInterpreter(), LigatureInMemory())).getOrElse(???)._1, expected)
+    assertEquals(
+      run(script, common(LigatureInterpreter(), LigatureInMemory())).getOrElse(???)._1,
+      expected
+    )
 
   // test("basic let") {
   //   val script = "let x = 5"

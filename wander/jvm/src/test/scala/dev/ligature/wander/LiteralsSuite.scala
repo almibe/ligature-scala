@@ -13,7 +13,10 @@ import dev.ligature.wander.interpreter.*
 
 class LiteralsSuite extends munit.FunSuite {
   def check(script: String, expected: WanderValue) =
-    assertEquals(run(script, common(LigatureInterpreter(), LigatureInMemory())).getOrElse(???)._1, expected)
+    assertEquals(
+      run(script, common(LigatureInterpreter(), LigatureInMemory())).getOrElse(???)._1,
+      expected
+    )
 
   test("true boolean primitive") {
     val script = "true"

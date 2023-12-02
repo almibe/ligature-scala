@@ -11,7 +11,10 @@ import dev.ligature.inmemory.LigatureInMemory
 
 class BooleanFunctionsSuite extends munit.FunSuite {
   def check(script: String, expected: WanderValue): Unit =
-    assertEquals(run(script, common(LigatureInterpreter(), LigatureInMemory())).getOrElse(???)._1, expected)
+    assertEquals(
+      run(script, common(LigatureInterpreter(), LigatureInMemory())).getOrElse(???)._1,
+      expected
+    )
 
   // test("not function") {
   //   val script = "not(true)"

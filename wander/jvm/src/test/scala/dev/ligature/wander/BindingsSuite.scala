@@ -29,16 +29,16 @@ class EnvironmentSuite extends FunSuite {
   }
 
   test("test scoping") {
-    val environments = Environment(EpsilonInterpreter(), null)
-    val environments2 = environments.bindVariable(identifier, value1)
-    assertEquals(environments2.read(identifier), Right(value1))
+    val environment = Environment(EpsilonInterpreter(), null)
+    val environment2 = environment.bindVariable(identifier, value1)
+    assertEquals(environment2.read(identifier), Right(value1))
 
-    val environments3 = environments2.newScope()
-    assertEquals(environments3.read(identifier), Right(value1))
+    val environment3 = environment2.newScope()
+    assertEquals(environment3.read(identifier), Right(value1))
 
-    val environments4 = environments3.bindVariable(identifier, value2)
-    val environments5 = environments4.bindVariable(identifier2, value3)
-    assertEquals(environments5.read(identifier), Right(value2))
-    assertEquals(environments5.read(identifier2), Right(value3))
+    val environment4 = environment3.bindVariable(identifier, value2)
+    val environment5 = environment4.bindVariable(identifier2, value3)
+    assertEquals(environment5.read(identifier), Right(value2))
+    assertEquals(environment5.read(identifier2), Right(value3))
   }
 }

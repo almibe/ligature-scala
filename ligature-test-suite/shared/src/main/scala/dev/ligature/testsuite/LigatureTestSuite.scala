@@ -21,7 +21,7 @@ abstract class LigatureTestSuite extends FunSuite {
 
   val setup = FunFixture[Ligature](
     setup = { test =>
-      //Files.createTempFile("tmp", test.name)
+      // Files.createTempFile("tmp", test.name)
       createLigature()
     },
     teardown = { instance =>
@@ -102,24 +102,24 @@ abstract class LigatureTestSuite extends FunSuite {
   }
 
   setup.test("adding statements to graphs") { instance =>
-      instance.createGraph(testGraph)
-      instance.addEdges(
-          testGraph,
-            Seq(
-              Edge(label1, a, label2),
-              Edge(label1, a, label2), // dupe
-              Edge(label1, a, label3)
-            ).iterator
-        )
-        val edges = instance.allEdges(testGraph).toSet
-      assertEquals(
-        edges,
-        Set(
-          Edge(label1, a, label2),
-          Edge(label1, a, label3)
-        )
+    instance.createGraph(testGraph)
+    instance.addEdges(
+      testGraph,
+      Seq(
+        Edge(label1, a, label2),
+        Edge(label1, a, label2), // dupe
+        Edge(label1, a, label3)
+      ).iterator
+    )
+    val edges = instance.allEdges(testGraph).toSet
+    assertEquals(
+      edges,
+      Set(
+        Edge(label1, a, label2),
+        Edge(label1, a, label3)
       )
-    }
+    )
+  }
 
   setup.test("add Edge with IntegerLiteral Value") { instance =>
     instance.createGraph(testGraph)
@@ -149,13 +149,13 @@ abstract class LigatureTestSuite extends FunSuite {
     instance.createGraph(testGraph)
     instance.addEdges(
       testGraph,
-        Seq(
-          Edge(label1, a, label2),
-          Edge(label1, a, LigatureLiteral.StringLiteral("text")),
-          Edge(label1, a, LigatureLiteral.StringLiteral("text2")),
-          Edge(label1, a, LigatureLiteral.StringLiteral("text")),
-          Edge(label2, a, LigatureLiteral.StringLiteral("text"))
-        ).iterator
+      Seq(
+        Edge(label1, a, label2),
+        Edge(label1, a, LigatureLiteral.StringLiteral("text")),
+        Edge(label1, a, LigatureLiteral.StringLiteral("text2")),
+        Edge(label1, a, LigatureLiteral.StringLiteral("text")),
+        Edge(label2, a, LigatureLiteral.StringLiteral("text"))
+      ).iterator
     )
     val edges = instance.allEdges(testGraph).toSet
     assertEquals(
@@ -221,11 +221,11 @@ abstract class LigatureTestSuite extends FunSuite {
     instance.createGraph(testGraph)
     instance.addEdges(
       testGraph,
-        Seq(
-          Edge(label1, a, LigatureLiteral.StringLiteral("hello")),
-          Edge(label1, a, LigatureLiteral.StringLiteral("hello")),
-          Edge(label2, a, LigatureLiteral.StringLiteral("hello"))
-        ).iterator
+      Seq(
+        Edge(label1, a, LigatureLiteral.StringLiteral("hello")),
+        Edge(label1, a, LigatureLiteral.StringLiteral("hello")),
+        Edge(label2, a, LigatureLiteral.StringLiteral("hello"))
+      ).iterator
     )
     instance.removeEdges(
       testGraph,
@@ -265,23 +265,23 @@ abstract class LigatureTestSuite extends FunSuite {
     instance.createGraph(testGraph)
     instance.addEdges(
       testGraph,
-        Seq(
-          Edge(label1, a, LigatureLiteral.StringLiteral("Hello")),
-          Edge(label2, a, label1),
-          Edge(label2, a, label3),
-          Edge(label3, b, label2),
-          Edge(label3, b, LigatureLiteral.StringLiteral("Hello"))
-        ).iterator
+      Seq(
+        Edge(label1, a, LigatureLiteral.StringLiteral("Hello")),
+        Edge(label2, a, label1),
+        Edge(label2, a, label3),
+        Edge(label3, b, label2),
+        Edge(label3, b, LigatureLiteral.StringLiteral("Hello"))
+      ).iterator
     )
     val (all, as, hellos, helloa) = instance.query(testGraph) { tx =>
       val all = tx.matchEdges().toSet
       val as = tx.matchEdges(None, Some(a)).toSet
       val hellos = tx
-          .matchEdges(None, None, Some(LigatureLiteral.StringLiteral("Hello")))
-          .toSet
+        .matchEdges(None, None, Some(LigatureLiteral.StringLiteral("Hello")))
+        .toSet
       val helloa = tx
-          .matchEdges(None, Some(a), Some(LigatureLiteral.StringLiteral("Hello")))
-          .toSet
+        .matchEdges(None, Some(a), Some(LigatureLiteral.StringLiteral("Hello")))
+        .toSet
       (all, as, hellos, helloa)
     }
     assertEquals(

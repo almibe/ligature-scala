@@ -8,7 +8,9 @@ import dev.ligature.wander.*
 import dev.ligature.wander.interpreter.*
 
 class GeneralInterpreter extends Interpreter {
-    def eval(expression: Expression, bindings: Environment): Either[WanderError, (WanderValue, Environment)] = {
-        ???
-    }
+  def eval(
+      expression: Expression,
+      environment: Environment
+  ): Either[WanderError, (WanderValue, Environment)] =
+    ???
 }

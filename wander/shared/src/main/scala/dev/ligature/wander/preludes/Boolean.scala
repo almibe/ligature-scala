@@ -13,19 +13,19 @@ import dev.ligature.wander.WanderError
 import dev.ligature.wander.interpreter.Expression
 import dev.ligature.wander.HostFunction
 
-def bindBooleanPrelude(environments: Environment): Environment =
-  environments
+def bindBooleanPrelude(environment: Environment): Environment =
+  environment
     .addHostFunctions(
       Seq(
         HostFunction(
           "Bool.not",
-          (arguments, environments) =>
+          (arguments, environment) =>
             if arguments.size != 1 then Left(WanderError("`not` function requires 1 argument."))
             else
-              environments.interpreter.eval(arguments.head, environments).map {
+              environment.interpreter.eval(arguments.head, environment).map {
                 _ match
                   case (WanderValue.BooleanValue(b), _) =>
-                    (WanderValue.BooleanValue(!b), environments)
+                    (WanderValue.BooleanValue(!b), environment)
                   case _ => throw WanderError("`not` function requires 1 boolean argument.")
               }
         )
@@ -36,11 +36,11 @@ def bindBooleanPrelude(environments: Environment): Environment =
 //     .bindVariable(
 //       Name("and"),
 //       WanderValue.HostFunction(
-//         (arguments: Seq[Expression], environments: Environment) => ???
+//         (arguments: Seq[Expression], environment: Environment) => ???
 //           // if arguments.length == 2 then
 //           //   val res = for {
-//           //     left <- evalTerm(arguments(0), environments)
-//           //     right <- evalTerm(arguments(1), environments)
+//           //     left <- evalTerm(arguments(0), environment)
+//           //     right <- evalTerm(arguments(1), environment)
 //           //   } yield (left, right)
 //           //   res.map { r =>
 //           //     (r._1.result, r._2.result) match
@@ -57,11 +57,11 @@ def bindBooleanPrelude(environments: Environment): Environment =
 //     .bindVariable(
 //       Name("or"),
 //       WanderValue.HostFunction(
-//         (arguments: Seq[Expression], environments: Environment) => ???
+//         (arguments: Seq[Expression], environment: Environment) => ???
 //           // if arguments.length == 2 then
 //           //   val res = for {
-//           //     left <- evalTerm(arguments(0), environments)
-//           //     right <- evalTerm(arguments(1), environments)
+//           //     left <- evalTerm(arguments(0), environment)
+//           //     right <- evalTerm(arguments(1), environment)
 //           //   } yield (left, right)
 //           //   res.map { r =>
 //           //     (r._1.result, r._2.result) match
