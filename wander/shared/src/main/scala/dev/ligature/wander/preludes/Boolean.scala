@@ -10,8 +10,7 @@ import dev.ligature.wander.WanderValue
 import dev.ligature.wander.Term
 import dev.ligature.wander.Name
 import dev.ligature.wander.WanderError
-import dev.ligature.wander.eval
-import dev.ligature.wander.Expression
+import dev.ligature.wander.interpreter.Expression
 import dev.ligature.wander.HostFunction
 
 def bindBooleanPrelude(environments: Environment): Environment =
@@ -23,7 +22,7 @@ def bindBooleanPrelude(environments: Environment): Environment =
           (arguments, environments) =>
             if arguments.size != 1 then Left(WanderError("`not` function requires 1 argument."))
             else
-              eval(arguments.head, environments).map {
+              environments.interpreter.eval(arguments.head, environments).map {
                 _ match
                   case (WanderValue.BooleanValue(b), _) =>
                     (WanderValue.BooleanValue(!b), environments)

@@ -7,10 +7,11 @@ package dev.ligature.wander
 import dev.ligature.wander.Token
 import dev.ligature.wander.preludes.common
 import dev.ligature.inmemory.LigatureInMemory
+import dev.ligature.wander.interpreter.*
 
 class WanderSuiteCommonMode extends munit.FunSuite {
   def check(script: String, expected: WanderValue) =
-    assertEquals(run(script, common(LigatureInMemory())).getOrElse(???)._1, expected)
+    assertEquals(run(script, common(LigatureInterpreter(), LigatureInMemory())).getOrElse(???)._1, expected)
 }
 
 // class WanderSuiteInstancePrelude extends munit.FunSuite {

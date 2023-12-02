@@ -17,6 +17,7 @@ import dev.ligature.gaze.{
   takeWhile,
   repeat
 }
+import dev.ligature.wander.interpreter.*
 import scala.collection.mutable.ListBuffer
 import scala.util.boundary, boundary.break
 

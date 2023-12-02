@@ -5,6 +5,7 @@
 package dev.ligature.wander
 
 import dev.ligature.wander.WanderValue
+import dev.ligature.wander.interpreter.* 
 import dev.ligature.wander.parse
 import scala.annotation.unused
 import dev.ligature.wander.preludes.common
@@ -67,7 +68,7 @@ def run(
   } yield expression
   expression match
     case Left(value)  => Left(value)
-    case Right(value) => eval(value, environments)
+    case Right(value) => environments.interpreter.eval(value, environments)
 
 case class Introspect(
     tokens: Either[WanderError, Seq[Token]],

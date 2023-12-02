@@ -7,11 +7,12 @@ package dev.ligature.wander
 import dev.ligature.wander.Token
 import dev.ligature.wander.WanderValue
 import dev.ligature.wander.preludes.common
+import dev.ligature.wander.interpreter.*
 import dev.ligature.inmemory.LigatureInMemory
 
 class LetSuite extends munit.FunSuite {
   def check(script: String, expected: WanderValue) =
-    assertEquals(run(script, common(LigatureInMemory())).getOrElse(???)._1, expected)
+    assertEquals(run(script, common(LigatureInterpreter(), LigatureInMemory())).getOrElse(???)._1, expected)
 
   // test("basic let") {
   //   val script = "let x = 5"

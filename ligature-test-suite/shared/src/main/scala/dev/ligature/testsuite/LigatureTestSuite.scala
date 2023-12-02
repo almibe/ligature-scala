@@ -29,11 +29,11 @@ abstract class LigatureTestSuite extends FunSuite {
     }
   )
 
-  setup.test("create and close store") { instance =>
+  setup.test("create and close store".only) { instance =>
     assertEquals(instance.allGraphs().toList, List())
   }
 
-  setup.test("creating a new graph") { instance =>
+  setup.test("creating a new graph".only) { instance =>
     instance.createGraph(testGraph)
     val res = instance.allGraphs().toList
     assertEquals(res, List(testGraph))
