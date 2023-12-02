@@ -141,17 +141,6 @@ lazy val ligatureInMemory = crossProject(JSPlatform, JVMPlatform)
 //   .dependsOn(ligature, idgen, ligatureTestSuite % Test)
 //   .disablePlugins(RevolverPlugin)
 
-lazy val ligatureArcadeDb = crossProject(JVMPlatform)
-  .in(file("ligature-arcadedb"))
-  .settings(
-    name := "ligature-arcadedb",
-    scalaVersion := scala3Version,
-    libraryDependencies += "com.arcadedb" % "arcadedb-engine" % arcadeDBVersion,
-    libraryDependencies += "org.scalameta" %% "munit" % munitVersion % Test,
-  )
-  .dependsOn(ligature, idgen, ligatureTestSuite % Test)
-  .disablePlugins(RevolverPlugin)
-
 // lazy val ligatureZeroMQ = project
 //   .in(file("ligature-zeromq"))
 //   .settings(
