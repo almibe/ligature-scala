@@ -27,21 +27,20 @@ def process(terms: Seq[Term]): Either[WanderError, Expression] =
 
 def process(term: Term): Either[WanderError, Expression] =
   term match {
-    case Term.NothingLiteral                        => Right(Expression.Nothing)
-    case Term.Pipe                                  => ???
-    case Term.QuestionMark                          => Right(Expression.QuestionMark)
-    case Term.IdentifierLiteral(value)              => Right(Expression.IdentifierValue(value))
-    case Term.Array(terms)                          => processArray(terms)
-    case Term.BooleanLiteral(value)                 => Right(Expression.BooleanValue(value))
-    case Term.LetExpression(name, value)            => processLetExpression(name, value)
-    case Term.IntegerLiteral(value)                 => Right(Expression.IntegerValue(value))
-    case Term.NameTerm(value)                       => Right(Expression.NameExpression(value))
-    case Term.StringLiteral(value)                  => Right(Expression.StringValue(value))
-    case Term.Lambda(parameters, body)              => processLambda(parameters, body)
-    case Term.Grouping(terms)                       => processGrouping(terms)
-    case Term.WhenExpression(conditionals)          => processWhenExpression(conditionals)
+    case Term.NothingLiteral               => Right(Expression.Nothing)
+    case Term.Pipe                         => ???
+    case Term.QuestionMark                 => Right(Expression.QuestionMark)
+    case Term.IdentifierLiteral(value)     => Right(Expression.IdentifierValue(value))
+    case Term.Array(terms)                 => processArray(terms)
+    case Term.BooleanLiteral(value)        => Right(Expression.BooleanValue(value))
+    case Term.LetExpression(name, value)   => processLetExpression(name, value)
+    case Term.IntegerLiteral(value)        => Right(Expression.IntegerValue(value))
+    case Term.NameTerm(value)              => Right(Expression.NameExpression(value))
+    case Term.StringLiteral(value)         => Right(Expression.StringValue(value))
+    case Term.Lambda(parameters, body)     => processLambda(parameters, body)
+    case Term.Grouping(terms)              => processGrouping(terms)
+    case Term.WhenExpression(conditionals) => processWhenExpression(conditionals)
   }
-
 
 def processGrouping(terms: Seq[Term]): Either[WanderError, Expression.Grouping] = {
   var error: Option[WanderError] = None
@@ -55,7 +54,6 @@ def processGrouping(terms: Seq[Term]): Either[WanderError, Expression.Grouping] 
   if error.isDefined then Left(error.get)
   else Right(Expression.Grouping(res.toSeq))
 }
-
 
 def processWhenExpression(
     conditionals: Seq[(Term, Term)]

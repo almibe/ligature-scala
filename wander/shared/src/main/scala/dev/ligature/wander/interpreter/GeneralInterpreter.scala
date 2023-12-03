@@ -21,13 +21,13 @@ class GeneralInterpreter extends Interpreter {
       case Expression.StringValue(value)  => Right((WanderValue.StringValue(value), environment))
       case Expression.IdentifierValue(value) => Right((WanderValue.Identifier(value), environment))
       case Expression.Array(value)           => handleArray(value, environment)
-      case Expression.NameExpression(name)       => environment.read(name).map((_, environment))
+      case Expression.NameExpression(name)   => environment.read(name).map((_, environment))
       case Expression.LetExpression(name, value) => handleLetExpression(name, value, environment)
       case lambda: Expression.Lambda             => Right((WanderValue.Lambda(lambda), environment))
       case Expression.WhenExpression(conditionals) =>
         handleWhenExpression(conditionals, environment)
       case Expression.Grouping(expressions) => handleGrouping(expressions, environment)
-      case Expression.QuestionMark => Right((WanderValue.QuestionMark, environment))
+      case Expression.QuestionMark          => Right((WanderValue.QuestionMark, environment))
     }
 
   def handleQuery(
