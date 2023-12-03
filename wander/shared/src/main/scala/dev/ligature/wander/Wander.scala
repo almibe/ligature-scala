@@ -4,7 +4,6 @@
 
 package dev.ligature.wander
 
-import dev.ligature.wander.WanderValue
 import dev.ligature.wander.interpreter.*
 import dev.ligature.wander.parse
 import scala.annotation.unused

@@ -95,16 +95,6 @@ class ParserSuite extends FunSuite {
     val expected = Right(Term.LetExpression(Name("x"), Term.IntegerLiteral(5)))
     assertEquals(result, expected)
   }
-  // test("parse conditionals") {
-  //   val result = check("if true false else true")
-  //   val expected = Right(
-  //     Term.IfExpression(
-  //       Term.BooleanLiteral(true),
-  //       Term.BooleanLiteral(false),
-  //       Term.BooleanLiteral(true)
-  //     ))
-  //   assertEquals(result, expected)
-  // }
   test("parse Lambda") {
     val result = check("\\x -> x")
     val expected = Right(
@@ -150,16 +140,4 @@ class ParserSuite extends FunSuite {
     )
     assertEquals(result, expected)
   }
-  // test("parse quad") {
-  //   val result = check("<a> <b> <c> <d>")
-  //   val expected = Right(
-  //     Term.Quad(
-  //       Term.IdentifierLiteral(Ident("a")),
-  //       Term.IdentifierLiteral(Ident("b")),
-  //       Term.IdentifierLiteral(Ident("c")),
-  //       Term.IdentifierLiteral(Ident("d"))
-  //     )
-  //   )
-  //   assertEquals(result, expected)
-  // }
 }

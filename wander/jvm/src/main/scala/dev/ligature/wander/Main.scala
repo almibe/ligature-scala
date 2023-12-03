@@ -15,11 +15,4 @@ def main(args: String*) =
   println("Tokens     : " + intro.tokens)
   println("Terms      : " + intro.terms)
   println("Expression : " + intro.expression)
-  // createLigatureInMemory().use {instance =>
-  //   run(script, common(instance)) match {
-  //     case Left(value)  => println("Err        : " + value)
-  //     case Right(value) => println("Result     : " + value)
-  //   }
-  //   IO.pure(())
-  // }.unsafeRunSync()
   println("\n")

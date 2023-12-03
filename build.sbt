@@ -74,7 +74,7 @@ lazy val wanderLigature = crossProject(JSPlatform, JVMPlatform)
       _.withModuleKind(ModuleKind.ESModule)
     }
   )
-  .dependsOn(gaze, wander, ligature, ligatureInMemory)
+  .dependsOn(gaze, wander, ligature)
   .disablePlugins(RevolverPlugin)
 
 lazy val wanderPad = crossProject(JVMPlatform)
