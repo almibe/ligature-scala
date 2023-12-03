@@ -36,11 +36,11 @@ enum Term:
   case Set(value: Seq[Term])
   case LetExpression(name: Name, term: Term)
   case WhenExpression(conditionals: Seq[(Term, Term)])
-  case Application(terms: Seq[Term])
+//  case Application(terms: Seq[Term])
   case Grouping(terms: Seq[Term])
   case Lambda(parameters: Seq[Name], body: Term)
-  case Triple(entity: Term, attribute: Term, value: Term)
-  case Quad(entity: Term, attribute: Term, value: Term, graph: Term)
+  // case Triple(entity: Term, attribute: Term, value: Term)
+  // case Quad(entity: Term, attribute: Term, value: Term, graph: Term)
   case Pipe
 
 def parse(script: Seq[Token]): Either[WanderError, Term] = {
@@ -146,7 +146,7 @@ val applicationNib: Nibbler[Token, Term] = { gaze =>
     case Result.NoMatch => Result.NoMatch
     case Result.Match((name, terms)) =>
       if terms.isEmpty then Result.Match(name)
-      else Result.Match(Term.Application(Seq(name) ++ terms))
+      else Result.Match(Term.Grouping(Seq(name) ++ terms))
     case Result.EmptyMatch => Result.EmptyMatch
   }
 }
@@ -196,29 +196,29 @@ val letExpressionNib: Nibbler[Token, Term.LetExpression] = { gaze =>
   } yield Term.LetExpression(name.value, value)
 }
 
-val tripleNib: Nibbler[Token, Term.Triple] = { gaze =>
-  for
-    entity <- gaze.attempt(takeFirst(questionMarkTermNib, identifierNib))
-    attribute <- gaze.attempt(takeFirst(questionMarkTermNib, identifierNib))
-    value <- gaze.attempt(takeFirst(questionMarkTermNib, identifierNib))
-  yield Term.Triple(entity, attribute, value)
-}
+// val tripleNib: Nibbler[Token, Term.Triple] = { gaze =>
+//   for
+//     entity <- gaze.attempt(takeFirst(questionMarkTermNib, identifierNib))
+//     attribute <- gaze.attempt(takeFirst(questionMarkTermNib, identifierNib))
+//     value <- gaze.attempt(takeFirst(questionMarkTermNib, identifierNib))
+//   yield Term.Triple(entity, attribute, value)
+// }
 
-val quadNib: Nibbler[Token, Term.Quad] = { gaze =>
-  for
-    entity <- gaze.attempt(takeFirst(questionMarkTermNib, identifierNib))
-    attribute <- gaze.attempt(takeFirst(questionMarkTermNib, identifierNib))
-    value <- gaze.attempt(takeFirst(questionMarkTermNib, identifierNib))
-    graph <- gaze.attempt(takeFirst(questionMarkTermNib, identifierNib))
-  yield Term.Quad(entity, attribute, value, graph)
-}
+// val quadNib: Nibbler[Token, Term.Quad] = { gaze =>
+//   for
+//     entity <- gaze.attempt(takeFirst(questionMarkTermNib, identifierNib))
+//     attribute <- gaze.attempt(takeFirst(questionMarkTermNib, identifierNib))
+//     value <- gaze.attempt(takeFirst(questionMarkTermNib, identifierNib))
+//     graph <- gaze.attempt(takeFirst(questionMarkTermNib, identifierNib))
+//   yield Term.Quad(entity, attribute, value, graph)
+// }
 
 val expressionNib =
   takeFirst(
     applicationNib,
     lambdaNib,
-    quadNib,
-    tripleNib,
+    // quadNib,
+    // tripleNib,
     identifierNib,
     groupingNib,
     stringNib,

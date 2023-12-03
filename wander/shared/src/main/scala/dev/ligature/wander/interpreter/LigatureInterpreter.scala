@@ -22,18 +22,18 @@ class LigatureInterpreter extends Interpreter {
       case Expression.IdentifierValue(value) => Right((WanderValue.Identifier(value), environment))
       case Expression.Array(value)           => handleArray(value, environment)
       case Expression.Set(value)             => handleSet(value, environment)
-      case Expression.Application(name, arguments) =>
-        handleApplication(name, arguments, environment)
+      // case Expression.Application(name, arguments) =>
+      //   handleApplication(name, arguments, environment)
       case Expression.NameExpression(name)       => environment.read(name).map((_, environment))
       case Expression.LetExpression(name, value) => handleLetExpression(name, value, environment)
       case lambda: Expression.Lambda             => Right((WanderValue.Lambda(lambda), environment))
       case Expression.WhenExpression(conditionals) =>
         handleWhenExpression(conditionals, environment)
       case Expression.Grouping(expressions) => handleGrouping(expressions, environment)
-      case Expression.Triple(entity, attribute, value) =>
-        handleTriple(entity, attribute, value, environment)
-      case Expression.Quad(entity, attribute, value, graph) =>
-        handleQuad(entity, attribute, value, graph, environment)
+      // case Expression.Triple(entity, attribute, value) =>
+      //   handleTriple(entity, attribute, value, environment)
+      // case Expression.Quad(entity, attribute, value, graph) =>
+      //   handleQuad(entity, attribute, value, graph, environment)
       case Expression.QuestionMark => Right((WanderValue.QuestionMark, environment))
     }
 

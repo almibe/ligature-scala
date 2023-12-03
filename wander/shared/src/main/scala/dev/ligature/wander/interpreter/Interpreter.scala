@@ -11,7 +11,7 @@ import dev.ligature.wander.*
 trait Interpreter:
   def eval(
       expression: Expression,
-      bindings: Environment
+      environment: Environment
   ): Either[WanderError, (WanderValue, Environment)]
 
 enum Expression:
@@ -24,10 +24,10 @@ enum Expression:
   case Array(value: Seq[Expression])
   case Set(value: Seq[Expression])
   case LetExpression(name: Name, value: Expression)
-  case Application(name: Name, arguments: Seq[Expression])
+//  case Application(name: Name, arguments: Seq[Expression])
   case Lambda(parameters: Seq[Name], body: Expression)
   case WhenExpression(conditionals: Seq[(Expression, Expression)])
   case Grouping(expressions: Seq[Expression])
-  case Triple(entity: Expression, attribute: Expression, value: Expression)
-  case Quad(entity: Expression, attribute: Expression, value: Expression, graph: Expression)
+  // case Triple(entity: Expression, attribute: Expression, value: Expression)
+  // case Quad(entity: Expression, attribute: Expression, value: Expression, graph: Expression)
   case QuestionMark

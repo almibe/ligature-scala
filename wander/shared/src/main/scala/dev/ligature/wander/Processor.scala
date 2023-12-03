@@ -38,37 +38,37 @@ def process(term: Term): Either[WanderError, Expression] =
     case Term.IntegerLiteral(value)                 => Right(Expression.IntegerValue(value))
     case Term.NameTerm(value)                       => Right(Expression.NameExpression(value))
     case Term.StringLiteral(value)                  => Right(Expression.StringValue(value))
-    case Term.Application(terms)                    => processApplication(terms)
+//    case Term.Application(terms)                    => processApplication(terms)
     case Term.Lambda(parameters, body)              => processLambda(parameters, body)
     case Term.Grouping(terms)                       => processGrouping(terms)
     case Term.WhenExpression(conditionals)          => processWhenExpression(conditionals)
-    case Term.Triple(entity, attribute, value)      => processTriple(entity, attribute, value)
-    case Term.Quad(entity, attribute, value, graph) => processQuad(entity, attribute, value, graph)
+    // case Term.Triple(entity, attribute, value)      => processTriple(entity, attribute, value)
+    // case Term.Quad(entity, attribute, value, graph) => processQuad(entity, attribute, value, graph)
   }
 
-def processTriple(
-    entity: Term,
-    attribute: Term,
-    value: Term
-): Either[WanderError, Expression.Triple] =
-  for {
-    entity <- process(entity)
-    attribute <- process(attribute)
-    value <- process(value)
-  } yield Expression.Triple(entity, attribute, value)
+// def processTriple(
+//     entity: Term,
+//     attribute: Term,
+//     value: Term
+// ): Either[WanderError, Expression.Triple] =
+//   for {
+//     entity <- process(entity)
+//     attribute <- process(attribute)
+//     value <- process(value)
+//   } yield Expression.Triple(entity, attribute, value)
 
-def processQuad(
-    entity: Term,
-    attribute: Term,
-    value: Term,
-    graph: Term
-): Either[WanderError, Expression.Quad] =
-  for {
-    entity <- process(entity)
-    attribute <- process(attribute)
-    value <- process(value)
-    graph <- process(graph)
-  } yield Expression.Quad(entity, attribute, value, graph)
+// def processQuad(
+//     entity: Term,
+//     attribute: Term,
+//     value: Term,
+//     graph: Term
+// ): Either[WanderError, Expression.Quad] =
+//   for {
+//     entity <- process(entity)
+//     attribute <- process(attribute)
+//     value <- process(value)
+//     graph <- process(graph)
+//   } yield Expression.Quad(entity, attribute, value, graph)
 
 def processGrouping(terms: Seq[Term]): Either[WanderError, Expression.Grouping] = {
   var error: Option[WanderError] = None
@@ -83,30 +83,30 @@ def processGrouping(terms: Seq[Term]): Either[WanderError, Expression.Grouping] 
   else Right(Expression.Grouping(res.toSeq))
 }
 
-def processApplication(terms: Seq[Term]): Either[WanderError, Expression.Application] =
-  if terms.length < 2 then
-    Left(WanderError("Applications require a function name and at least one arguement."))
-  else
-    var error: Option[WanderError] = None
-    var name: Option[Name] = None
-    val itr = terms.iterator
-    itr.next() match {
-      case Term.NameTerm(value) => name = Some(value)
-      case _ =>
-        error = Some(
-          WanderError("Head of an Application must be a name.")
-        ) // TODO true, until I add pipes
-    }
-    val buffer = ListBuffer[Expression]()
-    while (itr.hasNext && error.isEmpty) {
-      val token = itr.next()
-      process(token) match {
-        case Left(value)  => error = Some(value)
-        case Right(value) => buffer += value
-      }
-    }
-    if error.isEmpty then Right(Expression.Application(name.get, buffer.toSeq))
-    else Left(error.get)
+// def processApplication(terms: Seq[Term]): Either[WanderError, Expression.Application] =
+//   if terms.length < 2 then
+//     Left(WanderError("Applications require a function name and at least one arguement."))
+//   else
+//     var error: Option[WanderError] = None
+//     var name: Option[Name] = None
+//     val itr = terms.iterator
+//     itr.next() match {
+//       case Term.NameTerm(value) => name = Some(value)
+//       case _ =>
+//         error = Some(
+//           WanderError("Head of an Application must be a name.")
+//         ) // TODO true, until I add pipes
+//     }
+//     val buffer = ListBuffer[Expression]()
+//     while (itr.hasNext && error.isEmpty) {
+//       val token = itr.next()
+//       process(token) match {
+//         case Left(value)  => error = Some(value)
+//         case Right(value) => buffer += value
+//       }
+//     }
+//     if error.isEmpty then Right(Expression.Application(name.get, buffer.toSeq))
+//     else Left(error.get)
 
 def processWhenExpression(
     conditionals: Seq[(Term, Term)]

@@ -24,10 +24,10 @@ class ParserSuite extends FunSuite {
       case Right(tokens) => tokens
     parse(tokens)
 
-  test("parse Application") {
+  test("parse Grouping") {
     val input = check("testing 1 2 3")
     val expected = Right(
-      Term.Application(
+      Term.Grouping(
         Seq(
           Term.NameTerm(Name("testing")),
           Term.IntegerLiteral(1),
@@ -66,13 +66,13 @@ class ParserSuite extends FunSuite {
   test("parse Function Calls") {
     val input = check("not true")
     val expected =
-      Right(Term.Application(Seq(Term.NameTerm(Name("not")), Term.BooleanLiteral(true))))
+      Right(Term.Grouping(Seq(Term.NameTerm(Name("not")), Term.BooleanLiteral(true))))
     assertEquals(input, expected)
   }
   test("parse Function Call with question mark argument") {
     val result = check("query ?")
     val expected = Right(
-      Term.Application(
+      Term.Grouping(
         Seq(Term.NameTerm(Name("query")), Term.QuestionMark)
       )
     )
@@ -132,7 +132,7 @@ class ParserSuite extends FunSuite {
         Seq(
           Term.LetExpression(Name("y"), Term.BooleanLiteral(true)),
           Term.Lambda(Seq(Name("x")), Term.NameTerm(Name("x"))),
-          Term.Application(Seq(Term.NameTerm(Name("Bool.not")), Term.NameTerm(Name("y"))))
+          Term.Grouping(Seq(Term.NameTerm(Name("Bool.not")), Term.NameTerm(Name("y"))))
         )
       )
     )
@@ -150,16 +150,16 @@ class ParserSuite extends FunSuite {
     )
     assertEquals(result, expected)
   }
-  test("parse quad") {
-    val result = check("<a> <b> <c> <d>")
-    val expected = Right(
-      Term.Quad(
-        Term.IdentifierLiteral(Ident("a")),
-        Term.IdentifierLiteral(Ident("b")),
-        Term.IdentifierLiteral(Ident("c")),
-        Term.IdentifierLiteral(Ident("d"))
-      )
-    )
-    assertEquals(result, expected)
-  }
+  // test("parse quad") {
+  //   val result = check("<a> <b> <c> <d>")
+  //   val expected = Right(
+  //     Term.Quad(
+  //       Term.IdentifierLiteral(Ident("a")),
+  //       Term.IdentifierLiteral(Ident("b")),
+  //       Term.IdentifierLiteral(Ident("c")),
+  //       Term.IdentifierLiteral(Ident("d"))
+  //     )
+  //   )
+  //   assertEquals(result, expected)
+  // }
 }
