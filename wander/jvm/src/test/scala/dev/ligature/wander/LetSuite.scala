@@ -8,12 +8,11 @@ import dev.ligature.wander.Token
 import dev.ligature.wander.WanderValue
 import dev.ligature.wander.preludes.common
 import dev.ligature.wander.interpreter.*
-import dev.ligature.inmemory.LigatureInMemory
 
 class LetSuite extends munit.FunSuite {
   def check(script: String, expected: WanderValue) =
     assertEquals(
-      run(script, common(LigatureInterpreter(), LigatureInMemory())).getOrElse(???)._1,
+      run(script, common(LigatureInterpreter())).getOrElse(???)._1,
       expected
     )
 

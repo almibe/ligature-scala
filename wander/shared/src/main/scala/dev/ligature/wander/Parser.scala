@@ -33,14 +33,10 @@ enum Term:
   case NothingLiteral
   case QuestionMark
   case Array(value: Seq[Term])
-  case Set(value: Seq[Term])
   case LetExpression(name: Name, term: Term)
   case WhenExpression(conditionals: Seq[(Term, Term)])
-//  case Application(terms: Seq[Term])
   case Grouping(terms: Seq[Term])
   case Lambda(parameters: Seq[Name], body: Term)
-  // case Triple(entity: Term, attribute: Term, value: Term)
-  // case Quad(entity: Term, attribute: Term, value: Term, graph: Term)
   case Pipe
 
 def parse(script: Seq[Token]): Either[WanderError, Term] = {
@@ -151,15 +147,6 @@ val applicationNib: Nibbler[Token, Term] = { gaze =>
   }
 }
 
-val setNib: Nibbler[Token, Term.Set] = { gaze =>
-  for
-    _ <- gaze.attempt(take(Token.Hash))
-    _ <- gaze.attempt(take(Token.OpenBracket))
-    values <- gaze.attempt(optionalSeq(repeatSep(expressionNib, Token.Comma)))
-    _ <- gaze.attempt(take(Token.CloseBracket))
-  yield Term.Set(values)
-}
-
 val arrayNib: Nibbler[Token, Term.Array] = { gaze =>
   for
     _ <- gaze.attempt(take(Token.OpenBracket))
@@ -196,29 +183,10 @@ val letExpressionNib: Nibbler[Token, Term.LetExpression] = { gaze =>
   } yield Term.LetExpression(name.value, value)
 }
 
-// val tripleNib: Nibbler[Token, Term.Triple] = { gaze =>
-//   for
-//     entity <- gaze.attempt(takeFirst(questionMarkTermNib, identifierNib))
-//     attribute <- gaze.attempt(takeFirst(questionMarkTermNib, identifierNib))
-//     value <- gaze.attempt(takeFirst(questionMarkTermNib, identifierNib))
-//   yield Term.Triple(entity, attribute, value)
-// }
-
-// val quadNib: Nibbler[Token, Term.Quad] = { gaze =>
-//   for
-//     entity <- gaze.attempt(takeFirst(questionMarkTermNib, identifierNib))
-//     attribute <- gaze.attempt(takeFirst(questionMarkTermNib, identifierNib))
-//     value <- gaze.attempt(takeFirst(questionMarkTermNib, identifierNib))
-//     graph <- gaze.attempt(takeFirst(questionMarkTermNib, identifierNib))
-//   yield Term.Quad(entity, attribute, value, graph)
-// }
-
 val expressionNib =
   takeFirst(
     applicationNib,
     lambdaNib,
-    // quadNib,
-    // tripleNib,
     identifierNib,
     groupingNib,
     stringNib,
@@ -226,7 +194,6 @@ val expressionNib =
     letExpressionNib,
     whenExpressionNib,
     arrayNib,
-    setNib,
     booleanNib,
     nothingNib,
     questionMarkTermNib

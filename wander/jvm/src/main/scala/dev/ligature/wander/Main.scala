@@ -5,7 +5,6 @@
 package dev.ligature.wander
 
 import dev.ligature.wander.preludes.common
-import dev.ligature.inmemory.LigatureInMemory
 
 @main
 def main(args: String*) =

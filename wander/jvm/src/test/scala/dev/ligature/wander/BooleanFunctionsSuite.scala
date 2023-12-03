@@ -7,12 +7,11 @@ package dev.ligature.wander
 import dev.ligature.wander.preludes.common
 import dev.ligature.wander.interpreter.*
 import dev.ligature.wander.{WanderValue, Name, Token}
-import dev.ligature.inmemory.LigatureInMemory
 
 class BooleanFunctionsSuite extends munit.FunSuite {
   def check(script: String, expected: WanderValue): Unit =
     assertEquals(
-      run(script, common(LigatureInterpreter(), LigatureInMemory())).getOrElse(???)._1,
+      run(script, common(LigatureInterpreter())).getOrElse(???)._1,
       expected
     )
 

@@ -7,7 +7,6 @@ package dev.ligature.wander
 import dev.ligature.wander.WanderValue
 import dev.ligature.wander.interpreter.*
 import scala.collection.mutable.Set
-import dev.ligature.Ligature
 
 case class Statement(entity: Identifier, attribute: Identifier, value: WanderValue)
 
@@ -20,7 +19,6 @@ def statement(value: WanderValue): Statement =
 
 case class Environment(
     interpreter: Interpreter,
-    ligature: Ligature,
     functions: List[HostFunction] = List(),
     graphs: scala.collection.mutable.Map[String, Set[Statement]] = scala.collection.mutable.Map(),
     scopes: List[Map[Name, WanderValue]] = List(Map())
@@ -28,7 +26,6 @@ case class Environment(
   def newScope(): Environment =
     Environment(
       this.interpreter,
-      this.ligature,
       this.functions,
       this.graphs,
       this.scopes.appended(Map())
@@ -43,7 +40,6 @@ case class Environment(
     val oldScope = this.scopes.dropRight(1)
     Environment(
       this.interpreter,
-      this.ligature,
       this.functions,
       this.graphs,
       oldScope.appended(newVariables)

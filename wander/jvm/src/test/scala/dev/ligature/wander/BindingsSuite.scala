@@ -17,7 +17,7 @@ class EnvironmentSuite extends FunSuite {
   private val value3 = WanderValue.StringValue("this is a test3")
 
   test("add single value and read") {
-    val environment = Environment(EpsilonInterpreter(), null)
+    val environment = Environment(EpsilonInterpreter(), List())
     val environment2 = environment.bindVariable(identifier, value1)
     val res = environment.read(identifier)
     val res2 = environment2.read(identifier)
@@ -29,7 +29,7 @@ class EnvironmentSuite extends FunSuite {
   }
 
   test("test scoping") {
-    val environment = Environment(EpsilonInterpreter(), null)
+    val environment = Environment(EpsilonInterpreter(), List())
     val environment2 = environment.bindVariable(identifier, value1)
     assertEquals(environment2.read(identifier), Right(value1))
 

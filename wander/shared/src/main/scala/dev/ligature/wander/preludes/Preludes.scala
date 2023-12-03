@@ -9,12 +9,11 @@ import dev.ligature.wander.interpreter.*
 import scala.collection.mutable.ListBuffer
 import dev.ligature.wander.*
 import dev.ligature.wander.Environment
-import dev.ligature.Ligature
 
 /**
   */
-def common(interpreter: Interpreter, ligature: Ligature): Environment = {
-  var stdLib = Environment(interpreter, ligature)
+def common(interpreter: Interpreter): Environment = {
+  var stdLib = Environment(interpreter)
   stdLib = bindBooleanPrelude(stdLib)
   stdLib = bindCore(stdLib)
   stdLib
