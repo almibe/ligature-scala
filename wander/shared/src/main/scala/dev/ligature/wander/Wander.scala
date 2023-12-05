@@ -20,6 +20,7 @@ enum WanderValue:
   case Array(values: Seq[WanderValue])
   case Lambda(lambda: Expression.Lambda)
   case HostFunction(hostFunction: dev.ligature.wander.HostFunction)
+  case HostProperty(hostProperty: dev.ligature.wander.HostProperty)
   case Triple(
       entity: dev.ligature.wander.Identifier,
       attribute: dev.ligature.wander.Identifier,
@@ -110,6 +111,7 @@ def printWanderValue(value: WanderValue): String =
     case WanderValue.StringValue(value)  => value
     case WanderValue.Identifier(value)   => s"<${value.name}>"
     case WanderValue.HostFunction(body)  => "[HostFunction]"
+    case WanderValue.HostProperty(propety) => "[HostProperty]" //TODO should value?
     case WanderValue.Nothing             => "nothing"
     case WanderValue.Lambda(lambda)      => "[Lambda]"
     case WanderValue.Array(values) =>

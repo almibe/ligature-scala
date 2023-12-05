@@ -30,7 +30,26 @@ class LigatureInterpreter(instance: Ligature) extends Interpreter {
           Edge(Label(source.value.name), Label(edge.value.name), toValue(target).getOrElse(???))
         instance.addEdges(Graph(""), Seq(value).iterator) // TODO use real graph name
         Right((WanderValue.Nothing, environment)) // TODO return triple
-      case _ => Left(WanderError(s"Could not eval ${expressions}"))
+      case _ => 
+        expressions.head match {
+          case Expression.NameExpression(value) => {
+            eval(expressions.head, environment) match {
+              case Left(value) => Left(value)
+              case Right((value, _)) => {
+                value match {
+                  case WanderValue.HostFunction(hostFunction) => {
+                    hostFunction.fn(expressions.tail, environment)
+                  }
+                  case WanderValue.Lambda(lambda) => {
+                    ???
+                  }
+                  case _ => ???
+                }
+              }
+            }
+          }
+          case _ => Left(WanderError(s"Could not eval ${expressions}"))          
+        }
     }
 
   def eval(
@@ -85,60 +104,68 @@ class LigatureInterpreter(instance: Ligature) extends Interpreter {
     else Right((WanderValue.Array(Seq()), environment))
   }
 
-  def handleTriple(
-      entity: Expression,
-      attribute: Expression,
-      value: Expression,
-      environment: Environment
-  ): Either[WanderError, (WanderValue, Environment)] = {
-    val res = for {
-      entityRes <- eval(entity, environment)
-      attributeRes <- eval(attribute, environment)
-      valueRes <- eval(value, environment)
-    } yield (entityRes._1, attributeRes._1, valueRes._1)
-    res match {
-      case Left(value) => Left(value)
-      case Right(value) =>
-        value match {
-          case (
-                WanderValue.Identifier(entity),
-                WanderValue.Identifier(attribute),
-                value: WanderValue
-              ) =>
-            val triple: WanderValue.Triple = WanderValue.Triple(entity, attribute, value)
-              ??? /// environment.addTriple(triple)
-                Right(triple, environment)
-          case (e: WanderValue, a: WanderValue, v: WanderValue) =>
-            handleQuery(e, a, v, "", environment)
-        }
-    }
-  }
+//   def handleTriple(
+//       entity: Expression,
+//       attribute: Expression,
+//       value: Expression,
+//       environment: Environment
+//   ): Either[WanderError, (WanderValue, Environment)] = {
+//     val res = for {
+//       entityRes <- eval(entity, environment)
+//       attributeRes <- eval(attribute, environment)
+//       valueRes <- eval(value, environment)
+//     } yield (entityRes._1, attributeRes._1, valueRes._1)
+//     res match {
+//       case Left(value) => Left(value)
+//       case Right(value) =>
+//         value match {
+//           case (
+//                 WanderValue.Identifier(entity),
+//                 WanderValue.Identifier(attribute),
+//                 value: WanderValue
+//               ) =>
+//             val triple: WanderValue.Triple = WanderValue.Triple(entity, attribute, value)
+//               ??? /// environment.addTriple(triple)
+//                 Right(triple, environment)
+//           case (e: WanderValue, a: WanderValue, v: WanderValue) =>
+//             handleQuery(e, a, v, "", environment)
+//         }
+//     }
+//   }
 
-  def handleQuad(
-      entity: Expression,
-      attribute: Expression,
-      value: Expression,
-      graph: Expression,
-      environment: Environment
-  ): Either[WanderError, (WanderValue.Quad, Environment)] =
-    for {
-      entityRes <- eval(entity, environment)
-      attributeRes <- eval(attribute, environment)
-      valueRes <- eval(value, environment)
-      graphRes <- eval(graph, environment)
-    } yield (entityRes._1, attributeRes._1, valueRes._1, graphRes._1) match {
-      case (
-            WanderValue.Identifier(entity),
-            WanderValue.Identifier(attribute),
-            value,
-            WanderValue.Identifier(graph)
-          ) =>
-        /// val quad: WanderValue.Quad = WanderValue.Quad(entity, attribute, value, graph)
-        ???
-      // environment.addQuad(quad)
-      // (quad, environment)
-      case _ => ???
-    }
+//   def handleQuad(
+//       entity: Expression,
+//       attribute: Expression,
+//       value: Expression,
+//       graph: Expression,
+//       environment: Environment
+//   ): Either[WanderError, (WanderValue.Quad, Environment)] =
+//     for {
+//       entityRes <- eval(entity, environment)
+//       attributeRes <- eval(attribute, environment)
+//       valueRes <- eval(value, environment)
+//       graphRes <- eval(graph, environment)
+//     } yield (entityRes._1, attributeRes._1, valueRes._1, graphRes._1) match {
+//       case (
+//             WanderValue.Identifier(entity),
+//             WanderValue.Identifier(attribute),
+//             value,
+//             WanderValue.Identifier(graph)
+//           ) =>
+//         /// val quad: WanderValue.Quad = WanderValue.Quad(entity, attribute, value, graph)
+//         ???
+//       // environment.addQuad(quad)
+//       // (quad, environment)
+//  = WanderValue.Quad(entity, attribute, value, graph)
+//         ???
+//         //environment.addQuad(quad)
+//         //(quad, environment)
+// uad(entity, attribute, value, graph)
+//         ???
+//         //environment.addQuad(quad)
+//         //(quad, environment)
+//       case _ => ???
+//     }
 
   def handleGrouping(
       expressions: Seq[Expression],

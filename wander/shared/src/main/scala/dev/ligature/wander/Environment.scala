@@ -12,23 +12,26 @@ import scala.util.boundary
 case class Environment(
     interpreter: Interpreter,
     functions: List[HostFunction] = List(),
+    properties: List[HostProperty] = List(),
     scopes: List[Map[Name, WanderValue]] = List(Map())
 ) {
   def eval(expressions: Seq[Seq[Expression]]): Either[WanderError, (WanderValue, Environment)] = {
     var env = this
     var lastResult: Option[WanderValue] = None
+    val err = 
     boundary:
       expressions.foreach { expressions =>
         this.interpreter.eval(expressions, env) match {
-          case Left(value) => boundary.break(Left(value))
+          case Left(value) => boundary.break(value)
           case Right((value, environment)) =>
             env = environment
             lastResult = Some(value)
         }
       }
-    lastResult match {
-      case None        => Right((WanderValue.Nothing, env))
-      case Some(value) => Right((value, env))
+    (lastResult, err) match {
+      case (_, err: WanderError) => Left(err)
+      case (None, _)        => Right((WanderValue.Nothing, env))
+      case (Some(value), _) => Right((value, env))
     }
   }
 
@@ -36,6 +39,7 @@ case class Environment(
     Environment(
       this.interpreter,
       this.functions,
+      this.properties,
       this.scopes.appended(Map())
     )
 
@@ -49,6 +53,7 @@ case class Environment(
     Environment(
       this.interpreter,
       this.functions,
+      this.properties,
       oldScope.appended(newVariables)
     )
   }
@@ -66,6 +71,11 @@ case class Environment(
       case None           => ()
       case Some(function) => return Right(WanderValue.HostFunction(function))
     }
+    this.properties.find(_.name == name.name) match {
+      case None           => ()
+      case Some(property) => return Right(WanderValue.HostProperty(property))
+    }
+
     Left(WanderError(s"Could not find ${name} in scope."))
   }
 
