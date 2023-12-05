@@ -7,27 +7,36 @@ package dev.ligature.wander
 import dev.ligature.wander.WanderValue
 import dev.ligature.wander.interpreter.*
 import scala.collection.mutable.Set
-
-case class Statement(entity: Identifier, attribute: Identifier, value: WanderValue)
-
-def statement(value: WanderValue): Statement =
-  value match {
-    case WanderValue.Triple(entity, attribute, value)  => Statement(entity, attribute, value)
-    case WanderValue.Quad(entity, attribute, value, _) => Statement(entity, attribute, value)
-    case _                                             => ???
-  }
+import scala.util.boundary
 
 case class Environment(
     interpreter: Interpreter,
     functions: List[HostFunction] = List(),
-    graphs: scala.collection.mutable.Map[String, Set[Statement]] = scala.collection.mutable.Map(),
     scopes: List[Map[Name, WanderValue]] = List(Map())
 ) {
+  def eval(expressions: Seq[Seq[Expression]]): Either[WanderError, (WanderValue, Environment)] = {
+    var env = this
+    var lastResult: Option[WanderValue] = None
+    boundary:
+      expressions.foreach(expressions => {
+        this.interpreter.eval(expressions, env) match {
+          case Left(value) => boundary.break(Left(value))
+          case Right((value, environment)) => {
+            env = environment
+            lastResult = Some(value)
+          }
+        }
+      })
+    lastResult match {
+      case None => Right((WanderValue.Nothing, env))
+      case Some(value) => Right((value, env))
+    }
+  }
+
   def newScope(): Environment =
     Environment(
       this.interpreter,
       this.functions,
-      this.graphs,
       this.scopes.appended(Map())
     )
 
@@ -41,7 +50,6 @@ case class Environment(
     Environment(
       this.interpreter,
       this.functions,
-      this.graphs,
       oldScope.appended(newVariables)
     )
   }
@@ -64,28 +72,4 @@ case class Environment(
 
   def addHostFunctions(functions: Seq[HostFunction]): Environment =
     this.copy(functions = this.functions ++ functions)
-
-  def addTriple(triple: WanderValue.Triple): Either[WanderError, Unit] =
-    if (this.graphs.contains("")) {
-      val graph = this.graphs.get("").get
-      graph.add(statement(triple))
-      Right(())
-    } else {
-      this.graphs += ("" -> Set(statement(triple)))
-      Right(())
-    }
-
-  def name(quad: WanderValue.Quad): String = quad.graph.name
-
-  def addQuad(quad: WanderValue.Quad): Either[WanderError, Unit] = {
-    val graphName = name(quad)
-    if (this.graphs.contains(graphName)) {
-      val graph = this.graphs.get(graphName).get
-      graph.add(statement(quad))
-      Right(())
-    } else {
-      this.graphs += (graphName -> Set(statement(quad)))
-      Right(())
-    }
-  }
 }

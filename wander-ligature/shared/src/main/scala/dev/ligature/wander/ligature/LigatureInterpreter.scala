@@ -2,18 +2,30 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at https://mozilla.org/MPL/2.0/. */
 
-package dev.ligature.wander.interpreter
+package dev.ligature.wander.ligature
 
 import dev.ligature.wander.*
 import dev.ligature.wander.interpreter.*
 import scala.collection.mutable.ListBuffer
 import scala.util.boundary, boundary.break
+import dev.ligature.Ligature
+import dev.ligature.Graph
+import dev.ligature.Edge
+import dev.ligature.Label
+import dev.ligature.Value
 
-class GeneralInterpreter extends Interpreter {
-  def eval(
-    expressions: Seq[Expression],
-    environment: Environment    
-  ): Either[WanderError, (WanderValue, Environment)] = ???
+class LigatureInterpreter(instance: Ligature) extends Interpreter {
+  def eval(expressions: Seq[Expression], environment: Environment): Either[WanderError, (WanderValue, Environment)] = {
+    expressions match {
+      case Seq(expression) => eval(expression, environment)
+      case Seq(source: Expression.IdentifierValue, edge: Expression.IdentifierValue, target: Expression) => {
+        val value = Edge(Label(source.value.name), Label(edge.value.name), toValue(target).getOrElse(???))
+        instance.addEdges(Graph(""), Seq(value).iterator) //TODO use real graph name
+        Right((WanderValue.Nothing, environment)) //TODO return triple
+      }
+      case _ => Left(WanderError(s"Could not eval ${expressions}"))
+    }
+  }
 
   def eval(
       expression: Expression,
@@ -33,6 +45,95 @@ class GeneralInterpreter extends Interpreter {
         handleWhenExpression(conditionals, environment)
       case Expression.Grouping(expressions) => handleGrouping(expressions, environment)
       case Expression.QuestionMark          => Right((WanderValue.QuestionMark, environment))
+    }
+
+  def toValue(expression: Expression): Either[WanderError, Value] = {
+    expression match {
+      case Expression.IdentifierValue(Identifier(value)) => Right(Label(value))
+      case _ => ???
+    }
+  }
+
+  def handleQuery(
+      entity: WanderValue,
+      attribute: WanderValue,
+      value: WanderValue,
+      graphName: String,
+      environment: Environment
+  ): Either[WanderError, (WanderValue, Environment)] = {
+    val e = entity match {
+      case WanderValue.QuestionMark      => None
+      case WanderValue.Identifier(value) => Some(value)
+      case _                             => ???
+    }
+    val a = attribute match {
+      case WanderValue.QuestionMark      => None
+      case WanderValue.Identifier(value) => Some(value)
+      case _                             => ???
+    }
+    val v = value match {
+      case WanderValue.QuestionMark => None
+      case value                    => Some(value)
+    }
+    if false then//(environment.graphs.contains(graphName)) {
+      ???  ///environment.graphs(graphName)
+    else
+      Right((WanderValue.Array(Seq()), environment))
+  }
+
+  def handleTriple(
+      entity: Expression,
+      attribute: Expression,
+      value: Expression,
+      environment: Environment
+  ): Either[WanderError, (WanderValue, Environment)] = {
+    val res = for {
+      entityRes <- eval(entity, environment)
+      attributeRes <- eval(attribute, environment)
+      valueRes <- eval(value, environment)
+    } yield (entityRes._1, attributeRes._1, valueRes._1)
+    res match {
+      case Left(value) => Left(value)
+      case Right(value) =>
+        value match {
+          case (
+                WanderValue.Identifier(entity),
+                WanderValue.Identifier(attribute),
+                value: WanderValue
+              ) =>
+            val triple: WanderValue.Triple = WanderValue.Triple(entity, attribute, value)
+            ???///environment.addTriple(triple)
+            Right(triple, environment)
+          case (e: WanderValue, a: WanderValue, v: WanderValue) =>
+            handleQuery(e, a, v, "", environment)
+        }
+    }
+  }
+
+  def handleQuad(
+      entity: Expression,
+      attribute: Expression,
+      value: Expression,
+      graph: Expression,
+      environment: Environment
+  ): Either[WanderError, (WanderValue.Quad, Environment)] =
+    for {
+      entityRes <- eval(entity, environment)
+      attributeRes <- eval(attribute, environment)
+      valueRes <- eval(value, environment)
+      graphRes <- eval(graph, environment)
+    } yield (entityRes._1, attributeRes._1, valueRes._1, graphRes._1) match {
+      case (
+            WanderValue.Identifier(entity),
+            WanderValue.Identifier(attribute),
+            value,
+            WanderValue.Identifier(graph)
+          ) =>
+        ///val quad: WanderValue.Quad = WanderValue.Quad(entity, attribute, value, graph)
+        ???
+        //environment.addQuad(quad)
+        //(quad, environment)
+      case _ => ???
     }
 
   def handleGrouping(

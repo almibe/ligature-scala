@@ -11,7 +11,7 @@ import dev.ligature.wander.{WanderValue, Name, Token}
 class BooleanFunctionsSuite extends munit.FunSuite {
   def check(script: String, expected: WanderValue): Unit =
     assertEquals(
-      run(script, common(LigatureInterpreter())).getOrElse(???)._1,
+      run(script, common(GeneralInterpreter())).getOrElse(???)._1,
       expected
     )
 

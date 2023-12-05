@@ -9,7 +9,7 @@ import dev.ligature.wander.interpreter.*
 
 class EpsilonInterpreter extends Interpreter {
   def eval(
-      expression: Expression,
+      expressions: Seq[Expression],
       environment: Environment
   ): Either[WanderError, (WanderValue, Environment)] =
     Right(WanderValue.Nothing, environment)

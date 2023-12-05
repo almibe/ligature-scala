@@ -39,29 +39,28 @@ enum Term:
   case Lambda(parameters: Seq[Name], body: Term)
   case Pipe
 
-def parse(script: Seq[Token]): Either[WanderError, Term] = {
+def parse(script: Seq[Token]): Either[WanderError, Seq[Seq[Term]]] = {
   val filteredInput = script.filter {
     _ match
       case Token.Spaces(_) | Token.NewLine | Token.Comment => false
       case _                                               => true
   }
   val gaze = Gaze(SeqSource(filteredInput))
-  val res: Result[Seq[Term]] = gaze.attempt(scriptNib)
+  val res: Result[Seq[Seq[Term]]] = gaze.attempt(scriptNib)
   res match {
     case Result.NoMatch =>
       if (gaze.isComplete) {
-        Right(Term.NothingLiteral)
+        Right(Seq(Seq(Term.NothingLiteral)))
       } else {
         Left(WanderError(s"Error Parsing - No Match - Next Token: ${gaze.next()}"))
       }
     case Result.Match(res) =>
       if (gaze.isComplete) {
-        if res.length == 1 then Right(res.head)
-        else Right(Term.Grouping(res))
+        Right(res)
       } else {
         Left(WanderError(s"Error Parsing - No Match - Next Token: ${gaze.next()}"))
       }
-    case Result.EmptyMatch => Right(Term.NothingLiteral)
+    case Result.EmptyMatch => Right(Seq(Seq(Term.NothingLiteral)))
   }
 }
 
@@ -132,21 +131,6 @@ val whenExpressionNib: Nibbler[Token, Term.WhenExpression] = { gaze =>
   } yield Term.WhenExpression(conditionals)
 }
 
-//NOTE: this will return either an Application or a Name.
-val applicationNib: Nibbler[Token, Term] = { gaze =>
-  val res = for
-    name <- gaze.attempt(nameNib) // TODO this should also allow literals
-    terms <- gaze.attempt(optionalSeq(repeat(expressionNib)))
-  yield (name, terms)
-  res match {
-    case Result.NoMatch => Result.NoMatch
-    case Result.Match((name, terms)) =>
-      if terms.isEmpty then Result.Match(name)
-      else Result.Match(Term.Grouping(Seq(name) ++ terms))
-    case Result.EmptyMatch => Result.EmptyMatch
-  }
-}
-
 val arrayNib: Nibbler[Token, Term.Array] = { gaze =>
   for
     _ <- gaze.attempt(take(Token.OpenBracket))
@@ -170,7 +154,7 @@ val fieldNib: Nibbler[Token, (Name, Term)] = { gaze =>
 val groupingNib: Nibbler[Token, Term.Grouping] = { gaze =>
   for
     _ <- gaze.attempt(take(Token.OpenParen))
-    decls <- gaze.attempt(optionalSeq(repeatSep(expressionNib, Token.Comma)))
+    decls <- gaze.attempt(optionalSeq(repeat(expressionNib)))
     _ <- gaze.attempt(take(Token.CloseParen))
   yield Term.Grouping(decls)
 }
@@ -185,7 +169,7 @@ val letExpressionNib: Nibbler[Token, Term.LetExpression] = { gaze =>
 
 val expressionNib =
   takeFirst(
-    applicationNib,
+    nameNib,
     lambdaNib,
     identifierNib,
     groupingNib,
@@ -199,4 +183,4 @@ val expressionNib =
     questionMarkTermNib
   )
 
-val scriptNib = optionalSeq(repeatSep(expressionNib, Token.Comma))
+val scriptNib = optionalSeq(repeatSep(repeat(expressionNib), Token.Comma))

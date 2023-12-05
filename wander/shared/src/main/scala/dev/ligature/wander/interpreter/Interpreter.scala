@@ -10,7 +10,7 @@ import dev.ligature.wander.*
 
 trait Interpreter:
   def eval(
-      expression: Expression,
+      expression: Seq[Expression],
       environment: Environment
   ): Either[WanderError, (WanderValue, Environment)]
 

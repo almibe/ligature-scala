@@ -64,7 +64,9 @@ final class LigatureInMemory(
 
   override def addEdges(graph: Graph, edges: Iterator[Edge]): Unit =
     this.store.get(graph) match {
-      case None        => ???
+      case None        => {
+        this.store.addOne((graph, GraphStore(0, Set.from(edges.toSet))))
+      }
       case Some(store) => store.edges.addAll(edges)
     }
     // store.get(graph) match

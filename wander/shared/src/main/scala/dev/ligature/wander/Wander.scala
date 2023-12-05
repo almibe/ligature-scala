@@ -18,7 +18,6 @@ enum WanderValue:
   case StringValue(value: String)
   case Identifier(value: dev.ligature.wander.Identifier)
   case Array(values: Seq[WanderValue])
-  case Set(values: scala.collection.Set[WanderValue])
   case Lambda(lambda: Expression.Lambda)
   case HostFunction(hostFunction: dev.ligature.wander.HostFunction)
   case Triple(
@@ -67,12 +66,12 @@ def run(
   } yield expression
   expression match
     case Left(value)  => Left(value)
-    case Right(value) => environment.interpreter.eval(value, environment)
+    case Right(value) => environment.eval(value)
 
 case class Introspect(
     tokens: Either[WanderError, Seq[Token]],
-    terms: Either[WanderError, Term],
-    expression: Either[WanderError, Expression]
+    terms: Either[WanderError, Seq[Seq[Term]]],
+    expression: Either[WanderError, Seq[Seq[Expression]]]
 )
 
 def introspect(script: String): Introspect = {
@@ -114,9 +113,7 @@ def printWanderValue(value: WanderValue): String =
     case WanderValue.Nothing             => "nothing"
     case WanderValue.Lambda(lambda)      => "[Lambda]"
     case WanderValue.Array(values) =>
-      "[" + values.map(value => printWanderValue(value)).mkString(" ") + "]"
-    case WanderValue.Set(values) =>
-      "#[" + values.map(value => printWanderValue(value)).mkString(" ") + "]"
+      "[" + values.map(value => printWanderValue(value)).mkString(", ") + "]"
   }
 
 final case class Identifier private (name: String) {

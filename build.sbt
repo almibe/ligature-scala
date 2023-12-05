@@ -10,7 +10,6 @@ val jeromqVersion   = "0.5.3"
 val jlineVersion    = "3.23.0"
 val scalafxVersion  = "16.0.0-R24"
 val jansiVersion    = "2.4.1"
-val arcadeDBVersion = "23.10.1"
 
 lazy val ligature = crossProject(JSPlatform, JVMPlatform)
   .in(file("ligature"))
@@ -96,7 +95,7 @@ lazy val wanderPad = crossProject(JVMPlatform)
         .map(m => "org.openjfx" % s"javafx-$m" % "16" classifier osName)
     }
   )
-  .dependsOn(gaze, wander)
+  .dependsOn(gaze, wander, wanderLigature, ligatureInMemory)
   .disablePlugins(RevolverPlugin)
 
 lazy val wanderRepl = crossProject(JVMPlatform)
@@ -109,7 +108,7 @@ lazy val wanderRepl = crossProject(JVMPlatform)
     libraryDependencies += "org.jline" % "jline-terminal-jansi" % jlineVersion,
     libraryDependencies += "org.fusesource.jansi" % "jansi" % jansiVersion,
   )
-  .dependsOn(gaze, wander)
+  .dependsOn(gaze, wander, wanderLigature, ligatureInMemory)
   .disablePlugins(RevolverPlugin)
 
 lazy val ligatureTestSuite = crossProject(JSPlatform, JVMPlatform)

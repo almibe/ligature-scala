@@ -19,6 +19,8 @@ import dev.ligature.wander.printResult
 import dev.ligature.wander.WanderError
 import dev.ligature.wander.WanderValue
 import dev.ligature.wander.Environment
+import dev.ligature.wander
+import dev.ligature.wander.ligature.LigatureInterpreter
 import dev.ligature.inmemory.LigatureInMemory
 
 @main def main =
@@ -40,7 +42,7 @@ import dev.ligature.inmemory.LigatureInMemory
     else
       val intro = introspect(script)
       val environment = if (lastResult == null) {
-        common(LigatureInMemory())
+        common(LigatureInterpreter(LigatureInMemory()))
       } else {
         lastResult.getOrElse(???)._2
       }
