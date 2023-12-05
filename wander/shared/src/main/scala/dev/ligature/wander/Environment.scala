@@ -18,17 +18,16 @@ case class Environment(
     var env = this
     var lastResult: Option[WanderValue] = None
     boundary:
-      expressions.foreach(expressions => {
+      expressions.foreach { expressions =>
         this.interpreter.eval(expressions, env) match {
           case Left(value) => boundary.break(Left(value))
-          case Right((value, environment)) => {
+          case Right((value, environment)) =>
             env = environment
             lastResult = Some(value)
-          }
         }
-      })
+      }
     lastResult match {
-      case None => Right((WanderValue.Nothing, env))
+      case None        => Right((WanderValue.Nothing, env))
       case Some(value) => Right((value, env))
     }
   }

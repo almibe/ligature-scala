@@ -22,10 +22,14 @@ import scala.collection.mutable.ListBuffer
 import scala.util.boundary, boundary.break
 
 def process(terms: Seq[Seq[Term]]): Either[WanderError, Seq[Seq[Expression]]] =
-  val expressions = terms.map(terms => terms.map(term => process(term) match {
-    case Left(value) => ???
-    case Right(value) => value
-  }))
+  val expressions = terms.map(terms =>
+    terms.map(term =>
+      process(term) match {
+        case Left(value)  => ???
+        case Right(value) => value
+      }
+    )
+  )
   Right(expressions)
   // if terms.isEmpty then Right(Expression.Nothing)
   // else process(terms(0))

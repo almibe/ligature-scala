@@ -11,8 +11,8 @@ import scala.util.boundary, boundary.break
 
 class GeneralInterpreter extends Interpreter {
   def eval(
-    expressions: Seq[Expression],
-    environment: Environment    
+      expressions: Seq[Expression],
+      environment: Environment
   ): Either[WanderError, (WanderValue, Environment)] = ???
 
   def eval(

@@ -42,10 +42,10 @@ object ScalaFXHelloWorld extends JFXApp3 {
 
     def _run(script: String): Either[WanderError, (WanderValue, Environment)] =
       interpreter.getValue() match {
-        case "General" => run(script, common(GeneralInterpreter()))
-        case "Epsilon" => run(script, common(EpsilonInterpreter()))
+        case "General"  => run(script, common(GeneralInterpreter()))
+        case "Epsilon"  => run(script, common(EpsilonInterpreter()))
         case "Ligature" => run(script, common(LigatureInterpreter(LigatureInMemory())))
-        case _ => ???
+        case _          => ???
       }
 
     def runScript() = {
@@ -99,7 +99,7 @@ object ScalaFXHelloWorld extends JFXApp3 {
             children = Seq(
               runButton,
               introButton,
-              interpreter,
+              interpreter
             )
           }
           center = new SplitPane {

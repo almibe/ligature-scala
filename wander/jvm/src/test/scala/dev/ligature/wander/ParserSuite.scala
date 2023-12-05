@@ -71,9 +71,14 @@ class ParserSuite extends FunSuite {
   }
   test("parse Function Call with question mark argument") {
     val result = check("query ?")
-    val expected = Right(Seq(Seq(      
-        Term.NameTerm(Name("query")), Term.QuestionMark
-    )))
+    val expected = Right(
+      Seq(
+        Seq(
+          Term.NameTerm(Name("query")),
+          Term.QuestionMark
+        )
+      )
+    )
     assertEquals(result, expected)
   }
   test("parse empty List") {
@@ -83,9 +88,15 @@ class ParserSuite extends FunSuite {
   }
   test("parse List") {
     val result = check("[1, 2, \"three\"]")
-    val expected = Right(Seq(Seq(
-      Term.Array(Seq(Term.IntegerLiteral(1), Term.IntegerLiteral(2), Term.StringLiteral("three")))
-    )))
+    val expected = Right(
+      Seq(
+        Seq(
+          Term.Array(
+            Seq(Term.IntegerLiteral(1), Term.IntegerLiteral(2), Term.StringLiteral("three"))
+          )
+        )
+      )
+    )
     assertEquals(result, expected)
   }
   test("parse let expression") {
@@ -95,32 +106,48 @@ class ParserSuite extends FunSuite {
   }
   test("parse Lambda") {
     val result = check("\\x -> x")
-    val expected = Right(Seq(Seq(
-      Term.Lambda(Seq(Name("x")), Term.NameTerm(Name("x")))
-    )))
+    val expected = Right(
+      Seq(
+        Seq(
+          Term.Lambda(Seq(Name("x")), Term.NameTerm(Name("x")))
+        )
+      )
+    )
     assertEquals(result, expected)
   }
   test("parse let expression with lambda") {
     val result = check("let id \\x -> x")
     val expected =
-      Right(Seq(Seq(Term.LetExpression(Name("id"), Term.Lambda(Seq(Name("x")), Term.NameTerm(Name("x")))))))
+      Right(
+        Seq(
+          Seq(Term.LetExpression(Name("id"), Term.Lambda(Seq(Name("x")), Term.NameTerm(Name("x")))))
+        )
+      )
     assertEquals(result, expected)
   }
   test("parse empty grouping") {
     val result = check("()")
-    val expected = Right(Seq(Seq(
-      Term.Grouping(Seq())
-    )))
+    val expected = Right(
+      Seq(
+        Seq(
+          Term.Grouping(Seq())
+        )
+      )
+    )
     assertEquals(result, expected)
   }
   test("parse grouping") {
     val result = check("(x)")
-    val expected = Right(Seq(Seq(
-      Term.Grouping(
+    val expected = Right(
+      Seq(
         Seq(
-          Term.NameTerm(Name("x"))
+          Term.Grouping(
+            Seq(
+              Term.NameTerm(Name("x"))
+            )
+          )
         )
-      )))
+      )
     )
     assertEquals(result, expected)
   }
@@ -139,23 +166,31 @@ class ParserSuite extends FunSuite {
   // }
   test("parse when expression") {
     val result = check("when ( true => 6, false => 7 )")
-    val expected = Right(Seq(Seq(
-      Term.WhenExpression(
+    val expected = Right(
+      Seq(
         Seq(
-          (Term.BooleanLiteral(true), Term.IntegerLiteral(6)),
-          (Term.BooleanLiteral(false), Term.IntegerLiteral(7))
+          Term.WhenExpression(
+            Seq(
+              (Term.BooleanLiteral(true), Term.IntegerLiteral(6)),
+              (Term.BooleanLiteral(false), Term.IntegerLiteral(7))
+            )
+          )
         )
-      )))
+      )
     )
     assertEquals(result, expected)
   }
   test("parse triple") {
     val result = check("<a> <b> <c>")
-    val expected = Right(Seq(Seq(
+    val expected = Right(
+      Seq(
+        Seq(
           Term.IdentifierLiteral(Ident("a")),
           Term.IdentifierLiteral(Ident("b")),
-          Term.IdentifierLiteral(Ident("c")),
-      )))
+          Term.IdentifierLiteral(Ident("c"))
+        )
+      )
+    )
     assertEquals(result, expected)
   }
 }

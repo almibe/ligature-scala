@@ -15,17 +15,23 @@ import dev.ligature.Label
 import dev.ligature.Value
 
 class LigatureInterpreter(instance: Ligature) extends Interpreter {
-  def eval(expressions: Seq[Expression], environment: Environment): Either[WanderError, (WanderValue, Environment)] = {
+  def eval(
+      expressions: Seq[Expression],
+      environment: Environment
+  ): Either[WanderError, (WanderValue, Environment)] =
     expressions match {
       case Seq(expression) => eval(expression, environment)
-      case Seq(source: Expression.IdentifierValue, edge: Expression.IdentifierValue, target: Expression) => {
-        val value = Edge(Label(source.value.name), Label(edge.value.name), toValue(target).getOrElse(???))
-        instance.addEdges(Graph(""), Seq(value).iterator) //TODO use real graph name
-        Right((WanderValue.Nothing, environment)) //TODO return triple
-      }
+      case Seq(
+            source: Expression.IdentifierValue,
+            edge: Expression.IdentifierValue,
+            target: Expression
+          ) =>
+        val value =
+          Edge(Label(source.value.name), Label(edge.value.name), toValue(target).getOrElse(???))
+        instance.addEdges(Graph(""), Seq(value).iterator) // TODO use real graph name
+        Right((WanderValue.Nothing, environment)) // TODO return triple
       case _ => Left(WanderError(s"Could not eval ${expressions}"))
     }
-  }
 
   def eval(
       expression: Expression,
@@ -47,12 +53,11 @@ class LigatureInterpreter(instance: Ligature) extends Interpreter {
       case Expression.QuestionMark          => Right((WanderValue.QuestionMark, environment))
     }
 
-  def toValue(expression: Expression): Either[WanderError, Value] = {
+  def toValue(expression: Expression): Either[WanderError, Value] =
     expression match {
       case Expression.IdentifierValue(Identifier(value)) => Right(Label(value))
-      case _ => ???
+      case _                                             => ???
     }
-  }
 
   def handleQuery(
       entity: WanderValue,
@@ -75,10 +80,9 @@ class LigatureInterpreter(instance: Ligature) extends Interpreter {
       case WanderValue.QuestionMark => None
       case value                    => Some(value)
     }
-    if false then//(environment.graphs.contains(graphName)) {
-      ???  ///environment.graphs(graphName)
-    else
-      Right((WanderValue.Array(Seq()), environment))
+    if false then // (environment.graphs.contains(graphName)) {
+      ??? /// environment.graphs(graphName)
+    else Right((WanderValue.Array(Seq()), environment))
   }
 
   def handleTriple(
@@ -102,8 +106,8 @@ class LigatureInterpreter(instance: Ligature) extends Interpreter {
                 value: WanderValue
               ) =>
             val triple: WanderValue.Triple = WanderValue.Triple(entity, attribute, value)
-            ???///environment.addTriple(triple)
-            Right(triple, environment)
+              ??? /// environment.addTriple(triple)
+                Right(triple, environment)
           case (e: WanderValue, a: WanderValue, v: WanderValue) =>
             handleQuery(e, a, v, "", environment)
         }
@@ -129,10 +133,10 @@ class LigatureInterpreter(instance: Ligature) extends Interpreter {
             value,
             WanderValue.Identifier(graph)
           ) =>
-        ///val quad: WanderValue.Quad = WanderValue.Quad(entity, attribute, value, graph)
+        /// val quad: WanderValue.Quad = WanderValue.Quad(entity, attribute, value, graph)
         ???
-        //environment.addQuad(quad)
-        //(quad, environment)
+      // environment.addQuad(quad)
+      // (quad, environment)
       case _ => ???
     }
 
