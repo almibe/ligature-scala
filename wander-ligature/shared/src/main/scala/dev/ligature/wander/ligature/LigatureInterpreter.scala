@@ -15,7 +15,9 @@ import dev.ligature.Label
 import dev.ligature.Value
 
 class LigatureInterpreter(instance: Ligature) extends Interpreter {
-  def eval(
+  private var defaultGraph: Option[Graph] = None
+
+  override def eval(
       expressions: Seq[Expression],
       environment: Environment
   ): Either[WanderError, (WanderValue, Environment)] =
@@ -28,8 +30,24 @@ class LigatureInterpreter(instance: Ligature) extends Interpreter {
           ) =>
         val value =
           Edge(Label(source.value.name), Label(edge.value.name), toValue(target).getOrElse(???))
-        instance.addEdges(Graph(""), Seq(value).iterator) // TODO use real graph name
-        Right((WanderValue.Nothing, environment)) // TODO return triple
+        this.defaultGraph match {
+          case None => Left(WanderError("Graph not set with `use graphName`."))
+          case Some(graph) => 
+            instance.addEdges(graph, Seq(value).iterator)
+            Right((WanderValue.Nothing, environment)) // TODO return triple
+        }
+      case Seq(
+            source,
+            edge,
+            target
+          ) =>
+        ???
+        this.defaultGraph match {
+          case None => Left(WanderError("Graph not set with `use graphName`."))
+          case Some(graph) => 
+            instance.addEdges(graph, Seq(value).iterator)
+            Right((WanderValue.Nothing, environment)) // TODO return triple
+        }
       case _ => 
         expressions.head match {
           case Expression.NameExpression(value) => {
@@ -41,7 +59,14 @@ class LigatureInterpreter(instance: Ligature) extends Interpreter {
                     hostFunction.fn(expressions.tail, environment)
                   }
                   case WanderValue.Lambda(lambda) => {
-                    ???
+                    var newScope = environment.newScope()
+                    expressions.tail.zipWithIndex.foreach((arg, i) => {
+                      eval(arg, environment) match {
+                        case Left(value) => ???
+                        case Right(value) => newScope = newScope.bindVariable(lambda.parameters(i), value._1)
+                      }
+                    })
+                    eval(lambda.body, newScope)
                   }
                   case _ => ???
                 }
@@ -63,7 +88,7 @@ class LigatureInterpreter(instance: Ligature) extends Interpreter {
       case Expression.StringValue(value)  => Right((WanderValue.StringValue(value), environment))
       case Expression.IdentifierValue(value) => Right((WanderValue.Identifier(value), environment))
       case Expression.Array(value)           => handleArray(value, environment)
-      case Expression.NameExpression(name)   => environment.read(name).map((_, environment))
+      case Expression.NameExpression(name)   => handleName(name, environment)
       case Expression.LetExpression(name, value) => handleLetExpression(name, value, environment)
       case lambda: Expression.Lambda             => Right((WanderValue.Lambda(lambda), environment))
       case Expression.WhenExpression(conditionals) =>
@@ -72,10 +97,23 @@ class LigatureInterpreter(instance: Ligature) extends Interpreter {
       case Expression.QuestionMark          => Right((WanderValue.QuestionMark, environment))
     }
 
+  def use(graph: Graph) = {
+    this.defaultGraph = Some(graph)
+  }
+
   def toValue(expression: Expression): Either[WanderError, Value] =
     expression match {
       case Expression.IdentifierValue(Identifier(value)) => Right(Label(value))
       case _                                             => ???
+    }
+
+  def handleName(name: Name, environment: Environment): Either[WanderError, (WanderValue, Environment)] =
+    environment.read(name) match {
+      case Left(value) => Left(value)
+      case Right(value) => value match {
+        case WanderValue.HostProperty(hostProperty) => hostProperty.read(environment)
+        case v => Right((v, environment))
+      }
     }
 
   def handleQuery(

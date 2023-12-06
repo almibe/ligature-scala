@@ -81,4 +81,7 @@ case class Environment(
 
   def addHostFunctions(functions: Seq[HostFunction]): Environment =
     this.copy(functions = this.functions ++ functions)
+
+  def addHostProperties(properties: Seq[HostProperty]): Environment =
+    this.copy(properties = this.properties ++ properties)
 }

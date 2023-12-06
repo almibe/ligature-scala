@@ -27,6 +27,7 @@ import dev.ligature.wander.interpreter.{GeneralInterpreter, EpsilonInterpreter}
 import scalafx.scene.control.ComboBox
 import dev.ligature.wander.ligature.LigatureInterpreter
 import dev.ligature.inmemory.LigatureInMemory
+import dev.ligature.wander.ligature.ligatureEnvironment
 
 object ScalaFXHelloWorld extends JFXApp3 {
   override def start(): Unit = {
@@ -44,7 +45,7 @@ object ScalaFXHelloWorld extends JFXApp3 {
       interpreter.getValue() match {
         case "General"  => run(script, common(GeneralInterpreter()))
         case "Epsilon"  => run(script, common(EpsilonInterpreter()))
-        case "Ligature" => run(script, common(LigatureInterpreter(LigatureInMemory())))
+        case "Ligature" => run(script, ligatureEnvironment(LigatureInMemory()))
         case _          => ???
       }
 
