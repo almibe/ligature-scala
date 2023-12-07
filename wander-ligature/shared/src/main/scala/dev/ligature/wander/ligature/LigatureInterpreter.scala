@@ -5,7 +5,6 @@
 package dev.ligature.wander.ligature
 
 import dev.ligature.wander.*
-import dev.ligature.wander.interpreter.*
 import scala.collection.mutable.ListBuffer
 import scala.util.boundary, boundary.break
 import dev.ligature.Ligature
@@ -45,7 +44,7 @@ class LigatureInterpreter(instance: Ligature) extends Interpreter {
         this.defaultGraph match {
           case None => Left(WanderError("Graph not set with `use graphName`."))
           case Some(graph) => 
-            instance.addEdges(graph, Seq(value).iterator)
+            ???//instance.addEdges(graph, Seq(value).iterator)
             Right((WanderValue.Nothing, environment)) // TODO return triple
         }
       case _ => 
@@ -77,25 +76,6 @@ class LigatureInterpreter(instance: Ligature) extends Interpreter {
         }
     }
 
-  def eval(
-      expression: Expression,
-      environment: Environment
-  ): Either[WanderError, (WanderValue, Environment)] =
-    expression match {
-      case Expression.Nothing             => Right((WanderValue.Nothing, environment))
-      case Expression.BooleanValue(value) => Right((WanderValue.BooleanValue(value), environment))
-      case Expression.IntegerValue(value) => Right((WanderValue.IntValue(value), environment))
-      case Expression.StringValue(value)  => Right((WanderValue.StringValue(value), environment))
-      case Expression.IdentifierValue(value) => Right((WanderValue.Identifier(value), environment))
-      case Expression.Array(value)           => handleArray(value, environment)
-      case Expression.NameExpression(name)   => handleName(name, environment)
-      case Expression.LetExpression(name, value) => handleLetExpression(name, value, environment)
-      case lambda: Expression.Lambda             => Right((WanderValue.Lambda(lambda), environment))
-      case Expression.WhenExpression(conditionals) =>
-        handleWhenExpression(conditionals, environment)
-      case Expression.Grouping(expressions) => handleGrouping(expressions, environment)
-      case Expression.QuestionMark          => Right((WanderValue.QuestionMark, environment))
-    }
 
   def use(graph: Graph) = {
     this.defaultGraph = Some(graph)
@@ -204,94 +184,4 @@ class LigatureInterpreter(instance: Ligature) extends Interpreter {
 //         //(quad, environment)
 //       case _ => ???
 //     }
-
-  def handleGrouping(
-      expressions: Seq[Expression],
-      environment: Environment
-  ): Either[WanderError, (WanderValue, Environment)] = {
-    var error: Option[WanderError] = None
-    var res: (WanderValue, Environment) = (WanderValue.Nothing, environment)
-    val itr = expressions.iterator
-    while error.isEmpty && itr.hasNext do
-      eval(itr.next(), res._2) match {
-        case Left(err)    => error = Some(err)
-        case Right(value) => res = value
-      }
-    if error.isDefined then Left(error.get)
-    else Right(res)
-  }
-
-  def handleLetExpression(
-      name: Name,
-      value: Expression,
-      environment: Environment
-  ): Either[WanderError, (WanderValue, Environment)] = {
-    var newScope = environment.newScope()
-    eval(value, newScope) match {
-      case Left(value) => ???
-      case Right(value) =>
-        newScope = newScope.bindVariable(name, value._1)
-        Right((value._1, newScope))
-    }
-  }
-
-  def handleApplication(
-      name: Name,
-      arguments: Seq[Expression],
-      environment: Environment
-  ): Either[WanderError, (WanderValue, Environment)] =
-    environment.read(name) match {
-      case Left(err) => Left(err)
-      case Right(value) =>
-        value match {
-          case WanderValue.Lambda(Expression.Lambda(parameters, body)) =>
-            var fnScope = environment.newScope()
-            assert(arguments.size == parameters.size)
-            parameters.zipWithIndex.foreach { (param, index) =>
-              val argument = eval(arguments(index), environment) match {
-                case Left(value) => ???
-                case Right(value) =>
-                  fnScope = fnScope.bindVariable(param, value._1)
-              }
-            }
-            eval(body, fnScope)
-          case WanderValue.HostFunction(fn) => fn.fn(arguments, environment)
-          case _ => Left(WanderError(s"Could not call function ${name.name}."))
-        }
-    }
-
-  def handleWhenExpression(
-      conditionals: Seq[(Expression, Expression)],
-      environment: Environment
-  ): Either[WanderError, (WanderValue, Environment)] =
-    boundary:
-      conditionals.find { (conditional, _) =>
-        eval(conditional, environment) match {
-          case Right((value, _)) =>
-            value match {
-              case WanderValue.BooleanValue(value) => value
-              case _ => break(Left(WanderError("Conditionals must evaluate to Bool.")))
-            }
-          case Left(err) => break(Left(err))
-        }
-      } match {
-        case None            => Left(WanderError("No matching cases."))
-        case Some((_, body)) => eval(body, environment)
-      }
-
-  def handleArray(
-      expressions: Seq[Expression],
-      environment: Environment
-  ): Either[WanderError, (WanderValue.Array, Environment)] = {
-    val res = ListBuffer[WanderValue]()
-    val itre = expressions.iterator
-    var continue = true
-    while continue && itre.hasNext
-    do
-      val expression = itre.next()
-      eval(expression, environment) match
-        case Left(err)    => return Left(err)
-        case Right(value) => res += value._1
-    Right((WanderValue.Array(res.toList), environment))
-  }
 }

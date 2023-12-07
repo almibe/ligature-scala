@@ -5,15 +5,14 @@
 package dev.ligature.wander.preludes
 
 import dev.ligature.wander.{Parameter, WanderValue}
-import dev.ligature.wander.interpreter.*
 import scala.collection.mutable.ListBuffer
 import dev.ligature.wander.*
 import dev.ligature.wander.Environment
 
 /**
   */
-def common(interpreter: Interpreter): Environment = {
-  var stdLib = Environment(interpreter)
+def common(): Environment = {
+  var stdLib = Environment()
   stdLib = bindBooleanPrelude(stdLib)
   stdLib = bindCore(stdLib)
   stdLib

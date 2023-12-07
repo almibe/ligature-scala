@@ -7,12 +7,11 @@ package dev.ligature.wander
 import dev.ligature.wander.Token
 import dev.ligature.wander.WanderValue
 import dev.ligature.wander.preludes.common
-import dev.ligature.wander.interpreter.*
 
 class LetSuite extends munit.FunSuite {
   def check(script: String, expected: WanderValue) =
     assertEquals(
-      run(script, common(GeneralInterpreter())).getOrElse(???)._1,
+      run(script, common()).getOrElse(???)._1,
       expected
     )
 

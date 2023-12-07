@@ -5,23 +5,22 @@
 package dev.ligature.wander
 
 import dev.ligature.wander.WanderValue
-import dev.ligature.wander.interpreter.*
 import scala.collection.mutable.Set
 import scala.util.boundary
 
 case class Environment(
-    interpreter: Interpreter,
     functions: List[HostFunction] = List(),
     properties: List[HostProperty] = List(),
-    scopes: List[Map[Name, WanderValue]] = List(Map())
+    scopes: List[Map[Name, WanderValue]] = List(Map()),
+    interpreter: Interpreter = Interpreter()
 ) {
-  def eval(expressions: Seq[Seq[Expression]]): Either[WanderError, (WanderValue, Environment)] = {
+  def eval(expressions: Seq[Expression]): Either[WanderError, (WanderValue, Environment)] = {
     var env = this
     var lastResult: Option[WanderValue] = None
     val err = 
     boundary:
-      expressions.foreach { expressions =>
-        this.interpreter.eval(expressions, env) match {
+      expressions.foreach { expression =>
+        this.interpreter.eval(expression, env) match {
           case Left(value) => boundary.break(value)
           case Right((value, environment)) =>
             env = environment
@@ -37,7 +36,6 @@ case class Environment(
 
   def newScope(): Environment =
     Environment(
-      this.interpreter,
       this.functions,
       this.properties,
       this.scopes.appended(Map())
@@ -51,7 +49,6 @@ case class Environment(
     val newVariables = currentScope + (name -> wanderValue)
     val oldScope = this.scopes.dropRight(1)
     Environment(
-      this.interpreter,
       this.functions,
       this.properties,
       oldScope.appended(newVariables)

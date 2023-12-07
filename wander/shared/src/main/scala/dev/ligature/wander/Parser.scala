@@ -39,18 +39,18 @@ enum Term:
   case Lambda(parameters: Seq[Name], body: Term)
   case Pipe
 
-def parse(script: Seq[Token]): Either[WanderError, Seq[Seq[Term]]] = {
+def parse(script: Seq[Token]): Either[WanderError, Seq[Term]] = {
   val filteredInput = script.filter {
     _ match
       case Token.Spaces(_) | Token.NewLine | Token.Comment => false
       case _                                               => true
   }
   val gaze = Gaze(SeqSource(filteredInput))
-  val res: Result[Seq[Seq[Term]]] = gaze.attempt(scriptNib)
+  val res: Result[Seq[Term]] = gaze.attempt(scriptNib)
   res match {
     case Result.NoMatch =>
       if (gaze.isComplete) {
-        Right(Seq(Seq(Term.NothingLiteral)))
+        Right(Seq(Term.NothingLiteral))
       } else {
         Left(WanderError(s"Error Parsing - No Match - Next Token: ${gaze.next()}"))
       }
@@ -60,7 +60,7 @@ def parse(script: Seq[Token]): Either[WanderError, Seq[Seq[Term]]] = {
       } else {
         Left(WanderError(s"Error Parsing - No Match - Next Token: ${gaze.next()}"))
       }
-    case Result.EmptyMatch => Right(Seq(Seq(Term.NothingLiteral)))
+    case Result.EmptyMatch => Right(Seq(Term.NothingLiteral))
   }
 }
 
@@ -183,4 +183,4 @@ val expressionNib =
     questionMarkTermNib
   )
 
-val scriptNib = optionalSeq(repeatSep(repeat(expressionNib), Token.Comma))
+val scriptNib = optionalSeq(repeatSep(expressionNib, Token.Comma))

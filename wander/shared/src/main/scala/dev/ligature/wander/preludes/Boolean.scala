@@ -10,7 +10,6 @@ import dev.ligature.wander.WanderValue
 import dev.ligature.wander.Term
 import dev.ligature.wander.Name
 import dev.ligature.wander.WanderError
-import dev.ligature.wander.interpreter.Expression
 import dev.ligature.wander.HostFunction
 
 def bindBooleanPrelude(environment: Environment): Environment =

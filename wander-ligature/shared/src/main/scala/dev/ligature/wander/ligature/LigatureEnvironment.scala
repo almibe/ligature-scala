@@ -10,12 +10,12 @@ import dev.ligature.wander.preludes.common
 import dev.ligature.wander.HostProperty
 import dev.ligature.wander.WanderValue
 import dev.ligature.wander.HostFunction
-import dev.ligature.wander.interpreter.Expression
+import dev.ligature.wander.Expression
 import dev.ligature.Graph
 
 def ligatureEnvironment(ligature: Ligature): Environment = {
     val interpreter = LigatureInterpreter(ligature)
-    common(interpreter).addHostProperties(Seq(
+    common().addHostProperties(Seq(
         HostProperty("graphs", (environment) => {
             val graphs = ligature.allGraphs().map(g => WanderValue.StringValue(g.name))
             Right((WanderValue.Array(graphs.toSeq), environment)) 

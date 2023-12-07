@@ -4,7 +4,6 @@
 
 package dev.ligature.wander
 
-import dev.ligature.wander.interpreter.*
 import dev.ligature.wander.parse
 import scala.annotation.unused
 import dev.ligature.wander.preludes.common
@@ -71,8 +70,8 @@ def run(
 
 case class Introspect(
     tokens: Either[WanderError, Seq[Token]],
-    terms: Either[WanderError, Seq[Seq[Term]]],
-    expression: Either[WanderError, Seq[Seq[Expression]]]
+    terms: Either[WanderError, Seq[Term]],
+    expression: Either[WanderError, Seq[Expression]]
 )
 
 def introspect(script: String): Introspect = {
