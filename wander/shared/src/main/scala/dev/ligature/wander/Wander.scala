@@ -105,14 +105,14 @@ def printWanderValue(value: WanderValue): String =
       s"<${entity.name}> <${attribute.name}> ${printWanderValue(value)},"
     case WanderValue.Quad(entity, attribute, value, graph) =>
       s"<${entity.name}> <${attribute.name}> ${printWanderValue(value)} <${graph.name}>,"
-    case WanderValue.BooleanValue(value) => value.toString()
-    case WanderValue.IntValue(value)     => value.toString()
-    case WanderValue.StringValue(value)  => value
-    case WanderValue.Identifier(value)   => s"<${value.name}>"
-    case WanderValue.HostFunction(body)  => "[HostFunction]"
-    case WanderValue.HostProperty(propety) => "[HostProperty]" //TODO should value?
-    case WanderValue.Nothing             => "nothing"
-    case WanderValue.Lambda(lambda)      => "[Lambda]"
+    case WanderValue.BooleanValue(value)   => value.toString()
+    case WanderValue.IntValue(value)       => value.toString()
+    case WanderValue.StringValue(value)    => value
+    case WanderValue.Identifier(value)     => s"<${value.name}>"
+    case WanderValue.HostFunction(body)    => "[HostFunction]"
+    case WanderValue.HostProperty(propety) => "[HostProperty]" // TODO should value?
+    case WanderValue.Nothing               => "nothing"
+    case WanderValue.Lambda(lambda)        => "[Lambda]"
     case WanderValue.Array(values) =>
       "[" + values.map(value => printWanderValue(value)).mkString(", ") + "]"
   }

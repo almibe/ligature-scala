@@ -35,6 +35,7 @@ enum Term:
   case Array(value: Seq[Term])
   case LetExpression(name: Name, term: Term)
   case WhenExpression(conditionals: Seq[(Term, Term)])
+  case Application(terms: Seq[Term])
   case Grouping(terms: Seq[Term])
   case Lambda(parameters: Seq[Name], body: Term)
   case Pipe
@@ -151,6 +152,17 @@ val fieldNib: Nibbler[Token, (Name, Term)] = { gaze =>
   }
 }
 
+val applicationNib: Nibbler[Token, Term] = { gaze =>
+  val res =
+    for decls <- gaze.attempt(repeat(applicationInternalNib))
+    yield Term.Application(decls)
+  res match {
+    case Result.Match(Term.Application(Seq(singleValue))) =>
+      Result.Match(singleValue)
+    case _ => res
+  }
+}
+
 val groupingNib: Nibbler[Token, Term.Grouping] = { gaze =>
   for
     _ <- gaze.attempt(take(Token.OpenParen))
@@ -167,9 +179,26 @@ val letExpressionNib: Nibbler[Token, Term.LetExpression] = { gaze =>
   } yield Term.LetExpression(name.value, value)
 }
 
-val expressionNib =
+val applicationInternalNib =
   takeFirst(
     nameNib,
+    lambdaNib,
+    identifierNib,
+    groupingNib,
+    stringNib,
+    integerNib,
+    letExpressionNib,
+    whenExpressionNib,
+    arrayNib,
+    booleanNib,
+    nothingNib,
+    questionMarkTermNib
+  )
+
+val expressionNib =
+  takeFirst(
+    applicationNib,
+    // nameNib,
     lambdaNib,
     identifierNib,
     groupingNib,

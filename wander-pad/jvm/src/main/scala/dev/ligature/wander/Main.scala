@@ -23,7 +23,6 @@ import scalafx.geometry.Orientation
 import scalafx.scene.input.KeyEvent
 import scalafx.event.EventHandler
 import javafx.scene.input.KeyCode
-import dev.ligature.wander.interpreter.{GeneralInterpreter, EpsilonInterpreter}
 import scalafx.scene.control.ComboBox
 import dev.ligature.wander.ligature.LigatureInterpreter
 import dev.ligature.inmemory.LigatureInMemory
@@ -36,29 +35,20 @@ object ScalaFXHelloWorld extends JFXApp3 {
     resultOutput.editable = false
     val runButton = Button("Run")
     val introButton = Button("Intro")
-    val interpreter = ComboBox(Seq("General", "Ligature", "Epsilon"))
     runButton.onAction = { e =>
       runScript()
     }
 
-    def _run(script: String): Either[WanderError, (WanderValue, Environment)] =
-      interpreter.getValue() match {
-        case "General"  => run(script, common(GeneralInterpreter()))
-        case "Epsilon"  => run(script, common(EpsilonInterpreter()))
-        case "Ligature" => run(script, ligatureEnvironment(LigatureInMemory()))
-        case _          => ???
-      }
-
     def runScript() = {
       val script = editorInput.getText()
-      val result = _run(script)
+      val result = run(script, common())
       resultOutput.text = printResult(result)
     }
 
     def runIntro() = {
       val script = editorInput.getText()
       val intro = introspect(script)
-      val result = _run(script)
+      val result = run(script, common())
 
       resultOutput.text = "Tokens      :" + intro.tokens.toString() + "\n" +
         "Terms       :" + intro.terms.toString() + "\n" +
@@ -99,8 +89,7 @@ object ScalaFXHelloWorld extends JFXApp3 {
           top = new HBox {
             children = Seq(
               runButton,
-              introButton,
-              interpreter
+              introButton
             )
           }
           center = new SplitPane {
@@ -111,6 +100,5 @@ object ScalaFXHelloWorld extends JFXApp3 {
       }
     }
     editorInput.requestFocus()
-    interpreter.setValue("Ligature")
   }
 }

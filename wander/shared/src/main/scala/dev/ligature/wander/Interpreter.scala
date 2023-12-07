@@ -19,6 +19,7 @@ enum Expression:
   case LetExpression(name: Name, value: Expression)
   case Lambda(parameters: Seq[Name], body: Expression)
   case WhenExpression(conditionals: Seq[(Expression, Expression)])
+  case Application(expressions: Seq[Expression])
   case Grouping(expressions: Seq[Expression])
   case QuestionMark
 
@@ -26,9 +27,16 @@ class Interpreter {
   def eval(
       expressions: Seq[Expression],
       environment: Environment
-  ): Either[WanderError, (WanderValue, Environment)] = {
-    ???
-  }
+  ): Either[WanderError, (WanderValue, Environment)] =
+    var lastResult = WanderValue.Nothing
+    boundary:
+      expressions.foreach(expression =>
+        eval(expression, environment) match {
+          case Right(value) => lastResult = value._1
+          case Left(err)    => break(Left(err))
+        }
+      )
+    Right((lastResult, environment))
 
   def eval(
       expression: Expression,
@@ -46,8 +54,9 @@ class Interpreter {
       case lambda: Expression.Lambda             => Right((WanderValue.Lambda(lambda), environment))
       case Expression.WhenExpression(conditionals) =>
         handleWhenExpression(conditionals, environment)
-      case Expression.Grouping(expressions) => handleGrouping(expressions, environment)
-      case Expression.QuestionMark          => Right((WanderValue.QuestionMark, environment))
+      case Expression.Grouping(expressions)    => handleGrouping(expressions, environment)
+      case Expression.Application(expressions) => handleApplication(expressions, environment)
+      case Expression.QuestionMark             => Right((WanderValue.QuestionMark, environment))
     }
 
   def handleGrouping(
@@ -81,28 +90,32 @@ class Interpreter {
   }
 
   def handleApplication(
-      name: Name,
-      arguments: Seq[Expression],
+      expression: Seq[Expression],
       environment: Environment
   ): Either[WanderError, (WanderValue, Environment)] =
-    environment.read(name) match {
-      case Left(err) => Left(err)
-      case Right(value) =>
-        value match {
-          case WanderValue.Lambda(Expression.Lambda(parameters, body)) =>
-            var fnScope = environment.newScope()
-            assert(arguments.size == parameters.size)
-            parameters.zipWithIndex.foreach { (param, index) =>
-              val argument = eval(arguments(index), environment) match {
-                case Left(value) => ???
-                case Right(value) =>
-                  fnScope = fnScope.bindVariable(param, value._1)
-              }
+    expression.head match {
+      case Expression.NameExpression(name) =>
+        environment.read(name) match {
+          case Left(err) => Left(err)
+          case Right(value) =>
+            val arguments = expression.tail
+            value match {
+              case WanderValue.Lambda(Expression.Lambda(parameters, body)) =>
+                var fnScope = environment.newScope()
+                assert(arguments.size == parameters.size)
+                parameters.zipWithIndex.foreach { (param, index) =>
+                  val argument = eval(arguments(index), environment) match {
+                    case Left(value) => ???
+                    case Right(value) =>
+                      fnScope = fnScope.bindVariable(param, value._1)
+                  }
+                }
+                eval(body, fnScope)
+              case WanderValue.HostFunction(fn) => fn.fn(arguments, environment)
+              case _ => Left(WanderError(s"Could not call function ${name.name}."))
             }
-            eval(body, fnScope)
-          case WanderValue.HostFunction(fn) => fn.fn(arguments, environment)
-          case _ => Left(WanderError(s"Could not call function ${name.name}."))
         }
+      case _ => ???
     }
 
   def handleWhenExpression(

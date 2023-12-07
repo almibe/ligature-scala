@@ -26,8 +26,8 @@ class LigatureTestSuite extends FunSuite {
   )
 
   def check(script: String, environment: Environment): WanderValue =
-    run(script,environment) match {
-      case Left(value) => throw value
+    run(script, environment) match {
+      case Left(value)  => throw value
       case Right(value) => value._1
     }
 

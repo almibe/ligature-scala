@@ -22,11 +22,11 @@ import scala.util.boundary, boundary.break
 
 def process(terms: Seq[Term]): Either[WanderError, Seq[Expression]] =
   val expressions = terms.map(term =>
-      process(term) match {
-        case Left(value)  => ???
-        case Right(value) => value
-      }
-    )
+    process(term) match {
+      case Left(value)  => ???
+      case Right(value) => value
+    }
+  )
   Right(expressions)
   // if terms.isEmpty then Right(Expression.Nothing)
   // else process(terms(0))
@@ -46,6 +46,7 @@ def process(term: Term): Either[WanderError, Expression] =
     case Term.Lambda(parameters, body)     => processLambda(parameters, body)
     case Term.Grouping(terms)              => processGrouping(terms)
     case Term.WhenExpression(conditionals) => processWhenExpression(conditionals)
+    case Term.Application(terms)           => processApplication(terms)
   }
 
 def processGrouping(terms: Seq[Term]): Either[WanderError, Expression.Grouping] = {
@@ -59,6 +60,19 @@ def processGrouping(terms: Seq[Term]): Either[WanderError, Expression.Grouping] 
     }
   if error.isDefined then Left(error.get)
   else Right(Expression.Grouping(res.toSeq))
+}
+
+def processApplication(terms: Seq[Term]): Either[WanderError, Expression.Application] = {
+  var error: Option[WanderError] = None
+  val res = ListBuffer[Expression]()
+  val itr = terms.iterator
+  while error.isEmpty && itr.hasNext do
+    process(itr.next()) match {
+      case Left(err)    => error = Some(err)
+      case Right(value) => res += value
+    }
+  if error.isDefined then Left(error.get)
+  else Right(Expression.Application(res.toSeq))
 }
 
 def processWhenExpression(

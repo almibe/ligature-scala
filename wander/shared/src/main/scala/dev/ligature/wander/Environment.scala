@@ -17,20 +17,20 @@ case class Environment(
   def eval(expressions: Seq[Expression]): Either[WanderError, (WanderValue, Environment)] = {
     var env = this
     var lastResult: Option[WanderValue] = None
-    val err = 
-    boundary:
-      expressions.foreach { expression =>
-        this.interpreter.eval(expression, env) match {
-          case Left(value) => boundary.break(value)
-          case Right((value, environment)) =>
-            env = environment
-            lastResult = Some(value)
+    val err =
+      boundary:
+        expressions.foreach { expression =>
+          this.interpreter.eval(expression, env) match {
+            case Left(value) => boundary.break(value)
+            case Right((value, environment)) =>
+              env = environment
+              lastResult = Some(value)
+          }
         }
-      }
     (lastResult, err) match {
       case (_, err: WanderError) => Left(err)
-      case (None, _)        => Right((WanderValue.Nothing, env))
-      case (Some(value), _) => Right((value, env))
+      case (None, _)             => Right((WanderValue.Nothing, env))
+      case (Some(value), _)      => Right((value, env))
     }
   }
 

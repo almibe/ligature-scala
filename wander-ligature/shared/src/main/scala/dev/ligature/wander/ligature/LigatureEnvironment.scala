@@ -14,21 +14,31 @@ import dev.ligature.wander.Expression
 import dev.ligature.Graph
 
 def ligatureEnvironment(ligature: Ligature): Environment = {
-    val interpreter = LigatureInterpreter(ligature)
-    common().addHostProperties(Seq(
-        HostProperty("graphs", (environment) => {
+  val interpreter = LigatureInterpreter(ligature)
+  common()
+    .addHostProperties(
+      Seq(
+        HostProperty(
+          "graphs",
+          environment => {
             val graphs = ligature.allGraphs().map(g => WanderValue.StringValue(g.name))
-            Right((WanderValue.Array(graphs.toSeq), environment)) 
-        })
-    )).addHostFunctions(Seq(
-        HostFunction("use", (arguments, environment) => {
+            Right((WanderValue.Array(graphs.toSeq), environment))
+          }
+        )
+      )
+    )
+    .addHostFunctions(
+      Seq(
+        HostFunction(
+          "use",
+          (arguments, environment) =>
             arguments match {
-                case Seq(Expression.StringValue(graphName)) => {
-                    interpreter.use(Graph(graphName))
-                    Right((WanderValue.Nothing, environment))
-                }
-                case _ => ???
+              case Seq(Expression.StringValue(graphName)) =>
+                interpreter.use(Graph(graphName))
+                Right((WanderValue.Nothing, environment))
+              case _ => ???
             }
-        })
-    ))
+        )
+      )
+    )
 }
