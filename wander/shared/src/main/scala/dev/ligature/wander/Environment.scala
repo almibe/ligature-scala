@@ -12,7 +12,6 @@ case class Environment(
     functions: List[HostFunction] = List(),
     properties: List[HostProperty] = List(),
     scopes: List[Map[Name, WanderValue]] = List(Map()),
-    interpreter: Interpreter = Interpreter()
 ) {
   def eval(expressions: Seq[Expression]): Either[WanderError, (WanderValue, Environment)] = {
     var env = this
@@ -20,7 +19,7 @@ case class Environment(
     val err =
       boundary:
         expressions.foreach { expression =>
-          this.interpreter.eval(expression, env) match {
+          dev.ligature.wander.eval(expression, env) match {
             case Left(value) => boundary.break(value)
             case Right((value, environment)) =>
               env = environment

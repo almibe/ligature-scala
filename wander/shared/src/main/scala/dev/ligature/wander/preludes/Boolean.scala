@@ -21,7 +21,7 @@ def bindBooleanPrelude(environment: Environment): Environment =
           (arguments, environment) =>
             if arguments.size != 1 then Left(WanderError("`not` function requires 1 argument."))
             else
-              environment.interpreter.eval(arguments, environment).map {
+              dev.ligature.wander.eval(arguments, environment).map {
                 _ match
                   case (WanderValue.BooleanValue(b), _) =>
                     (WanderValue.BooleanValue(!b), environment)
