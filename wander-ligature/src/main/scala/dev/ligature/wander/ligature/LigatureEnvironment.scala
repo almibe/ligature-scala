@@ -34,7 +34,7 @@ def ligatureEnvironment(ligature: Ligature): Environment = {
           (arguments, environment) =>
             arguments match {
               case Seq(Expression.StringValue(graphName)) =>
-                interpreter.use(Graph(graphName))
+                //interpreter.use(Graph(graphName))
                 Right((WanderValue.Nothing, environment))
               case _ => ???
             }

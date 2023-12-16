@@ -11,7 +11,7 @@ val jlineVersion    = "3.23.0"
 val scalafxVersion  = "16.0.0-R24"
 val jansiVersion    = "2.4.1"
 
-lazy val ligature = crossProject(JSPlatform, JVMPlatform)
+lazy val ligature = project
   .in(file("ligature"))
   .settings(
     name := "ligature",
@@ -20,7 +20,7 @@ lazy val ligature = crossProject(JSPlatform, JVMPlatform)
   )
   .disablePlugins(RevolverPlugin)
 
-lazy val gaze = crossProject(JSPlatform, JVMPlatform)
+lazy val gaze = project
   .in(file("gaze"))
   .settings(
     name := "gaze",
@@ -29,7 +29,7 @@ lazy val gaze = crossProject(JSPlatform, JVMPlatform)
   )
   .disablePlugins(RevolverPlugin)
 
-lazy val idgen = crossProject(JSPlatform, JVMPlatform)
+lazy val idgen = project
   .in(file("idgen"))
   .settings(
     name := "idgen",
@@ -38,7 +38,7 @@ lazy val idgen = crossProject(JSPlatform, JVMPlatform)
   )
   .disablePlugins(RevolverPlugin)
 
-lazy val lig = crossProject(JSPlatform, JVMPlatform)
+lazy val lig = project
   .in(file("lig"))
   .settings(
     name := "lig",
@@ -48,7 +48,7 @@ lazy val lig = crossProject(JSPlatform, JVMPlatform)
   .dependsOn(ligature, gaze, idgen)
   .disablePlugins(RevolverPlugin)
 
-lazy val wander = crossProject(JSPlatform, JVMPlatform)
+lazy val wander = project
   .in(file("wander"))
   .settings(
     name := "wander",
@@ -62,7 +62,7 @@ lazy val wander = crossProject(JSPlatform, JVMPlatform)
   .dependsOn(gaze)
   .disablePlugins(RevolverPlugin)
 
-lazy val wanderLigature = crossProject(JSPlatform, JVMPlatform)
+lazy val wanderLigature = project
   .in(file("wander-ligature"))
   .settings(
     name := "wander-ligature",
@@ -98,7 +98,7 @@ lazy val wanderPad = crossProject(JVMPlatform)
   .dependsOn(gaze, wander, wanderLigature, ligatureInMemory)
   .disablePlugins(RevolverPlugin)
 
-lazy val wanderRepl = crossProject(JVMPlatform)
+lazy val wanderRepl = project
   .in(file("wander-repl"))
   .settings(
     name := "wander-repl",
@@ -111,7 +111,7 @@ lazy val wanderRepl = crossProject(JVMPlatform)
   .dependsOn(gaze, wander, wanderLigature, ligatureInMemory)
   .disablePlugins(RevolverPlugin)
 
-lazy val ligatureTestSuite = crossProject(JSPlatform, JVMPlatform)
+lazy val ligatureTestSuite = project
   .in(file("ligature-test-suite"))
   .settings(
     name := "ligature-test-suite",
@@ -121,7 +121,7 @@ lazy val ligatureTestSuite = crossProject(JSPlatform, JVMPlatform)
   .dependsOn(ligature)
   .disablePlugins(RevolverPlugin)
 
-lazy val ligatureInMemory = crossProject(JSPlatform, JVMPlatform)
+lazy val ligatureInMemory = project
   .in(file("ligature-in-memory"))
   .settings(
     name := "ligature-in-memory",

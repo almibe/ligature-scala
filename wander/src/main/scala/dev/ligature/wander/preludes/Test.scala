@@ -21,7 +21,7 @@ val testingHostFunctions: Seq[HostFunction] = Seq(
           else
             Right(WanderValue.Nothing, environment)
         }
-        case _ => ???
+        case _ => Left(WanderError(s"Invalid call to Test.assertEq: $arguments"))
       }
   )
 )

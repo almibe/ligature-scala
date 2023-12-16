@@ -20,17 +20,6 @@ enum WanderValue:
   case Lambda(lambda: Expression.Lambda)
   case HostFunction(hostFunction: dev.ligature.wander.HostFunction)
   case HostProperty(hostProperty: dev.ligature.wander.HostProperty)
-  case Triple(
-      entity: dev.ligature.wander.Identifier,
-      attribute: dev.ligature.wander.Identifier,
-      value: dev.ligature.wander.WanderValue
-  )
-  case Quad(
-      entity: dev.ligature.wander.Identifier,
-      attribute: dev.ligature.wander.Identifier,
-      value: WanderValue,
-      graph: dev.ligature.wander.Identifier
-  )
   case QuestionMark
 
 case class HostFunction(
@@ -101,16 +90,12 @@ def printResult(value: Either[WanderError, (WanderValue, Environment)]): String 
 def printWanderValue(value: WanderValue): String =
   value match {
     case WanderValue.QuestionMark => "?"
-    case WanderValue.Triple(entity, attribute, value) =>
-      s"<${entity.name}> <${attribute.name}> ${printWanderValue(value)},"
-    case WanderValue.Quad(entity, attribute, value, graph) =>
-      s"<${entity.name}> <${attribute.name}> ${printWanderValue(value)} <${graph.name}>,"
     case WanderValue.BooleanValue(value)   => value.toString()
     case WanderValue.IntValue(value)       => value.toString()
-    case WanderValue.StringValue(value)    => value
+    case WanderValue.StringValue(value)    => s"\"value\"" // TODO escape correctly
     case WanderValue.Identifier(value)     => s"<${value.name}>"
     case WanderValue.HostFunction(body)    => "[HostFunction]"
-    case WanderValue.HostProperty(propety) => "[HostProperty]" // TODO should value?
+    case WanderValue.HostProperty(propety) => "[HostProperty]" // TODO print value?
     case WanderValue.Nothing               => "nothing"
     case WanderValue.Lambda(lambda)        => "[Lambda]"
     case WanderValue.Array(values) =>

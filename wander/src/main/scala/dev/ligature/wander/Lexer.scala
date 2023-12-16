@@ -41,13 +41,13 @@ def tokenize(input: String): Either[WanderError, Seq[Token]] = {
       if (gaze.isComplete) {
         Right(List())
       } else {
-        Left(WanderError("Error tokenizing."))
+        Left(WanderError(s"Error tokenizing NoMatch, Next: ${gaze.peek()}."))
       }
     case Result.Match(res) =>
       if (gaze.isComplete) {
         Right(res)
       } else {
-        Left(WanderError("Error tokenizing."))
+        Left(WanderError(s"Error tokenizing not complete, Next: ${gaze.peek()}."))
       }
     case Result.EmptyMatch => ???
   }
