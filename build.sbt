@@ -54,10 +54,6 @@ lazy val wander = project
     name := "wander",
     scalaVersion := scala3Version,
     libraryDependencies += "org.scalameta" %% "munit" % munitVersion % Test,
-    //scalaJSUseMainModuleInitializer := true,
-    scalaJSLinkerConfig ~= {
-      _.withModuleKind(ModuleKind.ESModule)
-    }
   )
   .dependsOn(gaze)
   .disablePlugins(RevolverPlugin)
@@ -68,15 +64,11 @@ lazy val wanderLigature = project
     name := "wander-ligature",
     scalaVersion := scala3Version,
     libraryDependencies += "org.scalameta" %% "munit" % munitVersion % Test,
-    //scalaJSUseMainModuleInitializer := true,
-    scalaJSLinkerConfig ~= {
-      _.withModuleKind(ModuleKind.ESModule)
-    }
   )
   .dependsOn(gaze, wander, ligature, ligatureInMemory % Test)
   .disablePlugins(RevolverPlugin)
 
-lazy val wanderPad = crossProject(JVMPlatform)
+lazy val wanderPad = project
   .in(file("wander-pad"))
   .settings(
     fork := true,
