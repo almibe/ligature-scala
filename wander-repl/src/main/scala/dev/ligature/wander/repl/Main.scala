@@ -42,7 +42,7 @@ import dev.ligature.inmemory.LigatureInMemory
     else
       val intro = introspect(script)
       val environment = if (lastResult == null) {
-        common(LigatureInterpreter(LigatureInMemory()))
+        common()
       } else {
         lastResult.getOrElse(???)._2
       }

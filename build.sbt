@@ -38,15 +38,15 @@ lazy val idgen = project
   )
   .disablePlugins(RevolverPlugin)
 
-lazy val lig = project
-  .in(file("lig"))
-  .settings(
-    name := "lig",
-    scalaVersion := scala3Version,
-    libraryDependencies += "org.scalameta" %% "munit" % munitVersion % Test
-  )
-  .dependsOn(ligature, gaze, idgen)
-  .disablePlugins(RevolverPlugin)
+// lazy val lig = project
+//   .in(file("lig"))
+//   .settings(
+//     name := "lig",
+//     scalaVersion := scala3Version,
+//     libraryDependencies += "org.scalameta" %% "munit" % munitVersion % Test
+//   )
+//   .dependsOn(ligature, gaze, idgen)
+//   .disablePlugins(RevolverPlugin)
 
 lazy val wander = project
   .in(file("wander"))
@@ -122,6 +122,16 @@ lazy val ligatureInMemory = project
   .dependsOn(ligature, idgen, ligatureTestSuite % Test)
   .disablePlugins(RevolverPlugin)
 
+lazy val ligatureHttp = project
+  .in(file("ligature-http"))
+  .settings(
+    name := "ligature-http",
+    scalaVersion := scala3Version,
+    libraryDependencies += "io.vertx" % "vertx-core" % "4.5.1",
+    libraryDependencies += "org.scalameta" %% "munit" % munitVersion,
+  )
+  .dependsOn(ligature, wander, ligatureInMemory, ligatureXodus)
+
 //lazy val ligatureLmdb = crossProject(JVMPlatform)
 //  .in(file("ligature-lmdb"))
 //  .settings(
@@ -135,16 +145,16 @@ lazy val ligatureInMemory = project
 //  .dependsOn(ligature, idgen, ligatureTestSuite % Test)
 //  .disablePlugins(RevolverPlugin)
 
-// lazy val ligatureXodus = crossProject(JVMPlatform)
-//   .in(file("ligature-xodus"))
-//   .settings(
-//     name := "ligature-xodus",
-//     scalaVersion := scala3Version,
-//     libraryDependencies += "org.jetbrains.xodus" % "xodus-environment" % xodusVersion,
-//     libraryDependencies += "org.scalameta" %% "munit" % munitVersion % Test,
-//   )
-//   .dependsOn(ligature, idgen, ligatureTestSuite % Test)
-//   .disablePlugins(RevolverPlugin)
+lazy val ligatureXodus = project
+  .in(file("ligature-xodus"))
+  .settings(
+    name := "ligature-xodus",
+    scalaVersion := scala3Version,
+    libraryDependencies += "org.jetbrains.xodus" % "xodus-environment" % xodusVersion,
+    libraryDependencies += "org.scalameta" %% "munit" % munitVersion % Test,
+  )
+  .dependsOn(ligature, idgen, ligatureTestSuite % Test)
+  .disablePlugins(RevolverPlugin)
 
 // lazy val ligatureZeroMQ = project
 //   .in(file("ligature-zeromq"))
