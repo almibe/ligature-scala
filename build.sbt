@@ -128,6 +128,18 @@ lazy val ligatureHttp = project
     name := "ligature-http",
     scalaVersion := scala3Version,
     libraryDependencies += "io.vertx" % "vertx-core" % "4.5.1",
+    libraryDependencies += "io.vertx" % "vertx-web" % "4.5.1",
+    libraryDependencies += "org.scalameta" %% "munit" % munitVersion,
+  )
+  .dependsOn(ligature, wander, ligatureInMemory, ligatureXodus)
+
+lazy val wanderLsp = project
+  .in(file("wander-lsp"))
+  .settings(
+    name := "wander-lsp",
+    scalaVersion := scala3Version,
+    libraryDependencies += "io.vertx" % "vertx-core" % "4.5.1",
+    libraryDependencies += "io.vertx" % "vertx-web" % "4.5.1",
     libraryDependencies += "org.scalameta" %% "munit" % munitVersion,
   )
   .dependsOn(ligature, wander, ligatureInMemory, ligatureXodus)

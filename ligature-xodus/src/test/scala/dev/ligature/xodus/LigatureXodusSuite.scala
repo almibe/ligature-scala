@@ -8,10 +8,11 @@ import dev.ligature.Ligature
 import dev.ligature.testsuite.LigatureTestSuite
 import java.nio.file._
 import java.io.File
-import cats.effect.kernel.Resource
-import cats.effect.IO
 
 class LigatureXodusSpec extends LigatureTestSuite {
+
+  override def createLigature(): Ligature = ???
+
   var path: Path = null
 
   override def beforeEach(context: BeforeEach): Unit =
@@ -30,6 +31,6 @@ class LigatureXodusSpec extends LigatureTestSuite {
     deleteRecursively(path.toFile)
   }
 
-  override def createLigature: Resource[IO, Ligature] =
-    createXodusLigature(path)
+  // override def createLigature: Ligature =
+  //   createXodusLigature(path)
 }
