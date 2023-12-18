@@ -68,28 +68,6 @@ lazy val wanderLigature = project
   .dependsOn(gaze, wander, ligature, ligatureInMemory % Test)
   .disablePlugins(RevolverPlugin)
 
-lazy val wanderPad = project
-  .in(file("wander-pad"))
-  .settings(
-    fork := true,
-    name := "wander-pad",
-    scalaVersion := scala3Version,
-    libraryDependencies += "org.scalameta" %% "munit" % munitVersion % Test,
-    libraryDependencies += "org.scalafx" %% "scalafx" % scalafxVersion,
-    libraryDependencies ++= {
-      lazy val osName = System.getProperty("os.name") match {
-        case n if n.startsWith("Linux") => "linux"
-        case n if n.startsWith("Mac") => "mac"
-        case n if n.startsWith("Windows") => "win"
-        case _ => throw new Exception("Unknown platform!")
-      }
-      Seq("base", "controls", "fxml", "graphics", "media", "swing", "web")
-        .map(m => "org.openjfx" % s"javafx-$m" % "16" classifier osName)
-    }
-  )
-  .dependsOn(gaze, wander, wanderLigature, ligatureInMemory)
-  .disablePlugins(RevolverPlugin)
-
 lazy val wanderRepl = project
   .in(file("wander-repl"))
   .settings(
