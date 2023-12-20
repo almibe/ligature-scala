@@ -78,7 +78,7 @@ lazy val wanderRepl = project
     libraryDependencies += "org.jline" % "jline-terminal-jansi" % jlineVersion,
     libraryDependencies += "org.fusesource.jansi" % "jansi" % jansiVersion,
   )
-  .dependsOn(gaze, wander, wanderLigature, ligatureInMemory)
+  .dependsOn(gaze, wander, wanderLigature, ligatureInMemory, wanderZeroMQ)
   .disablePlugins(RevolverPlugin)
 
 lazy val ligatureTestSuite = project
@@ -99,17 +99,6 @@ lazy val ligatureInMemory = project
   )
   .dependsOn(ligature, idgen, ligatureTestSuite % Test)
   .disablePlugins(RevolverPlugin)
-
-lazy val ligatureHttp = project
-  .in(file("ligature-http"))
-  .settings(
-    name := "ligature-http",
-    scalaVersion := scala3Version,
-    libraryDependencies += "io.vertx" % "vertx-core" % "4.5.1",
-    libraryDependencies += "io.vertx" % "vertx-web" % "4.5.1",
-    libraryDependencies += "org.scalameta" %% "munit" % munitVersion,
-  )
-  .dependsOn(ligature, wander, ligatureInMemory, ligatureXodus)
 
 lazy val wanderLsp = project
   .in(file("wander-lsp"))
@@ -146,18 +135,17 @@ lazy val ligatureXodus = project
   .dependsOn(ligature, idgen, ligatureTestSuite % Test)
   .disablePlugins(RevolverPlugin)
 
-// lazy val ligatureZeroMQ = project
-//   .in(file("ligature-zeromq"))
-//   .settings(
-//     name := "ligature-zeromq",
-//     scalaVersion := scala3Version,
-//     libraryDependencies += "co.fs2" %% "fs2-core" % fs2Version,
-//     libraryDependencies += "org.zeromq" % "jeromq" % jeromqVersion,
-//     libraryDependencies += "org.typelevel" %% "munit-cats-effect" % munitCatsEffect3Version % Test,
-//   )
-//   .dependsOn(ligature, lig, wander, ligatureInMemory, ligatureXodus)
+lazy val wanderZeroMQ = project
+  .in(file("wander-zeromq"))
+  .settings(
+    name := "wander-zeromq",
+    scalaVersion := scala3Version,
+    libraryDependencies += "org.zeromq" % "jeromq" % jeromqVersion,
+    libraryDependencies += "org.scalameta" %% "munit" % munitVersion % Test,
+  )
+  .dependsOn(ligature, wander, ligatureInMemory, ligatureXodus)
 
-//addCommandAlias("serve", "ligatureZeroMQ/run")
+addCommandAlias("serve", "ligatureZeroMQ/run")
 
 disablePlugins(RevolverPlugin)
 

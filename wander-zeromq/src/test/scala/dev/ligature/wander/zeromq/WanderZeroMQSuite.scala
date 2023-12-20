@@ -5,33 +5,25 @@
 package dev.ligature.zeromq
 
 import munit.*
-import cats.implicits._
-import cats.effect.IO
-import dev.ligature.inmemory.createLigatureInMemory
 import org.zeromq.{ZMQ, SocketType, ZContext}
 
-class LigatureZeroMQSuite extends CatsEffectSuite {
+class LigatureZeroMQSuite extends FunSuite {
   val port = 4200
 
   def runTest(request: String, expected: String) = {
-    zeromqResource.use { zContext =>
-      createLigatureInMemory().use { instance =>
-        val server: IO[String] = runServer(zContext, instance, port).map(_ => "")
-        
-        val runRequest: IO[String] = IO {
-          val socket = zContext.createSocket(SocketType.REQ)
-          socket.connect(s"tcp://localhost:$port")
-          socket.send(request.getBytes(ZMQ.CHARSET), 0)
-          val result = String(socket.recv(0), ZMQ.CHARSET)
-          zContext.close()
-          result
-        }
-
-        val result = List(server, runRequest).parSequence.map{_(1)}
-        assertIO(result, expected)
+      // createLigatureInMemory().use { instance =>
+      //   val server: IO[String] = runServer(zContext, instance, port).map(_ => "")
+      val zContext = ZContext()
+      val result = {
+        val socket = zContext.createSocket(SocketType.REQ)
+        socket.connect(s"tcp://localhost:$port")
+        socket.send(request.getBytes(ZMQ.CHARSET), 0)
+        val result = String(socket.recv(0), ZMQ.CHARSET)
+        zContext.close()
+        result
       }
+      assertEquals(result, expected)
     }
-  }
 
   test("eval literals") {
     val request = "true"

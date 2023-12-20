@@ -20,11 +20,13 @@ import dev.ligature.wander.WanderError
 import dev.ligature.wander.WanderValue
 import dev.ligature.wander.Environment
 import dev.ligature.wander
+import dev.ligature.wander.zeromq.runServer
 import dev.ligature.wander.ligature.LigatureInterpreter
 import dev.ligature.inmemory.LigatureInMemory
 
 @main def main =
 //  val path = Path.of(s"${System.getProperty("user.home")}${System.getProperty("file.separator")}.ligature")
+  runServer(4200)
   val terminal: Terminal = TerminalBuilder.builder().dumb(true).build()
   val parser: DefaultParser = new DefaultParser()
   val reader: LineReader = LineReaderBuilder
