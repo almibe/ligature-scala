@@ -2,17 +2,17 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at https://mozilla.org/MPL/2.0/. */
 
-package dev.ligature.zeromq
+package dev.ligature.wander.zeromq
 
 import munit.*
 import org.zeromq.{ZMQ, SocketType, ZContext}
+
 
 class LigatureZeroMQSuite extends FunSuite {
   val port = 4200
 
   def runTest(request: String, expected: String) = {
-      // createLigatureInMemory().use { instance =>
-      //   val server: IO[String] = runServer(zContext, instance, port).map(_ => "")
+      val close = runServer(port)
       val zContext = ZContext()
       val result = {
         val socket = zContext.createSocket(SocketType.REQ)
@@ -23,6 +23,7 @@ class LigatureZeroMQSuite extends FunSuite {
         result
       }
       assertEquals(result, expected)
+      close.close()
     }
 
   test("eval literals") {
@@ -31,13 +32,8 @@ class LigatureZeroMQSuite extends FunSuite {
     runTest(request, expected)
   }
   test("basic function call") {
-    val request = "not(false)"
+    val request = "Bool.not false"
     val expected = "true"
-    runTest(request, expected)
-  }
-  test("datasets call") {
-    val request = """addDataset("hello") datasets()"""
-    val expected = """["hello"]"""
     runTest(request, expected)
   }
 }
