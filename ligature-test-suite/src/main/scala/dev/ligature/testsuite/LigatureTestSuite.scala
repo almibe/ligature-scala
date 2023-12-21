@@ -29,17 +29,17 @@ abstract class LigatureTestSuite extends FunSuite {
     }
   )
 
-  setup.test("create and close store".only) { instance =>
+  setup.test("create and close store") { instance =>
     assertEquals(instance.allGraphs().toList, List())
   }
 
-  setup.test("creating a new graph".only) { instance =>
+  setup.test("creating a new graph") { instance =>
     instance.createGraph(testGraph)
     val res = instance.allGraphs().toList
     assertEquals(res, List(testGraph))
   }
 
-  setup.test("check if graphs exist".only) { instance =>
+  setup.test("check if graphs exist") { instance =>
     instance.createGraph(testGraph)
     val exists1 = instance.graphExists(testGraph)
     val exists2 = instance.graphExists(testGraph2)
@@ -47,13 +47,13 @@ abstract class LigatureTestSuite extends FunSuite {
     assertEquals(res, (true, false))
   }
 
-  setup.test("match graphs prefix exact".only) { instance =>
+  setup.test("match graphs prefix exact") { instance =>
     instance.createGraph(testGraph)
     val res = instance.matchGraphsPrefix("test/test").toList
     assertEquals(res.length, 1)
   }
 
-  setup.test("match graphs prefix".only) { instance =>
+  setup.test("match graphs prefix") { instance =>
     instance.createGraph(testGraph)
     instance.createGraph(testGraph2)
     instance.createGraph(testGraph3)
@@ -63,7 +63,7 @@ abstract class LigatureTestSuite extends FunSuite {
     assertEquals((res1, res2, res3), (3, 2, 0))
   }
 
-  setup.test("match graphs range".only) { instance =>
+  setup.test("match graphs range") { instance =>
     instance.createGraph(Graph("a"))
     instance.createGraph(Graph("app"))
     instance.createGraph(Graph("b"))
@@ -87,7 +87,7 @@ abstract class LigatureTestSuite extends FunSuite {
     assertEquals((res1, res2, res3), (2, 4, 5)) // TODO check instances not just counts
   }
 
-  setup.test("create and delete new graph".only) { instance =>
+  setup.test("create and delete new graph") { instance =>
     instance.createGraph(testGraph)
     instance.deleteGraph(testGraph)
     instance.deleteGraph(testGraph2)
@@ -95,13 +95,13 @@ abstract class LigatureTestSuite extends FunSuite {
     assertEquals(res, List())
   }
 
-  setup.test("new graphs should be empty".only) { instance =>
+  setup.test("new graphs should be empty") { instance =>
     instance.createGraph(testGraph)
     val res = instance.allEdges(testGraph).toList
     assertEquals(res, List())
   }
 
-  setup.test("adding statements to graphs".only) { instance =>
+  setup.test("adding statements to graphs") { instance =>
     instance.createGraph(testGraph)
     instance.addEdges(
       testGraph,
@@ -121,7 +121,7 @@ abstract class LigatureTestSuite extends FunSuite {
     )
   }
 
-  setup.test("add Edge with IntegerLiteral Value".only) { instance =>
+  setup.test("add Edge with IntegerLiteral Value") { instance =>
     instance.createGraph(testGraph)
     instance.addEdges(
       testGraph,
@@ -145,7 +145,7 @@ abstract class LigatureTestSuite extends FunSuite {
     )
   }
 
-  setup.test("add Edge with StringLiteral Value".only) { instance =>
+  setup.test("add Edge with StringLiteral Value") { instance =>
     instance.createGraph(testGraph)
     instance.addEdges(
       testGraph,
@@ -195,7 +195,7 @@ abstract class LigatureTestSuite extends FunSuite {
 // //   //   }
 // //   // }
 
-  setup.test("removing statements from graphs".only) { instance =>
+  setup.test("removing statements from graphs") { instance =>
     instance.createGraph(testGraph)
     instance.addEdges(testGraph, Seq(Edge(label1, a, label2)).iterator)
     instance.removeEdges(
@@ -206,7 +206,7 @@ abstract class LigatureTestSuite extends FunSuite {
     assertEquals(edges, Set())
   }
 
-  setup.test("removing statements from graphs with dupe".only) { instance =>
+  setup.test("removing statements from graphs with dupe") { instance =>
     instance.createGraph(testGraph)
     instance.addEdges(
       testGraph,
@@ -217,7 +217,7 @@ abstract class LigatureTestSuite extends FunSuite {
     assertEquals(edges, Set(Edge(label3, a, label2)))
   }
 
-  setup.test("removing statements from graphs with duplicate Strings".only) { instance =>
+  setup.test("removing statements from graphs with duplicate Strings") { instance =>
     instance.createGraph(testGraph)
     instance.addEdges(
       testGraph,
@@ -261,7 +261,7 @@ abstract class LigatureTestSuite extends FunSuite {
 // //   //         Edge(label3, a, label2)))
 // //   // }
 
-  setup.test("matching statements in graphs".only) { instance =>
+  setup.test("matching statements in graphs") { instance =>
     instance.createGraph(testGraph)
     instance.addEdges(
       testGraph,

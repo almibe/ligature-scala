@@ -30,7 +30,4 @@ class LigatureXodusSpec extends LigatureTestSuite {
 
     deleteRecursively(path.toFile)
   }
-
-  // override def createLigature: Ligature =
-  //   createXodusLigature(path)
 }
