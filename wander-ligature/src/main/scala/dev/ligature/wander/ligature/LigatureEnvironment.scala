@@ -19,7 +19,7 @@ def ligatureEnvironment(ligature: Ligature): Environment = {
     .addHostProperties(
       Seq(
         HostProperty(
-          "graphs",
+          "Ligature.graphs",
           environment => {
             val graphs = ligature.allGraphs().map(g => WanderValue.StringValue(g.name))
             Right((WanderValue.Array(graphs.toSeq), environment))
@@ -30,7 +30,7 @@ def ligatureEnvironment(ligature: Ligature): Environment = {
     .addHostFunctions(
       Seq(
         HostFunction(
-          "use",
+          "Ligature.use",
           (arguments, environment) =>
             arguments match {
               case Seq(Expression.StringValue(graphName)) =>

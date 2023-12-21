@@ -11,7 +11,7 @@ import java.io.File
 
 class LigatureXodusSpec extends LigatureTestSuite {
 
-  override def createLigature(): Ligature = ???
+  override def createLigature(): Ligature = createXodusLigature(path)
 
   var path: Path = null
 

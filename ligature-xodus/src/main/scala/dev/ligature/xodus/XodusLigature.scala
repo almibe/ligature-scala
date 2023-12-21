@@ -32,28 +32,11 @@ import java.nio.file.Path
 import jetbrains.exodus.env.Environment
 import dev.ligature.Graph
 import dev.ligature.Edge
+import jetbrains.exodus.entitystore.PersistentEntityStores
 
 trait XodusOperations {
-  def openStore(tx: Transaction, store: LigatureStore): Store
   def nextID(tx: Transaction): ByteIterable
 }
-
-enum LigatureStore(val storeName: String):
-  case CountersStore extends LigatureStore("Counters")
-  case DatasetToIdStore extends LigatureStore("DatasetToID")
-  case IdToDatasetStore extends LigatureStore("IDToDataset")
-  case EAVStore extends LigatureStore("EAV")
-  case EVAStore extends LigatureStore("EVA")
-  case AEVStore extends LigatureStore("AEV")
-  case AVEStore extends LigatureStore("AVE")
-  case VEAStore extends LigatureStore("VEA")
-  case VAEStore extends LigatureStore("VAE")
-  case IdentifierToIdStore extends LigatureStore("IdentifierToID")
-  case IdToIdentifierStore extends LigatureStore("IDToIdentifier")
-  case StringToIdStore extends LigatureStore("StringToID")
-  case IdToStringStore extends LigatureStore("IDToString")
-  case BytesToIdStore extends LigatureStore("BytesToID")
-  case IdToBytesStore extends LigatureStore("IDToBytes")
 
 enum LigatureValueType(val id: Byte):
   case Identifier extends LigatureValueType(0)
@@ -68,30 +51,53 @@ object LigatureValueType:
     case LigatureValueType.String.id     => LigatureValueType.String
     case LigatureValueType.Bytes.id      => LigatureValueType.Bytes
 
-def createXodusLigature(path: Path): Ligature = ???
-  // val environment = Environments.newInstance(path.toFile(), new EnvironmentConfig)
-  // val ligatureInstance = XodusLigature(environment)
-  // ligatureInstance.setupStores()
-  // ligatureInstance
+def createXodusLigature(path: Path): Ligature =
+  val environment = Environments.newInstance(path.toFile(), new EnvironmentConfig)
+  val ligatureInstance = XodusLigature(environment)
+  ligatureInstance
 
 //TODO below should accept an Xodus instance not a File
 private final class XodusLigature(environment: Environment) extends Ligature with XodusOperations {
 
-  override def query[T](graph: Graph)(fn: QueryTx => T): T = ???
+  override def allGraphs(): Iterator[Graph] =
+    val buffer = ListBuffer[Graph]()
+    val store = PersistentEntityStores.newInstance(environment, "__META")
+    store.computeInReadonlyTransaction(tx =>
+      tx.getAll("graph").forEach(entity => 
+        val graph = Graph(entity.getProperty("name").asInstanceOf[String])
+        buffer.append(graph)
+      )
+    )
+    store.close()
+    buffer.iterator
 
   override def addEdges(graph: Graph, edges: Iterator[Edge]): Unit = ???
 
   override def matchGraphsRange(start: String, end: String): Iterator[Graph] = ???
 
-  override def close(): Unit = ???
+  override def close(): Unit = environment.close()
 
   override def allEdges(graph: Graph): Iterator[Edge] = ???
 
-  override def allGraphs(): Iterator[Graph] = ???
 
-  override def createGraph(graph: Graph): Unit = ???
+  override def createGraph(graph: Graph): Unit = 
+    val store = PersistentEntityStores.newInstance(environment, "__META")
+    store.executeInExclusiveTransaction(tx => 
+      val entity = tx.newEntity("graph")
+      entity.setProperty("name", graph.name)
+      tx.saveEntity(entity)
+    )
+    store.close()
 
-  override def deleteGraph(graph: Graph): Unit = ???
+  override def deleteGraph(graph: Graph): Unit =
+    val store = PersistentEntityStores.newInstance(environment, "__META")
+    store.executeInExclusiveTransaction(tx => 
+      val res = tx.find("graph", "name", graph.name)
+      res.forEach(res =>
+        res.delete()
+      )
+    )
+    store.close()
 
   override def removeEdges(graph: Graph, edges: Iterator[Edge]): Unit = ???
 
@@ -99,9 +105,16 @@ private final class XodusLigature(environment: Environment) extends Ligature wit
 
   override def matchGraphsPrefix(prefix: String): Iterator[Graph] = ???
 
-  override def graphExists(graph: Graph): Boolean = ???
+  override def graphExists(graph: Graph): Boolean =
+    val store = PersistentEntityStores.newInstance(environment, "__META")
+    val res = store.computeInReadonlyTransaction(tx => 
+      val res = tx.find("graph", "name", graph.name)
+      !res.isEmpty()
+    )
+    store.close()
+    res
 
-  override def openStore(tx: Transaction, store: LigatureStore): Store = ???
+  override def query[T](graph: Graph)(fn: QueryTx => T): T = ???
 
   // def readOnlyTransaction(): Stream[IO, Transaction] =
   //   Stream.bracket(IO(environment.beginReadonlyTransaction())){

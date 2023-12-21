@@ -129,7 +129,7 @@ lazy val ligatureXodus = project
   .settings(
     name := "ligature-xodus",
     scalaVersion := scala3Version,
-    libraryDependencies += "org.jetbrains.xodus" % "xodus-environment" % xodusVersion,
+    libraryDependencies += "org.jetbrains.xodus" % "xodus-entity-store" % xodusVersion,
     libraryDependencies += "org.scalameta" %% "munit" % munitVersion % Test,
   )
   .dependsOn(ligature, idgen, ligatureTestSuite % Test)
