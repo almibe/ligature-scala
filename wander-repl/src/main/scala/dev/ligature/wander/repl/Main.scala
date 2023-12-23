@@ -21,34 +21,101 @@ import dev.ligature.wander.WanderValue
 import dev.ligature.wander.Environment
 import dev.ligature.wander
 import dev.ligature.wander.zeromq.runServer
-import dev.ligature.wander.ligature.LigatureInterpreter
 import dev.ligature.inmemory.LigatureInMemory
+import dev.ligature.wander.ligature.ligatureEnvironment
+import scala.io.Source
+import scala.collection.mutable
+import java.nio.file.Path
 
-@main def main =
-//  val path = Path.of(s"${System.getProperty("user.home")}${System.getProperty("file.separator")}.ligature")
-  runServer(4200)
-  val terminal: Terminal = TerminalBuilder.builder().dumb(true).build()
-  val parser: DefaultParser = new DefaultParser()
-  val reader: LineReader = LineReaderBuilder
-    .builder()
-    .terminal(terminal)
-    .parser(parser)
-    .build()
-  var continue = true
-  var lastResult: Either[WanderError, (WanderValue, Environment)] = null
-  while (continue) {
-    val script = reader.readLine("> ")
-    if (script == ":q")
-      continue = false
+case class Command(
+  val name: String,
+  val description: String,
+  val commands: Seq[String],
+  val performAction: (arg: String) => CommandResult)
+
+case class CommandResult(
+  val newEnvironment: Option[Environment] = None,
+  val continue: Boolean = true,
+)
+
+val commands = Seq(
+  Command(
+    "Quit", 
+    "Quit the REPL.", 
+    Seq(":quit", ":q"), 
+    (_) => 
       println("Bye!")
-    else
-      val intro = introspect(script)
-      val environment = if (lastResult == null) {
-        common()
-      } else {
-        lastResult.getOrElse(???)._2
+      CommandResult(continue = false)),
+  Command(
+    "Run", 
+    "Run an external script.", 
+    Seq(":run", ":r"), 
+    (fileName) =>
+      try {
+        runFile(fileName.trim())
+      } catch {
+        case _ => println("Could not load script.")
       }
-      lastResult = run(script, environment)
-      println(printResult(lastResult))
+      CommandResult()
+    )
+)
+
+def runFile(fileName: String) = {
+  val bufferedSource = Source.fromFile(fileName.trim())
+  val sb = mutable.StringBuilder()
+  for (line <- bufferedSource.getLines) {
+    sb.append(line + "\n")
   }
-  terminal.close()
+  bufferedSource.close
+  val lastResult = run(sb.toString(), common())
+  println(printResult(lastResult))
+}
+
+@main def main(script: String*) =
+  script.asInstanceOf[List[String]] match
+    case List() => 
+      val path = Path.of(s"${System.getProperty("user.home")}${System.getProperty("file.separator")}.ligature")
+      runServer(4200)
+      val terminal: Terminal = TerminalBuilder.builder().dumb(true).build()
+      val parser: DefaultParser = new DefaultParser()
+      val reader: LineReader = LineReaderBuilder
+        .builder()
+        .terminal(terminal)
+        .parser(parser)
+        .build()
+      var continue = true
+      var environment: Environment = ligatureEnvironment(LigatureInMemory())
+      while (continue) {
+        val script = reader.readLine("> ")
+        val command = script.split(" ").headOption
+        val arg = command match
+          case None => ""
+          case Some(command) => script.subSequence(command.size, script.size)
+        val commandResult = runCommand(script, environment, command, arg.toString())
+        if commandResult.newEnvironment.isDefined then
+          environment = commandResult.newEnvironment.getOrElse(???)
+        continue = commandResult.continue
+      }
+      terminal.close()
+    case List(fileName) => runFile(fileName)
+    case _ => ???
+
+def runCommand(script:String, environment: Environment, userCommand: Option[String], arg: String): CommandResult =
+  userCommand match {
+    case None =>
+      val intro = introspect(script)
+      val lastResult = run(script, environment)
+      println(printResult(lastResult))
+      if lastResult.isRight then
+        CommandResult(newEnvironment = Some(lastResult.getOrElse(???)._2))
+      else 
+        CommandResult()
+    case Some(userCommand) =>
+      commands.find(command => command.commands.contains(userCommand)) match {
+        case None =>
+          println(s"Could not find command - $userCommand.")
+          CommandResult()
+        case Some(command) =>
+          command.performAction(arg)
+      }
+  }
