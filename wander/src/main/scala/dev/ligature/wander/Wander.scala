@@ -19,7 +19,6 @@ enum WanderValue:
   case Array(values: Seq[WanderValue])
   case Lambda(lambda: Expression.Lambda)
   case HostFunction(hostFunction: dev.ligature.wander.HostFunction)
-  case HostProperty(hostProperty: dev.ligature.wander.HostProperty)
   case QuestionMark
 
 case class HostFunction(
@@ -95,7 +94,6 @@ def printWanderValue(value: WanderValue, environment: Environment): String =
     case WanderValue.StringValue(value)    => s"\"value\"" // TODO escape correctly
     case WanderValue.Identifier(value)     => s"<${value.name}>"
     case WanderValue.HostFunction(body)    => "[HostFunction]"
-    case WanderValue.HostProperty(propety) => printResult((propety.read(environment)))
     case WanderValue.Nothing               => "nothing"
     case WanderValue.Lambda(lambda)        => "[Lambda]"
     case WanderValue.Array(values) =>
