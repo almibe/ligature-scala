@@ -33,7 +33,7 @@ enum Term:
   case NothingLiteral
   case QuestionMark
   case Array(value: Seq[Term])
-  case LetExpression(name: Name, term: Term)
+  case Binding(name: Name, term: Term)
   case WhenExpression(conditionals: Seq[(Term, Term)])
   case Application(terms: Seq[Term])
   case Grouping(terms: Seq[Term])
@@ -171,23 +171,23 @@ val groupingNib: Nibbler[Token, Term.Grouping] = { gaze =>
   yield Term.Grouping(decls)
 }
 
-val letExpressionNib: Nibbler[Token, Term.LetExpression] = { gaze =>
+val bindingNib: Nibbler[Token, Term.Binding] = { gaze =>
   for {
-    _ <- gaze.attempt(take(Token.LetKeyword))
     name <- gaze.attempt(nameNib)
+    _ <- gaze.attempt(take(Token.EqualSign))
     value <- gaze.attempt(expressionNib)
-  } yield Term.LetExpression(name.value, value)
+  } yield Term.Binding(name.value, value)
 }
 
 val applicationInternalNib =
   takeFirst(
+    bindingNib,
     nameNib,
     lambdaNib,
     identifierNib,
     groupingNib,
     stringNib,
     integerNib,
-    letExpressionNib,
     whenExpressionNib,
     arrayNib,
     booleanNib,
@@ -197,6 +197,7 @@ val applicationInternalNib =
 
 val expressionNib =
   takeFirst(
+    bindingNib,
     applicationNib,
     // nameNib,
     lambdaNib,
@@ -204,7 +205,6 @@ val expressionNib =
     groupingNib,
     stringNib,
     integerNib,
-    letExpressionNib,
     whenExpressionNib,
     arrayNib,
     booleanNib,

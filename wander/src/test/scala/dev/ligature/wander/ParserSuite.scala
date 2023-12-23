@@ -98,8 +98,8 @@ class ParserSuite extends FunSuite {
     assertEquals(result, expected)
   }
   test("parse let expression") {
-    val result = check("let x 5")
-    val expected = Right(Seq(Term.LetExpression(Name("x"), Term.IntegerLiteral(5))))
+    val result = check("x = 5")
+    val expected = Right(Seq(Term.Binding(Name("x"), Term.IntegerLiteral(5))))
     assertEquals(result, expected)
   }
   test("parse Lambda") {
@@ -112,10 +112,10 @@ class ParserSuite extends FunSuite {
     assertEquals(result, expected)
   }
   test("parse let expression with lambda") {
-    val result = check("let id \\x -> x")
+    val result = check("id = \\x -> x")
     val expected =
       Right(
-        Seq(Term.LetExpression(Name("id"), Term.Lambda(Seq(Name("x")), Term.NameTerm(Name("x")))))
+        Seq(Term.Binding(Name("id"), Term.Lambda(Seq(Name("x")), Term.NameTerm(Name("x")))))
       )
     assertEquals(result, expected)
   }

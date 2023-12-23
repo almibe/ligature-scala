@@ -30,7 +30,7 @@ enum Token:
   case StringLiteral(value: String)
   case Name(value: String)
   case OpenBrace, CloseBrace, Colon, OpenParen, CloseParen, NewLine,
-    Arrow, WideArrow, WhenKeyword, EqualSign, LetKeyword, Comment,
+    Arrow, WideArrow, WhenKeyword, EqualSign, Comment,
     OpenBracket, CloseBracket, NothingKeyword, QuestionMark,
     EndKeyword, Period, Backtick, Hash, Lambda, Pipe, Comma
 
@@ -82,7 +82,6 @@ val nameValueNib: Nibbler[String, String] =
 //   */
 val nameTokenNib: Nibbler[String, Token] = nameValueNib.map { values =>
   values match {
-    case "let"         => Token.LetKeyword
     case "when"        => Token.WhenKeyword
     case "end"         => Token.EndKeyword
     case "true"        => Token.BooleanLiteral(true)

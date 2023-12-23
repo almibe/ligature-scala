@@ -16,7 +16,7 @@ enum Expression:
   case BooleanValue(value: Boolean)
   case Nothing
   case Array(value: Seq[Expression])
-  case LetExpression(name: Name, value: Expression)
+  case Binding(name: Name, value: Expression)
   case Lambda(parameters: Seq[Name], body: Expression)
   case WhenExpression(conditionals: Seq[(Expression, Expression)])
   case Application(expressions: Seq[Expression])
@@ -49,7 +49,7 @@ def eval(
     case Expression.IdentifierValue(value) => Right((WanderValue.Identifier(value), environment))
     case Expression.Array(value)           => handleArray(value, environment)
     case Expression.NameExpression(name)   => environment.read(name).map((_, environment))
-    case Expression.LetExpression(name, value) => handleLetExpression(name, value, environment)
+    case Expression.Binding(name, value)   => handleBinding(name, value, environment)
     case lambda: Expression.Lambda             => Right((WanderValue.Lambda(lambda), environment))
     case Expression.WhenExpression(conditionals) =>
       handleWhenExpression(conditionals, environment)
@@ -74,7 +74,7 @@ def handleGrouping(
   else Right(res)
 }
 
-def handleLetExpression(
+def handleBinding(
     name: Name,
     value: Expression,
     environment: Environment
