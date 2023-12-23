@@ -84,10 +84,10 @@ def introspect(script: String): Introspect = {
 def printResult(value: Either[WanderError, (WanderValue, Environment)]): String =
   value match {
     case Left(value)  => "Error: " + value.userMessage
-    case Right(value) => printWanderValue(value._1)
+    case Right(value) => printWanderValue(value._1, value._2)
   }
 
-def printWanderValue(value: WanderValue): String =
+def printWanderValue(value: WanderValue, environment: Environment): String =
   value match {
     case WanderValue.QuestionMark => "?"
     case WanderValue.BooleanValue(value)   => value.toString()
@@ -95,11 +95,11 @@ def printWanderValue(value: WanderValue): String =
     case WanderValue.StringValue(value)    => s"\"value\"" // TODO escape correctly
     case WanderValue.Identifier(value)     => s"<${value.name}>"
     case WanderValue.HostFunction(body)    => "[HostFunction]"
-    case WanderValue.HostProperty(propety) => "[HostProperty]" // TODO print value?
+    case WanderValue.HostProperty(propety) => printResult((propety.read(environment)))
     case WanderValue.Nothing               => "nothing"
     case WanderValue.Lambda(lambda)        => "[Lambda]"
     case WanderValue.Array(values) =>
-      "[" + values.map(value => printWanderValue(value)).mkString(", ") + "]"
+      "[" + values.map(value => printWanderValue(value, environment)).mkString(", ") + "]"
   }
 
 final case class Identifier private (name: String) {
