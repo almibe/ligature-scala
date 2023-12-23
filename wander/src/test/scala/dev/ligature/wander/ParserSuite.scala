@@ -154,6 +154,33 @@ class ParserSuite extends FunSuite {
   //   )
   //   assertEquals(result, expected)
   // }
+  test("parse empty record") {
+    val result = check("{}")
+    val expected = Right(
+      Seq(
+        Term.Record(Seq())
+      )
+    )
+    assertEquals(result, expected)
+  }
+  test("parse record with one entry") {
+    val result = check("{x = 5}")
+    val expected = Right(
+      Seq(
+        Term.Record(Seq((Name("x"), Term.IntegerLiteral(5))))
+      )
+    )
+    assertEquals(result, expected)
+  }
+  test("parse record with multiple entries") {
+    val result = check("{x = 5, y = 6}")
+    val expected = Right(
+      Seq(
+        Term.Record(Seq((Name("x"), Term.IntegerLiteral(5)), (Name("y"), Term.IntegerLiteral(6))))
+      )
+    )
+    assertEquals(result, expected)
+  }
   test("parse when expression") {
     val result = check("when ( true => 6, false => 7 )")
     val expected = Right(

@@ -47,6 +47,7 @@ def process(term: Term): Either[WanderError, Expression] =
     case Term.Grouping(terms)              => processGrouping(terms)
     case Term.WhenExpression(conditionals) => processWhenExpression(conditionals)
     case Term.Application(terms)           => processApplication(terms)
+    case Term.Record(values)               => processRecord(values)
   }
 
 def processGrouping(terms: Seq[Term]): Either[WanderError, Expression.Grouping] = {
@@ -91,6 +92,8 @@ def processWhenExpression(
       (conditional, body)
     }
     Right(Expression.WhenExpression(expressionConditionals))
+
+def processRecord(values: Any) = ???
 
 def processLambda(parameters: Seq[Name], body: Term): Either[WanderError, Expression.Lambda] =
   process(body) match {

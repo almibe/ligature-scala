@@ -34,6 +34,7 @@ enum Term:
   case QuestionMark
   case Array(value: Seq[Term])
   case Binding(name: Name, term: Term)
+  case Record(values: Seq[(Name, Term)])
   case WhenExpression(conditionals: Seq[(Term, Term)])
   case Application(terms: Seq[Term])
   case Grouping(terms: Seq[Term])
@@ -152,6 +153,17 @@ val fieldNib: Nibbler[Token, (Name, Term)] = { gaze =>
   }
 }
 
+val recordNib: Nibbler[Token, Term.Record] = { gaze => 
+  val res = for
+    _ <- gaze.attempt(take(Token.OpenBrace))
+    fields <- gaze.attempt(optionalSeq(repeatSep(fieldNib, Token.Comma)))
+    _ <- gaze.attempt(take(Token.CloseBrace))
+  yield Term.Record(fields)
+  res match
+    case Result.Match(Term.Record(values)) => Result.Match(Term.Record(values))
+    case _ => Result.NoMatch
+}
+
 val applicationNib: Nibbler[Token, Term] = { gaze =>
   val res =
     for decls <- gaze.attempt(repeat(applicationInternalNib))
@@ -190,6 +202,7 @@ val applicationInternalNib =
     integerNib,
     whenExpressionNib,
     arrayNib,
+    recordNib,
     booleanNib,
     nothingNib,
     questionMarkTermNib
@@ -207,6 +220,7 @@ val expressionNib =
     integerNib,
     whenExpressionNib,
     arrayNib,
+    recordNib,
     booleanNib,
     nothingNib,
     questionMarkTermNib
