@@ -13,25 +13,29 @@ import dev.ligature.wander.printWanderValue
 import dev.ligature.wander.preludes.common
 import dev.ligature.wander.printResult
 
-private class WanderZServer(val port: Int) extends Runnable {
+private class WanderZServer(val port: Int) extends Runnable with AutoCloseable {
+  private val zContext = ZContext()
+
   override def run(): Unit =
-    val zContext = ZContext()
     val socket = zContext.createSocket(SocketType.REP)
     socket.bind(s"tcp://localhost:$port")
     var continue = true
     while (continue)
       try
-        val query = String(socket.recv(0), ZMQ.CHARSET)
+        val query = String(socket.recv(0), ZMQ.CHARSET) //blocks waiting for a request
         val res = runWander(query, common())
         socket.send(printResult(res).getBytes(ZMQ.CHARSET), 0)
       catch
         case e => continue = false
+
+  override def close(): Unit = zContext.close()
 }
 
 def runServer(port: Int): AutoCloseable = {
-  val thread = Thread(WanderZServer(port))
+  val server = WanderZServer(port)
+  val thread = Thread(server)
   thread.start()
   new AutoCloseable {
-    def close(): Unit = ()
+    def close(): Unit = server.close()
   }
 }
