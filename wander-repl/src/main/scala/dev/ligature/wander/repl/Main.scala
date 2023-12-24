@@ -87,35 +87,36 @@ def runFile(fileName: String) = {
       var environment: Environment = ligatureEnvironment(LigatureInMemory())
       while (continue) {
         val script = reader.readLine("> ")
-        val command = script.split(" ").headOption
-        val arg = command match
-          case None => ""
-          case Some(command) => script.subSequence(command.size, script.size)
-        val commandResult = runCommand(script, environment, command, arg.toString())
-        if commandResult.newEnvironment.isDefined then
-          environment = commandResult.newEnvironment.getOrElse(???)
-        continue = commandResult.continue
+        val result = if script.trim().startsWith(":") then
+          val command = script.split(" ").headOption
+          val arg = command match
+            case None => ""
+            case Some(command) => script.subSequence(command.size, script.size)
+          runCommand(script, arg.toString())
+        else
+          runScript(script, environment)
+        if result.newEnvironment.isDefined then
+          environment = result.newEnvironment.getOrElse(???)
+        continue = result.continue
       }
       terminal.close()
     case List(fileName) => runFile(fileName)
     case _ => ???
 
-def runCommand(script:String, environment: Environment, userCommand: Option[String], arg: String): CommandResult =
-  userCommand match {
+def runCommand(userCommand: String, arg: String): CommandResult =
+  commands.find(command => command.commands.contains(userCommand)) match {
     case None =>
-      val intro = introspect(script)
-      val lastResult = run(script, environment)
-      println(printResult(lastResult))
-      if lastResult.isRight then
-        CommandResult(newEnvironment = Some(lastResult.getOrElse(???)._2))
-      else 
-        CommandResult()
-    case Some(userCommand) =>
-      commands.find(command => command.commands.contains(userCommand)) match {
-        case None =>
-          println(s"Could not find command - $userCommand.")
-          CommandResult()
-        case Some(command) =>
-          command.performAction(arg)
-      }
+      println(s"Could not find command - $userCommand.")
+      CommandResult()
+    case Some(command) =>
+      command.performAction(arg)
   }
+
+def runScript(script:String, environment: Environment): CommandResult =
+  val intro = introspect(script)
+  val lastResult = run(script, environment)
+  println(printResult(lastResult))
+  if lastResult.isRight then
+    CommandResult(newEnvironment = Some(lastResult.getOrElse(???)._2))
+  else 
+    CommandResult()
