@@ -17,6 +17,7 @@ enum Expression:
   case Nothing
   case Array(value: Seq[Expression])
   case Binding(name: Name, value: Expression)
+  case Record(values: Seq[(Name, Expression)])
   case Lambda(parameters: Seq[Name], body: Expression)
   case WhenExpression(conditionals: Seq[(Expression, Expression)])
   case Application(expressions: Seq[Expression])
@@ -56,6 +57,7 @@ def eval(
     case Expression.Grouping(expressions)    => handleGrouping(expressions, environment)
     case Expression.Application(expressions) => handleApplication(expressions, environment)
     case Expression.QuestionMark             => Right((WanderValue.QuestionMark, environment))
+    case Expression.Record(values)           => handleRecord(values, environment)
   }
 
 def handleGrouping(
@@ -73,6 +75,19 @@ def handleGrouping(
   if error.isDefined then Left(error.get)
   else Right(res)
 }
+
+def handleRecord(
+  values: Seq[(Name, Expression)],
+  environment: Environment
+): Either[WanderError, (WanderValue, Environment)] =
+  boundary:
+    val results = ListBuffer[(Name, WanderValue)]()
+    values.foreach((name, value) => 
+      eval(value, environment) match {
+        case Left(err) => break(Left(err))
+        case Right((value, _)) => results.append((name, value))
+      })
+    Right((WanderValue.Record(results.toSeq), environment))
 
 def handleBinding(
     name: Name,

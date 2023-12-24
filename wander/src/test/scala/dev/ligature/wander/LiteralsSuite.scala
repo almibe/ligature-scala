@@ -60,4 +60,19 @@ class LiteralsSuite extends munit.FunSuite {
     val result = WanderValue.Nothing
     check(script, result)
   }
+  test("empty record literal") {
+    val script = "{}"
+    val result = WanderValue.Record(Seq())
+    check(script, result)
+  }
+  test("record literal with one value") {
+    val script = "{x = 5}"
+    val result = WanderValue.Record(Seq((Name("x"), WanderValue.IntValue(5))))
+    check(script, result)
+  }
+  test("record literal with multiple values") {
+    val script = "{x = 5, notFalse = true}"
+    val result = WanderValue.Record(Seq((Name("x"), WanderValue.IntValue(5)), (Name("notFalse"), WanderValue.BooleanValue(true))))
+    check(script, result)
+  }
 }
