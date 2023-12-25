@@ -23,6 +23,7 @@ import scala.collection.mutable.ListBuffer
 import dev.ligature.gaze.repeatSep
 
 case class Name(name: String)
+case class TaggedName(name: Name, tag: Name)
 
 enum Term:
   case NameTerm(value: Name)
@@ -33,7 +34,7 @@ enum Term:
   case NothingLiteral
   case QuestionMark
   case Array(value: Seq[Term])
-  case Binding(name: Name, term: Term)
+  case Binding(taggedName: TaggedName, term: Term)
   case Record(values: Seq[(Name, Term)])
   case WhenExpression(conditionals: Seq[(Term, Term)])
   case Application(terms: Seq[Term])
@@ -188,7 +189,7 @@ val bindingNib: Nibbler[Token, Term.Binding] = { gaze =>
     name <- gaze.attempt(nameNib)
     _ <- gaze.attempt(take(Token.EqualSign))
     value <- gaze.attempt(expressionNib)
-  } yield Term.Binding(name.value, value)
+  } yield Term.Binding(TaggedName(name.value, Name("Core.Any")), value)
 }
 
 val applicationInternalNib =

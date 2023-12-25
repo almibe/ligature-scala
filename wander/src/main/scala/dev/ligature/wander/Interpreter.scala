@@ -16,7 +16,7 @@ enum Expression:
   case BooleanValue(value: Boolean)
   case Nothing
   case Array(value: Seq[Expression])
-  case Binding(name: Name, value: Expression)
+  case Binding(name: TaggedName, value: Expression)
   case Record(values: Seq[(Name, Expression)])
   case Lambda(parameters: Seq[Name], body: Expression)
   case WhenExpression(conditionals: Seq[(Expression, Expression)])
@@ -44,9 +44,9 @@ def eval(
 ): Either[WanderError, (WanderValue, Environment)] =
   expression match {
     case Expression.Nothing                => Right((WanderValue.Nothing, environment))
-    case Expression.BooleanValue(value)    => Right((WanderValue.BooleanValue(value), environment))
-    case Expression.IntegerValue(value)    => Right((WanderValue.IntValue(value), environment))
-    case Expression.StringValue(value)     => Right((WanderValue.StringValue(value), environment))
+    case Expression.BooleanValue(value)    => Right((WanderValue.Bool(value), environment))
+    case Expression.IntegerValue(value)    => Right((WanderValue.Int(value), environment))
+    case Expression.StringValue(value)     => Right((WanderValue.String(value), environment))
     case Expression.IdentifierValue(value) => Right((WanderValue.Identifier(value), environment))
     case Expression.Array(value)           => handleArray(value, environment)
     case Expression.NameExpression(name)   => environment.read(name).map((_, environment))
@@ -91,7 +91,7 @@ def handleRecord(
     Right((WanderValue.Record(results.toSeq), environment))
 
 def handleBinding(
-    name: Name,
+    name: TaggedName,
     value: Expression,
     environment: Environment
 ): Either[WanderError, (WanderValue, Environment)] = {
@@ -99,7 +99,7 @@ def handleBinding(
   eval(value, newScope) match {
     case Left(value) => ???
     case Right(value) =>
-      newScope = newScope.bindVariable(name, value._1)
+      newScope = newScope.bindVariable(name.name, value._1)
       Right((value._1, newScope))
   }
 }
@@ -126,12 +126,26 @@ def handleApplication(
                 }
               }
               eval(body, fnScope)
-            case WanderValue.HostFunction(fn) => fn.fn(arguments, environment)
+            case WanderValue.HostFunction(fn) => callHostFunction(fn, arguments, environment)
             case _ => Left(WanderError(s"Could not call function ${name.name}."))
           }
       }
     case _ => ???
   }
+
+def callHostFunction(
+    hostFunction: HostFunction,
+    arguments: Seq[Expression],
+    environment: Environment
+) =
+  boundary:
+    val args = ListBuffer[WanderValue]()
+    arguments.foreach(arg =>
+      eval(arg, environment) match
+        case Left(err)    => break(Left(err))
+        case Right(value) => args.append(value._1)
+    )
+    hostFunction.fn(args.toSeq, environment)
 
 def handleWhenExpression(
     conditionals: Seq[(Expression, Expression)],
@@ -142,7 +156,7 @@ def handleWhenExpression(
       eval(conditional, environment) match {
         case Right((value, _)) =>
           value match {
-            case WanderValue.BooleanValue(value) => value
+            case WanderValue.Bool(value) => value
             case _ => break(Left(WanderError("Conditionals must evaluate to Bool.")))
           }
         case Left(err) => break(Left(err))

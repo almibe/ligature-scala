@@ -99,7 +99,8 @@ class ParserSuite extends FunSuite {
   }
   test("parse let expression") {
     val result = check("x = 5")
-    val expected = Right(Seq(Term.Binding(Name("x"), Term.IntegerLiteral(5))))
+    val expected =
+      Right(Seq(Term.Binding(TaggedName(Name("x"), Name("Core.Any")), Term.IntegerLiteral(5))))
     assertEquals(result, expected)
   }
   test("parse Lambda") {
@@ -115,7 +116,12 @@ class ParserSuite extends FunSuite {
     val result = check("id = \\x -> x")
     val expected =
       Right(
-        Seq(Term.Binding(Name("id"), Term.Lambda(Seq(Name("x")), Term.NameTerm(Name("x")))))
+        Seq(
+          Term.Binding(
+            TaggedName(Name("id"), Name("Core.Any")),
+            Term.Lambda(Seq(Name("x")), Term.NameTerm(Name("x")))
+          )
+        )
       )
     assertEquals(result, expected)
   }
@@ -191,6 +197,15 @@ class ParserSuite extends FunSuite {
             (Term.BooleanLiteral(false), Term.IntegerLiteral(7))
           )
         )
+      )
+    )
+    assertEquals(result, expected)
+  }
+  test("parse tagged named in assignment") {
+    val result = check("(zero Core.Int) = 0")
+    val expected = Right(
+      Seq(
+        Term.Binding(TaggedName(Name("zero"), Name("Core.Int")), Term.IntegerLiteral(0))
       )
     )
     assertEquals(result, expected)

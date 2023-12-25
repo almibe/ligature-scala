@@ -28,7 +28,8 @@ enum Token:
   case Identifier(value: dev.ligature.wander.Identifier)
   case IntegerLiteral(value: Long)
   case StringLiteral(value: String)
-  case Name(value: String)
+  case Name(name: String)
+  case TaggedName(name: String, tag: String)
   case OpenBrace, CloseBrace, Colon, OpenParen, CloseParen, NewLine,
     Arrow, WideArrow, WhenKeyword, EqualSign, Comment,
     OpenBracket, CloseBracket, NothingKeyword, QuestionMark,

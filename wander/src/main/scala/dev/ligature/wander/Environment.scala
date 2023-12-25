@@ -68,8 +68,8 @@ case class Environment(
       case Some(function) => return Right(WanderValue.HostFunction(function))
     }
     this.properties.find(_.name == name.name) match {
-      case None                            => ()
-      case Some(HostProperty(_, property)) => return property(this).map(value => value._1)
+      case None                                  => ()
+      case Some(HostProperty(_, _, _, property)) => return property(this).map(value => value._1)
     }
 
     Left(WanderError(s"Could not find ${name} in scope."))

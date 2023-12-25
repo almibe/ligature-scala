@@ -17,17 +17,17 @@ class LiteralsSuite extends munit.FunSuite {
 
   test("true boolean primitive") {
     val script = "true"
-    val result = WanderValue.BooleanValue(true)
+    val result = WanderValue.Bool(true)
     check(script, result)
   }
   test("false boolean primitive") {
     val script = "false"
-    val result = WanderValue.BooleanValue(false)
+    val result = WanderValue.Bool(false)
     check(script, result)
   }
   test("true boolean primitive with trailing whitespace") {
     val script = "true   "
-    val result = WanderValue.BooleanValue(true)
+    val result = WanderValue.Bool(true)
     check(script, result)
   }
   test("identifier") {
@@ -37,12 +37,12 @@ class LiteralsSuite extends munit.FunSuite {
   }
   test("integer") {
     val script = "24601"
-    val result = WanderValue.IntValue(24601)
+    val result = WanderValue.Int(24601)
     check(script, result)
   }
   test("negative integer") {
     val script = "-111"
-    val result = WanderValue.IntValue(-111)
+    val result = WanderValue.Int(-111)
     check(script, result)
   }
   test("comment + nothing test") {
@@ -52,7 +52,7 @@ class LiteralsSuite extends munit.FunSuite {
   }
   test("string primitives") {
     val script = "\"hello world\" "
-    val result = WanderValue.StringValue("hello world")
+    val result = WanderValue.String("hello world")
     check(script, result)
   }
   test("nothing literal") {
@@ -67,13 +67,13 @@ class LiteralsSuite extends munit.FunSuite {
   }
   test("record literal with one value") {
     val script = "{x = 5}"
-    val result = WanderValue.Record(Seq((Name("x"), WanderValue.IntValue(5))))
+    val result = WanderValue.Record(Seq((Name("x"), WanderValue.Int(5))))
     check(script, result)
   }
   test("record literal with multiple values") {
     val script = "{x = 5, notFalse = true}"
     val result = WanderValue.Record(
-      Seq((Name("x"), WanderValue.IntValue(5)), (Name("notFalse"), WanderValue.BooleanValue(true)))
+      Seq((Name("x"), WanderValue.Int(5)), (Name("notFalse"), WanderValue.Bool(true)))
     )
     check(script, result)
   }

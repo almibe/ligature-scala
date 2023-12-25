@@ -11,12 +11,13 @@ import dev.ligature.wander.*
 val testingHostFunctions: Seq[HostFunction] = Seq(
   HostFunction(
     "Test.assertEq",
+    "Check if two values are equal and fail if they are not.",
+    Seq(TaggedName(Name("left"), Name("Core.Any")), TaggedName(Name("right"), Name("Core.Any"))),
     (arguments, environment) =>
       arguments match {
-        case Seq(description: Expression.StringValue, left: Expression, right: Expression) =>
-          val l = eval(left, environment)
-          val r = eval(right, environment)
-          if l != r then Left(WanderError(s"$description failed $l != $r"))
+        case Seq(description: WanderValue.String, left: WanderValue, right: WanderValue) =>
+          if left != right then
+            Left(WanderError(s"$description failed $left != $right")) // TODO print value correctly
           else Right(WanderValue.Nothing, environment)
         case _ => Left(WanderError(s"Invalid call to Test.assertEq: $arguments"))
       }

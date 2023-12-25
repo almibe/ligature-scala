@@ -12,9 +12,9 @@ import dev.ligature.wander.preludes.common
   */
 enum WanderValue:
   case Nothing
-  case IntValue(value: Long)
-  case BooleanValue(value: Boolean)
-  case StringValue(value: String)
+  case Int(value: Long)
+  case Bool(value: Boolean)
+  case String(value: java.lang.String)
   case Identifier(value: dev.ligature.wander.Identifier)
   case Array(values: Seq[WanderValue])
   case Record(values: Seq[(Name, WanderValue)])
@@ -24,16 +24,20 @@ enum WanderValue:
 
 case class HostFunction(
     name: String,
+    docString: String,
+    parameters: Seq[TaggedName],
     fn: (
-        arguments: Seq[Expression],
-        bindings: Environment
+        arguments: Seq[WanderValue],
+        environment: Environment
     ) => Either[WanderError, (WanderValue, Environment)]
 )
 
 case class HostProperty(
     name: String,
+    docString: String,
+    resultTag: String,
     read: (
-        bindings: Environment
+        environment: Environment
     ) => Either[WanderError, (WanderValue, Environment)]
 )
 
@@ -89,19 +93,19 @@ def printResult(value: Either[WanderError, (WanderValue, Environment)]): String 
 
 def printWanderValue(value: WanderValue, environment: Environment): String =
   value match {
-    case WanderValue.QuestionMark        => "?"
-    case WanderValue.BooleanValue(value) => value.toString()
-    case WanderValue.IntValue(value)     => value.toString()
-    case WanderValue.StringValue(value)  => s"\"value\"" // TODO escape correctly
-    case WanderValue.Identifier(value)   => s"<${value.name}>"
-    case WanderValue.HostFunction(body)  => "[HostFunction]"
-    case WanderValue.Nothing             => "nothing"
-    case WanderValue.Lambda(lambda)      => "[Lambda]"
+    case WanderValue.QuestionMark       => "?"
+    case WanderValue.Bool(value)        => value.toString()
+    case WanderValue.Int(value)         => value.toString()
+    case WanderValue.String(value)      => s"\"value\"" // TODO escape correctly
+    case WanderValue.Identifier(value)  => s"<${value.name}>"
+    case WanderValue.HostFunction(body) => "[HostFunction]"
+    case WanderValue.Nothing            => "nothing"
+    case WanderValue.Lambda(lambda)     => "[Lambda]"
     case WanderValue.Array(values) =>
       "[" + values.map(value => printWanderValue(value, environment)).mkString(", ") + "]"
     case WanderValue.Record(values) =>
       "{" + values
-        .map((name, value) => name.name + ": " + printWanderValue(value, environment))
+        .map((name, value) => name.name + " = " + printWanderValue(value, environment))
         .mkString(", ") + "}"
   }
 

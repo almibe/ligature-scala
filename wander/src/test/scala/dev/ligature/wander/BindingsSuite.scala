@@ -11,9 +11,9 @@ class EnvironmentSuite extends FunSuite {
   private val identifier = Name("test")
   private val identifier2 = Name("test2")
 
-  private val value1 = WanderValue.StringValue("this is a test")
-  private val value2 = WanderValue.StringValue("this is a test2")
-  private val value3 = WanderValue.StringValue("this is a test3")
+  private val value1 = WanderValue.String("this is a test")
+  private val value2 = WanderValue.String("this is a test2")
+  private val value3 = WanderValue.String("this is a test3")
 
   test("add single value and read") {
     val environment = Environment(List())

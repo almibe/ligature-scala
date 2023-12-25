@@ -11,6 +11,7 @@ import dev.ligature.wander.Term
 import dev.ligature.wander.Name
 import dev.ligature.wander.WanderError
 import dev.ligature.wander.HostFunction
+import dev.ligature.wander.TaggedName
 
 def bindBooleanPrelude(environment: Environment): Environment =
   environment
@@ -18,15 +19,12 @@ def bindBooleanPrelude(environment: Environment): Environment =
       Seq(
         HostFunction(
           "Bool.not",
-          (arguments, environment) =>
-            if arguments.size != 1 then Left(WanderError("`not` function requires 1 argument."))
-            else
-              dev.ligature.wander.eval(arguments, environment).map {
-                _ match
-                  case (WanderValue.BooleanValue(b), _) =>
-                    (WanderValue.BooleanValue(!b), environment)
-                  case _ => throw WanderError("`not` function requires 1 boolean argument.")
-              }
+          "Perform a not operation on a Bool value.",
+          Seq(TaggedName(Name("value"), Name("Core.Bool"))),
+          (args, environment) =>
+            args match
+              case Seq(WanderValue.Bool(value)) => Right((WanderValue.Bool(!value), environment))
+              case _                            => ???
         )
       )
     )
