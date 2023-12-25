@@ -8,7 +8,7 @@ import munit.*
 import org.zeromq.{ZMQ, SocketType, ZContext}
 
 class LigatureZeroMQSuite extends FunSuite {
-  val port = 4200
+  val port = 4201
 
   def runTest(request: String, expected: String) = {
     val close = runServer(port)
