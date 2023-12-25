@@ -12,6 +12,7 @@ An implementation of [Ligature knowledge graph](https://ligature.dev) library wr
 | ligature-in-memory       | An in-memory implementation of Ligature.                                         |
 | ligature-xodus           | An implementation of Ligature using Xodus's key-value store for persistence.     |
 | wander                   | A scripting language for working with Ligature.                                  |
+| wander-ligature          | Support for working with Ligature in Wander.                                     |
 | gaze                     | A utility library for parsing text/data structures.                              |
 
 ## Building
@@ -34,16 +35,6 @@ Use `test` to run tests.
 
 Use `scalafmtAll` to format code.
 
-### Building Wander's NPM Artifact
-
-To build the Scala.js artifact for Wander follow these steps in the command line from the root of this project.
-
-```
-sbt "project wanderJS" fullOptJS
-cd wander
-npm publish
-```
-
 ### Running Wander's Test Suite
 
 Check out https://github.com/almibe/wander-test-suite.
@@ -55,10 +46,6 @@ Now you should be able to run Wander's full test suite.
 ### Running the Server
 
 `sbt ligatureZeroMQ/run`
-
-The server can also be ran using the `serve` command.
-
-`sbt serve`
 
 If you are using the interaction shell, I recommend using
 

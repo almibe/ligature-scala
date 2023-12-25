@@ -68,19 +68,6 @@ lazy val wanderLigature = project
   .dependsOn(gaze, wander, ligature, ligatureInMemory % Test)
   .disablePlugins(RevolverPlugin)
 
-lazy val wanderRepl = project
-  .in(file("wander-repl"))
-  .settings(
-    name := "wander-repl",
-    scalaVersion := scala3Version,
-    libraryDependencies += "org.scalameta" %% "munit" % munitVersion % Test,
-    libraryDependencies += "org.jline" % "jline" % jlineVersion,
-    libraryDependencies += "org.jline" % "jline-terminal-jansi" % jlineVersion,
-    libraryDependencies += "org.fusesource.jansi" % "jansi" % jansiVersion,
-  )
-  .dependsOn(gaze, wander, wanderLigature, ligatureInMemory, wanderZeroMQ)
-  .disablePlugins(RevolverPlugin)
-
 lazy val ligatureTestSuite = project
   .in(file("ligature-test-suite"))
   .settings(
@@ -111,19 +98,6 @@ lazy val wanderLsp = project
   )
   .dependsOn(ligature, wander, ligatureInMemory, ligatureXodus)
 
-//lazy val ligatureLmdb = crossProject(JVMPlatform)
-//  .in(file("ligature-lmdb"))
-//  .settings(
-//      name := "ligature-lmdb",
-//      scalaVersion := scala3Version,
-//      libraryDependencies += "co.fs2" %% "fs2-core" % fs2Version,
-//      libraryDependencies += "org.lmdbjava" % "lmdbjava" % "0.8.2",
-//      libraryDependencies += "org.scalameta" %% "munit" % munitVersion % Test,
-//      libraryDependencies += "org.typelevel" %% "munit-cats-effect-3" % "1.0.7"
-//  )
-//  .dependsOn(ligature, idgen, ligatureTestSuite % Test)
-//  .disablePlugins(RevolverPlugin)
-
 lazy val ligatureXodus = project
   .in(file("ligature-xodus"))
   .settings(
@@ -142,10 +116,9 @@ lazy val wanderZeroMQ = project
     scalaVersion := scala3Version,
     libraryDependencies += "org.zeromq" % "jeromq" % jeromqVersion,
     libraryDependencies += "org.scalameta" %% "munit" % munitVersion % Test,
+    fork := true,
   )
   .dependsOn(ligature, wander, ligatureInMemory, ligatureXodus)
-
-addCommandAlias("serve", "ligatureZeroMQ/run")
 
 disablePlugins(RevolverPlugin)
 
