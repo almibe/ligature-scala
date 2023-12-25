@@ -6,5 +6,5 @@ package dev.ligature.wander.preludes
 
 import dev.ligature.wander.Environment
 
-def bindArrayPrelude(environment: Environment) =
-  environment.addHostFunctions(Seq())
+def bindHtmlPrelude(environment: Environment) =
+  ???

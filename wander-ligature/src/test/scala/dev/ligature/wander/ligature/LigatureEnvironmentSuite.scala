@@ -8,7 +8,6 @@ import dev.ligature._
 import munit.FunSuite
 import dev.ligature.inmemory.LigatureInMemory
 import dev.ligature.wander.preludes.common
-import dev.ligature.wander.ligature.LigatureInterpreter
 import dev.ligature.wander.Environment
 import dev.ligature.wander.run
 import dev.ligature.wander.WanderValue
@@ -31,11 +30,19 @@ class LigatureTestSuite extends FunSuite {
       case Right(value) => value._1
     }
 
-  setup.test("run empty string".only) { (instance, _) =>
+  setup.test("run empty string") { (instance, _) =>
     assertEquals(check("", instance), WanderValue.Nothing)
   }
 
-  setup.test("datasets should start empty".only) { (instance, _) =>
-    assertEquals(check("datasets", instance), WanderValue.Array(Seq()))
+  setup.test("graphs should start empty") { (instance, _) =>
+    assertEquals(check("Ligature.graphs", instance), WanderValue.Array(Seq()))
+  }
+
+  setup.test("create graphs") { (instance, _) =>
+    assertEquals(check("Ligature.createGraph \"hello\", Ligature.graphs", instance), WanderValue.Array(Seq(WanderValue.StringValue("hello"))))
+  }
+
+  setup.test("delete graphs") { (instance, _) =>
+    assertEquals(check("Ligature.createGraph \"hello\", Ligature.deleteGraph \"hello\", Ligature.graphs", instance), WanderValue.Array(Seq()))
   }
 }

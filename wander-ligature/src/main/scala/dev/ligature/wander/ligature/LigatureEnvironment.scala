@@ -14,7 +14,6 @@ import dev.ligature.wander.Expression
 import dev.ligature.Graph
 
 def ligatureEnvironment(ligature: Ligature): Environment = {
-  val interpreter = LigatureInterpreter(ligature)
   common()
     .addHostProperties(
       Seq(
@@ -30,14 +29,22 @@ def ligatureEnvironment(ligature: Ligature): Environment = {
     .addHostFunctions(
       Seq(
         HostFunction(
-          "Ligature.use",
+          "Ligature.createGraph",
           (arguments, environment) =>
-            arguments match {
+            arguments match
               case Seq(Expression.StringValue(graphName)) =>
-                //interpreter.use(Graph(graphName))
-                Right((WanderValue.Nothing, environment))
+                ligature.createGraph(Graph(graphName))
+                Right(WanderValue.Nothing, environment)
               case _ => ???
-            }
+        ),
+        HostFunction(
+          "Ligature.deleteGraph",
+          (arguments, environment) =>
+            arguments match
+              case Seq(Expression.StringValue(graphName)) =>
+                ligature.deleteGraph(Graph(graphName))
+                Right(WanderValue.Nothing, environment)
+              case _ => ???
         )
       )
     )
