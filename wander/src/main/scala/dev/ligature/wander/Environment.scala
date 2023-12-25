@@ -11,7 +11,7 @@ import scala.util.boundary
 case class Environment(
     functions: List[HostFunction] = List(),
     properties: List[HostProperty] = List(),
-    scopes: List[Map[Name, WanderValue]] = List(Map()),
+    scopes: List[Map[Name, WanderValue]] = List(Map())
 ) {
   def eval(expressions: Seq[Expression]): Either[WanderError, (WanderValue, Environment)] = {
     var env = this
@@ -68,7 +68,7 @@ case class Environment(
       case Some(function) => return Right(WanderValue.HostFunction(function))
     }
     this.properties.find(_.name == name.name) match {
-      case None           => ()
+      case None                            => ()
       case Some(HostProperty(_, property)) => return property(this).map(value => value._1)
     }
 

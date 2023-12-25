@@ -39,10 +39,19 @@ class LigatureTestSuite extends FunSuite {
   }
 
   setup.test("create graphs") { (instance, _) =>
-    assertEquals(check("Ligature.createGraph \"hello\", Ligature.graphs", instance), WanderValue.Array(Seq(WanderValue.StringValue("hello"))))
+    assertEquals(
+      check("Ligature.createGraph \"hello\", Ligature.graphs", instance),
+      WanderValue.Array(Seq(WanderValue.StringValue("hello")))
+    )
   }
 
   setup.test("delete graphs") { (instance, _) =>
-    assertEquals(check("Ligature.createGraph \"hello\", Ligature.deleteGraph \"hello\", Ligature.graphs", instance), WanderValue.Array(Seq()))
+    assertEquals(
+      check(
+        "Ligature.createGraph \"hello\", Ligature.deleteGraph \"hello\", Ligature.graphs",
+        instance
+      ),
+      WanderValue.Array(Seq())
+    )
   }
 }

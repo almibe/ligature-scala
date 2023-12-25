@@ -22,7 +22,7 @@ class ScriptSuite extends munit.FunSuite {
           val script = Source.fromFile(f).mkString
           run(script, common().addHostFunctions(testingHostFunctions)) match {
             case Right(value) => ()
-            case Left(value) => fail(value.toString())
+            case Left(value)  => fail(value.toString())
           }
         }
       }

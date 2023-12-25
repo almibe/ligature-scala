@@ -7,24 +7,23 @@ package dev.ligature.wander.zeromq
 import munit.*
 import org.zeromq.{ZMQ, SocketType, ZContext}
 
-
 class LigatureZeroMQSuite extends FunSuite {
   val port = 4200
 
   def runTest(request: String, expected: String) = {
-      val close = runServer(port)
-      val zContext = ZContext()
-      val result = {
-        val socket = zContext.createSocket(SocketType.REQ)
-        socket.connect(s"tcp://localhost:$port")
-        socket.send(request.getBytes(ZMQ.CHARSET), 0)
-        val result = String(socket.recv(0), ZMQ.CHARSET)
-        zContext.close()
-        result
-      }
-      assertEquals(result, expected)
-      close.close()
+    val close = runServer(port)
+    val zContext = ZContext()
+    val result = {
+      val socket = zContext.createSocket(SocketType.REQ)
+      socket.connect(s"tcp://localhost:$port")
+      socket.send(request.getBytes(ZMQ.CHARSET), 0)
+      val result = String(socket.recv(0), ZMQ.CHARSET)
+      zContext.close()
+      result
     }
+    assertEquals(result, expected)
+    close.close()
+  }
 
   test("eval literals") {
     val request = "true"

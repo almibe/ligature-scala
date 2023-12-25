@@ -22,11 +22,10 @@ private class WanderZServer(val port: Int) extends Runnable with AutoCloseable {
     var continue = true
     while (!Thread.currentThread().isInterrupted() && continue)
       try
-        val query = String(socket.recv(0), ZMQ.CHARSET) //blocks waiting for a request
+        val query = String(socket.recv(0), ZMQ.CHARSET) // blocks waiting for a request
         val res = runWander(query, common())
         socket.send(printResult(res).getBytes(ZMQ.CHARSET), 0)
-      catch
-        case e => continue = false
+      catch case e => continue = false
 
   override def close(): Unit = zContext.close()
 }

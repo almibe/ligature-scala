@@ -13,7 +13,7 @@ import dev.ligature.wander.HostFunction
 import dev.ligature.wander.Expression
 import dev.ligature.Graph
 
-def ligatureEnvironment(ligature: Ligature): Environment = {
+def ligatureEnvironment(ligature: Ligature): Environment =
   common()
     .addHostProperties(
       Seq(
@@ -48,4 +48,3 @@ def ligatureEnvironment(ligature: Ligature): Environment = {
         )
       )
     )
-}

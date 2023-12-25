@@ -89,18 +89,20 @@ def printResult(value: Either[WanderError, (WanderValue, Environment)]): String 
 
 def printWanderValue(value: WanderValue, environment: Environment): String =
   value match {
-    case WanderValue.QuestionMark => "?"
-    case WanderValue.BooleanValue(value)   => value.toString()
-    case WanderValue.IntValue(value)       => value.toString()
-    case WanderValue.StringValue(value)    => s"\"value\"" // TODO escape correctly
-    case WanderValue.Identifier(value)     => s"<${value.name}>"
-    case WanderValue.HostFunction(body)    => "[HostFunction]"
-    case WanderValue.Nothing               => "nothing"
-    case WanderValue.Lambda(lambda)        => "[Lambda]"
+    case WanderValue.QuestionMark        => "?"
+    case WanderValue.BooleanValue(value) => value.toString()
+    case WanderValue.IntValue(value)     => value.toString()
+    case WanderValue.StringValue(value)  => s"\"value\"" // TODO escape correctly
+    case WanderValue.Identifier(value)   => s"<${value.name}>"
+    case WanderValue.HostFunction(body)  => "[HostFunction]"
+    case WanderValue.Nothing             => "nothing"
+    case WanderValue.Lambda(lambda)      => "[Lambda]"
     case WanderValue.Array(values) =>
       "[" + values.map(value => printWanderValue(value, environment)).mkString(", ") + "]"
-    case WanderValue.Record(values)        =>
-      "{" + values.map((name, value) => name.name + ": " + printWanderValue(value, environment)).mkString(", ") + "}"
+    case WanderValue.Record(values) =>
+      "{" + values
+        .map((name, value) => name.name + ": " + printWanderValue(value, environment))
+        .mkString(", ") + "}"
   }
 
 final case class Identifier private (name: String) {

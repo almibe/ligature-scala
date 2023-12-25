@@ -23,7 +23,7 @@ import scala.util.boundary, boundary.break
 def process(terms: Seq[Term]): Either[WanderError, Seq[Expression]] =
   val expressions = terms.map(term =>
     process(term) match {
-      case Left(err)  => ???
+      case Left(err)    => ???
       case Right(value) => value
     }
   )
@@ -82,11 +82,11 @@ def processWhenExpression(
   boundary:
     val expressionConditionals = conditionals.map { (c, b) =>
       val conditional = process(c) match {
-        case Left(err)  => break(Left(err))
+        case Left(err)    => break(Left(err))
         case Right(value) => value
       }
       val body = process(b) match {
-        case Left(err)  => break(Left(err))
+        case Left(err)    => break(Left(err))
         case Right(value) => value
       }
       (conditional, body)
@@ -98,28 +98,27 @@ def processRecord(values: Seq[(Name, Term)]): Either[WanderError, Expression] =
     val results = ListBuffer[(Name, Expression)]()
     values.foreach((name, value) =>
       process(value) match
-        case Left(err) => break(Left(err))
+        case Left(err)    => break(Left(err))
         case Right(value) => results.append((name, value))
     )
     Right(Expression.Record(results.toSeq))
 
-
 def processLambda(parameters: Seq[Name], body: Term): Either[WanderError, Expression.Lambda] =
   process(body) match {
-    case Left(err)  => Left(err)
+    case Left(err)    => Left(err)
     case Right(value) => Right(Expression.Lambda(parameters, value))
   }
 
 def processBinding(name: Name, value: Term): Either[WanderError, Expression.Binding] =
   process(value) match {
-    case Left(err)       => ???
+    case Left(err)         => ???
     case Right(expression) => Right(Expression.Binding(name, expression))
   }
 
 def processArray(terms: Seq[Term]): Either[WanderError, Expression.Array] = {
   val expressions = terms.map { t =>
     process(t) match {
-      case Left(err)  => ???
+      case Left(err)    => ???
       case Right(value) => value
     }
   }

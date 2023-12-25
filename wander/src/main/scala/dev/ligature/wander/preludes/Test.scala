@@ -13,14 +13,11 @@ val testingHostFunctions: Seq[HostFunction] = Seq(
     "Test.assertEq",
     (arguments, environment) =>
       arguments match {
-        case Seq(description: Expression.StringValue, left: Expression, right: Expression) => {
+        case Seq(description: Expression.StringValue, left: Expression, right: Expression) =>
           val l = eval(left, environment)
           val r = eval(right, environment)
-          if l != r then
-            Left(WanderError(s"$description failed $l != $r"))
-          else
-            Right(WanderValue.Nothing, environment)
-        }
+          if l != r then Left(WanderError(s"$description failed $l != $r"))
+          else Right(WanderValue.Nothing, environment)
         case _ => Left(WanderError(s"Invalid call to Test.assertEq: $arguments"))
       }
   )

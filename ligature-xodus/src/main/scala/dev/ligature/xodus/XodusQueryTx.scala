@@ -21,27 +21,31 @@ import scala.collection.mutable.ListBuffer
   * Dataset
   */
 class XodusQueryTx(
-    private val tx: StoreTransaction,
+    private val tx: StoreTransaction
 ) extends QueryTx {
-  override def matchEdges(source: Option[Label], label: Option[Label], target: Option[Value]): Iterator[Edge] =
+  override def matchEdges(
+      source: Option[Label],
+      label: Option[Label],
+      target: Option[Value]
+  ): Iterator[Edge] =
     val entities = (source, label, target) match
-      case (None, None, None) => 
+      case (None, None, None) =>
         tx.getAll("edge")
-      case (Some(source), None, None) => 
+      case (Some(source), None, None) =>
         tx.find("edge", "source", source.text)
-      case (None, Some(label), None) => 
+      case (None, Some(label), None) =>
         tx.find("edge", "label", label.text)
       case (None, None, Some(target)) =>
         tx.find("edge", "targetType", targetType(target))
           .intersect(tx.find("edge", "target", targetValue(target)))
-      case (Some(source), Some(label), None) => 
+      case (Some(source), Some(label), None) =>
         tx.find("edge", "source", source.text)
           .intersect(tx.find("edge", "label", label.text))
-      case (Some(source), None, Some(target)) => 
+      case (Some(source), None, Some(target)) =>
         tx.find("edge", "source", source.text)
           .intersect(tx.find("edge", "targetType", targetType(target)))
           .intersect(tx.find("edge", "target", targetValue(target)))
-      case (None, Some(label), Some(target)) => 
+      case (None, Some(label), Some(target)) =>
         tx.find("edge", "label", label.text)
           .intersect(tx.find("edge", "targetType", targetType(target)))
           .intersect(tx.find("edge", "target", targetValue(target)))
@@ -60,8 +64,9 @@ def entitiesToEdges(entities: EntityIterable): Iterator[Edge] =
     val label = Label(entity.getProperty("label").asInstanceOf[String])
     val target = entity.getProperty("targetType").asInstanceOf[Int] match
       case VERTEX => Label(entity.getProperty("target").asInstanceOf[String])
-      case INT => LigatureLiteral.IntegerLiteral(entity.getProperty("target").asInstanceOf[Long])
-      case STRING => LigatureLiteral.StringLiteral(entity.getProperty("target").asInstanceOf[String])
+      case INT    => LigatureLiteral.IntegerLiteral(entity.getProperty("target").asInstanceOf[Long])
+      case STRING =>
+        LigatureLiteral.StringLiteral(entity.getProperty("target").asInstanceOf[String])
     buffer += Edge(source, label, target)
   )
   buffer.iterator

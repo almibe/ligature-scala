@@ -153,7 +153,7 @@ val fieldNib: Nibbler[Token, (Name, Term)] = { gaze =>
   }
 }
 
-val recordNib: Nibbler[Token, Term.Record] = { gaze => 
+val recordNib: Nibbler[Token, Term.Record] = { gaze =>
   val res = for
     _ <- gaze.attempt(take(Token.OpenBrace))
     fields <- gaze.attempt(optionalSeq(repeatSep(fieldNib, Token.Comma)))
@@ -161,7 +161,7 @@ val recordNib: Nibbler[Token, Term.Record] = { gaze =>
   yield Term.Record(fields)
   res match
     case Result.Match(Term.Record(values)) => Result.Match(Term.Record(values))
-    case _ => Result.NoMatch
+    case _                                 => Result.NoMatch
 }
 
 val applicationNib: Nibbler[Token, Term] = { gaze =>

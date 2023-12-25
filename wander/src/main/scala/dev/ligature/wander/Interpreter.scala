@@ -43,15 +43,15 @@ def eval(
     environment: Environment
 ): Either[WanderError, (WanderValue, Environment)] =
   expression match {
-    case Expression.Nothing             => Right((WanderValue.Nothing, environment))
-    case Expression.BooleanValue(value) => Right((WanderValue.BooleanValue(value), environment))
-    case Expression.IntegerValue(value) => Right((WanderValue.IntValue(value), environment))
-    case Expression.StringValue(value)  => Right((WanderValue.StringValue(value), environment))
+    case Expression.Nothing                => Right((WanderValue.Nothing, environment))
+    case Expression.BooleanValue(value)    => Right((WanderValue.BooleanValue(value), environment))
+    case Expression.IntegerValue(value)    => Right((WanderValue.IntValue(value), environment))
+    case Expression.StringValue(value)     => Right((WanderValue.StringValue(value), environment))
     case Expression.IdentifierValue(value) => Right((WanderValue.Identifier(value), environment))
     case Expression.Array(value)           => handleArray(value, environment)
     case Expression.NameExpression(name)   => environment.read(name).map((_, environment))
     case Expression.Binding(name, value)   => handleBinding(name, value, environment)
-    case lambda: Expression.Lambda             => Right((WanderValue.Lambda(lambda), environment))
+    case lambda: Expression.Lambda         => Right((WanderValue.Lambda(lambda), environment))
     case Expression.WhenExpression(conditionals) =>
       handleWhenExpression(conditionals, environment)
     case Expression.Grouping(expressions)    => handleGrouping(expressions, environment)
@@ -77,16 +77,17 @@ def handleGrouping(
 }
 
 def handleRecord(
-  values: Seq[(Name, Expression)],
-  environment: Environment
+    values: Seq[(Name, Expression)],
+    environment: Environment
 ): Either[WanderError, (WanderValue, Environment)] =
   boundary:
     val results = ListBuffer[(Name, WanderValue)]()
-    values.foreach((name, value) => 
+    values.foreach((name, value) =>
       eval(value, environment) match {
-        case Left(err) => break(Left(err))
+        case Left(err)         => break(Left(err))
         case Right((value, _)) => results.append((name, value))
-      })
+      }
+    )
     Right((WanderValue.Record(results.toSeq), environment))
 
 def handleBinding(

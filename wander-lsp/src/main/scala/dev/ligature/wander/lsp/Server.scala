@@ -15,11 +15,11 @@ import io.vertx.core.Vertx
 
 @main
 def main() =
-    val vertx = Vertx.vertx()
-    val server = vertx.createHttpServer()
-    server.requestHandler { request => 
-        val response = request.response();
-        response.putHeader("content-type", "text/plain");
-        response.end("Hello World!")
-    }
-    server.listen(8080)
+  val vertx = Vertx.vertx()
+  val server = vertx.createHttpServer()
+  server.requestHandler { request =>
+    val response = request.response();
+    response.putHeader("content-type", "text/plain");
+    response.end("Hello World!")
+  }
+  server.listen(8080)
