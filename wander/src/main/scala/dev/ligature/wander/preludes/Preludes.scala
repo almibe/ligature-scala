@@ -14,11 +14,11 @@ import dev.ligature.wander.Environment
 def common(): Environment = {
   var stdLib = Environment()
   stdLib = bindBooleanPrelude(stdLib)
-  stdLib = bindCore(stdLib)
+  stdLib = bindCorePrelude(stdLib)
   stdLib
 }
 
-def bindCore(environment: Environment): Environment = environment
+//def bindCore(environment: Environment): Environment = environment
 // environment.addHostFunctions(
 //   Seq(
 //     HostFunction(

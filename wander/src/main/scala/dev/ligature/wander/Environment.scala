@@ -7,6 +7,7 @@ package dev.ligature.wander
 import dev.ligature.wander.WanderValue
 import scala.collection.mutable.Set
 import scala.util.boundary
+import scala.util.boundary.break
 
 case class Environment(
     functions: List[HostFunction] = List(),
@@ -53,6 +54,35 @@ case class Environment(
       oldScope.appended(newVariables)
     )
   }
+
+  def bindVariable(
+      taggedName: TaggedName,
+      wanderValue: WanderValue
+  ): Either[WanderError, Environment] =
+    boundary:
+      this.read(taggedName.tag) match {
+        case Right(WanderValue.HostFunction(hf)) =>
+          hf.fn(Seq(wanderValue), this) match {
+            case Right((WanderValue.Bool(true), _))  => ()
+            case Right((WanderValue.Bool(false), _)) => break(Left(WanderError("")))
+            case Left(err)                           => break(Left(err))
+            case _ => break(Left(WanderError("Invalid Tag, Tag functions must return a Bool.")))
+          }
+        case Right(WanderValue.Lambda(lambda)) =>
+          ???
+        case Left(err) => break(Left(err))
+        case _         => break(Left(WanderError(s"${taggedName.tag.name} was not a valid tag.")))
+      }
+      val currentScope = this.scopes.last
+      val newVariables = currentScope + (taggedName.name -> wanderValue)
+      val oldScope = this.scopes.dropRight(1)
+      Right(
+        Environment(
+          this.functions,
+          this.properties,
+          oldScope.appended(newVariables)
+        )
+      )
 
   def read(name: Name): Either[WanderError, WanderValue] = {
     var currentScopeOffset = this.scopes.length - 1

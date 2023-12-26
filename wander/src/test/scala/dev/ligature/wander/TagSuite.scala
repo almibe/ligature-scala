@@ -1,0 +1,45 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+package dev.ligature.wander
+
+import dev.ligature.wander.WanderValue
+import dev.ligature.wander.preludes.common
+import munit.FunSuite
+
+class TagSuite extends FunSuite {
+  def check(script: String, expected: WanderValue) =
+    assertEquals(
+      run(script, common()).getOrElse(???)._1,
+      expected
+    )
+
+  def checkFail(script: String) =
+    assertEquals(
+      run(script, common()).isLeft,
+      true
+    )
+
+  test("run passing tag assignment") {
+    val script = "(x Core.Int) = 5"
+    val result = WanderValue.Int(5)
+    check(script, result)
+  }
+
+  test("run failing tag assignment") {
+    val script = "(x Core.Bool) = 5"
+    checkFail(script)
+  }
+
+  test("run passing tag used with lambda") {
+    val script = "increment = \\ (i Core.Int) Core.Int -> Int.add i 1, increment 4"
+    val result = WanderValue.Int(5)
+    check(script, result)
+  }
+
+  test("run failing tag used with lambda") {
+    val script = "increment = \\ (i Core.Int) Core.Int -> Int.add i 1, increment false"
+    checkFail(script)
+  }
+}

@@ -94,15 +94,16 @@ def handleBinding(
     name: TaggedName,
     value: Expression,
     environment: Environment
-): Either[WanderError, (WanderValue, Environment)] = {
-  var newScope = environment.newScope()
-  eval(value, newScope) match {
-    case Left(value) => ???
+): Either[WanderError, (WanderValue, Environment)] =
+  eval(value, environment) match {
+    case Left(err) => Left(err)
     case Right(value) =>
-      newScope = newScope.bindVariable(name.name, value._1)
-      Right((value._1, newScope))
+      environment.bindVariable(name, value._1) match {
+        case Left(err) => Left(err)
+        case Right(environment) =>
+          Right((value._1, environment))
+      }
   }
-}
 
 def handleApplication(
     expression: Seq[Expression],

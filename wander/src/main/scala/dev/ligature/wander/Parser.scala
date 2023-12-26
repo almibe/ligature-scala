@@ -192,9 +192,21 @@ val bindingNib: Nibbler[Token, Term.Binding] = { gaze =>
   } yield Term.Binding(TaggedName(name.value, Name("Core.Any")), value)
 }
 
+val taggedBindingNib: Nibbler[Token, Term.Binding] = { gaze =>
+  for {
+    _ <- gaze.attempt(take(Token.OpenParen))
+    name <- gaze.attempt(nameNib)
+    tag <- gaze.attempt(nameNib)
+    _ <- gaze.attempt(take(Token.CloseParen))
+    _ <- gaze.attempt(take(Token.EqualSign))
+    value <- gaze.attempt(expressionNib)
+  } yield Term.Binding(TaggedName(name.value, tag.value), value)
+}
+
 val applicationInternalNib =
   takeFirst(
     bindingNib,
+    taggedBindingNib,
     nameNib,
     lambdaNib,
     identifierNib,
@@ -212,6 +224,7 @@ val applicationInternalNib =
 val expressionNib =
   takeFirst(
     bindingNib,
+    taggedBindingNib,
     applicationNib,
     // nameNib,
     lambdaNib,
