@@ -36,6 +36,17 @@ class TagSuite extends FunSuite {
     checkFail(script)
   }
 
+  test("define and use passing Tag in lambda") {
+    val script = "five = \\i -> Core.eq i 5, x: five = 5"
+    val result = WanderValue.Int(5)
+    check(script, result)
+  }
+
+  test("define and use failing Tag in lambda") {
+    val script = "five = \\i -> Core.eq i 5, x: five = 4"
+    checkFail(script)
+  }
+
   test("run passing tag used with lambda".ignore) {
     val script = "increment: Core.Int -> Core.Int = \\i -> Int.add i 1, increment 4"
     val result = WanderValue.Int(5)
