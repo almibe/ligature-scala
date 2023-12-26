@@ -23,7 +23,13 @@ import scala.collection.mutable.ListBuffer
 import dev.ligature.gaze.repeatSep
 
 case class Name(name: String)
-case class TaggedName(name: Name, tag: Name)
+
+case class TaggedName(name: Name, tag: Tag)
+
+enum Tag:
+  case Untagged
+  case Single(name: Name)
+  case Function(names: Seq[Name])
 
 enum Term:
   case NameTerm(value: Name)
@@ -101,6 +107,11 @@ val nameNib: Nibbler[Token, Term.NameTerm] = gaze =>
   gaze.next() match
     case Some(Token.Name(n)) => Result.Match(Term.NameTerm(Name(n)))
     case _                   => Result.NoMatch
+
+val tagNib: Nibbler[Token, Tag] = gaze =>
+  gaze.next() match
+    case Some(Token.Name(name)) => Result.Match(Tag.Single(Name(name)))
+    case _ => Result.NoMatch
 
 val parameterNib: Nibbler[Token, Name] = { gaze =>
   for {
@@ -189,18 +200,17 @@ val bindingNib: Nibbler[Token, Term.Binding] = { gaze =>
     name <- gaze.attempt(nameNib)
     _ <- gaze.attempt(take(Token.EqualSign))
     value <- gaze.attempt(expressionNib)
-  } yield Term.Binding(TaggedName(name.value, Name("Core.Any")), value)
+  } yield Term.Binding(TaggedName(name.value, Tag.Untagged), value)
 }
 
 val taggedBindingNib: Nibbler[Token, Term.Binding] = { gaze =>
   for {
-    _ <- gaze.attempt(take(Token.OpenParen))
     name <- gaze.attempt(nameNib)
-    tag <- gaze.attempt(nameNib)
-    _ <- gaze.attempt(take(Token.CloseParen))
+    _ <- gaze.attempt(take(Token.Colon))
+    tag <- gaze.attempt(tagNib)
     _ <- gaze.attempt(take(Token.EqualSign))
     value <- gaze.attempt(expressionNib)
-  } yield Term.Binding(TaggedName(name.value, tag.value), value)
+  } yield Term.Binding(TaggedName(name.value, tag), value)
 }
 
 val applicationInternalNib =

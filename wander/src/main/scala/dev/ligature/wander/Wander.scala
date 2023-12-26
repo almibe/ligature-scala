@@ -26,7 +26,7 @@ case class HostFunction(
     name: String,
     docString: String,
     parameters: Seq[TaggedName],
-    returnTag: Name,
+    resultTag: Name,
     fn: (
         arguments: Seq[WanderValue],
         environment: Environment

@@ -12,7 +12,7 @@ import scala.util.boundary.break
 case class Environment(
     functions: List[HostFunction] = List(),
     properties: List[HostProperty] = List(),
-    scopes: List[Map[Name, WanderValue]] = List(Map())
+    scopes: List[Map[Name, (Tag, WanderValue)]] = List(Map())
 ) {
   def eval(expressions: Seq[Expression]): Either[WanderError, (WanderValue, Environment)] = {
     var env = this
@@ -42,28 +42,14 @@ case class Environment(
     )
 
   def bindVariable(
-      name: Name,
-      wanderValue: WanderValue
-  ): Environment = {
-    val currentScope = this.scopes.last
-    val newVariables = currentScope + (name -> wanderValue)
-    val oldScope = this.scopes.dropRight(1)
-    Environment(
-      this.functions,
-      this.properties,
-      oldScope.appended(newVariables)
-    )
-  }
-
-  def bindVariable(
       taggedName: TaggedName,
       wanderValue: WanderValue
   ): Either[WanderError, Environment] =
-    this.checkTag(wanderValue, taggedName.tag) match {
+    this.checkTag(taggedName.tag, wanderValue) match {
       case Left(value) => Left(value)
       case Right(value) =>
         val currentScope = this.scopes.last
-        val newVariables = currentScope + (taggedName.name -> wanderValue)
+        val newVariables = currentScope + (taggedName.name -> (taggedName.tag, wanderValue))
         val oldScope = this.scopes.dropRight(1)
         Right(
           Environment(
@@ -79,7 +65,7 @@ case class Environment(
     while (currentScopeOffset >= 0) {
       val currentScope = this.scopes(currentScopeOffset)
       if (currentScope.contains(name)) {
-        return Right(currentScope(name))
+        return Right(currentScope(name)._2)
       }
       currentScopeOffset -= 1
     }
@@ -101,7 +87,14 @@ case class Environment(
   def addHostProperties(properties: Seq[HostProperty]): Environment =
     this.copy(properties = this.properties ++ properties)
 
-  def checkTag(value: WanderValue, tag: Name): Either[WanderError, WanderValue] =
+  def checkTag(tag: Tag, value: WanderValue): Either[WanderError, WanderValue] =
+    tag match {
+      case Tag.Untagged => Right(value)
+      case Tag.Single(name) => checkSingleTag(name, value)        
+      case Tag.Function(names) => ???
+    }
+
+  private def checkSingleTag(tag: Name, value: WanderValue): Either[WanderError, WanderValue] =
     this.read(tag) match {
       case Right(WanderValue.HostFunction(hf)) =>
         hf.fn(Seq(value), this) match {
@@ -113,6 +106,21 @@ case class Environment(
       case Right(WanderValue.Lambda(lambda)) =>
         ???
       case Left(err) => Left(err)
-      case _         => Left(WanderError(s"${tag.name} was not a valid tag."))
+      case _         => Left(WanderError(s"${tag} was not a valid tag."))
     }
+
+  private def checkFunctionTag(value: WanderValue, tag: Seq[Name]): Either[WanderError, WanderValue] = ???
+    // this.read(tag) match {
+    //   case Right(WanderValue.HostFunction(hf)) =>
+    //     hf.fn(Seq(value), this) match {
+    //       case Right((WanderValue.Bool(true), _))  => Right(value)
+    //       case Right((WanderValue.Bool(false), _)) => Left(WanderError("Value failed Tag Function."))
+    //       case Left(err)                           => Left(err)
+    //       case _ => Left(WanderError("Invalid Tag, Tag Functions must return a Bool."))
+    //     }
+    //   case Right(WanderValue.Lambda(lambda)) =>
+    //     ???
+    //   case Left(err) => Left(err)
+    //   case _         => Left(WanderError(s"${tag.name} was not a valid tag."))
+    // }
 }

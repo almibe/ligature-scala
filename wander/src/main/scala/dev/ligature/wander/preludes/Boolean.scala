@@ -12,6 +12,7 @@ import dev.ligature.wander.Name
 import dev.ligature.wander.WanderError
 import dev.ligature.wander.HostFunction
 import dev.ligature.wander.TaggedName
+import dev.ligature.wander.Tag
 
 def bindBooleanPrelude(environment: Environment): Environment =
   environment
@@ -20,7 +21,7 @@ def bindBooleanPrelude(environment: Environment): Environment =
         HostFunction(
           "Bool.not",
           "Perform a not operation on a Bool value.",
-          Seq(TaggedName(Name("value"), Name("Core.Bool"))),
+          Seq(TaggedName(Name("value"), Tag.Single(Name("Core.Bool")))),
           Name("Core.Bool"),
           (args, environment) =>
             args match

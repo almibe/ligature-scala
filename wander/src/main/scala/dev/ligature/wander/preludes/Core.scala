@@ -9,6 +9,7 @@ import dev.ligature.wander.HostFunction
 import dev.ligature.wander.WanderValue
 import dev.ligature.wander.TaggedName
 import dev.ligature.wander.Name
+import dev.ligature.wander.Tag
 
 def bindCorePrelude(environment: Environment) =
   environment.addHostFunctions(
@@ -17,8 +18,8 @@ def bindCorePrelude(environment: Environment) =
         "Core.eq",
         "Check if two values are equal.",
         Seq(
-          TaggedName(Name("left"), Name("Core.Any")),
-          TaggedName(Name("right"), Name("Core.Any"))
+          TaggedName(Name("left"), Tag.Single(Name("Core.Any"))),
+          TaggedName(Name("right"), Tag.Single(Name("Core.Any")))
         ),
         Name("Core.Bool"),
         (args: Seq[WanderValue], environment: Environment) =>
@@ -31,7 +32,7 @@ def bindCorePrelude(environment: Environment) =
       HostFunction(
         "Core.Any",
         "Checks if a value is an Any.",
-        Seq(TaggedName(Name("value"), Name("Core.Any"))),
+        Seq(TaggedName(Name("value"), Tag.Single(Name("Core.Any")))),
         Name("Core.Bool"),
         (args: Seq[WanderValue], environment: Environment) =>
           Right((WanderValue.Bool(true), environment))
@@ -39,7 +40,7 @@ def bindCorePrelude(environment: Environment) =
       HostFunction(
         "Core.Int",
         "Check if a value is an Int.",
-        Seq(TaggedName(Name("value"), Name("Core.Any"))),
+        Seq(TaggedName(Name("value"), Tag.Single(Name("Core.Any")))),
         Name("Core.Bool"),
         (args: Seq[WanderValue], environment: Environment) =>
           args match
@@ -50,7 +51,7 @@ def bindCorePrelude(environment: Environment) =
       HostFunction(
         "Core.Bool",
         "Check if a value is a Bool.",
-        Seq(TaggedName(Name("value"), Name("Core.Any"))),
+        Seq(TaggedName(Name("value"), Tag.Single(Name("Core.Any")))),
         Name("Core.Bool"),
         (args: Seq[WanderValue], environment: Environment) =>
           args match
@@ -61,7 +62,7 @@ def bindCorePrelude(environment: Environment) =
       HostFunction(
         "Core.Record",
         "Check if a value is a Record.",
-        Seq(TaggedName(Name("value"), Name("Core.Any"))),
+        Seq(TaggedName(Name("value"), Tag.Single(Name("Core.Any")))),
         Name("Core.Bool"),
         (args: Seq[WanderValue], environment: Environment) =>
           args match
@@ -72,7 +73,7 @@ def bindCorePrelude(environment: Environment) =
       HostFunction(
         "Core.Array",
         "Check if a value is an Array.",
-        Seq(TaggedName(Name("value"), Name("Core.Any"))),
+        Seq(TaggedName(Name("value"), Tag.Single(Name("Core.Any")))),
         Name("Core.Bool"),
         (args: Seq[WanderValue], environment: Environment) =>
           args match
@@ -83,7 +84,7 @@ def bindCorePrelude(environment: Environment) =
       HostFunction(
         "Core.String",
         "Check if a value is a String.",
-        Seq(TaggedName(Name("value"), Name("Core.Any"))),
+        Seq(TaggedName(Name("value"), Tag.Single(Name("Core.Any")))),
         Name("Core.Bool"),
         (args: Seq[WanderValue], environment: Environment) =>
           args match
@@ -94,7 +95,7 @@ def bindCorePrelude(environment: Environment) =
       HostFunction(
         "Core.Nothing",
         "Check if a value is Nothing.",
-        Seq(TaggedName(Name("value"), Name("Core.Any"))),
+        Seq(TaggedName(Name("value"), Tag.Single(Name("Core.Any")))),
         Name("Core.Bool"),
         (args: Seq[WanderValue], environment: Environment) =>
           args match

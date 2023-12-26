@@ -123,7 +123,10 @@ def handleApplication(
                 val argument = eval(arguments(index), environment) match {
                   case Left(value) => ???
                   case Right(value) =>
-                    fnScope = fnScope.bindVariable(param, value._1)
+                    fnScope.bindVariable(TaggedName(param, Tag.Untagged), value._1) match {
+                      case Left(err) => ???
+                      case Right(value) => fnScope = value
+                    }
                 }
               }
               eval(body, fnScope)
@@ -146,7 +149,7 @@ def callHostFunction(
         case Left(err)    => break(Left(err))
         case Right(value) => value._1
       val tag = hostFunction.parameters(i).tag
-      environment.checkTag(argValue, tag) match {
+      environment.checkTag(tag, argValue) match {
         case Left(err) => break(Left(err))
         case Right(value) => args.append(argValue)
       }        

@@ -21,13 +21,13 @@ class TagSuite extends FunSuite {
     assert(res.left.getOrElse(???).userMessage.contains("Tag Function"))
 
   test("run passing tag assignment") {
-    val script = "(x Core.Int) = 5"
+    val script = "x: Core.Int = 5"
     val result = WanderValue.Int(5)
     check(script, result)
   }
 
   test("run failing tag assignment") {
-    val script = "(x Core.Bool) = 5"
+    val script = "x: Core.Bool = 5"
     checkFail(script)
   }
 
@@ -36,14 +36,19 @@ class TagSuite extends FunSuite {
     checkFail(script)
   }
 
-  // test("run passing tag used with lambda") {
-  //   val script = "increment = \\ (i Core.Int) Core.Int -> Int.add i 1, increment 4"
-  //   val result = WanderValue.Int(5)
-  //   check(script, result)
-  // }
+  test("run passing tag used with lambda".ignore) {
+    val script = "increment: Core.Int -> Core.Int = \\i -> Int.add i 1, increment 4"
+    val result = WanderValue.Int(5)
+    check(script, result)
+  }
 
-  // test("run failing tag used with lambda") {
-  //   val script = "increment = \\ (i Core.Int) Core.Int -> Int.add i 1, increment false"
-  //   checkFail(script)
-  // }
+  test("run failing tag used with lambda".ignore) {
+    val script = "increment: Core.Int -> Core.Int = \\i -> Int.add i 1, increment false"
+    checkFail(script)
+  }
+
+  test("run failing tag used with lambda in return".ignore) {
+    val script = "increment: Core.Int -> Core.Int = \\i -> true, increment 1"
+    checkFail(script)
+  }
 }

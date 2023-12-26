@@ -8,8 +8,8 @@ import dev.ligature.wander.WanderValue
 import munit.FunSuite
 
 class EnvironmentSuite extends FunSuite {
-  private val identifier = Name("test")
-  private val identifier2 = Name("test2")
+  private val identifier = TaggedName(Name("test"), Tag.Untagged)
+  private val identifier2 = TaggedName(Name("test2"), Tag.Untagged)
 
   private val value1 = WanderValue.String("this is a test")
   private val value2 = WanderValue.String("this is a test2")
@@ -17,27 +17,27 @@ class EnvironmentSuite extends FunSuite {
 
   test("add single value and read") {
     val environment = Environment(List())
-    val environment2 = environment.bindVariable(identifier, value1)
-    val res = environment.read(identifier)
-    val res2 = environment2.read(identifier)
+    val environment2 = environment.bindVariable(identifier, value1).getOrElse(???)
+    val res = environment.read(identifier.name)
+    val res2 = environment2.read(identifier.name)
 
     assert(res.isLeft)
-    assert(environment.read(identifier2).isLeft)
+    assert(environment.read(identifier2.name).isLeft)
     assertEquals(res2, Right(value1))
-    assert(environment2.read(identifier2).isLeft)
+    assert(environment2.read(identifier2.name).isLeft)
   }
 
   test("test scoping") {
     val environment = Environment(List())
-    val environment2 = environment.bindVariable(identifier, value1)
-    assertEquals(environment2.read(identifier), Right(value1))
+    val environment2 = environment.bindVariable(identifier, value1).getOrElse(???)
+    assertEquals(environment2.read(identifier.name), Right(value1))
 
     val environment3 = environment2.newScope()
-    assertEquals(environment3.read(identifier), Right(value1))
+    assertEquals(environment3.read(identifier.name), Right(value1))
 
-    val environment4 = environment3.bindVariable(identifier, value2)
-    val environment5 = environment4.bindVariable(identifier2, value3)
-    assertEquals(environment5.read(identifier), Right(value2))
-    assertEquals(environment5.read(identifier2), Right(value3))
+    val environment4 = environment3.bindVariable(identifier, value2).getOrElse(???)
+    val environment5 = environment4.bindVariable(identifier2, value3).getOrElse(???)
+    assertEquals(environment5.read(identifier.name), Right(value2))
+    assertEquals(environment5.read(identifier2.name), Right(value3))
   }
 }
