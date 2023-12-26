@@ -13,6 +13,7 @@ val testingHostFunctions: Seq[HostFunction] = Seq(
     "Test.assertEq",
     "Check if two values are equal and fail if they are not.",
     Seq(TaggedName(Name("left"), Name("Core.Any")), TaggedName(Name("right"), Name("Core.Any"))),
+    Name("Core.Nothing"),
     (arguments, environment) =>
       arguments match {
         case Seq(description: WanderValue.String, left: WanderValue, right: WanderValue) =>

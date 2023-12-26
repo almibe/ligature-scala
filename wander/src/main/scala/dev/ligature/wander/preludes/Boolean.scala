@@ -21,6 +21,7 @@ def bindBooleanPrelude(environment: Environment): Environment =
           "Bool.not",
           "Perform a not operation on a Bool value.",
           Seq(TaggedName(Name("value"), Name("Core.Bool"))),
+          Name("Core.Bool"),
           (args, environment) =>
             args match
               case Seq(WanderValue.Bool(value)) => Right((WanderValue.Bool(!value), environment))

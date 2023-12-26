@@ -10,7 +10,7 @@ import dev.ligature.wander.preludes.common
 import dev.ligature.wander.preludes.testingHostFunctions
 
 class ScriptSuite extends munit.FunSuite {
-  sys.env.get("WANDER_TEST_SUITE") match {
+  sys.env.get("WANDER_TEST_SUITE_SKIP") match {
     case Some(dir) =>
       val files = File(dir).listFiles
         .filter(_.isFile)

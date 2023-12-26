@@ -20,6 +20,7 @@ def bindCorePrelude(environment: Environment) =
           TaggedName(Name("left"), Name("Core.Any")),
           TaggedName(Name("right"), Name("Core.Any"))
         ),
+        Name("Core.Bool"),
         (args: Seq[WanderValue], environment: Environment) =>
           args match
             case Seq(first, second) =>
@@ -31,6 +32,7 @@ def bindCorePrelude(environment: Environment) =
         "Core.Any",
         "Checks if a value is an Any.",
         Seq(TaggedName(Name("value"), Name("Core.Any"))),
+        Name("Core.Bool"),
         (args: Seq[WanderValue], environment: Environment) =>
           Right((WanderValue.Bool(true), environment))
       ),
@@ -38,6 +40,7 @@ def bindCorePrelude(environment: Environment) =
         "Core.Int",
         "Check if a value is an Int.",
         Seq(TaggedName(Name("value"), Name("Core.Any"))),
+        Name("Core.Bool"),
         (args: Seq[WanderValue], environment: Environment) =>
           args match
             case Seq(WanderValue.Int(_)) => Right((WanderValue.Bool(true), environment))
@@ -48,6 +51,7 @@ def bindCorePrelude(environment: Environment) =
         "Core.Bool",
         "Check if a value is a Bool.",
         Seq(TaggedName(Name("value"), Name("Core.Any"))),
+        Name("Core.Bool"),
         (args: Seq[WanderValue], environment: Environment) =>
           args match
             case Seq(WanderValue.Bool(_)) => Right((WanderValue.Bool(true), environment))
@@ -58,6 +62,7 @@ def bindCorePrelude(environment: Environment) =
         "Core.Record",
         "Check if a value is a Record.",
         Seq(TaggedName(Name("value"), Name("Core.Any"))),
+        Name("Core.Bool"),
         (args: Seq[WanderValue], environment: Environment) =>
           args match
             case Seq(WanderValue.Record(_)) => Right((WanderValue.Bool(true), environment))
@@ -68,6 +73,7 @@ def bindCorePrelude(environment: Environment) =
         "Core.Array",
         "Check if a value is an Array.",
         Seq(TaggedName(Name("value"), Name("Core.Any"))),
+        Name("Core.Bool"),
         (args: Seq[WanderValue], environment: Environment) =>
           args match
             case Seq(WanderValue.Array(_)) => Right((WanderValue.Bool(true), environment))
@@ -78,9 +84,21 @@ def bindCorePrelude(environment: Environment) =
         "Core.String",
         "Check if a value is a String.",
         Seq(TaggedName(Name("value"), Name("Core.Any"))),
+        Name("Core.Bool"),
         (args: Seq[WanderValue], environment: Environment) =>
           args match
             case Seq(WanderValue.String(_)) => Right((WanderValue.Bool(true), environment))
+            case Seq(_)                     => Right((WanderValue.Bool(false), environment))
+            case _                          => ???
+      ),
+      HostFunction(
+        "Core.Nothing",
+        "Check if a value is Nothing.",
+        Seq(TaggedName(Name("value"), Name("Core.Any"))),
+        Name("Core.Bool"),
+        (args: Seq[WanderValue], environment: Environment) =>
+          args match
+            case Seq(WanderValue.Nothing) => Right((WanderValue.Bool(true), environment))
             case Seq(_)                     => Right((WanderValue.Bool(false), environment))
             case _                          => ???
       )
