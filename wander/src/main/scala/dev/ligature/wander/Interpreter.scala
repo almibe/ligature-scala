@@ -116,26 +116,29 @@ def handleApplication(
         case Right(value) =>
           val arguments = expression.tail
           value match {
-            case WanderValue.Lambda(Expression.Lambda(parameters, body)) =>
-              var fnScope = environment.newScope()
-              assert(arguments.size == parameters.size)
-              parameters.zipWithIndex.foreach { (param, index) =>
-                val argument = eval(arguments(index), environment) match {
-                  case Left(value) => ???
-                  case Right(value) =>
-                    fnScope.bindVariable(TaggedName(param, Tag.Untagged), value._1) match {
-                      case Left(err) => ???
-                      case Right(value) => fnScope = value
-                    }
-                }
-              }
-              eval(body, fnScope)
+            case WanderValue.Lambda(Expression.Lambda(parameters, body)) => callLambda(arguments, parameters, body, environment)
             case WanderValue.HostFunction(fn) => callHostFunction(fn, arguments, environment)
             case _ => Left(WanderError(s"Could not call function ${name.name}."))
           }
       }
     case _ => ???
   }
+
+def callLambda(arguments: Seq[Expression], parameters: Seq[Name], body: Expression, environment: Environment) = {
+  var fnScope = environment.newScope()
+  assert(arguments.size == parameters.size)
+  parameters.zipWithIndex.foreach { (param, index) =>
+    val argument = eval(arguments(index), environment) match {
+      case Left(value) => ???
+      case Right(value) =>
+        fnScope.bindVariable(TaggedName(param, Tag.Untagged), value._1) match {
+          case Left(err) => ???
+          case Right(value) => fnScope = value
+        }
+    }
+  }
+  eval(body, fnScope)
+}
 
 def callHostFunction(
     hostFunction: HostFunction,

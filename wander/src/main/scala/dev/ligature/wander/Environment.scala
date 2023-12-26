@@ -104,7 +104,15 @@ case class Environment(
           case _ => Left(WanderError("Invalid Tag, Tag Functions must return a Bool."))
         }
       case Right(WanderValue.Lambda(lambda)) =>
-        ???
+        assert(lambda.parameters.size == 1)
+        var environment = this.newScope()
+        environment = environment.bindVariable(TaggedName(lambda.parameters.head, Tag.Untagged), value).getOrElse(???)
+        dev.ligature.wander.eval(lambda.body, environment) match {
+          case Right((WanderValue.Bool(true), _))  => Right(value)
+          case Right((WanderValue.Bool(false), _)) => Left(WanderError("Value failed Tag Function."))
+          case Left(err)                           => Left(err)
+          case _ => Left(WanderError("Invalid Tag, Tag Functions must return a Bool."))
+        }
       case Left(err) => Left(err)
       case _         => Left(WanderError(s"${tag} was not a valid tag."))
     }

@@ -11,7 +11,10 @@ import munit.FunSuite
 class TagSuite extends FunSuite {
   def check(script: String, expected: WanderValue) =
     assertEquals(
-      run(script, common()).getOrElse(???)._1,
+      run(script, common()) match {
+        case Left(err) => throw err
+        case Right((value, _)) => value
+      },
       expected
     )
 
