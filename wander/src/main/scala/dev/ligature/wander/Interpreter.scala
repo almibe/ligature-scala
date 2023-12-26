@@ -141,10 +141,15 @@ def callHostFunction(
 ) =
   boundary:
     val args = ListBuffer[WanderValue]()
-    arguments.foreach(arg =>
-      eval(arg, environment) match
+    arguments.zipWithIndex.foreach((arg, i) =>
+      val argValue = eval(arg, environment) match
         case Left(err)    => break(Left(err))
-        case Right(value) => args.append(value._1)
+        case Right(value) => value._1
+      val tag = hostFunction.parameters(i).tag
+      environment.checkTag(argValue, tag) match {
+        case Left(err) => break(Left(err))
+        case Right(value) => args.append(argValue)
+      }        
     )
     hostFunction.fn(args.toSeq, environment)
 

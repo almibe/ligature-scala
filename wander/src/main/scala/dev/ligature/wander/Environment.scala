@@ -59,30 +59,20 @@ case class Environment(
       taggedName: TaggedName,
       wanderValue: WanderValue
   ): Either[WanderError, Environment] =
-    boundary:
-      this.read(taggedName.tag) match {
-        case Right(WanderValue.HostFunction(hf)) =>
-          hf.fn(Seq(wanderValue), this) match {
-            case Right((WanderValue.Bool(true), _))  => ()
-            case Right((WanderValue.Bool(false), _)) => break(Left(WanderError("")))
-            case Left(err)                           => break(Left(err))
-            case _ => break(Left(WanderError("Invalid Tag, Tag functions must return a Bool.")))
-          }
-        case Right(WanderValue.Lambda(lambda)) =>
-          ???
-        case Left(err) => break(Left(err))
-        case _         => break(Left(WanderError(s"${taggedName.tag.name} was not a valid tag.")))
-      }
-      val currentScope = this.scopes.last
-      val newVariables = currentScope + (taggedName.name -> wanderValue)
-      val oldScope = this.scopes.dropRight(1)
-      Right(
-        Environment(
-          this.functions,
-          this.properties,
-          oldScope.appended(newVariables)
+    this.checkTag(wanderValue, taggedName.tag) match {
+      case Left(value) => Left(value)
+      case Right(value) =>
+        val currentScope = this.scopes.last
+        val newVariables = currentScope + (taggedName.name -> wanderValue)
+        val oldScope = this.scopes.dropRight(1)
+        Right(
+          Environment(
+            this.functions,
+            this.properties,
+            oldScope.appended(newVariables)
+          )
         )
-      )
+    }
 
   def read(name: Name): Either[WanderError, WanderValue] = {
     var currentScopeOffset = this.scopes.length - 1
@@ -110,4 +100,19 @@ case class Environment(
 
   def addHostProperties(properties: Seq[HostProperty]): Environment =
     this.copy(properties = this.properties ++ properties)
+
+  def checkTag(value: WanderValue, tag: Name): Either[WanderError, WanderValue] =
+    this.read(tag) match {
+      case Right(WanderValue.HostFunction(hf)) =>
+        hf.fn(Seq(value), this) match {
+          case Right((WanderValue.Bool(true), _))  => Right(value)
+          case Right((WanderValue.Bool(false), _)) => Left(WanderError("Value failed Tag Function."))
+          case Left(err)                           => Left(err)
+          case _ => Left(WanderError("Invalid Tag, Tag Functions must return a Bool."))
+        }
+      case Right(WanderValue.Lambda(lambda)) =>
+        ???
+      case Left(err) => Left(err)
+      case _         => Left(WanderError(s"${tag.name} was not a valid tag."))
+    }
 }
