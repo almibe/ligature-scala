@@ -90,8 +90,8 @@ case class Environment(
   def checkTag(tag: Tag, value: WanderValue): Either[WanderError, WanderValue] =
     tag match {
       case Tag.Untagged => Right(value)
-      case Tag.Single(name) => checkSingleTag(name, value)        
-      case Tag.Function(names) => ???
+      case Tag.Single(tag) => checkSingleTag(tag, value)        
+      case Tag.Function(tags) => checkFunctionTag(tags, value)
     }
 
   private def checkSingleTag(tag: Name, value: WanderValue): Either[WanderError, WanderValue] =
@@ -117,7 +117,8 @@ case class Environment(
       case _         => Left(WanderError(s"${tag} was not a valid tag."))
     }
 
-  private def checkFunctionTag(value: WanderValue, tag: Seq[Name]): Either[WanderError, WanderValue] = ???
+  private def checkFunctionTag(tags: Seq[Name], value: WanderValue): Either[WanderError, WanderValue] =
+    Right(value)
     // this.read(tag) match {
     //   case Right(WanderValue.HostFunction(hf)) =>
     //     hf.fn(Seq(value), this) match {

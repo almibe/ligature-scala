@@ -26,7 +26,7 @@ case class HostFunction(
     name: String,
     docString: String,
     parameters: Seq[TaggedName],
-    resultTag: Name,
+    resultTag: Tag,
     fn: (
         arguments: Seq[WanderValue],
         environment: Environment
@@ -36,7 +36,7 @@ case class HostFunction(
 case class HostProperty(
     name: String,
     docString: String,
-    resultTag: String,
+    resultTag: Tag,
     read: (
         environment: Environment
     ) => Either[WanderError, (WanderValue, Environment)]
