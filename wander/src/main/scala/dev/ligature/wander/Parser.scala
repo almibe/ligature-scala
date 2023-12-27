@@ -21,6 +21,8 @@ import dev.ligature.gaze.SeqSource
 import dev.ligature.gaze.optionalSeq
 import scala.collection.mutable.ListBuffer
 import dev.ligature.gaze.repeatSep
+import scala.util.boundary
+import scala.util.boundary.break
 
 case class Name(name: String)
 
@@ -109,9 +111,22 @@ val nameNib: Nibbler[Token, Term.NameTerm] = gaze =>
     case _                   => Result.NoMatch
 
 val tagNib: Nibbler[Token, Tag] = gaze =>
-  gaze.next() match
-    case Some(Token.Name(name)) => Result.Match(Tag.Single(Name(name)))
-    case _ => Result.NoMatch
+  val names = ListBuffer[Name]()
+  boundary:
+    while !gaze.isComplete do
+      gaze.next() match
+        case Some(Token.Name(name)) => 
+          names.append(Name(name))
+          gaze.peek() match {
+            case Some(Token.Arrow) => gaze.next() //swallow arrow, ouch!
+            case _ => break()
+          }
+        case _ => break()
+  names.toSeq match {
+    case Seq() => Result.NoMatch
+    case Seq(name) => Result.Match(Tag.Single(name))
+    case names: Seq[Name] => Result.Match(Tag.Function(names))
+  }
 
 val parameterNib: Nibbler[Token, Name] = { gaze =>
   for {

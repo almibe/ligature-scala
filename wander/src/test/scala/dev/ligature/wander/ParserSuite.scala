@@ -210,11 +210,14 @@ class ParserSuite extends FunSuite {
     )
     assertEquals(result, expected)
   }
-  test("parse tagged lambda".ignore) {
-    val result = check("x: Core.Int -> Core.Int = \\i -> i")
+  test("parse tagged lambda") {
+    val result = check("x: Core.Int -> Core.Bool = \\i -> false")
     val expected = Right(
       Seq(
-//        Term.Lambda()
+        Term.Binding(
+          TaggedName(Name("x"), Tag.Function(Seq(Name("Core.Int"), Name("Core.Bool")))), 
+          Term.Lambda(Seq(Name("i")), Term.BooleanLiteral(false))
+        )
       )
     )
     assertEquals(result, expected)
