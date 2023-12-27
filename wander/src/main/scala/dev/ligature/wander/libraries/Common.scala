@@ -13,7 +13,7 @@ import dev.ligature.wander.Environment
   */
 def common(): Environment = {
   Environment()
-    .addHostFunctions(booleanLibrary)
+    .addHostFunctions(boolLibrary)
     .addHostFunctions(coreLibrary)  
     .addHostFunctions(arrayLibrary)
     .addHostFunctions(testingHostFunctions)

@@ -14,7 +14,7 @@ import dev.ligature.wander.HostFunction
 import dev.ligature.wander.TaggedName
 import dev.ligature.wander.Tag
 
-val booleanLibrary = Seq(
+val boolLibrary = Seq(
         HostFunction(
           "Bool.not",
           "Perform a not operation on a Bool value.",

@@ -19,7 +19,9 @@ enum WanderValue:
   case Array(values: Seq[WanderValue])
   case Record(values: Seq[(Name, WanderValue)])
   case Lambda(lambda: Expression.Lambda)
+  case PartialLambda(args: Seq[WanderValue], lambda: Expression.Lambda)
   case HostFunction(hostFunction: dev.ligature.wander.HostFunction)
+  case PartialHostFunction(args: Seq[WanderValue], hostFunction: dev.ligature.wander.HostFunction)
   case QuestionMark
 
 case class HostFunction(
@@ -108,6 +110,8 @@ def printWanderValue(value: WanderValue, environment: Environment): String =
       "{" + values
         .map((name, value) => name.name + " = " + printWanderValue(value, environment))
         .mkString(", ") + "}"
+    case WanderValue.PartialHostFunction(args, hostFunction) => "[Lambda]"
+    case WanderValue.PartialLambda(args, lambda) => "[Lambda]"
   }
 
 final case class Identifier private (name: String) {

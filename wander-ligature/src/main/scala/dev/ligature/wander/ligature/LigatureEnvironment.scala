@@ -6,11 +6,8 @@ package dev.ligature.wander.ligature
 
 import dev.ligature.wander.Environment
 import dev.ligature.Ligature
-import dev.ligature.wander.preludes.common
-import dev.ligature.wander.HostProperty
-import dev.ligature.wander.WanderValue
-import dev.ligature.wander.HostFunction
-import dev.ligature.wander.Expression
+import dev.ligature.wander.libraries.common
+import dev.ligature.wander.*
 import dev.ligature.Graph
 
 def ligatureEnvironment(ligature: Ligature): Environment =
@@ -19,8 +16,10 @@ def ligatureEnvironment(ligature: Ligature): Environment =
       Seq(
         HostProperty(
           "Ligature.graphs",
-          environment => {
-            val graphs = ligature.allGraphs().map(g => WanderValue.StringValue(g.name))
+          "Get all graphs from this instance.",
+          Tag.Single(Name("Core.Array")),
+          (environment: Environment) => {
+            val graphs = ligature.allGraphs().map(g => WanderValue.String(g.name))
             Right((WanderValue.Array(graphs.toSeq), environment))
           }
         )
@@ -28,23 +27,23 @@ def ligatureEnvironment(ligature: Ligature): Environment =
     )
     .addHostFunctions(
       Seq(
-        HostFunction(
-          "Ligature.createGraph",
-          (arguments, environment) =>
-            arguments match
-              case Seq(Expression.StringValue(graphName)) =>
-                ligature.createGraph(Graph(graphName))
-                Right(WanderValue.Nothing, environment)
-              case _ => ???
-        ),
-        HostFunction(
-          "Ligature.deleteGraph",
-          (arguments, environment) =>
-            arguments match
-              case Seq(Expression.StringValue(graphName)) =>
-                ligature.deleteGraph(Graph(graphName))
-                Right(WanderValue.Nothing, environment)
-              case _ => ???
-        )
+        // HostFunction(
+        //   "Ligature.createGraph",
+        //   (arguments, environment) =>
+        //     arguments match
+        //       case Seq(Expression.StringValue(graphName)) =>
+        //         ligature.createGraph(Graph(graphName))
+        //         Right(WanderValue.Nothing, environment)
+        //       case _ => ???
+        // ),
+        // HostFunction(
+        //   "Ligature.deleteGraph",
+        //   (arguments, environment) =>
+        //     arguments match
+        //       case Seq(Expression.StringValue(graphName)) =>
+        //         ligature.deleteGraph(Graph(graphName))
+        //         Right(WanderValue.Nothing, environment)
+        //       case _ => ???
+        // )
       )
     )
