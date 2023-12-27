@@ -5,7 +5,7 @@
 package dev.ligature.wander
 
 import dev.ligature.wander.WanderValue
-import dev.ligature.wander.preludes.common
+import dev.ligature.wander.libraries.common
 import munit.FunSuite
 
 class TagSuite extends FunSuite {

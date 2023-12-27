@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-package dev.ligature.wander.preludes
+package dev.ligature.wander.libraries
 
 import dev.ligature.wander.{Parameter, WanderValue}
 import scala.collection.mutable.ListBuffer
@@ -15,6 +15,7 @@ def common(): Environment = {
   var stdLib = Environment()
   stdLib = bindBooleanPrelude(stdLib)
   stdLib = bindCorePrelude(stdLib)
+  stdLib = bindStringPrelude(stdLib)
   stdLib
 }
 

@@ -4,7 +4,7 @@
 
 package dev.ligature.wander
 
-import dev.ligature.wander.preludes.common
+import dev.ligature.wander.libraries.common
 import dev.ligature.wander.{WanderValue, Name, Token}
 
 class BooleanFunctionsSuite extends munit.FunSuite {

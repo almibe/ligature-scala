@@ -6,8 +6,8 @@ package dev.ligature.wander
 
 import java.io.File
 import scala.io.Source
-import dev.ligature.wander.preludes.common
-import dev.ligature.wander.preludes.testingHostFunctions
+import dev.ligature.wander.libraries.common
+import dev.ligature.wander.libraries.testingHostFunctions
 
 class ScriptSuite extends munit.FunSuite {
   sys.env.get("WANDER_TEST_SUITE_SKIP") match {

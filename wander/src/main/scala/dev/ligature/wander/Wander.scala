@@ -6,7 +6,7 @@ package dev.ligature.wander
 
 import dev.ligature.wander.parse
 import scala.annotation.unused
-import dev.ligature.wander.preludes.common
+import dev.ligature.wander.libraries.common
 
 /** Represents a Value in the Wander language.
   */
