@@ -134,7 +134,7 @@ class ParserSuite extends FunSuite {
     )
     assertEquals(result, expected)
   }
-  test("parse grouping") {
+  test("parse simple expression grouping") {
     val result = check("(x)")
     val expected = Right(
       Seq(
@@ -147,19 +147,18 @@ class ParserSuite extends FunSuite {
     )
     assertEquals(result, expected)
   }
-  // test("parse grouping") {
-  //   val result = check("let y true, \\x -> x, Bool.not y")
-  //   val expected = Right(Seq(Seq(
-  //     Term.Grouping(
-  //       Seq(
-  //         Term.LetExpression(Name("y"), Term.BooleanLiteral(true)),
-  //         Term.Lambda(Seq(Name("x")), Term.NameTerm(Name("x"))),
-  //         Term.Grouping(Seq(Term.NameTerm(Name("Bool.not")), Term.NameTerm(Name("y"))))
-  //       )
-  //     )))
-  //   )
-  //   assertEquals(result, expected)
-  // }
+  test("parse grouping") {
+    val result = check("(true, 4)")
+    val expected = Right(Seq(
+      Term.Grouping(
+        Seq(
+          Term.BooleanLiteral(true),
+          Term.IntegerLiteral(4)
+        )
+      ))
+    )
+    assertEquals(result, expected)
+  }
   test("parse empty record") {
     val result = check("{}")
     val expected = Right(

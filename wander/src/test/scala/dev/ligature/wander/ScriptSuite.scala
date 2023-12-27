@@ -10,7 +10,7 @@ import dev.ligature.wander.libraries.common
 import dev.ligature.wander.libraries.testingHostFunctions
 
 class ScriptSuite extends munit.FunSuite {
-  sys.env.get("WANDER_TEST_SUITE_SKIP") match {
+  sys.env.get("WANDER_TEST_SUITE") match {
     case Some(dir) =>
       val files = File(dir).listFiles
         .filter(_.isFile)
@@ -20,7 +20,7 @@ class ScriptSuite extends munit.FunSuite {
       files.foreach { f =>
         test(f) {
           val script = Source.fromFile(f).mkString
-          run(script, common().addHostFunctions(testingHostFunctions)) match {
+          run(script, common()) match {
             case Right(value) => ()
             case Left(value)  => fail(value.toString())
           }

@@ -17,7 +17,7 @@ def common(): Environment = {
   stdLib = bindBooleanLibrary(stdLib)
   stdLib = bindCoreLibrary(stdLib)
   stdLib = bindStringLibrary(stdLib)
-  stdLib
+  stdLib.addHostFunctions(testingHostFunctions)
 }
 
 //def bindCore(environment: Environment): Environment = environment

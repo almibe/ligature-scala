@@ -205,7 +205,7 @@ val applicationNib: Nibbler[Token, Term] = { gaze =>
 val groupingNib: Nibbler[Token, Term.Grouping] = { gaze =>
   for
     _ <- gaze.attempt(take(Token.OpenParen))
-    decls <- gaze.attempt(optionalSeq(repeat(expressionNib)))
+    decls <- gaze.attempt(optionalSeq(repeatSep(expressionNib, Token.Comma)))
     _ <- gaze.attempt(take(Token.CloseParen))
   yield Term.Grouping(decls)
 }
