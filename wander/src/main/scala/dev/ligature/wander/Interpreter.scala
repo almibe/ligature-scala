@@ -189,11 +189,11 @@ def callHostFunction(
     hostFunction: HostFunction,
     arguments: Seq[Expression],
     environment: Environment
-) =
+): Either[WanderError, (WanderValue, Environment)] =
   if (arguments.size == hostFunction.parameters.size) then
     callHostFunctionComplete(hostFunction, arguments, environment)
   else if arguments.size < hostFunction.parameters.size then
-    callHostFunctionPartial(hostFunction, arguments, environment)
+    callHostFunctionPartially(hostFunction, arguments, environment)
   else
     ???
 
@@ -201,7 +201,7 @@ private def callHostFunctionComplete(
     hostFunction: HostFunction,
     arguments: Seq[Expression],
     environment: Environment
-) =
+): Either[WanderError, (WanderValue, Environment)] =
   boundary:
     val args = ListBuffer[WanderValue]()
     arguments.zipWithIndex.foreach((arg, i) =>
@@ -216,11 +216,11 @@ private def callHostFunctionComplete(
     )
     hostFunction.fn(args.toSeq, environment)
 
-private def callHostFunctionPartial(
+private def callHostFunctionPartially(
     hostFunction: HostFunction,
     arguments: Seq[Expression],
     environment: Environment
-) =
+): Either[WanderError, (WanderValue, Environment)] =
   boundary:
     val args = ListBuffer[WanderValue]()
     arguments.zipWithIndex.foreach((arg, i) =>
@@ -240,22 +240,25 @@ def callPartialHostFunction(
     hostFunction: HostFunction,
     arguments: Seq[Expression],
     environment: Environment
-) =
-  if (arguments.size == hostFunction.parameters.size) then
-    callHostFunctionComplete(hostFunction, arguments, environment)
-  else if arguments.size < hostFunction.parameters.size then
-    callHostFunctionPartial(hostFunction, arguments, environment)
+): Either[WanderError, (WanderValue, Environment)] =
+  if (values.size + arguments.size == hostFunction.parameters.size) then
+    callPartialHostFunctionComplete(values, hostFunction, arguments, environment)
+  else if values.size + arguments.size < hostFunction.parameters.size then
+    callPartialHostFunctionPartially(values, hostFunction, arguments, environment)
   else
     ???
 
 private def callPartialHostFunctionComplete(
+    values: Seq[WanderValue],
     hostFunction: HostFunction,
     arguments: Seq[Expression],
     environment: Environment
-) =
+): Either[WanderError, (WanderValue, Environment)] =
   boundary:
-    val args = ListBuffer[WanderValue]()
-    arguments.zipWithIndex.foreach((arg, i) =>
+    var args = ListBuffer[WanderValue]()
+    args = args.concat(values)
+    arguments.zipWithIndex.foreach((arg, _i) =>
+      val i = _i + values.size
       val argValue = eval(arg, environment) match
         case Left(err)    => break(Left(err))
         case Right(value) => value._1
@@ -267,14 +270,17 @@ private def callPartialHostFunctionComplete(
     )
     hostFunction.fn(args.toSeq, environment)
 
-private def callPartialHostFunctionPartial(
+private def callPartialHostFunctionPartially(
+    values: Seq[WanderValue],
     hostFunction: HostFunction,
     arguments: Seq[Expression],
     environment: Environment
-) =
+): Either[WanderError, (WanderValue, Environment)] =
   boundary:
-    val args = ListBuffer[WanderValue]()
-    arguments.zipWithIndex.foreach((arg, i) =>
+    var args = ListBuffer[WanderValue]()
+    args = args.concat(values)
+    arguments.zipWithIndex.foreach((arg, _i) =>
+      val i = _i + values.size
       val argValue = eval(arg, environment) match
         case Left(err)    => break(Left(err))
         case Right(value) => value._1
