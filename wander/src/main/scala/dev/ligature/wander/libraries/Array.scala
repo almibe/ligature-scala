@@ -6,5 +6,4 @@ package dev.ligature.wander.libraries
 
 import dev.ligature.wander.Environment
 
-def bindArrayLibrary(environment: Environment) =
-  environment.addHostFunctions(Seq())
+val arrayLibrary = Seq()

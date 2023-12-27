@@ -7,8 +7,7 @@ package dev.ligature.wander.libraries
 import dev.ligature.wander.*
 import javax.lang.model.`type`.ErrorType
 
-def bindIntLibrary(environment: Environment) =
-  environment.addHostFunctions(Seq(
+val intLibrary = Seq(
     HostFunction(
         "Int.add",
         "Add two Ints.",
@@ -21,5 +20,4 @@ def bindIntLibrary(environment: Environment) =
           args match
             case Seq(WanderValue.Int(left), WanderValue.Int(right)) => Right((WanderValue.Int(left + right), environment))
             case _ => ???
-    )
-  ))
+))

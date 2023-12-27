@@ -14,10 +14,7 @@ import dev.ligature.wander.HostFunction
 import dev.ligature.wander.TaggedName
 import dev.ligature.wander.Tag
 
-def bindBooleanLibrary(environment: Environment): Environment =
-  environment
-    .addHostFunctions(
-      Seq(
+val booleanLibrary = Seq(
         HostFunction(
           "Bool.not",
           "Perform a not operation on a Bool value.",
@@ -29,7 +26,6 @@ def bindBooleanLibrary(environment: Environment): Environment =
               case _                            => ???
         )
       )
-    )
 
 //   stdLib = stdLib
 //     .bindVariable(

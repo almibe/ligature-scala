@@ -11,9 +11,7 @@ import dev.ligature.wander.TaggedName
 import dev.ligature.wander.Name
 import dev.ligature.wander.Tag
 
-def bindCoreLibrary(environment: Environment) =
-  environment.addHostFunctions(
-    Seq(
+val coreLibrary = Seq(
       HostFunction(
         "Core.eq",
         "Check if two values are equal.",
@@ -104,4 +102,3 @@ def bindCoreLibrary(environment: Environment) =
             case _                          => ???
       )
     )
-  )

@@ -12,12 +12,13 @@ import dev.ligature.wander.Environment
 /**
   */
 def common(): Environment = {
-  var stdLib = Environment()
-  stdLib = bindArrayLibrary(stdLib)
-  stdLib = bindBooleanLibrary(stdLib)
-  stdLib = bindCoreLibrary(stdLib)
-  stdLib = bindStringLibrary(stdLib)
-  stdLib.addHostFunctions(testingHostFunctions)
+  Environment()
+    .addHostFunctions(booleanLibrary)
+    .addHostFunctions(coreLibrary)  
+    .addHostFunctions(arrayLibrary)
+    .addHostFunctions(testingHostFunctions)
+    .addHostFunctions(intLibrary)
+    .addHostFunctions(stringLibrary)
 }
 
 //def bindCore(environment: Environment): Environment = environment

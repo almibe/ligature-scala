@@ -6,8 +6,8 @@ package dev.ligature.wander.libraries
 
 import dev.ligature.wander.*
 
-def bindStringLibrary(environment: Environment) =
-  environment.addHostFunctions(Seq(
+val stringLibrary =
+  Seq(
     HostFunction(
       "String.cat",
       "Concat two Strings.",
@@ -21,4 +21,4 @@ def bindStringLibrary(environment: Environment) =
           case Seq(WanderValue.String(left), WanderValue.String(right)) =>
             Right((WanderValue.String(left + right), environment))
     )
-  ))
+  )
