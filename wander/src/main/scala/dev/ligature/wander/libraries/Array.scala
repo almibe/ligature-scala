@@ -6,5 +6,5 @@ package dev.ligature.wander.libraries
 
 import dev.ligature.wander.Environment
 
-def bindArrayPrelude(environment: Environment) =
+def bindArrayLibrary(environment: Environment) =
   environment.addHostFunctions(Seq())

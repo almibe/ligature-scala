@@ -9,7 +9,7 @@ import io.vertx.core.Vertx
 // import dev.ligature.inmemory.createLigatureInMemory
 // import dev.ligature.Ligature
 // import dev.ligature.wander.run
-// import dev.ligature.wander.preludes.instancePrelude
+// import dev.ligature.wander.preludes.instanceLibrary
 // import dev.ligature.wander.WanderValue
 // import dev.ligature.wander.printWanderValue
 

@@ -13,9 +13,10 @@ import dev.ligature.wander.Environment
   */
 def common(): Environment = {
   var stdLib = Environment()
-  stdLib = bindBooleanPrelude(stdLib)
-  stdLib = bindCorePrelude(stdLib)
-  stdLib = bindStringPrelude(stdLib)
+  stdLib = bindArrayLibrary(stdLib)
+  stdLib = bindBooleanLibrary(stdLib)
+  stdLib = bindCoreLibrary(stdLib)
+  stdLib = bindStringLibrary(stdLib)
   stdLib
 }
 
@@ -125,7 +126,7 @@ def common(): Environment = {
 // //   datasetModeEnvironment(environment, dataset)
 // // }
 
-// def instancePrelude(instance: Ligature): Environment = {
+// def instanceLibrary(instance: Ligature): Environment = {
 //   var environment = common()
 
 //   environment = environment.bindVariable(Name("datasets"), WanderValue.NativeFunction(
@@ -284,7 +285,7 @@ def common(): Environment = {
 // def datasetModeEnvironment(environment: Environment, dataset: Dataset): Environment =
 //   environment
 
-//def instancePreludeEnvironment(environment: Environment): Environment = {
+//def instanceLibraryEnvironment(environment: Environment): Environment = {
 //// function instanceScope(scope: ExecutionScope, environment: Environment) {
 ////     // allDatasets(): Promise<Array<Dataset>>;
 ////     environment.bind(Name("allDatasets"), NativeFunction([], (_environment: Environment) => {

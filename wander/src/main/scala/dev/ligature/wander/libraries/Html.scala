@@ -6,5 +6,5 @@ package dev.ligature.wander.libraries
 
 import dev.ligature.wander.Environment
 
-def bindHtmlPrelude(environment: Environment) =
-  ???
+def bindHtmlLibrary(environment: Environment) =
+  environment.addHostFunctions(Seq())

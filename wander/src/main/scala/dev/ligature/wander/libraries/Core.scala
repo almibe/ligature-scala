@@ -11,7 +11,7 @@ import dev.ligature.wander.TaggedName
 import dev.ligature.wander.Name
 import dev.ligature.wander.Tag
 
-def bindCorePrelude(environment: Environment) =
+def bindCoreLibrary(environment: Environment) =
   environment.addHostFunctions(
     Seq(
       HostFunction(

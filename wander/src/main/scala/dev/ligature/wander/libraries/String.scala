@@ -6,7 +6,7 @@ package dev.ligature.wander.libraries
 
 import dev.ligature.wander.*
 
-def bindStringPrelude(environment: Environment) =
+def bindStringLibrary(environment: Environment) =
   environment.addHostFunctions(Seq(
     HostFunction(
       "String.cat",

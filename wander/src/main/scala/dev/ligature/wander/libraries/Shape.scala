@@ -6,5 +6,5 @@ package dev.ligature.wander.libraries
 
 import dev.ligature.wander.Environment
 
-def bindShapePrelude(environment: Environment) =
+def bindShapeLibrary(environment: Environment) =
   ???

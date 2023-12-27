@@ -14,7 +14,7 @@
 
 // def i(i: String): Identifier = Identifier.fromString(i).getOrElse(???)
 
-// class PreludesSuite extends munit.FunSuite {
+// class LibrarysSuite extends munit.FunSuite {
 //   test("termsToStatements empty input") {
 //     val input = Seq()
 //     val expected = Right(Seq())
@@ -31,7 +31,7 @@
 //   }
 // }
 
-// class InstancePreludeSuite extends WanderSuiteInstancePrelude {
+// class InstanceLibrarySuite extends WanderSuiteInstanceLibrary {
 //   test("add/remove Datasets") {
 //     val input = """addDataset("hello") addDataset("hello2") removeDataset("hello2") datasets()"""
 //     val result = """["hello"]""" //WanderValue.ListValue(Seq(WanderValue.LigatureValue(LigatureLiteral.StringLiteral("hello"))))

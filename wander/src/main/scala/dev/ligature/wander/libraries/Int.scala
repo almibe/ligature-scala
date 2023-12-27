@@ -7,7 +7,7 @@ package dev.ligature.wander.libraries
 import dev.ligature.wander.*
 import javax.lang.model.`type`.ErrorType
 
-def bindIntPrelude(environment: Environment) =
+def bindIntLibrary(environment: Environment) =
   environment.addHostFunctions(Seq(
     HostFunction(
         "Int.add",

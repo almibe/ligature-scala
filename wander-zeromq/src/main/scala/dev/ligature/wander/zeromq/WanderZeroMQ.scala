@@ -10,7 +10,7 @@ import dev.ligature.Ligature
 import dev.ligature.wander.run as runWander
 import dev.ligature.wander.WanderValue
 import dev.ligature.wander.printWanderValue
-import dev.ligature.wander.preludes.common
+import dev.ligature.wander.libraries.common
 import dev.ligature.wander.printResult
 
 private class WanderZServer(val port: Int) extends Runnable with AutoCloseable {

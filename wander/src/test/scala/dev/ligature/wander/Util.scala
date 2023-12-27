@@ -15,10 +15,10 @@ class WanderSuiteCommonMode extends munit.FunSuite {
     )
 }
 
-// class WanderSuiteInstancePrelude extends munit.FunSuite {
+// class WanderSuiteInstanceLibrary extends munit.FunSuite {
 //   def check(script: String, expected: String) =
 //     createLigatureInMemory().use { instance =>
-//       val res = run(script, instancePrelude(instance)).map(printWanderValue)
+//       val res = run(script, instanceLibrary(instance)).map(printWanderValue)
 //       assertIO(res, expected)
 //     }
 // }

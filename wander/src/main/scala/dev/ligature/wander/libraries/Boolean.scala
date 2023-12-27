@@ -14,7 +14,7 @@ import dev.ligature.wander.HostFunction
 import dev.ligature.wander.TaggedName
 import dev.ligature.wander.Tag
 
-def bindBooleanPrelude(environment: Environment): Environment =
+def bindBooleanLibrary(environment: Environment): Environment =
   environment
     .addHostFunctions(
       Seq(
