@@ -175,10 +175,10 @@ def callPartialLambda(values: Seq[WanderValue],
       }
     }
     eval(body, fnScope)
-  } else if (arguments.size < parameters.size) {
-    val args = ListBuffer[WanderValue]()
-    parameters.zipWithIndex.foreach { (param, index) =>
-      val argument = eval(arguments(index), environment) match {
+  } else if (values.size + arguments.size < parameters.size) {
+    val args = ListBuffer[WanderValue]().concat(values)
+    arguments.foreach { argument =>
+      eval(argument, environment) match {
         case Left(value) => ???
         case Right(value) =>
           args.append(value._1)
