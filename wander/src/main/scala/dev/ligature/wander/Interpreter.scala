@@ -162,8 +162,10 @@ def callPartialLambda(values: Seq[WanderValue],
     environment: Environment) =
   if (values.size + arguments.size == parameters.size) {
     var fnScope = environment.newScope()
-    parameters.zipWithIndex.foreach { (param, index) =>
-      val argument = eval(arguments(index), environment) match {
+    arguments.zipWithIndex.foreach { (arg, index) =>
+      val diff = parameters.size - arguments.size
+      val param = parameters(index + diff)
+      val argument = eval(arg, environment) match {
         case Left(value) => ???
         case Right(value) =>
           fnScope.bindVariable(TaggedName(param, Tag.Untagged), value._1) match {
