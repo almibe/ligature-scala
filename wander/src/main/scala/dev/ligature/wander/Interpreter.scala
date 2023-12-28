@@ -283,16 +283,16 @@ private def callPartialHostFunctionPartially(
   boundary:
     var args = ListBuffer[WanderValue]()
     args = args.concat(values)
-    arguments.zipWithIndex.foreach((arg, _i) =>
-      val i = _i + values.size
+    arguments.zipWithIndex.foreach((arg, index) =>
+      val paramIndex = index + values.size
       val argValue = eval(arg, environment) match
         case Left(err)    => break(Left(err))
         case Right(value) => value._1
-      val tag = hostFunction.parameters(i).tag
+      val tag = hostFunction.parameters(paramIndex).tag
       environment.checkTag(tag, argValue) match {
         case Left(err) => break(Left(err))
         case Right(value) => args.append(argValue)
-      }        
+      }
     )
     Right((WanderValue.Function(PartialFunction(args.toSeq, hostFunction)), environment))
 
