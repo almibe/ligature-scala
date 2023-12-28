@@ -51,7 +51,7 @@ def eval(
     case Expression.Array(value)           => handleArray(value, environment)
     case Expression.NameExpression(name)   => environment.read(name).map((_, environment))
     case Expression.Binding(name, value)   => handleBinding(name, value, environment)
-    case lambda: Expression.Lambda         => Right((WanderValue.Lambda(lambda), environment))
+    case lambda: Expression.Lambda         => Right((WanderValue.Function(Lambda(lambda)), environment))
     case Expression.WhenExpression(conditionals) =>
       handleWhenExpression(conditionals, environment)
     case Expression.Grouping(expressions)    => handleGrouping(expressions, environment)
@@ -116,10 +116,10 @@ def handleApplication(
         case Right(value) =>
           val arguments = expression.tail
           value match {
-            case WanderValue.Lambda(Expression.Lambda(parameters, body)) => callLambda(arguments, parameters, body, environment)
-            case WanderValue.HostFunction(fn) => callHostFunction(fn, arguments, environment)
-            case WanderValue.PartialLambda(args, Expression.Lambda(parameters, body)) => callPartialLambda(args, arguments, parameters, body, environment)
-            case WanderValue.PartialHostFunction(args, fn) => callPartialHostFunction(args, fn, arguments, environment)
+            case WanderValue.Function(Lambda(Expression.Lambda(parameters, body))) => callLambda(arguments, parameters, body, environment)
+            case WanderValue.Function(fn: HostFunction) => callHostFunction(fn, arguments, environment)
+            case WanderValue.Function(PartialFunction(args, Lambda(Expression.Lambda(parameters, body)))) => callPartialLambda(args, arguments, parameters, body, environment)
+            case WanderValue.Function(PartialFunction(args, fn: HostFunction)) => callPartialHostFunction(args, fn, arguments, environment)
             case _ => Left(WanderError(s"Could not call function ${name.name}."))
           }
       }
@@ -142,6 +142,39 @@ def callLambda(arguments: Seq[Expression], parameters: Seq[Name], body: Expressi
     eval(body, fnScope)
   } else if (arguments.size < parameters.size) {
     val args = ListBuffer[WanderValue]()
+    arguments.zipWithIndex.foreach { (arg, index) =>
+      val argument = eval(arg, environment) match {
+        case Left(value) => ???
+        case Right(value) =>
+          args.append(value._1)
+      }
+    }
+    Right((WanderValue.Function(dev.ligature.wander.PartialFunction(args.toSeq, Lambda(Expression.Lambda(parameters, body))))), environment)
+  } else {
+    Left(WanderError("Too many arguments passed."))
+  }
+}
+
+def callPartialLambda(values: Seq[WanderValue], 
+    arguments: Seq[Expression], 
+    parameters: Seq[Name], 
+    body: Expression, 
+    environment: Environment) =
+  if (values.size + arguments.size == parameters.size) {
+    var fnScope = environment.newScope()
+    parameters.zipWithIndex.foreach { (param, index) =>
+      val argument = eval(arguments(index), environment) match {
+        case Left(value) => ???
+        case Right(value) =>
+          fnScope.bindVariable(TaggedName(param, Tag.Untagged), value._1) match {
+            case Left(err) => ???
+            case Right(value) => fnScope = value
+          }
+      }
+    }
+    eval(body, fnScope)
+  } else if (arguments.size < parameters.size) {
+    val args = ListBuffer[WanderValue]()
     parameters.zipWithIndex.foreach { (param, index) =>
       val argument = eval(arguments(index), environment) match {
         case Left(value) => ???
@@ -149,41 +182,10 @@ def callLambda(arguments: Seq[Expression], parameters: Seq[Name], body: Expressi
           args.append(value._1)
       }
     }
-    Right((WanderValue.PartialLambda(args.toSeq, Expression.Lambda(parameters, body))), environment)
+    Right(WanderValue.Function(dev.ligature.wander.PartialFunction(args.toSeq, Lambda(Expression.Lambda(parameters, body)))), environment)
   } else {
     Left(WanderError("Too many arguments passed."))
   }
-}
-
-def callPartialLambda(values: Seq[WanderValue], arguments: Seq[Expression], parameters: Seq[Name], body: Expression, environment: Environment) =
-  ???
-//   if (values.size + arguments.size == parameters.size) {
-//     var fnScope = environment.newScope()
-//     parameters.zipWithIndex.foreach { (param, index) =>
-//       val argument = eval(arguments(index), environment) match {
-//         case Left(value) => ???
-//         case Right(value) =>
-//           fnScope.bindVariable(TaggedName(param, Tag.Untagged), value._1) match {
-//             case Left(err) => ???
-//             case Right(value) => fnScope = value
-//           }
-//       }
-//     }
-//     eval(body, fnScope)
-//   } else if (arguments.size < parameters.size) {
-//     val args = ListBuffer[WanderValue]()
-//     parameters.zipWithIndex.foreach { (param, index) =>
-//       val argument = eval(arguments(index), environment) match {
-//         case Left(value) => ???
-//         case Right(value) =>
-//           args.append(value._1)
-//       }
-//     }
-//     Right((WanderValue.PartialLambda(args.toSeq, Expression.Lambda(parameters, body))), environment)
-//   } else {
-//     Left(WanderError("Too many arguments passed."))
-//   }
-// }
 
 def callHostFunction(
     hostFunction: HostFunction,
@@ -233,7 +235,7 @@ private def callHostFunctionPartially(
         case Right(value) => args.append(argValue)
       }        
     )
-    Right((WanderValue.PartialHostFunction(args.toSeq, hostFunction), environment))
+    Right((WanderValue.Function(PartialFunction(args.toSeq, hostFunction)), environment))
 
 def callPartialHostFunction(
     values: Seq[WanderValue],
@@ -290,7 +292,7 @@ private def callPartialHostFunctionPartially(
         case Right(value) => args.append(argValue)
       }        
     )
-    Right((WanderValue.PartialHostFunction(args.toSeq, hostFunction), environment))
+    Right((WanderValue.Function(PartialFunction(args.toSeq, hostFunction)), environment))
 
 def handleWhenExpression(
     conditionals: Seq[(Expression, Expression)],

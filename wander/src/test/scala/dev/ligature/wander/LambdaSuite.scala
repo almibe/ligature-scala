@@ -6,7 +6,7 @@ package dev.ligature.wander
 
 import dev.ligature.wander.libraries.common
 import dev.ligature.wander.libraries.*
-import dev.ligature.wander.{WanderValue, Name, Token}
+import dev.ligature.wander.*
 
 class LambdaSuite extends munit.FunSuite {
   def check(script: String, expected: WanderValue): Unit =
@@ -17,7 +17,7 @@ class LambdaSuite extends munit.FunSuite {
 
   test("partially apply a host function") {
     val script = "Int.add 1"
-    val expected = WanderValue.PartialHostFunction(Seq(WanderValue.Int(1)), intLibrary(0))
+    val expected = WanderValue.Function(dev.ligature.wander.PartialFunction(Seq(WanderValue.Int(1)), intLibrary(0)))
     check(script, expected)
   }
 }

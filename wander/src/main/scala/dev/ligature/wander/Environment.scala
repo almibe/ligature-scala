@@ -71,7 +71,7 @@ case class Environment(
     }
     this.functions.find(_.name == name.name) match {
       case None           => ()
-      case Some(function) => return Right(WanderValue.HostFunction(function))
+      case Some(function) => return Right(WanderValue.Function(function))
     }
     this.properties.find(_.name == name.name) match {
       case None                                  => ()
@@ -96,18 +96,18 @@ case class Environment(
 
   private def checkSingleTag(tag: Name, value: WanderValue): Either[WanderError, WanderValue] =
     this.read(tag) match {
-      case Right(WanderValue.HostFunction(hf)) =>
+      case Right(WanderValue.Function(hf: HostFunction)) =>
         hf.fn(Seq(value), this) match {
           case Right((WanderValue.Bool(true), _))  => Right(value)
           case Right((WanderValue.Bool(false), _)) => Left(WanderError("Value failed Tag Function."))
           case Left(err)                           => Left(err)
           case _ => Left(WanderError("Invalid Tag, Tag Functions must return a Bool."))
         }
-      case Right(WanderValue.Lambda(lambda)) =>
-        assert(lambda.parameters.size == 1)
+      case Right(WanderValue.Function(lambda: Lambda)) =>
+        assert(lambda.lambda.parameters.size == 1)
         var environment = this.newScope()
-        environment = environment.bindVariable(TaggedName(lambda.parameters.head, Tag.Untagged), value).getOrElse(???)
-        dev.ligature.wander.eval(lambda.body, environment) match {
+        environment = environment.bindVariable(TaggedName(lambda.lambda.parameters.head, Tag.Untagged), value).getOrElse(???)
+        dev.ligature.wander.eval(lambda.lambda.body, environment) match {
           case Right((WanderValue.Bool(true), _))  => Right(value)
           case Right((WanderValue.Bool(false), _)) => Left(WanderError("Value failed Tag Function."))
           case Left(err)                           => Left(err)

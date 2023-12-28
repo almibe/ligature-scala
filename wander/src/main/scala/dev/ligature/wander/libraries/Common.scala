@@ -4,7 +4,7 @@
 
 package dev.ligature.wander.libraries
 
-import dev.ligature.wander.{Parameter, WanderValue}
+import dev.ligature.wander.WanderValue
 import scala.collection.mutable.ListBuffer
 import dev.ligature.wander.*
 import dev.ligature.wander.Environment

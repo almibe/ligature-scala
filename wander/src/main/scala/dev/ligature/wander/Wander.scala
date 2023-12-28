@@ -18,11 +18,18 @@ enum WanderValue:
   case Identifier(value: dev.ligature.wander.Identifier)
   case Array(values: Seq[WanderValue])
   case Record(values: Seq[(Name, WanderValue)])
-  case Lambda(lambda: Expression.Lambda)
-  case PartialLambda(args: Seq[WanderValue], lambda: Expression.Lambda)
-  case HostFunction(hostFunction: dev.ligature.wander.HostFunction)
-  case PartialHostFunction(args: Seq[WanderValue], hostFunction: dev.ligature.wander.HostFunction)
+  case Function(function: dev.ligature.wander.Function)
   case QuestionMark
+
+trait Function:
+  def call(args: Seq[WanderValue], environment: Environment): Either[WanderError, WanderValue]
+
+case class Lambda(val lambda: Expression.Lambda) extends Function {
+  override def call(args: Seq[WanderValue], environment: Environment): Either[WanderError, WanderValue] = ???
+}
+case class PartialFunction(args: Seq[WanderValue], function: dev.ligature.wander.Function) extends Function {
+  override def call(args: Seq[WanderValue], environment: Environment): Either[WanderError, WanderValue] = ???
+}
 
 case class HostFunction(
     name: String,
@@ -33,7 +40,9 @@ case class HostFunction(
         arguments: Seq[WanderValue],
         environment: Environment
     ) => Either[WanderError, (WanderValue, Environment)]
-)
+) extends Function {
+  override def call(args: Seq[WanderValue], environment: Environment): Either[WanderError, WanderValue] = ???
+}
 
 case class HostProperty(
     name: String,
@@ -42,11 +51,6 @@ case class HostProperty(
     read: (
         environment: Environment
     ) => Either[WanderError, (WanderValue, Environment)]
-)
-
-case class Parameter(
-    name: Name,
-    parameterType: Option[WanderValue]
 )
 
 case class WanderError(val userMessage: String) extends Throwable(userMessage)
@@ -101,17 +105,14 @@ def printWanderValue(value: WanderValue, environment: Environment): String =
     case WanderValue.Int(value)         => value.toString()
     case WanderValue.String(value)      => s"\"$value\"" // TODO escape correctly
     case WanderValue.Identifier(value)  => s"<${value.name}>"
-    case WanderValue.HostFunction(body) => "[HostFunction]"
     case WanderValue.Nothing            => "nothing"
-    case WanderValue.Lambda(lambda)     => "[Lambda]"
+    case WanderValue.Function(function) => "[Function]"
     case WanderValue.Array(values) =>
       "[" + values.map(value => printWanderValue(value, environment)).mkString(", ") + "]"
     case WanderValue.Record(values) =>
       "{" + values
         .map((name, value) => name.name + " = " + printWanderValue(value, environment))
         .mkString(", ") + "}"
-    case WanderValue.PartialHostFunction(args, hostFunction) => "[Lambda]"
-    case WanderValue.PartialLambda(args, lambda) => "[Lambda]"
   }
 
 final case class Identifier private (name: String) {
