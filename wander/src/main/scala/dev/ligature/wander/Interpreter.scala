@@ -17,7 +17,7 @@ enum Expression:
   case BooleanValue(value: Boolean)
   case Nothing
   case Array(value: Seq[Expression])
-  case Binding(name: TaggedName, value: Expression)
+  case Binding(name: TaggedName, value: Expression, exportName: Boolean = false)
   case Record(values: Seq[(Name, Expression)])
   case Lambda(parameters: Seq[Name], body: Expression)
   case WhenExpression(conditionals: Seq[(Expression, Expression)])
@@ -44,22 +44,22 @@ def eval(
     environment: Environment
 ): Either[WanderError, (WanderValue, Environment)] =
   expression match {
-    case Expression.Import(name)           => Right((WanderValue.Nothing, environment))
-    case Expression.Nothing                => Right((WanderValue.Nothing, environment))
-    case Expression.BooleanValue(value)    => Right((WanderValue.Bool(value), environment))
-    case Expression.IntegerValue(value)    => Right((WanderValue.Int(value), environment))
-    case Expression.StringValue(value)     => Right((WanderValue.String(value), environment))
-    case Expression.IdentifierValue(value) => Right((WanderValue.Identifier(value), environment))
-    case Expression.Array(value)           => handleArray(value, environment)
-    case Expression.NameExpression(name)   => environment.read(name).map((_, environment))
-    case Expression.Binding(name, value)   => handleBinding(name, value, environment)
-    case lambda: Expression.Lambda         => Right((WanderValue.Function(Lambda(lambda)), environment))
-    case Expression.WhenExpression(conditionals) =>
+    case Expression.Import(name)                       => Right((WanderValue.Nothing, environment))
+    case Expression.Nothing                            => Right((WanderValue.Nothing, environment))
+    case Expression.BooleanValue(value)                => Right((WanderValue.Bool(value), environment))
+    case Expression.IntegerValue(value)                => Right((WanderValue.Int(value), environment))
+    case Expression.StringValue(value)                 => Right((WanderValue.String(value), environment))
+    case Expression.IdentifierValue(value)             => Right((WanderValue.Identifier(value), environment))
+    case Expression.Array(value)                       => handleArray(value, environment)
+    case Expression.NameExpression(name)               => environment.read(name).map((_, environment))
+    case Expression.Binding(name, value, exportName)   => handleBinding(name, value, environment)
+    case lambda: Expression.Lambda                     => Right((WanderValue.Function(Lambda(lambda)), environment))
+    case Expression.WhenExpression(conditionals)       =>
       handleWhenExpression(conditionals, environment)
-    case Expression.Grouping(expressions)    => handleGrouping(expressions, environment)
-    case Expression.Application(expressions) => handleApplication(expressions, environment)
-    case Expression.QuestionMark             => Right((WanderValue.QuestionMark, environment))
-    case Expression.Record(values)           => handleRecord(values, environment)
+    case Expression.Grouping(expressions)              => handleGrouping(expressions, environment)
+    case Expression.Application(expressions)           => handleApplication(expressions, environment)
+    case Expression.QuestionMark                       => Right((WanderValue.QuestionMark, environment))
+    case Expression.Record(values)                     => handleRecord(values, environment)
   }
 
 def handleGrouping(

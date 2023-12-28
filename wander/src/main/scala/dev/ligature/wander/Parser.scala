@@ -76,6 +76,12 @@ def parse(script: Seq[Token]): Either[WanderError, Seq[Term]] = {
   }
 }
 
+val exportNib: Nibbler[Token, Boolean] = gaze =>
+  gaze.attempt(optional(take(Token.ExportKeyword))) match
+    case Result.NoMatch    => Result.Match(false)
+    case Result.EmptyMatch => Result.Match(false)
+    case Result.Match(_)   => Result.Match(true)
+
 val importNib: Nibbler[Token, Term] = gaze =>
   for {
     _ <- gaze.attempt(take(Token.ImportKeyword))
@@ -224,10 +230,11 @@ val groupingNib: Nibbler[Token, Term.Grouping] = { gaze =>
 
 val bindingNib: Nibbler[Token, Term.Binding] = { gaze =>
   for {
+    exportName <- gaze.attempt(exportNib)
     name <- gaze.attempt(nameNib)
     _ <- gaze.attempt(take(Token.EqualSign))
     value <- gaze.attempt(expressionNib)
-  } yield Term.Binding(TaggedName(name.value, Tag.Untagged), value)
+  } yield Term.Binding(TaggedName(name.value, Tag.Untagged), value, exportName)
 }
 
 val taggedBindingNib: Nibbler[Token, Term.Binding] = { gaze =>

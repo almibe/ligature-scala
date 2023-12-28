@@ -221,9 +221,16 @@ class ParserSuite extends FunSuite {
     )
     assertEquals(result, expected)
   }
+
   test("parse import") {
     val result = check("import Hello")
     val expected = Right(Seq(Term.Import(Name("Hello"))))
+    assertEquals(result, expected)
+  }
+
+  test("parse export") {
+    val result = check("export x = 5")
+    val expected = Right(Seq(Term.Binding(TaggedName(Name("x"), Tag.Untagged), Term.IntegerLiteral(5), true)))
     assertEquals(result, expected)
   }
 }
