@@ -33,7 +33,8 @@ enum Token:
   case OpenBrace, CloseBrace, Colon, OpenParen, CloseParen, NewLine,
     Arrow, WideArrow, WhenKeyword, EqualSign, Comment,
     OpenBracket, CloseBracket, NothingKeyword, QuestionMark,
-    EndKeyword, Period, Backtick, Hash, Lambda, Pipe, Comma
+    EndKeyword, Period, Backtick, Hash, Lambda, Pipe, Comma,
+    ImportKeyword, ExportKeyword
 
 def tokenize(input: String): Either[WanderError, Seq[Token]] = {
   val gaze = Gaze.from(input)
@@ -57,9 +58,6 @@ def tokenize(input: String): Either[WanderError, Seq[Token]] = {
 val stringTokenNib: Nibbler[String, Token] =
   LigNibblers.stringNibbler.map(results => Token.StringLiteral(results(1).toString()))
 
-//NOTE: New lines are hard coded as \n because sometimes on Windows
-//the two types of new lines get mixed up in the codebase between the editor and Scalafmt.
-//Not ideal, but it works consistently at least.
 val newLineTokenNib =
   takeFirst(takeString("\n"), takeString("\r\n")).map(res => Token.NewLine)
 
@@ -83,6 +81,8 @@ val nameValueNib: Nibbler[String, String] =
 //   */
 val nameTokenNib: Nibbler[String, Token] = nameValueNib.map { values =>
   values match {
+    case "import"      => Token.ImportKeyword
+    case "export"      => Token.ExportKeyword
     case "when"        => Token.WhenKeyword
     case "end"         => Token.EndKeyword
     case "true"        => Token.BooleanLiteral(true)

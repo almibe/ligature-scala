@@ -55,7 +55,7 @@ class LexerSuite extends FunSuite {
     check(script, tokens)
   }
   test("tokenize symbols") {
-    val script = "when ?{}:()][\n\r\n->=>= nothing --test"
+    val script = "when ?{}:()][\n\r\n->=>= nothing import export --test"
     val tokens = Right(
       Seq(
         Token.WhenKeyword,
@@ -75,6 +75,10 @@ class LexerSuite extends FunSuite {
         Token.EqualSign,
         sp,
         Token.NothingKeyword,
+        sp,
+        Token.ImportKeyword,
+        sp,
+        Token.ExportKeyword,
         sp,
         Token.Comment
       )

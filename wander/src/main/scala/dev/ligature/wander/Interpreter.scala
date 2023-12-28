@@ -9,6 +9,7 @@ import scala.collection.mutable.ListBuffer
 import scala.util.boundary, boundary.break
 
 enum Expression:
+  case Import(name: Name)
   case NameExpression(value: Name)
   case IdentifierValue(value: Identifier)
   case IntegerValue(value: Long)
@@ -43,6 +44,7 @@ def eval(
     environment: Environment
 ): Either[WanderError, (WanderValue, Environment)] =
   expression match {
+    case Expression.Import(name)           => Right((WanderValue.Nothing, environment))
     case Expression.Nothing                => Right((WanderValue.Nothing, environment))
     case Expression.BooleanValue(value)    => Right((WanderValue.Bool(value), environment))
     case Expression.IntegerValue(value)    => Right((WanderValue.Int(value), environment))

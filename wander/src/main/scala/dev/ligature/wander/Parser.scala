@@ -34,6 +34,7 @@ enum Tag:
   case Function(names: Seq[Name])
 
 enum Term:
+  case Import(name: Name)
   case NameTerm(value: Name)
   case IdentifierLiteral(value: Identifier)
   case IntegerLiteral(value: Long)
@@ -42,7 +43,7 @@ enum Term:
   case NothingLiteral
   case QuestionMark
   case Array(value: Seq[Term])
-  case Binding(taggedName: TaggedName, term: Term)
+  case Binding(taggedName: TaggedName, term: Term, exportName: Boolean = false)
   case Record(values: Seq[(Name, Term)])
   case WhenExpression(conditionals: Seq[(Term, Term)])
   case Application(terms: Seq[Term])
@@ -75,6 +76,12 @@ def parse(script: Seq[Token]): Either[WanderError, Seq[Term]] = {
   }
 }
 
+val importNib: Nibbler[Token, Term] = gaze =>
+  for {
+    _ <- gaze.attempt(take(Token.ImportKeyword))
+    name <- gaze.attempt(importNameNib)
+  } yield Term.Import(name) //TODO handle this body better
+
 val nothingNib: Nibbler[Token, Term] = gaze =>
   gaze.next() match
     case Some(Token.NothingKeyword) => Result.Match(Term.NothingLiteral)
@@ -104,6 +111,11 @@ val stringNib: Nibbler[Token, Term.StringLiteral] = gaze =>
   gaze.next() match
     case Some(Token.StringLiteral(s)) => Result.Match(Term.StringLiteral(s))
     case _                            => Result.NoMatch
+
+val importNameNib: Nibbler[Token, Name] = gaze =>
+  gaze.next() match
+    case Some(Token.Name(n)) => Result.Match(Name(n))
+    case _                   => Result.NoMatch
 
 val nameNib: Nibbler[Token, Term.NameTerm] = gaze =>
   gaze.next() match
@@ -248,10 +260,10 @@ val applicationInternalNib =
 
 val expressionNib =
   takeFirst(
+    importNib,
     bindingNib,
     taggedBindingNib,
     applicationNib,
-    // nameNib,
     lambdaNib,
     identifierNib,
     groupingNib,
