@@ -9,7 +9,7 @@ import dev.ligature.wander.*
 val stringLibrary =
   Seq(
     HostFunction(
-      "String.cat",
+      Name("String.cat"),
       "Concat two Strings.",
       Seq(
         TaggedName(Name("left"), Tag.Single(Name("Core.String"))),

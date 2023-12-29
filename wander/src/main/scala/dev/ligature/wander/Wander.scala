@@ -32,7 +32,7 @@ case class PartialFunction(args: Seq[WanderValue], function: dev.ligature.wander
 }
 
 case class HostFunction(
-    name: String,
+    name: Name,
     docString: String,
     parameters: Seq[TaggedName],
     resultTag: Tag,
@@ -95,10 +95,10 @@ def introspect(script: String): Introspect = {
 def printResult(value: Either[WanderError, (WanderValue, Environment)]): String =
   value match {
     case Left(value)  => "Error: " + value.userMessage
-    case Right(value) => printWanderValue(value._1, value._2)
+    case Right(value) => printWanderValue(value._1)
   }
 
-def printWanderValue(value: WanderValue, environment: Environment): String =
+def printWanderValue(value: WanderValue): String =
   value match {
     case WanderValue.QuestionMark       => "?"
     case WanderValue.Bool(value)        => value.toString()
@@ -108,10 +108,10 @@ def printWanderValue(value: WanderValue, environment: Environment): String =
     case WanderValue.Nothing            => "nothing"
     case WanderValue.Function(function) => "[Function]"
     case WanderValue.Array(values) =>
-      "[" + values.map(value => printWanderValue(value, environment)).mkString(", ") + "]"
+      "[" + values.map(value => printWanderValue(value)).mkString(", ") + "]"
     case WanderValue.Record(values) =>
       "{" + values
-        .map((name, value) => name.name + " = " + printWanderValue(value, environment))
+        .map((name, value) => name.name + " = " + printWanderValue(value))
         .mkString(", ") + "}"
   }
 

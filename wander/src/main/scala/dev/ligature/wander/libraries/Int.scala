@@ -9,7 +9,7 @@ import javax.lang.model.`type`.ErrorType
 
 val intLibrary = Seq(
     HostFunction(
-        "Int.add",
+        Name("Int.add"),
         "Add two Ints.",
         Seq(
             TaggedName(Name("left"), Tag.Single(Name("Core.Int"))),

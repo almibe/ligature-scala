@@ -7,24 +7,26 @@ package dev.ligature.wander.cli
 import java.nio.file.Files
 import java.nio.file.Paths
 import java.io.File
+import dev.ligature.wander.run
+import dev.ligature.wander.printWanderValue
+import dev.ligature.wander.libraries.common
 
 object WanderCli {
   import scala.util.CommandLineParser
   def main(args: Array[String]): Unit =
-    println(sys.env("WANDER_LIBS"))
     try
       val filename = CommandLineParser.parseArgument[String](args, 0)
       if Files.exists(Paths.get(filename)) then
         val file = scala.io.Source.fromFile(filename)
         val content = file.mkString
-        println(content)
+        runScript(content)
       else if sys.env.contains("WANDER_LIBS") then
         val libsDir = sys.env("WANDER_LIBS")
         val libsFilename = libsDir + File.separator + filename
         if Files.exists(Paths.get(libsFilename)) then
           val file = scala.io.Source.fromFile(libsFilename)
           val content = file.mkString
-          println(content)
+          runScript(content)
         else
           println(s"Error: $libsFilename doesn't exist.")
       else
@@ -33,3 +35,8 @@ object WanderCli {
       case _ => println("Requires single file name.")
     }
 }
+
+def runScript(script: String) =
+  run(script, common()) match
+    case Left(value) => println(s"Error: ${value.userMessage}")
+    case Right(value) => println(printWanderValue(value._1))

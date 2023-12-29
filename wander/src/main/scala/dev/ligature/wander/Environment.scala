@@ -69,7 +69,7 @@ case class Environment(
       }
       currentScopeOffset -= 1
     }
-    this.functions.find(_.name == name.name) match {
+    this.functions.find(_.name == name) match {
       case None           => ()
       case Some(function) => return Right(WanderValue.Function(function))
     }

@@ -16,7 +16,7 @@ import dev.ligature.wander.Tag
 
 val boolLibrary = Seq(
         HostFunction(
-          "Bool.not",
+          Name("Bool.not"),
           "Perform a not operation on a Bool value.",
           Seq(TaggedName(Name("value"), Tag.Single(Name("Core.Bool")))),
           Tag.Single(Name("Core.Bool")),

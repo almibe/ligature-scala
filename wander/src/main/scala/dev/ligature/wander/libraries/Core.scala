@@ -10,10 +10,11 @@ import dev.ligature.wander.WanderValue
 import dev.ligature.wander.TaggedName
 import dev.ligature.wander.Name
 import dev.ligature.wander.Tag
+import dev.ligature.wander.WanderError
 
 val coreLibrary = Seq(
       HostFunction(
-        "Core.eq",
+        Name("Core.eq"),
         "Check if two values are equal.",
         Seq(
           TaggedName(Name("left"), Tag.Single(Name("Core.Any"))),
@@ -28,7 +29,7 @@ val coreLibrary = Seq(
             case _ => ???
       ),
       HostFunction(
-        "Core.Any",
+        Name("Core.Any"),
         "Checks if a value is an Any.",
         Seq(TaggedName(Name("value"), Tag.Single(Name("Core.Any")))),
         Tag.Single(Name("Core.Bool")),
@@ -36,7 +37,7 @@ val coreLibrary = Seq(
           Right((WanderValue.Bool(true), environment))
       ),
       HostFunction(
-        "Core.Int",
+        Name("Core.Int"),
         "Check if a value is an Int.",
         Seq(TaggedName(Name("value"), Tag.Single(Name("Core.Any")))),
         Tag.Single(Name("Core.Bool")),
@@ -47,7 +48,7 @@ val coreLibrary = Seq(
             case _                       => ???
       ),
       HostFunction(
-        "Core.Bool",
+        Name("Core.Bool"),
         "Check if a value is a Bool.",
         Seq(TaggedName(Name("value"), Tag.Single(Name("Core.Any")))),
         Tag.Single(Name("Core.Bool")),
@@ -58,7 +59,7 @@ val coreLibrary = Seq(
             case _                        => ???
       ),
       HostFunction(
-        "Core.Record",
+        Name("Core.Record"),
         "Check if a value is a Record.",
         Seq(TaggedName(Name("value"), Tag.Single(Name("Core.Any")))),
         Tag.Single(Name("Core.Bool")),
@@ -69,7 +70,7 @@ val coreLibrary = Seq(
             case _                          => ???
       ),
       HostFunction(
-        "Core.Array",
+        Name("Core.Array"),
         "Check if a value is an Array.",
         Seq(TaggedName(Name("value"), Tag.Single(Name("Core.Any")))),
         Tag.Single(Name("Core.Bool")),
@@ -80,7 +81,7 @@ val coreLibrary = Seq(
             case _                         => ???
       ),
       HostFunction(
-        "Core.String",
+        Name("Core.String"),
         "Check if a value is a String.",
         Seq(TaggedName(Name("value"), Tag.Single(Name("Core.Any")))),
         Tag.Single(Name("Core.Bool")),
@@ -91,7 +92,7 @@ val coreLibrary = Seq(
             case _                          => ???
       ),
       HostFunction(
-        "Core.Nothing",
+        Name("Core.Nothing"),
         "Check if a value is Nothing.",
         Seq(TaggedName(Name("value"), Tag.Single(Name("Core.Any")))),
         Tag.Single(Name("Core.Bool")),
@@ -100,5 +101,14 @@ val coreLibrary = Seq(
             case Seq(WanderValue.Nothing) => Right((WanderValue.Bool(true), environment))
             case Seq(_)                     => Right((WanderValue.Bool(false), environment))
             case _                          => ???
+      ),
+      HostFunction(
+        Name("Core.todo"),
+        "Exit a script at this point with the given TODO message, useful during development.",
+        Seq(TaggedName(Name("message"), Tag.Single(Name("Core.String")))),
+        Tag.Single(Name("Core.Nothing")),
+        (args: Seq[WanderValue], environment: Environment) =>
+          args match
+            case Seq(WanderValue.String(message)) => Left((WanderError(message)))
       )
     )

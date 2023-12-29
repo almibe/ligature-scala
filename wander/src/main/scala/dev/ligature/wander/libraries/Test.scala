@@ -10,7 +10,7 @@ import dev.ligature.wander.*
 
 val testingHostFunctions: Seq[HostFunction] = Seq(
   HostFunction(
-    "Test.assertEq",
+    Name("Test.assertEq"),
     "Check if two values are equal and fail if they are not.",
     Seq(
       TaggedName(Name("description"), Tag.Single(Name("Core.String"))),
