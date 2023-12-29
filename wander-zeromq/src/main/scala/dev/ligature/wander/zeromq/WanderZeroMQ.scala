@@ -10,7 +10,7 @@ import dev.ligature.Ligature
 import dev.ligature.wander.run as runWander
 import dev.ligature.wander.WanderValue
 import dev.ligature.wander.printWanderValue
-import dev.ligature.wander.libraries.common
+import dev.ligature.wander.libraries.std
 import dev.ligature.wander.printResult
 
 private class WanderZServer(val port: Int) extends Runnable with AutoCloseable {
@@ -23,7 +23,7 @@ private class WanderZServer(val port: Int) extends Runnable with AutoCloseable {
     while (!Thread.currentThread().isInterrupted() && continue)
       try
         val query = String(socket.recv(0), ZMQ.CHARSET) // blocks waiting for a request
-        val res = runWander(query, common())
+        val res = runWander(query, std())
         socket.send(printResult(res).getBytes(ZMQ.CHARSET), 0)
       catch case e => continue = false
 

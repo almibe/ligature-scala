@@ -5,7 +5,6 @@
 package dev.ligature.wander
 
 import dev.ligature.wander.libraries.common
-import dev.ligature.wander.libraries.*
 import dev.ligature.wander.*
 
 class LambdaSuite extends munit.FunSuite {

@@ -9,7 +9,7 @@ import java.nio.file.Paths
 import java.io.File
 import dev.ligature.wander.run
 import dev.ligature.wander.printWanderValue
-import dev.ligature.wander.libraries.common
+import dev.ligature.wander.libraries.std
 
 object WanderCli {
   import scala.util.CommandLineParser
@@ -37,6 +37,6 @@ object WanderCli {
 }
 
 def runScript(script: String) =
-  run(script, common()) match
+  run(script, std()) match
     case Left(value) => println(s"Error: ${value.userMessage}")
     case Right(value) => println(printWanderValue(value._1))

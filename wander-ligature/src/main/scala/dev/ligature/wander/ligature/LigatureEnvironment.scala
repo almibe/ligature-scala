@@ -6,12 +6,12 @@ package dev.ligature.wander.ligature
 
 import dev.ligature.wander.Environment
 import dev.ligature.Ligature
-import dev.ligature.wander.libraries.common
+import dev.ligature.wander.libraries.std
 import dev.ligature.wander.*
 import dev.ligature.Graph
 
 def ligatureEnvironment(ligature: Ligature): Environment =
-  common()
+  std()
     .addHostProperties(
       Seq(
         HostProperty(

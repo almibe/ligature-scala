@@ -11,7 +11,7 @@ import dev.ligature.wander.Environment
 
 /**
   */
-def common(): Environment = {
+def std(): Environment = {
   Environment()
     .addHostFunctions(boolLibrary)
     .addHostFunctions(coreLibrary)  
