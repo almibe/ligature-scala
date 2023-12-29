@@ -25,7 +25,6 @@ import dev.ligature.gaze.concat
 enum Token:
   case BooleanLiteral(value: Boolean)
   case Spaces(value: String)
-  case Identifier(value: dev.ligature.wander.Identifier)
   case IntegerLiteral(value: Long)
   case StringLiteral(value: String)
   case Name(name: String)
@@ -144,11 +143,6 @@ val spacesTokenNib =
   concat(takeWhile[String](_ == " "))
     .map(res => Token.Spaces(res.mkString))
 
-val identifierTokenNib: Nibbler[String, Token] =
-  LigNibblers.identifierNibbler.map(res =>
-    Token.Identifier(dev.ligature.wander.Identifier.fromString(res.mkString).getOrElse(???))
-  )
-
 val tokensNib: Nibbler[String, Seq[Token]] = repeat(
   takeFirst(
     spacesTokenNib,
@@ -162,7 +156,6 @@ val tokensNib: Nibbler[String, Seq[Token]] = repeat(
     lambdaTokenNib,
     integerTokenNib,
     newLineTokenNib,
-    identifierTokenNib,
     openBraceTokenNib,
     closeBraceTokenNib,
     openBracketTokenNib,

@@ -15,7 +15,6 @@ enum WanderValue:
   case Int(value: Long)
   case Bool(value: Boolean)
   case String(value: java.lang.String)
-  case Identifier(value: dev.ligature.wander.Identifier)
   case Array(values: Seq[WanderValue])
   case Record(values: Seq[(Name, WanderValue)])
   case Function(function: dev.ligature.wander.Function)
@@ -104,7 +103,6 @@ def printWanderValue(value: WanderValue): String =
     case WanderValue.Bool(value)        => value.toString()
     case WanderValue.Int(value)         => value.toString()
     case WanderValue.String(value)      => s"\"$value\"" // TODO escape correctly
-    case WanderValue.Identifier(value)  => s"<${value.name}>"
     case WanderValue.Nothing            => "nothing"
     case WanderValue.Function(function) => "[Function]"
     case WanderValue.Array(values) =>
@@ -114,19 +112,3 @@ def printWanderValue(value: WanderValue): String =
         .map((name, value) => name.name + " = " + printWanderValue(value))
         .mkString(", ") + "}"
   }
-
-final case class Identifier private (name: String) {
-  @unused
-  private def copy(): Unit = ()
-}
-
-object Identifier {
-  private val pattern = "^[a-zA-Z0-9-._~:/?#\\[\\]@!$&'()*+,;%=]+$".r
-
-  def fromString(name: String): Either[WanderError, Identifier] =
-    if (pattern.matches(name)) {
-      Right(Identifier(name))
-    } else {
-      Left(WanderError(s"Invalid Identifier $name"))
-    }
-}

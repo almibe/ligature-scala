@@ -30,11 +30,6 @@ class LiteralsSuite extends munit.FunSuite {
     val result = WanderValue.Bool(true)
     check(script, result)
   }
-  test("identifier") {
-    val script = "<test>"
-    val result = WanderValue.Identifier(Identifier.fromString("test").getOrElse(???))
-    check(script, result)
-  }
   test("integer") {
     val script = "24601"
     val result = WanderValue.Int(24601)

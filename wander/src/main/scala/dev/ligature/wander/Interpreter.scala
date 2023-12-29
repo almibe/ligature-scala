@@ -11,7 +11,6 @@ import scala.util.boundary, boundary.break
 enum Expression:
   case Import(name: Name)
   case NameExpression(value: Name)
-  case IdentifierValue(value: Identifier)
   case IntegerValue(value: Long)
   case StringValue(value: String)
   case BooleanValue(value: Boolean)
@@ -49,7 +48,6 @@ def eval(
     case Expression.BooleanValue(value)                => Right((WanderValue.Bool(value), environment))
     case Expression.IntegerValue(value)                => Right((WanderValue.Int(value), environment))
     case Expression.StringValue(value)                 => Right((WanderValue.String(value), environment))
-    case Expression.IdentifierValue(value)             => Right((WanderValue.Identifier(value), environment))
     case Expression.Array(value)                       => handleArray(value, environment)
     case Expression.NameExpression(name)               => environment.read(name).map((_, environment))
     case Expression.Binding(name, value, exportName)   => handleBinding(name, value, environment)

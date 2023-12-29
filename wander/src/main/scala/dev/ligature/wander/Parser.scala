@@ -36,7 +36,6 @@ enum Tag:
 enum Term:
   case Import(name: Name)
   case NameTerm(value: Name)
-  case IdentifierLiteral(value: Identifier)
   case IntegerLiteral(value: Long)
   case StringLiteral(value: String)
   case BooleanLiteral(value: Boolean)
@@ -102,11 +101,6 @@ val booleanNib: Nibbler[Token, Term.BooleanLiteral] = gaze =>
   gaze.next() match
     case Some(Token.BooleanLiteral(b)) => Result.Match(Term.BooleanLiteral(b))
     case _                             => Result.NoMatch
-
-val identifierNib: Nibbler[Token, Term.IdentifierLiteral] = gaze =>
-  gaze.next() match
-    case Some(Token.Identifier(i)) => Result.Match(Term.IdentifierLiteral(i))
-    case _                         => Result.NoMatch
 
 val integerNib: Nibbler[Token, Term.IntegerLiteral] = gaze =>
   gaze.next() match
@@ -253,7 +247,6 @@ val applicationInternalNib =
     taggedBindingNib,
     nameNib,
     lambdaNib,
-    identifierNib,
     groupingNib,
     stringNib,
     integerNib,
@@ -272,7 +265,6 @@ val expressionNib =
     taggedBindingNib,
     applicationNib,
     lambdaNib,
-    identifierNib,
     groupingNib,
     stringNib,
     integerNib,

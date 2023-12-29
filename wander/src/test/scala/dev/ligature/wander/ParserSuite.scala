@@ -8,16 +8,6 @@ import dev.ligature.wander.WanderValue
 import munit.FunSuite
 
 class ParserSuite extends FunSuite {
-  def ident(identifier: String): Term =
-    Identifier.fromString(identifier) match
-      case Left(value)  => ??? // just crash
-      case Right(value) => Term.IdentifierLiteral(value)
-
-  def Ident(identifier: String): Identifier =
-    Identifier.fromString(identifier) match
-      case Left(value)  => ??? // just crash
-      case Right(value) => value
-
   def check(script: String): Either[WanderError, Seq[Term]] =
     val tokens = tokenize(script) match
       case Left(err)     => return Left(err)
@@ -43,11 +33,6 @@ class ParserSuite extends FunSuite {
   test("parse nothing keyword") {
     val result = check("nothing")
     val expected = Right(Seq(Term.NothingLiteral))
-    assertEquals(result, expected)
-  }
-  test("parse Identifier") {
-    val result = check("<test2>")
-    val expected = Right(Seq(ident("test2")))
     assertEquals(result, expected)
   }
   test("parse Integer") {

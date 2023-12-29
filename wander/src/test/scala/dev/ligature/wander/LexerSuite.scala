@@ -10,21 +10,11 @@ import munit.FunSuite
 class LexerSuite extends FunSuite {
   def check(script: String, tokens: Either[WanderError, Seq[Token]]) =
     assertEquals(tokenize(script), tokens)
-  def ident(identifier: String): Token =
-    Identifier.fromString(identifier) match
-      case Left(value)  => ??? // just crash
-      case Right(value) => Token.Identifier(value)
   val sp = Token.Spaces(" ")
 
   test("tokenize booleans") {
     val script = "true false"
     val tokens = Right(Seq(Token.BooleanLiteral(true), sp, Token.BooleanLiteral(false)))
-    check(script, tokens)
-  }
-  test("tokenize Identifiers") {
-    val script = "<hello><123><_4><https://ligature.dev>"
-    val tokens =
-      Right(Seq(ident("hello"), ident("123"), ident("_4"), ident("https://ligature.dev")))
     check(script, tokens)
   }
   test("tokenize Integers") {
