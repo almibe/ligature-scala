@@ -29,11 +29,12 @@ enum Expression:
  * exported names.
  */
 def load(
-    expressions: Seq[Expression],
+    script: String,
     environment: Environment
-): Either[WanderError, WanderValue.Record] =
-  val result = collection.mutable.HashMap[Name, WanderValue]
+): Either[WanderError, Map[Name, WanderValue]] =
+  val result = collection.mutable.HashMap[Name, WanderValue]()
   var currentEnvironemnt = environment
+  val expressions: Seq[Expression] = introspect(script).expression.getOrElse(???)
   boundary:
     expressions.foreach(expression =>
       eval(expression, currentEnvironemnt) match {
@@ -41,13 +42,15 @@ def load(
         case Right((value, environment)) =>
           currentEnvironemnt = environment
           expression match
-            case Expression.Binding(name, value, exportName) => 
-              ???
-            case _ => ???
+            case Expression.Binding(TaggedName(name, tag), expression, exportName) => 
+              eval(expression, currentEnvironemnt) match
+                case Left(err) => Left(err)
+                case Right((value, _)) => 
+                  result += (name -> value)
+            case _ => ()
       }
     )
-  println(s"!!! $result")
-  Right(WanderValue.Record(Map()))
+  Right(result.toMap)
 
 def eval(
     expression: Expression,
