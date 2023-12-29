@@ -120,6 +120,15 @@ lazy val wanderZeroMQ = project
   )
   .dependsOn(ligature, wander, ligatureInMemory, ligatureXodus)
 
+lazy val wanderCli = project
+  .in(file("wander-cli"))
+  .settings(
+    name := "wander-cli",
+    scalaVersion := scala3Version,
+    libraryDependencies += "org.scalameta" %% "munit" % munitVersion % Test,
+  )
+  .dependsOn(ligature, wander, ligatureInMemory, ligatureXodus)
+
 disablePlugins(RevolverPlugin)
 
 addCommandAlias("cd", "project")
