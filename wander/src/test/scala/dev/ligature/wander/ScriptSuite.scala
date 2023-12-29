@@ -6,7 +6,7 @@ package dev.ligature.wander
 
 import java.io.File
 import scala.io.Source
-import dev.ligature.wander.libraries.common
+import dev.ligature.wander.libraries.std
 import dev.ligature.wander.libraries.testingHostFunctions
 
 class ScriptSuite extends munit.FunSuite {
@@ -20,7 +20,7 @@ class ScriptSuite extends munit.FunSuite {
       files.foreach { f =>
         test(f) {
           val script = Source.fromFile(f).mkString
-          run(script, common()) match {
+          run(script, std()) match {
             case Right(value) => ()
             case Left(value)  => fail(value.toString())
           }

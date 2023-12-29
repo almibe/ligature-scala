@@ -6,12 +6,12 @@ package dev.ligature.wander
 
 import dev.ligature.wander.Token
 import dev.ligature.wander.WanderValue
-import dev.ligature.wander.libraries.common
+import dev.ligature.wander.libraries.std
 
 class LiteralsSuite extends munit.FunSuite {
   def check(script: String, expected: WanderValue) =
     assertEquals(
-      run(script, common()).getOrElse(???)._1,
+      run(script, std()).getOrElse(???)._1,
       expected
     )
 

@@ -5,13 +5,13 @@
 package dev.ligature.wander
 
 import dev.ligature.wander.WanderValue
-import dev.ligature.wander.libraries.common
+import dev.ligature.wander.libraries.std
 import munit.FunSuite
 
 class TagSuite extends FunSuite {
   def check(script: String, expected: WanderValue) =
     assertEquals(
-      run(script, common()) match {
+      run(script, std()) match {
         case Left(err) => throw err
         case Right((value, _)) => value
       },
@@ -19,7 +19,7 @@ class TagSuite extends FunSuite {
     )
 
   def checkFail(script: String, messageContains: String) =
-    val res = run(script, common())
+    val res = run(script, std())
     assert(res.isLeft)
     assert(res.left.getOrElse(???).userMessage.contains(messageContains))
 

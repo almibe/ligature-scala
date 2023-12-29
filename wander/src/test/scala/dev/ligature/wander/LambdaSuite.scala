@@ -4,26 +4,26 @@
 
 package dev.ligature.wander
 
-import dev.ligature.wander.libraries.common
+import dev.ligature.wander.libraries.std
 import dev.ligature.wander.*
 
 class LambdaSuite extends munit.FunSuite {
-  val environment = common().addHostFunctions(Seq(
-    HostFunction(
-      Name("test"),
-      "",
-      Seq(
-        TaggedName(Name("a"), Tag.Untagged),
-        TaggedName(Name("b"), Tag.Untagged),
-        TaggedName(Name("c"), Tag.Untagged),
-        TaggedName(Name("d"), Tag.Untagged),
-      ),
-      Tag.Untagged,
-      (args, environment) => {
-        Right((WanderValue.Int(5), environment))
-      }
-    )
-  ))
+  val testFunction = HostFunction(
+    Name("test"),
+    "",
+    Seq(
+      TaggedName(Name("a"), Tag.Untagged),
+      TaggedName(Name("b"), Tag.Untagged),
+      TaggedName(Name("c"), Tag.Untagged),
+      TaggedName(Name("d"), Tag.Untagged),
+    ),
+    Tag.Untagged,
+    (args, environment) => {
+      Right((WanderValue.Int(5), environment))
+    }
+  )
+
+  val environment = std().addHostFunctions(Seq(testFunction))
 
   def check(script: String, expected: WanderValue): Unit =
     assertEquals(
@@ -32,8 +32,8 @@ class LambdaSuite extends munit.FunSuite {
   )
 
   test("partially apply a host function") {
-    val script = "Int.add 1"
-    val expected = WanderValue.Function(dev.ligature.wander.PartialFunction(Seq(WanderValue.Int(1)), intLibrary(0)))
+    val script = "test 1"
+    val expected = WanderValue.Function(dev.ligature.wander.PartialFunction(Seq(WanderValue.Int(1)), testFunction))
     check(script, expected)
   }
 
