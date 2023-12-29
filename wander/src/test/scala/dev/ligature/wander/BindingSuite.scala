@@ -25,26 +25,4 @@ class LetSuite extends munit.FunSuite {
     val result = Right(WanderValue.Int(5))
     check(script, result)
   }
-  // test("make sure name parser is greedy") {
-  //   val script = "let trued = true trued"
-  //   val result = Right(WanderValue.BooleanValue(true))
-  //   check(script, result)
-  // }
-  // test("basic scope") {
-  //   val script = """{
-  //                  |  let x = 7
-  //                  |  x
-  //                  |}""".stripMargin
-  //   val result = Right(WanderValue.IntValue(7))
-  //   check(script, result)
-  // }
-  // test("scope shadowing") {
-  //   val script = """let x = 5
-  //                  |{
-  //                  |  let x = 7
-  //                  |  x
-  //                  |}""".stripMargin
-  //   val result = Right(WanderValue.IntValue(7))
-  //   check(script, result)
-  // }
 }
