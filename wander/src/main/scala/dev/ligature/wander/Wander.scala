@@ -16,7 +16,7 @@ enum WanderValue:
   case Bool(value: Boolean)
   case String(value: java.lang.String)
   case Array(values: Seq[WanderValue])
-  case Record(values: Seq[(Name, WanderValue)])
+  case Record(values: Map[Name, WanderValue])
   case Function(function: dev.ligature.wander.Function)
   case QuestionMark
 

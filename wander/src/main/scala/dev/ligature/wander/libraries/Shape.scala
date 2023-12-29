@@ -6,5 +6,4 @@ package dev.ligature.wander.libraries
 
 import dev.ligature.wander.Environment
 
-def bindShapeLibrary(environment: Environment) =
-  ???
+val shapeLibrary = Seq()

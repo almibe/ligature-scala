@@ -8,7 +8,7 @@ import dev.ligature.wander.HostFunction
 import dev.ligature.wander.Environment
 import dev.ligature.wander.*
 
-val testingHostFunctions: Seq[HostFunction] = Seq(
+val testingLibrary: Seq[HostFunction] = Seq(
   HostFunction(
     Name("Test.assertEq"),
     "Check if two values are equal and fail if they are not.",

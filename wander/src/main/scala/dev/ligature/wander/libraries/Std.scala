@@ -8,16 +8,22 @@ import dev.ligature.wander.WanderValue
 import scala.collection.mutable.ListBuffer
 import dev.ligature.wander.*
 import dev.ligature.wander.Environment
+import java.nio.file.Path
 
 /**
  * Create the "default" environment for working with Wander.
  */
-def std(): Environment = {
+def std(): Environment =
   Environment()
-    .addHostFunctions(boolLibrary)
-    .addHostFunctions(coreLibrary)  
     .addHostFunctions(arrayLibrary)
-    .addHostFunctions(testingHostFunctions)
+    .addHostFunctions(boolLibrary)
+    .addHostFunctions(coreLibrary) 
     .addHostFunctions(intLibrary)
+    .addHostFunctions(shapeLibrary)
     .addHostFunctions(stringLibrary)
-}
+    .addHostFunctions(testingLibrary)
+
+def loadFromPath(path: Path, environment: Environment): Environment =
+  //TODO get all .wander files from the path
+  //TODO 
+  ???

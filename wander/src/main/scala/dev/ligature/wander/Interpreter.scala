@@ -24,19 +24,30 @@ enum Expression:
   case Grouping(expressions: Seq[Expression])
   case QuestionMark
 
-def eval(
+/**
+ * Runs a sequences of Expressions and returns a Record that holds all of the
+ * exported names.
+ */
+def load(
     expressions: Seq[Expression],
     environment: Environment
-): Either[WanderError, (WanderValue, Environment)] =
-  var lastResult = WanderValue.Nothing
+): Either[WanderError, WanderValue.Record] =
+  val result = collection.mutable.HashMap[Name, WanderValue]
+  var currentEnvironemnt = environment
   boundary:
     expressions.foreach(expression =>
-      eval(expression, environment) match {
-        case Right(value) => lastResult = value._1
+      eval(expression, currentEnvironemnt) match {
         case Left(err)    => break(Left(err))
+        case Right((value, environment)) =>
+          currentEnvironemnt = environment
+          expression match
+            case Expression.Binding(name, value, exportName) => 
+              ???
+            case _ => ???
       }
     )
-  Right((lastResult, environment))
+  println(s"!!! $result")
+  Right(WanderValue.Record(Map()))
 
 def eval(
     expression: Expression,
@@ -81,14 +92,14 @@ def handleRecord(
     environment: Environment
 ): Either[WanderError, (WanderValue, Environment)] =
   boundary:
-    val results = ListBuffer[(Name, WanderValue)]()
+    val results = collection.mutable.HashMap[Name, WanderValue]()
     values.foreach((name, value) =>
       eval(value, environment) match {
         case Left(err)         => break(Left(err))
-        case Right((value, _)) => results.append((name, value))
+        case Right((value, _)) => results += name -> value
       }
     )
-    Right((WanderValue.Record(results.toSeq), environment))
+    Right((WanderValue.Record(results.toMap), environment))
 
 def handleBinding(
     name: TaggedName,
