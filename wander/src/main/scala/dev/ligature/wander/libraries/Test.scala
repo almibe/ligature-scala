@@ -23,7 +23,7 @@ val testingLibrary: Seq[HostFunction] = Seq(
           if left != right then
             Left(WanderError(s"$description failed $left != $right")) // TODO print value correctly
           else Right(WanderValue.Nothing, environment)
-        case _ => Left(WanderError(s"Invalid call to Test.assertEq: $arguments"))
+        case _ => Left(WanderError(s"Test.assertEq failed: $arguments"))
       }
   )
 )

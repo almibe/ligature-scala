@@ -23,12 +23,17 @@ def std(): Environment =
   Environment()
     .addHostFunctions(arrayLibrary)
     .addHostFunctions(boolLibrary)
+    .addHostFunctions(boolLibrary)
     .addHostFunctions(coreLibrary) 
     .addHostFunctions(intLibrary)
+    .addHostFunctions(recordLibrary)
     .addHostFunctions(shapeLibrary)
     .addHostFunctions(stringLibrary)
     .addHostFunctions(testingLibrary)
 
+/**
+ * Load Wander modules from the path provided using the environment provided as a base.
+ */
 def loadFromPath(path: Path, environment: Environment): Either[WanderError, Environment] =
   var resultEnvironment = environment
   Files
