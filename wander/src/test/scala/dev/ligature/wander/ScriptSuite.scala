@@ -19,17 +19,33 @@ class ScriptSuite extends munit.FunSuite {
         .map(_.getPath)
         .toList
       files.foreach { f =>
-        test(f) {
-          val script = Source.fromFile(f).mkString
-          loadFromPath(Path.of(dir), std()) match
-            case Left(value) => ???
-            case Right(environment) =>
-              run(script, environment) match {
-                case Right(value) => ()
-                case Left(value)  => fail(value.toString())
-              }
-        }
+        val script = Source.fromFile(f).mkString
+        loadFromPath(Path.of(dir), std()) match
+          case Left(value) => ???
+          case Right(environment) =>
+            run(script, environment) match {
+              case Left(err)  => fail(err.toString())
+              case Right((results, _)) =>
+                evaluateResults(results)
+            }
       }
     case None => ()
+  }
+
+  def evaluateResults(results: WanderValue) = {
+    results match
+      case WanderValue.Nothing => ()
+      case WanderValue.Array(tests) =>
+        tests.foreach { currentTest =>
+          currentTest match
+            case WanderValue.Record(values) => 
+              test(values(Name("name")).toString) {
+                val test =values(Name("test"))
+                val expected = values(Name("expect"))
+                assertEquals(test, expected)
+              }
+            case _ => ???
+        }
+      case _ => ???
   }
 }
