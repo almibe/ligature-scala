@@ -134,11 +134,41 @@ def handleApplication(
             case WanderValue.Function(fn: HostFunction) => callHostFunction(fn, arguments, environment)
             case WanderValue.Function(PartialFunction(args, Lambda(Expression.Lambda(parameters, body)))) => callPartialLambda(args, arguments, parameters, body, environment)
             case WanderValue.Function(PartialFunction(args, fn: HostFunction)) => callPartialHostFunction(args, fn, arguments, environment)
+            case WanderValue.Array(values) => callArray(values, arguments, environment)
+            case WanderValue.Record(values) => callRecord(values, arguments, environment)
             case _ => Left(WanderError(s"Could not call function ${name.name}."))
           }
       }
     case _ => ???
   }
+
+def callArray(values: Seq[WanderValue], arguments: Seq[Expression], environment: Environment): Either[WanderError, (WanderValue, Environment)] = {
+  arguments match
+    case Seq(value: Expression) =>
+      eval(value, environment) match
+        case Left(err) => Left(err)
+        case Right((WanderValue.Int(index), _)) =>
+          if values.size > index then
+            Right((values(index.toInt), environment))
+          else
+            Left(WanderError(s"Error indexing Array, index $index greater than Array's length of ${values.size}."))
+        case _ => Left(WanderError("Error attempting to index Array."))
+    case _ => Left(WanderError("Error attempting to index Array."))
+}
+
+def callRecord(values: Map[Name, WanderValue], arguments: Seq[Expression], environment: Environment): Either[WanderError, (WanderValue, Environment)] = {
+  arguments match
+    case Seq(value: Expression) =>
+      eval(value, environment) match
+        case Left(err) => Left(err)
+        case Right((WanderValue.String(name), _)) =>
+          if values.contains(Name(name)) then
+            Right(values(Name(name)), environment)
+          else
+            Left(WanderError(s"Could not read $name from Record."))
+        case _ => Left(WanderError("Error attempting to read Record."))
+    case _ => Left(WanderError("Error attempting to read Record."))
+}
 
 def callLambda(arguments: Seq[Expression], parameters: Seq[Name], body: Expression, environment: Environment) = {
   if (arguments.size == parameters.size) {
