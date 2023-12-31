@@ -125,6 +125,7 @@ lazy val wanderCli = project
   .settings(
     name := "wander-cli",
     scalaVersion := scala3Version,
+    libraryDependencies += "com.github.freva" % "ascii-table" % "1.8.0",
     libraryDependencies += "org.scalameta" %% "munit" % munitVersion % Test,
   )
   .dependsOn(ligature, wander, ligatureInMemory, ligatureXodus)
