@@ -7,7 +7,6 @@ package dev.ligature.testsuite
 import dev.ligature._
 import munit.FunSuite
 import dev.ligature.inmemory.LigatureInMemory
-import dev.ligature.wander.preludes.common
 import dev.ligature.wander.Environment
 import dev.ligature.wander.run
 import dev.ligature.wander.WanderValue
@@ -41,7 +40,7 @@ class LigatureTestSuite extends FunSuite {
   setup.test("create graphs") { (instance, _) =>
     assertEquals(
       check("Ligature.createGraph \"hello\", Ligature.graphs", instance),
-      WanderValue.Array(Seq(WanderValue.StringValue("hello")))
+      WanderValue.Array(Seq(WanderValue.String("hello")))
     )
   }
 
