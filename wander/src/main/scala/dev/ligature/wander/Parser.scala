@@ -180,7 +180,17 @@ val arrayNib: Nibbler[Token, Term.Array] = { gaze =>
   yield Term.Array(values)
 }
 
-val fieldNib: Nibbler[Token, (Name, Term)] = { gaze =>
+val fieldNibNameOnly: Nibbler[Token, (Name, Term)] = { gaze =>
+  val res = for
+    name <- gaze.attempt(nameNib)
+  yield name
+  res match {
+    case Result.Match(Term.NameTerm(name)) => Result.Match((name, Term.NameTerm(name)))
+    case _                                               => Result.NoMatch
+  }
+}
+
+val fieldNibNameValue: Nibbler[Token, (Name, Term)] = { gaze =>
   val res = for
     name <- gaze.attempt(nameNib)
     _ <- gaze.attempt(take(Token.EqualSign))
@@ -191,6 +201,8 @@ val fieldNib: Nibbler[Token, (Name, Term)] = { gaze =>
     case _                                               => Result.NoMatch
   }
 }
+
+val fieldNib: Nibbler[Token, (Name, Term)] = takeFirst(fieldNibNameValue, fieldNibNameOnly)
 
 val recordNib: Nibbler[Token, Term.Record] = { gaze =>
   val res = for
