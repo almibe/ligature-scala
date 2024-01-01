@@ -26,7 +26,7 @@ enum Token:
   case BooleanLiteral(value: Boolean)
   case Spaces(value: String)
   case IntegerLiteral(value: Long)
-  case StringLiteral(value: String)
+  case StringLiteral(value: String, interpolated: Boolean = false)
   case Name(name: String)
   case TaggedName(name: String, tag: String)
   case OpenBrace, CloseBrace, Colon, OpenParen, CloseParen, NewLine,
@@ -55,7 +55,12 @@ def tokenize(input: String): Either[WanderError, Seq[Token]] = {
 }
 
 val stringTokenNib: Nibbler[String, Token] =
-  LigNibblers.stringNibbler.map(results => Token.StringLiteral(results(1).toString()))
+  LigNibblers.stringNibbler.map(results =>
+    results.size match
+      case 2 => Token.StringLiteral(results(1))
+      case 3 => Token.StringLiteral(results(2), true)
+      case _ => ???
+  )
 
 val newLineTokenNib =
   takeFirst(takeString("\n"), takeString("\r\n")).map(res => Token.NewLine)
@@ -146,6 +151,7 @@ val spacesTokenNib =
 val tokensNib: Nibbler[String, Seq[Token]] = repeat(
   takeFirst(
     spacesTokenNib,
+    stringTokenNib,
     nameTokenNib,
     colonTokenNib,
     commaTokenNib,
@@ -161,7 +167,6 @@ val tokensNib: Nibbler[String, Seq[Token]] = repeat(
     openBracketTokenNib,
     closeBracketTokenNib,
     backtickTokenNib,
-    stringTokenNib,
     commentTokenNib,
     equalSignTokenNib,
     questionMarkNib,

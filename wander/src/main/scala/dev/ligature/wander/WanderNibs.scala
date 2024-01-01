@@ -103,6 +103,7 @@ object LigNibblers {
     }
 
   val stringNibbler = takeAll(
+    optional(takeString("i")),
     takeString("\""),
     stringContentNibbler
   ) // TODO should be a between but stringContentNibbler consumes the last " currently

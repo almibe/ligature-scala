@@ -97,18 +97,18 @@ def printResult(value: Either[WanderError, (WanderValue, Environment)]): String 
     case Right(value) => printWanderValue(value._1)
   }
 
-def printWanderValue(value: WanderValue): String =
+def printWanderValue(value: WanderValue, interpolation: Boolean = false): String =
   value match {
     case WanderValue.QuestionMark       => "?"
     case WanderValue.Bool(value)        => value.toString()
     case WanderValue.Int(value)         => value.toString()
-    case WanderValue.String(value)      => s"\"$value\"" // TODO escape correctly
+    case WanderValue.String(value)      => if interpolation then value else s"\"$value\"" // TODO escape correctly
     case WanderValue.Nothing            => "nothing"
     case WanderValue.Function(function) => "[Function]"
     case WanderValue.Array(values) =>
-      "[" + values.map(value => printWanderValue(value)).mkString(", ") + "]"
+      "[" + values.map(value => printWanderValue(value, interpolation)).mkString(", ") + "]"
     case WanderValue.Record(values) =>
       "{" + values
-        .map((name, value) => name.name + " = " + printWanderValue(value))
+        .map((name, value) => name.name + " = " + printWanderValue(value, interpolation))
         .mkString(", ") + "}"
   }

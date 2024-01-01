@@ -37,7 +37,7 @@ enum Term:
   case Import(name: Name)
   case NameTerm(value: Name)
   case IntegerLiteral(value: Long)
-  case StringLiteral(value: String)
+  case StringLiteral(value: String, interpolated: Boolean = false)
   case BooleanLiteral(value: Boolean)
   case NothingLiteral
   case QuestionMark
@@ -109,7 +109,7 @@ val integerNib: Nibbler[Token, Term.IntegerLiteral] = gaze =>
 
 val stringNib: Nibbler[Token, Term.StringLiteral] = gaze =>
   gaze.next() match
-    case Some(Token.StringLiteral(s)) => Result.Match(Term.StringLiteral(s))
+    case Some(Token.StringLiteral(s, i)) => Result.Match(Term.StringLiteral(s, i))
     case _                            => Result.NoMatch
 
 val importNameNib: Nibbler[Token, Name] = gaze =>

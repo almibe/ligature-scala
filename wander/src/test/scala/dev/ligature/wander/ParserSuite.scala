@@ -45,6 +45,11 @@ class ParserSuite extends FunSuite {
     val expected = Right(Seq(Term.StringLiteral("hello")))
     assertEquals(result, expected)
   }
+  test("parse interpolated String") {
+    val result = check("i\"hello $(name)\"")
+    val expected = Right(Seq(Term.StringLiteral("hello $(name)", true)))
+    assertEquals(result, expected)
+  }
   test("parse Boolean") {
     val result = check("false")
     val expected = Right(Seq(Term.BooleanLiteral(false)))

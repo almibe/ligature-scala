@@ -29,6 +29,11 @@ class LexerSuite extends FunSuite {
     val tokens = Right(Seq(Token.StringLiteral("hello, world!")))
     check(script, tokens)
   }
+  test("tokenize interpolated Strings") {
+    val script = "i\"hello, world!\""
+    val tokens = Right(Seq(Token.StringLiteral("hello, world!", true)))
+    check(script, tokens)
+  }
   test("tokenize Names") {
     val script = "hello world _test also_a_321test123"
     val tokens = Right(

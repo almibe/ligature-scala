@@ -7,12 +7,13 @@ package dev.ligature.wander
 import dev.ligature.wander.*
 import scala.collection.mutable.ListBuffer
 import scala.util.boundary, boundary.break
+import scala.collection.mutable
 
 enum Expression:
   case Import(name: Name)
   case NameExpression(value: Name)
   case IntegerValue(value: Long)
-  case StringValue(value: String)
+  case StringValue(value: String, interpolated: Boolean = false)
   case BooleanValue(value: Boolean)
   case Nothing
   case Array(value: Seq[Expression])
@@ -61,9 +62,9 @@ def eval(
     case Expression.Nothing                            => Right((WanderValue.Nothing, environment))
     case Expression.BooleanValue(value)                => Right((WanderValue.Bool(value), environment))
     case Expression.IntegerValue(value)                => Right((WanderValue.Int(value), environment))
-    case Expression.StringValue(value)                 => Right((WanderValue.String(value), environment))
+    case Expression.StringValue(value, interpolated)   => if interpolated then interpolateString(value, environment) else Right((WanderValue.String(value), environment))
     case Expression.Array(value)                       => handleArray(value, environment)
-    case Expression.NameExpression(name)               => environment.read(name).map((_, environment))
+    case Expression.NameExpression(name)               => readName(name, environment)
     case Expression.Binding(name, value, exportName)   => handleBinding(name, value, environment)
     case lambda: Expression.Lambda                     => Right((WanderValue.Function(Lambda(lambda)), environment))
     case Expression.WhenExpression(conditionals)       =>
@@ -73,6 +74,52 @@ def eval(
     case Expression.QuestionMark                       => Right((WanderValue.QuestionMark, environment))
     case Expression.Record(values)                     => handleRecord(values, environment)
   }
+
+def readName(name: Name, environment: Environment): Either[WanderError, (WanderValue, Environment)] =
+  val parts = name.name.split('.')
+  if parts.length == 0 then
+    environment.read(name).map((_, environment))
+  else
+    environment.read(Name(parts(0))) match
+      case Left(err) => Left(WanderError(s"Could not read ${parts(0)}"))
+      case Right(value) =>
+        var lastValue = value
+        parts.tail.foreach { part =>
+          lastValue match
+            case WanderValue.Record(values) =>
+              values.get(Name(part)) match
+                case None => ???
+                case Some(value) => lastValue = value
+            case _ => ???
+        }
+        Right((lastValue, environment))
+
+def interpolateString(value: String, environment: Environment): Either[WanderError, (WanderValue, Environment)] =
+  val sb = StringBuffer()
+  val it = value.iterator
+  while it.hasNext do
+    it.next() match
+      case '$' => 
+        it.next() match
+          case '(' => 
+            val contents = boundary:
+              val contents = mutable.StringBuilder()
+              while it.hasNext do
+                it.next() match
+                  case ')' => 
+                    break(contents.toString())
+                  case c => contents.append(c)
+            contents match
+              case _: Unit => Left(WanderError("Should never reach"))
+              case contents: String =>
+                run(contents, environment) match
+                  case Left(err) => 
+                    Left(err)
+                  case Right((value, _)) => 
+                    sb.append(printWanderValue(value, true))
+          case _ => Left(WanderError("Syntax error, in an interpolated String `$` must be followed by `(`."))
+      case c => sb.append(c)
+  Right((WanderValue.String(sb.toString), environment))
 
 def handleGrouping(
     expressions: Seq[Expression],
