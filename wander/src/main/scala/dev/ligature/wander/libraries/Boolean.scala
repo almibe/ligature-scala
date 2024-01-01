@@ -15,17 +15,17 @@ import dev.ligature.wander.TaggedName
 import dev.ligature.wander.Tag
 
 val boolLibrary = Seq(
-        HostFunction(
-          Name("Bool.not"),
-          "Perform a not operation on a Bool value.",
-          Seq(TaggedName(Name("value"), Tag.Single(Name("Core.Bool")))),
-          Tag.Single(Name("Core.Bool")),
-          (args, environment) =>
-            args match
-              case Seq(WanderValue.Bool(value)) => Right((WanderValue.Bool(!value), environment))
-              case _                            => ???
-        )
-      )
+  HostFunction(
+    Name("Bool.not"),
+    "Perform a not operation on a Bool value.",
+    Seq(TaggedName(Name("value"), Tag.Single(Name("Core.Bool")))),
+    Tag.Single(Name("Core.Bool")),
+    (args, environment) =>
+      args match
+        case Seq(WanderValue.Bool(value)) => Right((WanderValue.Bool(!value), environment))
+        case _                            => ???
+  )
+)
 
 //   stdLib = stdLib
 //     .bindVariable(

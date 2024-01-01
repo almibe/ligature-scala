@@ -15,12 +15,10 @@ class LambdaSuite extends munit.FunSuite {
       TaggedName(Name("a"), Tag.Untagged),
       TaggedName(Name("b"), Tag.Untagged),
       TaggedName(Name("c"), Tag.Untagged),
-      TaggedName(Name("d"), Tag.Untagged),
+      TaggedName(Name("d"), Tag.Untagged)
     ),
     Tag.Untagged,
-    (args, environment) => {
-      Right((WanderValue.Int(5), environment))
-    }
+    (args, environment) => Right((WanderValue.Int(5), environment))
   )
 
   val environment = std().addHostFunctions(Seq(testFunction))
@@ -29,11 +27,13 @@ class LambdaSuite extends munit.FunSuite {
     assertEquals(
       run(script, environment).getOrElse(???)._1,
       expected
-  )
+    )
 
   test("partially apply a host function") {
     val script = "test 1"
-    val expected = WanderValue.Function(dev.ligature.wander.PartialFunction(Seq(WanderValue.Int(1)), testFunction))
+    val expected = WanderValue.Function(
+      dev.ligature.wander.PartialFunction(Seq(WanderValue.Int(1)), testFunction)
+    )
     check(script, expected)
   }
 

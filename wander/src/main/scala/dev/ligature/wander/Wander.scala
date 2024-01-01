@@ -24,10 +24,17 @@ trait Function:
   def call(args: Seq[WanderValue], environment: Environment): Either[WanderError, WanderValue]
 
 case class Lambda(val lambda: Expression.Lambda) extends Function {
-  override def call(args: Seq[WanderValue], environment: Environment): Either[WanderError, WanderValue] = ???
+  override def call(
+      args: Seq[WanderValue],
+      environment: Environment
+  ): Either[WanderError, WanderValue] = ???
 }
-case class PartialFunction(args: Seq[WanderValue], function: dev.ligature.wander.Function) extends Function {
-  override def call(args: Seq[WanderValue], environment: Environment): Either[WanderError, WanderValue] = ???
+case class PartialFunction(args: Seq[WanderValue], function: dev.ligature.wander.Function)
+    extends Function {
+  override def call(
+      args: Seq[WanderValue],
+      environment: Environment
+  ): Either[WanderError, WanderValue] = ???
 }
 
 case class HostFunction(
@@ -40,7 +47,10 @@ case class HostFunction(
         environment: Environment
     ) => Either[WanderError, (WanderValue, Environment)]
 ) extends Function {
-  override def call(args: Seq[WanderValue], environment: Environment): Either[WanderError, WanderValue] = ???
+  override def call(
+      args: Seq[WanderValue],
+      environment: Environment
+  ): Either[WanderError, WanderValue] = ???
 }
 
 case class HostProperty(
@@ -99,10 +109,11 @@ def printResult(value: Either[WanderError, (WanderValue, Environment)]): String 
 
 def printWanderValue(value: WanderValue, interpolation: Boolean = false): String =
   value match {
-    case WanderValue.QuestionMark       => "?"
-    case WanderValue.Bool(value)        => value.toString()
-    case WanderValue.Int(value)         => value.toString()
-    case WanderValue.String(value)      => if interpolation then value else s"\"$value\"" // TODO escape correctly
+    case WanderValue.QuestionMark => "?"
+    case WanderValue.Bool(value)  => value.toString()
+    case WanderValue.Int(value)   => value.toString()
+    case WanderValue.String(value) =>
+      if interpolation then value else s"\"$value\"" // TODO escape correctly
     case WanderValue.Nothing            => "nothing"
     case WanderValue.Function(function) => "[Function]"
     case WanderValue.Array(values) =>

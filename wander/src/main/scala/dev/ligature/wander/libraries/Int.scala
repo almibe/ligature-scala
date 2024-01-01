@@ -8,16 +8,18 @@ import dev.ligature.wander.*
 import javax.lang.model.`type`.ErrorType
 
 val intLibrary = Seq(
-    HostFunction(
-        Name("Int.add"),
-        "Add two Ints.",
-        Seq(
-            TaggedName(Name("left"), Tag.Single(Name("Core.Int"))),
-            TaggedName(Name("right"), Tag.Single(Name("Core.Int"))),
-        ),
-        Tag.Single(Name("Core.Int")),
-        (args, environment) =>
-          args match
-            case Seq(WanderValue.Int(left), WanderValue.Int(right)) => Right((WanderValue.Int(left + right), environment))
-            case _ => ???
-))
+  HostFunction(
+    Name("Int.add"),
+    "Add two Ints.",
+    Seq(
+      TaggedName(Name("left"), Tag.Single(Name("Core.Int"))),
+      TaggedName(Name("right"), Tag.Single(Name("Core.Int")))
+    ),
+    Tag.Single(Name("Core.Int")),
+    (args, environment) =>
+      args match
+        case Seq(WanderValue.Int(left), WanderValue.Int(right)) =>
+          Right((WanderValue.Int(left + right), environment))
+        case _ => ???
+  )
+)

@@ -25,10 +25,9 @@ enum Expression:
   case Grouping(expressions: Seq[Expression])
   case QuestionMark
 
-/**
- * Runs a sequences of Expressions and returns a Record that holds all of the
- * exported names.
- */
+/** Runs a sequences of Expressions and returns a Record that holds all of the
+  * exported names.
+  */
 def load(
     script: String,
     environment: Environment
@@ -39,14 +38,14 @@ def load(
   boundary:
     expressions.foreach(expression =>
       eval(expression, currentEnvironemnt) match {
-        case Left(err)    => break(Left(err))
+        case Left(err) => break(Left(err))
         case Right((value, environment)) =>
           currentEnvironemnt = environment
           expression match
-            case Expression.Binding(TaggedName(name, tag), expression, exportName) => 
+            case Expression.Binding(TaggedName(name, tag), expression, exportName) =>
               eval(expression, currentEnvironemnt) match
                 case Left(err) => Left(err)
-                case Right((value, _)) => 
+                case Right((value, _)) =>
                   result += (name -> value)
             case _ => ()
       }
@@ -58,27 +57,31 @@ def eval(
     environment: Environment
 ): Either[WanderError, (WanderValue, Environment)] =
   expression match {
-    case Expression.Import(name)                       => Right((WanderValue.Nothing, environment))
-    case Expression.Nothing                            => Right((WanderValue.Nothing, environment))
-    case Expression.BooleanValue(value)                => Right((WanderValue.Bool(value), environment))
-    case Expression.IntegerValue(value)                => Right((WanderValue.Int(value), environment))
-    case Expression.StringValue(value, interpolated)   => if interpolated then interpolateString(value, environment) else Right((WanderValue.String(value), environment))
-    case Expression.Array(value)                       => handleArray(value, environment)
-    case Expression.NameExpression(name)               => readName(name, environment)
-    case Expression.Binding(name, value, exportName)   => handleBinding(name, value, environment)
-    case lambda: Expression.Lambda                     => Right((WanderValue.Function(Lambda(lambda)), environment))
-    case Expression.WhenExpression(conditionals)       =>
+    case Expression.Import(name)        => Right((WanderValue.Nothing, environment))
+    case Expression.Nothing             => Right((WanderValue.Nothing, environment))
+    case Expression.BooleanValue(value) => Right((WanderValue.Bool(value), environment))
+    case Expression.IntegerValue(value) => Right((WanderValue.Int(value), environment))
+    case Expression.StringValue(value, interpolated) =>
+      if interpolated then interpolateString(value, environment)
+      else Right((WanderValue.String(value), environment))
+    case Expression.Array(value)                     => handleArray(value, environment)
+    case Expression.NameExpression(name)             => readName(name, environment)
+    case Expression.Binding(name, value, exportName) => handleBinding(name, value, environment)
+    case lambda: Expression.Lambda => Right((WanderValue.Function(Lambda(lambda)), environment))
+    case Expression.WhenExpression(conditionals) =>
       handleWhenExpression(conditionals, environment)
-    case Expression.Grouping(expressions)              => handleGrouping(expressions, environment)
-    case Expression.Application(expressions)           => handleApplication(expressions, environment)
-    case Expression.QuestionMark                       => Right((WanderValue.QuestionMark, environment))
-    case Expression.Record(values)                     => handleRecord(values, environment)
+    case Expression.Grouping(expressions)    => handleGrouping(expressions, environment)
+    case Expression.Application(expressions) => handleApplication(expressions, environment)
+    case Expression.QuestionMark             => Right((WanderValue.QuestionMark, environment))
+    case Expression.Record(values)           => handleRecord(values, environment)
   }
 
-def readName(name: Name, environment: Environment): Either[WanderError, (WanderValue, Environment)] =
+def readName(
+    name: Name,
+    environment: Environment
+): Either[WanderError, (WanderValue, Environment)] =
   val parts = name.name.split('.')
-  if parts.length == 0 then
-    environment.read(name).map((_, environment))
+  if parts.length == 0 then environment.read(name).map((_, environment))
   else
     environment.read(Name(parts(0))) match
       case Left(err) => Left(WanderError(s"Could not read ${parts(0)}"))
@@ -88,36 +91,42 @@ def readName(name: Name, environment: Environment): Either[WanderError, (WanderV
           lastValue match
             case WanderValue.Record(values) =>
               values.get(Name(part)) match
-                case None => ???
+                case None        => ???
                 case Some(value) => lastValue = value
             case _ => ???
         }
         Right((lastValue, environment))
 
-def interpolateString(value: String, environment: Environment): Either[WanderError, (WanderValue, Environment)] =
+def interpolateString(
+    value: String,
+    environment: Environment
+): Either[WanderError, (WanderValue, Environment)] =
   val sb = StringBuffer()
   val it = value.iterator
   while it.hasNext do
     it.next() match
-      case '$' => 
+      case '$' =>
         it.next() match
-          case '(' => 
+          case '(' =>
             val contents = boundary:
               val contents = mutable.StringBuilder()
               while it.hasNext do
                 it.next() match
-                  case ')' => 
+                  case ')' =>
                     break(contents.toString())
                   case c => contents.append(c)
             contents match
               case _: Unit => Left(WanderError("Should never reach"))
               case contents: String =>
                 run(contents, environment) match
-                  case Left(err) => 
+                  case Left(err) =>
                     Left(err)
-                  case Right((value, _)) => 
+                  case Right((value, _)) =>
                     sb.append(printWanderValue(value, true))
-          case _ => Left(WanderError("Syntax error, in an interpolated String `$` must be followed by `(`."))
+          case _ =>
+            Left(
+              WanderError("Syntax error, in an interpolated String `$` must be followed by `(`.")
+            )
       case c => sb.append(c)
   Right((WanderValue.String(sb.toString), environment))
 
@@ -177,11 +186,17 @@ def handleApplication(
         case Right(value) =>
           val arguments = expression.tail
           value match {
-            case WanderValue.Function(Lambda(Expression.Lambda(parameters, body))) => callLambda(arguments, parameters, body, environment)
-            case WanderValue.Function(fn: HostFunction) => callHostFunction(fn, arguments, environment)
-            case WanderValue.Function(PartialFunction(args, Lambda(Expression.Lambda(parameters, body)))) => callPartialLambda(args, arguments, parameters, body, environment)
-            case WanderValue.Function(PartialFunction(args, fn: HostFunction)) => callPartialHostFunction(args, fn, arguments, environment)
-            case WanderValue.Array(values) => callArray(values, arguments, environment)
+            case WanderValue.Function(Lambda(Expression.Lambda(parameters, body))) =>
+              callLambda(arguments, parameters, body, environment)
+            case WanderValue.Function(fn: HostFunction) =>
+              callHostFunction(fn, arguments, environment)
+            case WanderValue.Function(
+                  PartialFunction(args, Lambda(Expression.Lambda(parameters, body)))
+                ) =>
+              callPartialLambda(args, arguments, parameters, body, environment)
+            case WanderValue.Function(PartialFunction(args, fn: HostFunction)) =>
+              callPartialHostFunction(args, fn, arguments, environment)
+            case WanderValue.Array(values)  => callArray(values, arguments, environment)
             case WanderValue.Record(values) => callRecord(values, arguments, environment)
             case _ => Left(WanderError(s"Could not call function ${name.name}."))
           }
@@ -189,35 +204,47 @@ def handleApplication(
     case _ => ???
   }
 
-def callArray(values: Seq[WanderValue], arguments: Seq[Expression], environment: Environment): Either[WanderError, (WanderValue, Environment)] = {
+def callArray(
+    values: Seq[WanderValue],
+    arguments: Seq[Expression],
+    environment: Environment
+): Either[WanderError, (WanderValue, Environment)] =
   arguments match
     case Seq(value: Expression) =>
       eval(value, environment) match
         case Left(err) => Left(err)
         case Right((WanderValue.Int(index), _)) =>
-          if values.size > index then
-            Right((values(index.toInt), environment))
+          if values.size > index then Right((values(index.toInt), environment))
           else
-            Left(WanderError(s"Error indexing Array, index $index greater than Array's length of ${values.size}."))
+            Left(
+              WanderError(
+                s"Error indexing Array, index $index greater than Array's length of ${values.size}."
+              )
+            )
         case _ => Left(WanderError("Error attempting to index Array."))
     case _ => Left(WanderError("Error attempting to index Array."))
-}
 
-def callRecord(values: Map[Name, WanderValue], arguments: Seq[Expression], environment: Environment): Either[WanderError, (WanderValue, Environment)] = {
+def callRecord(
+    values: Map[Name, WanderValue],
+    arguments: Seq[Expression],
+    environment: Environment
+): Either[WanderError, (WanderValue, Environment)] =
   arguments match
     case Seq(value: Expression) =>
       eval(value, environment) match
         case Left(err) => Left(err)
         case Right((WanderValue.String(name), _)) =>
-          if values.contains(Name(name)) then
-            Right(values(Name(name)), environment)
-          else
-            Left(WanderError(s"Could not read $name from Record."))
+          if values.contains(Name(name)) then Right(values(Name(name)), environment)
+          else Left(WanderError(s"Could not read $name from Record."))
         case _ => Left(WanderError("Error attempting to read Record."))
     case _ => Left(WanderError("Error attempting to read Record."))
-}
 
-def callLambda(arguments: Seq[Expression], parameters: Seq[Name], body: Expression, environment: Environment) = {
+def callLambda(
+    arguments: Seq[Expression],
+    parameters: Seq[Name],
+    body: Expression,
+    environment: Environment
+) =
   if (arguments.size == parameters.size) {
     var fnScope = environment.newScope()
     parameters.zipWithIndex.foreach { (param, index) =>
@@ -225,7 +252,7 @@ def callLambda(arguments: Seq[Expression], parameters: Seq[Name], body: Expressi
         case Left(value) => ???
         case Right(value) =>
           fnScope.bindVariable(TaggedName(param, Tag.Untagged), value._1) match {
-            case Left(err) => ???
+            case Left(err)    => ???
             case Right(value) => fnScope = value
           }
       }
@@ -240,17 +267,23 @@ def callLambda(arguments: Seq[Expression], parameters: Seq[Name], body: Expressi
           args.append(value._1)
       }
     }
-    Right((WanderValue.Function(dev.ligature.wander.PartialFunction(args.toSeq, Lambda(Expression.Lambda(parameters, body))))), environment)
+    Right(
+      WanderValue.Function(
+        dev.ligature.wander.PartialFunction(args.toSeq, Lambda(Expression.Lambda(parameters, body)))
+      ),
+      environment
+    )
   } else {
     Left(WanderError("Too many arguments passed."))
   }
-}
 
-def callPartialLambda(values: Seq[WanderValue], 
-    arguments: Seq[Expression], 
-    parameters: Seq[Name], 
-    body: Expression, 
-    environment: Environment) =
+def callPartialLambda(
+    values: Seq[WanderValue],
+    arguments: Seq[Expression],
+    parameters: Seq[Name],
+    body: Expression,
+    environment: Environment
+) =
   if (values.size + arguments.size == parameters.size) {
     var fnScope = environment.newScope()
     arguments.zipWithIndex.foreach { (arg, index) =>
@@ -260,7 +293,7 @@ def callPartialLambda(values: Seq[WanderValue],
         case Left(value) => ???
         case Right(value) =>
           fnScope.bindVariable(TaggedName(param, Tag.Untagged), value._1) match {
-            case Left(err) => ???
+            case Left(err)    => ???
             case Right(value) => fnScope = value
           }
       }
@@ -275,7 +308,12 @@ def callPartialLambda(values: Seq[WanderValue],
           args.append(value._1)
       }
     }
-    Right(WanderValue.Function(dev.ligature.wander.PartialFunction(args.toSeq, Lambda(Expression.Lambda(parameters, body)))), environment)
+    Right(
+      WanderValue.Function(
+        dev.ligature.wander.PartialFunction(args.toSeq, Lambda(Expression.Lambda(parameters, body)))
+      ),
+      environment
+    )
   } else {
     Left(WanderError("Too many arguments passed."))
   }
@@ -285,12 +323,11 @@ def callHostFunction(
     arguments: Seq[Expression],
     environment: Environment
 ): Either[WanderError, (WanderValue, Environment)] =
-  if (arguments.size == hostFunction.parameters.size) then
+  if arguments.size == hostFunction.parameters.size then
     callHostFunctionComplete(hostFunction, arguments, environment)
   else if arguments.size < hostFunction.parameters.size then
     callHostFunctionPartially(hostFunction, arguments, environment)
-  else
-    ???
+  else ???
 
 private def callHostFunctionComplete(
     hostFunction: HostFunction,
@@ -305,9 +342,9 @@ private def callHostFunctionComplete(
         case Right(value) => value._1
       val tag = hostFunction.parameters(i).tag
       environment.checkTag(tag, argValue) match {
-        case Left(err) => break(Left(err))
+        case Left(err)    => break(Left(err))
         case Right(value) => args.append(argValue)
-      }        
+      }
     )
     hostFunction.fn(args.toSeq, environment)
 
@@ -324,9 +361,9 @@ private def callHostFunctionPartially(
         case Right(value) => value._1
       val tag = hostFunction.parameters(i).tag
       environment.checkTag(tag, argValue) match {
-        case Left(err) => break(Left(err))
+        case Left(err)    => break(Left(err))
         case Right(value) => args.append(argValue)
-      }        
+      }
     )
     Right((WanderValue.Function(PartialFunction(args.toSeq, hostFunction)), environment))
 
@@ -336,12 +373,11 @@ def callPartialHostFunction(
     arguments: Seq[Expression],
     environment: Environment
 ): Either[WanderError, (WanderValue, Environment)] =
-  if (values.size + arguments.size == hostFunction.parameters.size) then
+  if values.size + arguments.size == hostFunction.parameters.size then
     callPartialHostFunctionComplete(values, hostFunction, arguments, environment)
   else if values.size + arguments.size < hostFunction.parameters.size then
     callPartialHostFunctionPartially(values, hostFunction, arguments, environment)
-  else
-    ???
+  else ???
 
 private def callPartialHostFunctionComplete(
     values: Seq[WanderValue],
@@ -359,9 +395,9 @@ private def callPartialHostFunctionComplete(
         case Right(value) => value._1
       val tag = hostFunction.parameters(i).tag
       environment.checkTag(tag, argValue) match {
-        case Left(err) => break(Left(err))
+        case Left(err)    => break(Left(err))
         case Right(value) => args.append(argValue)
-      }        
+      }
     )
     hostFunction.fn(args.toSeq, environment)
 
@@ -381,7 +417,7 @@ private def callPartialHostFunctionPartially(
         case Right(value) => value._1
       val tag = hostFunction.parameters(paramIndex).tag
       environment.checkTag(tag, argValue) match {
-        case Left(err) => break(Left(err))
+        case Left(err)    => break(Left(err))
         case Right(value) => args.append(argValue)
       }
     )

@@ -65,10 +65,12 @@ class ParserSuite extends FunSuite {
     val result = check("query ?")
     val expected = Right(
       Seq(
-        Term.Application(Seq(
-          Term.NameTerm(Name("query")),
-          Term.QuestionMark
-        ))
+        Term.Application(
+          Seq(
+            Term.NameTerm(Name("query")),
+            Term.QuestionMark
+          )
+        )
       )
     )
     assertEquals(result, expected)
@@ -141,13 +143,15 @@ class ParserSuite extends FunSuite {
   }
   test("parse grouping") {
     val result = check("(true, 4)")
-    val expected = Right(Seq(
-      Term.Grouping(
-        Seq(
-          Term.BooleanLiteral(true),
-          Term.IntegerLiteral(4)
+    val expected = Right(
+      Seq(
+        Term.Grouping(
+          Seq(
+            Term.BooleanLiteral(true),
+            Term.IntegerLiteral(4)
+          )
         )
-      ))
+      )
     )
     assertEquals(result, expected)
   }
@@ -206,7 +210,7 @@ class ParserSuite extends FunSuite {
     val expected = Right(
       Seq(
         Term.Binding(
-          TaggedName(Name("x"), Tag.Function(Seq(Name("Core.Int"), Name("Core.Bool")))), 
+          TaggedName(Name("x"), Tag.Function(Seq(Name("Core.Int"), Name("Core.Bool")))),
           Term.Lambda(Seq(Name("i")), Term.BooleanLiteral(false))
         )
       )
@@ -222,7 +226,8 @@ class ParserSuite extends FunSuite {
 
   test("parse export") {
     val result = check("export x = 5")
-    val expected = Right(Seq(Term.Binding(TaggedName(Name("x"), Tag.Untagged), Term.IntegerLiteral(5), true)))
+    val expected =
+      Right(Seq(Term.Binding(TaggedName(Name("x"), Tag.Untagged), Term.IntegerLiteral(5), true)))
     assertEquals(result, expected)
   }
 }

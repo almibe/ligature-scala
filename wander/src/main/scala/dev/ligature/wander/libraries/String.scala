@@ -13,7 +13,7 @@ val stringLibrary =
       "Concat two Strings.",
       Seq(
         TaggedName(Name("left"), Tag.Single(Name("Core.String"))),
-        TaggedName(Name("right"), Tag.Single(Name("Core.String"))),
+        TaggedName(Name("right"), Tag.Single(Name("Core.String")))
       ),
       Tag.Single(Name("Core.String")),
       (args, environment) =>

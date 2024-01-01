@@ -16,24 +16,22 @@ import scala.io.Source
 import scala.util.Failure
 import scala.util.Success
 
-/**
- * Create the "default" environment for working with Wander.
- */
+/** Create the "default" environment for working with Wander.
+  */
 def std(): Environment =
   Environment()
     .addHostFunctions(arrayLibrary)
     .addHostFunctions(boolLibrary)
     .addHostFunctions(boolLibrary)
-    .addHostFunctions(coreLibrary) 
+    .addHostFunctions(coreLibrary)
     .addHostFunctions(intLibrary)
     .addHostFunctions(recordLibrary)
     .addHostFunctions(shapeLibrary)
     .addHostFunctions(stringLibrary)
     .addHostFunctions(testingLibrary)
 
-/**
- * Load Wander modules from the path provided using the environment provided as a base.
- */
+/** Load Wander modules from the path provided using the environment provided as a base.
+  */
 def loadFromPath(path: Path, environment: Environment): Either[WanderError, Environment] =
   var resultEnvironment = environment
   Files
@@ -43,15 +41,18 @@ def loadFromPath(path: Path, environment: Environment): Either[WanderError, Envi
     .filter(Files.isRegularFile(_))
     .filter(_.getFileName().toString().endsWith("wander"))
     .foreach { file =>
-      Using(Source.fromFile(file.toFile())){ _.mkString } match
-        case Failure(exception) => Left(WanderError(s"Error reading $file\n${exception.getMessage()}"))
+      Using(Source.fromFile(file.toFile()))(_.mkString) match
+        case Failure(exception) =>
+          Left(WanderError(s"Error reading $file\n${exception.getMessage()}"))
         case Success(script) =>
           load(script, std()) match
-            case Left(err)    => Left(err)
+            case Left(err) => Left(err)
             case Right(values) =>
-              values.foreach((name, value) => resultEnvironment = 
-                resultEnvironment.bindVariable(TaggedName(name, Tag.Untagged), value) match
-                  case Left(value) => ???
-                  case Right(value) => value)
+              values.foreach((name, value) =>
+                resultEnvironment =
+                  resultEnvironment.bindVariable(TaggedName(name, Tag.Untagged), value) match
+                    case Left(value)  => ???
+                    case Right(value) => value
+              )
     }
   Right(resultEnvironment)

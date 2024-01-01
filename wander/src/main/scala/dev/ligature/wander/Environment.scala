@@ -89,8 +89,8 @@ case class Environment(
 
   def checkTag(tag: Tag, value: WanderValue): Either[WanderError, WanderValue] =
     tag match {
-      case Tag.Untagged => Right(value)
-      case Tag.Single(tag) => checkSingleTag(tag, value)        
+      case Tag.Untagged       => Right(value)
+      case Tag.Single(tag)    => checkSingleTag(tag, value)
       case Tag.Function(tags) => checkFunctionTag(tags, value)
     }
 
@@ -98,26 +98,33 @@ case class Environment(
     this.read(tag) match {
       case Right(WanderValue.Function(hf: HostFunction)) =>
         hf.fn(Seq(value), this) match {
-          case Right((WanderValue.Bool(true), _))  => Right(value)
-          case Right((WanderValue.Bool(false), _)) => Left(WanderError("Value failed Tag Function."))
-          case Left(err)                           => Left(err)
-          case _ => Left(WanderError("Invalid Tag, Tag Functions must return a Bool."))
+          case Right((WanderValue.Bool(true), _)) => Right(value)
+          case Right((WanderValue.Bool(false), _)) =>
+            Left(WanderError("Value failed Tag Function."))
+          case Left(err) => Left(err)
+          case _         => Left(WanderError("Invalid Tag, Tag Functions must return a Bool."))
         }
       case Right(WanderValue.Function(lambda: Lambda)) =>
         assert(lambda.lambda.parameters.size == 1)
         var environment = this.newScope()
-        environment = environment.bindVariable(TaggedName(lambda.lambda.parameters.head, Tag.Untagged), value).getOrElse(???)
+        environment = environment
+          .bindVariable(TaggedName(lambda.lambda.parameters.head, Tag.Untagged), value)
+          .getOrElse(???)
         dev.ligature.wander.eval(lambda.lambda.body, environment) match {
-          case Right((WanderValue.Bool(true), _))  => Right(value)
-          case Right((WanderValue.Bool(false), _)) => Left(WanderError("Value failed Tag Function."))
-          case Left(err)                           => Left(err)
-          case _ => Left(WanderError("Invalid Tag, Tag Functions must return a Bool."))
+          case Right((WanderValue.Bool(true), _)) => Right(value)
+          case Right((WanderValue.Bool(false), _)) =>
+            Left(WanderError("Value failed Tag Function."))
+          case Left(err) => Left(err)
+          case _         => Left(WanderError("Invalid Tag, Tag Functions must return a Bool."))
         }
       case Left(err) => Left(err)
       case _         => Left(WanderError(s"${tag} was not a valid tag."))
     }
 
-  private def checkFunctionTag(tags: Seq[Name], value: WanderValue): Either[WanderError, WanderValue] =
+  private def checkFunctionTag(
+      tags: Seq[Name],
+      value: WanderValue
+  ): Either[WanderError, WanderValue] =
     Right(value)
     // this.read(tag) match {
     //   case Right(WanderValue.HostFunction(hf)) =>

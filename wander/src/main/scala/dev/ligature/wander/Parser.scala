@@ -85,7 +85,7 @@ val importNib: Nibbler[Token, Term] = gaze =>
   for {
     _ <- gaze.attempt(take(Token.ImportKeyword))
     name <- gaze.attempt(importNameNib)
-  } yield Term.Import(name) //TODO handle this body better
+  } yield Term.Import(name) // TODO handle this body better
 
 val nothingNib: Nibbler[Token, Term] = gaze =>
   gaze.next() match
@@ -110,7 +110,7 @@ val integerNib: Nibbler[Token, Term.IntegerLiteral] = gaze =>
 val stringNib: Nibbler[Token, Term.StringLiteral] = gaze =>
   gaze.next() match
     case Some(Token.StringLiteral(s, i)) => Result.Match(Term.StringLiteral(s, i))
-    case _                            => Result.NoMatch
+    case _                               => Result.NoMatch
 
 val importNameNib: Nibbler[Token, Name] = gaze =>
   gaze.next() match
@@ -127,16 +127,16 @@ val tagNib: Nibbler[Token, Tag] = gaze =>
   boundary:
     while !gaze.isComplete do
       gaze.next() match
-        case Some(Token.Name(name)) => 
+        case Some(Token.Name(name)) =>
           names.append(Name(name))
           gaze.peek() match {
-            case Some(Token.Arrow) => gaze.next() //swallow arrow, ouch!
-            case _ => break()
+            case Some(Token.Arrow) => gaze.next() // swallow arrow, ouch!
+            case _                 => break()
           }
         case _ => break()
   names.toSeq match {
-    case Seq() => Result.NoMatch
-    case Seq(name) => Result.Match(Tag.Single(name))
+    case Seq()            => Result.NoMatch
+    case Seq(name)        => Result.Match(Tag.Single(name))
     case names: Seq[Name] => Result.Match(Tag.Function(names))
   }
 
@@ -181,12 +181,12 @@ val arrayNib: Nibbler[Token, Term.Array] = { gaze =>
 }
 
 val fieldNibNameOnly: Nibbler[Token, (Name, Term)] = { gaze =>
-  val res = for
-    name <- gaze.attempt(nameNib)
-  yield name
+  val res =
+    for name <- gaze.attempt(nameNib)
+    yield name
   res match {
     case Result.Match(Term.NameTerm(name)) => Result.Match((name, Term.NameTerm(name)))
-    case _                                               => Result.NoMatch
+    case _                                 => Result.NoMatch
   }
 }
 
