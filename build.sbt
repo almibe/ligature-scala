@@ -48,16 +48,6 @@ lazy val idgen = project
 //   .dependsOn(ligature, gaze, idgen)
 //   .disablePlugins(RevolverPlugin)
 
-lazy val wander = project
-  .in(file("wander"))
-  .settings(
-    name := "wander",
-    scalaVersion := scala3Version,
-    libraryDependencies += "org.scalameta" %% "munit" % munitVersion % Test,
-  )
-  .dependsOn(gaze)
-  .disablePlugins(RevolverPlugin)
-
 lazy val wanderLigature = project
   .in(file("wander-ligature"))
   .settings(
@@ -87,17 +77,6 @@ lazy val ligatureInMemory = project
   .dependsOn(ligature, idgen, ligatureTestSuite % Test)
   .disablePlugins(RevolverPlugin)
 
-lazy val wanderLsp = project
-  .in(file("wander-lsp"))
-  .settings(
-    name := "wander-lsp",
-    scalaVersion := scala3Version,
-    libraryDependencies += "io.vertx" % "vertx-core" % "4.5.1",
-    libraryDependencies += "io.vertx" % "vertx-web" % "4.5.1",
-    libraryDependencies += "org.scalameta" %% "munit" % munitVersion,
-  )
-  .dependsOn(ligature, wander, ligatureInMemory, ligatureXodus)
-
 lazy val ligatureXodus = project
   .in(file("ligature-xodus"))
   .settings(
@@ -108,27 +87,6 @@ lazy val ligatureXodus = project
   )
   .dependsOn(ligature, idgen, ligatureTestSuite % Test)
   .disablePlugins(RevolverPlugin)
-
-lazy val wanderZeroMQ = project
-  .in(file("wander-zeromq"))
-  .settings(
-    name := "wander-zeromq",
-    scalaVersion := scala3Version,
-    libraryDependencies += "org.zeromq" % "jeromq" % jeromqVersion,
-    libraryDependencies += "org.scalameta" %% "munit" % munitVersion % Test,
-    fork := true,
-  )
-  .dependsOn(ligature, wander, ligatureInMemory, ligatureXodus)
-
-lazy val wanderCli = project
-  .in(file("wander-cli"))
-  .settings(
-    name := "wander-cli",
-    scalaVersion := scala3Version,
-    libraryDependencies += "com.github.freva" % "ascii-table" % "1.8.0",
-    libraryDependencies += "org.scalameta" %% "munit" % munitVersion % Test,
-  )
-  .dependsOn(ligature, wander, ligatureInMemory, ligatureXodus)
 
 disablePlugins(RevolverPlugin)
 
