@@ -8,7 +8,6 @@ import dev.ligature.*
 import jetbrains.exodus.{ByteIterable, CompoundByteIterable}
 import jetbrains.exodus.bindings.{ByteBinding, LongBinding, StringBinding}
 import jetbrains.exodus.env.Transaction
-
 import scala.collection.mutable.ArrayBuffer
 import jetbrains.exodus.entitystore.PersistentEntityStore
 import scala.util.boundary, boundary.break

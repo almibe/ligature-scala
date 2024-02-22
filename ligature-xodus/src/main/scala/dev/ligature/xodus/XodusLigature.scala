@@ -38,7 +38,7 @@ val INT = 1
 val STRING = 2
 
 def createXodusLigature(path: Path): Ligature =
-  val environment = Environments.newInstance(path.toFile(), new EnvironmentConfig)
+  val environment = Environments.newInstance(path.toFile(), EnvironmentConfig())
   val ligatureInstance = XodusLigature(environment)
   ligatureInstance
 

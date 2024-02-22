@@ -10,6 +10,9 @@ val jeromqVersion   = "0.5.3"
 val jlineVersion    = "3.23.0"
 val scalafxVersion  = "16.0.0-R24"
 val jansiVersion    = "2.4.1"
+val wanderVersion   = "0.1.0-SNAPSHOT"
+val scalaLoggingVersion = "3.9.4"
+val logBackVersion      = "1.2.10"
 
 lazy val ligature = project
   .in(file("ligature"))
@@ -48,11 +51,39 @@ lazy val idgen = project
 //   .dependsOn(ligature, gaze, idgen)
 //   .disablePlugins(RevolverPlugin)
 
+lazy val wander = project
+  .in(file("wander"))
+  .settings(
+    name := "wander",
+    scalaVersion := scala3Version,
+    libraryDependencies += "org.jetbrains.xodus" % "xodus-environment" % xodusVersion,
+    libraryDependencies += "ch.qos.logback" % "logback-classic" % logBackVersion,
+    libraryDependencies += "com.typesafe.scala-logging" %% "scala-logging" % scalaLoggingVersion,
+    libraryDependencies += "org.scalameta" %% "munit" % munitVersion % Test,
+    libraryDependencies += "org.graalvm.polyglot" % "js" % "23.1.2" % Test,
+  )
+  .dependsOn(gaze)
+  .disablePlugins(RevolverPlugin)
+
+lazy val wanderZeroMQ = project
+  .in(file("wander-zeromq"))
+  .settings(
+    name := "wander-zeromq",
+    scalaVersion := scala3Version,
+    libraryDependencies += "ch.qos.logback" % "logback-classic" % logBackVersion,
+    libraryDependencies += "com.typesafe.scala-logging" %% "scala-logging" % scalaLoggingVersion,
+    libraryDependencies += "org.zeromq" % "jeromq" % jeromqVersion,
+    libraryDependencies += "org.scalameta" %% "munit" % munitVersion % Test,
+    fork := true,
+  )
+  .dependsOn(wander)
+
 lazy val wanderLigature = project
   .in(file("wander-ligature"))
   .settings(
     name := "wander-ligature",
     scalaVersion := scala3Version,
+    libraryDependencies += "dev.ligature" %% "wander" % wanderVersion,
     libraryDependencies += "org.scalameta" %% "munit" % munitVersion % Test,
   )
   .dependsOn(gaze, wander, ligature, ligatureInMemory % Test)
