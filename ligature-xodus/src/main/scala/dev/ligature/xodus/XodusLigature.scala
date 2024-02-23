@@ -172,14 +172,13 @@ def targetValue(value: LigatureValue): Comparable[?] =
   value match
     case LigatureValue.IntegerValue(value) => value
     case LigatureValue.StringValue(value)  => value
-    case LigatureValue.Label(value)                        => value
-    case LigatureValue.GraphValue(value) => ???
-    case LigatureValue.BytesValue(value) => ???
+    case LigatureValue.Label(value)        => value
+    case LigatureValue.GraphValue(value)   => ???
+    case LigatureValue.BytesValue(value)   => ???
 
 def targetType(value: LigatureValue): Int =
   value match
     case LigatureValue.IntegerValue(_) => INT
     case LigatureValue.StringValue(_)  => STRING
-    case LigatureValue.Label(_)                        => VERTEX
-    case _ => ???
-
+    case LigatureValue.Label(_)        => VERTEX
+    case _                             => ???

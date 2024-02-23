@@ -33,21 +33,21 @@ def process(terms: Seq[Term]): Either[WanderError, Seq[Expression]] =
 
 def process(term: Term): Either[WanderError, Expression] =
   term match {
-    case Term.Pipe                              => ???
-    case Term.QuestionMark                      => Right(Expression.QuestionMark)
-    case Term.Array(terms)                      => processArray(terms)
-    case Term.BooleanLiteral(value)             => Right(Expression.BooleanValue(value))
-    case Term.Binding(name, tag, value)         => processBinding(name, tag, value)
+    case Term.Pipe                            => ???
+    case Term.QuestionMark                    => Right(Expression.QuestionMark)
+    case Term.Array(terms)                    => processArray(terms)
+    case Term.BooleanLiteral(value)           => Right(Expression.BooleanValue(value))
+    case Term.Binding(name, tag, value)       => processBinding(name, tag, value)
     case Term.IntegerValue(value)             => Right(Expression.IntegerValue(value))
-    case Term.FieldPathTerm(value)              => Right(Expression.FieldPathExpression(value))
-    case Term.FieldTerm(value)                  => Right(Expression.FieldExpression(value))
+    case Term.FieldPathTerm(value)            => Right(Expression.FieldPathExpression(value))
+    case Term.FieldTerm(value)                => Right(Expression.FieldExpression(value))
     case Term.StringValue(value, interpolate) => Right(Expression.StringValue(value, interpolate))
-    case Term.Lambda(parameters, body)          => processLambda(parameters, body)
-    case Term.Grouping(terms)                   => processGrouping(terms)
-    case Term.WhenExpression(conditionals)      => processWhenExpression(conditionals)
-    case Term.Application(terms)                => processApplication(terms)
-    case Term.Module(values)                    => processModule(values)
-    case Term.Bytes(value)                      => Right(Expression.Bytes(value))
+    case Term.Lambda(parameters, body)        => processLambda(parameters, body)
+    case Term.Grouping(terms)                 => processGrouping(terms)
+    case Term.WhenExpression(conditionals)    => processWhenExpression(conditionals)
+    case Term.Application(terms)              => processApplication(terms)
+    case Term.Module(values)                  => processModule(values)
+    case Term.Bytes(value)                    => Right(Expression.Bytes(value))
   }
 
 def processGrouping(terms: Seq[Term]): Either[WanderError, Expression.Grouping] = {

@@ -59,8 +59,10 @@ class XodusQueryTx(
 def entitiesToEdges(entities: EntityIterable): Iterator[Edge] =
   val buffer = ListBuffer[Edge]()
   entities.forEach(entity =>
-    val source: LigatureValue.Label = LigatureValue.Label(entity.getProperty("source").asInstanceOf[String])
-    val label: LigatureValue.Label = LigatureValue.Label(entity.getProperty("label").asInstanceOf[String])
+    val source: LigatureValue.Label =
+      LigatureValue.Label(entity.getProperty("source").asInstanceOf[String])
+    val label: LigatureValue.Label =
+      LigatureValue.Label(entity.getProperty("label").asInstanceOf[String])
     val target = entity.getProperty("targetType").asInstanceOf[Int] match
       case VERTEX => LigatureValue.Label(entity.getProperty("target").asInstanceOf[String])
       case INT    => LigatureValue.IntegerValue(entity.getProperty("target").asInstanceOf[Long])

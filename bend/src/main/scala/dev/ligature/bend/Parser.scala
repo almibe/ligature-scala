@@ -90,12 +90,12 @@ val pipeTermNib: Nibbler[Token, Term] = gaze =>
 val integerNib: Nibbler[Token, Term.IntegerValue] = gaze =>
   gaze.next() match
     case Some(Token.IntegerValue(i)) => Result.Match(Term.IntegerValue(i))
-    case _                             => Result.NoMatch
+    case _                           => Result.NoMatch
 
 val stringNib: Nibbler[Token, Term.StringValue] = gaze =>
   gaze.next() match
     case Some(Token.StringValue(s, i)) => Result.Match(Term.StringValue(s, i))
-    case _                               => Result.NoMatch
+    case _                             => Result.NoMatch
 
 val fieldNib: Nibbler[Token, Field] = gaze =>
   gaze.next() match
