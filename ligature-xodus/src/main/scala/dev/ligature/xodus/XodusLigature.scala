@@ -29,7 +29,7 @@ import jetbrains.exodus.entitystore.PersistentEntityStores
 import jetbrains.exodus.entitystore.StoreTransactionalComputable
 import jetbrains.exodus.entitystore.Entity
 import jetbrains.exodus.entitystore.StoreTransaction
-import dev.ligature.LigatureLiteral
+import dev.ligature.LigatureValue
 import dev.ligature.Label
 import jetbrains.exodus.entitystore.PersistentEntityStore
 
@@ -171,12 +171,12 @@ private final class XodusLigature(environment: Environment) extends Ligature {
 
 def targetValue(value: Value): Comparable[?] =
   value match
-    case LigatureLiteral.IntegerLiteral(value) => value
-    case LigatureLiteral.StringLiteral(value)  => value
+    case LigatureValue.IntegerLiteral(value) => value
+    case LigatureValue.StringLiteral(value)  => value
     case Label(value)                          => value
 
 def targetType(value: Value): Int =
   value match
-    case LigatureLiteral.IntegerLiteral(_) => INT
-    case LigatureLiteral.StringLiteral(_)  => STRING
+    case LigatureValue.IntegerLiteral(_) => INT
+    case LigatureValue.StringLiteral(_)  => STRING
     case Label(_)                          => VERTEX

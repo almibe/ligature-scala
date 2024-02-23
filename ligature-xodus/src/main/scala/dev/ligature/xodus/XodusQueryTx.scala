@@ -63,9 +63,9 @@ def entitiesToEdges(entities: EntityIterable): Iterator[Edge] =
     val label = Label(entity.getProperty("label").asInstanceOf[String])
     val target = entity.getProperty("targetType").asInstanceOf[Int] match
       case VERTEX => Label(entity.getProperty("target").asInstanceOf[String])
-      case INT    => LigatureLiteral.IntegerLiteral(entity.getProperty("target").asInstanceOf[Long])
+      case INT    => LigatureValue.IntegerLiteral(entity.getProperty("target").asInstanceOf[Long])
       case STRING =>
-        LigatureLiteral.StringLiteral(entity.getProperty("target").asInstanceOf[String])
+        LigatureValue.StringLiteral(entity.getProperty("target").asInstanceOf[String])
     buffer += Edge(source, label, target)
   )
   buffer.iterator

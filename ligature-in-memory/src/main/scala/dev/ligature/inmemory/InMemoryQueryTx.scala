@@ -19,9 +19,9 @@ class InMemoryQueryTx(private val store: GraphStore) extends QueryTx {
     * calling allEdges.
     */
   override def matchEdges(
-      source: Option[Label],
-      label: Option[Label],
-      target: Option[Value]
+      source: Option[LigatureValue.Label],
+      label: Option[LigatureValue.Label],
+      target: Option[LigatureValue]
   ): Iterator[Edge] = {
     var res = store.edges.iterator
     if (source.isDefined) {

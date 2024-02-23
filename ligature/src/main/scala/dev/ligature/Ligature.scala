@@ -6,43 +6,41 @@ package dev.ligature
 
 import scala.annotation.unused
 
-final case class Graph(name: String) extends Ordered[Graph] {
-  override def compare(that: Graph): Int = this.name.compare(that.name)
-}
-final case class Label(text: String)
+final case class GraphName(name: String) extends Ordered[GraphName]:
+  override def compare(that: GraphName): Int = this.name.compare(that.name)
 
 case class LigatureError(val userMessage: String) extends Throwable(userMessage)
 
-enum LigatureLiteral:
-  case StringLiteral(value: String)
-  case IntegerLiteral(value: Long)
-
-type Value = LigatureLiteral | Label
+enum LigatureValue:
+  case GraphValue(value: Ligature)
+  case Label(value: String)
+  case StringValue(value: String)
+  case IntegerValue(value: Long)
+  case BytesValue(value: Array[Byte])
 
 //sealed trait Range
 //final case class StringLiteralRange(start: String, end: String) extends Range
 //final case class IntegerLiteralRange(start: Long, end: Long) extends Range
 final case class Edge(
-    source: Label,
-    label: Label,
-    target: Value
+    source: LigatureValue.Label,
+    label: LigatureValue.Label,
+    target: LigatureValue
 )
 
 /** A trait that all Ligature implementations implement. */
-trait Ligature {
-
+trait Ligature:
   /** Returns all Graphs in a Ligature instance. */
-  def allGraphs(): Iterator[Graph]
+  def allGraphs(): Iterator[GraphName]
 
   /** Check if a given Graph exists. */
-  def graphExists(graph: Graph): Boolean
+  def graphExists(graph: GraphName): Boolean
 
   /** Returns all Graphs in a Ligature instance that start with the given
     * prefix.
     */
   def matchGraphsPrefix(
       prefix: String
-  ): Iterator[Graph]
+  ): Iterator[GraphName]
 
   /** Returns all Graphs in a Ligature instance that are in a given range
     * (inclusive, exclusive].
@@ -50,45 +48,43 @@ trait Ligature {
   def matchGraphsRange(
       start: String,
       end: String
-  ): Iterator[Graph]
+  ): Iterator[GraphName]
 
   /** Creates a graph with the given name. TODO should probably return its own
     * error type { InvalidGraph, GraphExists, CouldNotCreateGraph }
     */
-  def createGraph(graph: Graph): Unit
+  def createGraph(graph: GraphName): Unit
 
   /** Deletes a graph with the given name. TODO should probably return its own
     * error type { InvalidGraph, CouldNotDeleteGraph }
     */
-  def deleteGraph(graph: Graph): Unit
+  def deleteGraph(graph: GraphName): Unit
 
-  def allEdges(graph: Graph): Iterator[Edge]
+  def allEdges(graph: GraphName): Iterator[Edge]
 
   /** Initializes a QueryTx TODO should probably return its own error type
     * CouldNotInitializeQueryTx
     */
-  def query[T](graph: Graph)(fn: QueryTx => T): T
+  def query[T](graph: GraphName)(fn: QueryTx => T): T
 
-  def addEdges(graph: Graph, edges: Iterator[Edge]): Unit
+  def addEdges(graph: GraphName, edges: Iterator[Edge]): Unit
 
-  def removeEdges(graph: Graph, edges: Iterator[Edge]): Unit
+  def removeEdges(graph: GraphName, edges: Iterator[Edge]): Unit
 
   def close(): Unit
-}
 
 /** Represents a QueryTx within the context of a Ligature instance and a single
   * Graph
   */
-trait QueryTx {
-
+trait QueryTx:
   /** Returns all PersistedEdges that match the given criteria. If a
     * parameter is None then it matches all, so passing all Nones is the same as
     * calling allEdges.
     */
   def matchEdges(
-      source: Option[Label] = None,
-      label: Option[Label] = None,
-      target: Option[Value] = None
+      source: Option[LigatureValue.Label] = None,
+      label: Option[LigatureValue.Label] = None,
+      target: Option[LigatureValue] = None
   ): Iterator[Edge]
 
 //  /** Returns all PersistedEdges that match the given criteria. If a
@@ -99,4 +95,3 @@ trait QueryTx {
 //      label: Option[Identifier] = None,
 //      target: Range
 //  ): Stream[IO, Edge]
-}

@@ -2,12 +2,12 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at https://mozilla.org/MPL/2.0/. */
 
-package dev.ligature.wander.ligature
+package dev.ligature.bend.ligature
 
-import dev.ligature.wander.Environment
+import dev.ligature.bend.Environment
 import dev.ligature.Ligature
-import dev.ligature.wander.libraries.std
-import dev.ligature.wander.*
+import dev.ligature.bend.libraries.std
+import dev.ligature.bend.*
 import dev.ligature.Graph
 
 def ligatureEnvironment(ligature: Ligature): Environment =
@@ -64,7 +64,7 @@ def ligatureEnvironment(ligature: Ligature): Environment =
 //     (arguments: Seq[Term], environment: Environment) =>
 //       instance.allDatasets()
 //         .compile.toList
-//         .map { datasets => WanderValue.ListValue( datasets.map { ds => WanderValue.LigatureValue(LigatureLiteral.StringLiteral(ds.name.toString()))})}
+//         .map { datasets => WanderValue.ListValue( datasets.map { ds => WanderValue.LigatureValue(LigatureValue.StringLiteral(ds.name.toString()))})}
 //   )).getOrElse(???)
 
 //   environment = environment.bindVariable(Name("addDataset"), WanderValue.NativeFunction(

@@ -84,19 +84,19 @@ def createIdentifier(id: String): Either[LigError, Identifier] =
     .map(_ => LigError("Invalid Identifier Id - $id"))
 
 
-def parseIntegerLiteral(gaze: Gaze[Char]): Either[LigError, LigatureLiteral.IntegerLiteral] =
+def parseIntegerLiteral(gaze: Gaze[Char]): Either[LigError, LigatureValue.IntegerLiteral] =
   gaze.attempt(numberNibbler) match {
     case None => Left(LigError("Could not parse Integer."))
     case Some(i) =>
-      Right(LigatureLiteral.IntegerLiteral(i.mkString.toLong)) // TODO toLong can throw
+      Right(LigatureValue.IntegerLiteral(i.mkString.toLong)) // TODO toLong can throw
   }
 
-def parseStringLiteral(gaze: Gaze[Char]): Either[LigError, LigatureLiteral.StringLiteral] = {
+def parseStringLiteral(gaze: Gaze[Char]): Either[LigError, LigatureValue.StringLiteral] = {
   val res = gaze.attempt(takeAllGrouped(takeString("\""), stringContentNibbler))
 
   res match {
     case None      => Left(LigError("Could not parse String."))
-    case Some(res) => Right(LigatureLiteral.StringLiteral(res(1).mkString))
+    case Some(res) => Right(LigatureValue.StringLiteral(res(1).mkString))
   }
 }
 

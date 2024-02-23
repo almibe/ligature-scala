@@ -2,15 +2,15 @@
 //  * License, v. 2.0. If a copy of the MPL was not distributed with this
 //  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-// package dev.ligature.wander.preludes
+// package dev.ligature.bend.preludes
 
-// import dev.ligature.{Identifier, LigatureLiteral, LigatureError, Statement}
-// import dev.ligature.wander.Token
-// import dev.ligature.wander.ScriptResult
+// import dev.ligature.{Identifier, LigatureValue, LigatureError, Statement}
+// import dev.ligature.bend.Token
+// import dev.ligature.bend.ScriptResult
 // import cats.effect.IO
 // import scala.collection.mutable.ListBuffer
-// import dev.ligature.wander.preludes.termsToStatements
-// import dev.ligature.wander.*
+// import dev.ligature.bend.preludes.termsToStatements
+// import dev.ligature.bend.*
 
 // def i(i: String): Identifier = Identifier.fromString(i).getOrElse(???)
 
@@ -34,7 +34,7 @@
 // class InstanceLibrarySuite extends WanderSuiteInstanceLibrary {
 //   test("add/remove Datasets") {
 //     val input = """addDataset("hello") addDataset("hello2") removeDataset("hello2") datasets()"""
-//     val result = """["hello"]""" //WanderValue.ListValue(Seq(WanderValue.LigatureValue(LigatureLiteral.StringLiteral("hello"))))
+//     val result = """["hello"]""" //WanderValue.ListValue(Seq(WanderValue.LigatureValue(LigatureValue.StringLiteral("hello"))))
 //     check(input, result)
 //   }
 //   test("add Statements") {

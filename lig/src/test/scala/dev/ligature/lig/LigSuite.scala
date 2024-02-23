@@ -5,7 +5,7 @@
 package dev.ligature.lig
 
 import munit.FunSuite
-import dev.ligature.{Identifier, LigatureLiteral, Statement}
+import dev.ligature.{Identifier, LigatureValue, Statement}
 import dev.ligature.gaze.Gaze
 
 class LigSuite extends FunSuite {
@@ -36,12 +36,12 @@ class LigSuite extends FunSuite {
       Statement(
         identifier("e2"),
         identifier("a2"),
-        LigatureLiteral.StringLiteral("string literal")
+        LigatureValue.StringLiteral("string literal")
       ),
       Statement(
         identifier("e2"),
         identifier("a3"),
-        LigatureLiteral.IntegerLiteral(Long.MaxValue)
+        LigatureValue.IntegerLiteral(Long.MaxValue)
       )
     )
     val lines = write(statements.iterator)
@@ -61,8 +61,8 @@ class LigSuite extends FunSuite {
         |""".stripMargin
     val expectedStatements = Set(
       Statement(identifier("a"), identifier("b"), identifier("c")),
-      Statement(identifier("a"), identifier("b"), LigatureLiteral.IntegerLiteral(123)),
-      Statement(identifier("a"), identifier("b"), LigatureLiteral.StringLiteral("Test")),
+      Statement(identifier("a"), identifier("b"), LigatureValue.IntegerLiteral(123)),
+      Statement(identifier("a"), identifier("b"), LigatureValue.StringLiteral("Test")),
     )
     val resStatements = read(statements)
     resStatements match {
@@ -88,14 +88,14 @@ class LigSuite extends FunSuite {
 
   test("parse IntegerLiteral") {
     val test = "3452345"
-    val res: Either[LigError, LigatureLiteral] = parseIntegerLiteral(Gaze.from(test))
-    assertEquals(res, Right(LigatureLiteral.IntegerLiteral(3452345)))
+    val res: Either[LigError, LigatureValue] = parseIntegerLiteral(Gaze.from(test))
+    assertEquals(res, Right(LigatureValue.IntegerLiteral(3452345)))
   }
 
   test("parse StringLiteral") {
     val test = "\"3452345\\nHello\""
-    val res: Either[LigError, LigatureLiteral] = parseStringLiteral(Gaze.from(test))
-    assertEquals(res, Right(LigatureLiteral.StringLiteral("3452345\\nHello")))
+    val res: Either[LigError, LigatureValue] = parseStringLiteral(Gaze.from(test))
+    assertEquals(res, Right(LigatureValue.StringLiteral("3452345\\nHello")))
   }
 
   test("write identifiers") {
@@ -104,13 +104,13 @@ class LigSuite extends FunSuite {
   }
 
   test("write IntegerLiteral") {
-    val test = LigatureLiteral.IntegerLiteral(3535)
+    val test = LigatureValue.IntegerLiteral(3535)
     val res = writeValue(test)
     assertEquals(res, "3535")
   }
 
   test("write StringLiteral") {
-    val test = LigatureLiteral.StringLiteral("3535 55Hello")
+    val test = LigatureValue.StringLiteral("3535 55Hello")
     val res = writeValue(test)
     assertEquals(res, "\"3535 55Hello\"")
   }

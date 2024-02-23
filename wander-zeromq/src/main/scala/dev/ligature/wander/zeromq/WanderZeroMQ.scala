@@ -2,21 +2,21 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at https://mozilla.org/MPL/2.0/. */
 
-package dev.ligature.wander.zeromq
+package dev.ligature.bend.zeromq
 
 import org.zeromq.{ZMQ, ZContext, SocketType}
 
-import dev.ligature.wander.run as runWander
-import dev.ligature.wander.WanderValue
-import dev.ligature.wander.printWanderValue
-import dev.ligature.wander.printResult
+import dev.ligature.bend.run as runWander
+import dev.ligature.bend.WanderValue
+import dev.ligature.bend.printWanderValue
+import dev.ligature.bend.printResult
 import java.nio.file.Path
 import java.nio.file.Paths
 import java.io.File
-import dev.ligature.wander.*
+import dev.ligature.bend.*
 import com.typesafe.scalalogging.Logger
-import dev.ligature.wander.libraries.*
-import dev.ligature.wander.modules.*
+import dev.ligature.bend.libraries.*
+import dev.ligature.bend.modules.*
 
 private class WanderZServer(val port: Int) extends Runnable with AutoCloseable {
   private val zContext = ZContext()

@@ -7,10 +7,10 @@ package dev.ligature.testsuite
 import dev.ligature._
 import munit.FunSuite
 import dev.ligature.inmemory.LigatureInMemory
-import dev.ligature.wander.Environment
-import dev.ligature.wander.run
-import dev.ligature.wander.WanderValue
-import dev.ligature.wander.ligature.ligatureEnvironment
+import dev.ligature.bend.Environment
+import dev.ligature.bend.run
+import dev.ligature.bend.WanderValue
+import dev.ligature.bend.ligature.ligatureEnvironment
 
 class LigatureTestSuite extends FunSuite {
   val setup = FunFixture[(Environment, Ligature)](
