@@ -43,7 +43,7 @@ def stdWithKeylime(
     env: jetbrains.exodus.env.Environment,
     libraries: List[ModuleLibrary] = List()
 ): Environment =
-std(libraries).bindVariable(
-  Field("Keylime"),
-  createKeylimeModule(env)
-)
+  std(libraries).bindVariable(
+    Field("Keylime"),
+    createKeylimeModule(env)
+  )

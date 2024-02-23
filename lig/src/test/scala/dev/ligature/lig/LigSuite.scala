@@ -36,12 +36,12 @@ class LigSuite extends FunSuite {
       Statement(
         identifier("e2"),
         identifier("a2"),
-        LigatureValue.StringLiteral("string literal")
+        LigatureValue.StringValue("string literal")
       ),
       Statement(
         identifier("e2"),
         identifier("a3"),
-        LigatureValue.IntegerLiteral(Long.MaxValue)
+        LigatureValue.IntegerValue(Long.MaxValue)
       )
     )
     val lines = write(statements.iterator)
@@ -61,8 +61,8 @@ class LigSuite extends FunSuite {
         |""".stripMargin
     val expectedStatements = Set(
       Statement(identifier("a"), identifier("b"), identifier("c")),
-      Statement(identifier("a"), identifier("b"), LigatureValue.IntegerLiteral(123)),
-      Statement(identifier("a"), identifier("b"), LigatureValue.StringLiteral("Test")),
+      Statement(identifier("a"), identifier("b"), LigatureValue.IntegerValue(123)),
+      Statement(identifier("a"), identifier("b"), LigatureValue.StringValue("Test")),
     )
     val resStatements = read(statements)
     resStatements match {
@@ -86,16 +86,16 @@ class LigSuite extends FunSuite {
     )
   }
 
-  test("parse IntegerLiteral") {
+  test("parse IntegerValue") {
     val test = "3452345"
-    val res: Either[LigError, LigatureValue] = parseIntegerLiteral(Gaze.from(test))
-    assertEquals(res, Right(LigatureValue.IntegerLiteral(3452345)))
+    val res: Either[LigError, LigatureValue] = parseIntegerValue(Gaze.from(test))
+    assertEquals(res, Right(LigatureValue.IntegerValue(3452345)))
   }
 
-  test("parse StringLiteral") {
+  test("parse StringValue") {
     val test = "\"3452345\\nHello\""
-    val res: Either[LigError, LigatureValue] = parseStringLiteral(Gaze.from(test))
-    assertEquals(res, Right(LigatureValue.StringLiteral("3452345\\nHello")))
+    val res: Either[LigError, LigatureValue] = parseStringValue(Gaze.from(test))
+    assertEquals(res, Right(LigatureValue.StringValue("3452345\\nHello")))
   }
 
   test("write identifiers") {
@@ -103,14 +103,14 @@ class LigSuite extends FunSuite {
     assertEquals(res, "<test>")
   }
 
-  test("write IntegerLiteral") {
-    val test = LigatureValue.IntegerLiteral(3535)
+  test("write IntegerValue") {
+    val test = LigatureValue.IntegerValue(3535)
     val res = writeValue(test)
     assertEquals(res, "3535")
   }
 
-  test("write StringLiteral") {
-    val test = LigatureValue.StringLiteral("3535 55Hello")
+  test("write StringValue") {
+    val test = LigatureValue.StringValue("3535 55Hello")
     val res = writeValue(test)
     assertEquals(res, "\"3535 55Hello\"")
   }

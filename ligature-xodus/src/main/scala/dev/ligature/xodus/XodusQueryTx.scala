@@ -23,34 +23,34 @@ class XodusQueryTx(
     private val tx: StoreTransaction
 ) extends QueryTx {
   override def matchEdges(
-      source: Option[Label],
-      label: Option[Label],
-      target: Option[Value]
+      source: Option[LigatureValue.Label],
+      label: Option[LigatureValue.Label],
+      target: Option[LigatureValue]
   ): Iterator[Edge] =
     val entities = (source, label, target) match
       case (None, None, None) =>
         tx.getAll("edge")
       case (Some(source), None, None) =>
-        tx.find("edge", "source", source.text)
+        tx.find("edge", "source", source.value)
       case (None, Some(label), None) =>
-        tx.find("edge", "label", label.text)
+        tx.find("edge", "label", label.value)
       case (None, None, Some(target)) =>
         tx.find("edge", "targetType", targetType(target))
           .intersect(tx.find("edge", "target", targetValue(target)))
       case (Some(source), Some(label), None) =>
-        tx.find("edge", "source", source.text)
-          .intersect(tx.find("edge", "label", label.text))
+        tx.find("edge", "source", source.value)
+          .intersect(tx.find("edge", "label", label.value))
       case (Some(source), None, Some(target)) =>
-        tx.find("edge", "source", source.text)
+        tx.find("edge", "source", source.value)
           .intersect(tx.find("edge", "targetType", targetType(target)))
           .intersect(tx.find("edge", "target", targetValue(target)))
       case (None, Some(label), Some(target)) =>
-        tx.find("edge", "label", label.text)
+        tx.find("edge", "label", label.value)
           .intersect(tx.find("edge", "targetType", targetType(target)))
           .intersect(tx.find("edge", "target", targetValue(target)))
       case (Some(source), Some(label), Some(target)) =>
-        tx.find("edge", "source", source.text)
-          .intersect(tx.find("edge", "label", label.text))
+        tx.find("edge", "source", source.value)
+          .intersect(tx.find("edge", "label", label.value))
           .intersect(tx.find("edge", "targetType", targetType(target)))
           .intersect(tx.find("edge", "target", targetValue(target)))
     entitiesToEdges(entities)
@@ -59,13 +59,13 @@ class XodusQueryTx(
 def entitiesToEdges(entities: EntityIterable): Iterator[Edge] =
   val buffer = ListBuffer[Edge]()
   entities.forEach(entity =>
-    val source = Label(entity.getProperty("source").asInstanceOf[String])
-    val label = Label(entity.getProperty("label").asInstanceOf[String])
+    val source: LigatureValue.Label = LigatureValue.Label(entity.getProperty("source").asInstanceOf[String])
+    val label: LigatureValue.Label = LigatureValue.Label(entity.getProperty("label").asInstanceOf[String])
     val target = entity.getProperty("targetType").asInstanceOf[Int] match
-      case VERTEX => Label(entity.getProperty("target").asInstanceOf[String])
-      case INT    => LigatureValue.IntegerLiteral(entity.getProperty("target").asInstanceOf[Long])
+      case VERTEX => LigatureValue.Label(entity.getProperty("target").asInstanceOf[String])
+      case INT    => LigatureValue.IntegerValue(entity.getProperty("target").asInstanceOf[Long])
       case STRING =>
-        LigatureValue.StringLiteral(entity.getProperty("target").asInstanceOf[String])
+        LigatureValue.StringValue(entity.getProperty("target").asInstanceOf[String])
     buffer += Edge(source, label, target)
   )
   buffer.iterator

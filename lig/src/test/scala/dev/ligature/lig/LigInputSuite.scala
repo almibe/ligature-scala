@@ -63,12 +63,12 @@ class LigInputSuite extends FunSuite {
       Statement(
         Identifier.fromString("e").getOrElse(???),
         Identifier.fromString("a").getOrElse(???),
-        LigatureValue.IntegerLiteral(234)
+        LigatureValue.IntegerValue(234)
       ),
       Statement(
         Identifier.fromString("e").getOrElse(???),
         Identifier.fromString("a").getOrElse(???),
-        LigatureValue.IntegerLiteral(432)
+        LigatureValue.IntegerValue(432)
       )
     )
     val res = read(input)
@@ -90,12 +90,12 @@ class LigInputSuite extends FunSuite {
       Statement(
         Identifier.fromString("e").getOrElse(???),
         Identifier.fromString("a").getOrElse(???),
-        LigatureValue.IntegerLiteral(234)
+        LigatureValue.IntegerValue(234)
       ),
       Statement(
         Identifier.fromString("e2").getOrElse(???),
         Identifier.fromString("a").getOrElse(???),
-        LigatureValue.IntegerLiteral(234)
+        LigatureValue.IntegerValue(234)
       )
     )
     val result = read(input)

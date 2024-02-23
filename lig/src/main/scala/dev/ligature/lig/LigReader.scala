@@ -8,7 +8,7 @@ import dev.ligature.*
 import dev.ligature.gaze.*
 import dev.ligature.idgen.genId
 import dev.ligature.lig.LigNibblers.{numberNibbler, stringContentNibbler, whiteSpaceAndNewLineNibbler, whiteSpaceNibbler}
-import dev.ligature.lig.{createIdentifier, parseIntegerLiteral, parseStringLiteral}
+import dev.ligature.lig.{createIdentifier, parseIntegerValue, parseStringValue}
 
 import scala.collection.mutable.{ArrayBuffer, HashMap}
 
@@ -84,19 +84,19 @@ def createIdentifier(id: String): Either[LigError, Identifier] =
     .map(_ => LigError("Invalid Identifier Id - $id"))
 
 
-def parseIntegerLiteral(gaze: Gaze[Char]): Either[LigError, LigatureValue.IntegerLiteral] =
+def parseIntegerValue(gaze: Gaze[Char]): Either[LigError, LigatureValue.IntegerValue] =
   gaze.attempt(numberNibbler) match {
     case None => Left(LigError("Could not parse Integer."))
     case Some(i) =>
-      Right(LigatureValue.IntegerLiteral(i.mkString.toLong)) // TODO toLong can throw
+      Right(LigatureValue.IntegerValue(i.mkString.toLong)) // TODO toLong can throw
   }
 
-def parseStringLiteral(gaze: Gaze[Char]): Either[LigError, LigatureValue.StringLiteral] = {
+def parseStringValue(gaze: Gaze[Char]): Either[LigError, LigatureValue.StringValue] = {
   val res = gaze.attempt(takeAllGrouped(takeString("\""), stringContentNibbler))
 
   res match {
     case None      => Left(LigError("Could not parse String."))
-    case Some(res) => Right(LigatureValue.StringLiteral(res(1).mkString))
+    case Some(res) => Right(LigatureValue.StringValue(res(1).mkString))
   }
 }
 
@@ -327,11 +327,11 @@ def parseValue(
   ) // can be None since copy character has been checked for
   if (entityRes.isRight) return entityRes
 
-  val integerRes = parseIntegerLiteral(gaze)
+  val integerRes = parseIntegerValue(gaze)
   if (integerRes.isRight)
     return integerRes.left.map(err => LigError(err.message))
 
-  val stringRes = parseStringLiteral(gaze)
+  val stringRes = parseStringValue(gaze)
   if (stringRes.isRight)
     return stringRes.left.map(err => LigError(err.message))
 

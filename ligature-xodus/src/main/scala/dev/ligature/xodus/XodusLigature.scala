@@ -4,7 +4,7 @@
 
 package dev.ligature.xodus
 
-import dev.ligature.{Ligature, LigatureError, QueryTx, Value}
+import dev.ligature.{Ligature, LigatureError, QueryTx, LigatureValue}
 import scala.collection.immutable.TreeMap
 import scala.collection.mutable.{ArrayBuffer, ListBuffer}
 
@@ -23,15 +23,14 @@ import jetbrains.exodus.env.{
 import scala.jdk.CollectionConverters.*
 import java.nio.file.Path
 import jetbrains.exodus.env.Environment
-import dev.ligature.Graph
 import dev.ligature.Edge
 import jetbrains.exodus.entitystore.PersistentEntityStores
 import jetbrains.exodus.entitystore.StoreTransactionalComputable
 import jetbrains.exodus.entitystore.Entity
 import jetbrains.exodus.entitystore.StoreTransaction
 import dev.ligature.LigatureValue
-import dev.ligature.Label
 import jetbrains.exodus.entitystore.PersistentEntityStore
+import dev.ligature.GraphName
 
 val VERTEX = 0
 val INT = 1
@@ -53,20 +52,20 @@ private final class XodusLigature(environment: Environment) extends Ligature {
       stores += name -> store
       store
 
-  override def allGraphs(): Iterator[Graph] =
-    val buffer = ListBuffer[Graph]()
+  override def allGraphs(): Iterator[GraphName] =
+    val buffer = ListBuffer[GraphName]()
     val store = getStore("__META")
     store.computeInReadonlyTransaction(tx =>
       tx.getAll("graph")
         .forEach(entity =>
-          val graph = Graph(entity.getProperty("name").asInstanceOf[String])
+          val graph = GraphName(entity.getProperty("name").asInstanceOf[String])
           buffer.append(graph)
         )
     )
     store.close()
     buffer.iterator
 
-  override def createGraph(graph: Graph): Unit =
+  override def createGraph(graph: GraphName): Unit =
     val store = getStore("__META")
     store.executeInExclusiveTransaction(tx =>
       val entity = tx.newEntity("graph")
@@ -75,7 +74,7 @@ private final class XodusLigature(environment: Environment) extends Ligature {
     )
     store.close()
 
-  override def deleteGraph(graph: Graph): Unit =
+  override def deleteGraph(graph: GraphName): Unit =
     val store = getStore("__META")
     store.executeInExclusiveTransaction(tx =>
       val res = tx.find("graph", "name", graph.name)
@@ -83,20 +82,20 @@ private final class XodusLigature(environment: Environment) extends Ligature {
     )
     store.close()
 
-  override def matchGraphsPrefix(prefix: String): Iterator[Graph] =
-    val buffer = ListBuffer[Graph]()
+  override def matchGraphsPrefix(prefix: String): Iterator[GraphName] =
+    val buffer = ListBuffer[GraphName]()
     val store = getStore("__META")
     store.computeInReadonlyTransaction(tx =>
       tx.findStartingWith("graph", "name", prefix)
         .forEach(entity =>
-          val graph = Graph(entity.getProperty("name").asInstanceOf[String])
+          val graph = GraphName(entity.getProperty("name").asInstanceOf[String])
           buffer.append(graph)
         )
     )
     store.close()
     buffer.iterator
 
-  override def graphExists(graph: Graph): Boolean =
+  override def graphExists(graph: GraphName): Boolean =
     val store = getStore("__META")
     val res = store.computeInReadonlyTransaction(tx =>
       val res = tx.find("graph", "name", graph.name)
@@ -105,15 +104,15 @@ private final class XodusLigature(environment: Environment) extends Ligature {
     store.close()
     res
 
-  override def matchGraphsRange(start: String, end: String): Iterator[Graph] =
-    val buffer = ListBuffer[Graph]()
+  override def matchGraphsRange(start: String, end: String): Iterator[GraphName] =
+    val buffer = ListBuffer[GraphName]()
     val store = getStore("__META")
     store.computeInReadonlyTransaction(tx =>
       tx.getAll("graph")
         .forEach(entity =>
           val name = entity.getProperty("name").asInstanceOf[String]
           if (name >= start && name < end) {
-            val graph = Graph(name)
+            val graph = GraphName(name)
             buffer.append(graph)
           }
         )
@@ -121,24 +120,24 @@ private final class XodusLigature(environment: Environment) extends Ligature {
     store.close()
     buffer.iterator
 
-  override def allEdges(graph: Graph): Iterator[Edge] =
+  override def allEdges(graph: GraphName): Iterator[Edge] =
     val store = getStore(graph.name)
     store.computeInReadonlyTransaction(tx => entitiesToEdges(tx.getAll("edge")).iterator)
 
-  override def addEdges(graph: Graph, edges: Iterator[Edge]): Unit =
+  override def addEdges(graph: GraphName, edges: Iterator[Edge]): Unit =
     val store = getStore(graph.name)
     store.executeInExclusiveTransaction(tx =>
       edges.foreach(edge =>
         if findEdge(edge, tx).isEmpty then
           val entity = tx.newEntity("edge")
-          entity.setProperty("source", edge.source.text)
-          entity.setProperty("label", edge.label.text)
+          entity.setProperty("source", edge.source.value)
+          entity.setProperty("label", edge.label.value)
           entity.setProperty("target", targetValue(edge.target))
           entity.setProperty("targetType", targetType(edge.target))
       )
     )
 
-  override def removeEdges(graph: Graph, edges: Iterator[Edge]): Unit =
+  override def removeEdges(graph: GraphName, edges: Iterator[Edge]): Unit =
     val store = getStore(graph.name)
     store.executeInExclusiveTransaction(tx =>
       edges.foreach(edge =>
@@ -150,16 +149,16 @@ private final class XodusLigature(environment: Environment) extends Ligature {
 
   private def findEdge(edge: Edge, tx: StoreTransaction): Option[Entity] =
     var res: Option[Entity] = None
-    tx.find("edge", "source", edge.source.text)
+    tx.find("edge", "source", edge.source.value)
       .forEach(entity =>
-        if entity.getProperty("label") == edge.label.text &&
+        if entity.getProperty("label") == edge.label.value &&
           entity.getProperty("targetType").asInstanceOf[Int] == targetType(edge.target) &&
           entity.getProperty("target") == targetValue(edge.target)
         then res = Some(entity)
       )
     res
 
-  override def query[T](graph: Graph)(fn: QueryTx => T): T =
+  override def query[T](graph: GraphName)(fn: QueryTx => T): T =
     val store = getStore(graph.name)
     store.computeInReadonlyTransaction(tx =>
       val queryTx = XodusQueryTx(tx)
@@ -169,14 +168,18 @@ private final class XodusLigature(environment: Environment) extends Ligature {
   override def close(): Unit = () // environment.close()
 }
 
-def targetValue(value: Value): Comparable[?] =
+def targetValue(value: LigatureValue): Comparable[?] =
   value match
-    case LigatureValue.IntegerLiteral(value) => value
-    case LigatureValue.StringLiteral(value)  => value
-    case Label(value)                          => value
+    case LigatureValue.IntegerValue(value) => value
+    case LigatureValue.StringValue(value)  => value
+    case LigatureValue.Label(value)                        => value
+    case LigatureValue.GraphValue(value) => ???
+    case LigatureValue.BytesValue(value) => ???
 
-def targetType(value: Value): Int =
+def targetType(value: LigatureValue): Int =
   value match
-    case LigatureValue.IntegerLiteral(_) => INT
-    case LigatureValue.StringLiteral(_)  => STRING
-    case Label(_)                          => VERTEX
+    case LigatureValue.IntegerValue(_) => INT
+    case LigatureValue.StringValue(_)  => STRING
+    case LigatureValue.Label(_)                        => VERTEX
+    case _ => ???
+

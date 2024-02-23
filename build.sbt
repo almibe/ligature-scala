@@ -63,18 +63,18 @@ lazy val bend = project
   .dependsOn(gaze, ligature, ligatureInMemory)
   .disablePlugins(RevolverPlugin)
 
-// lazy val wanderZeroMQ = project
-//   .in(file("wander-zeromq"))
-//   .settings(
-//     name := "wander-zeromq",
-//     scalaVersion := scala3Version,
-//     libraryDependencies += "ch.qos.logback" % "logback-classic" % logBackVersion,
-//     libraryDependencies += "com.typesafe.scala-logging" %% "scala-logging" % scalaLoggingVersion,
-//     libraryDependencies += "org.zeromq" % "jeromq" % jeromqVersion,
-//     libraryDependencies += "org.scalameta" %% "munit" % munitVersion % Test,
-//     fork := true,
-//   )
-//   .dependsOn(wander)
+lazy val ligatureZeroMQ = project
+  .in(file("ligature-zeromq"))
+  .settings(
+    name := "ligature-zeromq",
+    scalaVersion := scala3Version,
+    libraryDependencies += "ch.qos.logback" % "logback-classic" % logBackVersion,
+    libraryDependencies += "com.typesafe.scala-logging" %% "scala-logging" % scalaLoggingVersion,
+    libraryDependencies += "org.zeromq" % "jeromq" % jeromqVersion,
+    libraryDependencies += "org.scalameta" %% "munit" % munitVersion % Test,
+    fork := true,
+  )
+  .dependsOn(wander, ligature, ligatureInMemory, ligatureXodus)
 
 // lazy val wanderLigature = project
 //   .in(file("wander-ligature"))

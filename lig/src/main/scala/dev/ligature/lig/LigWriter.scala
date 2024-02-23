@@ -28,7 +28,7 @@ def writeIdentifier(identifier: Identifier): String = s"<${identifier.name}>"
 def writeValue(value: Value): String =
   value match {
     case id: Identifier        => writeIdentifier(id)
-    case LigatureValue.IntegerLiteral(value) => value.toString()
-    case LigatureValue.StringLiteral(value) =>
+    case LigatureValue.IntegerValue(value) => value.toString()
+    case LigatureValue.StringValue(value) =>
       s"\"${value}\"" // TODO this needs to handle escaping special characters
   }

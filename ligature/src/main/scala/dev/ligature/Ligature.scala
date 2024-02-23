@@ -19,8 +19,8 @@ enum LigatureValue:
   case BytesValue(value: Array[Byte])
 
 //sealed trait Range
-//final case class StringLiteralRange(start: String, end: String) extends Range
-//final case class IntegerLiteralRange(start: Long, end: Long) extends Range
+//final case class StringValueRange(start: String, end: String) extends Range
+//final case class IntegerValueRange(start: Long, end: Long) extends Range
 final case class Edge(
     source: LigatureValue.Label,
     label: LigatureValue.Label,

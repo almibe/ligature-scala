@@ -54,9 +54,9 @@ class InMemoryQueryTx(private val store: GraphStore) extends QueryTx {
 //    res = res.filter { ps =>
 //      val testValue = ps.target
 //      (testValue, range) match {
-//        case (StringLiteral(v), StringLiteralRange(start, end)) =>
+//        case (StringValue(v), StringValueRange(start, end)) =>
 //          v >= start && v < end
-//        case (IntegerLiteral(v), IntegerLiteralRange(start, end)) =>
+//        case (IntegerValue(v), IntegerValueRange(start, end)) =>
 //          v >= start && v < end
 //        case _ => false
 //      }

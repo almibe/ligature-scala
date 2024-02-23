@@ -10,14 +10,14 @@ import munit.FunSuite
 abstract class LigatureTestSuite extends FunSuite {
   def createLigature(): Ligature
 
-  val testGraph = Graph("test/test")
-  val testGraph2 = Graph("test/test2")
-  val testGraph3 = Graph("test3/test")
-  val a = Label("a")
-  val b = Label("b")
-  val label1 = Label("a")
-  val label2 = Label("b")
-  val label3 = Label("c")
+  val testGraph = GraphName("test/test")
+  val testGraph2 = GraphName("test/test2")
+  val testGraph3 = GraphName("test3/test")
+  val a: LigatureValue.Label = LigatureValue.Label("a")
+  val b: LigatureValue.Label = LigatureValue.Label("b")
+  val label1: LigatureValue.Label = LigatureValue.Label("a")
+  val label2: LigatureValue.Label = LigatureValue.Label("b")
+  val label3: LigatureValue.Label = LigatureValue.Label("c")
 
   val setup = FunFixture[Ligature](
     setup = { test =>
@@ -64,22 +64,22 @@ abstract class LigatureTestSuite extends FunSuite {
   }
 
   setup.test("match graphs range") { instance =>
-    instance.createGraph(Graph("a"))
-    instance.createGraph(Graph("app"))
-    instance.createGraph(Graph("b"))
-    instance.createGraph(Graph("be"))
-    instance.createGraph(Graph("bee"))
+    instance.createGraph(GraphName("a"))
+    instance.createGraph(GraphName("app"))
+    instance.createGraph(GraphName("b"))
+    instance.createGraph(GraphName("be"))
+    instance.createGraph(GraphName("bee"))
     instance.createGraph(
-      Graph("test1/test")
+      GraphName("test1/test")
     )
     instance.createGraph(
-      Graph("test2/test2")
+      GraphName("test2/test2")
     )
     instance.createGraph(
-      Graph("test3/test")
+      GraphName("test3/test")
     )
-    instance.createGraph(Graph("test4"))
-    instance.createGraph(Graph("z"))
+    instance.createGraph(GraphName("test4"))
+    instance.createGraph(GraphName("z"))
     instance.allGraphs().toList.length
     val res1 = instance.matchGraphsRange("a", "b").toList.length
     val res2 = instance.matchGraphsRange("be", "test3").toList.length
@@ -121,16 +121,16 @@ abstract class LigatureTestSuite extends FunSuite {
     )
   }
 
-  setup.test("add Edge with IntegerLiteral Value") { instance =>
+  setup.test("add Edge with IntegerValue Value") { instance =>
     instance.createGraph(testGraph)
     instance.addEdges(
       testGraph,
       Seq(
         Edge(label1, a, label2),
-        Edge(label1, a, LigatureValue.IntegerLiteral(100)),
-        Edge(label1, a, LigatureValue.IntegerLiteral(101)),
-        Edge(label1, a, LigatureValue.IntegerLiteral(100)),
-        Edge(label2, a, LigatureValue.IntegerLiteral(-243729))
+        Edge(label1, a, LigatureValue.IntegerValue(100)),
+        Edge(label1, a, LigatureValue.IntegerValue(101)),
+        Edge(label1, a, LigatureValue.IntegerValue(100)),
+        Edge(label2, a, LigatureValue.IntegerValue(-243729))
       ).iterator
     )
     val edges = instance.allEdges(testGraph).toSet
@@ -138,23 +138,23 @@ abstract class LigatureTestSuite extends FunSuite {
       edges,
       Set(
         Edge(label1, a, label2),
-        Edge(label1, a, LigatureValue.IntegerLiteral(100)),
-        Edge(label1, a, LigatureValue.IntegerLiteral(101)),
-        Edge(label2, a, LigatureValue.IntegerLiteral(-243729))
+        Edge(label1, a, LigatureValue.IntegerValue(100)),
+        Edge(label1, a, LigatureValue.IntegerValue(101)),
+        Edge(label2, a, LigatureValue.IntegerValue(-243729))
       )
     )
   }
 
-  setup.test("add Edge with StringLiteral Value") { instance =>
+  setup.test("add Edge with StringValue Value") { instance =>
     instance.createGraph(testGraph)
     instance.addEdges(
       testGraph,
       Seq(
         Edge(label1, a, label2),
-        Edge(label1, a, LigatureValue.StringLiteral("text")),
-        Edge(label1, a, LigatureValue.StringLiteral("text2")),
-        Edge(label1, a, LigatureValue.StringLiteral("text")),
-        Edge(label2, a, LigatureValue.StringLiteral("text"))
+        Edge(label1, a, LigatureValue.StringValue("text")),
+        Edge(label1, a, LigatureValue.StringValue("text2")),
+        Edge(label1, a, LigatureValue.StringValue("text")),
+        Edge(label2, a, LigatureValue.StringValue("text"))
       ).iterator
     )
     val edges = instance.allEdges(testGraph).toSet
@@ -162,9 +162,9 @@ abstract class LigatureTestSuite extends FunSuite {
       edges,
       Set(
         Edge(label1, a, label2),
-        Edge(label1, a, LigatureValue.StringLiteral("text")),
-        Edge(label1, a, LigatureValue.StringLiteral("text2")),
-        Edge(label2, a, LigatureValue.StringLiteral("text"))
+        Edge(label1, a, LigatureValue.StringValue("text")),
+        Edge(label1, a, LigatureValue.StringValue("text2")),
+        Edge(label2, a, LigatureValue.StringValue("text"))
       )
     )
   }
@@ -222,17 +222,17 @@ abstract class LigatureTestSuite extends FunSuite {
     instance.addEdges(
       testGraph,
       Seq(
-        Edge(label1, a, LigatureValue.StringLiteral("hello")),
-        Edge(label1, a, LigatureValue.StringLiteral("hello")),
-        Edge(label2, a, LigatureValue.StringLiteral("hello"))
+        Edge(label1, a, LigatureValue.StringValue("hello")),
+        Edge(label1, a, LigatureValue.StringValue("hello")),
+        Edge(label2, a, LigatureValue.StringValue("hello"))
       ).iterator
     )
     instance.removeEdges(
       testGraph,
-      Seq(Edge(label1, a, LigatureValue.StringLiteral("hello"))).iterator
+      Seq(Edge(label1, a, LigatureValue.StringValue("hello"))).iterator
     )
     val edges = instance.allEdges(testGraph).toSet
-    assertEquals(edges, Set(Edge(label2, a, LigatureValue.StringLiteral("hello"))))
+    assertEquals(edges, Set(Edge(label2, a, LigatureValue.StringValue("hello"))))
   }
 
 // //   // setup.test("allow canceling WriteTx by throwing exception") {
@@ -266,38 +266,38 @@ abstract class LigatureTestSuite extends FunSuite {
     instance.addEdges(
       testGraph,
       Seq(
-        Edge(label1, a, LigatureValue.StringLiteral("Hello")),
+        Edge(label1, a, LigatureValue.StringValue("Hello")),
         Edge(label2, a, label1),
         Edge(label2, a, label3),
         Edge(label3, b, label2),
-        Edge(label3, b, LigatureValue.StringLiteral("Hello"))
+        Edge(label3, b, LigatureValue.StringValue("Hello"))
       ).iterator
     )
     val (all, as, hellos, helloa) = instance.query(testGraph) { tx =>
       val all = tx.matchEdges().toSet
       val as = tx.matchEdges(None, Some(a)).toSet
       val hellos = tx
-        .matchEdges(None, None, Some(LigatureValue.StringLiteral("Hello")))
+        .matchEdges(None, None, Some(LigatureValue.StringValue("Hello")))
         .toSet
       val helloa = tx
-        .matchEdges(None, Some(a), Some(LigatureValue.StringLiteral("Hello")))
+        .matchEdges(None, Some(a), Some(LigatureValue.StringValue("Hello")))
         .toSet
       (all, as, hellos, helloa)
     }
     assertEquals(
       all,
       Set(
-        Edge(label1, a, LigatureValue.StringLiteral("Hello")),
+        Edge(label1, a, LigatureValue.StringValue("Hello")),
         Edge(label2, a, label1),
         Edge(label2, a, label3),
         Edge(label3, b, label2),
-        Edge(label3, b, LigatureValue.StringLiteral("Hello"))
+        Edge(label3, b, LigatureValue.StringValue("Hello"))
       )
     )
     assertEquals(
       as,
       Set(
-        Edge(label1, a, LigatureValue.StringLiteral("Hello")),
+        Edge(label1, a, LigatureValue.StringValue("Hello")),
         Edge(label2, a, label1),
         Edge(label2, a, label3)
       )
@@ -305,14 +305,14 @@ abstract class LigatureTestSuite extends FunSuite {
     assertEquals(
       hellos,
       Set(
-        Edge(label1, a, LigatureValue.StringLiteral("Hello")),
-        Edge(label3, b, LigatureValue.StringLiteral("Hello"))
+        Edge(label1, a, LigatureValue.StringValue("Hello")),
+        Edge(label3, b, LigatureValue.StringValue("Hello"))
       )
     )
     assertEquals(
       helloa,
       Set(
-        Edge(label1, a, LigatureValue.StringLiteral("Hello"))
+        Edge(label1, a, LigatureValue.StringValue("Hello"))
       )
     )
   }
@@ -325,34 +325,34 @@ abstract class LigatureTestSuite extends FunSuite {
 // //        for {
 // //          _ <- tx.addEdge(Edge(label1, a, label2))
 // //          _ <- tx
-// //            .addEdge(Edge(label1, b, StringLiteral("add")))
+// //            .addEdge(Edge(label1, b, StringValue("add")))
 // //          _ <- tx
-// //            .addEdge(Edge(label1, a, IntegerLiteral(5L)))
+// //            .addEdge(Edge(label1, a, IntegerValue(5L)))
 // //          _ <- tx
-// //            .addEdge(Edge(label2, a, IntegerLiteral(3L)))
+// //            .addEdge(Edge(label2, a, IntegerValue(3L)))
 // //          _ <- tx.addEdge(
-// //            Edge(label2, a, StringLiteral("divide"))
+// //            Edge(label2, a, StringValue("divide"))
 // //          )
 // //          _ <- tx.addEdge(Edge(label2, b, label3))
 // //          _ <- tx
-// //            .addEdge(Edge(label3, a, IntegerLiteral(7L)))
+// //            .addEdge(Edge(label3, a, IntegerValue(7L)))
 // //          _ <- tx.addEdge(
-// //            Edge(label3, b, StringLiteral("decimal"))
+// //            Edge(label3, b, StringValue("decimal"))
 // //          )
 // //        } yield ()
 // //      }
 // //      res <- instance.query(testGraph) { tx =>
 // //        for {
 // //          res1 <- tx
-// //            .matchEdgesRange(None, None, StringLiteralRange("a", "dd"))
+// //            .matchEdgesRange(None, None, StringValueRange("a", "dd"))
 // //            .compile
 // //            .toList
 // //          res2 <- tx
-// //            .matchEdgesRange(None, None, IntegerLiteralRange(3, 6))
+// //            .matchEdgesRange(None, None, IntegerValueRange(3, 6))
 // //            .compile
 // //            .toList
 // //          res3 <- tx
-// //            .matchEdgesRange(None, Some(b), StringLiteralRange("ae", "df"))
+// //            .matchEdgesRange(None, Some(b), StringValueRange("ae", "df"))
 // //            .compile
 // //            .toList
 // //        } yield (res1.toSet, res2.toSet, res3.toSet)
@@ -362,20 +362,20 @@ abstract class LigatureTestSuite extends FunSuite {
 // //      assertEquals(
 // //        res1,
 // //        Set(
-// //          Edge(label1, b, StringLiteral("add"))
+// //          Edge(label1, b, StringValue("add"))
 // //        )
 // //      )
 // //      assertEquals(
 // //        res2,
 // //        Set(
-// //          Edge(label2, a, IntegerLiteral(3L)),
-// //          Edge(label1, a, IntegerLiteral(5L))
+// //          Edge(label2, a, IntegerValue(3L)),
+// //          Edge(label1, a, IntegerValue(5L))
 // //        )
 // //      )
 // //      assertEquals(
 // //        res3,
 // //        Set(
-// //          Edge(label3, b, StringLiteral("decimal"))
+// //          Edge(label3, b, StringValue("decimal"))
 // //        )
 // //      )
 // //    }

@@ -21,9 +21,9 @@ class ParserSuite extends FunSuite {
         Term.Application(
           Seq(
             Term.FieldPathTerm(FieldPath(Seq(Field("testing")))),
-            Term.IntegerLiteral(1),
-            Term.IntegerLiteral(2),
-            Term.IntegerLiteral(3)
+            Term.IntegerValue(1),
+            Term.IntegerValue(2),
+            Term.IntegerValue(3)
           )
         )
       )
@@ -32,7 +32,7 @@ class ParserSuite extends FunSuite {
   }
   test("parse Integer") {
     val result = check("-321")
-    val expected = Right(Seq(Term.IntegerLiteral(-321)))
+    val expected = Right(Seq(Term.IntegerValue(-321)))
     assertEquals(result, expected)
   }
   test("parse Bytes") {
@@ -42,18 +42,18 @@ class ParserSuite extends FunSuite {
   }
   test("parse String") {
     val result = check("\"hello\"")
-    val expected = Right(Seq(Term.StringLiteral("hello")))
+    val expected = Right(Seq(Term.StringValue("hello")))
     assertEquals(result, expected)
   }
   test("parse String with quotes") {
     val result = check("\"\\\"hello\\\"\"")
-    val expected = Right(Seq(Term.StringLiteral("\"hello\"")))
+    val expected = Right(Seq(Term.StringValue("\"hello\"")))
     assertEquals(result, expected)
   }
 
   test("parse interpolated String") {
     val result = check("i\"hello $(UName)\"")
-    val expected = Right(Seq(Term.StringLiteral("hello $(UName)", true)))
+    val expected = Right(Seq(Term.StringValue("hello $(UName)", true)))
     assertEquals(result, expected)
   }
   test("parse Boolean") {
@@ -97,7 +97,7 @@ class ParserSuite extends FunSuite {
     val expected = Right(
       Seq(
         Term.Array(
-          Seq(Term.IntegerLiteral(1), Term.IntegerLiteral(2), Term.StringLiteral("three"))
+          Seq(Term.IntegerValue(1), Term.IntegerValue(2), Term.StringValue("three"))
         )
       )
     )
@@ -106,7 +106,7 @@ class ParserSuite extends FunSuite {
   test("parse let expression") {
     val result = check("x = 5")
     val expected =
-      Right(Seq(Term.Binding(Field("x"), None, Term.IntegerLiteral(5))))
+      Right(Seq(Term.Binding(Field("x"), None, Term.IntegerValue(5))))
     assertEquals(result, expected)
   }
   test("parse Lambda") {
@@ -161,7 +161,7 @@ class ParserSuite extends FunSuite {
         Term.Grouping(
           Seq(
             Term.BooleanLiteral(true),
-            Term.IntegerLiteral(4)
+            Term.IntegerValue(4)
           )
         )
       )
@@ -183,7 +183,7 @@ class ParserSuite extends FunSuite {
       Seq(
         Term.Module(
           Seq(
-            (Field("x"), Term.IntegerLiteral(5))
+            (Field("x"), Term.IntegerValue(5))
           )
         )
       )
@@ -195,7 +195,7 @@ class ParserSuite extends FunSuite {
     val expected = Right(
       Seq(
         Term.Module(
-          Seq((Field("x"), Term.IntegerLiteral(5)), (Field("y"), Term.IntegerLiteral(6)))
+          Seq((Field("x"), Term.IntegerValue(5)), (Field("y"), Term.IntegerValue(6)))
         )
       )
     )
@@ -207,8 +207,8 @@ class ParserSuite extends FunSuite {
       Seq(
         Term.WhenExpression(
           Seq(
-            (Term.BooleanLiteral(true), Term.IntegerLiteral(6)),
-            (Term.BooleanLiteral(false), Term.IntegerLiteral(7))
+            (Term.BooleanLiteral(true), Term.IntegerValue(6)),
+            (Term.BooleanLiteral(false), Term.IntegerValue(7))
           )
         )
       )
@@ -222,7 +222,7 @@ class ParserSuite extends FunSuite {
         Term.Binding(
           Field("zero"),
           Some(FieldPath(Seq(Field("Core"), Field("Int")))),
-          Term.IntegerLiteral(0)
+          Term.IntegerValue(0)
         )
       )
     )

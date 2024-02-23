@@ -29,8 +29,8 @@ enum Term:
   case FieldTerm(field: Field)
   case FieldPathTerm(fieldPath: FieldPath)
   case Bytes(value: Seq[Byte])
-  case IntegerLiteral(value: Long)
-  case StringLiteral(value: String, interpolated: Boolean = false)
+  case IntegerValue(value: Long)
+  case StringValue(value: String, interpolated: Boolean = false)
   case BooleanLiteral(value: Boolean)
   case QuestionMark
   case Array(value: Seq[Term])
@@ -87,14 +87,14 @@ val pipeTermNib: Nibbler[Token, Term] = gaze =>
     case Some(Token.Pipe) => Result.Match(Term.Pipe)
     case _                => Result.NoMatch
 
-val integerNib: Nibbler[Token, Term.IntegerLiteral] = gaze =>
+val integerNib: Nibbler[Token, Term.IntegerValue] = gaze =>
   gaze.next() match
-    case Some(Token.IntegerLiteral(i)) => Result.Match(Term.IntegerLiteral(i))
+    case Some(Token.IntegerValue(i)) => Result.Match(Term.IntegerValue(i))
     case _                             => Result.NoMatch
 
-val stringNib: Nibbler[Token, Term.StringLiteral] = gaze =>
+val stringNib: Nibbler[Token, Term.StringValue] = gaze =>
   gaze.next() match
-    case Some(Token.StringLiteral(s, i)) => Result.Match(Term.StringLiteral(s, i))
+    case Some(Token.StringValue(s, i)) => Result.Match(Term.StringValue(s, i))
     case _                               => Result.NoMatch
 
 val fieldNib: Nibbler[Token, Field] = gaze =>
@@ -324,7 +324,7 @@ val scriptNib: Nibbler[Token, Seq[Term]] = { gaze =>
                     case term: Term.FieldPathTerm =>
                       results += Term.Application(Seq(term, pipedTerm))
                     case _ => break(Result.NoMatch)
-            case Some(Token.Pipe) => 
+            case Some(Token.Pipe) =>
               pipedValue match
                 case None => pipedValue = Some(value)
                 case Some(pipedTerm: Term) =>
@@ -336,6 +336,6 @@ val scriptNib: Nibbler[Token, Seq[Term]] = { gaze =>
                     case term: Term.FieldPathTerm =>
                       pipedValue = Some(Term.Application(Seq(term, pipedTerm)))
                     case _ => break(Result.NoMatch)
-            case Some(_)          => break(Result.NoMatch)
+            case Some(_) => break(Result.NoMatch)
     break(Result.Match(results.toSeq))
 }

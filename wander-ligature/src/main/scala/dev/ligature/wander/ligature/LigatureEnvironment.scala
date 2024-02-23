@@ -64,13 +64,13 @@ def ligatureEnvironment(ligature: Ligature): Environment =
 //     (arguments: Seq[Term], environment: Environment) =>
 //       instance.allDatasets()
 //         .compile.toList
-//         .map { datasets => WanderValue.ListValue( datasets.map { ds => WanderValue.LigatureValue(LigatureValue.StringLiteral(ds.name.toString()))})}
+//         .map { datasets => WanderValue.ListValue( datasets.map { ds => WanderValue.LigatureValue(LigatureValue.StringValue(ds.name.toString()))})}
 //   )).getOrElse(???)
 
 //   environment = environment.bindVariable(Name("addDataset"), WanderValue.NativeFunction(
 //     (arguments: Seq[Term], environment: Environment) =>
 //       arguments.head match
-//         case Term.StringLiteral(datasetName) =>
+//         case Term.StringValue(datasetName) =>
 //           instance.createDataset(Dataset.fromString(datasetName).getOrElse(???)).map(_ => WanderValue.Nothing)
 //         case _ => ???
 //   )).getOrElse(???)
@@ -78,7 +78,7 @@ def ligatureEnvironment(ligature: Ligature): Environment =
 //   environment = environment.bindVariable(Name("removeDataset"), WanderValue.NativeFunction(
 //     (arguments: Seq[Term], environment: Environment) =>
 //       arguments.head match
-//         case Term.StringLiteral(datasetName) =>
+//         case Term.StringValue(datasetName) =>
 //           instance.deleteDataset(Dataset.fromString(datasetName).getOrElse(???)).map(_ => WanderValue.Nothing)
 //         case _ => ???
 //   )).getOrElse(???)
@@ -86,7 +86,7 @@ def ligatureEnvironment(ligature: Ligature): Environment =
 //   environment = environment.bindVariable(Name("datasetExists"), WanderValue.NativeFunction(
 //     (arguments: Seq[Term], environment: Environment) =>
 //       arguments.head match
-//         case Term.StringLiteral(datasetName) =>
+//         case Term.StringValue(datasetName) =>
 //           instance.datasetExists(Dataset.fromString(datasetName).getOrElse(???)).map(res => WanderValue.BooleanValue(res))
 //         case _ => ???
 //   )).getOrElse(???)
@@ -94,7 +94,7 @@ def ligatureEnvironment(ligature: Ligature): Environment =
 //   environment = environment.bindVariable(Name("allStatements"), WanderValue.NativeFunction(
 //     (arguments: Seq[Term], environment: Environment) =>
 //       arguments.head match
-//         case Term.StringLiteral(datasetName) =>
+//         case Term.StringValue(datasetName) =>
 //           instance
 //             .allStatements(Dataset.fromString(datasetName).getOrElse(???))
 //             .map(statementToWanderValue)
@@ -105,7 +105,7 @@ def ligatureEnvironment(ligature: Ligature): Environment =
 //   environment = environment.bindVariable(Name("addStatements"), WanderValue.NativeFunction(
 //     (arguments: Seq[Term], environment: Environment) =>
 //       (arguments(0), arguments(1)) match
-//         case (Term.StringLiteral(datasetName),
+//         case (Term.StringValue(datasetName),
 //               Term.List(statementTerms)) =>
 //                 val dataset = Dataset.fromString(datasetName).getOrElse(???)
 //                 termsToStatements(statementTerms, ListBuffer()) match
@@ -120,7 +120,7 @@ def ligatureEnvironment(ligature: Ligature): Environment =
 //   environment = environment.bindVariable(Name("removeStatements"), WanderValue.NativeFunction(
 //     (arguments: Seq[Term], environment: Environment) =>
 //       (arguments(0), arguments(1)) match
-//         case (Term.StringLiteral(datasetName),
+//         case (Term.StringValue(datasetName),
 //               Term.List(statementTerms)) =>
 //                 val dataset = Dataset.fromString(datasetName).getOrElse(???)
 //                 termsToStatements(statementTerms, ListBuffer()) match
@@ -147,7 +147,7 @@ def ligatureEnvironment(ligature: Ligature): Environment =
 //   environment = environment.bindVariable(Name("query"), WanderValue.NativeFunction(
 //     (arguments: Seq[Term], environment: Environment) =>
 //       (arguments(0), arguments(1), arguments.lift(2), arguments.lift(3)) match
-//         case (Term.StringLiteral(datasetName), entityTerm, Some(attributeTerm), Some(valueTerm)) =>
+//         case (Term.StringValue(datasetName), entityTerm, Some(attributeTerm), Some(valueTerm)) =>
 //           val dataset = Dataset.fromString(datasetName).getOrElse(???)
 //           val entity = termToIdentifierOption(entityTerm)
 //           val attribute = termToIdentifierOption(attributeTerm)
@@ -157,7 +157,7 @@ def ligatureEnvironment(ligature: Ligature): Environment =
 //               .map(statementToWanderValue)
 //               .compile.toList.map(WanderValue.ListValue(_))
 //           }
-//         case (Term.StringLiteral(datasetName), query: Term.WanderFunction, None, None) =>
+//         case (Term.StringValue(datasetName), query: Term.WanderFunction, None, None) =>
 //           query match
 //             case Term.WanderFunction(name :: Nil, body) =>
 //               val dataset = Dataset.fromString(datasetName).getOrElse(???)
