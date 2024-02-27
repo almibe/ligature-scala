@@ -40,16 +40,6 @@ lazy val idgen = project
   )
   .disablePlugins(RevolverPlugin)
 
-// lazy val lig = project
-//   .in(file("lig"))
-//   .settings(
-//     name := "lig",
-//     scalaVersion := scala3Version,
-//     libraryDependencies += "org.scalameta" %% "munit" % munitVersion % Test
-//   )
-//   .dependsOn(ligature, gaze, idgen)
-//   .disablePlugins(RevolverPlugin)
-
 lazy val bend = project
   .in(file("bend"))
   .settings(

@@ -8,11 +8,9 @@ An implementation of [Ligature knowledge graph](https://ligature.dev) library wr
 | ligature                 | Common data types and traits for Ligature.                                       |
 | ligature-test-suite      | A shared test suite for Ligature instances.                                      |
 | idgen                    | A basic implementation of nanoid for use with Ligature.                          |
-| lig                      | A simple serialization format for Ligature.                                      |
 | ligature-in-memory       | An in-memory implementation of Ligature.                                         |
 | ligature-xodus           | An implementation of Ligature using Xodus's key-value store for persistence.     |
-| wander                   | A scripting language for working with Ligature.                                  |
-| wander-ligature          | Support for working with Ligature in Wander.                                     |
+| bend                     | A scripting language for working with Ligature.                                  |
 | gaze                     | A utility library for parsing text/data structures.                              |
 
 ## Building
