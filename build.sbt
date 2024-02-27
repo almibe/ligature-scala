@@ -66,17 +66,6 @@ lazy val ligatureZeroMQ = project
   )
   .dependsOn(bend, ligature, ligatureInMemory, ligatureXodus)
 
-// lazy val wanderLigature = project
-//   .in(file("wander-ligature"))
-//   .settings(
-//     name := "wander-ligature",
-//     scalaVersion := scala3Version,
-//     libraryDependencies += "dev.ligature" %% "wander" % wanderVersion,
-//     libraryDependencies += "org.scalameta" %% "munit" % munitVersion % Test,
-//   )
-//   .dependsOn(gaze, wander, ligature, ligatureInMemory % Test)
-//   .disablePlugins(RevolverPlugin)
-
 lazy val ligatureTestSuite = project
   .in(file("ligature-test-suite"))
   .settings(
