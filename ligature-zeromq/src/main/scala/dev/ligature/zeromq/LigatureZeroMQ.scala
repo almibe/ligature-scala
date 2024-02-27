@@ -18,7 +18,8 @@ import com.typesafe.scalalogging.Logger
 import dev.ligature.bend.libraries.*
 import dev.ligature.bend.modules.*
 
-private class WanderZServer(val port: Int) extends Runnable with AutoCloseable {
+private class LigatureZeroMQ(val port: Int) extends Runnable with AutoCloseable {
+  val logger = Logger("LigatureZeroMQ")
   private val zContext = ZContext()
 
   override def run(): Unit =
@@ -26,18 +27,21 @@ private class WanderZServer(val port: Int) extends Runnable with AutoCloseable {
     socket.bind(s"tcp://localhost:$port")
     var continue = true
     //val std = stdWithKeylime(openDefault())
+    logger.info("Starting server loop!")
     while (!Thread.currentThread().isInterrupted() && continue) {
       try
-        val query = String(socket.recv(0), ZMQ.CHARSET) // blocks waiting for a request
-        val library = DirectoryLibrary(File(sys.env("WANDER_LIBS")).toPath())
-        val environment = std(List(library))
-        val request = runWander(query, wmdn)
-        request match
-          case Left(err) => throw RuntimeException(err)
-          case Right(WanderValue.Module(request), _) =>
-            val result = runRequest(request, environment)
-            socket.send(result.getBytes(ZMQ.CHARSET), 0)
-          case _ => socket.send(printError("Unexpected input.").getBytes(ZMQ.CHARSET), 0)
+        val command = String(socket.recv(0), ZMQ.CHARSET) // blocks waiting for a request
+        logger.info(s"Command: $command")
+        val environment = std()
+        val result = runWander(command, environment)
+        result match
+          case Left(err) =>
+            val message = s"Error running command: $command -- ${err.userMessage}"
+            logger.error(message)
+            socket.send(message.getBytes(ZMQ.CHARSET), 0)
+          case result: Right[WanderError, (WanderValue, Environment)] =>
+            logger.info(s"Result for command: $command -- ${printResult(result)}")
+            socket.send(printResult(result).getBytes(ZMQ.CHARSET), 0)
       catch
         case e =>
           socket.close()
@@ -49,36 +53,11 @@ private class WanderZServer(val port: Int) extends Runnable with AutoCloseable {
   override def close(): Unit = zContext.close()
 }
 
-def runRequest(request: Map[Field, WanderValue], environment: Environment): String = {
-  val action = request.get(Field("action"))
-  val script = request.get(Field("script"))
-  (action, script) match {
-    case (Some(WanderValue.String("run")), Some(WanderValue.String(script))) =>
-      run(script, environment) match {
-        case Left(err) =>
-          printWanderValue(
-            WanderValue.Module(Map(Field("error") -> WanderValue.String(err.userMessage)))
-          )
-        case Right(value) =>
-          printWanderValue(WanderValue.Module(Map(Field("result") -> value(0))))
-      }
-    case ((Some(WanderValue.String("inspect")), Some(WanderValue.String(script)))) =>
-      val res = inspect(script)
-      res.toString
-    case _ =>
-      printWanderValue(
-        WanderValue.Module(
-          Map(Field("error") -> WanderValue.String(s"No match - $action - $script"))
-        )
-      )
-  }
-}
-
 def printError(message: String): String =
   printWanderValue(WanderValue.Module(Map(Field("error") -> WanderValue.String(message))))
 
 def runServer(port: Int): AutoCloseable = {
-  val server = WanderZServer(port)
+  val server = LigatureZeroMQ(port)
   val thread = Thread(server)
   thread.start()
   new AutoCloseable {
@@ -87,6 +66,5 @@ def runServer(port: Int): AutoCloseable = {
 }
 
 @main def main =
-  val logger = Logger("name")
-  val server = WanderZServer(4200)
+  val server = LigatureZeroMQ(4200)
   server.run()

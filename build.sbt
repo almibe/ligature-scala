@@ -74,7 +74,7 @@ lazy val ligatureZeroMQ = project
     libraryDependencies += "org.scalameta" %% "munit" % munitVersion % Test,
     fork := true,
   )
-  .dependsOn(wander, ligature, ligatureInMemory, ligatureXodus)
+  .dependsOn(bend, ligature, ligatureInMemory, ligatureXodus)
 
 // lazy val wanderLigature = project
 //   .in(file("wander-ligature"))
