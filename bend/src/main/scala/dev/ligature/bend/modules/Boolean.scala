@@ -29,7 +29,7 @@ val boolModule: BendValue.Module = BendValue.Module(
         (args, environment) =>
           args match
             case Seq(BendValue.Bool(value)) => Right((BendValue.Bool(!value), environment))
-            case _                            => Left(BendError("Unexpected input " + args))
+            case _                          => Left(BendError("Unexpected input " + args))
       )
     ),
     Field("and") -> BendValue.Function(

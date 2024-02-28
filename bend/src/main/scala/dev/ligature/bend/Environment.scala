@@ -44,8 +44,8 @@ case class Environment(
         }
     (lastResult, err) match {
       case (_, err: BendError) => Left(err)
-      case (None, _)             => Right((BendValue.Module(Map()), env))
-      case (Some(value), _)      => Right((value, env))
+      case (None, _)           => Right((BendValue.Module(Map()), env))
+      case (Some(value), _)    => Right((value, env))
     }
   }
 

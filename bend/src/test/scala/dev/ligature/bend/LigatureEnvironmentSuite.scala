@@ -10,13 +10,14 @@ import dev.ligature.inmemory.LigatureInMemory
 import dev.ligature.bend.Environment
 import dev.ligature.bend.run
 import dev.ligature.bend.BendValue
-import dev.ligature.bend.ligature.ligatureEnvironment
+import dev.ligature.bend.modules.createLigatureModule
+import dev.ligature.bend.modules.stdWithLigature
 
 class LigatureTestSuite extends FunSuite {
   val setup = FunFixture[(Environment, Ligature)](
     setup = { test =>
       val instance = LigatureInMemory()
-      (ligatureEnvironment(instance), instance)
+      (stdWithLigature(instance), instance)
     },
     teardown = { instance =>
       instance._2.close()
@@ -30,7 +31,7 @@ class LigatureTestSuite extends FunSuite {
     }
 
   setup.test("run empty string") { (instance, _) =>
-    assertEquals(check("", instance), BendValue.Nothing)
+    assertEquals(check("", instance), BendValue.Module(Map()))
   }
 
   setup.test("graphs should start empty") { (instance, _) =>

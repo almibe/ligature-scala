@@ -172,7 +172,7 @@ def handleApplication(
               callPartialHostFunction(args, fn, arguments, environment)
             case BendValue.Array(values)  => callArray(values, arguments, environment)
             case BendValue.Module(values) => callModule(values, arguments, environment)
-            case _                          => Left(BendError(s"Could not call function."))
+            case _                        => Left(BendError(s"Could not call function."))
           }
       }
     case x => Left(BendError(s"Unexpected value - $x"))

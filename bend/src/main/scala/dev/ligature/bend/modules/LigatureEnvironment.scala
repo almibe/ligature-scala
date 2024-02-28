@@ -2,86 +2,55 @@
 //  * License, v. 2.0. If a copy of the MPL was not distributed with this
 //  * file, You can obtain one at https://mozilla.org/MPL/2.0/. */
 
-// package dev.ligature.bend.ligature
+package dev.ligature.bend.modules
 
-// import dev.ligature.bend.Environment
-// import dev.ligature.Ligature
-// import dev.ligature.bend.libraries.std
-// import dev.ligature.bend.*
-// import dev.ligature.Graph
+import dev.ligature.bend.*
+import dev.ligature.*
 
-// def ligatureEnvironment(ligature: Ligature): Environment =
-//   std()
-//     .addHostProperties(
-//       Seq(
-//         HostProperty(
-//           "Ligature.graphs",
-//           "Get all graphs from this instance.",
-//           Tag.Single(Name("Core.Array")),
-//           (environment: Environment) => {
-//             val graphs = ligature.allGraphs().map(g => BendValue.String(g.name))
-//             Right((BendValue.Array(graphs.toSeq), environment))
-//           }
-//         )
-//       )
-//     )
-//     .addHostFunctions(
-//       Seq(
-//         // HostFunction(
-//         //   "Ligature.createGraph",
-//         //   (arguments, environment) =>
-//         //     arguments match
-//         //       case Seq(Expression.StringValue(graphName)) =>
-//         //         ligature.createGraph(Graph(graphName))
-//         //         Right(BendValue.Nothing, environment)
-//         //       case _ => ???
-//         // ),
-//         // HostFunction(
-//         //   "Ligature.deleteGraph",
-//         //   (arguments, environment) =>
-//         //     arguments match
-//         //       case Seq(Expression.StringValue(graphName)) =>
-//         //         ligature.deleteGraph(Graph(graphName))
-//         //         Right(BendValue.Nothing, environment)
-//         //       case _ => ???
-//         // )
-//       )
-//     )
+def createLigatureModule(ligature: Ligature): BendValue.Module = BendValue.Module(
+  Map(
+    Field("graphs") -> BendValue.Function(
+      HostFunction(
+        "Get all graphs from this instance.",
+        Seq(TaggedField(Field("_"), Tag.Untagged)),
+        Tag.Untagged,
+        (args, env) =>
+          val graphs = ligature.allGraphs().map(g => BendValue.String(g.name))
+          Right((BendValue.Array(graphs.toSeq), env))
+      )
+    ),
+    Field("add_graph") -> BendValue.Function(
+      HostFunction(
+        "Get all graphs from this instance.",
+        Seq(TaggedField(Field("_"), Tag.Untagged)),
+        Tag.Untagged,
+        (args, env) =>
+          args match
+            case Seq(BendValue.String(graphName)) =>
+              ligature.createGraph(GraphName(graphName))
+              Right(BendValue.Module(Map()), env)
+            case _ => ???
+      )
+    ),
+    Field("remove_graph") -> BendValue.Function(
+      HostFunction(
+        "Get all graphs from this instance.",
+        Seq(TaggedField(Field("_"), Tag.Untagged)),
+        Tag.Untagged,
+        (args, env) =>
+          args match
+            case Seq(BendValue.String(graphName)) =>
+              ligature.deleteGraph(GraphName(graphName))
+              Right(BendValue.Module(Map()), env)
+            case _ => ???
+      )
+    )
+  )
+)
 
 // ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // // Below is code that needs to be moved to ligature.
 // ///////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-// // // def createStandardEnvironment(dataset: Dataset): Environment = {
-// // //   val environment = common()
-// // //   datasetModeEnvironment(environment, dataset)
-// // // }
-
-// // def instanceLibrary(instance: Ligature): Environment = {
-// //   var environment = common()
-
-// //   environment = environment.bindVariable(Name("datasets"), BendValue.NativeFunction(
-// //     (arguments: Seq[Term], environment: Environment) =>
-// //       instance.allDatasets()
-// //         .compile.toList
-// //         .map { datasets => BendValue.ListValue( datasets.map { ds => BendValue.LigatureValue(LigatureValue.StringValue(ds.name.toString()))})}
-// //   )).getOrElse(???)
-
-// //   environment = environment.bindVariable(Name("addDataset"), BendValue.NativeFunction(
-// //     (arguments: Seq[Term], environment: Environment) =>
-// //       arguments.head match
-// //         case Term.StringValue(datasetName) =>
-// //           instance.createDataset(Dataset.fromString(datasetName).getOrElse(???)).map(_ => BendValue.Nothing)
-// //         case _ => ???
-// //   )).getOrElse(???)
-
-// //   environment = environment.bindVariable(Name("removeDataset"), BendValue.NativeFunction(
-// //     (arguments: Seq[Term], environment: Environment) =>
-// //       arguments.head match
-// //         case Term.StringValue(datasetName) =>
-// //           instance.deleteDataset(Dataset.fromString(datasetName).getOrElse(???)).map(_ => BendValue.Nothing)
-// //         case _ => ???
-// //   )).getOrElse(???)
 
 // //   environment = environment.bindVariable(Name("datasetExists"), BendValue.NativeFunction(
 // //     (arguments: Seq[Term], environment: Environment) =>

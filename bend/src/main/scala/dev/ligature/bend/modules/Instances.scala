@@ -20,6 +20,7 @@ import scala.util.boundary
 import scala.util.boundary.break
 import jetbrains.exodus.entitystore.PersistentEntityStore
 import dev.ligature.bend.libraries.ModuleLibrary
+import dev.ligature.Ligature
 
 /** Create the "default" environment for working with Bend.
   */
@@ -35,11 +36,11 @@ def std(libraries: List[ModuleLibrary] = List()): Environment =
     .bindVariable(Field("Test"), testingModule)
     .bindVariable(Field("import"), importFunction)
 
-def stdWithKeylime(
-    env: jetbrains.exodus.env.Environment,
+def stdWithLigature(
+    ligature: Ligature,
     libraries: List[ModuleLibrary] = List()
 ): Environment =
   std(libraries).bindVariable(
-    Field("Keylime"),
-    createKeylimeModule(env)
+    Field("Ligature"),
+    createLigatureModule(ligature)
   )

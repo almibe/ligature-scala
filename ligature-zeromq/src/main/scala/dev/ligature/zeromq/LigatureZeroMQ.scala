@@ -17,6 +17,7 @@ import dev.ligature.bend.*
 import com.typesafe.scalalogging.Logger
 import dev.ligature.bend.libraries.*
 import dev.ligature.bend.modules.*
+import dev.ligature.inmemory.LigatureInMemory
 
 private class LigatureZeroMQ(val port: Int) extends Runnable with AutoCloseable {
   val logger = Logger("LigatureZeroMQ")
@@ -26,13 +27,13 @@ private class LigatureZeroMQ(val port: Int) extends Runnable with AutoCloseable 
     val socket = zContext.createSocket(SocketType.REP)
     socket.bind(s"tcp://localhost:$port")
     var continue = true
-    //val std = stdWithKeylime(openDefault())
+    // val std = stdWithKeylime(openDefault())
     logger.info("Starting server loop!")
-    while (!Thread.currentThread().isInterrupted() && continue) {
+    while (!Thread.currentThread().isInterrupted() && continue)
       try
         val command = String(socket.recv(0), ZMQ.CHARSET) // blocks waiting for a request
         logger.info(s"Command: $command")
-        val environment = std()
+        val environment = stdWithLigature(LigatureInMemory())
         val result = runBend(command, environment)
         result match
           case Left(err) =>
@@ -48,7 +49,6 @@ private class LigatureZeroMQ(val port: Int) extends Runnable with AutoCloseable 
           zContext.close()
           e.printStackTrace()
           continue = false
-    }
 
   override def close(): Unit = zContext.close()
 }

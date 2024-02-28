@@ -83,7 +83,6 @@
 //     .left
 //     .map(_ => LigError("Invalid Identifier Id - $id"))
 
-
 // def parseIntegerValue(gaze: Gaze[Char]): Either[LigError, LigatureValue.IntegerValue] =
 //   gaze.attempt(numberNibbler) match {
 //     case None => Left(LigError("Could not parse Integer."))
