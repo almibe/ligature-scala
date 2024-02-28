@@ -11,7 +11,7 @@ import dev.ligature.bend.Field
 import dev.ligature.bend.FieldPath
 import dev.ligature.bend.Tag
 import dev.ligature.bend.BendValue
-import dev.ligature.bend.WanderError
+import dev.ligature.bend.BendError
 
 val testingModule: BendValue.Module = BendValue.Module(
   Map(
@@ -30,10 +30,10 @@ val testingModule: BendValue.Module = BendValue.Module(
             case Seq(description: BendValue.String, left: BendValue, right: BendValue) =>
               if left != right then
                 Left(
-                  WanderError(s"$description failed $left != $right")
+                  BendError(s"$description failed $left != $right")
                 ) // TODO print value correctly
               else Right(BendValue.Module(Map()), environment)
-            case _ => Left(WanderError(s"Test.assertEq failed: $arguments"))
+            case _ => Left(BendError(s"Test.assertEq failed: $arguments"))
           }
       )
     )

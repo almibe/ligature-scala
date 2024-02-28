@@ -8,7 +8,7 @@ import dev.ligature.bend.FieldPath
 import dev.ligature.bend.BendValue
 import java.nio.file.Path
 import dev.ligature.bend.Environment
-import dev.ligature.bend.WanderError
+import dev.ligature.bend.BendError
 import scala.util.boundary
 import scala.util.boundary.break
 import java.nio.file.Files
@@ -25,7 +25,7 @@ import dev.ligature.bend.Tag
 
 final class DirectoryLibrary(path: Path) extends ModuleLibrary {
   var modules: Map[ModuleId, BendValue.Module] = Map()
-  override def lookup(id: ModuleId): Either[WanderError, Option[BendValue.Module]] =
+  override def lookup(id: ModuleId): Either[BendError, Option[BendValue.Module]] =
     boundary:
       if (modules.isEmpty) {
         modules = loadFromPath(path) match {
@@ -36,10 +36,10 @@ final class DirectoryLibrary(path: Path) extends ModuleLibrary {
     Right(modules.get(id))
 }
 
-val wanderExt = ".wander"
-val wanderTextExt = ".test.wander"
+val bendExt = ".bend"
+val bendTextExt = ".test.bend"
 
-private def loadFromPath(path: Path): Either[WanderError, Map[ModuleId, BendValue.Module]] =
+private def loadFromPath(path: Path): Either[BendError, Map[ModuleId, BendValue.Module]] =
   boundary:
     var results = scala.collection.mutable.HashMap[ModuleId, BendValue.Module]()
     Files
@@ -48,22 +48,22 @@ private def loadFromPath(path: Path): Either[WanderError, Map[ModuleId, BendValu
       .asScala
       .filter(Files.isRegularFile(_))
       .filter(f =>
-        f.getFileName().toString().endsWith(wanderExt)
+        f.getFileName().toString().endsWith(bendExt)
           &&
-            !f.getFileName().toString().endsWith(wanderTextExt)
+            !f.getFileName().toString().endsWith(bendTextExt)
       )
       .foreach { file =>
-        val modname = file.toFile().getName().dropRight(wanderExt.length())
+        val modname = file.toFile().getName().dropRight(bendExt.length())
         val module = scala.collection.mutable.HashMap[Field, BendValue]()
         Using(Source.fromFile(file.toFile()))(_.mkString) match
           case Failure(exception) =>
-            break(Left(WanderError(s"Error reading $file\n${exception.getMessage()}")))
+            break(Left(BendError(s"Error reading $file\n${exception.getMessage()}")))
           case Success(script) =>
             run(script, std()) match
               case Left(err) => break(Left(err))
               case Right((BendValue.Module(values), _)) =>
                 values.foreach((name, value) => module.put(name, value))
-              case x => break(Left(WanderError("Unexpected value from load result. $x")))
+              case x => break(Left(BendError("Unexpected value from load result. $x")))
         results += (modname -> BendValue.Module(module.toMap))
       }
     Right(results.toMap)

@@ -157,9 +157,9 @@
 // //               .map(statementToBendValue)
 // //               .compile.toList.map(BendValue.ListValue(_))
 // //           }
-// //         case (Term.StringValue(datasetName), query: Term.WanderFunction, None, None) =>
+// //         case (Term.StringValue(datasetName), query: Term.BendFunction, None, None) =>
 // //           query match
-// //             case Term.WanderFunction(name :: Nil, body) =>
+// //             case Term.BendFunction(name :: Nil, body) =>
 // //               val dataset = Dataset.fromString(datasetName).getOrElse(???)
 // //               instance.query(dataset) { tx =>
 // //                 val matchFunction = BendValue.NativeFunction((arguments, environment) =>

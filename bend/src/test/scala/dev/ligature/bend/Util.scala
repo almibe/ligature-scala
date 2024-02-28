@@ -7,7 +7,7 @@ package dev.ligature.bend
 import dev.ligature.bend.Token
 import dev.ligature.bend.modules.std
 
-class WanderSuiteCommonMode extends munit.FunSuite {
+class BendSuiteCommonMode extends munit.FunSuite {
   def check(script: String, expected: BendValue, environment: Environment = std()) =
     assertEquals(
       run(script, environment) match

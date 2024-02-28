@@ -5,13 +5,13 @@
 package dev.ligature.bend.libraries
 
 import dev.ligature.bend.Environment
-import dev.ligature.bend.WanderError
+import dev.ligature.bend.BendError
 import dev.ligature.bend.BendValue
 import dev.ligature.bend.FieldPath
 import dev.ligature.bend.HostFunction
 
 final class HostLibrary(hostModules: Map[ModuleId, BendValue.Module]) extends ModuleLibrary {
-  override def lookup(id: ModuleId): Either[WanderError, Option[BendValue.Module]] =
+  override def lookup(id: ModuleId): Either[BendError, Option[BendValue.Module]] =
     hostModules.get(id) match
       case Some(value) => Right(Some(value))
       case None        => Right(None)

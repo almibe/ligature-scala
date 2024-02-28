@@ -9,7 +9,7 @@ import dev.ligature.bend.HostFunction
 import dev.ligature.bend.BendValue
 import dev.ligature.bend.TaggedField
 import dev.ligature.bend.Tag
-import dev.ligature.bend.WanderError
+import dev.ligature.bend.BendError
 import dev.ligature.bend.Field
 import dev.ligature.bend.FieldPath
 
@@ -56,7 +56,7 @@ val importFunction = BendValue.Function(
             case Left(err) => Left(err)
             case Right(environment) =>
               Right((BendValue.Module(Map()), environment))
-        case x => Left(WanderError(s"Error: Unexpected value $x"))
+        case x => Left(BendError(s"Error: Unexpected value $x"))
   )
 )
 
@@ -141,7 +141,7 @@ val importFunction = BendValue.Function(
 //   Tag.Single(Name("Core.Nothing")),
 //   (args: Seq[BendValue], environment: Environment) =>
 //     args match
-//       case Seq(BendValue.String(message)) => Left(WanderError(message))
+//       case Seq(BendValue.String(message)) => Left(BendError(message))
 // )
 //)
 

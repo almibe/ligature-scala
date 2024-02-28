@@ -9,7 +9,7 @@ import scala.annotation.unused
 import dev.ligature.bend.modules.std
 import java.util.HexFormat
 
-/** Represents a Value in the Wander language.
+/** Represents a Value in the Bend language.
   */
 enum BendValue:
   case Int(value: Long)
@@ -31,20 +31,20 @@ enum Tag:
   case Chain(names: Seq[Function])
 
 trait Function:
-  def call(args: Seq[BendValue], environment: Environment): Either[WanderError, BendValue]
+  def call(args: Seq[BendValue], environment: Environment): Either[BendError, BendValue]
 
 case class Lambda(val lambda: Expression.Lambda) extends Function {
   override def call(
       args: Seq[BendValue],
       environment: Environment
-  ): Either[WanderError, BendValue] = ???
+  ): Either[BendError, BendValue] = ???
 }
 case class PartialFunction(args: Seq[BendValue], function: dev.ligature.bend.Function)
     extends Function {
   override def call(
       args: Seq[BendValue],
       environment: Environment
-  ): Either[WanderError, BendValue] = ???
+  ): Either[BendError, BendValue] = ???
 }
 
 case class HostFunction(
@@ -54,20 +54,20 @@ case class HostFunction(
     fn: (
         arguments: Seq[BendValue],
         environment: Environment
-    ) => Either[WanderError, (BendValue, Environment)]
+    ) => Either[BendError, (BendValue, Environment)]
 ) extends Function {
   override def call(
       args: Seq[BendValue],
       environment: Environment
-  ): Either[WanderError, BendValue] = ???
+  ): Either[BendError, BendValue] = ???
 }
 
-case class WanderError(val userMessage: String) extends Throwable(userMessage)
+case class BendError(val userMessage: String) extends Throwable(userMessage)
 
 def run(
     script: String,
     environment: Environment
-): Either[WanderError, (BendValue, Environment)] =
+): Either[BendError, (BendValue, Environment)] =
   val expression = for {
     tokens <- tokenize(script)
     terms <- parse(tokens)
@@ -78,9 +78,9 @@ def run(
     case Right(value) => environment.eval(value)
 
 case class Inspect(
-    tokens: Either[WanderError, Seq[Token]],
-    terms: Either[WanderError, Seq[Term]],
-    expression: Either[WanderError, Seq[Expression]]
+    tokens: Either[BendError, Seq[Token]],
+    terms: Either[BendError, Seq[Term]],
+    expression: Either[BendError, Seq[Expression]]
 )
 
 def inspect(script: String): Inspect = {
@@ -89,19 +89,19 @@ def inspect(script: String): Inspect = {
   val terms = if (tokens.isRight) {
     parse(tokens.getOrElse(???))
   } else {
-    Left(WanderError("Previous error."))
+    Left(BendError("Previous error."))
   }
 
   val expression = if (terms.isRight) {
     process(terms.getOrElse(???))
   } else {
-    Left(WanderError("Previous error."))
+    Left(BendError("Previous error."))
   }
 
   Inspect(tokens, terms, expression)
 }
 
-def printResult(value: Either[WanderError, (BendValue, Environment)]): String =
+def printResult(value: Either[BendError, (BendValue, Environment)]): String =
   value match {
     case Left(value)  => "Error: " + value.userMessage
     case Right(value) => printBendValue(value._1)

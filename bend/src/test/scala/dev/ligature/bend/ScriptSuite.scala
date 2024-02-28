@@ -16,7 +16,7 @@ class ScriptSuite extends munit.FunSuite {
     case Some(dir) =>
       val files = File(dir).listFiles
         .filter(_.isFile)
-        .filter(_.getName.endsWith(".test.wander"))
+        .filter(_.getName.endsWith(".test.bend"))
         .map(_.getPath)
         .toList
       files.foreach { f =>

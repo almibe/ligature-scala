@@ -8,7 +8,7 @@ import dev.ligature.bend.BendValue
 import munit.FunSuite
 
 class ParserSuite extends FunSuite {
-  def check(script: String): Either[WanderError, Seq[Term]] =
+  def check(script: String): Either[BendError, Seq[Term]] =
     val tokens = tokenize(script) match
       case Left(err)     => return Left(err)
       case Right(tokens) => tokens

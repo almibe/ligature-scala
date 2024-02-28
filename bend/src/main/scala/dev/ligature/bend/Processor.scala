@@ -20,7 +20,7 @@ import dev.ligature.gaze.{
 import scala.collection.mutable.ListBuffer
 import scala.util.boundary, boundary.break
 
-def process(terms: Seq[Term]): Either[WanderError, Seq[Expression]] =
+def process(terms: Seq[Term]): Either[BendError, Seq[Expression]] =
   val expressions = terms.map(term =>
     process(term) match {
       case Left(err)    => ???
@@ -31,7 +31,7 @@ def process(terms: Seq[Term]): Either[WanderError, Seq[Expression]] =
   // if terms.isEmpty then Right(Expression.Nothing)
   // else process(terms(0))
 
-def process(term: Term): Either[WanderError, Expression] =
+def process(term: Term): Either[BendError, Expression] =
   term match {
     case Term.Pipe                            => ???
     case Term.QuestionMark                    => Right(Expression.QuestionMark)
@@ -50,8 +50,8 @@ def process(term: Term): Either[WanderError, Expression] =
     case Term.Bytes(value)                    => Right(Expression.Bytes(value))
   }
 
-def processGrouping(terms: Seq[Term]): Either[WanderError, Expression.Grouping] = {
-  var error: Option[WanderError] = None
+def processGrouping(terms: Seq[Term]): Either[BendError, Expression.Grouping] = {
+  var error: Option[BendError] = None
   val res = ListBuffer[Expression]()
   val itr = terms.iterator
   while error.isEmpty && itr.hasNext do
@@ -63,8 +63,8 @@ def processGrouping(terms: Seq[Term]): Either[WanderError, Expression.Grouping] 
   else Right(Expression.Grouping(res.toSeq))
 }
 
-def processApplication(terms: Seq[Term]): Either[WanderError, Expression.Application] = {
-  var error: Option[WanderError] = None
+def processApplication(terms: Seq[Term]): Either[BendError, Expression.Application] = {
+  var error: Option[BendError] = None
   val res = ListBuffer[Expression]()
   val itr = terms.iterator
   while error.isEmpty && itr.hasNext do
@@ -78,7 +78,7 @@ def processApplication(terms: Seq[Term]): Either[WanderError, Expression.Applica
 
 def processWhenExpression(
     conditionals: Seq[(Term, Term)]
-): Either[WanderError, Expression.WhenExpression] =
+): Either[BendError, Expression.WhenExpression] =
   boundary:
     val expressionConditionals = conditionals.map { (c, b) =>
       val conditional = process(c) match {
@@ -93,7 +93,7 @@ def processWhenExpression(
     }
     Right(Expression.WhenExpression(expressionConditionals))
 
-def processModule(values: Seq[(dev.ligature.bend.Field, Term)]): Either[WanderError, Expression] =
+def processModule(values: Seq[(dev.ligature.bend.Field, Term)]): Either[BendError, Expression] =
   boundary:
     val results = ListBuffer[(Field, Expression)]()
     values.foreach((name, value) =>
@@ -103,7 +103,7 @@ def processModule(values: Seq[(dev.ligature.bend.Field, Term)]): Either[WanderEr
     )
     Right(Expression.Module(results.toSeq))
 
-def processLambda(parameters: Seq[Field], body: Term): Either[WanderError, Expression.Lambda] =
+def processLambda(parameters: Seq[Field], body: Term): Either[BendError, Expression.Lambda] =
   process(body) match {
     case Left(err)    => Left(err)
     case Right(value) => Right(Expression.Lambda(parameters, value))
@@ -113,13 +113,13 @@ def processBinding(
     name: Field,
     tag: Option[FieldPath],
     value: Term
-): Either[WanderError, Expression.Binding] =
+): Either[BendError, Expression.Binding] =
   process(value) match {
     case Left(err)         => ???
     case Right(expression) => Right(Expression.Binding(name, tag, expression))
   }
 
-def processArray(terms: Seq[Term]): Either[WanderError, Expression.Array] = {
+def processArray(terms: Seq[Term]): Either[BendError, Expression.Array] = {
   val expressions = terms.map { t =>
     process(t) match {
       case Left(err)    => ???

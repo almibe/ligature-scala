@@ -31,7 +31,7 @@
 //   }
 // }
 
-// class InstanceLibrarySuite extends WanderSuiteInstanceLibrary {
+// class InstanceLibrarySuite extends BendSuiteInstanceLibrary {
 //   test("add/remove Datasets") {
 //     val input = """addDataset("hello") addDataset("hello2") removeDataset("hello2") datasets()"""
 //     val result = """["hello"]""" //BendValue.ListValue(Seq(BendValue.LigatureValue(LigatureValue.StringValue("hello"))))

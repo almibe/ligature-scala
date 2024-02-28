@@ -8,7 +8,7 @@ import dev.ligature.bend.Environment
 import dev.ligature.bend.Token
 import dev.ligature.bend.BendValue
 import dev.ligature.bend.Term
-import dev.ligature.bend.WanderError
+import dev.ligature.bend.BendError
 import dev.ligature.bend.HostFunction
 import dev.ligature.bend.TaggedField
 import dev.ligature.bend.Tag
@@ -29,7 +29,7 @@ val boolModule: BendValue.Module = BendValue.Module(
         (args, environment) =>
           args match
             case Seq(BendValue.Bool(value)) => Right((BendValue.Bool(!value), environment))
-            case _                            => Left(WanderError("Unexpected input " + args))
+            case _                            => Left(BendError("Unexpected input " + args))
       )
     ),
     Field("and") -> BendValue.Function(
@@ -132,7 +132,7 @@ val boolModule: BendValue.Module = BendValue.Module(
 //           //       case _ => throw LigatureError("`or` function requires two booleans")
 //           //   }
 //           // else
-//           //   Left(WanderError("`or` function requires two booleans")))
+//           //   Left(BendError("`or` function requires two booleans")))
 //       )
 //     )
 //     .getOrElse(???)

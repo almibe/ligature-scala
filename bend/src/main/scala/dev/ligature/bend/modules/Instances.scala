@@ -21,7 +21,7 @@ import scala.util.boundary.break
 import jetbrains.exodus.entitystore.PersistentEntityStore
 import dev.ligature.bend.libraries.ModuleLibrary
 
-/** Create the "default" environment for working with Wander.
+/** Create the "default" environment for working with Bend.
   */
 def std(libraries: List[ModuleLibrary] = List()): Environment =
   Environment(libraries)

@@ -6,7 +6,7 @@ package dev.ligature.bend.zeromq
 
 import org.zeromq.{ZMQ, ZContext, SocketType}
 
-import dev.ligature.bend.run as runWander
+import dev.ligature.bend.run as runBend
 import dev.ligature.bend.BendValue
 import dev.ligature.bend.printBendValue
 import dev.ligature.bend.printResult
@@ -33,13 +33,13 @@ private class LigatureZeroMQ(val port: Int) extends Runnable with AutoCloseable 
         val command = String(socket.recv(0), ZMQ.CHARSET) // blocks waiting for a request
         logger.info(s"Command: $command")
         val environment = std()
-        val result = runWander(command, environment)
+        val result = runBend(command, environment)
         result match
           case Left(err) =>
             val message = s"Error running command: $command -- ${err.userMessage}"
             logger.error(message)
             socket.send(message.getBytes(ZMQ.CHARSET), 0)
-          case result: Right[WanderError, (BendValue, Environment)] =>
+          case result: Right[BendError, (BendValue, Environment)] =>
             logger.info(s"Result for command: $command -- ${printResult(result)}")
             socket.send(printResult(result).getBytes(ZMQ.CHARSET), 0)
       catch

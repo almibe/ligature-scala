@@ -8,7 +8,7 @@ import dev.ligature.bend.BendValue
 import munit.FunSuite
 
 class LexerSuite extends FunSuite {
-  def check(script: String, tokens: Either[WanderError, Seq[Token]]) =
+  def check(script: String, tokens: Either[BendError, Seq[Token]]) =
     assertEquals(tokenize(script), tokens)
   val sp = Token.Spaces(" ")
 

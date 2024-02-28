@@ -22,7 +22,7 @@ import jetbrains.exodus.ArrayByteIterable
 import scala.collection.mutable.ListBuffer
 
 def openDefault(): jetbrains.exodus.env.Environment =
-  val home = System.getProperty("user.home") + "/.wander"
+  val home = System.getProperty("user.home") + "/.bend"
   openStore(Paths.get(home))
 
 def openStore(path: Path): jetbrains.exodus.env.Environment =
