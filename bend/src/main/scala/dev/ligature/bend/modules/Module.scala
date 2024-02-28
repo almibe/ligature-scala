@@ -5,7 +5,7 @@
 package dev.ligature.bend.modules
 
 import dev.ligature.bend.Environment
-import dev.ligature.bend.WanderValue
+import dev.ligature.bend.BendValue
 import dev.ligature.bend.HostFunction
 
-val moduleModule: WanderValue.Module = WanderValue.Module(Map())
+val moduleModule: BendValue.Module = BendValue.Module(Map())

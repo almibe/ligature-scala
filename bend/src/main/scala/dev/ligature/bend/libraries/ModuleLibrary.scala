@@ -5,10 +5,10 @@
 package dev.ligature.bend.libraries
 
 import dev.ligature.bend.FieldPath
-import dev.ligature.bend.WanderValue
+import dev.ligature.bend.BendValue
 import dev.ligature.bend.WanderError
 
 type ModuleId = String
 
 trait ModuleLibrary:
-  def lookup(id: ModuleId): Either[WanderError, Option[WanderValue.Module]]
+  def lookup(id: ModuleId): Either[WanderError, Option[BendValue.Module]]

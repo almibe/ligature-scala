@@ -5,7 +5,7 @@
 package dev.ligature.bend.modules
 
 import dev.ligature.bend.libraries.HostLibrary
-import dev.ligature.bend.WanderValue
+import dev.ligature.bend.BendValue
 import scala.collection.mutable.ListBuffer
 import dev.ligature.bend.*
 import dev.ligature.bend.Environment
@@ -20,10 +20,6 @@ import scala.util.boundary
 import scala.util.boundary.break
 import jetbrains.exodus.entitystore.PersistentEntityStore
 import dev.ligature.bend.libraries.ModuleLibrary
-
-/** A named instance of an empty Environment used when parsing wmdn.
-  */
-val wmdn: Environment = Environment()
 
 /** Create the "default" environment for working with Wander.
   */

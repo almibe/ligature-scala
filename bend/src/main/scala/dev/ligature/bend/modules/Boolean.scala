@@ -6,7 +6,7 @@ package dev.ligature.bend.modules
 
 import dev.ligature.bend.Environment
 import dev.ligature.bend.Token
-import dev.ligature.bend.WanderValue
+import dev.ligature.bend.BendValue
 import dev.ligature.bend.Term
 import dev.ligature.bend.WanderError
 import dev.ligature.bend.HostFunction
@@ -18,9 +18,9 @@ import dev.ligature.bend.eval
 import jetbrains.exodus.bindings.BooleanBinding
 import jetbrains.exodus.ArrayByteIterable
 
-val boolModule: WanderValue.Module = WanderValue.Module(
+val boolModule: BendValue.Module = BendValue.Module(
   Map(
-    Field("not") -> WanderValue.Function(
+    Field("not") -> BendValue.Function(
       HostFunction(
         // FieldPath(Seq(Field("Bool"), Field("not"))),
         "Perform a not operation on a Bool value.",
@@ -28,11 +28,11 @@ val boolModule: WanderValue.Module = WanderValue.Module(
         Tag.Untagged,
         (args, environment) =>
           args match
-            case Seq(WanderValue.Bool(value)) => Right((WanderValue.Bool(!value), environment))
+            case Seq(BendValue.Bool(value)) => Right((BendValue.Bool(!value), environment))
             case _                            => Left(WanderError("Unexpected input " + args))
       )
     ),
-    Field("and") -> WanderValue.Function(
+    Field("and") -> BendValue.Function(
       HostFunction(
         // FieldPath(Seq(Field("Bool"), Field("and"))),
         "Perform a logical and on two Bools.",
@@ -40,12 +40,12 @@ val boolModule: WanderValue.Module = WanderValue.Module(
         Tag.Untagged,
         (args, environment) =>
           args match
-            case Seq(WanderValue.Bool(left), WanderValue.Bool(right)) =>
-              Right((WanderValue.Bool(left && right), environment))
+            case Seq(BendValue.Bool(left), BendValue.Bool(right)) =>
+              Right((BendValue.Bool(left && right), environment))
             case _ => ???
       )
     ),
-    Field("or") -> WanderValue.Function(
+    Field("or") -> BendValue.Function(
       HostFunction(
         // FieldPath(Seq(Field("Bool"), Field("or"))),
         "Perform a logical or on two Bools.",
@@ -54,7 +54,7 @@ val boolModule: WanderValue.Module = WanderValue.Module(
         (args, environment) => ???
       )
     ),
-    Field("toBytes") -> WanderValue.Function(
+    Field("toBytes") -> BendValue.Function(
       HostFunction(
         // FieldPath(Seq(Field("Bool"), Field("toBytes"))),
         "Encod a Bool as Bytes.",
@@ -64,16 +64,16 @@ val boolModule: WanderValue.Module = WanderValue.Module(
         Tag.Untagged,
         (args, environment) =>
           args match
-            case Seq(WanderValue.Bool(value)) =>
+            case Seq(BendValue.Bool(value)) =>
               Right(
                 (
-                  WanderValue.Bytes(BooleanBinding.booleanToEntry(value).getBytesUnsafe().toSeq),
+                  BendValue.Bytes(BooleanBinding.booleanToEntry(value).getBytesUnsafe().toSeq),
                   environment
                 )
               )
       )
     ),
-    Field("fromBytes") -> WanderValue.Function(
+    Field("fromBytes") -> BendValue.Function(
       HostFunction(
         // FieldPath(Seq(Field("Bool"), Field("fromBytes"))),
         "Decode Bytes to a Bool.",
@@ -83,10 +83,10 @@ val boolModule: WanderValue.Module = WanderValue.Module(
         Tag.Untagged,
         (args, environment) =>
           args match
-            case Seq(WanderValue.Bytes(value)) =>
+            case Seq(BendValue.Bytes(value)) =>
               Right(
                 (
-                  WanderValue.Bool(BooleanBinding.entryToBoolean(ArrayByteIterable(value.toArray))),
+                  BendValue.Bool(BooleanBinding.entryToBoolean(ArrayByteIterable(value.toArray))),
                   environment
                 )
               )
@@ -98,7 +98,7 @@ val boolModule: WanderValue.Module = WanderValue.Module(
 //   stdLib = stdLib
 //     .bindVariable(
 //       Name("and"),
-//       WanderValue.HostFunction(
+//       BendValue.HostFunction(
 //         (arguments: Seq[Expression], environment: Environment) => ???
 //           // if arguments.length == 2 then
 //           //   val res = for {
@@ -107,7 +107,7 @@ val boolModule: WanderValue.Module = WanderValue.Module(
 //           //   } yield (left, right)
 //           //   res.map { r =>
 //           //     (r._1.result, r._2.result) match
-//           //       case (WanderValue.BooleanValue(left), WanderValue.BooleanValue(right)) => WanderValue.BooleanValue(left && right)
+//           //       case (BendValue.BooleanValue(left), BendValue.BooleanValue(right)) => BendValue.BooleanValue(left && right)
 //           //       case _ => throw LigatureError("`and` function requires two booleans")
 //           //   }
 //           // else
@@ -119,7 +119,7 @@ val boolModule: WanderValue.Module = WanderValue.Module(
 //   stdLib = stdLib
 //     .bindVariable(
 //       Name("or"),
-//       WanderValue.HostFunction(
+//       BendValue.HostFunction(
 //         (arguments: Seq[Expression], environment: Environment) => ???
 //           // if arguments.length == 2 then
 //           //   val res = for {
@@ -128,7 +128,7 @@ val boolModule: WanderValue.Module = WanderValue.Module(
 //           //   } yield (left, right)
 //           //   res.map { r =>
 //           //     (r._1.result, r._2.result) match
-//           //       case (WanderValue.BooleanValue(left), WanderValue.BooleanValue(right)) => WanderValue.BooleanValue(left || right)
+//           //       case (BendValue.BooleanValue(left), BendValue.BooleanValue(right)) => BendValue.BooleanValue(left || right)
 //           //       case _ => throw LigatureError("`or` function requires two booleans")
 //           //   }
 //           // else

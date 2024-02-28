@@ -5,7 +5,7 @@
 package dev.ligature.bend.modules
 
 import dev.ligature.bend.Environment
-import dev.ligature.bend.WanderValue
+import dev.ligature.bend.BendValue
 import dev.ligature.bend.Field
 import dev.ligature.bend.FieldPath
 import dev.ligature.bend.HostFunction
@@ -29,10 +29,10 @@ def openStore(path: Path): jetbrains.exodus.env.Environment =
   val environment = Environments.newInstance(path.toFile(), EnvironmentConfig())
   environment
 
-def createKeylimeModule(env: jetbrains.exodus.env.Environment): WanderValue.Module =
-  WanderValue.Module(
+def createKeylimeModule(env: jetbrains.exodus.env.Environment): BendValue.Module =
+  BendValue.Module(
     Map(
-      Field("stores") -> WanderValue.Function(
+      Field("stores") -> BendValue.Function(
         HostFunction(
           // FieldPath(Seq(Field("Keylime"), Field("stores"))),
           "Get an Array of all Store names.",
@@ -45,17 +45,17 @@ def createKeylimeModule(env: jetbrains.exodus.env.Environment): WanderValue.Modu
                   env
                     .getAllStoreNames(tx)
                     .stream()
-                    .map(name => WanderValue.String(name.asInstanceOf[String]))
+                    .map(name => BendValue.String(name.asInstanceOf[String]))
                     .toArray()
                     .toSeq
-                    .asInstanceOf[Seq[WanderValue]]
+                    .asInstanceOf[Seq[BendValue]]
                 )
-                Right((WanderValue.Array(stores), environment))
+                Right((BendValue.Array(stores), environment))
               case _ => ???
             }
         )
       ),
-      Field("addStore") -> WanderValue.Function(
+      Field("addStore") -> BendValue.Function(
         HostFunction(
           // FieldPath(Seq(Field("Keylime"), Field("addStore"))),
           "Add a new Store.",
@@ -63,16 +63,16 @@ def createKeylimeModule(env: jetbrains.exodus.env.Environment): WanderValue.Modu
           Tag.Untagged,
           (args, environment) =>
             args match {
-              case Seq(WanderValue.String(storeName)) =>
+              case Seq(BendValue.String(storeName)) =>
                 val stores = env.executeInTransaction(tx =>
                   env.openStore(storeName, StoreConfig.WITHOUT_DUPLICATES_WITH_PREFIXING, tx)
                 )
-                Right((WanderValue.Module(Map()), environment))
+                Right((BendValue.Module(Map()), environment))
               case _ => ???
             }
         )
       ),
-      Field("removeStore") -> WanderValue.Function(
+      Field("removeStore") -> BendValue.Function(
         HostFunction(
           // FieldPath(Seq(Field("Keylime"), Field("removeStore"))),
           "Remove a Store.",
@@ -80,14 +80,14 @@ def createKeylimeModule(env: jetbrains.exodus.env.Environment): WanderValue.Modu
           Tag.Untagged,
           (args, environment) =>
             args match {
-              case Seq(WanderValue.String(storeName)) =>
+              case Seq(BendValue.String(storeName)) =>
                 val stores = env.executeInTransaction(tx => env.removeStore(storeName, tx))
-                Right((WanderValue.Module(Map()), environment))
+                Right((BendValue.Module(Map()), environment))
               case _ => ???
             }
         )
       ),
-      Field("set") -> WanderValue.Function(
+      Field("set") -> BendValue.Function(
         HostFunction(
           // FieldPath(Seq(Field("Keylime"), Field("set"))),
           "Set a Value from a Store with the given Key.",
@@ -100,9 +100,9 @@ def createKeylimeModule(env: jetbrains.exodus.env.Environment): WanderValue.Modu
           (args, environment) =>
             args match {
               case Seq(
-                    WanderValue.String(storeName),
-                    WanderValue.Bytes(key),
-                    WanderValue.Bytes(value)
+                    BendValue.String(storeName),
+                    BendValue.Bytes(key),
+                    BendValue.Bytes(value)
                   ) =>
                 env.executeInTransaction(tx =>
                   val store =
@@ -110,12 +110,12 @@ def createKeylimeModule(env: jetbrains.exodus.env.Environment): WanderValue.Modu
                   store.put(tx, ArrayByteIterable(key.toArray), ArrayByteIterable(value.toArray))
                   tx.commit()
                 )
-                Right((WanderValue.Module(Map()), environment))
+                Right((BendValue.Module(Map()), environment))
               case _ => ???
             }
         )
       ),
-      Field("setAll") -> WanderValue.Function(
+      Field("setAll") -> BendValue.Function(
         HostFunction(
           // FieldPath(Seq(Field("Keylime"), Field("setAll"))),
           "Set an Array of Key Value pairs.",
@@ -126,14 +126,14 @@ def createKeylimeModule(env: jetbrains.exodus.env.Environment): WanderValue.Modu
           Tag.Untagged,
           (args, environment) =>
             args match {
-              case Seq(WanderValue.String(storeName), WanderValue.Array(entries)) =>
+              case Seq(BendValue.String(storeName), BendValue.Array(entries)) =>
                 env.executeInTransaction(tx =>
                   val store =
                     env.openStore(storeName, StoreConfig.WITHOUT_DUPLICATES_WITH_PREFIXING, tx)
                   entries.foreach { entry =>
                     entry match {
-                      case WanderValue.Array(
-                            Seq(WanderValue.Bytes(key), WanderValue.Bytes(value))
+                      case BendValue.Array(
+                            Seq(BendValue.Bytes(key), BendValue.Bytes(value))
                           ) =>
                         store.put(
                           tx,
@@ -145,12 +145,12 @@ def createKeylimeModule(env: jetbrains.exodus.env.Environment): WanderValue.Modu
                   }
                   tx.commit()
                 )
-                Right((WanderValue.Module(Map()), environment))
+                Right((BendValue.Module(Map()), environment))
               case _ => ???
             }
         )
       ),
-      Field("get") -> WanderValue.Function(
+      Field("get") -> BendValue.Function(
         HostFunction(
           // FieldPath(Seq(Field("Keylime"), Field("get"))),
           "Retrieve a Value from a Store with the given Key.",
@@ -161,18 +161,18 @@ def createKeylimeModule(env: jetbrains.exodus.env.Environment): WanderValue.Modu
           Tag.Untagged,
           (args, environment) =>
             args match {
-              case Seq(WanderValue.String(storeName), WanderValue.Bytes(key)) =>
+              case Seq(BendValue.String(storeName), BendValue.Bytes(key)) =>
                 val result = env.computeInReadonlyTransaction(tx =>
                   val store =
                     env.openStore(storeName, StoreConfig.WITHOUT_DUPLICATES_WITH_PREFIXING, tx)
                   store.get(tx, ArrayByteIterable(key.toArray))
                 )
-                Right((WanderValue.Bytes(result.getBytesUnsafe().toSeq), environment))
+                Right((BendValue.Bytes(result.getBytesUnsafe().toSeq), environment))
               case _ => ???
             }
         )
       ),
-      Field("delete") -> WanderValue.Function(
+      Field("delete") -> BendValue.Function(
         HostFunction(
           // FieldPath(Seq(Field("Keylime"), Field("delete"))),
           "Delete the entry with the given Key.",
@@ -183,19 +183,19 @@ def createKeylimeModule(env: jetbrains.exodus.env.Environment): WanderValue.Modu
           Tag.Untagged,
           (args, environment) =>
             args match {
-              case Seq(WanderValue.String(storeName), WanderValue.Bytes(key)) =>
+              case Seq(BendValue.String(storeName), BendValue.Bytes(key)) =>
                 val result = env.executeInTransaction(tx =>
                   val store =
                     env.openStore(storeName, StoreConfig.WITHOUT_DUPLICATES_WITH_PREFIXING, tx)
                   store.delete(tx, ArrayByteIterable(key.toArray))
                   tx.commit()
                 )
-                Right((WanderValue.Module(Map()), environment))
+                Right((BendValue.Module(Map()), environment))
               case _ => ???
             }
         )
       ),
-      Field("entries") -> WanderValue.Function(
+      Field("entries") -> BendValue.Function(
         HostFunction(
           // FieldPath(Seq(Field("Keylime"), Field("entries"))),
           "Retrieve all values in this store.",
@@ -205,27 +205,27 @@ def createKeylimeModule(env: jetbrains.exodus.env.Environment): WanderValue.Modu
           Tag.Untagged,
           (args, environment) =>
             args match {
-              case Seq(WanderValue.String(storeName)) =>
+              case Seq(BendValue.String(storeName)) =>
                 val results = env.computeInReadonlyTransaction(tx =>
                   val store =
                     env.openStore(storeName, StoreConfig.WITHOUT_DUPLICATES_WITH_PREFIXING, tx)
                   val cursor = store.openCursor(tx)
-                  val results: ListBuffer[WanderValue.Array] = scala.collection.mutable.ListBuffer()
+                  val results: ListBuffer[BendValue.Array] = scala.collection.mutable.ListBuffer()
                   while (cursor.getNext()) {
                     val key = cursor.getKey().getBytesUnsafe().toSeq
                     val value = cursor.getValue().getBytesUnsafe().toSeq
-                    results += WanderValue.Array(
-                      Seq(WanderValue.Bytes(key), WanderValue.Bytes(value))
+                    results += BendValue.Array(
+                      Seq(BendValue.Bytes(key), BendValue.Bytes(value))
                     )
                   }
                   results
                 )
-                Right((WanderValue.Array(results.toSeq), environment))
+                Right((BendValue.Array(results.toSeq), environment))
               case _ => ???
             }
         )
       ),
-      Field("range") -> WanderValue.Function(
+      Field("range") -> BendValue.Function(
         HostFunction(
           // FieldPath(Seq(Field("Keylime"), Field("range"))),
           "Retrieve all values in this store.",
@@ -238,9 +238,9 @@ def createKeylimeModule(env: jetbrains.exodus.env.Environment): WanderValue.Modu
           (args, environment) =>
             args match {
               case Seq(
-                    WanderValue.String(storeName),
-                    WanderValue.Bytes(start),
-                    WanderValue.Bytes(end)
+                    BendValue.String(storeName),
+                    BendValue.Bytes(start),
+                    BendValue.Bytes(end)
                   ) =>
                 val results = env.computeInReadonlyTransaction(tx =>
                   val store =
@@ -248,7 +248,7 @@ def createKeylimeModule(env: jetbrains.exodus.env.Environment): WanderValue.Modu
                   val cursor = store.openCursor(tx)
                   cursor.getSearchKey(ArrayByteIterable(start.toArray))
                   cursor.getPrev()
-                  val results: ListBuffer[WanderValue.Array] = scala.collection.mutable.ListBuffer()
+                  val results: ListBuffer[BendValue.Array] = scala.collection.mutable.ListBuffer()
                   while (
                     cursor.getNext() && (cursor
                       .getValue()
@@ -256,13 +256,13 @@ def createKeylimeModule(env: jetbrains.exodus.env.Environment): WanderValue.Modu
                   ) {
                     val key = cursor.getKey().getBytesUnsafe().toSeq
                     val value = cursor.getValue().getBytesUnsafe().toSeq
-                    results += WanderValue.Array(
-                      Seq(WanderValue.Bytes(key), WanderValue.Bytes(value))
+                    results += BendValue.Array(
+                      Seq(BendValue.Bytes(key), BendValue.Bytes(value))
                     )
                   }
                   results
                 )
-                Right((WanderValue.Array(results.toSeq), environment))
+                Right((BendValue.Array(results.toSeq), environment))
               case _ => ???
             }
         )

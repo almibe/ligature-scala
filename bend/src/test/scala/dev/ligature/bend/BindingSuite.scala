@@ -5,11 +5,11 @@
 package dev.ligature.bend
 
 import dev.ligature.bend.Token
-import dev.ligature.bend.WanderValue
+import dev.ligature.bend.BendValue
 import dev.ligature.bend.modules.std
 
 class BindingSuite extends munit.FunSuite {
-  def check(script: String, expected: WanderValue) =
+  def check(script: String, expected: BendValue) =
     assertEquals(
       run(script, std()) match
         case Right(value) => value._1
@@ -19,17 +19,17 @@ class BindingSuite extends munit.FunSuite {
     )
   test("basic binding") {
     val script = "x = 5"
-    val result = WanderValue.Int(5)
+    val result = BendValue.Int(5)
     check(script, result)
   }
   test("basic binding and reference") {
     val script = "x = 5, x"
-    val result = WanderValue.Int(5)
+    val result = BendValue.Int(5)
     check(script, result)
   }
   test("read Module") {
     val script = "rec = { x = { y = 5 } }, rec.x.y"
-    val result = WanderValue.Int(5)
+    val result = BendValue.Int(5)
     check(script, result)
   }
 }

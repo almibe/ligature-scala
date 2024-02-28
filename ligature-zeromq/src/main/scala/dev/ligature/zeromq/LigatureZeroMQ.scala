@@ -7,8 +7,8 @@ package dev.ligature.bend.zeromq
 import org.zeromq.{ZMQ, ZContext, SocketType}
 
 import dev.ligature.bend.run as runWander
-import dev.ligature.bend.WanderValue
-import dev.ligature.bend.printWanderValue
+import dev.ligature.bend.BendValue
+import dev.ligature.bend.printBendValue
 import dev.ligature.bend.printResult
 import java.nio.file.Path
 import java.nio.file.Paths
@@ -39,7 +39,7 @@ private class LigatureZeroMQ(val port: Int) extends Runnable with AutoCloseable 
             val message = s"Error running command: $command -- ${err.userMessage}"
             logger.error(message)
             socket.send(message.getBytes(ZMQ.CHARSET), 0)
-          case result: Right[WanderError, (WanderValue, Environment)] =>
+          case result: Right[WanderError, (BendValue, Environment)] =>
             logger.info(s"Result for command: $command -- ${printResult(result)}")
             socket.send(printResult(result).getBytes(ZMQ.CHARSET), 0)
       catch
@@ -54,7 +54,7 @@ private class LigatureZeroMQ(val port: Int) extends Runnable with AutoCloseable 
 }
 
 def printError(message: String): String =
-  printWanderValue(WanderValue.Module(Map(Field("error") -> WanderValue.String(message))))
+  printBendValue(BendValue.Module(Map(Field("error") -> BendValue.String(message))))
 
 def runServer(port: Int): AutoCloseable = {
   val server = LigatureZeroMQ(port)

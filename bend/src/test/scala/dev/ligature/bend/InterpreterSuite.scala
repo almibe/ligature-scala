@@ -4,15 +4,15 @@
 
 package dev.ligature.bend
 
-import dev.ligature.bend.WanderValue
+import dev.ligature.bend.BendValue
 import munit.FunSuite
 import dev.ligature.bend.modules.std
 
 class InterpreterSuite extends FunSuite {
-  def check(script: String, expected: Map[Field, WanderValue]) =
+  def check(script: String, expected: Map[Field, BendValue]) =
     run(script, std()) match
       case Left(err)         => throw RuntimeException(err.toString())
-      case Right((value, _)) => assertEquals(value, WanderValue.Module(expected))
+      case Right((value, _)) => assertEquals(value, BendValue.Module(expected))
 
   test("load script with no exports") {
     val script = "x = false, {}"
@@ -20,7 +20,7 @@ class InterpreterSuite extends FunSuite {
   }
   test("load script with one exports") {
     val script = "hello = 2, { hello }"
-    val tokens = Map(Field("hello") -> WanderValue.Int(2))
+    val tokens = Map(Field("hello") -> BendValue.Int(2))
     check(script, tokens)
   }
 }

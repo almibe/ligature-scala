@@ -33,14 +33,6 @@ Use `test` to run tests.
 
 Use `scalafmtAll` to format code.
 
-### Running Wander's Test Suite
-
-Check out https://github.com/almibe/wander-test-suite.
-
-Set an environment variable called WANDER_TEST_SUITE to point to this directory.
-
-Now you should be able to run Wander's full test suite.
-
 ### Running the Server
 
 `sbt ligatureZeroMQ/run`

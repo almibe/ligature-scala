@@ -9,7 +9,7 @@ import munit.FunSuite
 import dev.ligature.inmemory.LigatureInMemory
 import dev.ligature.bend.Environment
 import dev.ligature.bend.run
-import dev.ligature.bend.WanderValue
+import dev.ligature.bend.BendValue
 import dev.ligature.bend.ligature.ligatureEnvironment
 
 class LigatureTestSuite extends FunSuite {
@@ -23,24 +23,24 @@ class LigatureTestSuite extends FunSuite {
     }
   )
 
-  def check(script: String, environment: Environment): WanderValue =
+  def check(script: String, environment: Environment): BendValue =
     run(script, environment) match {
       case Left(value)  => throw value
       case Right(value) => value._1
     }
 
   setup.test("run empty string") { (instance, _) =>
-    assertEquals(check("", instance), WanderValue.Nothing)
+    assertEquals(check("", instance), BendValue.Nothing)
   }
 
   setup.test("graphs should start empty") { (instance, _) =>
-    assertEquals(check("Ligature.graphs", instance), WanderValue.Array(Seq()))
+    assertEquals(check("Ligature.graphs", instance), BendValue.Array(Seq()))
   }
 
   setup.test("create graphs") { (instance, _) =>
     assertEquals(
       check("Ligature.createGraph \"hello\", Ligature.graphs", instance),
-      WanderValue.Array(Seq(WanderValue.String("hello")))
+      BendValue.Array(Seq(BendValue.String("hello")))
     )
   }
 
@@ -50,7 +50,7 @@ class LigatureTestSuite extends FunSuite {
         "Ligature.createGraph \"hello\", Ligature.deleteGraph \"hello\", Ligature.graphs",
         instance
       ),
-      WanderValue.Array(Seq())
+      BendValue.Array(Seq())
     )
   }
 }

@@ -5,24 +5,24 @@
 package dev.ligature.bend.modules
 
 import dev.ligature.bend.Environment
-import dev.ligature.bend.WanderValue
+import dev.ligature.bend.BendValue
 import dev.ligature.bend.Field
 import dev.ligature.bend.HostFunction
 import dev.ligature.bend.Tag
 import dev.ligature.bend.FieldPath
 import dev.ligature.bend.TaggedField
 
-val arrayModule: WanderValue.Module = WanderValue.Module(
+val arrayModule: BendValue.Module = BendValue.Module(
   Map(
-    Field("length") -> WanderValue.Function(
+    Field("length") -> BendValue.Function(
       HostFunction(
         "Get the number of elements in an Array.",
         Seq(TaggedField(Field("array"), Tag.Untagged)),
         Tag.Untagged,
         (args, environment) =>
           args match
-            case Seq(WanderValue.Array(value)) =>
-              Right((WanderValue.Int(value.length), environment))
+            case Seq(BendValue.Array(value)) =>
+              Right((BendValue.Int(value.length), environment))
             case _ => ???
       )
     )

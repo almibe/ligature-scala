@@ -4,8 +4,8 @@
 
 package dev.ligature.bend
 
-import dev.ligature.bend.WanderValue
-import dev.ligature.bend.printWanderValue
+import dev.ligature.bend.BendValue
+import dev.ligature.bend.printBendValue
 import scala.collection.mutable.Set
 import scala.util.boundary
 import scala.util.boundary.break
@@ -14,24 +14,24 @@ import scala.collection.mutable.ListBuffer
 
 case class Environment(
     libraries: Seq[ModuleLibrary] = Seq(),
-    scopes: List[Map[Field, (Tag, WanderValue)]] = List(Map())
+    scopes: List[Map[Field, (Tag, BendValue)]] = List(Map())
 ) {
-  def readAllBindings(): WanderValue.Array = {
-    val results = ListBuffer[WanderValue]()
+  def readAllBindings(): BendValue.Array = {
+    val results = ListBuffer[BendValue]()
     // TODO query libraries
-    scopes.foreach((scope: Map[Field, (Tag, WanderValue)]) =>
+    scopes.foreach((scope: Map[Field, (Tag, BendValue)]) =>
       scope.foreach((k, v) =>
-        results += WanderValue.Array(
-          Seq(WanderValue.String(k.name), WanderValue.String(printWanderValue(v._2)))
+        results += BendValue.Array(
+          Seq(BendValue.String(k.name), BendValue.String(printBendValue(v._2)))
         )
       )
     )
-    WanderValue.Array(results.toSeq)
+    BendValue.Array(results.toSeq)
   }
 
-  def eval(expressions: Seq[Expression]): Either[WanderError, (WanderValue, Environment)] = {
+  def eval(expressions: Seq[Expression]): Either[WanderError, (BendValue, Environment)] = {
     var env = this
-    var lastResult: Option[WanderValue] = None
+    var lastResult: Option[BendValue] = None
     val err =
       boundary:
         expressions.foreach { expression =>
@@ -44,7 +44,7 @@ case class Environment(
         }
     (lastResult, err) match {
       case (_, err: WanderError) => Left(err)
-      case (None, _)             => Right((WanderValue.Module(Map()), env))
+      case (None, _)             => Right((BendValue.Module(Map()), env))
       case (Some(value), _)      => Right((value, env))
     }
   }
@@ -57,22 +57,22 @@ case class Environment(
 
   def bindVariable(
       field: Field,
-      wanderValue: WanderValue
+      bendValue: BendValue
   ): Environment =
     val currentScope = this.scopes.last
-    val newVariables = currentScope + (field -> (Tag.Untagged, wanderValue))
+    val newVariables = currentScope + (field -> (Tag.Untagged, bendValue))
     val oldScope = this.scopes.dropRight(1)
     Environment(this.libraries, oldScope.appended(newVariables))
 
   def bindVariable(
       taggedField: TaggedField,
-      wanderValue: WanderValue
+      bendValue: BendValue
   ): Either[WanderError, Environment] =
-    this.checkTag(taggedField.tag, wanderValue) match {
+    this.checkTag(taggedField.tag, bendValue) match {
       case Left(value) => Left(value)
       case Right(value) =>
         val currentScope = this.scopes.last
-        val newVariables = currentScope + (taggedField.field -> (taggedField.tag, wanderValue))
+        val newVariables = currentScope + (taggedField.field -> (taggedField.tag, bendValue))
         val oldScope = this.scopes.dropRight(1)
         Right(
           Environment(
@@ -82,7 +82,7 @@ case class Environment(
         )
     }
 
-  def read(field: Field): Either[WanderError, Option[WanderValue]] =
+  def read(field: Field): Either[WanderError, Option[BendValue]] =
     var currentScopeOffset = this.scopes.length - 1
     while (currentScopeOffset >= 0) {
       val currentScope = this.scopes(currentScopeOffset)
@@ -93,9 +93,9 @@ case class Environment(
     }
     Right(None)
 
-  def read(fieldPath: FieldPath): Either[WanderError, Option[WanderValue]] =
+  def read(fieldPath: FieldPath): Either[WanderError, Option[BendValue]] =
     boundary:
-      var result: Option[WanderValue] = None
+      var result: Option[BendValue] = None
       fieldPath.parts.foreach(field =>
         if result.isEmpty then
           this.read(field) match
@@ -104,7 +104,7 @@ case class Environment(
         else
           result match
             case None => throw RuntimeException(s"Error trying to read $fieldPath\n$this")
-            case Some(WanderValue.Module(module)) =>
+            case Some(BendValue.Module(module)) =>
               if module.contains(field) then result = Some(module(field))
               else Left(WanderError(s"Could not read field path, $fieldPath."))
             case _ => ???
@@ -117,24 +117,24 @@ case class Environment(
       this.read(fieldPath) match
         case Right(None) => ???
         case Left(value) => break(Left(value))
-        case Right(Some(WanderValue.Module(module))) =>
+        case Right(Some(BendValue.Module(module))) =>
           module.foreach((k, v) => currentEnvironemnt = currentEnvironemnt.bindVariable(k, v))
         case _ => ???
     Right(currentEnvironemnt)
 
-  def checkTag(tag: Tag, value: WanderValue): Either[WanderError, WanderValue] =
+  def checkTag(tag: Tag, value: BendValue): Either[WanderError, BendValue] =
     tag match {
       case Tag.Untagged    => Right(value)
       case Tag.Single(tag) => checkSingleTag(tag, value)
       case Tag.Chain(tags) => ??? /// checkFunctionTag(tags, value)
     }
 
-  private def checkSingleTag(tag: Function, value: WanderValue): Either[WanderError, WanderValue] =
+  private def checkSingleTag(tag: Function, value: BendValue): Either[WanderError, BendValue] =
     tag match {
       case hf: HostFunction =>
         hf.fn(Seq(value), this) match {
-          case Right((WanderValue.Bool(true), _)) => Right(value)
-          case Right((WanderValue.Bool(false), _)) =>
+          case Right((BendValue.Bool(true), _)) => Right(value)
+          case Right((BendValue.Bool(false), _)) =>
             Left(WanderError("Value failed Tag Function."))
           case Left(err) => Left(err)
           case _         => Left(WanderError("Invalid Tag, Tag Functions must return a Bool."))
@@ -146,8 +146,8 @@ case class Environment(
         //   .bindVariable(TaggedField(lambda.lambda.parameters.head, Tag.Untagged), value)
         //   .getOrElse(???)
         dev.ligature.bend.eval(lambda.lambda.body, environment) match {
-          case Right((WanderValue.Bool(true), _)) => Right(value)
-          case Right((WanderValue.Bool(false), _)) =>
+          case Right((BendValue.Bool(true), _)) => Right(value)
+          case Right((BendValue.Bool(false), _)) =>
             Left(WanderError("Value failed Tag Function."))
           case Left(err) => Left(err)
           case _         => Left(WanderError("Invalid Tag, Tag Functions must return a Bool."))
@@ -157,18 +157,18 @@ case class Environment(
 
   private def checkFunctionTag(
       tags: Seq[Function],
-      value: WanderValue
-  ): Either[WanderError, WanderValue] =
+      value: BendValue
+  ): Either[WanderError, BendValue] =
     Right(value)
     // this.read(tag) match {
-    //   case Right(WanderValue.HostFunction(hf)) =>
+    //   case Right(BendValue.HostFunction(hf)) =>
     //     hf.fn(Seq(value), this) match {
-    //       case Right((WanderValue.Bool(true), _))  => Right(value)
-    //       case Right((WanderValue.Bool(false), _)) => Left(WanderError("Value failed Tag Function."))
+    //       case Right((BendValue.Bool(true), _))  => Right(value)
+    //       case Right((BendValue.Bool(false), _)) => Left(WanderError("Value failed Tag Function."))
     //       case Left(err)                           => Left(err)
     //       case _ => Left(WanderError("Invalid Tag, Tag Functions must return a Bool."))
     //     }
-    //   case Right(WanderValue.Lambda(lambda)) =>
+    //   case Right(BendValue.Lambda(lambda)) =>
     //     ???
     //   case Left(err) => Left(err)
     //   case _         => Left(WanderError(s"${tag.name} was not a valid tag."))

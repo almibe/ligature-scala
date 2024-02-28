@@ -8,15 +8,15 @@ import javax.lang.model.`type`.ErrorType
 import dev.ligature.bend.HostFunction
 import dev.ligature.bend.TaggedField
 import dev.ligature.bend.Tag
-import dev.ligature.bend.WanderValue
+import dev.ligature.bend.BendValue
 import dev.ligature.bend.Field
 import dev.ligature.bend.FieldPath
 import jetbrains.exodus.bindings.LongBinding
 import jetbrains.exodus.ArrayByteIterable
 
-val intModule: WanderValue.Module = WanderValue.Module(
+val intModule: BendValue.Module = BendValue.Module(
   Map(
-    Field("add") -> WanderValue.Function(
+    Field("add") -> BendValue.Function(
       HostFunction(
         // FieldPath(Seq(Field("Int"), Field("add"))),
         "Add two Ints.",
@@ -27,12 +27,12 @@ val intModule: WanderValue.Module = WanderValue.Module(
         Tag.Untagged, // Tag.Single(Field("Core.Int")),
         (args, environment) =>
           args match
-            case Seq(WanderValue.Int(left), WanderValue.Int(right)) =>
-              Right((WanderValue.Int(left + right), environment))
+            case Seq(BendValue.Int(left), BendValue.Int(right)) =>
+              Right((BendValue.Int(left + right), environment))
             case _ => ???
       )
     ),
-    Field("toBytes") -> WanderValue.Function(
+    Field("toBytes") -> BendValue.Function(
       HostFunction(
         // FieldPath(Seq(Field("Int"), Field("toBytes"))),
         "Encode an Int as Bytes.",
@@ -42,16 +42,16 @@ val intModule: WanderValue.Module = WanderValue.Module(
         Tag.Untagged,
         (args, environment) =>
           args match
-            case Seq(WanderValue.Int(value)) =>
+            case Seq(BendValue.Int(value)) =>
               Right(
                 (
-                  WanderValue.Bytes(LongBinding.longToEntry(value).getBytesUnsafe().toSeq),
+                  BendValue.Bytes(LongBinding.longToEntry(value).getBytesUnsafe().toSeq),
                   environment
                 )
               )
       )
     ),
-    Field("fromBytes") -> WanderValue.Function(
+    Field("fromBytes") -> BendValue.Function(
       HostFunction(
         // FieldPath(Seq(Field("Int"), Field("fromBytes"))),
         "Decode Bytes to an Int.",
@@ -61,10 +61,10 @@ val intModule: WanderValue.Module = WanderValue.Module(
         Tag.Untagged,
         (args, environment) =>
           args match
-            case Seq(WanderValue.Bytes(value)) =>
+            case Seq(BendValue.Bytes(value)) =>
               Right(
                 (
-                  WanderValue.Int(LongBinding.entryToLong(ArrayByteIterable(value.toArray))),
+                  BendValue.Int(LongBinding.entryToLong(ArrayByteIterable(value.toArray))),
                   environment
                 )
               )

@@ -5,7 +5,7 @@
 package dev.ligature.bend.libraries
 
 import dev.ligature.bend.FieldPath
-import dev.ligature.bend.WanderValue
+import dev.ligature.bend.BendValue
 import java.nio.file.Path
 import dev.ligature.bend.Environment
 import dev.ligature.bend.WanderError
@@ -22,11 +22,10 @@ import scala.io.Source
 import scala.util.Using
 import dev.ligature.bend.modules.std
 import dev.ligature.bend.Tag
-import dev.ligature.bend.modules.wmdn
 
 final class DirectoryLibrary(path: Path) extends ModuleLibrary {
-  var modules: Map[ModuleId, WanderValue.Module] = Map()
-  override def lookup(id: ModuleId): Either[WanderError, Option[WanderValue.Module]] =
+  var modules: Map[ModuleId, BendValue.Module] = Map()
+  override def lookup(id: ModuleId): Either[WanderError, Option[BendValue.Module]] =
     boundary:
       if (modules.isEmpty) {
         modules = loadFromPath(path) match {
@@ -40,9 +39,9 @@ final class DirectoryLibrary(path: Path) extends ModuleLibrary {
 val wanderExt = ".wander"
 val wanderTextExt = ".test.wander"
 
-private def loadFromPath(path: Path): Either[WanderError, Map[ModuleId, WanderValue.Module]] =
+private def loadFromPath(path: Path): Either[WanderError, Map[ModuleId, BendValue.Module]] =
   boundary:
-    var results = scala.collection.mutable.HashMap[ModuleId, WanderValue.Module]()
+    var results = scala.collection.mutable.HashMap[ModuleId, BendValue.Module]()
     Files
       .walk(path)
       .iterator()
@@ -55,16 +54,16 @@ private def loadFromPath(path: Path): Either[WanderError, Map[ModuleId, WanderVa
       )
       .foreach { file =>
         val modname = file.toFile().getName().dropRight(wanderExt.length())
-        val module = scala.collection.mutable.HashMap[Field, WanderValue]()
+        val module = scala.collection.mutable.HashMap[Field, BendValue]()
         Using(Source.fromFile(file.toFile()))(_.mkString) match
           case Failure(exception) =>
             break(Left(WanderError(s"Error reading $file\n${exception.getMessage()}")))
           case Success(script) =>
             run(script, std()) match
               case Left(err) => break(Left(err))
-              case Right((WanderValue.Module(values), _)) =>
+              case Right((BendValue.Module(values), _)) =>
                 values.foreach((name, value) => module.put(name, value))
               case x => break(Left(WanderError("Unexpected value from load result. $x")))
-        results += (modname -> WanderValue.Module(module.toMap))
+        results += (modname -> BendValue.Module(module.toMap))
       }
     Right(results.toMap)

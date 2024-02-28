@@ -4,7 +4,7 @@
 
 package dev.ligature.bend
 
-import dev.ligature.bend.WanderValue
+import dev.ligature.bend.BendValue
 import munit.FunSuite
 
 class LexerSuite extends FunSuite {

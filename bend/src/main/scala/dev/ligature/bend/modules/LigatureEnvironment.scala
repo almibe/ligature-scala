@@ -19,8 +19,8 @@
 //           "Get all graphs from this instance.",
 //           Tag.Single(Name("Core.Array")),
 //           (environment: Environment) => {
-//             val graphs = ligature.allGraphs().map(g => WanderValue.String(g.name))
-//             Right((WanderValue.Array(graphs.toSeq), environment))
+//             val graphs = ligature.allGraphs().map(g => BendValue.String(g.name))
+//             Right((BendValue.Array(graphs.toSeq), environment))
 //           }
 //         )
 //       )
@@ -33,7 +33,7 @@
 //         //     arguments match
 //         //       case Seq(Expression.StringValue(graphName)) =>
 //         //         ligature.createGraph(Graph(graphName))
-//         //         Right(WanderValue.Nothing, environment)
+//         //         Right(BendValue.Nothing, environment)
 //         //       case _ => ???
 //         // ),
 //         // HostFunction(
@@ -42,7 +42,7 @@
 //         //     arguments match
 //         //       case Seq(Expression.StringValue(graphName)) =>
 //         //         ligature.deleteGraph(Graph(graphName))
-//         //         Right(WanderValue.Nothing, environment)
+//         //         Right(BendValue.Nothing, environment)
 //         //       case _ => ???
 //         // )
 //       )
@@ -60,49 +60,49 @@
 // // def instanceLibrary(instance: Ligature): Environment = {
 // //   var environment = common()
 
-// //   environment = environment.bindVariable(Name("datasets"), WanderValue.NativeFunction(
+// //   environment = environment.bindVariable(Name("datasets"), BendValue.NativeFunction(
 // //     (arguments: Seq[Term], environment: Environment) =>
 // //       instance.allDatasets()
 // //         .compile.toList
-// //         .map { datasets => WanderValue.ListValue( datasets.map { ds => WanderValue.LigatureValue(LigatureValue.StringValue(ds.name.toString()))})}
+// //         .map { datasets => BendValue.ListValue( datasets.map { ds => BendValue.LigatureValue(LigatureValue.StringValue(ds.name.toString()))})}
 // //   )).getOrElse(???)
 
-// //   environment = environment.bindVariable(Name("addDataset"), WanderValue.NativeFunction(
+// //   environment = environment.bindVariable(Name("addDataset"), BendValue.NativeFunction(
 // //     (arguments: Seq[Term], environment: Environment) =>
 // //       arguments.head match
 // //         case Term.StringValue(datasetName) =>
-// //           instance.createDataset(Dataset.fromString(datasetName).getOrElse(???)).map(_ => WanderValue.Nothing)
+// //           instance.createDataset(Dataset.fromString(datasetName).getOrElse(???)).map(_ => BendValue.Nothing)
 // //         case _ => ???
 // //   )).getOrElse(???)
 
-// //   environment = environment.bindVariable(Name("removeDataset"), WanderValue.NativeFunction(
+// //   environment = environment.bindVariable(Name("removeDataset"), BendValue.NativeFunction(
 // //     (arguments: Seq[Term], environment: Environment) =>
 // //       arguments.head match
 // //         case Term.StringValue(datasetName) =>
-// //           instance.deleteDataset(Dataset.fromString(datasetName).getOrElse(???)).map(_ => WanderValue.Nothing)
+// //           instance.deleteDataset(Dataset.fromString(datasetName).getOrElse(???)).map(_ => BendValue.Nothing)
 // //         case _ => ???
 // //   )).getOrElse(???)
 
-// //   environment = environment.bindVariable(Name("datasetExists"), WanderValue.NativeFunction(
+// //   environment = environment.bindVariable(Name("datasetExists"), BendValue.NativeFunction(
 // //     (arguments: Seq[Term], environment: Environment) =>
 // //       arguments.head match
 // //         case Term.StringValue(datasetName) =>
-// //           instance.datasetExists(Dataset.fromString(datasetName).getOrElse(???)).map(res => WanderValue.BooleanValue(res))
+// //           instance.datasetExists(Dataset.fromString(datasetName).getOrElse(???)).map(res => BendValue.BooleanValue(res))
 // //         case _ => ???
 // //   )).getOrElse(???)
 
-// //   environment = environment.bindVariable(Name("allStatements"), WanderValue.NativeFunction(
+// //   environment = environment.bindVariable(Name("allStatements"), BendValue.NativeFunction(
 // //     (arguments: Seq[Term], environment: Environment) =>
 // //       arguments.head match
 // //         case Term.StringValue(datasetName) =>
 // //           instance
 // //             .allStatements(Dataset.fromString(datasetName).getOrElse(???))
-// //             .map(statementToWanderValue)
-// //             .compile.toList.map(WanderValue.ListValue(_))
+// //             .map(statementToBendValue)
+// //             .compile.toList.map(BendValue.ListValue(_))
 // //         case _ => ???
 // //   )).getOrElse(???)
 
-// //   environment = environment.bindVariable(Name("addStatements"), WanderValue.NativeFunction(
+// //   environment = environment.bindVariable(Name("addStatements"), BendValue.NativeFunction(
 // //     (arguments: Seq[Term], environment: Environment) =>
 // //       (arguments(0), arguments(1)) match
 // //         case (Term.StringValue(datasetName),
@@ -113,11 +113,11 @@
 // //                   case Right(statements) =>
 // //                     instance
 // //                       .addStatements(dataset, Stream.emits(statements))
-// //                       .map { _ => WanderValue.Nothing }
+// //                       .map { _ => BendValue.Nothing }
 // //         case _ => ???
 // //   )).getOrElse(???)
 
-// //   environment = environment.bindVariable(Name("removeStatements"), WanderValue.NativeFunction(
+// //   environment = environment.bindVariable(Name("removeStatements"), BendValue.NativeFunction(
 // //     (arguments: Seq[Term], environment: Environment) =>
 // //       (arguments(0), arguments(1)) match
 // //         case (Term.StringValue(datasetName),
@@ -128,7 +128,7 @@
 // //                   case Right(statements) =>
 // //                     instance
 // //                       .removeStatements(dataset, Stream.emits(statements))
-// //                       .map { _ => WanderValue.Nothing }
+// //                       .map { _ => BendValue.Nothing }
 // //         case _ => ???
 // //   )).getOrElse(???)
 
@@ -144,7 +144,7 @@
 // //       case Term.IdentifierLiteral(identifier) => Some(identifier)
 // //       case _ => ???
 
-// //   environment = environment.bindVariable(Name("query"), WanderValue.NativeFunction(
+// //   environment = environment.bindVariable(Name("query"), BendValue.NativeFunction(
 // //     (arguments: Seq[Term], environment: Environment) =>
 // //       (arguments(0), arguments(1), arguments.lift(2), arguments.lift(3)) match
 // //         case (Term.StringValue(datasetName), entityTerm, Some(attributeTerm), Some(valueTerm)) =>
@@ -154,15 +154,15 @@
 // //           val value = termToValueOption(valueTerm)
 // //           instance.query(dataset) { tx =>
 // //             tx.matchStatements(entity, attribute, value)
-// //               .map(statementToWanderValue)
-// //               .compile.toList.map(WanderValue.ListValue(_))
+// //               .map(statementToBendValue)
+// //               .compile.toList.map(BendValue.ListValue(_))
 // //           }
 // //         case (Term.StringValue(datasetName), query: Term.WanderFunction, None, None) =>
 // //           query match
 // //             case Term.WanderFunction(name :: Nil, body) =>
 // //               val dataset = Dataset.fromString(datasetName).getOrElse(???)
 // //               instance.query(dataset) { tx =>
-// //                 val matchFunction = WanderValue.NativeFunction((arguments, environment) =>
+// //                 val matchFunction = BendValue.NativeFunction((arguments, environment) =>
 // //                   (arguments.lift(0), arguments.lift(1), arguments.lift(2)) match
 // //                     case (Some(entityTerm), Some(attributeTerm), Some(valueTerm)) =>
 // //                       val dataset = Dataset.fromString(datasetName).getOrElse(???)
@@ -170,8 +170,8 @@
 // //                       val attribute = termToIdentifierOption(attributeTerm)
 // //                       val value = termToValueOption(valueTerm)
 // //                       tx.matchStatements(entity, attribute, value)
-// //                         .map(statementToWanderValue)
-// //                         .compile.toList.map(WanderValue.ListValue(_))
+// //                         .map(statementToBendValue)
+// //                         .compile.toList.map(BendValue.ListValue(_))
 // //                     case _ => ???)
 // //                 val newEnvironment = environment.bindVariable(name, matchFunction).getOrElse(???)
 // //                 eval(query.body, newEnvironment).map(_.result)
@@ -206,11 +206,11 @@
 // //   else
 // //     ???
 
-// // def statementToWanderValue(statement: Statement): WanderValue =
-// //   WanderValue.ListValue(Seq(
-// //     WanderValue.LigatureValue(statement.entity),
-// //     WanderValue.LigatureValue(statement.attribute),
-// //     WanderValue.LigatureValue(statement.value)
+// // def statementToBendValue(statement: Statement): BendValue =
+// //   BendValue.ListValue(Seq(
+// //     BendValue.LigatureValue(statement.entity),
+// //     BendValue.LigatureValue(statement.attribute),
+// //     BendValue.LigatureValue(statement.value)
 // //   ))
 
 // // def datasetModeEnvironment(environment: Environment, dataset: Dataset): Environment =

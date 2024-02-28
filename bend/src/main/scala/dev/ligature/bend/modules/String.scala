@@ -7,15 +7,15 @@ package dev.ligature.bend.modules
 import dev.ligature.bend.HostFunction
 import dev.ligature.bend.TaggedField
 import dev.ligature.bend.Tag
-import dev.ligature.bend.WanderValue
+import dev.ligature.bend.BendValue
 import dev.ligature.bend.Field
 import dev.ligature.bend.FieldPath
 import jetbrains.exodus.bindings.StringBinding
 import jetbrains.exodus.ArrayByteIterable
 
-val stringModule: WanderValue.Module = WanderValue.Module(
+val stringModule: BendValue.Module = BendValue.Module(
   Map(
-    Field("toBytes") -> WanderValue.Function(
+    Field("toBytes") -> BendValue.Function(
       HostFunction(
         // FieldPath(Seq(Field("String"), Field("toBytes"))),
         "Get a String encoded as Bytes.",
@@ -25,16 +25,16 @@ val stringModule: WanderValue.Module = WanderValue.Module(
         Tag.Untagged,
         (args, environment) =>
           args match
-            case Seq(WanderValue.String(value)) =>
+            case Seq(BendValue.String(value)) =>
               Right(
                 (
-                  WanderValue.Bytes(StringBinding.stringToEntry(value).getBytesUnsafe().toSeq),
+                  BendValue.Bytes(StringBinding.stringToEntry(value).getBytesUnsafe().toSeq),
                   environment
                 )
               )
       )
     ),
-    Field("fromBytes") -> WanderValue.Function(
+    Field("fromBytes") -> BendValue.Function(
       HostFunction(
         // FieldPath(Seq(Field("String"), Field("fromBytes"))),
         "Decode Bytes to a String.",
@@ -44,10 +44,10 @@ val stringModule: WanderValue.Module = WanderValue.Module(
         Tag.Untagged,
         (args, environment) =>
           args match
-            case Seq(WanderValue.Bytes(value)) =>
+            case Seq(BendValue.Bytes(value)) =>
               Right(
                 (
-                  WanderValue.String(StringBinding.entryToString(ArrayByteIterable(value.toArray))),
+                  BendValue.String(StringBinding.entryToString(ArrayByteIterable(value.toArray))),
                   environment
                 )
               )
