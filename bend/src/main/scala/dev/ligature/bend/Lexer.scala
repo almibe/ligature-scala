@@ -25,8 +25,10 @@ import scala.collection.mutable.ArrayBuffer
 import dev.ligature.gaze.between
 import dev.ligature.gaze.takeAny
 import java.util.HexFormat
+import dev.ligature.bend.LigNibblers.labelNibbler
 
 enum Token:
+  case Label(value: String)
   case BooleanLiteral(value: Boolean)
   case Spaces(value: String)
   case Bytes(value: Seq[Byte])
@@ -162,6 +164,9 @@ val lambdaTokenNib =
 val integerTokenNib =
   LigNibblers.numberNibbler.map(res => Token.IntegerValue(res.mkString.toLong))
 
+val labelTokenNib =
+  LigNibblers.labelNibbler.map(res => Token.Label(res))
+
 val spacesTokenNib =
   concat(takeWhile[String](_ == " "))
     .map(res => Token.Spaces(res.mkString))
@@ -169,6 +174,7 @@ val spacesTokenNib =
 val tokensNib: Nibbler[String, Seq[Token]] = repeat(
   takeFirst(
     spacesTokenNib,
+    labelTokenNib,
     stringTokenNib,
     nameTokenNib,
     colonTokenNib,
@@ -211,7 +217,7 @@ object LigNibblers {
       )
     )
 
-  val identifierNibbler: Nibbler[String, String] = between(
+  val labelNibbler: Nibbler[String, String] = between(
     takeString("<"),
     concat(takeWhile { (c: String) =>
       "[a-zA-Z0-9-._~:/?#\\[\\]@!$&'()*+,;%=]".r.matches(c)

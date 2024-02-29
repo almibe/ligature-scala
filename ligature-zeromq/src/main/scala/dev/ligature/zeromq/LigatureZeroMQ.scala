@@ -18,8 +18,9 @@ import com.typesafe.scalalogging.Logger
 import dev.ligature.bend.libraries.*
 import dev.ligature.bend.modules.*
 import dev.ligature.inmemory.LigatureInMemory
+import dev.ligature.Ligature
 
-private class LigatureZeroMQ(val port: Int) extends Runnable with AutoCloseable {
+private class LigatureZeroMQ(val port: Int, ligature: Ligature) extends Runnable with AutoCloseable {
   val logger = Logger("LigatureZeroMQ")
   private val zContext = ZContext()
 
@@ -33,7 +34,7 @@ private class LigatureZeroMQ(val port: Int) extends Runnable with AutoCloseable 
       try
         val command = String(socket.recv(0), ZMQ.CHARSET) // blocks waiting for a request
         logger.info(s"Command: $command")
-        val environment = stdWithLigature(LigatureInMemory())
+        val environment = stdWithLigature(ligature)
         val result = runBend(command, environment)
         result match
           case Left(err) =>
@@ -57,7 +58,7 @@ def printError(message: String): String =
   printBendValue(BendValue.Module(Map(Field("error") -> BendValue.String(message))))
 
 def runServer(port: Int): AutoCloseable = {
-  val server = LigatureZeroMQ(port)
+  val server = LigatureZeroMQ(port, LigatureInMemory())
   val thread = Thread(server)
   thread.start()
   new AutoCloseable {
@@ -66,5 +67,5 @@ def runServer(port: Int): AutoCloseable = {
 }
 
 @main def main =
-  val server = LigatureZeroMQ(4200)
+  val server = LigatureZeroMQ(4200, LigatureInMemory())
   server.run()

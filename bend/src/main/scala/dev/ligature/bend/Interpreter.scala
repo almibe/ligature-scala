@@ -8,6 +8,7 @@ import dev.ligature.bend.*
 import scala.collection.mutable.ListBuffer
 import scala.util.boundary, boundary.break
 import scala.collection.mutable
+import dev.ligature.LigatureValue
 
 enum Expression:
   case FieldExpression(field: dev.ligature.bend.Field)
@@ -15,6 +16,7 @@ enum Expression:
   case IntegerValue(value: Long)
   case Bytes(value: Seq[Byte])
   case StringValue(value: String, interpolated: Boolean = false)
+  case Label(value: String)
   case BooleanValue(value: Boolean)
   case Array(value: Seq[Expression])
   case Binding(name: Field, tag: Option[FieldPath], value: Expression)
@@ -36,6 +38,7 @@ def eval(
     case Expression.StringValue(value, interpolated) =>
       if interpolated then interpolateString(value, environment)
       else Right((BendValue.String(value), environment))
+    case Expression.Label(value)                   => Right((BendValue.Label(LigatureValue.Label(value)), environment))
     case Expression.Array(value)                   => handleArray(value, environment)
     case Expression.FieldExpression(field)         => readField(field, environment)
     case Expression.FieldPathExpression(fieldPath) => readFieldPath(fieldPath, environment)

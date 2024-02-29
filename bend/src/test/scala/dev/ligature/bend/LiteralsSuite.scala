@@ -7,6 +7,7 @@ package dev.ligature.bend
 import dev.ligature.bend.Token
 import dev.ligature.bend.BendValue
 import dev.ligature.bend.modules.std
+import dev.ligature.LigatureValue
 
 class LiteralsSuite extends munit.FunSuite {
   def check(script: String, expected: BendValue) =
@@ -33,6 +34,11 @@ class LiteralsSuite extends munit.FunSuite {
   test("bytes") {
     val script = "0x01FF"
     val result = BendValue.Bytes(Seq(1.byteValue, -1.byteValue))
+    check(script, result)
+  }
+  test("label literal") {
+    val script = "<0x01FF>"
+    val result = BendValue.Label(LigatureValue.Label("0x01FF"))
     check(script, result)
   }
   test("test printing bytes") {

@@ -8,6 +8,8 @@ import dev.ligature.bend.parse
 import scala.annotation.unused
 import dev.ligature.bend.modules.std
 import java.util.HexFormat
+import dev.ligature.Ligature
+import dev.ligature.LigatureValue
 
 /** Represents a Value in the Bend language.
   */
@@ -17,6 +19,8 @@ enum BendValue:
   case Bytes(value: Seq[Byte])
   case String(value: java.lang.String)
   case Array(values: Seq[BendValue])
+  case Label(value: LigatureValue.Label)
+  case Graph(value: Set[(LigatureValue.Label, LigatureValue.Label, LigatureValue)])
   case Module(values: Map[Field, BendValue])
   case Function(function: dev.ligature.bend.Function)
   case QuestionMark
@@ -124,4 +128,6 @@ def printBendValue(value: BendValue, interpolation: Boolean = false): String =
         .map((field, value) => field.name + " = " + printBendValue(value, interpolation))
         .mkString(", ") + "}"
     case BendValue.Bytes(value) => s"0x${formatter.formatHex(value.toArray)}"
+    case BendValue.Graph(value) => "\"[Graph]\""
+    case BendValue.Label(label) => s"<${label.value}>"
   }

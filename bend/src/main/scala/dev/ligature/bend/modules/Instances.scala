@@ -31,7 +31,6 @@ def std(libraries: List[ModuleLibrary] = List()): Environment =
     .bindVariable(Field("Bytes"), bytesModule)
     .bindVariable(Field("Core"), coreModule)
     .bindVariable(Field("Int"), intModule)
-    .bindVariable(Field("Module"), moduleModule)
     .bindVariable(Field("String"), stringModule)
     .bindVariable(Field("Test"), testingModule)
     .bindVariable(Field("import"), importFunction)
@@ -40,7 +39,5 @@ def stdWithLigature(
     ligature: Ligature,
     libraries: List[ModuleLibrary] = List()
 ): Environment =
-  std(libraries).bindVariable(
-    Field("Ligature"),
-    createLigatureModule(ligature)
-  )
+  std(libraries)
+    .bindVariable(Field("Ligature"), createLigatureModule(ligature))

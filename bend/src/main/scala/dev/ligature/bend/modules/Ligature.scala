@@ -6,6 +6,9 @@ package dev.ligature.bend.modules
 
 import dev.ligature.bend.*
 import dev.ligature.*
+import com.typesafe.scalalogging.Logger
+
+val logger = Logger("LigatureModule")
 
 def createLigatureModule(ligature: Ligature): BendValue.Module = BendValue.Module(
   Map(
@@ -15,27 +18,29 @@ def createLigatureModule(ligature: Ligature): BendValue.Module = BendValue.Modul
         Seq(TaggedField(Field("_"), Tag.Untagged)),
         Tag.Untagged,
         (args, env) =>
+          logger.info(s"Added ${ligature.allGraphs().toList}")
           val graphs = ligature.allGraphs().map(g => BendValue.String(g.name))
           Right((BendValue.Array(graphs.toSeq), env))
       )
     ),
-    Field("add_graph") -> BendValue.Function(
+    Field("addGraph") -> BendValue.Function(
       HostFunction(
-        "Get all graphs from this instance.",
-        Seq(TaggedField(Field("_"), Tag.Untagged)),
+        "Add a new Graph.",
+        Seq(TaggedField(Field("graphName"), Tag.Untagged)),
         Tag.Untagged,
         (args, env) =>
           args match
             case Seq(BendValue.String(graphName)) =>
+              logger.info(s"Creating graph $graphName")
               ligature.createGraph(GraphName(graphName))
               Right(BendValue.Module(Map()), env)
             case _ => ???
       )
     ),
-    Field("remove_graph") -> BendValue.Function(
+    Field("removeGraph") -> BendValue.Function(
       HostFunction(
-        "Get all graphs from this instance.",
-        Seq(TaggedField(Field("_"), Tag.Untagged)),
+        "Remove a Graph by name.",
+        Seq(TaggedField(Field("graphName"), Tag.Untagged)),
         Tag.Untagged,
         (args, env) =>
           args match
@@ -47,10 +52,6 @@ def createLigatureModule(ligature: Ligature): BendValue.Module = BendValue.Modul
     )
   )
 )
-
-// ////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// // Below is code that needs to be moved to ligature.
-// ///////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 // //   environment = environment.bindVariable(Name("datasetExists"), BendValue.NativeFunction(
 // //     (arguments: Seq[Term], environment: Environment) =>

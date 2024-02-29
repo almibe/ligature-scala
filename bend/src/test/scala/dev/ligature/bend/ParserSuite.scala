@@ -40,6 +40,11 @@ class ParserSuite extends FunSuite {
     val expected = Right(Seq(Term.Bytes(Seq(17.byteValue))))
     assertEquals(result, expected)
   }
+  test("parse Label") {
+    val result = check("<hello>")
+    val expected = Right(Seq(Term.Label("hello")))
+    assertEquals(result, expected)
+  }
   test("parse String") {
     val result = check("\"hello\"")
     val expected = Right(Seq(Term.StringValue("hello")))
@@ -168,15 +173,15 @@ class ParserSuite extends FunSuite {
     )
     assertEquals(result, expected)
   }
-  test("parse empty Module") {
-    val result = check("{}")
-    val expected = Right(
-      Seq(
-        Term.Module(Seq())
-      )
-    )
-    assertEquals(result, expected)
-  }
+  // test("parse empty Graph".ignore) {
+  //   val result = check("{}")
+  //   val expected = Right(
+  //     Seq(
+  //       Term.Graph(Set())
+  //     )
+  //   )
+  //   assertEquals(result, expected)
+  // }
   test("parse Module with one entry") {
     val result = check("{x = 5}")
     val expected = Right(

@@ -34,6 +34,7 @@ enum Term:
   case BooleanLiteral(value: Boolean)
   case QuestionMark
   case Array(value: Seq[Term])
+  case Label(value: String)
   case Binding(field: Field, tag: Option[FieldPath], term: Term)
   case Module(bindings: Seq[(Field, Term)])
   case WhenExpression(conditionals: Seq[(Term, Term)])
@@ -96,6 +97,11 @@ val stringNib: Nibbler[Token, Term.StringValue] = gaze =>
   gaze.next() match
     case Some(Token.StringValue(s, i)) => Result.Match(Term.StringValue(s, i))
     case _                             => Result.NoMatch
+
+val labelNib: Nibbler[Token, Term.Label] = gaze =>
+  gaze.next() match
+    case Some(Token.Label(value)) => Result.Match(Term.Label(value))
+    case _                        => Result.NoMatch
 
 val fieldNib: Nibbler[Token, Field] = gaze =>
   gaze.next() match
@@ -270,6 +276,7 @@ val applicationInternalNib =
     taggedBindingNib,
     lambdaNib,
     groupingNib,
+    labelNib,
     stringNib,
     bytesNib,
     integerNib,
@@ -289,6 +296,7 @@ val expressionNib =
     applicationNib,
     lambdaNib,
     groupingNib,
+    labelNib,
     stringNib,
     bytesNib,
     integerNib,
