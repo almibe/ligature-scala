@@ -38,7 +38,8 @@ def eval(
     case Expression.StringValue(value, interpolated) =>
       if interpolated then interpolateString(value, environment)
       else Right((BendValue.String(value), environment))
-    case Expression.Label(value)                   => Right((BendValue.Label(LigatureValue.Label(value)), environment))
+    case Expression.Label(value) =>
+      Right((BendValue.Label(LigatureValue.Label(value)), environment))
     case Expression.Array(value)                   => handleArray(value, environment)
     case Expression.FieldExpression(field)         => readField(field, environment)
     case Expression.FieldPathExpression(fieldPath) => readFieldPath(fieldPath, environment)

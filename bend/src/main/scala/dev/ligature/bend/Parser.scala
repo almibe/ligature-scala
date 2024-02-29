@@ -155,7 +155,7 @@ val lambdaNib: Nibbler[Token, Term.Lambda] = { gaze =>
     parameters <- gaze.attempt(optionalSeq(repeat(fieldNib)))
     _ <- gaze.attempt(take(Token.Arrow))
     body <- gaze.attempt(expressionNib)
-  } yield Term.Lambda(parameters, body) //TODO handle this body better
+  } yield Term.Lambda(parameters, body) // TODO handle this body better
 }
 
 val conditionalsNib: Nibbler[Token, (Term, Term)] = { gaze =>
