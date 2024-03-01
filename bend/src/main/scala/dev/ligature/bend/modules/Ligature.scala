@@ -7,6 +7,7 @@ package dev.ligature.bend.modules
 import dev.ligature.bend.*
 import dev.ligature.*
 import com.typesafe.scalalogging.Logger
+import scala.collection.mutable.ListBuffer
 
 val logger = Logger("LigatureModule")
 
@@ -49,58 +50,84 @@ def createLigatureModule(ligature: Ligature): BendValue.Module = BendValue.Modul
               Right(BendValue.Module(Map()), env)
             case _ => ???
       )
-    )
-  )
-)
-
-// //   environment = environment.bindVariable(Name("datasetExists"), BendValue.NativeFunction(
+    ),
+    // Field("graphExists") -> BendValue.Function(
+    //   HostFunction(
+    //     "Remove a Graph by name.",
+    //     Seq(TaggedField(Field("graphName"), Tag.Untagged)),
+    //     Tag.Untagged,
 // //     (arguments: Seq[Term], environment: Environment) =>
 // //       arguments.head match
 // //         case Term.StringValue(datasetName) =>
 // //           instance.datasetExists(Dataset.fromString(datasetName).getOrElse(???)).map(res => BendValue.BooleanValue(res))
 // //         case _ => ???
-// //   )).getOrElse(???)
-
-// //   environment = environment.bindVariable(Name("allStatements"), BendValue.NativeFunction(
-// //     (arguments: Seq[Term], environment: Environment) =>
-// //       arguments.head match
-// //         case Term.StringValue(datasetName) =>
-// //           instance
-// //             .allStatements(Dataset.fromString(datasetName).getOrElse(???))
-// //             .map(statementToBendValue)
-// //             .compile.toList.map(BendValue.ListValue(_))
-// //         case _ => ???
-// //   )).getOrElse(???)
-
-// //   environment = environment.bindVariable(Name("addStatements"), BendValue.NativeFunction(
-// //     (arguments: Seq[Term], environment: Environment) =>
-// //       (arguments(0), arguments(1)) match
-// //         case (Term.StringValue(datasetName),
-// //               Term.List(statementTerms)) =>
-// //                 val dataset = Dataset.fromString(datasetName).getOrElse(???)
-// //                 termsToStatements(statementTerms, ListBuffer()) match
-// //                   case Left(value) => ???
-// //                   case Right(statements) =>
-// //                     instance
-// //                       .addStatements(dataset, Stream.emits(statements))
-// //                       .map { _ => BendValue.Nothing }
-// //         case _ => ???
-// //   )).getOrElse(???)
-
-// //   environment = environment.bindVariable(Name("removeStatements"), BendValue.NativeFunction(
-// //     (arguments: Seq[Term], environment: Environment) =>
-// //       (arguments(0), arguments(1)) match
-// //         case (Term.StringValue(datasetName),
-// //               Term.List(statementTerms)) =>
-// //                 val dataset = Dataset.fromString(datasetName).getOrElse(???)
-// //                 termsToStatements(statementTerms, ListBuffer()) match
-// //                   case Left(value) => ???
-// //                   case Right(statements) =>
-// //                     instance
-// //                       .removeStatements(dataset, Stream.emits(statements))
-// //                       .map { _ => BendValue.Nothing }
-// //         case _ => ???
-// //   )).getOrElse(???)
+    //     (args, env) =>
+    //       args match
+    //         case Seq(BendValue.String(graphName)) =>
+    //           ligature.deleteGraph(GraphName(graphName))
+    //           Right(BendValue.Module(Map()), env)
+    //         case _ => ???
+    //   )
+    // )
+    Field("allEdges") -> BendValue.Function(
+      HostFunction(
+        "Get all Edges in a Graph.",
+        Seq(TaggedField(Field("graphName"), Tag.Untagged)),
+        Tag.Untagged,
+        (arguments, environment) =>
+          arguments.head match
+            case BendValue.String(graphName) =>
+              val res = ligature
+                .allEdges(GraphName(graphName))
+                .map(statementToBendValue).toList
+              Right((BendValue.Array(res), environment))
+            case _ => ???
+      )
+    ),
+    Field("addEdges") -> BendValue.Function(
+      HostFunction(
+        "Add a collection of Edges to a Graph.",
+        Seq(
+          TaggedField(Field("graphName"), Tag.Untagged),
+          TaggedField(Field("edges"), Tag.Untagged)
+        ),
+        Tag.Untagged,
+        (arguments, environment) =>
+          (arguments(0), arguments(1)) match
+            case (BendValue.String(graphName),
+                  BendValue.Array(statementTerms)) =>
+                    val graph = GraphName(graphName)
+                    bendValuesToEdges(statementTerms, ListBuffer()) match
+                      case Left(value) => ???
+                      case Right(edges) =>
+                        ligature.addEdges(graph, edges.iterator)
+                        Right((BendValue.Module(Map()), environment))
+            case _ => ???
+      )
+    ),
+    Field("removeEdges") -> BendValue.Function(
+      HostFunction(
+        "Remove a collection of Edges from a Graph.",
+        Seq(
+          TaggedField(Field("graphName"), Tag.Untagged),
+          TaggedField(Field("edges"), Tag.Untagged)
+        ),
+        Tag.Untagged,
+        (arguments, environment) =>
+          (arguments(0), arguments(1)) match
+            case (BendValue.String(graphName),
+                  BendValue.Array(edges)) =>
+                    val graph = GraphName(graphName)
+                    bendValuesToEdges(edges, ListBuffer()) match
+                      case Left(value) => ???
+                      case Right(edges) =>
+                        ligature.removeEdges(graph, edges.iterator)
+                        Right((BendValue.Module(Map()), environment))
+            case _ => ???
+      )
+    ),
+  )
+)
 
 // //   def termToIdentifierOption(term: Term): Option[Identifier] =
 // //     term match
@@ -152,36 +179,48 @@ def createLigatureModule(ligature: Ligature): BendValue.Module = BendValue.Modul
 // //   environment
 // // }
 
-// // def termsToStatements(terms: Seq[Term], statements: ListBuffer[Statement]): Either[LigatureError, Seq[Statement]] =
-// //   if terms.nonEmpty then
-// //     terms.head match
-// //       case Term.List(statementTerms) =>
-// //         termsToStatement(statementTerms) match
-// //           case Right(statement) =>
-// //             termsToStatements(terms.tail, statements += statement)
-// //           case Left(err) => Left(err)
-// //       case _ => println(terms.head); ???
-// //   else
-// //     Right(statements.toSeq)
+def bendValuesToEdges(values: Seq[BendValue], edges: ListBuffer[Edge]): Either[LigatureError, Seq[Edge]] =
+  if values.nonEmpty then
+    values.head match
+      case BendValue.Array(statementTerms) =>
+        bendsValuesToEdge(statementTerms) match
+          case Right(statement) =>
+            bendValuesToEdges(values.tail, edges += statement)
+          case Left(err) => Left(err)
+      case _ => println(values.head); ???
+  else
+    Right(edges.toSeq)
 
-// // def termsToStatement(terms: Seq[Term]): Either[LigatureError, Statement] =
-// //   if terms.size == 3 then
-// //     val entity = terms(0)
-// //     val attribute = terms(1)
-// //     val value = terms(2)
-// //     (entity, attribute, value) match
-// //       case (entity: Term.IdentifierLiteral, attribute: Term.IdentifierLiteral, value: Term.IdentifierLiteral) =>
-// //         Right(Statement(entity.value, attribute.value, value.value))
-// //       case _ => ???
-// //   else
-// //     ???
+def bendsValuesToEdge(values: Seq[BendValue]): Either[LigatureError, Edge] =
+  if values.size == 3 then
+    val source = values(0)
+    val edge = values(1)
+    val target = values(2)
+    (source, edge, target) match
+      case (BendValue.Label(source), BendValue.Label(edge), target: BendValue) =>
+        val value: LigatureValue = target match {
+          case BendValue.Bytes(value) => LigatureValue.BytesValue(value.toArray) //TODO fix Seq/Array
+          case BendValue.Int(value) => LigatureValue.IntegerValue(value)
+          case BendValue.String(value) => LigatureValue.StringValue(value)
+          case BendValue.Label(value) => value
+          case _ => ???
+        }
+        Right(Edge(source, edge, value))
+      case _ => ???
+  else
+    ???
 
-// // def statementToBendValue(statement: Statement): BendValue =
-// //   BendValue.ListValue(Seq(
-// //     BendValue.LigatureValue(statement.entity),
-// //     BendValue.LigatureValue(statement.attribute),
-// //     BendValue.LigatureValue(statement.value)
-// //   ))
+def statementToBendValue(edge: Edge): BendValue =
+  BendValue.Array(Seq(
+    BendValue.Label(edge.source),
+    BendValue.Label(edge.label),
+    edge.target match
+      case LigatureValue.BytesValue(value) => BendValue.Bytes(value.toIndexedSeq)
+      case LigatureValue.GraphValue(value) => ???
+      case LigatureValue.IntegerValue(value) => BendValue.Int(value)
+      case LigatureValue.Label(value) => BendValue.Label(LigatureValue.Label(value))
+      case LigatureValue.StringValue(value) => BendValue.String(value)
+  ))
 
 // // def datasetModeEnvironment(environment: Environment, dataset: Dataset): Environment =
 // //   environment
