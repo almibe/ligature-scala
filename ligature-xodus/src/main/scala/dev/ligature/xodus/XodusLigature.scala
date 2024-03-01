@@ -4,21 +4,10 @@
 
 package dev.ligature.xodus
 
-import dev.ligature.{Ligature, LigatureError, QueryTx, LigatureValue}
-import scala.collection.immutable.TreeMap
-import scala.collection.mutable.{ArrayBuffer, ListBuffer}
+import dev.ligature.{Ligature, QueryTx}
+import scala.collection.mutable.ListBuffer
 
-import java.io.File
-import jetbrains.exodus.env.{
-  EnvironmentConfig,
-  Environments,
-  ReadonlyTransaction,
-  Store,
-  StoreConfig,
-  Transaction,
-  TransactionalComputable,
-  TransactionalExecutable
-}
+import jetbrains.exodus.env.{EnvironmentConfig, Environments}
 
 import scala.jdk.CollectionConverters.*
 import java.nio.file.Path
@@ -78,7 +67,9 @@ private final class XodusLigature(environment: Environment) extends Ligature {
     val store = getStore("__META")
     store.executeInExclusiveTransaction(tx =>
       val res = tx.find("graph", "name", graph.name)
-      res.forEach(res => res.delete())
+      res.forEach { res =>
+        val _ = res.delete()
+      }
     )
     store.close()
 
@@ -134,6 +125,7 @@ private final class XodusLigature(environment: Environment) extends Ligature {
           entity.setProperty("label", edge.label.value)
           entity.setProperty("target", targetValue(edge.target))
           entity.setProperty("targetType", targetType(edge.target))
+          ()
       )
     )
 

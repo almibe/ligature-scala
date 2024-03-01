@@ -10,12 +10,8 @@ import dev.ligature.bend.run as runBend
 import dev.ligature.bend.BendValue
 import dev.ligature.bend.printBendValue
 import dev.ligature.bend.printResult
-import java.nio.file.Path
-import java.nio.file.Paths
-import java.io.File
 import dev.ligature.bend.*
 import com.typesafe.scalalogging.Logger
-import dev.ligature.bend.libraries.*
 import dev.ligature.bend.modules.*
 import dev.ligature.inmemory.LigatureInMemory
 import dev.ligature.Ligature
@@ -42,10 +38,10 @@ private class LigatureZeroMQ(val port: Int, ligature: Ligature)
           case Left(err) =>
             val message = s"Error running command: $command -- ${err.userMessage}"
             logger.error(message)
-            socket.send(message.getBytes(ZMQ.CHARSET), 0)
+            val _ = socket.send(message.getBytes(ZMQ.CHARSET), 0)
           case result: Right[BendError, (BendValue, Environment)] =>
             logger.info(s"Result for command: $command -- ${printResult(result)}")
-            socket.send(printResult(result).getBytes(ZMQ.CHARSET), 0)
+            val _ = socket.send(printResult(result).getBytes(ZMQ.CHARSET), 0)
       catch
         case e =>
           socket.close()
