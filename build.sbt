@@ -1,17 +1,17 @@
-lazy val scala3Version = "3.3.0"
+lazy val scala3Version = "3.3.1"
 
 ThisBuild / version := "0.1.0-SNAPSHOT"
 ThisBuild / organization := "dev.ligature"
 ThisBuild / organizationName := "ligature"
 
-val munitVersion    = "1.0.0-M7"
+val munitVersion    = "1.0.0-M11"
 val xodusVersion    = "2.0.1"
-val jeromqVersion   = "0.5.3"
+val jeromqVersion   = "0.5.4"
 val jlineVersion    = "3.23.0"
 val scalafxVersion  = "16.0.0-R24"
 val jansiVersion    = "2.4.1"
-val scalaLoggingVersion = "3.9.4"
-val logBackVersion      = "1.2.10"
+val scalaLoggingVersion = "3.9.5"
+val logBackVersion      = "1.2.13"
 
 lazy val ligature = project
   .in(file("ligature"))

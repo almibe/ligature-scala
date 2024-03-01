@@ -12,7 +12,6 @@ final case class GraphName(name: String) extends Ordered[GraphName]:
 case class LigatureError(val userMessage: String) extends Throwable(userMessage)
 
 enum LigatureValue:
-  case GraphValue(value: Ligature)
   case Label(value: String)
   case StringValue(value: String)
   case IntegerValue(value: Long)

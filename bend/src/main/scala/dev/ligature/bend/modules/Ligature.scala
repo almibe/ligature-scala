@@ -216,7 +216,6 @@ def statementToBendValue(edge: Edge): BendValue =
     BendValue.Label(edge.label),
     edge.target match
       case LigatureValue.BytesValue(value) => BendValue.Bytes(value.toIndexedSeq)
-      case LigatureValue.GraphValue(value) => ???
       case LigatureValue.IntegerValue(value) => BendValue.Int(value)
       case LigatureValue.Label(value) => BendValue.Label(LigatureValue.Label(value))
       case LigatureValue.StringValue(value) => BendValue.String(value)
