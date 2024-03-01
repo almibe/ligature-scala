@@ -10,7 +10,6 @@ import dev.ligature.inmemory.LigatureInMemory
 import dev.ligature.bend.Environment
 import dev.ligature.bend.run
 import dev.ligature.bend.BendValue
-import dev.ligature.bend.modules.createLigatureModule
 import dev.ligature.bend.modules.stdWithLigature
 
 class LigatureTestSuite extends FunSuite {

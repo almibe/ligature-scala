@@ -4,17 +4,12 @@
 
 package dev.ligature.bend.modules
 
-import dev.ligature.bend.Environment
-import dev.ligature.bend.Token
 import dev.ligature.bend.BendValue
-import dev.ligature.bend.Term
 import dev.ligature.bend.BendError
 import dev.ligature.bend.HostFunction
 import dev.ligature.bend.TaggedField
 import dev.ligature.bend.Tag
 import dev.ligature.bend.Field
-import dev.ligature.bend.FieldPath
-import dev.ligature.bend.eval
 import jetbrains.exodus.bindings.BooleanBinding
 import jetbrains.exodus.ArrayByteIterable
 
@@ -51,7 +46,7 @@ val boolModule: BendValue.Module = BendValue.Module(
         "Perform a logical or on two Bools.",
         Seq(TaggedField(Field("left"), Tag.Untagged), TaggedField(Field("right"), Tag.Untagged)),
         Tag.Untagged,
-        (args, environment) => ???
+        (_, _) => ???
       )
     ),
     Field("toBytes") -> BendValue.Function(

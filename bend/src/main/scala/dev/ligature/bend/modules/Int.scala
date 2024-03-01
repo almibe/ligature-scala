@@ -4,13 +4,11 @@
 
 package dev.ligature.bend.modules
 
-import javax.lang.model.`type`.ErrorType
 import dev.ligature.bend.HostFunction
 import dev.ligature.bend.TaggedField
 import dev.ligature.bend.Tag
 import dev.ligature.bend.BendValue
 import dev.ligature.bend.Field
-import dev.ligature.bend.FieldPath
 import jetbrains.exodus.bindings.LongBinding
 import jetbrains.exodus.ArrayByteIterable
 

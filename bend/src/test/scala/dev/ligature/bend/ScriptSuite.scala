@@ -8,7 +8,6 @@ import java.io.File
 import scala.io.Source
 import dev.ligature.bend.modules.std
 import java.nio.file.Path
-import dev.ligature.bend.libraries.loadFromPath
 import dev.ligature.bend.libraries.DirectoryLibrary
 
 class ScriptSuite extends munit.FunSuite {

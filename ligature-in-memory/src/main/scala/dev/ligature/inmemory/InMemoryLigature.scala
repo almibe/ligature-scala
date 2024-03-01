@@ -4,7 +4,7 @@
 
 package dev.ligature.inmemory
 
-import dev.ligature.{Ligature, LigatureError, QueryTx, Edge, LigatureValue}
+import dev.ligature.{Ligature, QueryTx, Edge}
 import scala.collection.mutable.{Set, TreeMap}
 import dev.ligature.GraphName
 
@@ -46,7 +46,7 @@ final class LigatureInMemory(
     * error type { InvalidGraph, CouldNotDeleteGraph }
     */
   override def deleteGraph(graph: GraphName): Unit =
-    this.store.remove(graph)
+    val _ = this.store.remove(graph)
 
   override def allEdges(graph: GraphName): Iterator[Edge] =
     this.store.get(graph) match

@@ -4,21 +4,8 @@
 
 package dev.ligature.bend.modules
 
-import dev.ligature.bend.libraries.HostLibrary
-import dev.ligature.bend.BendValue
-import scala.collection.mutable.ListBuffer
 import dev.ligature.bend.*
 import dev.ligature.bend.Environment
-import java.nio.file.Path
-import java.nio.file.Files
-import scala.jdk.CollectionConverters.IteratorHasAsScala
-import scala.util.Using
-import scala.io.Source
-import scala.util.Failure
-import scala.util.Success
-import scala.util.boundary
-import scala.util.boundary.break
-import jetbrains.exodus.entitystore.PersistentEntityStore
 import dev.ligature.bend.libraries.ModuleLibrary
 import dev.ligature.Ligature
 

@@ -38,7 +38,8 @@ def eval(
     case Expression.StringValue(value, interpolated) =>
       if interpolated then interpolateString(value, environment)
       else Right((BendValue.String(value), environment))
-    case Expression.Label(value)                   => Right((BendValue.Label(LigatureValue.Label(value)), environment))
+    case Expression.Label(value) =>
+      Right((BendValue.Label(LigatureValue.Label(value)), environment))
     case Expression.Array(value)                   => handleArray(value, environment)
     case Expression.FieldExpression(field)         => readField(field, environment)
     case Expression.FieldPathExpression(fieldPath) => readFieldPath(fieldPath, environment)
@@ -75,34 +76,37 @@ def interpolateString(
     value: String,
     environment: Environment
 ): Either[BendError, (BendValue, Environment)] =
-  val sb = StringBuffer()
-  val it = value.iterator
-  while it.hasNext do
-    it.next() match
-      case '$' =>
-        it.next() match
-          case '(' =>
-            val contents = boundary:
-              val contents = mutable.StringBuilder()
-              while it.hasNext do
-                it.next() match
-                  case ')' =>
-                    break(contents.toString())
-                  case c => contents.append(c)
-            contents match
-              case _: Unit => Left(BendError("Should never reach"))
-              case contents: String =>
-                run(contents, environment) match
-                  case Left(err) =>
-                    Left(err)
-                  case Right((value, _)) =>
-                    sb.append(printBendValue(value, true))
-          case _ =>
-            Left(
-              BendError("Syntax error, in an interpolated String `$` must be followed by `(`.")
-            )
-      case c => sb.append(c)
-  Right((BendValue.String(sb.toString), environment))
+  boundary:
+    val sb = StringBuffer()
+    val it = value.iterator
+    while it.hasNext do
+      it.next() match
+        case '$' =>
+          it.next() match
+            case '(' =>
+              val contents = boundary:
+                val contents = mutable.StringBuilder()
+                while it.hasNext do
+                  it.next() match
+                    case ')' =>
+                      break(contents.toString())
+                    case c => contents.append(c)
+              contents match
+                case _: Unit => break(Left(BendError("Should never reach")))
+                case contents: String =>
+                  run(contents, environment) match
+                    case Left(err) =>
+                      break(Left(err))
+                    case Right((value, _)) =>
+                      val _ = sb.append(printBendValue(value, true))
+            case _ =>
+              break(
+                Left(
+                  BendError("Syntax error, in an interpolated String `$` must be followed by `(`.")
+                )
+              )
+        case c => val _ = sb.append(c)
+    Right((BendValue.String(sb.toString), environment))
 
 def handleGrouping(
     expressions: Seq[Expression],
@@ -229,7 +233,7 @@ def callLambda(
   if (arguments.size == parameters.size) {
     var fnScope = environment.newScope()
     parameters.zipWithIndex.foreach { (param, index) =>
-      val argument = eval(arguments(index), environment) match {
+      eval(arguments(index), environment) match {
         case Left(value) => ???
         case Right(value) =>
           fnScope.bindVariable(TaggedField(param, Tag.Untagged), value._1) match {
@@ -241,8 +245,8 @@ def callLambda(
     eval(body, fnScope)
   } else if (arguments.size < parameters.size) {
     val args = ListBuffer[BendValue]()
-    arguments.zipWithIndex.foreach { (arg, index) =>
-      val argument = eval(arg, environment) match {
+    arguments.zipWithIndex.foreach { (arg, _) =>
+      eval(arg, environment) match {
         case Left(value) => throw RuntimeException(s"Error - $value")
         case Right(value) =>
           args.append(value._1)
@@ -270,7 +274,7 @@ def callPartialLambda(
     arguments.zipWithIndex.foreach { (arg, index) =>
       val diff = parameters.size - arguments.size
       val param = parameters(index + diff)
-      val argument = eval(arg, environment) match {
+      eval(arg, environment) match {
         case Left(value) => ???
         case Right(value) =>
           fnScope.bindVariable(TaggedField(param, Tag.Untagged), value._1) match {
@@ -429,7 +433,7 @@ def handleArray(
 ): Either[BendError, (BendValue.Array, Environment)] = {
   val res = ListBuffer[BendValue]()
   val itre = expressions.iterator
-  var continue = true
+  val continue = true
   while continue && itre.hasNext
   do
     val expression = itre.next()

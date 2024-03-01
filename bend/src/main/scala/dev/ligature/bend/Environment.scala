@@ -4,9 +4,7 @@
 
 package dev.ligature.bend
 
-import dev.ligature.bend.BendValue
 import dev.ligature.bend.printBendValue
-import scala.collection.mutable.Set
 import scala.util.boundary
 import scala.util.boundary.break
 import dev.ligature.bend.libraries.ModuleLibrary
@@ -141,7 +139,7 @@ case class Environment(
         }
       case lambda: Lambda =>
         assert(lambda.lambda.parameters.size == 1)
-        var environment = this.newScope()
+        val environment = this.newScope()
         // environment = environment
         //   .bindVariable(TaggedField(lambda.lambda.parameters.head, Tag.Untagged), value)
         //   .getOrElse(???)
@@ -155,22 +153,23 @@ case class Environment(
       case _ => Left(BendError(s"${tag} was not a valid tag."))
     }
 
-  private def checkFunctionTag(
-      tags: Seq[Function],
-      value: BendValue
-  ): Either[BendError, BendValue] =
-    Right(value)
-    // this.read(tag) match {
-    //   case Right(BendValue.HostFunction(hf)) =>
-    //     hf.fn(Seq(value), this) match {
-    //       case Right((BendValue.Bool(true), _))  => Right(value)
-    //       case Right((BendValue.Bool(false), _)) => Left(BendError("Value failed Tag Function."))
-    //       case Left(err)                           => Left(err)
-    //       case _ => Left(BendError("Invalid Tag, Tag Functions must return a Bool."))
-    //     }
-    //   case Right(BendValue.Lambda(lambda)) =>
-    //     ???
-    //   case Left(err) => Left(err)
-    //   case _         => Left(BendError(s"${tag.name} was not a valid tag."))
-    // }
+  // private def checkFunctionTag(
+  //     tags: Seq[Function],
+  //     value: BendValue
+  // ): Either[BendError, BendValue] =
+  //   Right(value)
+  //   ???
+  // this.read(tag) match {
+  //   case Right(BendValue.HostFunction(hf)) =>
+  //     hf.fn(Seq(value), this) match {
+  //       case Right((BendValue.Bool(true), _))  => Right(value)
+  //       case Right((BendValue.Bool(false), _)) => Left(BendError("Value failed Tag Function."))
+  //       case Left(err)                           => Left(err)
+  //       case _ => Left(BendError("Invalid Tag, Tag Functions must return a Bool."))
+  //     }
+  //   case Right(BendValue.Lambda(lambda)) =>
+  //     ???
+  //   case Left(err) => Left(err)
+  //   case _         => Left(BendError(s"${tag.name} was not a valid tag."))
+  // }
 }

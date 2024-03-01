@@ -4,19 +4,6 @@
 
 package dev.ligature.bend
 
-import dev.ligature.gaze.{Nibbler, repeat}
-import dev.ligature.gaze.{
-  Gaze,
-  optional,
-  take,
-  takeAll,
-  takeCond,
-  takeFirst,
-  takeString,
-  takeUntil,
-  takeWhile,
-  repeat
-}
 import scala.collection.mutable.ListBuffer
 import scala.util.boundary, boundary.break
 

@@ -4,8 +4,6 @@
 
 package dev.ligature
 
-import scala.annotation.unused
-
 final case class GraphName(name: String) extends Ordered[GraphName]:
   override def compare(that: GraphName): Int = this.name.compare(that.name)
 

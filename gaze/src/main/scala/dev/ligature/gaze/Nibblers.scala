@@ -4,7 +4,6 @@
 
 package dev.ligature.gaze
 
-import dev.ligature.gaze.Gaze
 import scala.collection.mutable.ArrayBuffer
 import scala.collection.mutable
 import scala.collection.mutable.ListBuffer
@@ -232,8 +231,9 @@ def repeatSep[I, O](
       case Result.Match(v)   => allMatches += v
       case Result.EmptyMatch => continue = true
     }
+
     if (gaze.peek() == Some(seperator)) {
-      gaze.next()
+      val _ = gaze.next()
     } else {
       continue = false
     }

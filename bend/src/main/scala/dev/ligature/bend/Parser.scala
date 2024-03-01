@@ -4,22 +4,10 @@
 
 package dev.ligature.bend
 
-import dev.ligature.gaze.{
-  Gaze,
-  Nibbler,
-  optional,
-  take,
-  takeAll,
-  takeCond,
-  takeFirst,
-  takeString,
-  repeat
-}
-import dev.ligature.bend.Token
+import dev.ligature.gaze.{Gaze, Nibbler, take, takeAll, takeFirst, repeat}
 import dev.ligature.gaze.Result
 import dev.ligature.gaze.SeqSource
 import dev.ligature.gaze.optionalSeq
-import scala.collection.mutable.ListBuffer
 import dev.ligature.gaze.repeatSep
 import scala.util.boundary
 import scala.util.boundary.break
@@ -155,7 +143,7 @@ val lambdaNib: Nibbler[Token, Term.Lambda] = { gaze =>
     parameters <- gaze.attempt(optionalSeq(repeat(fieldNib)))
     _ <- gaze.attempt(take(Token.Arrow))
     body <- gaze.attempt(expressionNib)
-  } yield Term.Lambda(parameters, body) //TODO handle this body better
+  } yield Term.Lambda(parameters, body) // TODO handle this body better
 }
 
 val conditionalsNib: Nibbler[Token, (Term, Term)] = { gaze =>

@@ -4,7 +4,6 @@
 
 package dev.ligature.bend
 
-import dev.ligature.bend.BendValue
 import munit.FunSuite
 import dev.ligature.bend.modules.std
 

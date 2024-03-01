@@ -4,7 +4,6 @@
 
 package dev.ligature.bend
 
-import dev.ligature.bend.Token
 import dev.ligature.bend.modules.std
 
 class BendSuiteCommonMode extends munit.FunSuite {

@@ -4,7 +4,6 @@
 
 package dev.ligature.bend.libraries
 
-import dev.ligature.bend.FieldPath
 import dev.ligature.bend.BendValue
 import java.nio.file.Path
 import dev.ligature.bend.Environment
@@ -14,14 +13,12 @@ import scala.util.boundary.break
 import java.nio.file.Files
 import scala.jdk.CollectionConverters.IteratorHasAsScala
 import dev.ligature.bend.Field
-import dev.ligature.bend.TaggedField
 import dev.ligature.bend.run
 import scala.util.Success
 import scala.util.Failure
 import scala.io.Source
 import scala.util.Using
 import dev.ligature.bend.modules.std
-import dev.ligature.bend.Tag
 
 final class DirectoryLibrary(path: Path) extends ModuleLibrary {
   var modules: Map[ModuleId, BendValue.Module] = Map()
@@ -41,7 +38,7 @@ val bendTextExt = ".test.bend"
 
 private def loadFromPath(path: Path): Either[BendError, Map[ModuleId, BendValue.Module]] =
   boundary:
-    var results = scala.collection.mutable.HashMap[ModuleId, BendValue.Module]()
+    val results = scala.collection.mutable.HashMap[ModuleId, BendValue.Module]()
     Files
       .walk(path)
       .iterator()

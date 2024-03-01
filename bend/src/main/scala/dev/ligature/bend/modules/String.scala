@@ -9,7 +9,6 @@ import dev.ligature.bend.TaggedField
 import dev.ligature.bend.Tag
 import dev.ligature.bend.BendValue
 import dev.ligature.bend.Field
-import dev.ligature.bend.FieldPath
 import jetbrains.exodus.bindings.StringBinding
 import jetbrains.exodus.ArrayByteIterable
 

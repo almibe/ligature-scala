@@ -233,8 +233,7 @@ object LigNibblers {
         ('0' to '9' contains c) || ('a' to 'f' contains c) || ('A' to 'F' contains c)
       val hexNibbler: Nibbler[String, String] = concat(takeWhile(validHexChar))
 
-      var sb = ArrayBuffer[String]()
-      var offset = 0 // TODO delete
+      val sb = ArrayBuffer[String]()
       var fail = false
       var complete = false
       while (!complete && !fail && !gaze.isComplete) {
@@ -287,8 +286,8 @@ object LigNibblers {
     stringContentNibbler
   ) // TODO should be a between but stringContentNibbler consumes the last " currently
 
-  private val validPrefixName =
-    (('a' to 'z') ++ ('A' to 'Z') ++ ('0' to '9')).toList.appended('_')
+  // private val validPrefixName =
+  //   (('a' to 'z') ++ ('A' to 'Z') ++ ('0' to '9')).toList.appended('_')
 
   // val identifierIdGenNibbler = ??? //matches <{}> <prefix:{}> <{}:postfix> <pre:{}:post> etc
   // val prefixedIdentifierNibbler = ??? //matches prefix:value:after:prefix

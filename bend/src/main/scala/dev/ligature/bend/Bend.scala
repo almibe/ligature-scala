@@ -5,10 +5,7 @@
 package dev.ligature.bend
 
 import dev.ligature.bend.parse
-import scala.annotation.unused
-import dev.ligature.bend.modules.std
 import java.util.HexFormat
-import dev.ligature.Ligature
 import dev.ligature.LigatureValue
 
 /** Represents a Value in the Bend language.

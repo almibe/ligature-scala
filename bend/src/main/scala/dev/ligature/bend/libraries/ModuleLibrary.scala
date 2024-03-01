@@ -4,7 +4,6 @@
 
 package dev.ligature.bend.libraries
 
-import dev.ligature.bend.FieldPath
 import dev.ligature.bend.BendValue
 import dev.ligature.bend.BendError
 

@@ -20,7 +20,9 @@ import dev.ligature.bend.modules.*
 import dev.ligature.inmemory.LigatureInMemory
 import dev.ligature.Ligature
 
-private class LigatureZeroMQ(val port: Int, ligature: Ligature) extends Runnable with AutoCloseable {
+private class LigatureZeroMQ(val port: Int, ligature: Ligature)
+    extends Runnable
+    with AutoCloseable {
   val logger = Logger("LigatureZeroMQ")
   private val zContext = ZContext()
 
