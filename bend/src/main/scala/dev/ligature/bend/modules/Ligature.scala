@@ -33,7 +33,7 @@ def createLigatureModule(ligature: Ligature): BendValue.Module = BendValue.Modul
           args match
             case Seq(BendValue.String(graphName)) =>
               logger.info(s"Creating graph $graphName")
-              ligature.createGraph(GraphName(graphName))
+              ligature.createGraph(DatasetName(graphName))
               Right(BendValue.Module(Map()), env)
             case _ => ???
       )
@@ -46,7 +46,7 @@ def createLigatureModule(ligature: Ligature): BendValue.Module = BendValue.Modul
         (args, env) =>
           args match
             case Seq(BendValue.String(graphName)) =>
-              ligature.deleteGraph(GraphName(graphName))
+              ligature.deleteGraph(DatasetName(graphName))
               Right(BendValue.Module(Map()), env)
             case _ => ???
       )
@@ -64,30 +64,30 @@ def createLigatureModule(ligature: Ligature): BendValue.Module = BendValue.Modul
     //     (args, env) =>
     //       args match
     //         case Seq(BendValue.String(graphName)) =>
-    //           ligature.deleteGraph(GraphName(graphName))
+    //           ligature.deleteGraph(DatasetName(graphName))
     //           Right(BendValue.Module(Map()), env)
     //         case _ => ???
     //   )
     // )
-    Field("allEdges") -> BendValue.Function(
+    Field("allStatements") -> BendValue.Function(
       HostFunction(
-        "Get all Edges in a Graph.",
+        "Get all Statements in a Graph.",
         Seq(TaggedField(Field("graphName"), Tag.Untagged)),
         Tag.Untagged,
         (arguments, environment) =>
           arguments.head match
             case BendValue.String(graphName) =>
               val res = ligature
-                .allEdges(GraphName(graphName))
+                .allStatements(DatasetName(graphName))
                 .map(statementToBendValue)
                 .toList
               Right((BendValue.Array(res), environment))
             case _ => ???
       )
     ),
-    Field("addEdges") -> BendValue.Function(
+    Field("addStatements") -> BendValue.Function(
       HostFunction(
-        "Add a collection of Edges to a Graph.",
+        "Add a collection of Statements to a Graph.",
         Seq(
           TaggedField(Field("graphName"), Tag.Untagged),
           TaggedField(Field("edges"), Tag.Untagged)
@@ -96,18 +96,18 @@ def createLigatureModule(ligature: Ligature): BendValue.Module = BendValue.Modul
         (arguments, environment) =>
           (arguments(0), arguments(1)) match
             case (BendValue.String(graphName), BendValue.Array(statementTerms)) =>
-              val graph = GraphName(graphName)
-              bendValuesToEdges(statementTerms, ListBuffer()) match
+              val graph = DatasetName(graphName)
+              bendValuesToStatements(statementTerms, ListBuffer()) match
                 case Left(value) => ???
                 case Right(edges) =>
-                  ligature.addEdges(graph, edges.iterator)
+                  ligature.addStatements(graph, edges.iterator)
                   Right((BendValue.Module(Map()), environment))
             case _ => ???
       )
     ),
-    Field("removeEdges") -> BendValue.Function(
+    Field("removeStatements") -> BendValue.Function(
       HostFunction(
-        "Remove a collection of Edges from a Graph.",
+        "Remove a collection of Statements from a Graph.",
         Seq(
           TaggedField(Field("graphName"), Tag.Untagged),
           TaggedField(Field("edges"), Tag.Untagged)
@@ -116,11 +116,11 @@ def createLigatureModule(ligature: Ligature): BendValue.Module = BendValue.Modul
         (arguments, environment) =>
           (arguments(0), arguments(1)) match
             case (BendValue.String(graphName), BendValue.Array(edges)) =>
-              val graph = GraphName(graphName)
-              bendValuesToEdges(edges, ListBuffer()) match
+              val graph = DatasetName(graphName)
+              bendValuesToStatements(edges, ListBuffer()) match
                 case Left(value) => ???
                 case Right(edges) =>
-                  ligature.removeEdges(graph, edges.iterator)
+                  ligature.removeStatements(graph, edges.iterator)
                   Right((BendValue.Module(Map()), environment))
             case _ => ???
       )
@@ -178,21 +178,21 @@ def createLigatureModule(ligature: Ligature): BendValue.Module = BendValue.Modul
 // //   environment
 // // }
 
-def bendValuesToEdges(
+def bendValuesToStatements(
     values: Seq[BendValue],
-    edges: ListBuffer[Edge]
-): Either[LigatureError, Seq[Edge]] =
+    edges: ListBuffer[Statement]
+): Either[LigatureError, Seq[Statement]] =
   if values.nonEmpty then
     values.head match
       case BendValue.Array(statementTerms) =>
-        bendsValuesToEdge(statementTerms) match
+        bendsValuesToStatement(statementTerms) match
           case Right(statement) =>
-            bendValuesToEdges(values.tail, edges += statement)
+            bendValuesToStatements(values.tail, edges += statement)
           case Left(err) => Left(err)
       case _ => println(values.head); ???
   else Right(edges.toSeq)
 
-def bendsValuesToEdge(values: Seq[BendValue]): Either[LigatureError, Edge] =
+def bendsValuesToStatement(values: Seq[BendValue]): Either[LigatureError, Statement] =
   if values.size == 3 then
     val source = values(0)
     val edge = values(1)
@@ -207,11 +207,11 @@ def bendsValuesToEdge(values: Seq[BendValue]): Either[LigatureError, Edge] =
           case BendValue.Label(value)  => value
           case _                       => ???
         }
-        Right(Edge(source, edge, value))
+        Right(Statement(source, edge, value))
       case _ => ???
   else ???
 
-def statementToBendValue(edge: Edge): BendValue =
+def statementToBendValue(edge: Statement): BendValue =
   BendValue.Array(
     Seq(
       BendValue.Label(edge.source),
@@ -219,7 +219,7 @@ def statementToBendValue(edge: Edge): BendValue =
       edge.target match
         case LigatureValue.BytesValue(value)   => BendValue.Bytes(value.toIndexedSeq)
         case LigatureValue.IntegerValue(value) => BendValue.Int(value)
-        case LigatureValue.Label(value)        => BendValue.Label(LigatureValue.Label(value))
+        case LigatureValue.Identifier(value)        => BendValue.Label(LigatureValue.Identifier(value))
         case LigatureValue.StringValue(value)  => BendValue.String(value)
     )
   )

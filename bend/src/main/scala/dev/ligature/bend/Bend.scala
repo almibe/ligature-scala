@@ -16,8 +16,8 @@ enum BendValue:
   case Bytes(value: Seq[Byte])
   case String(value: java.lang.String)
   case Array(values: Seq[BendValue])
-  case Label(value: LigatureValue.Label)
-  case Graph(value: Set[(LigatureValue.Label, LigatureValue.Label, LigatureValue)])
+  case Label(value: LigatureValue.Identifier)
+  case Graph(value: Set[(LigatureValue.Identifier, LigatureValue.Identifier, LigatureValue)])
   case Module(values: Map[Field, BendValue])
   case Function(function: dev.ligature.bend.Function)
   case QuestionMark

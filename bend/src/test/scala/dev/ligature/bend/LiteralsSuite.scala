@@ -36,7 +36,7 @@ class LiteralsSuite extends munit.FunSuite {
   }
   test("label literal") {
     val script = "<0x01FF>"
-    val result = BendValue.Label(LigatureValue.Label("0x01FF"))
+    val result = BendValue.Label(LigatureValue.Identifier("0x01FF"))
     check(script, result)
   }
   test("test printing bytes") {

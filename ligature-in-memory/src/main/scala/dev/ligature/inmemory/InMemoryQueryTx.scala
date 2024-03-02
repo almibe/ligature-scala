@@ -11,18 +11,18 @@ import dev.ligature.*
   */
 class InMemoryQueryTx(private val store: GraphStore) extends QueryTx {
 
-  /** Returns all PersistedEdges in this Graph. */
-  def allEdges(): Iterator[Edge] = store.edges.iterator
+  /** Returns all PersistedStatements in this Graph. */
+  def allStatements(): Iterator[Statement] = store.edges.iterator
 
-  /** Returns all PersistedEdges that match the given criteria. If a
+  /** Returns all PersistedStatements that match the given criteria. If a
     * parameter is None then it matches all, so passing all Nones is the same as
-    * calling allEdges.
+    * calling allStatements.
     */
-  override def matchEdges(
-      source: Option[LigatureValue.Label],
-      label: Option[LigatureValue.Label],
+  override def matchStatements(
+      source: Option[LigatureValue.Identifier],
+      label: Option[LigatureValue.Identifier],
       target: Option[LigatureValue]
-  ): Iterator[Edge] = {
+  ): Iterator[Statement] = {
     var res = store.edges.iterator
     if (source.isDefined) {
       res = res.filter(_.source == source.get)
@@ -36,14 +36,14 @@ class InMemoryQueryTx(private val store: GraphStore) extends QueryTx {
     res
   }
 
-//  /** Returns all PersistedEdges that match the given criteria. If a
+//  /** Returns all PersistedStatements that match the given criteria. If a
 //    * parameter is None then it matches all.
 //    */
-//  override def matchEdgesRange(
+//  override def matchStatementsRange(
 //      source: Option[Identifier],
 //      label: Option[Identifier],
 //      range: dev.ligature.Range
-//  ): Iterator[Edge] = {
+//  ): Iterator[Statement] = {
 //    var res = Stream.emits(store.edges.toSeq)
 //    if (source.isDefined) {
 //      res = res.filter(_.source == source.get)
