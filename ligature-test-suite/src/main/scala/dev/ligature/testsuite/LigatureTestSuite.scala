@@ -210,7 +210,11 @@ abstract class LigatureTestSuite extends FunSuite {
     instance.createGraph(testGraph)
     instance.addStatements(
       testGraph,
-      Seq(Statement(label1, a, label2), Statement(label3, a, label2), Statement(label1, a, label2)).iterator
+      Seq(
+        Statement(label1, a, label2),
+        Statement(label3, a, label2),
+        Statement(label1, a, label2)
+      ).iterator
     )
     instance.removeStatements(testGraph, Seq(Statement(label1, a, label2)).iterator)
     val edges = instance.allStatements(testGraph).toSet

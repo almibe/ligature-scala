@@ -219,7 +219,7 @@ def statementToBendValue(edge: Statement): BendValue =
       edge.target match
         case LigatureValue.BytesValue(value)   => BendValue.Bytes(value.toIndexedSeq)
         case LigatureValue.IntegerValue(value) => BendValue.Int(value)
-        case LigatureValue.Identifier(value)        => BendValue.Label(LigatureValue.Identifier(value))
+        case LigatureValue.Identifier(value)   => BendValue.Label(LigatureValue.Identifier(value))
         case LigatureValue.StringValue(value)  => BendValue.String(value)
     )
   )

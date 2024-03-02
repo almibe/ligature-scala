@@ -164,12 +164,12 @@ def targetValue(value: LigatureValue): Comparable[?] =
   value match
     case LigatureValue.IntegerValue(value) => value
     case LigatureValue.StringValue(value)  => value
-    case LigatureValue.Identifier(value)        => value
+    case LigatureValue.Identifier(value)   => value
     case LigatureValue.BytesValue(value)   => ???
 
 def targetType(value: LigatureValue): Int =
   value match
     case LigatureValue.IntegerValue(_) => INT
     case LigatureValue.StringValue(_)  => STRING
-    case LigatureValue.Identifier(_)        => VERTEX
+    case LigatureValue.Identifier(_)   => VERTEX
     case _                             => ???
