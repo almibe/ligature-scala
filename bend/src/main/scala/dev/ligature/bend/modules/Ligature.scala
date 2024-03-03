@@ -13,48 +13,48 @@ val logger = Logger("LigatureModule")
 
 def createLigatureModule(ligature: Ligature): BendValue.Module = BendValue.Module(
   Map(
-    Field("graphs") -> BendValue.Function(
+    Field("datasets") -> BendValue.Function(
       HostFunction(
-        "Get all graphs from this instance.",
+        "Get all datasets from this instance.",
         Seq(TaggedField(Field("_"), Tag.Untagged)),
         Tag.Untagged,
         (args, env) =>
           logger.info(s"Added ${ligature.allGraphs().toList}")
-          val graphs = ligature.allGraphs().map(g => BendValue.String(g.name))
-          Right((BendValue.Array(graphs.toSeq), env))
+          val datasets = ligature.allGraphs().map(g => BendValue.String(g.name))
+          Right((BendValue.Array(datasets.toSeq), env))
       )
     ),
-    Field("addGraph") -> BendValue.Function(
+    Field("addDataset") -> BendValue.Function(
       HostFunction(
-        "Add a new Graph.",
-        Seq(TaggedField(Field("graphName"), Tag.Untagged)),
+        "Add a new Dataset.",
+        Seq(TaggedField(Field("datasetName"), Tag.Untagged)),
         Tag.Untagged,
         (args, env) =>
           args match
-            case Seq(BendValue.String(graphName)) =>
-              logger.info(s"Creating graph $graphName")
-              ligature.createGraph(DatasetName(graphName))
+            case Seq(BendValue.String(datasetName)) =>
+              logger.info(s"Creating dataset $datasetName")
+              ligature.createGraph(DatasetName(datasetName))
               Right(BendValue.Module(Map()), env)
             case _ => ???
       )
     ),
-    Field("removeGraph") -> BendValue.Function(
+    Field("removeDataset") -> BendValue.Function(
       HostFunction(
-        "Remove a Graph by name.",
-        Seq(TaggedField(Field("graphName"), Tag.Untagged)),
+        "Remove a Dataset by name.",
+        Seq(TaggedField(Field("datasetName"), Tag.Untagged)),
         Tag.Untagged,
         (args, env) =>
           args match
-            case Seq(BendValue.String(graphName)) =>
-              ligature.deleteGraph(DatasetName(graphName))
+            case Seq(BendValue.String(datasetName)) =>
+              ligature.deleteGraph(DatasetName(datasetName))
               Right(BendValue.Module(Map()), env)
             case _ => ???
       )
     ),
-    // Field("graphExists") -> BendValue.Function(
+    // Field("datasetExists") -> BendValue.Function(
     //   HostFunction(
-    //     "Remove a Graph by name.",
-    //     Seq(TaggedField(Field("graphName"), Tag.Untagged)),
+    //     "Remove a Dataset by name.",
+    //     Seq(TaggedField(Field("datasetName"), Tag.Untagged)),
     //     Tag.Untagged,
 // //     (arguments: Seq[Term], environment: Environment) =>
 // //       arguments.head match
@@ -63,22 +63,22 @@ def createLigatureModule(ligature: Ligature): BendValue.Module = BendValue.Modul
 // //         case _ => ???
     //     (args, env) =>
     //       args match
-    //         case Seq(BendValue.String(graphName)) =>
-    //           ligature.deleteGraph(DatasetName(graphName))
+    //         case Seq(BendValue.String(datasetName)) =>
+    //           ligature.deleteDataset(DatasetName(datasetName))
     //           Right(BendValue.Module(Map()), env)
     //         case _ => ???
     //   )
     // )
     Field("allStatements") -> BendValue.Function(
       HostFunction(
-        "Get all Statements in a Graph.",
-        Seq(TaggedField(Field("graphName"), Tag.Untagged)),
+        "Get all Statements in a Dataset.",
+        Seq(TaggedField(Field("datasetName"), Tag.Untagged)),
         Tag.Untagged,
         (arguments, environment) =>
           arguments.head match
-            case BendValue.String(graphName) =>
+            case BendValue.String(datasetName) =>
               val res = ligature
-                .allStatements(DatasetName(graphName))
+                .allStatements(DatasetName(datasetName))
                 .map(statementToBendValue)
                 .toList
               Right((BendValue.Array(res), environment))
@@ -87,40 +87,40 @@ def createLigatureModule(ligature: Ligature): BendValue.Module = BendValue.Modul
     ),
     Field("addStatements") -> BendValue.Function(
       HostFunction(
-        "Add a collection of Statements to a Graph.",
+        "Add a collection of Statements to a Dataset.",
         Seq(
-          TaggedField(Field("graphName"), Tag.Untagged),
+          TaggedField(Field("datasetName"), Tag.Untagged),
           TaggedField(Field("edges"), Tag.Untagged)
         ),
         Tag.Untagged,
         (arguments, environment) =>
           (arguments(0), arguments(1)) match
-            case (BendValue.String(graphName), BendValue.Array(statementTerms)) =>
-              val graph = DatasetName(graphName)
+            case (BendValue.String(datasetName), BendValue.Array(statementTerms)) =>
+              val dataset = DatasetName(datasetName)
               bendValuesToStatements(statementTerms, ListBuffer()) match
                 case Left(value) => ???
                 case Right(edges) =>
-                  ligature.addStatements(graph, edges.iterator)
+                  ligature.addStatements(dataset, edges.iterator)
                   Right((BendValue.Module(Map()), environment))
             case _ => ???
       )
     ),
     Field("removeStatements") -> BendValue.Function(
       HostFunction(
-        "Remove a collection of Statements from a Graph.",
+        "Remove a collection of Statements from a Dataset.",
         Seq(
-          TaggedField(Field("graphName"), Tag.Untagged),
+          TaggedField(Field("datasetName"), Tag.Untagged),
           TaggedField(Field("edges"), Tag.Untagged)
         ),
         Tag.Untagged,
         (arguments, environment) =>
           (arguments(0), arguments(1)) match
-            case (BendValue.String(graphName), BendValue.Array(edges)) =>
-              val graph = DatasetName(graphName)
+            case (BendValue.String(datasetName), BendValue.Array(edges)) =>
+              val dataset = DatasetName(datasetName)
               bendValuesToStatements(edges, ListBuffer()) match
                 case Left(value) => ???
                 case Right(edges) =>
-                  ligature.removeStatements(graph, edges.iterator)
+                  ligature.removeStatements(dataset, edges.iterator)
                   Right((BendValue.Module(Map()), environment))
             case _ => ???
       )

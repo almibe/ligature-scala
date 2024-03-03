@@ -15,6 +15,8 @@ import com.typesafe.scalalogging.Logger
 import dev.ligature.bend.modules.*
 import dev.ligature.inmemory.LigatureInMemory
 import dev.ligature.Ligature
+import dev.ligature.xodus.createXodusLigature
+import java.nio.file.Paths
 
 private class LigatureZeroMQ(val port: Int, ligature: Ligature)
     extends Runnable
@@ -23,16 +25,15 @@ private class LigatureZeroMQ(val port: Int, ligature: Ligature)
   private val zContext = ZContext()
 
   override def run(): Unit =
+    val environment = stdWithLigature(ligature)
     val socket = zContext.createSocket(SocketType.REP)
     socket.bind(s"tcp://localhost:$port")
     var continue = true
-    // val std = stdWithKeylime(openDefault())
     logger.info("Starting server loop!")
     while (!Thread.currentThread().isInterrupted() && continue)
       try
         val command = String(socket.recv(0), ZMQ.CHARSET) // blocks waiting for a request
         logger.info(s"Command: $command")
-        val environment = stdWithLigature(ligature)
         val result = runBend(command, environment)
         result match
           case Left(err) =>
@@ -65,5 +66,6 @@ def runServer(port: Int): AutoCloseable = {
 }
 
 @main def main =
-  val server = LigatureZeroMQ(4200, LigatureInMemory())
+  val home = System.getProperty("user.home")
+  val server = LigatureZeroMQ(4200, createXodusLigature(Paths.get(home, ".ligature", "xodus")))
   server.run()
