@@ -14,7 +14,7 @@ val graphModule: BendValue.Module = BendValue.Module(
   Map(
     Field("length") -> BendValue.Function(
       HostFunction(
-        "Get the number of elements in a Graph.",
+        "Get the number of elements in a Dataset.",
         Seq(TaggedField(Field("array"), Tag.Untagged)),
         Tag.Untagged,
         (args, environment) =>

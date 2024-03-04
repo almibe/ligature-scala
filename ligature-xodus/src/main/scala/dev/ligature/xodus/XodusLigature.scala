@@ -41,7 +41,7 @@ private final class XodusLigature(environment: Environment) extends Ligature {
       stores += name -> store
       store
 
-  override def allGraphs(): Iterator[DatasetName] =
+  override def allDatasets(): Iterator[DatasetName] =
     val buffer = ListBuffer[DatasetName]()
     val store = getStore("__META")
     store.computeInReadonlyTransaction(tx =>
@@ -54,7 +54,7 @@ private final class XodusLigature(environment: Environment) extends Ligature {
     store.close()
     buffer.iterator
 
-  override def createGraph(graph: DatasetName): Unit =
+  override def createDataset(graph: DatasetName): Unit =
     val store = getStore("__META")
     store.executeInExclusiveTransaction(tx =>
       val entity = tx.newEntity("graph")
@@ -63,7 +63,7 @@ private final class XodusLigature(environment: Environment) extends Ligature {
     )
     store.close()
 
-  override def deleteGraph(graph: DatasetName): Unit =
+  override def deleteDataset(graph: DatasetName): Unit =
     val store = getStore("__META")
     store.executeInExclusiveTransaction(tx =>
       val res = tx.find("graph", "name", graph.name)
@@ -73,7 +73,7 @@ private final class XodusLigature(environment: Environment) extends Ligature {
     )
     store.close()
 
-  override def matchGraphsPrefix(prefix: String): Iterator[DatasetName] =
+  override def matchDatasetsPrefix(prefix: String): Iterator[DatasetName] =
     val buffer = ListBuffer[DatasetName]()
     val store = getStore("__META")
     store.computeInReadonlyTransaction(tx =>
@@ -95,7 +95,7 @@ private final class XodusLigature(environment: Environment) extends Ligature {
     store.close()
     res
 
-  override def matchGraphsRange(start: String, end: String): Iterator[DatasetName] =
+  override def matchDatasetsRange(start: String, end: String): Iterator[DatasetName] =
     val buffer = ListBuffer[DatasetName]()
     val store = getStore("__META")
     store.computeInReadonlyTransaction(tx =>
@@ -164,12 +164,12 @@ def targetValue(value: LigatureValue): Comparable[?] =
   value match
     case LigatureValue.IntegerValue(value) => value
     case LigatureValue.StringValue(value)  => value
-    case LigatureValue.Identifier(value)        => value
+    case LigatureValue.Identifier(value)   => value
     case LigatureValue.BytesValue(value)   => ???
 
 def targetType(value: LigatureValue): Int =
   value match
     case LigatureValue.IntegerValue(_) => INT
     case LigatureValue.StringValue(_)  => STRING
-    case LigatureValue.Identifier(_)        => VERTEX
+    case LigatureValue.Identifier(_)   => VERTEX
     case _                             => ???

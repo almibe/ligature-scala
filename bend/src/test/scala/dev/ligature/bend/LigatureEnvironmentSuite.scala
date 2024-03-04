@@ -33,21 +33,21 @@ class LigatureTestSuite extends FunSuite {
     assertEquals(check("", instance), BendValue.Module(Map()))
   }
 
-  setup.test("graphs should start empty") { (instance, _) =>
-    assertEquals(check("Ligature.graphs ()", instance), BendValue.Array(Seq()))
+  setup.test("datasets should start empty") { (instance, _) =>
+    assertEquals(check("Ligature.datasets ()", instance), BendValue.Array(Seq()))
   }
 
-  setup.test("create graphs") { (instance, _) =>
+  setup.test("create datasets") { (instance, _) =>
     assertEquals(
-      check("Ligature.addGraph \"hello\", Ligature.graphs ()", instance),
+      check("Ligature.addDataset \"hello\", Ligature.datasets ()", instance),
       BendValue.Array(Seq(BendValue.String("hello")))
     )
   }
 
-  setup.test("delete graphs") { (instance, _) =>
+  setup.test("delete datasets") { (instance, _) =>
     assertEquals(
       check(
-        "Ligature.addGraph \"hello\", Ligature.removeGraph \"hello\", Ligature.graphs ()",
+        "Ligature.addDataset \"hello\", Ligature.removeDataset \"hello\", Ligature.datasets ()",
         instance
       ),
       BendValue.Array(Seq())

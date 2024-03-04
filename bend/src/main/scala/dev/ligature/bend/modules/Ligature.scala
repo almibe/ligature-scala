@@ -19,8 +19,8 @@ def createLigatureModule(ligature: Ligature): BendValue.Module = BendValue.Modul
         Seq(TaggedField(Field("_"), Tag.Untagged)),
         Tag.Untagged,
         (args, env) =>
-          logger.info(s"Added ${ligature.allGraphs().toList}")
-          val datasets = ligature.allGraphs().map(g => BendValue.String(g.name))
+          logger.info(s"Added ${ligature.allDatasets().toList}")
+          val datasets = ligature.allDatasets().map(g => BendValue.String(g.name))
           Right((BendValue.Array(datasets.toSeq), env))
       )
     ),
@@ -33,7 +33,7 @@ def createLigatureModule(ligature: Ligature): BendValue.Module = BendValue.Modul
           args match
             case Seq(BendValue.String(datasetName)) =>
               logger.info(s"Creating dataset $datasetName")
-              ligature.createGraph(DatasetName(datasetName))
+              ligature.createDataset(DatasetName(datasetName))
               Right(BendValue.Module(Map()), env)
             case _ => ???
       )
@@ -46,7 +46,7 @@ def createLigatureModule(ligature: Ligature): BendValue.Module = BendValue.Modul
         (args, env) =>
           args match
             case Seq(BendValue.String(datasetName)) =>
-              ligature.deleteGraph(DatasetName(datasetName))
+              ligature.deleteDataset(DatasetName(datasetName))
               Right(BendValue.Module(Map()), env)
             case _ => ???
       )
@@ -219,7 +219,7 @@ def statementToBendValue(edge: Statement): BendValue =
       edge.target match
         case LigatureValue.BytesValue(value)   => BendValue.Bytes(value.toIndexedSeq)
         case LigatureValue.IntegerValue(value) => BendValue.Int(value)
-        case LigatureValue.Identifier(value)        => BendValue.Label(LigatureValue.Identifier(value))
+        case LigatureValue.Identifier(value)   => BendValue.Label(LigatureValue.Identifier(value))
         case LigatureValue.StringValue(value)  => BendValue.String(value)
     )
   )

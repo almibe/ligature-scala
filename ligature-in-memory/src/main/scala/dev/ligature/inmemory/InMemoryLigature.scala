@@ -8,44 +8,44 @@ import dev.ligature.{Ligature, QueryTx, Statement}
 import scala.collection.mutable.{Set, TreeMap}
 import dev.ligature.DatasetName
 
-protected case class GraphStore(var counter: Long = 0, val edges: Set[Statement] = Set())
+protected case class DatasetStore(var counter: Long = 0, val edges: Set[Statement] = Set())
 
 final class LigatureInMemory(
-    private val store: TreeMap[DatasetName, GraphStore] = TreeMap[DatasetName, GraphStore]()
+    private val store: TreeMap[DatasetName, DatasetStore] = TreeMap[DatasetName, DatasetStore]()
 ) extends Ligature {
-//  private val store = AtomicCell[IO].of(TreeMap[Graph, GraphStore]())
+//  private val store = AtomicCell[IO].of(TreeMap[Dataset, DatasetStore]())
 
-  /** Returns all Graphs in a Ligature instance. */
-  override def allGraphs(): Iterator[DatasetName] = store.keySet.iterator
+  /** Returns all Datasets in a Ligature instance. */
+  override def allDatasets(): Iterator[DatasetName] = store.keySet.iterator
 
-  /** Check if a given Graph exists. */
+  /** Check if a given Dataset exists. */
   override def graphExists(graph: DatasetName): Boolean = store.contains(graph)
 
-  /** Returns all Graphs in a Ligature instance that start with the given
+  /** Returns all Datasets in a Ligature instance that start with the given
     * prefix.
     */
-  override def matchGraphsPrefix(prefix: String): Iterator[DatasetName] =
+  override def matchDatasetsPrefix(prefix: String): Iterator[DatasetName] =
     store.keys.filter(_.name.startsWith(prefix)).iterator
 
-  /** Returns all Graphs in a Ligature instance that are in a given range
+  /** Returns all Datasets in a Ligature instance that are in a given range
     * (inclusive, exclusive].
     */
-  override def matchGraphsRange(
+  override def matchDatasetsRange(
       start: String,
       end: String
   ): Iterator[DatasetName] =
     store.keys.filter(k => k.name >= start && k.name < end).iterator
 
   /** Creates a graph with the given name. TODO should probably return its own
-    * error type { InvalidGraph, GraphExists, CouldNotCreateGraph }
+    * error type { InvalidDataset, DatasetExists, CouldNotCreateDataset }
     */
-  override def createGraph(graph: DatasetName): Unit =
-    if !this.store.contains(graph) then this.store += (graph -> GraphStore())
+  override def createDataset(graph: DatasetName): Unit =
+    if !this.store.contains(graph) then this.store += (graph -> DatasetStore())
 
   /** Deletes a graph with the given name. TODO should probably return its own
-    * error type { InvalidGraph, CouldNotDeleteGraph }
+    * error type { InvalidDataset, CouldNotDeleteDataset }
     */
-  override def deleteGraph(graph: DatasetName): Unit =
+  override def deleteDataset(graph: DatasetName): Unit =
     val _ = this.store.remove(graph)
 
   override def allStatements(graph: DatasetName): Iterator[Statement] =
@@ -66,7 +66,7 @@ final class LigatureInMemory(
   override def addStatements(graph: DatasetName, edges: Iterator[Statement]): Unit =
     this.store.get(graph) match {
       case None =>
-        this.store.addOne((graph, GraphStore(0, Set.from(edges.toSet))))
+        this.store.addOne((graph, DatasetStore(0, Set.from(edges.toSet))))
       case Some(store) => store.edges.addAll(edges)
     }
     // store.get(graph) match

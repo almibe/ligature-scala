@@ -172,11 +172,11 @@ class ParserSuite extends FunSuite {
     )
     assertEquals(result, expected)
   }
-  // test("parse empty Graph".ignore) {
+  // test("parse empty Dataset".ignore) {
   //   val result = check("{}")
   //   val expected = Right(
   //     Seq(
-  //       Term.Graph(Set())
+  //       Term.Dataset(Set())
   //     )
   //   )
   //   assertEquals(result, expected)

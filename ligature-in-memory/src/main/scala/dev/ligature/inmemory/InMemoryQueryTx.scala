@@ -7,11 +7,11 @@ package dev.ligature.inmemory
 import dev.ligature.*
 
 /** Represents a QueryTx within the context of a Ligature instance and a single
-  * Graph
+  * Dataset
   */
-class InMemoryQueryTx(private val store: GraphStore) extends QueryTx {
+class InMemoryQueryTx(private val store: DatasetStore) extends QueryTx {
 
-  /** Returns all PersistedStatements in this Graph. */
+  /** Returns all PersistedStatements in this Dataset. */
   def allStatements(): Iterator[Statement] = store.edges.iterator
 
   /** Returns all PersistedStatements that match the given criteria. If a

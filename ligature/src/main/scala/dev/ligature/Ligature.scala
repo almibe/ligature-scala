@@ -26,36 +26,36 @@ final case class Statement(
 
 /** A trait that all Ligature implementations implement. */
 trait Ligature:
-  /** Returns all Graphs in a Ligature instance. */
-  def allGraphs(): Iterator[DatasetName]
+  /** Returns all Datasets in a Ligature instance. */
+  def allDatasets(): Iterator[DatasetName]
 
-  /** Check if a given Graph exists. */
+  /** Check if a given Dataset exists. */
   def graphExists(graph: DatasetName): Boolean
 
-  /** Returns all Graphs in a Ligature instance that start with the given
+  /** Returns all Datasets in a Ligature instance that start with the given
     * prefix.
     */
-  def matchGraphsPrefix(
+  def matchDatasetsPrefix(
       prefix: String
   ): Iterator[DatasetName]
 
-  /** Returns all Graphs in a Ligature instance that are in a given range
+  /** Returns all Datasets in a Ligature instance that are in a given range
     * (inclusive, exclusive].
     */
-  def matchGraphsRange(
+  def matchDatasetsRange(
       start: String,
       end: String
   ): Iterator[DatasetName]
 
   /** Creates a graph with the given name. TODO should probably return its own
-    * error type { InvalidGraph, GraphExists, CouldNotCreateGraph }
+    * error type { InvalidDataset, DatasetExists, CouldNotCreateDataset }
     */
-  def createGraph(graph: DatasetName): Unit
+  def createDataset(graph: DatasetName): Unit
 
   /** Deletes a graph with the given name. TODO should probably return its own
-    * error type { InvalidGraph, CouldNotDeleteGraph }
+    * error type { InvalidDataset, CouldNotDeleteDataset }
     */
-  def deleteGraph(graph: DatasetName): Unit
+  def deleteDataset(graph: DatasetName): Unit
 
   def allStatements(graph: DatasetName): Iterator[Statement]
 
@@ -71,7 +71,7 @@ trait Ligature:
   def close(): Unit
 
 /** Represents a QueryTx within the context of a Ligature instance and a single
-  * Graph
+  * Dataset
   */
 trait QueryTx:
   /** Returns all PersistedStatements that match the given criteria. If a
