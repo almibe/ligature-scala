@@ -9,6 +9,7 @@ import scala.collection.mutable.ListBuffer
 import scala.util.boundary, boundary.break
 import scala.collection.mutable
 import dev.ligature.LigatureValue
+import dev.ligature.Statement
 
 enum Expression:
   case FieldExpression(field: dev.ligature.bend.Field)
@@ -160,6 +161,36 @@ def handleApplication(
     environment: Environment
 ): Either[BendError, (BendValue, Environment)] =
   expression.head match {
+    case Expression.Identifier(identifier) =>
+      expression match
+        case Seq(Expression.Identifier(entity), Expression.Identifier(attribute), value: Expression) =>
+          value match
+            case Expression.Identifier(value) =>
+              Right((BendValue.Statement(Statement(
+                LigatureValue.Identifier(entity), 
+                LigatureValue.Identifier(attribute),
+                LigatureValue.Identifier(value))), environment))
+            case Expression.IntegerValue(value) =>
+              Right((BendValue.Statement(Statement(
+                LigatureValue.Identifier(entity), 
+                LigatureValue.Identifier(attribute),
+                LigatureValue.IntegerValue(value))), environment))
+            case Expression.Bytes(value) =>
+              Right((BendValue.Statement(Statement(
+                LigatureValue.Identifier(entity), 
+                LigatureValue.Identifier(attribute),
+                LigatureValue.BytesValue(value))), environment))
+            case stringValue: Expression.StringValue =>
+              eval(stringValue, environment) match {
+                case Right((BendValue.String(result), _)) => 
+                  Right((BendValue.Statement(Statement(
+                    LigatureValue.Identifier(entity), 
+                    LigatureValue.Identifier(attribute),
+                    LigatureValue.StringValue(result))), environment))
+                case _ => ???
+              }
+            case _ => Left(BendError(s"Invalid Statement - ${expression}"))
+        case _ => Left(BendError(s"Invalid Statement - ${expression}"))
     case Expression.FieldPathExpression(fieldPath) =>
       environment.read(fieldPath) match {
         case Left(err)   => Left(err)
@@ -182,7 +213,7 @@ def handleApplication(
             case _                        => Left(BendError(s"Could not call function."))
           }
       }
-    case x => Left(BendError(s"Unexpected value - $x"))
+    case x => Left(BendError(s"Unexpected start of application - $x"))
   }
 
 def callArray(

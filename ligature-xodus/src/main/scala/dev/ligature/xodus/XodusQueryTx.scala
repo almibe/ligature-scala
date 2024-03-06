@@ -26,26 +26,26 @@ class XodusQueryTx(
       case (Some(source), None, None) =>
         tx.find("edge", "source", source.value)
       case (None, Some(label), None) =>
-        tx.find("edge", "label", label.value)
+        tx.find("edge", "attribute", label.value)
       case (None, None, Some(target)) =>
-        tx.find("edge", "targetType", targetType(target))
-          .intersect(tx.find("edge", "target", targetValue(target)))
+        tx.find("edge", "valueType", valueType(target))
+          .intersect(tx.find("edge", "value", targetValue(target)))
       case (Some(source), Some(label), None) =>
         tx.find("edge", "source", source.value)
-          .intersect(tx.find("edge", "label", label.value))
+          .intersect(tx.find("edge", "attribute", label.value))
       case (Some(source), None, Some(target)) =>
         tx.find("edge", "source", source.value)
-          .intersect(tx.find("edge", "targetType", targetType(target)))
-          .intersect(tx.find("edge", "target", targetValue(target)))
+          .intersect(tx.find("edge", "valueType", valueType(target)))
+          .intersect(tx.find("edge", "value", targetValue(target)))
       case (None, Some(label), Some(target)) =>
-        tx.find("edge", "label", label.value)
-          .intersect(tx.find("edge", "targetType", targetType(target)))
-          .intersect(tx.find("edge", "target", targetValue(target)))
+        tx.find("edge", "attribute", label.value)
+          .intersect(tx.find("edge", "valueType", valueType(target)))
+          .intersect(tx.find("edge", "value", targetValue(target)))
       case (Some(source), Some(label), Some(target)) =>
         tx.find("edge", "source", source.value)
-          .intersect(tx.find("edge", "label", label.value))
-          .intersect(tx.find("edge", "targetType", targetType(target)))
-          .intersect(tx.find("edge", "target", targetValue(target)))
+          .intersect(tx.find("edge", "attribute", label.value))
+          .intersect(tx.find("edge", "valueType", valueType(target)))
+          .intersect(tx.find("edge", "value", targetValue(target)))
     entitiesToStatements(entities)
 }
 
@@ -55,12 +55,12 @@ def entitiesToStatements(entities: EntityIterable): Iterator[Statement] =
     val source: LigatureValue.Identifier =
       LigatureValue.Identifier(entity.getProperty("source").asInstanceOf[String])
     val label: LigatureValue.Identifier =
-      LigatureValue.Identifier(entity.getProperty("label").asInstanceOf[String])
-    val target = entity.getProperty("targetType").asInstanceOf[Int] match
-      case VERTEX => LigatureValue.Identifier(entity.getProperty("target").asInstanceOf[String])
-      case INT    => LigatureValue.IntegerValue(entity.getProperty("target").asInstanceOf[Long])
+      LigatureValue.Identifier(entity.getProperty("attribute").asInstanceOf[String])
+    val target = entity.getProperty("valueType").asInstanceOf[Int] match
+      case IDENTIFIER => LigatureValue.Identifier(entity.getProperty("value").asInstanceOf[String])
+      case INT    => LigatureValue.IntegerValue(entity.getProperty("value").asInstanceOf[Long])
       case STRING =>
-        LigatureValue.StringValue(entity.getProperty("target").asInstanceOf[String])
+        LigatureValue.StringValue(entity.getProperty("value").asInstanceOf[String])
     buffer += Statement(source, label, target)
   )
   buffer.iterator

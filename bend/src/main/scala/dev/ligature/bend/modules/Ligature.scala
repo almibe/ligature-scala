@@ -200,12 +200,11 @@ def bendsValuesToStatement(values: Seq[BendValue]): Either[LigatureError, Statem
     (entity, attribute, value) match
       case (BendValue.Identifier(entity), BendValue.Identifier(attribute), bendValue: BendValue) =>
         val value: LigatureValue = bendValue match {
-          case BendValue.Bytes(value) =>
-            LigatureValue.BytesValue(value.toArray) // TODO fix Seq/Array
-          case BendValue.Int(value)    => LigatureValue.IntegerValue(value)
-          case BendValue.String(value) => LigatureValue.StringValue(value)
+          case BendValue.Bytes(value)       => LigatureValue.BytesValue(value)
+          case BendValue.Int(value)         => LigatureValue.IntegerValue(value)
+          case BendValue.String(value)      => LigatureValue.StringValue(value)
           case BendValue.Identifier(value)  => value
-          case _                       => ???
+          case _                            => ???
         }
         Right(Statement(entity, attribute, value))
       case _ => ???

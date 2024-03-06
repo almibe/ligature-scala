@@ -21,7 +21,7 @@ import dev.ligature.LigatureValue
 import jetbrains.exodus.entitystore.PersistentEntityStore
 import dev.ligature.DatasetName
 
-val VERTEX = 0
+val IDENTIFIER = 0
 val INT = 1
 val STRING = 2
 
@@ -113,18 +113,18 @@ private final class XodusLigature(environment: Environment) extends Ligature {
 
   override def allStatements(graph: DatasetName): Iterator[Statement] =
     val store = getStore(graph.name)
-    store.computeInReadonlyTransaction(tx => entitiesToStatements(tx.getAll("edge")).iterator)
+    store.computeInReadonlyTransaction(tx => entitiesToStatements(tx.getAll("statement")).iterator)
 
-  override def addStatements(graph: DatasetName, edges: Iterator[Statement]): Unit =
+  override def addStatements(graph: DatasetName, statements: Iterator[Statement]): Unit =
     val store = getStore(graph.name)
     store.executeInExclusiveTransaction(tx =>
-      edges.foreach(edge =>
-        if findStatement(edge, tx).isEmpty then
-          val entity = tx.newEntity("edge")
-          entity.setProperty("source", edge.source.value)
-          entity.setProperty("label", edge.label.value)
-          entity.setProperty("target", targetValue(edge.target))
-          entity.setProperty("targetType", targetType(edge.target))
+      statements.foreach(statement =>
+        if findStatement(statement, tx).isEmpty then
+          val entity = tx.newEntity("statement")
+          entity.setProperty("entity", statement.entity.value)
+          entity.setProperty("attribute", statement.attribute.value)
+          entity.setProperty("value", targetValue(statement.value))
+          entity.setProperty("valueType", valueType(statement.value))
           ()
       )
     )
@@ -139,13 +139,13 @@ private final class XodusLigature(environment: Environment) extends Ligature {
       )
     )
 
-  private def findStatement(edge: Statement, tx: StoreTransaction): Option[Entity] =
+  private def findStatement(statement: Statement, tx: StoreTransaction): Option[Entity] =
     var res: Option[Entity] = None
-    tx.find("edge", "source", edge.source.value)
+    tx.find("statement", "entity", statement.entity.value)
       .forEach(entity =>
-        if entity.getProperty("label") == edge.label.value &&
-          entity.getProperty("targetType").asInstanceOf[Int] == targetType(edge.target) &&
-          entity.getProperty("target") == targetValue(edge.target)
+        if entity.getProperty("attribute") == statement.attribute.value &&
+          entity.getProperty("valueType").asInstanceOf[Int] == valueType(statement.value) &&
+          entity.getProperty("value") == targetValue(statement.value)
         then res = Some(entity)
       )
     res
@@ -167,9 +167,9 @@ def targetValue(value: LigatureValue): Comparable[?] =
     case LigatureValue.Identifier(value)   => value
     case LigatureValue.BytesValue(value)   => ???
 
-def targetType(value: LigatureValue): Int =
+def valueType(value: LigatureValue): Int =
   value match
     case LigatureValue.IntegerValue(_) => INT
     case LigatureValue.StringValue(_)  => STRING
-    case LigatureValue.Identifier(_)   => VERTEX
+    case LigatureValue.Identifier(_)   => IDENTIFIER
     case _                             => ???

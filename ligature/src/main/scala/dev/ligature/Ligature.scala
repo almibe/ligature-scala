@@ -13,7 +13,7 @@ enum LigatureValue:
   case Identifier(value: String)
   case StringValue(value: String)
   case IntegerValue(value: Long)
-  case BytesValue(value: Array[Byte])
+  case BytesValue(value: Seq[Byte])
 
 //sealed trait Range
 //final case class StringValueRange(start: String, end: String) extends Range
