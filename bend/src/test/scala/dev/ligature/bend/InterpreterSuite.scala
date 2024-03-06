@@ -26,11 +26,13 @@ class InterpreterSuite extends FunSuite {
   }
   test("Statement support") {
     val script = "<a> <b> <c>"
-    val result = BendValue.Statement(Statement(
-      LigatureValue.Identifier("a"),
-      LigatureValue.Identifier("b"),
-      LigatureValue.Identifier("c"),
-    ))
+    val result = BendValue.Statement(
+      Statement(
+        LigatureValue.Identifier("a"),
+        LigatureValue.Identifier("b"),
+        LigatureValue.Identifier("c")
+      )
+    )
     check(script, result)
   }
 }

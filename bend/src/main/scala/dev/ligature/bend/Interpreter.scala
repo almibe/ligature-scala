@@ -163,30 +163,66 @@ def handleApplication(
   expression.head match {
     case Expression.Identifier(identifier) =>
       expression match
-        case Seq(Expression.Identifier(entity), Expression.Identifier(attribute), value: Expression) =>
+        case Seq(
+              Expression.Identifier(entity),
+              Expression.Identifier(attribute),
+              value: Expression
+            ) =>
           value match
             case Expression.Identifier(value) =>
-              Right((BendValue.Statement(Statement(
-                LigatureValue.Identifier(entity), 
-                LigatureValue.Identifier(attribute),
-                LigatureValue.Identifier(value))), environment))
+              Right(
+                (
+                  BendValue.Statement(
+                    Statement(
+                      LigatureValue.Identifier(entity),
+                      LigatureValue.Identifier(attribute),
+                      LigatureValue.Identifier(value)
+                    )
+                  ),
+                  environment
+                )
+              )
             case Expression.IntegerValue(value) =>
-              Right((BendValue.Statement(Statement(
-                LigatureValue.Identifier(entity), 
-                LigatureValue.Identifier(attribute),
-                LigatureValue.IntegerValue(value))), environment))
+              Right(
+                (
+                  BendValue.Statement(
+                    Statement(
+                      LigatureValue.Identifier(entity),
+                      LigatureValue.Identifier(attribute),
+                      LigatureValue.IntegerValue(value)
+                    )
+                  ),
+                  environment
+                )
+              )
             case Expression.Bytes(value) =>
-              Right((BendValue.Statement(Statement(
-                LigatureValue.Identifier(entity), 
-                LigatureValue.Identifier(attribute),
-                LigatureValue.BytesValue(value))), environment))
+              Right(
+                (
+                  BendValue.Statement(
+                    Statement(
+                      LigatureValue.Identifier(entity),
+                      LigatureValue.Identifier(attribute),
+                      LigatureValue.BytesValue(value)
+                    )
+                  ),
+                  environment
+                )
+              )
             case stringValue: Expression.StringValue =>
               eval(stringValue, environment) match {
-                case Right((BendValue.String(result), _)) => 
-                  Right((BendValue.Statement(Statement(
-                    LigatureValue.Identifier(entity), 
-                    LigatureValue.Identifier(attribute),
-                    LigatureValue.StringValue(result))), environment))
+                case Right((BendValue.String(result), _)) =>
+                  Right(
+                    (
+                      BendValue.Statement(
+                        Statement(
+                          LigatureValue.Identifier(entity),
+                          LigatureValue.Identifier(attribute),
+                          LigatureValue.StringValue(result)
+                        )
+                      ),
+                      environment
+                    )
+                  )
                 case _ => ???
               }
             case _ => Left(BendError(s"Invalid Statement - ${expression}"))

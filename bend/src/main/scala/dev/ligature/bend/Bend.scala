@@ -125,7 +125,8 @@ def printBendValue(value: BendValue, interpolation: Boolean = false): String =
       "{" + values
         .map((field, value) => field.name + " = " + printBendValue(value, interpolation))
         .mkString(", ") + "}"
-    case BendValue.Bytes(value)   => s"0x${formatter.formatHex(value.toArray)}"
-    case BendValue.Graph(value) => "\"[Graph]\""
-    case BendValue.Identifier(identifier)   => s"<${identifier.value}>"
-    case BendValue.Statement(statement) => s"${statement.entity} ${statement.attribute} ${statement.value}" //TODO probably not right
+    case BendValue.Bytes(value)           => s"0x${formatter.formatHex(value.toArray)}"
+    case BendValue.Graph(value)           => "\"[Graph]\""
+    case BendValue.Identifier(identifier) => s"<${identifier.value}>"
+    case BendValue.Statement(statement) =>
+      s"${statement.entity} ${statement.attribute} ${statement.value}" // TODO probably not right

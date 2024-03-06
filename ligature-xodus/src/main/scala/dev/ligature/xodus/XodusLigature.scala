@@ -45,7 +45,7 @@ private final class XodusLigature(environment: Environment) extends Ligature {
     val buffer = ListBuffer[DatasetName]()
     val store = getStore("__META")
     store.computeInReadonlyTransaction(tx =>
-      tx.getAll("graph")
+      tx.getAll("dataset")
         .forEach(entity =>
           val graph = DatasetName(entity.getProperty("name").asInstanceOf[String])
           buffer.append(graph)
@@ -57,7 +57,7 @@ private final class XodusLigature(environment: Environment) extends Ligature {
   override def createDataset(graph: DatasetName): Unit =
     val store = getStore("__META")
     store.executeInExclusiveTransaction(tx =>
-      val entity = tx.newEntity("graph")
+      val entity = tx.newEntity("dataset")
       entity.setProperty("name", graph.name)
       tx.saveEntity(entity)
     )
@@ -66,7 +66,7 @@ private final class XodusLigature(environment: Environment) extends Ligature {
   override def deleteDataset(graph: DatasetName): Unit =
     val store = getStore("__META")
     store.executeInExclusiveTransaction(tx =>
-      val res = tx.find("graph", "name", graph.name)
+      val res = tx.find("dataset", "name", graph.name)
       res.forEach { res =>
         val _ = res.delete()
       }
@@ -77,7 +77,7 @@ private final class XodusLigature(environment: Environment) extends Ligature {
     val buffer = ListBuffer[DatasetName]()
     val store = getStore("__META")
     store.computeInReadonlyTransaction(tx =>
-      tx.findStartingWith("graph", "name", prefix)
+      tx.findStartingWith("dataset", "name", prefix)
         .forEach(entity =>
           val graph = DatasetName(entity.getProperty("name").asInstanceOf[String])
           buffer.append(graph)
@@ -89,7 +89,7 @@ private final class XodusLigature(environment: Environment) extends Ligature {
   override def graphExists(graph: DatasetName): Boolean =
     val store = getStore("__META")
     val res = store.computeInReadonlyTransaction(tx =>
-      val res = tx.find("graph", "name", graph.name)
+      val res = tx.find("dataset", "name", graph.name)
       !res.isEmpty()
     )
     store.close()
@@ -99,7 +99,7 @@ private final class XodusLigature(environment: Environment) extends Ligature {
     val buffer = ListBuffer[DatasetName]()
     val store = getStore("__META")
     store.computeInReadonlyTransaction(tx =>
-      tx.getAll("graph")
+      tx.getAll("dataset")
         .forEach(entity =>
           val name = entity.getProperty("name").asInstanceOf[String]
           if (name >= start && name < end) {

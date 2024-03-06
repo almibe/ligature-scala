@@ -90,7 +90,7 @@ def createLigatureModule(ligature: Ligature): BendValue.Module = BendValue.Modul
         "Add a collection of Statements to a Dataset.",
         Seq(
           TaggedField(Field("datasetName"), Tag.Untagged),
-          TaggedField(Field("edges"), Tag.Untagged)
+          TaggedField(Field("statements"), Tag.Untagged)
         ),
         Tag.Untagged,
         (arguments, environment) =>
@@ -110,7 +110,7 @@ def createLigatureModule(ligature: Ligature): BendValue.Module = BendValue.Modul
         "Remove a collection of Statements from a Dataset.",
         Seq(
           TaggedField(Field("datasetName"), Tag.Untagged),
-          TaggedField(Field("edges"), Tag.Untagged)
+          TaggedField(Field("statements"), Tag.Untagged)
         ),
         Tag.Untagged,
         (arguments, environment) =>
@@ -200,11 +200,11 @@ def bendsValuesToStatement(values: Seq[BendValue]): Either[LigatureError, Statem
     (entity, attribute, value) match
       case (BendValue.Identifier(entity), BendValue.Identifier(attribute), bendValue: BendValue) =>
         val value: LigatureValue = bendValue match {
-          case BendValue.Bytes(value)       => LigatureValue.BytesValue(value)
-          case BendValue.Int(value)         => LigatureValue.IntegerValue(value)
-          case BendValue.String(value)      => LigatureValue.StringValue(value)
-          case BendValue.Identifier(value)  => value
-          case _                            => ???
+          case BendValue.Bytes(value)      => LigatureValue.BytesValue(value)
+          case BendValue.Int(value)        => LigatureValue.IntegerValue(value)
+          case BendValue.String(value)     => LigatureValue.StringValue(value)
+          case BendValue.Identifier(value) => value
+          case _                           => ???
         }
         Right(Statement(entity, attribute, value))
       case _ => ???
@@ -218,8 +218,9 @@ def statementToBendValue(statement: Statement): BendValue =
       statement.value match
         case LigatureValue.BytesValue(value)   => BendValue.Bytes(value.toIndexedSeq)
         case LigatureValue.IntegerValue(value) => BendValue.Int(value)
-        case LigatureValue.Identifier(value)   => BendValue.Identifier(LigatureValue.Identifier(value))
-        case LigatureValue.StringValue(value)  => BendValue.String(value)
+        case LigatureValue.Identifier(value) =>
+          BendValue.Identifier(LigatureValue.Identifier(value))
+        case LigatureValue.StringValue(value) => BendValue.String(value)
     )
   )
 
