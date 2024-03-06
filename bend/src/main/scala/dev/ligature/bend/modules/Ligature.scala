@@ -79,7 +79,7 @@ def createLigatureModule(ligature: Ligature): BendValue.Module = BendValue.Modul
             case BendValue.String(datasetName) =>
               val res = ligature
                 .allStatements(DatasetName(datasetName))
-                .map(statementToBendValue)
+                .map(statement => BendValue.Statement(statement))
                 .toList
               Right((BendValue.Array(res), environment))
             case _ => ???
@@ -115,12 +115,12 @@ def createLigatureModule(ligature: Ligature): BendValue.Module = BendValue.Modul
         Tag.Untagged,
         (arguments, environment) =>
           (arguments(0), arguments(1)) match
-            case (BendValue.String(datasetName), BendValue.Array(edges)) =>
+            case (BendValue.String(datasetName), BendValue.Array(statements)) =>
               val dataset = DatasetName(datasetName)
-              bendValuesToStatements(edges, ListBuffer()) match
+              bendValuesToStatements(statements, ListBuffer()) match
                 case Left(value) => ???
-                case Right(edges) =>
-                  ligature.removeStatements(dataset, edges.iterator)
+                case Right(statements) =>
+                  ligature.removeStatements(dataset, statements.iterator)
                   Right((BendValue.Module(Map()), environment))
             case _ => ???
       )
@@ -184,84 +184,7 @@ def bendValuesToStatements(
 ): Either[LigatureError, Seq[Statement]] =
   if values.nonEmpty then
     values.head match
-      case BendValue.Array(statementTerms) =>
-        bendsValuesToStatement(statementTerms) match
-          case Right(statement) =>
-            bendValuesToStatements(values.tail, edges += statement)
-          case Left(err) => Left(err)
-      case _ => println(values.head); ???
+      case BendValue.Statement(statement) =>
+        bendValuesToStatements(values.tail, edges += statement)
+      case err => Left(LigatureError(s"Invalid statement - $err"))
   else Right(edges.toSeq)
-
-def bendsValuesToStatement(values: Seq[BendValue]): Either[LigatureError, Statement] =
-  if values.size == 3 then
-    val entity = values(0)
-    val attribute = values(1)
-    val value = values(2)
-    (entity, attribute, value) match
-      case (BendValue.Identifier(entity), BendValue.Identifier(attribute), bendValue: BendValue) =>
-        val value: LigatureValue = bendValue match {
-          case BendValue.Bytes(value)      => LigatureValue.BytesValue(value)
-          case BendValue.Int(value)        => LigatureValue.IntegerValue(value)
-          case BendValue.String(value)     => LigatureValue.StringValue(value)
-          case BendValue.Identifier(value) => value
-          case _                           => ???
-        }
-        Right(Statement(entity, attribute, value))
-      case _ => ???
-  else ???
-
-def statementToBendValue(statement: Statement): BendValue =
-  BendValue.Array(
-    Seq(
-      BendValue.Identifier(statement.entity),
-      BendValue.Identifier(statement.attribute),
-      statement.value match
-        case LigatureValue.BytesValue(value)   => BendValue.Bytes(value.toIndexedSeq)
-        case LigatureValue.IntegerValue(value) => BendValue.Int(value)
-        case LigatureValue.Identifier(value) =>
-          BendValue.Identifier(LigatureValue.Identifier(value))
-        case LigatureValue.StringValue(value) => BendValue.String(value)
-    )
-  )
-
-// // def datasetModeEnvironment(environment: Environment, dataset: Dataset): Environment =
-// //   environment
-
-// //def instanceLibraryEnvironment(environment: Environment): Environment = {
-// //// function instanceScope(scope: ExecutionScope, environment: Environment) {
-// ////     // allDatasets(): Promise<Array<Dataset>>;
-// ////     environment.bind(Name("allDatasets"), NativeFunction([], (_environment: Environment) => {
-// ////         return TODO()
-// ////     }))
-// ////     // datasetExists(dataset: Dataset): Promise<boolean>;
-// ////     environment.bind(Name("datasetExists"), NativeFunction(["dataset"], (_environment: Environment) => {
-// ////         return TODO()
-// ////     }))
-// ////     // matchDatasetPrefix(prefix: string): Promise<Array<Dataset>>;
-// ////     environment.bind(Name("matchDatasetPrefix"), NativeFunction(["prefix"], (_environment: Environment) => {
-// ////         return TODO()
-// ////     }))
-// ////     // matchDatasetRange(start: string, end: string): Promise<Array<Dataset>>;
-// ////     environment.bind(Name("matchDatasetRange"), NativeFunction(["start", "end"], (_environment: Environment) => {
-// ////         return TODO()
-// ////     }))
-// ////     // createDataset(dataset: Dataset): Promise<Dataset>;
-// ////     environment.bind(Name("createDataset"), NativeFunction(["dataset"], (_environment: Environment) => {
-// ////         return TODO()
-// ////     }))
-// ////     // deleteDataset(dataset: Dataset): Promise<Dataset>;
-// ////     environment.bind(Name("deleteDataset"), NativeFunction(["dataset"], (_environment: Environment) => {
-// ////         return TODO()
-// ////     }))
-// ////     // query<T>(dataset: Dataset, fn: (readTx: ReadTx) => Promise<T>): Promise<T>;
-// ////     environment.bind(Name("query"), NativeFunction(["dataset", "fn"], (_environment: Environment) => {
-// ////         return TODO()
-// ////     }))
-// ////     // write<T>(dataset: Dataset, fn: (writeTx: WriteTx) => Promise<T>): Promise<T>;
-// ////     environment.bind(Name("write"), NativeFunction(["dataset", "fn"], (_environment: Environment) => {
-// ////         return TODO()
-// ////     }))
-// //// }
-// //
-// //  environment
-// //}

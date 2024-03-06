@@ -125,8 +125,17 @@ def printBendValue(value: BendValue, interpolation: Boolean = false): String =
       "{" + values
         .map((field, value) => field.name + " = " + printBendValue(value, interpolation))
         .mkString(", ") + "}"
-    case BendValue.Bytes(value)           => s"0x${formatter.formatHex(value.toArray)}"
+    case BendValue.Bytes(value)           => printBytes(value)
     case BendValue.Graph(value)           => "\"[Graph]\""
-    case BendValue.Identifier(identifier) => s"<${identifier.value}>"
+    case BendValue.Identifier(identifier) => printIdentifier(identifier)
     case BendValue.Statement(statement) =>
-      s"${statement.entity} ${statement.attribute} ${statement.value}" // TODO probably not right
+      val value = statement.value match
+        case LigatureValue.BytesValue(value)   => printBytes(value)
+        case value: LigatureValue.Identifier   => printIdentifier(value)
+        case LigatureValue.IntegerValue(value) => value.toString()
+        case LigatureValue.StringValue(value) =>
+          if interpolation then value else s"\"$value\"" // TODO escape correctly
+      s"<${statement.entity.value}> <${statement.attribute.value}> $value"
+
+def printBytes(bytes: Seq[Byte]) = s"0x${formatter.formatHex(bytes.toArray)}"
+def printIdentifier(identifier: LigatureValue.Identifier) = s"<${identifier.value}>"
