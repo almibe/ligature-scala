@@ -19,9 +19,9 @@ enum LigatureValue:
 //final case class StringValueRange(start: String, end: String) extends Range
 //final case class IntegerValueRange(start: Long, end: Long) extends Range
 final case class Statement(
-    source: LigatureValue.Identifier,
-    label: LigatureValue.Identifier,
-    target: LigatureValue
+    entity: LigatureValue.Identifier,
+    attribute: LigatureValue.Identifier,
+    value: LigatureValue
 )
 
 /** A trait that all Ligature implementations implement. */

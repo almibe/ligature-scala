@@ -16,7 +16,7 @@ enum Expression:
   case IntegerValue(value: Long)
   case Bytes(value: Seq[Byte])
   case StringValue(value: String, interpolated: Boolean = false)
-  case Label(value: String)
+  case Identifier(value: String)
   case BooleanValue(value: Boolean)
   case Array(value: Seq[Expression])
   case Binding(name: Field, tag: Option[FieldPath], value: Expression)
@@ -38,8 +38,8 @@ def eval(
     case Expression.StringValue(value, interpolated) =>
       if interpolated then interpolateString(value, environment)
       else Right((BendValue.String(value), environment))
-    case Expression.Label(value) =>
-      Right((BendValue.Label(LigatureValue.Identifier(value)), environment))
+    case Expression.Identifier(value) =>
+      Right((BendValue.Identifier(LigatureValue.Identifier(value)), environment))
     case Expression.Array(value)                   => handleArray(value, environment)
     case Expression.FieldExpression(field)         => readField(field, environment)
     case Expression.FieldPathExpression(fieldPath) => readFieldPath(fieldPath, environment)

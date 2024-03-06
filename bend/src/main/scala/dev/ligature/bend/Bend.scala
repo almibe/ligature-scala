@@ -16,8 +16,9 @@ enum BendValue:
   case Bytes(value: Seq[Byte])
   case String(value: java.lang.String)
   case Array(values: Seq[BendValue])
-  case Label(value: LigatureValue.Identifier)
-  case Graph(value: Set[(LigatureValue.Identifier, LigatureValue.Identifier, LigatureValue)])
+  case Identifier(value: LigatureValue.Identifier)
+  case Statement(statement: dev.ligature.Statement)
+  case Graph(value: Set[dev.ligature.Statement])
   case Module(values: Map[Field, BendValue])
   case Function(function: dev.ligature.bend.Function)
   case QuestionMark
@@ -111,7 +112,7 @@ def printResult(value: Either[BendError, (BendValue, Environment)]): String =
 val formatter = HexFormat.of()
 
 def printBendValue(value: BendValue, interpolation: Boolean = false): String =
-  value match {
+  value match
     case BendValue.QuestionMark => "?"
     case BendValue.Bool(value)  => value.toString()
     case BendValue.Int(value)   => value.toString()
@@ -126,5 +127,5 @@ def printBendValue(value: BendValue, interpolation: Boolean = false): String =
         .mkString(", ") + "}"
     case BendValue.Bytes(value)   => s"0x${formatter.formatHex(value.toArray)}"
     case BendValue.Graph(value) => "\"[Graph]\""
-    case BendValue.Label(label)   => s"<${label.value}>"
-  }
+    case BendValue.Identifier(identifier)   => s"<${identifier.value}>"
+    case BendValue.Statement(statement) => s"${statement.entity} ${statement.attribute} ${statement.value}" //TODO probably not right

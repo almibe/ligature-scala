@@ -19,19 +19,19 @@ class InMemoryQueryTx(private val store: DatasetStore) extends QueryTx {
     * calling allStatements.
     */
   override def matchStatements(
-      source: Option[LigatureValue.Identifier],
-      label: Option[LigatureValue.Identifier],
-      target: Option[LigatureValue]
+      entity: Option[LigatureValue.Identifier],
+      attribute: Option[LigatureValue.Identifier],
+      value: Option[LigatureValue]
   ): Iterator[Statement] = {
     var res = store.edges.iterator
-    if (source.isDefined) {
-      res = res.filter(_.source == source.get)
+    if (entity.isDefined) {
+      res = res.filter(_.entity == entity.get)
     }
-    if (label.isDefined) {
-      res = res.filter(_.label == label.get)
+    if (attribute.isDefined) {
+      res = res.filter(_.attribute == attribute.get)
     }
-    if (target.isDefined) {
-      res = res.filter(_.target == target.get)
+    if (value.isDefined) {
+      res = res.filter(_.value == value.get)
     }
     res
   }

@@ -194,32 +194,32 @@ def bendValuesToStatements(
 
 def bendsValuesToStatement(values: Seq[BendValue]): Either[LigatureError, Statement] =
   if values.size == 3 then
-    val source = values(0)
-    val edge = values(1)
-    val target = values(2)
-    (source, edge, target) match
-      case (BendValue.Label(source), BendValue.Label(edge), target: BendValue) =>
-        val value: LigatureValue = target match {
+    val entity = values(0)
+    val attribute = values(1)
+    val value = values(2)
+    (entity, attribute, value) match
+      case (BendValue.Identifier(entity), BendValue.Identifier(attribute), bendValue: BendValue) =>
+        val value: LigatureValue = bendValue match {
           case BendValue.Bytes(value) =>
             LigatureValue.BytesValue(value.toArray) // TODO fix Seq/Array
           case BendValue.Int(value)    => LigatureValue.IntegerValue(value)
           case BendValue.String(value) => LigatureValue.StringValue(value)
-          case BendValue.Label(value)  => value
+          case BendValue.Identifier(value)  => value
           case _                       => ???
         }
-        Right(Statement(source, edge, value))
+        Right(Statement(entity, attribute, value))
       case _ => ???
   else ???
 
-def statementToBendValue(edge: Statement): BendValue =
+def statementToBendValue(statement: Statement): BendValue =
   BendValue.Array(
     Seq(
-      BendValue.Label(edge.source),
-      BendValue.Label(edge.label),
-      edge.target match
+      BendValue.Identifier(statement.entity),
+      BendValue.Identifier(statement.attribute),
+      statement.value match
         case LigatureValue.BytesValue(value)   => BendValue.Bytes(value.toIndexedSeq)
         case LigatureValue.IntegerValue(value) => BendValue.Int(value)
-        case LigatureValue.Identifier(value)   => BendValue.Label(LigatureValue.Identifier(value))
+        case LigatureValue.Identifier(value)   => BendValue.Identifier(LigatureValue.Identifier(value))
         case LigatureValue.StringValue(value)  => BendValue.String(value)
     )
   )

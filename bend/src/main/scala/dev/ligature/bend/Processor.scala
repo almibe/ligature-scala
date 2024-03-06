@@ -35,7 +35,7 @@ def process(term: Term): Either[BendError, Expression] =
     case Term.Application(terms)              => processApplication(terms)
     case Term.Module(values)                  => processModule(values)
     case Term.Bytes(value)                    => Right(Expression.Bytes(value))
-    case Term.Label(value)                    => Right(Expression.Label(value))
+    case Term.Identifier(value)               => Right(Expression.Identifier(value))
   }
 
 def processGrouping(terms: Seq[Term]): Either[BendError, Expression.Grouping] = {

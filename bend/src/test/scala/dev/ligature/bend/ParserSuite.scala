@@ -39,9 +39,9 @@ class ParserSuite extends FunSuite {
     val expected = Right(Seq(Term.Bytes(Seq(17.byteValue))))
     assertEquals(result, expected)
   }
-  test("parse Label") {
+  test("parse Identifier") {
     val result = check("<hello>")
-    val expected = Right(Seq(Term.Label("hello")))
+    val expected = Right(Seq(Term.Identifier("hello")))
     assertEquals(result, expected)
   }
   test("parse String") {
