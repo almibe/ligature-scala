@@ -14,13 +14,25 @@ val graphModule: BendValue.Module = BendValue.Module(
   Map(
     Field("length") -> BendValue.Function(
       HostFunction(
-        "Get the number of elements in a Dataset.",
+        "Get the number of elements in a Graph.",
         Seq(TaggedField(Field("array"), Tag.Untagged)),
         Tag.Untagged,
         (args, environment) =>
           args match
             case Seq(BendValue.Graph(value)) =>
               Right((BendValue.Int(value.size), environment))
+            case _ => ???
+      )
+    ),
+    Field("merge") -> BendValue.Function(
+      HostFunction(
+        "Merge two Graphs.",
+        Seq(TaggedField(Field("array"), Tag.Untagged), TaggedField(Field("array"), Tag.Untagged)),
+        Tag.Untagged,
+        (args, environment) =>
+          args match
+            case Seq(BendValue.Graph(lvalue), BendValue.Graph(rvalue)) =>
+              Right((BendValue.Graph(lvalue ++ rvalue), environment))
             case _ => ???
       )
     )

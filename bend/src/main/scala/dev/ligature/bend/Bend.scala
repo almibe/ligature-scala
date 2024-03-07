@@ -7,6 +7,7 @@ package dev.ligature.bend
 import dev.ligature.bend.parse
 import java.util.HexFormat
 import dev.ligature.LigatureValue
+import dev.ligature.Statement
 
 /** Represents a Value in the Bend language.
   */
@@ -126,16 +127,20 @@ def printBendValue(value: BendValue, interpolation: Boolean = false): String =
         .map((field, value) => field.name + " = " + printBendValue(value, interpolation))
         .mkString(", ") + "}"
     case BendValue.Bytes(value)           => printBytes(value)
-    case BendValue.Graph(value)           => "\"[Graph]\""
+    case BendValue.Graph(value)           => printGraph(value)
     case BendValue.Identifier(identifier) => printIdentifier(identifier)
-    case BendValue.Statement(statement) =>
-      val value = statement.value match
-        case LigatureValue.BytesValue(value)   => printBytes(value)
-        case value: LigatureValue.Identifier   => printIdentifier(value)
-        case LigatureValue.IntegerValue(value) => value.toString()
-        case LigatureValue.StringValue(value) =>
-          if interpolation then value else s"\"$value\"" // TODO escape correctly
-      s"<${statement.entity.value}> <${statement.attribute.value}> $value"
+    case BendValue.Statement(statement) => printStatement(statement)
 
 def printBytes(bytes: Seq[Byte]) = s"0x${formatter.formatHex(bytes.toArray)}"
+
 def printIdentifier(identifier: LigatureValue.Identifier) = s"<${identifier.value}>"
+
+def printStatement(statement: Statement) =
+  val value = statement.value match
+    case LigatureValue.BytesValue(value)   => printBytes(value)
+    case value: LigatureValue.Identifier   => printIdentifier(value)
+    case LigatureValue.IntegerValue(value) => value.toString()
+    case LigatureValue.StringValue(value) => s"\"$value\"" // TODO escape correctly
+  s"<${statement.entity.value}> <${statement.attribute.value}> $value"
+
+def printGraph(graph: Set[Statement]) = graph.map(printStatement).mkString("{ ", ", ", " }")//s"{ ${graph.map(statement => printStatement(statement))} }"

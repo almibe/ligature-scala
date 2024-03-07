@@ -17,6 +17,7 @@ def std(libraries: List[ModuleLibrary] = List()): Environment =
     .bindVariable(Field("Bool"), boolModule)
     .bindVariable(Field("Bytes"), bytesModule)
     .bindVariable(Field("Core"), coreModule)
+    .bindVariable(Field("Graph"), graphModule)
     .bindVariable(Field("Int"), intModule)
     .bindVariable(Field("String"), stringModule)
     .bindVariable(Field("Test"), testingModule)

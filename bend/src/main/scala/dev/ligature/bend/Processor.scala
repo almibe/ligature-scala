@@ -36,7 +36,19 @@ def process(term: Term): Either[BendError, Expression] =
     case Term.Module(values)                  => processModule(values)
     case Term.Bytes(value)                    => Right(Expression.Bytes(value))
     case Term.Identifier(value)               => Right(Expression.Identifier(value))
+    case Term.Graph(terms)                    => processGraph(terms)
   }
+
+def processGraph(terms: Seq[Term]): Either[BendError, Expression.Graph] = {
+  terms match {
+    case Seq(Term.Identifier(entity), Term.Identifier(attribute), Term.Identifier(value)) => 
+      Right(Expression.Graph(Seq(
+        Expression.Identifier(entity),
+        Expression.Identifier(attribute),
+        Expression.Identifier(value))))
+    case _ => ???
+  }
+}
 
 def processGrouping(terms: Seq[Term]): Either[BendError, Expression.Grouping] = {
   var error: Option[BendError] = None

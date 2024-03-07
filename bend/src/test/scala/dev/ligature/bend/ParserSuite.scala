@@ -201,13 +201,22 @@ class ParserSuite extends FunSuite {
     )
     assertEquals(result, expected)
   }
-  test("parse record with multiple entries") {
+  test("parse Module with multiple entries") {
     val result = check("{x = 5, y = 6}")
     val expected = Right(
       Seq(
         Term.Module(
           Seq((Field("x"), Term.IntegerValue(5)), (Field("y"), Term.IntegerValue(6)))
         )
+      )
+    )
+    assertEquals(result, expected)
+  }
+  test("parse graph with one statement") {
+    val result = check("{ <a> <b> <c> }")
+    val expected = Right(
+      Seq(
+        Term.Graph(Seq(Term.Identifier("a"), Term.Identifier("b"), Term.Identifier("c")))
       )
     )
     assertEquals(result, expected)

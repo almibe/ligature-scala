@@ -25,6 +25,7 @@ enum Term:
   case Identifier(value: String)
   case Binding(field: Field, tag: Option[FieldPath], term: Term)
   case Module(bindings: Seq[(Field, Term)])
+  case Graph(terms: Seq[Term])
   case WhenExpression(conditionals: Seq[(Term, Term)])
   case Application(terms: Seq[Term])
   case Grouping(terms: Seq[Term])
@@ -86,7 +87,7 @@ val stringNib: Nibbler[Token, Term.StringValue] = gaze =>
     case Some(Token.StringValue(s, i)) => Result.Match(Term.StringValue(s, i))
     case _                             => Result.NoMatch
 
-val labelNib: Nibbler[Token, Term.Identifier] = gaze =>
+val identifierNib: Nibbler[Token, Term.Identifier] = gaze =>
   gaze.next() match
     case Some(Token.Label(value)) => Result.Match(Term.Identifier(value))
     case _                        => Result.NoMatch
@@ -210,6 +211,19 @@ val moduleNib: Nibbler[Token, Term.Module] = { gaze =>
     case _                                 => Result.NoMatch
 }
 
+val graphNib: Nibbler[Token, Term.Graph] = { gaze =>
+  val res = for
+    _ <- gaze.attempt(take(Token.OpenBrace))
+    entity <- gaze.attempt(identifierNib)
+    attribute <- gaze.attempt(identifierNib)
+    value <- gaze.attempt(identifierNib)
+    _ <- gaze.attempt(take(Token.CloseBrace))
+  yield Term.Graph(Seq(entity, attribute, value))
+  res match
+    case Result.Match(Term.Graph(values)) => Result.Match(Term.Graph(values))
+    case _                                 => Result.NoMatch
+}
+
 val applicationNib: Nibbler[Token, Term] = { gaze =>
   val res =
     for decls <- gaze.attempt(repeat(applicationInternalNib))
@@ -264,12 +278,13 @@ val applicationInternalNib =
     taggedBindingNib,
     lambdaNib,
     groupingNib,
-    labelNib,
+    identifierNib,
     stringNib,
     bytesNib,
     integerNib,
     whenExpressionNib,
     arrayNib,
+    graphNib,
     moduleNib,
     booleanNib,
     questionMarkTermNib,
@@ -284,12 +299,13 @@ val expressionNib =
     applicationNib,
     lambdaNib,
     groupingNib,
-    labelNib,
+    identifierNib,
     stringNib,
     bytesNib,
     integerNib,
     whenExpressionNib,
     arrayNib,
+    graphNib,
     moduleNib,
     booleanNib,
     questionMarkTermNib,

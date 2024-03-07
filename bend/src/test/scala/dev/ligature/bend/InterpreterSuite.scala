@@ -35,4 +35,15 @@ class InterpreterSuite extends FunSuite {
     )
     check(script, result)
   }
+  test("Graph support") {
+    val script = "{ <a> <b> <c> }"
+    val result = BendValue.Graph(Set(
+      Statement(
+        LigatureValue.Identifier("a"),
+        LigatureValue.Identifier("b"),
+        LigatureValue.Identifier("c")
+      )
+    ))
+    check(script, result)
+  }
 }

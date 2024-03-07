@@ -22,6 +22,7 @@ enum Expression:
   case Array(value: Seq[Expression])
   case Binding(name: Field, tag: Option[FieldPath], value: Expression)
   case Module(values: Seq[(dev.ligature.bend.Field, Expression)])
+  case Graph(expressions: Seq[Expression])
   case Lambda(parameters: Seq[Field], body: Expression)
   case WhenExpression(conditionals: Seq[(Expression, Expression)])
   case Application(expressions: Seq[Expression])
@@ -53,6 +54,7 @@ def eval(
     case Expression.Application(expressions) => handleApplication(expressions, environment)
     case Expression.QuestionMark             => Right((BendValue.QuestionMark, environment))
     case Expression.Module(values)           => handleModule(values, environment)
+    case Expression.Graph(expressions)       => handleGraph(expressions, environment)
   }
 
 def readField(
@@ -138,6 +140,19 @@ def handleModule(
       }
     )
     Right((BendValue.Module(results.toMap), environment))
+
+def handleGraph(
+  expressions: Seq[Expression],
+  environment: Environment
+): Either[BendError, (BendValue, Environment)] =
+  expressions match
+    case Seq(Expression.Identifier(entity), Expression.Identifier(attribute), Expression.Identifier(value)) => 
+      Right((BendValue.Graph(Set(
+        Statement(
+          LigatureValue.Identifier(entity),
+          LigatureValue.Identifier(attribute),
+          LigatureValue.Identifier(value)))), environment))
+    case _ => ???
 
 def handleBinding(
     field: Field,
