@@ -25,7 +25,8 @@ enum Term:
   case Identifier(value: String)
   case Binding(field: Field, tag: Option[FieldPath], term: Term)
   case Module(bindings: Seq[(Field, Term)])
-  case Graph(terms: Seq[Term])
+  case Graph(roots: Seq[GraphRoot])
+  case GraphRoot(terms: Seq[Term])
   case WhenExpression(conditionals: Seq[(Term, Term)])
   case Application(terms: Seq[Term])
   case Grouping(terms: Seq[Term])
@@ -218,10 +219,10 @@ val graphNib: Nibbler[Token, Term.Graph] = { gaze =>
     attribute <- gaze.attempt(identifierNib)
     value <- gaze.attempt(identifierNib)
     _ <- gaze.attempt(take(Token.CloseBrace))
-  yield Term.Graph(Seq(entity, attribute, value))
+  yield Term.Graph(Seq(Term.GraphRoot(Seq(entity, attribute, value))))
   res match
     case Result.Match(Term.Graph(values)) => Result.Match(Term.Graph(values))
-    case _                                 => Result.NoMatch
+    case _                                => Result.NoMatch
 }
 
 val applicationNib: Nibbler[Token, Term] = { gaze =>

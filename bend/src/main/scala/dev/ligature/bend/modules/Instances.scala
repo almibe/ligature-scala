@@ -19,6 +19,7 @@ def std(libraries: List[ModuleLibrary] = List()): Environment =
     .bindVariable(Field("Core"), coreModule)
     .bindVariable(Field("Graph"), graphModule)
     .bindVariable(Field("Int"), intModule)
+    .bindVariable(Field("Statement"), statementModule)
     .bindVariable(Field("String"), stringModule)
     .bindVariable(Field("Test"), testingModule)
     .bindVariable(Field("import"), importFunction)

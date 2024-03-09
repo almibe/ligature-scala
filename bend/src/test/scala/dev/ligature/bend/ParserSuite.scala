@@ -216,7 +216,24 @@ class ParserSuite extends FunSuite {
     val result = check("{ <a> <b> <c> }")
     val expected = Right(
       Seq(
-        Term.Graph(Seq(Term.Identifier("a"), Term.Identifier("b"), Term.Identifier("c")))
+        Term.Graph(
+          Seq(Term.GraphRoot(Seq(Term.Identifier("a"), Term.Identifier("b"), Term.Identifier("c"))))
+        )
+      )
+    )
+    assertEquals(result, expected)
+  }
+  test("parse graph with multiple statements".ignore) {
+    val result = check("{ <a> <b> <c>, <a> <b> <d>, <b> <c> <d> }")
+    val expected = Right(
+      Seq(
+        Term.Graph(
+          Seq(
+            Term.GraphRoot(Seq(Term.Identifier("a"), Term.Identifier("b"), Term.Identifier("c"))),
+            Term.GraphRoot(Seq(Term.Identifier("a"), Term.Identifier("b"), Term.Identifier("d"))),
+            Term.GraphRoot(Seq(Term.Identifier("b"), Term.Identifier("c"), Term.Identifier("d")))
+          )
+        )
       )
     )
     assertEquals(result, expected)

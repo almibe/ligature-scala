@@ -40,8 +40,15 @@ case class Lambda(val lambda: Expression.Lambda) extends Function {
   override def call(
       args: Seq[BendValue],
       environment: Environment
-  ): Either[BendError, BendValue] = ???
+  ): Either[BendError, BendValue] =
+    var env = environment
+    lambda.parameters.zipWithIndex.foreach { (param, i) =>
+      env = env.bindVariable(param, args(i))
+    }
+    val res = eval(lambda.body, env).map(_._1)
+    res
 }
+
 case class PartialFunction(args: Seq[BendValue], function: dev.ligature.bend.Function)
     extends Function {
   override def call(
@@ -62,7 +69,8 @@ case class HostFunction(
   override def call(
       args: Seq[BendValue],
       environment: Environment
-  ): Either[BendError, BendValue] = ???
+  ): Either[BendError, BendValue] =
+    fn.apply(args, environment).map(_._1)
 }
 
 case class BendError(val userMessage: String) extends Throwable(userMessage)
@@ -129,7 +137,7 @@ def printBendValue(value: BendValue, interpolation: Boolean = false): String =
     case BendValue.Bytes(value)           => printBytes(value)
     case BendValue.Graph(value)           => printGraph(value)
     case BendValue.Identifier(identifier) => printIdentifier(identifier)
-    case BendValue.Statement(statement) => printStatement(statement)
+    case BendValue.Statement(statement)   => printStatement(statement)
 
 def printBytes(bytes: Seq[Byte]) = s"0x${formatter.formatHex(bytes.toArray)}"
 
@@ -140,7 +148,9 @@ def printStatement(statement: Statement) =
     case LigatureValue.BytesValue(value)   => printBytes(value)
     case value: LigatureValue.Identifier   => printIdentifier(value)
     case LigatureValue.IntegerValue(value) => value.toString()
-    case LigatureValue.StringValue(value) => s"\"$value\"" // TODO escape correctly
+    case LigatureValue.StringValue(value)  => s"\"$value\"" // TODO escape correctly
   s"<${statement.entity.value}> <${statement.attribute.value}> $value"
 
-def printGraph(graph: Set[Statement]) = graph.map(printStatement).mkString("{ ", ", ", " }")//s"{ ${graph.map(statement => printStatement(statement))} }"
+def printGraph(graph: Set[Statement]) = graph
+  .map(printStatement)
+  .mkString("{ ", ", ", " }") //s"{ ${graph.map(statement => printStatement(statement))} }"

@@ -51,24 +51,18 @@ def createLigatureModule(ligature: Ligature): BendValue.Module = BendValue.Modul
             case _ => ???
       )
     ),
-    // Field("datasetExists") -> BendValue.Function(
-    //   HostFunction(
-    //     "Remove a Dataset by name.",
-    //     Seq(TaggedField(Field("datasetName"), Tag.Untagged)),
-    //     Tag.Untagged,
-// //     (arguments: Seq[Term], environment: Environment) =>
-// //       arguments.head match
-// //         case Term.StringValue(datasetName) =>
-// //           instance.datasetExists(Dataset.fromString(datasetName).getOrElse(???)).map(res => BendValue.BooleanValue(res))
-// //         case _ => ???
-    //     (args, env) =>
-    //       args match
-    //         case Seq(BendValue.String(datasetName)) =>
-    //           ligature.deleteDataset(DatasetName(datasetName))
-    //           Right(BendValue.Module(Map()), env)
-    //         case _ => ???
-    //   )
-    // )
+    Field("datasetExists") -> BendValue.Function(
+      HostFunction(
+        "Check if Dataset exists.",
+        Seq(TaggedField(Field("datasetName"), Tag.Untagged)),
+        Tag.Untagged,
+        (args, env) =>
+          args match
+            case Seq(BendValue.String(datasetName)) =>
+              Right(BendValue.Bool(ligature.graphExists(DatasetName(datasetName))), env)
+            case _ => ???
+      )
+    ),
     Field("allStatements") -> BendValue.Function(
       HostFunction(
         "Get all Statements in a Dataset.",

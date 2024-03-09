@@ -142,16 +142,29 @@ def handleModule(
     Right((BendValue.Module(results.toMap), environment))
 
 def handleGraph(
-  expressions: Seq[Expression],
-  environment: Environment
+    expressions: Seq[Expression],
+    environment: Environment
 ): Either[BendError, (BendValue, Environment)] =
   expressions match
-    case Seq(Expression.Identifier(entity), Expression.Identifier(attribute), Expression.Identifier(value)) => 
-      Right((BendValue.Graph(Set(
-        Statement(
-          LigatureValue.Identifier(entity),
-          LigatureValue.Identifier(attribute),
-          LigatureValue.Identifier(value)))), environment))
+    case Seq(
+          Expression.Identifier(entity),
+          Expression.Identifier(attribute),
+          Expression.Identifier(value)
+        ) =>
+      Right(
+        (
+          BendValue.Graph(
+            Set(
+              Statement(
+                LigatureValue.Identifier(entity),
+                LigatureValue.Identifier(attribute),
+                LigatureValue.Identifier(value)
+              )
+            )
+          ),
+          environment
+        )
+      )
     case _ => ???
 
 def handleBinding(

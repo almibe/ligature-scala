@@ -4,7 +4,59 @@
 
 package dev.ligature.bend.modules
 
-import dev.ligature.bend.BendValue
+import dev.ligature.LigatureValue
+import dev.ligature.bend.{BendValue, Field, HostFunction, TaggedField, Tag}
 
-// TODO Statement.{ entity, attribute, value }
-val statementModule: BendValue.Module = BendValue.Module(Map())
+val statementModule: BendValue.Module = BendValue.Module(
+  Map(
+    Field("entity") -> BendValue.Function(
+      HostFunction(
+        "Extract the Entity from a Statement.",
+        Seq(
+          TaggedField(Field("statement"), Tag.Untagged) // Tag.Single(Name("Core.Int"))),
+        ),
+        Tag.Untagged, // Tag.Single(Field("Core.Int")),
+        (args, environment) =>
+          args match
+            case Seq(BendValue.Statement(statement)) =>
+              Right((BendValue.Identifier(statement.entity), environment))
+            case _ => ???
+      )
+    ),
+    Field("attribute") -> BendValue.Function(
+      HostFunction(
+        "Extract the Attribute from a Statement.",
+        Seq(
+          TaggedField(Field("statement"), Tag.Untagged) // Tag.Single(Name("Core.Int"))),
+        ),
+        Tag.Untagged, // Tag.Single(Field("Core.Int")),
+        (args, environment) =>
+          args match
+            case Seq(BendValue.Statement(statement)) =>
+              Right((BendValue.Identifier(statement.attribute), environment))
+            case _ => ???
+      )
+    ),
+    Field("value") -> BendValue.Function(
+      HostFunction(
+        "Extract the Value from a Statement.",
+        Seq(
+          TaggedField(Field("statement"), Tag.Untagged) // Tag.Single(Name("Core.Int"))),
+        ),
+        Tag.Untagged, // Tag.Single(Field("Core.Int")),
+        (args, environment) =>
+          args match
+            case Seq(BendValue.Statement(statement)) =>
+              statement.value match {
+                case identifier: LigatureValue.Identifier =>
+                  Right((BendValue.Identifier(identifier), environment))
+                case LigatureValue.StringValue(value) =>
+                  Right((BendValue.String(value), environment))
+                case LigatureValue.IntegerValue(value) => Right((BendValue.Int(value), environment))
+                case LigatureValue.BytesValue(value) => Right((BendValue.Bytes(value), environment))
+              }
+            case _ => ???
+      )
+    )
+  )
+)
