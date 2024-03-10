@@ -141,7 +141,7 @@ def printBendValue(value: BendValue, interpolation: Boolean = false): String =
 
 def printBytes(bytes: Seq[Byte]) = s"0x${formatter.formatHex(bytes.toArray)}"
 
-def printIdentifier(identifier: LigatureValue.Identifier) = s"<${identifier.value}>"
+def printIdentifier(identifier: LigatureValue.Identifier) = s"`${identifier.value}`"
 
 def printStatement(statement: Statement) =
   val value = statement.value match
@@ -149,7 +149,7 @@ def printStatement(statement: Statement) =
     case value: LigatureValue.Identifier   => printIdentifier(value)
     case LigatureValue.IntegerValue(value) => value.toString()
     case LigatureValue.StringValue(value)  => s"\"$value\"" // TODO escape correctly
-  s"<${statement.entity.value}> <${statement.attribute.value}> $value"
+  s"`${statement.entity.value}` `${statement.attribute.value}` $value"
 
 def printGraph(graph: Set[Statement]) = graph
   .map(printStatement)

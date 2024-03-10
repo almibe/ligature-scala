@@ -25,7 +25,7 @@ class InterpreterSuite extends FunSuite {
     check(script, tokens)
   }
   test("Statement support") {
-    val script = "<a> <b> <c>"
+    val script = "`a` `b` `c`"
     val result = BendValue.Statement(
       Statement(
         LigatureValue.Identifier("a"),
@@ -36,7 +36,7 @@ class InterpreterSuite extends FunSuite {
     check(script, result)
   }
   test("Graph support") {
-    val script = "{ <a> <b> <c> }"
+    val script = "{ `a` `b` `c` }"
     val result = BendValue.Graph(
       Set(
         Statement(

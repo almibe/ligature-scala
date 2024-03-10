@@ -35,7 +35,7 @@ class LiteralsSuite extends munit.FunSuite {
     check(script, result)
   }
   test("Identifier literal") {
-    val script = "<0x01FF>"
+    val script = "`0x01FF`"
     val result = BendValue.Identifier(LigatureValue.Identifier("0x01FF"))
     check(script, result)
   }

@@ -39,7 +39,7 @@ class LexerSuite extends FunSuite {
     check(script, tokens)
   }
   test("tokenize Label") {
-    val script = "<hello>"
+    val script = "`hello`"
     val tokens = Right(Seq(Token.Label("hello")))
     check(script, tokens)
   }

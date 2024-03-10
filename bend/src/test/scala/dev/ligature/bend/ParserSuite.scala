@@ -40,12 +40,12 @@ class ParserSuite extends FunSuite {
     assertEquals(result, expected)
   }
   test("parse Identifier") {
-    val result = check("<hello>")
+    val result = check("`hello`")
     val expected = Right(Seq(Term.Identifier("hello")))
     assertEquals(result, expected)
   }
   test("parse Statement") {
-    val result = check("<a> <b> <c>")
+    val result = check("`a` `b` `c`")
     val expected = Right(
       Seq(Term.Application(Seq(Term.Identifier("a"), Term.Identifier("b"), Term.Identifier("c"))))
     )
@@ -213,7 +213,7 @@ class ParserSuite extends FunSuite {
     assertEquals(result, expected)
   }
   test("parse graph with one statement") {
-    val result = check("{ <a> <b> <c> }")
+    val result = check("{ `a` `b` `c` }")
     val expected = Right(
       Seq(
         Term.Graph(
