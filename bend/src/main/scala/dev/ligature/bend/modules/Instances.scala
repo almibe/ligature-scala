@@ -22,6 +22,7 @@ def std(libraries: List[ModuleLibrary] = List()): Environment =
     .bindVariable(Field("Statement"), statementModule)
     .bindVariable(Field("String"), stringModule)
     .bindVariable(Field("Test"), testingModule)
+    .bindVariable(Field("Id"), idModule)
     .bindVariable(Field("import"), importFunction)
 
 def stdWithLigature(

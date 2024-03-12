@@ -9,6 +9,8 @@ val xodusVersion = "2.0.1"
 val jeromqVersion = "0.6.0"
 val scalaLoggingVersion = "3.9.5"
 val logBackVersion = "1.5.1"
+val tsidVersion = "1.1.0"
+val ulidVersion = "5.2.3"
 
 lazy val ligature = project
   .in(file("ligature"))
@@ -42,6 +44,8 @@ lazy val bend = project
   .settings(
     name := "bend",
     scalaVersion := scala3Version,
+    libraryDependencies += "com.github.f4b6a3" % "ulid-creator" % ulidVersion,
+    libraryDependencies += "io.hypersistence" % "tsid" % tsidVersion,
     libraryDependencies += "org.jetbrains.xodus" % "xodus-environment" % xodusVersion,
     libraryDependencies += "ch.qos.logback" % "logback-classic" % logBackVersion,
     libraryDependencies += "com.typesafe.scala-logging" %% "scala-logging" % scalaLoggingVersion,
