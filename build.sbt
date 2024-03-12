@@ -8,7 +8,7 @@ val munitVersion = "1.0.0-M11"
 val xodusVersion = "2.0.1"
 val jeromqVersion = "0.6.0"
 val scalaLoggingVersion = "3.9.5"
-val logBackVersion = "1.5.1"
+val logBackVersion = "1.5.3"
 val tsidVersion = "1.1.0"
 val ulidVersion = "5.2.3"
 
