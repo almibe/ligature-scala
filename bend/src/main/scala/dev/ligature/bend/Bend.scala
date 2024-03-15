@@ -123,10 +123,10 @@ val formatter = HexFormat.of()
 
 def printBendValue(value: BendValue): String =
   value match
-    case BendValue.QuestionMark => "?"
-    case BendValue.Bool(value)  => value.toString()
-    case BendValue.Int(value)   => value.toString()
-    case BendValue.String(value) => printString(value)
+    case BendValue.QuestionMark       => "?"
+    case BendValue.Bool(value)        => value.toString()
+    case BendValue.Int(value)         => value.toString()
+    case BendValue.String(value)      => printString(value)
     case BendValue.Function(function) => "\"[Function]\""
     case BendValue.Array(values) =>
       "[" + values.map(value => printBendValue(value)).mkString(", ") + "]"

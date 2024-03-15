@@ -113,17 +113,26 @@ val arrayModule: BendValue.Module = BendValue.Module(
       HostFunction(
         "Concat all Strings in this Array.",
         Seq(
-          TaggedField(Field("array"), Tag.Untagged),
+          TaggedField(Field("array"), Tag.Untagged)
         ),
         Tag.Untagged,
         (args, environment) =>
           args match
             case Seq(BendValue.Array(value)) =>
-              Right((BendValue.String(value.map(
-                _ match
-                  case BendValue.String(value) => value
-                  case _ => ???
-              ).mkString("")), environment)) //TODO make separator an arg
+              Right(
+                (
+                  BendValue.String(
+                    value
+                      .map(
+                        _ match
+                          case BendValue.String(value) => value
+                          case _                       => ???
+                      )
+                      .mkString("")
+                  ),
+                  environment
+                )
+              ) // TODO make separator an arg
             case _ => ???
       )
     ),
@@ -131,17 +140,26 @@ val arrayModule: BendValue.Module = BendValue.Module(
       HostFunction(
         "Join this array.",
         Seq(
-          TaggedField(Field("array"), Tag.Untagged),
+          TaggedField(Field("array"), Tag.Untagged)
         ),
         Tag.Untagged,
         (args, environment) =>
           args match
             case Seq(BendValue.Array(value)) =>
-              Right((BendValue.String(value.map(
-                _ match
-                  case BendValue.String(value) => value
-                  case _ => ???
-              ).mkString("\n")), environment)) //TODO make separator an arg
+              Right(
+                (
+                  BendValue.String(
+                    value
+                      .map(
+                        _ match
+                          case BendValue.String(value) => value
+                          case _                       => ???
+                      )
+                      .mkString("\n")
+                  ),
+                  environment
+                )
+              ) // TODO make separator an arg
             case _ => ???
       )
     ),

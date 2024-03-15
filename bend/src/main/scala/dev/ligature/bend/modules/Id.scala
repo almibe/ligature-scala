@@ -19,20 +19,32 @@ val idModule: BendValue.Module = BendValue.Module(
       HostFunction(
         "Get next random TSID value.",
         Seq(
-          TaggedField(Field("_"), Tag.Untagged),
+          TaggedField(Field("_"), Tag.Untagged)
         ),
         Tag.Untagged,
-        (arguments, environment) => Right((BendValue.Identifier(LigatureValue.Identifier(TSID.Factory.getTsid().toString())), environment))
+        (arguments, environment) =>
+          Right(
+            (
+              BendValue.Identifier(LigatureValue.Identifier(TSID.Factory.getTsid().toString())),
+              environment
+            )
+          )
       )
     ),
     Field("ulid") -> BendValue.Function(
       HostFunction(
         "Get next random ULID value.",
         Seq(
-          TaggedField(Field("_"), Tag.Untagged),
+          TaggedField(Field("_"), Tag.Untagged)
         ),
         Tag.Untagged,
-        (arguments, environment) => Right((BendValue.Identifier(LigatureValue.Identifier(UlidCreator.getUlid().toLowerCase())), environment))
+        (arguments, environment) =>
+          Right(
+            (
+              BendValue.Identifier(LigatureValue.Identifier(UlidCreator.getUlid().toLowerCase())),
+              environment
+            )
+          )
       )
     )
   )

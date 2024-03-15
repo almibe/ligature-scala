@@ -25,7 +25,11 @@ val stringModule: BendValue.Module = BendValue.Module(
         Tag.Untagged,
         (args, environment) =>
           args match
-            case Seq(BendValue.String(toMatch), BendValue.String(replacement), BendValue.String(data)) =>
+            case Seq(
+                  BendValue.String(toMatch),
+                  BendValue.String(replacement),
+                  BendValue.String(data)
+                ) =>
               Right(
                 (
                   BendValue.String(data.replace(toMatch, replacement)),
