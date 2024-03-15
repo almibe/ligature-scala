@@ -93,6 +93,22 @@ val arrayModule: BendValue.Module = BendValue.Module(
             case _ => ???
       )
     ),
+    Field("last") -> BendValue.Function(
+      HostFunction(
+        "Get the last element of an Array.",
+        Seq(TaggedField(Field("array"), Tag.Untagged)),
+        Tag.Untagged,
+        (args, environment) =>
+          args match
+            case Seq(BendValue.Array(value)) =>
+              if (value.length > 0) {
+                Right((value.last, environment))
+              } else {
+                Left(BendError("Cannot call Array.last on empty array."))
+              }
+            case _ => ???
+      )
+    ),
     Field("cat") -> BendValue.Function(
       HostFunction(
         "Concat all Strings in this Array.",
