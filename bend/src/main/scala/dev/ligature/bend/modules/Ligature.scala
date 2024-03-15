@@ -8,6 +8,7 @@ import dev.ligature.bend.*
 import dev.ligature.*
 import com.typesafe.scalalogging.Logger
 import scala.collection.mutable.ListBuffer
+import scala.util.boundary
 
 val logger = Logger("LigatureModule")
 
@@ -118,59 +119,26 @@ def createLigatureModule(ligature: Ligature): BendValue.Module = BendValue.Modul
                   Right((BendValue.Module(Map()), environment))
             case _ => ???
       )
+    ),
+    Field("query") -> BendValue.Function(
+      HostFunction(
+        "Query a Dataset.",
+        Seq(
+          TaggedField(Field("datasetName"), Tag.Untagged),
+          TaggedField(Field("entity"), Tag.Untagged),
+          TaggedField(Field("attribute"), Tag.Untagged),
+          TaggedField(Field("value"), Tag.Untagged),
+        ),
+        Tag.Untagged,
+        (arguments: Seq[BendValue], environment: Environment) =>
+          arguments match
+            case Seq(BendValue.String(datasetName), entity, attribute, value) =>
+              handleQuery(ligature, environment, datasetName, entity, attribute, value)
+            case _ => ???
+      )
     )
   )
 )
-
-// //   def termToIdentifierOption(term: Term): Option[Identifier] =
-// //     term match
-// //       case Term.NothingLiteral | Term.QuestionMark => None
-// //       case Term.IdentifierLiteral(identifier) => Some(identifier)
-// //       case _ => ???
-
-// //   def termToValueOption(term: Term): Option[Value] =
-// //     term match
-// //       case Term.NothingLiteral | Term.QuestionMark => None
-// //       case Term.IdentifierLiteral(identifier) => Some(identifier)
-// //       case _ => ???
-
-// //   environment = environment.bindVariable(Name("query"), BendValue.NativeFunction(
-// //     (arguments: Seq[Term], environment: Environment) =>
-// //       (arguments(0), arguments(1), arguments.lift(2), arguments.lift(3)) match
-// //         case (Term.StringValue(datasetName), entityTerm, Some(attributeTerm), Some(valueTerm)) =>
-// //           val dataset = Dataset.fromString(datasetName).getOrElse(???)
-// //           val entity = termToIdentifierOption(entityTerm)
-// //           val attribute = termToIdentifierOption(attributeTerm)
-// //           val value = termToValueOption(valueTerm)
-// //           instance.query(dataset) { tx =>
-// //             tx.matchStatements(entity, attribute, value)
-// //               .map(statementToBendValue)
-// //               .compile.toList.map(BendValue.ListValue(_))
-// //           }
-// //         case (Term.StringValue(datasetName), query: Term.BendFunction, None, None) =>
-// //           query match
-// //             case Term.BendFunction(name :: Nil, body) =>
-// //               val dataset = Dataset.fromString(datasetName).getOrElse(???)
-// //               instance.query(dataset) { tx =>
-// //                 val matchFunction = BendValue.NativeFunction((arguments, environment) =>
-// //                   (arguments.lift(0), arguments.lift(1), arguments.lift(2)) match
-// //                     case (Some(entityTerm), Some(attributeTerm), Some(valueTerm)) =>
-// //                       val dataset = Dataset.fromString(datasetName).getOrElse(???)
-// //                       val entity = termToIdentifierOption(entityTerm)
-// //                       val attribute = termToIdentifierOption(attributeTerm)
-// //                       val value = termToValueOption(valueTerm)
-// //                       tx.matchStatements(entity, attribute, value)
-// //                         .map(statementToBendValue)
-// //                         .compile.toList.map(BendValue.ListValue(_))
-// //                     case _ => ???)
-// //                 val newEnvironment = environment.bindVariable(name, matchFunction).getOrElse(???)
-// //                 eval(query.body, newEnvironment).map(_.result)
-// //               }
-// //             case _ => ???
-// //         case _ => ???
-// //   )).getOrElse(???)
-// //   environment
-// // }
 
 def bendValuesToStatements(
     values: Seq[BendValue],
@@ -182,3 +150,28 @@ def bendValuesToStatements(
         bendValuesToStatements(values.tail, edges += statement)
       case err => Left(LigatureError(s"Invalid statement - $err"))
   else Right(edges.toSeq)
+
+def handleQuery(ligature: Ligature, environment: Environment, datasetName: String, entityArg: BendValue, attributeArg: BendValue, valueArg: BendValue):
+    Either[BendError, (BendValue, Environment)] =
+  boundary:
+    val entity = entityArg match
+      case BendValue.Identifier(identifier) => Some(identifier)
+      case BendValue.QuestionMark => None
+      case _ => ???
+    val attribute = attributeArg match
+      case BendValue.Identifier(identifier) => Some(identifier)
+      case BendValue.QuestionMark => None
+      case _ => ???
+    val value = valueArg match
+      case BendValue.Identifier(identifier) => Some(identifier)
+      case BendValue.Bytes(value) => Some(LigatureValue.BytesValue(value))
+      case BendValue.Int(value) => Some(LigatureValue.IntegerValue(value))
+      case BendValue.String(value) => Some(LigatureValue.StringValue(value))
+      case BendValue.QuestionMark => None
+      case _ => ???
+    val dataset = DatasetName(datasetName)
+    ligature.query(dataset) { tx =>
+      val res = tx.matchStatements(entity, attribute, value)
+        .map(statement => BendValue.Statement(statement))
+      Right((BendValue.Array(res.toSeq), environment))
+    }

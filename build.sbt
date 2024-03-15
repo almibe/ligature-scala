@@ -11,6 +11,7 @@ val scalaLoggingVersion = "3.9.5"
 val logBackVersion = "1.5.1"
 val tsidVersion = "1.1.0"
 val ulidVersion = "5.2.3"
+val gsonVerison = "2.10.1"
 
 lazy val ligature = project
   .in(file("ligature"))
@@ -44,6 +45,7 @@ lazy val bend = project
   .settings(
     name := "bend",
     scalaVersion := scala3Version,
+    libraryDependencies += "com.google.code.gson" % "gson" % gsonVerison,
     libraryDependencies += "com.github.f4b6a3" % "ulid-creator" % ulidVersion,
     libraryDependencies += "io.hypersistence" % "tsid" % tsidVersion,
     libraryDependencies += "org.jetbrains.xodus" % "xodus-environment" % xodusVersion,

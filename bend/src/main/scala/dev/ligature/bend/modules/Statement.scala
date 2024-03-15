@@ -6,6 +6,7 @@ package dev.ligature.bend.modules
 
 import dev.ligature.LigatureValue
 import dev.ligature.bend.{BendValue, Field, HostFunction, TaggedField, Tag}
+import dev.ligature.bend.BendError
 
 val statementModule: BendValue.Module = BendValue.Module(
   Map(
@@ -20,7 +21,7 @@ val statementModule: BendValue.Module = BendValue.Module(
           args match
             case Seq(BendValue.Statement(statement)) =>
               Right((BendValue.Identifier(statement.entity), environment))
-            case _ => ???
+            case _ => Left(BendError("Unexpected value."))
       )
     ),
     Field("attribute") -> BendValue.Function(
@@ -34,7 +35,7 @@ val statementModule: BendValue.Module = BendValue.Module(
           args match
             case Seq(BendValue.Statement(statement)) =>
               Right((BendValue.Identifier(statement.attribute), environment))
-            case _ => ???
+            case _ => Left(BendError("Unexpected value."))
       )
     ),
     Field("value") -> BendValue.Function(
@@ -55,7 +56,7 @@ val statementModule: BendValue.Module = BendValue.Module(
                 case LigatureValue.IntegerValue(value) => Right((BendValue.Int(value), environment))
                 case LigatureValue.BytesValue(value) => Right((BendValue.Bytes(value), environment))
               }
-            case _ => ???
+            case _ => Left(BendError("Unexpected value."))
       )
     )
   )

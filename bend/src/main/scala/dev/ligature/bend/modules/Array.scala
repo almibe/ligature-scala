@@ -9,9 +9,8 @@ import dev.ligature.bend.Field
 import dev.ligature.bend.HostFunction
 import dev.ligature.bend.Tag
 import dev.ligature.bend.TaggedField
-// import scala.collection.mutable.ListBuffer
-import scala.util.boundary //, boundary.break
-// import dev.ligature.LigatureError
+import scala.util.boundary
+import dev.ligature.bend.BendError
 
 val arrayModule: BendValue.Module = BendValue.Module(
   Map(
@@ -74,7 +73,11 @@ val arrayModule: BendValue.Module = BendValue.Module(
         (args, environment) =>
           args match
             case Seq(BendValue.Array(value)) =>
-              Right((value.head, environment))
+              if (value.length > 0) {
+                Right((value.head, environment))
+              } else {
+                Left(BendError("Cannot call Array.head on empty array."))
+              }
             case _ => ???
       )
     ),
@@ -82,6 +85,57 @@ val arrayModule: BendValue.Module = BendValue.Module(
       HostFunction(
         "Get a Array containing all elements except the first.",
         Seq(TaggedField(Field("array"), Tag.Untagged)),
+        Tag.Untagged,
+        (args, environment) =>
+          args match
+            case Seq(BendValue.Array(value)) =>
+              Right((BendValue.Array(value.tail), environment))
+            case _ => ???
+      )
+    ),
+    Field("cat") -> BendValue.Function(
+      HostFunction(
+        "Concat all Strings in this Array.",
+        Seq(
+          TaggedField(Field("array"), Tag.Untagged),
+        ),
+        Tag.Untagged,
+        (args, environment) =>
+          args match
+            case Seq(BendValue.Array(value)) =>
+              Right((BendValue.String(value.map(
+                _ match
+                  case BendValue.String(value) => value
+                  case _ => ???
+              ).mkString("")), environment)) //TODO make separator an arg
+            case _ => ???
+      )
+    ),
+    Field("join") -> BendValue.Function(
+      HostFunction(
+        "Join this array.",
+        Seq(
+          TaggedField(Field("array"), Tag.Untagged),
+        ),
+        Tag.Untagged,
+        (args, environment) =>
+          args match
+            case Seq(BendValue.Array(value)) =>
+              Right((BendValue.String(value.map(
+                _ match
+                  case BendValue.String(value) => value
+                  case _ => ???
+              ).mkString("\n")), environment)) //TODO make separator an arg
+            case _ => ???
+      )
+    ),
+    Field("foldLeft") -> BendValue.Function(
+      HostFunction(
+        "Perform foldLeft on this array.",
+        Seq(
+          TaggedField(Field("initial"), Tag.Untagged),
+          TaggedField(Field("accumulator"), Tag.Untagged)
+        ),
         Tag.Untagged,
         (args, environment) =>
           args match

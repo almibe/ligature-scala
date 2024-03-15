@@ -101,7 +101,7 @@ def interpolateString(
                     case Left(err) =>
                       break(Left(err))
                     case Right((value, _)) =>
-                      val _ = sb.append(printBendValue(value, true))
+                      val _ = sb.append(printBendValue(value))
             case _ =>
               break(
                 Left(

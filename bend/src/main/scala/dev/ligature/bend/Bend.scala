@@ -8,6 +8,7 @@ import dev.ligature.bend.parse
 import java.util.HexFormat
 import dev.ligature.LigatureValue
 import dev.ligature.Statement
+import com.google.gson.Gson
 
 /** Represents a Value in the Bend language.
   */
@@ -120,19 +121,18 @@ def printResult(value: Either[BendError, (BendValue, Environment)]): String =
 
 val formatter = HexFormat.of()
 
-def printBendValue(value: BendValue, interpolation: Boolean = false): String =
+def printBendValue(value: BendValue): String =
   value match
     case BendValue.QuestionMark => "?"
     case BendValue.Bool(value)  => value.toString()
     case BendValue.Int(value)   => value.toString()
-    case BendValue.String(value) =>
-      if interpolation then value else s"\"$value\"" // TODO escape correctly
+    case BendValue.String(value) => printString(value)
     case BendValue.Function(function) => "\"[Function]\""
     case BendValue.Array(values) =>
-      "[" + values.map(value => printBendValue(value, interpolation)).mkString(", ") + "]"
+      "[" + values.map(value => printBendValue(value)).mkString(", ") + "]"
     case BendValue.Module(values) =>
       "{" + values
-        .map((field, value) => field.name + " = " + printBendValue(value, interpolation))
+        .map((field, value) => field.name + " = " + printBendValue(value))
         .mkString(", ") + "}"
     case BendValue.Bytes(value)           => printBytes(value)
     case BendValue.Graph(value)           => printGraph(value)
@@ -154,3 +154,7 @@ def printStatement(statement: Statement) =
 def printGraph(graph: Set[Statement]) = graph
   .map(printStatement)
   .mkString("{ ", ", ", " }") //s"{ ${graph.map(statement => printStatement(statement))} }"
+
+def printString(value: String) =
+  val gson = Gson()
+  gson.toJson(value)

@@ -14,6 +14,26 @@ import jetbrains.exodus.ArrayByteIterable
 
 val stringModule: BendValue.Module = BendValue.Module(
   Map(
+    Field("replace") -> BendValue.Function(
+      HostFunction(
+        "Replace all character sequences with another and create a new String.",
+        Seq(
+          TaggedField(Field("toMatch"), Tag.Untagged),
+          TaggedField(Field("replacement"), Tag.Untagged),
+          TaggedField(Field("data"), Tag.Untagged)
+        ),
+        Tag.Untagged,
+        (args, environment) =>
+          args match
+            case Seq(BendValue.String(toMatch), BendValue.String(replacement), BendValue.String(data)) =>
+              Right(
+                (
+                  BendValue.String(data.replace(toMatch, replacement)),
+                  environment
+                )
+              )
+      )
+    ),
     Field("toBytes") -> BendValue.Function(
       HostFunction(
         // FieldPath(Seq(Field("String"), Field("toBytes"))),
