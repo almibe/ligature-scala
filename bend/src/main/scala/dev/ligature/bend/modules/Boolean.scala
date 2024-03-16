@@ -17,7 +17,6 @@ val boolModule: BendValue.Module = BendValue.Module(
   Map(
     Field("not") -> BendValue.Function(
       HostFunction(
-        // FieldPath(Seq(Field("Bool"), Field("not"))),
         "Perform a not operation on a Bool value.",
         Seq(TaggedField(Field("value"), Tag.Untagged)),
         Tag.Untagged,
@@ -29,7 +28,6 @@ val boolModule: BendValue.Module = BendValue.Module(
     ),
     Field("and") -> BendValue.Function(
       HostFunction(
-        // FieldPath(Seq(Field("Bool"), Field("and"))),
         "Perform a logical and on two Bools.",
         Seq(TaggedField(Field("left"), Tag.Untagged), TaggedField(Field("right"), Tag.Untagged)),
         Tag.Untagged,
@@ -42,7 +40,6 @@ val boolModule: BendValue.Module = BendValue.Module(
     ),
     Field("or") -> BendValue.Function(
       HostFunction(
-        // FieldPath(Seq(Field("Bool"), Field("or"))),
         "Perform a logical or on two Bools.",
         Seq(TaggedField(Field("left"), Tag.Untagged), TaggedField(Field("right"), Tag.Untagged)),
         Tag.Untagged,
@@ -51,7 +48,6 @@ val boolModule: BendValue.Module = BendValue.Module(
     ),
     Field("toBytes") -> BendValue.Function(
       HostFunction(
-        // FieldPath(Seq(Field("Bool"), Field("toBytes"))),
         "Encod a Bool as Bytes.",
         Seq(
           TaggedField(Field("value"), Tag.Untagged)
@@ -70,7 +66,6 @@ val boolModule: BendValue.Module = BendValue.Module(
     ),
     Field("fromBytes") -> BendValue.Function(
       HostFunction(
-        // FieldPath(Seq(Field("Bool"), Field("fromBytes"))),
         "Decode Bytes to a Bool.",
         Seq(
           TaggedField(Field("value"), Tag.Untagged)
@@ -89,45 +84,3 @@ val boolModule: BendValue.Module = BendValue.Module(
     )
   )
 )
-
-//   stdLib = stdLib
-//     .bindVariable(
-//       Name("and"),
-//       BendValue.HostFunction(
-//         (arguments: Seq[Expression], environment: Environment) => ???
-//           // if arguments.length == 2 then
-//           //   val res = for {
-//           //     left <- evalTerm(arguments(0), environment)
-//           //     right <- evalTerm(arguments(1), environment)
-//           //   } yield (left, right)
-//           //   res.map { r =>
-//           //     (r._1.result, r._2.result) match
-//           //       case (BendValue.BooleanValue(left), BendValue.BooleanValue(right)) => BendValue.BooleanValue(left && right)
-//           //       case _ => throw LigatureError("`and` function requires two booleans")
-//           //   }
-//           // else
-//           //   IO.raiseError(LigatureError("`and` function requires two booleans"))
-//       )
-//     )
-//     .getOrElse(???)
-
-//   stdLib = stdLib
-//     .bindVariable(
-//       Name("or"),
-//       BendValue.HostFunction(
-//         (arguments: Seq[Expression], environment: Environment) => ???
-//           // if arguments.length == 2 then
-//           //   val res = for {
-//           //     left <- evalTerm(arguments(0), environment)
-//           //     right <- evalTerm(arguments(1), environment)
-//           //   } yield (left, right)
-//           //   res.map { r =>
-//           //     (r._1.result, r._2.result) match
-//           //       case (BendValue.BooleanValue(left), BendValue.BooleanValue(right)) => BendValue.BooleanValue(left || right)
-//           //       case _ => throw LigatureError("`or` function requires two booleans")
-//           //   }
-//           // else
-//           //   Left(BendError("`or` function requires two booleans")))
-//       )
-//     )
-//     .getOrElse(???)
