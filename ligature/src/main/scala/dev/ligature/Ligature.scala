@@ -14,6 +14,7 @@ enum LigatureValue:
   case StringValue(value: String)
   case IntegerValue(value: Long)
   case BytesValue(value: Seq[Byte])
+  case Struct(values: Map[String, LigatureValue])
 
 //sealed trait Range
 //final case class StringValueRange(start: String, end: String) extends Range

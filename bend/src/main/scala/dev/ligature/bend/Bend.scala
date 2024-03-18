@@ -148,7 +148,8 @@ def printStatement(statement: Statement) =
     case LigatureValue.BytesValue(value)   => printBytes(value)
     case value: LigatureValue.Identifier   => printIdentifier(value)
     case LigatureValue.IntegerValue(value) => value.toString()
-    case LigatureValue.StringValue(value)  => s"\"$value\"" // TODO escape correctly
+    case LigatureValue.StringValue(value)  => printString(value)
+    case LigatureValue.Struct(_) => ???
   s"`${statement.entity.value}` `${statement.attribute.value}` $value"
 
 def printGraph(graph: Set[Statement]) = graph

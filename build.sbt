@@ -46,6 +46,7 @@ lazy val bend = project
     name := "bend",
     scalaVersion := scala3Version,
     libraryDependencies += "com.google.code.gson" % "gson" % gsonVerison,
+    libraryDependencies += "org.furyio" % "fury-core" % "0.4.1",
     libraryDependencies += "com.github.f4b6a3" % "ulid-creator" % ulidVersion,
     libraryDependencies += "io.hypersistence" % "tsid" % tsidVersion,
     libraryDependencies += "org.jetbrains.xodus" % "xodus-environment" % xodusVersion,
