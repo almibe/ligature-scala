@@ -101,7 +101,7 @@ def interpolateString(
                     case Left(err) =>
                       break(Left(err))
                     case Right((BendValue.String(value), _)) => val _ = sb.append(value)
-                    case _ => ???
+                    case _                                   => ???
             case _ =>
               break(
                 Left(

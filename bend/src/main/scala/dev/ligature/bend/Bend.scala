@@ -149,7 +149,7 @@ def printStatement(statement: Statement) =
     case value: LigatureValue.Identifier   => printIdentifier(value)
     case LigatureValue.IntegerValue(value) => value.toString()
     case LigatureValue.StringValue(value)  => printString(value)
-    case LigatureValue.Record(_) => ???
+    case LigatureValue.Record(_)           => ???
   s"`${statement.entity.value}` `${statement.attribute.value}` $value"
 
 def printGraph(graph: Set[Statement]) = graph

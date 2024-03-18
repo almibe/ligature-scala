@@ -9,7 +9,7 @@ import dev.ligature.bend.BendValue
 class BytesSuite extends munit.FunSuite {
   test("encode and decode basic types") {
     val values = Seq(
-      BendValue.Int(4), 
+      BendValue.Int(4),
       BendValue.Bytes(Seq(0x12, 0x45)),
       BendValue.String("Hello")
     )
@@ -19,8 +19,7 @@ class BytesSuite extends munit.FunSuite {
 
   test("encode and decode arrays") {
     val values = Seq(
-      BendValue.Array(Seq()),
-
+      BendValue.Array(Seq())
     )
     val results = values.map(value => decodeBendValue(encodeBendValue(value)))
     assertEquals(values, results)
@@ -28,8 +27,7 @@ class BytesSuite extends munit.FunSuite {
 
   test("encode and decode structs".ignore) {
     val values = Seq(
-      BendValue.Module(Map()),
-
+      BendValue.Module(Map())
     )
     val results = values.map(value => decodeBendValue(encodeBendValue(value)))
     assertEquals(values, results)

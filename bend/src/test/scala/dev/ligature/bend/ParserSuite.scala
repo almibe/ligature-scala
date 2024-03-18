@@ -323,4 +323,19 @@ class ParserSuite extends FunSuite {
     )
     assertEquals(result, expected)
   }
+  test("parse Statement with empty Record for Value") {
+    val result = check("`a` `a` {}")
+    val expected = Right(
+      Seq(
+        Term.Application(
+          Seq(
+            Term.Identifier("a"),
+            Term.Identifier("a"),
+            Term.Module(Seq())
+          )
+        )
+      )
+    )
+    assertEquals(result, expected)
+  }
 }

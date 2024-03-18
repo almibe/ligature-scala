@@ -55,7 +55,7 @@ val statementModule: BendValue.Module = BendValue.Module(
                   Right((BendValue.String(value), environment))
                 case LigatureValue.IntegerValue(value) => Right((BendValue.Int(value), environment))
                 case LigatureValue.BytesValue(value) => Right((BendValue.Bytes(value), environment))
-                case LigatureValue.Record(_) => ???
+                case LigatureValue.Record(_)         => ???
               }
             case _ => Left(BendError("Unexpected value."))
       )
