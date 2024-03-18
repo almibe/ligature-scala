@@ -166,7 +166,7 @@ def targetValue(value: LigatureValue): Comparable[?] =
     case LigatureValue.StringValue(value)  => value
     case LigatureValue.Identifier(value)   => value
     case LigatureValue.BytesValue(value)   => ???
-    case LigatureValue.Struct(_) => ???
+    case LigatureValue.Record(_) => ???
 
 def valueType(value: LigatureValue): Int =
   value match
