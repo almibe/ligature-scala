@@ -50,13 +50,11 @@ class InterpreterSuite extends FunSuite {
   }
   test("Statement with empty Record as Value") {
     val script = "`a` `a` {}"
-    val result = BendValue.Graph(
-      Set(
-        Statement(
-          LigatureValue.Identifier("a"),
-          LigatureValue.Identifier("a"),
-          LigatureValue.Record(Map())
-        )
+    val result = BendValue.Statement(
+      Statement(
+        LigatureValue.Identifier("a"),
+        LigatureValue.Identifier("a"),
+        LigatureValue.Record(Map())
       )
     )
     check(script, result)

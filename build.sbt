@@ -12,6 +12,7 @@ val logBackVersion = "1.5.1"
 val tsidVersion = "1.1.0"
 val ulidVersion = "5.2.3"
 val gsonVerison = "2.10.1"
+val furyVersion = "0.4.1"
 
 lazy val ligature = project
   .in(file("ligature"))
@@ -46,7 +47,7 @@ lazy val bend = project
     name := "bend",
     scalaVersion := scala3Version,
     libraryDependencies += "com.google.code.gson" % "gson" % gsonVerison,
-    libraryDependencies += "org.furyio" % "fury-core" % "0.4.1",
+    libraryDependencies += "org.furyio" % "fury-core" % furyVersion,
     libraryDependencies += "com.github.f4b6a3" % "ulid-creator" % ulidVersion,
     libraryDependencies += "io.hypersistence" % "tsid" % tsidVersion,
     libraryDependencies += "org.jetbrains.xodus" % "xodus-environment" % xodusVersion,
@@ -95,6 +96,7 @@ lazy val ligatureXodus = project
     name := "ligature-xodus",
     scalaVersion := scala3Version,
     libraryDependencies += "org.jetbrains.xodus" % "xodus-entity-store" % xodusVersion,
+    libraryDependencies += "org.furyio" % "fury-core" % furyVersion,
     libraryDependencies += "org.scalameta" %% "munit" % munitVersion % Test
   )
   .dependsOn(ligature, idgen, ligatureTestSuite % Test)

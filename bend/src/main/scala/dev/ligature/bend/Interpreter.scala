@@ -236,6 +236,23 @@ def handleApplication(
                   environment
                 )
               )
+            case module: Expression.Module =>
+              eval(module, environment) match {
+                case Right((BendValue.Module(result), _)) =>
+                  Right(
+                    (
+                      BendValue.Statement(
+                        Statement(
+                          LigatureValue.Identifier(entity),
+                          LigatureValue.Identifier(attribute),
+                          moduleToRecord(result)
+                        )
+                      ),
+                      environment
+                    )
+                  )
+                case _ => ???
+              }
             case stringValue: Expression.StringValue =>
               eval(stringValue, environment) match {
                 case Right((BendValue.String(result), _)) =>
@@ -279,6 +296,17 @@ def handleApplication(
       }
     case x => Left(BendError(s"Unexpected start of application - $x"))
   }
+
+def moduleToRecord(module: Map[Field, BendValue]): LigatureValue.Record =
+  LigatureValue.Record(module.map((f, b) => (f.name, bendToLigatureValue(b))))
+
+def bendToLigatureValue(value: BendValue): LigatureValue =
+  value match
+    case BendValue.Bytes(value)      => LigatureValue.BytesValue(value)
+    case BendValue.Int(value)        => LigatureValue.IntegerValue(value)
+    case BendValue.String(value)     => LigatureValue.StringValue(value)
+    case BendValue.Identifier(value) => value
+    case _                           => ???
 
 def callArray(
     values: Seq[BendValue],

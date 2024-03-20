@@ -8,6 +8,8 @@ import dev.ligature.*
 import jetbrains.exodus.entitystore.StoreTransaction
 import jetbrains.exodus.entitystore.EntityIterable
 import scala.collection.mutable.ListBuffer
+import scala.math.Ordered.orderingToOrdered
+import jetbrains.exodus.ByteIterable
 
 /** Represents a QueryTx within the context of a Ligature instance and a single
   * Dataset
@@ -29,23 +31,23 @@ class XodusQueryTx(
         tx.find("statement", "attribute", label.value)
       case (None, None, Some(target)) =>
         tx.find("statement", "valueType", valueType(target))
-          .intersect(tx.find("statement", "value", targetValue(target)))
+          .intersect(tx.find("statement", "value", valueToPersist(target)))
       case (Some(source), Some(label), None) =>
         tx.find("statement", "entity", source.value)
           .intersect(tx.find("statement", "attribute", label.value))
       case (Some(source), None, Some(target)) =>
         tx.find("statement", "entity", source.value)
           .intersect(tx.find("statement", "valueType", valueType(target)))
-          .intersect(tx.find("statement", "value", targetValue(target)))
+          .intersect(tx.find("statement", "value", valueToPersist(target)))
       case (None, Some(label), Some(target)) =>
         tx.find("statement", "attribute", label.value)
           .intersect(tx.find("statement", "valueType", valueType(target)))
-          .intersect(tx.find("statement", "value", targetValue(target)))
+          .intersect(tx.find("statement", "value", valueToPersist(target)))
       case (Some(source), Some(label), Some(target)) =>
         tx.find("statement", "entity", source.value)
           .intersect(tx.find("statement", "attribute", label.value))
           .intersect(tx.find("statement", "valueType", valueType(target)))
-          .intersect(tx.find("statement", "value", targetValue(target)))
+          .intersect(tx.find("statement", "value", valueToPersist(target)))
     entitiesToStatements(entities)
 }
 
@@ -56,11 +58,17 @@ def entitiesToStatements(entities: EntityIterable): Iterator[Statement] =
       LigatureValue.Identifier(entity.getProperty("entity").asInstanceOf[String])
     val label: LigatureValue.Identifier =
       LigatureValue.Identifier(entity.getProperty("attribute").asInstanceOf[String])
-    val target = entity.getProperty("valueType").asInstanceOf[Int] match
-      case IDENTIFIER => LigatureValue.Identifier(entity.getProperty("value").asInstanceOf[String])
-      case INT        => LigatureValue.IntegerValue(entity.getProperty("value").asInstanceOf[Long])
-      case STRING =>
+    val target = intToTypeCode(entity.getProperty("valueType").asInstanceOf[Int]) match
+      case TypeCode.IdentifierType => LigatureValue.Identifier(entity.getProperty("value").asInstanceOf[String])
+      case TypeCode.IntType        => LigatureValue.IntegerValue(entity.getProperty("value").asInstanceOf[Long])
+      case TypeCode.StringType     =>
         LigatureValue.StringValue(entity.getProperty("value").asInstanceOf[String])
+      case TypeCode.BytesType =>
+        val value = entity.getProperty("value").asInstanceOf[ByteIterable]
+        decodeLigatureValue(value)
+      case TypeCode.RecordType =>
+        val value = entity.getProperty("value").asInstanceOf[ByteIterable]
+        decodeLigatureValue(value)
     buffer += Statement(source, label, target)
   )
   buffer.iterator

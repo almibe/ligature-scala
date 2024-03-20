@@ -144,13 +144,19 @@ def printBytes(bytes: Seq[Byte]) = s"0x${formatter.formatHex(bytes.toArray)}"
 def printIdentifier(identifier: LigatureValue.Identifier) = s"`${identifier.value}`"
 
 def printStatement(statement: Statement) =
-  val value = statement.value match
+  val value = printStatementValue(statement.value)
+  s"`${statement.entity.value}` `${statement.attribute.value}` $value"
+
+def printStatementValue(value: LigatureValue): String =
+  value match
     case LigatureValue.BytesValue(value)   => printBytes(value)
     case value: LigatureValue.Identifier   => printIdentifier(value)
     case LigatureValue.IntegerValue(value) => value.toString()
     case LigatureValue.StringValue(value)  => printString(value)
-    case LigatureValue.Record(_)           => ???
-  s"`${statement.entity.value}` `${statement.attribute.value}` $value"
+    case LigatureValue.Record(values)       => 
+      "{" + values
+        .map((field, value) => field + " = " + printStatementValue(value))
+        .mkString(", ") + "}"
 
 def printGraph(graph: Set[Statement]) = graph
   .map(printStatement)

@@ -20,10 +20,7 @@ import jetbrains.exodus.entitystore.StoreTransaction
 import dev.ligature.LigatureValue
 import jetbrains.exodus.entitystore.PersistentEntityStore
 import dev.ligature.DatasetName
-
-val IDENTIFIER = 0
-val INT = 1
-val STRING = 2
+import scala.math.Ordered.orderingToOrdered
 
 def createXodusLigature(path: Path): Ligature =
   val environment = Environments.newInstance(path.toFile(), EnvironmentConfig())
@@ -118,12 +115,14 @@ private final class XodusLigature(environment: Environment) extends Ligature {
   override def addStatements(graph: DatasetName, statements: Iterator[Statement]): Unit =
     val store = getStore(graph.name)
     store.executeInExclusiveTransaction(tx =>
+      store.registerCustomPropertyType(tx, classOf[CustomBindings], CustomBindings())
+
       statements.foreach(statement =>
         if findStatement(statement, tx).isEmpty then
           val entity = tx.newEntity("statement")
           entity.setProperty("entity", statement.entity.value)
           entity.setProperty("attribute", statement.attribute.value)
-          entity.setProperty("value", targetValue(statement.value))
+          entity.setProperty("value", valueToPersist(statement.value))
           entity.setProperty("valueType", valueType(statement.value))
           ()
       )
@@ -160,17 +159,42 @@ private final class XodusLigature(environment: Environment) extends Ligature {
   override def close(): Unit = () // environment.close()
 }
 
-def targetValue(value: LigatureValue): Comparable[?] =
+def targetValue(value: LigatureValue): Any =
   value match
     case LigatureValue.IntegerValue(value) => value
     case LigatureValue.StringValue(value)  => value
     case LigatureValue.Identifier(value)   => value
-    case LigatureValue.BytesValue(value)   => ???
-    case LigatureValue.Record(_)           => ???
+    case LigatureValue.BytesValue(value)   => value
+    case LigatureValue.Record(value)       => value
+
+def valueToPersist(value: LigatureValue): Comparable[?] =
+  value match
+    case LigatureValue.IntegerValue(value) => value
+    case LigatureValue.StringValue(value)  => value
+    case LigatureValue.Identifier(value)   => value
+    case value: LigatureValue.BytesValue   => encodeLigatureValue(value)
+    case value: LigatureValue.Record       => encodeLigatureValue(value)
+
+enum TypeCode(val code: Int):
+  case IdentifierType extends TypeCode(0)
+  case IntType extends TypeCode(1)
+  case StringType extends TypeCode(2)
+  case BytesType extends TypeCode(3)
+  case RecordType extends TypeCode(4)
+
+def intToTypeCode(code: Int): TypeCode =
+  code match
+    case 0 => TypeCode.IdentifierType
+    case 1 => TypeCode.IntType
+    case 2 => TypeCode.StringType
+    case 3 => TypeCode.BytesType
+    case 4 => TypeCode.RecordType
+    case _ => ???
 
 def valueType(value: LigatureValue): Int =
   value match
-    case LigatureValue.IntegerValue(_) => INT
-    case LigatureValue.StringValue(_)  => STRING
-    case LigatureValue.Identifier(_)   => IDENTIFIER
-    case _                             => ???
+    case LigatureValue.IntegerValue(_) => TypeCode.IntType.code
+    case LigatureValue.StringValue(_)  => TypeCode.StringType.code
+    case LigatureValue.Identifier(_)   => TypeCode.IdentifierType.code
+    case LigatureValue.BytesValue(_)   => TypeCode.BytesType.code
+    case LigatureValue.Record(_)       => TypeCode.RecordType.code
