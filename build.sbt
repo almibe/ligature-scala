@@ -5,7 +5,6 @@ ThisBuild / organization := "dev.ligature"
 ThisBuild / organizationName := "ligature"
 
 val munitVersion = "1.0.0-M11"
-val xodusVersion = "2.0.1"
 val jeromqVersion = "0.6.0"
 val scalaLoggingVersion = "3.9.5"
 val logBackVersion = "1.5.1"
@@ -13,6 +12,7 @@ val tsidVersion = "1.1.0"
 val ulidVersion = "5.2.3"
 val gsonVerison = "2.10.1"
 val furyVersion = "0.4.1"
+val sqliteDep = "3.45.2.0"
 
 lazy val ligature = project
   .in(file("ligature"))
@@ -90,12 +90,12 @@ lazy val ligatureInMemory = project
   .dependsOn(ligature, idgen, ligatureTestSuite % Test)
   .disablePlugins(RevolverPlugin)
 
-lazy val ligatureXodus = project
-  .in(file("ligature-xodus"))
+lazy val ligatureSqlite = project
+  .in(file("ligature-sqlite"))
   .settings(
-    name := "ligature-xodus",
+    name := "ligature-sqlite",
     scalaVersion := scala3Version,
-    libraryDependencies += "org.jetbrains.xodus" % "xodus-entity-store" % xodusVersion,
+    libraryDependencies += "org.xerial" % "sqlite-jdbc" % sqliteVersion,
     libraryDependencies += "org.furyio" % "fury-core" % furyVersion,
     libraryDependencies += "org.scalameta" %% "munit" % munitVersion % Test
   )

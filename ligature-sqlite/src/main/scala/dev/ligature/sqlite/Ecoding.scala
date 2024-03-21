@@ -8,9 +8,6 @@ import io.fury.Fury
 import dev.ligature.LigatureValue
 import jetbrains.exodus.ByteIterable
 import jetbrains.exodus.ArrayByteIterable
-import jetbrains.exodus.bindings.ComparableBinding
-import jetbrains.exodus.util.LightOutputStream
-import java.io.ByteArrayInputStream
 
 val fury = Fury
   .builder()
