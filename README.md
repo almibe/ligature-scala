@@ -1,4 +1,10 @@
 # ligature-scala
+
+**Note**
+
+This project isn't currently being worked on.
+See https://github.com/almibe/ligature-fs and https://ligature.dev for more info.
+
 An implementation of [Ligature knowledge graph](https://ligature.dev) library written in Scala for the JVM.
 
 ### Projects
