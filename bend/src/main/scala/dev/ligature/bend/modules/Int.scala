@@ -9,8 +9,6 @@ import dev.ligature.bend.TaggedField
 import dev.ligature.bend.Tag
 import dev.ligature.bend.BendValue
 import dev.ligature.bend.Field
-import jetbrains.exodus.bindings.LongBinding
-import jetbrains.exodus.ArrayByteIterable
 
 val intModule: BendValue.Module = BendValue.Module(
   Map(
@@ -43,7 +41,7 @@ val intModule: BendValue.Module = BendValue.Module(
             case Seq(BendValue.Int(value)) =>
               Right(
                 (
-                  BendValue.Bytes(LongBinding.longToEntry(value).getBytesUnsafe().toSeq),
+                  ???,//BendValue.Bytes(LongBinding.longToEntry(value).getBytesUnsafe().toSeq),
                   environment
                 )
               )
@@ -62,7 +60,7 @@ val intModule: BendValue.Module = BendValue.Module(
             case Seq(BendValue.Bytes(value)) =>
               Right(
                 (
-                  BendValue.Int(LongBinding.entryToLong(ArrayByteIterable(value.toArray))),
+                  ???,//BendValue.Int(LongBinding.entryToLong(ArrayByteIterable(value.toArray))),
                   environment
                 )
               )

@@ -10,8 +10,6 @@ import dev.ligature.bend.HostFunction
 import dev.ligature.bend.TaggedField
 import dev.ligature.bend.Tag
 import dev.ligature.bend.Field
-import jetbrains.exodus.bindings.BooleanBinding
-import jetbrains.exodus.ArrayByteIterable
 
 val boolModule: BendValue.Module = BendValue.Module(
   Map(
@@ -58,7 +56,7 @@ val boolModule: BendValue.Module = BendValue.Module(
             case Seq(BendValue.Bool(value)) =>
               Right(
                 (
-                  BendValue.Bytes(BooleanBinding.booleanToEntry(value).getBytesUnsafe().toSeq),
+                  ???,///BendValue.Bytes(BooleanBinding.booleanToEntry(value).getBytesUnsafe().toSeq),
                   environment
                 )
               )
@@ -76,7 +74,7 @@ val boolModule: BendValue.Module = BendValue.Module(
             case Seq(BendValue.Bytes(value)) =>
               Right(
                 (
-                  BendValue.Bool(BooleanBinding.entryToBoolean(ArrayByteIterable(value.toArray))),
+                  ???, //BendValue.Bool(BooleanBinding.entryToBoolean(ArrayByteIterable(value.toArray))),
                   environment
                 )
               )

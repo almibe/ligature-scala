@@ -1,10 +1,5 @@
 # ligature-scala
 
-**Note**
-
-This project isn't currently being worked on.
-See https://github.com/almibe/ligature-fs and https://ligature.dev for more info.
-
 An implementation of [Ligature knowledge graph](https://ligature.dev) library written in Scala for the JVM.
 
 ### Projects
@@ -15,7 +10,6 @@ An implementation of [Ligature knowledge graph](https://ligature.dev) library wr
 | ligature-test-suite      | A shared test suite for Ligature instances.                                      |
 | idgen                    | A basic implementation of nanoid for use with Ligature.                          |
 | ligature-in-memory       | An in-memory implementation of Ligature.                                         |
-| ligature-xodus           | An implementation of Ligature using Xodus's key-value store for persistence.     |
 | bend                     | A scripting language for working with Ligature.                                  |
 | gaze                     | A utility library for parsing text/data structures.                              |
 
