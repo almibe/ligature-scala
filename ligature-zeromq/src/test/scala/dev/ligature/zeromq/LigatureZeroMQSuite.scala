@@ -2,12 +2,12 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at https://mozilla.org/MPL/2.0/. */
 
-package dev.ligature.bend.zeromq
+package dev.ligature.wander.zeromq
 
 import munit.*
 import org.zeromq.{ZMQ, SocketType, ZContext}
-import dev.ligature.bend.*
-import dev.ligature.bend.modules.*
+import dev.ligature.wander.*
+import dev.ligature.wander.modules.*
 
 class LigatureZeroMQSuite extends FunSuite {
   val port = 4201

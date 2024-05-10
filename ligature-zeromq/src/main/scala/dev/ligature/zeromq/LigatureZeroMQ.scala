@@ -2,17 +2,17 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at https://mozilla.org/MPL/2.0/. */
 
-package dev.ligature.bend.zeromq
+package dev.ligature.wander.zeromq
 
 import org.zeromq.{ZMQ, ZContext, SocketType}
 
-import dev.ligature.bend.run as runBend
-import dev.ligature.bend.BendValue
-import dev.ligature.bend.printBendValue
-import dev.ligature.bend.printResult
-import dev.ligature.bend.*
+import dev.ligature.wander.run as runBend
+import dev.ligature.wander.BendValue
+import dev.ligature.wander.printBendValue
+import dev.ligature.wander.printResult
+import dev.ligature.wander.*
 import com.typesafe.scalalogging.Logger
-import dev.ligature.bend.modules.*
+import dev.ligature.wander.modules.*
 import dev.ligature.inmemory.LigatureInMemory
 import dev.ligature.Ligature
 
@@ -27,7 +27,7 @@ private class LigatureZeroMQ(val port: Int, ligature: Ligature)
     val socket = zContext.createSocket(SocketType.REP)
     socket.bind(s"tcp://localhost:$port")
     var continue = true
-    logger.info("Starting server loop!")
+    logger.info(s"Starting server loop on $port!")
     while (!Thread.currentThread().isInterrupted() && continue)
       try
         val command = String(socket.recv(0), ZMQ.CHARSET) // blocks waiting for a request
