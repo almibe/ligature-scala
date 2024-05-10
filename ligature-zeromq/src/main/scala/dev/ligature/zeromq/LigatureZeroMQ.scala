@@ -15,8 +15,6 @@ import com.typesafe.scalalogging.Logger
 import dev.ligature.bend.modules.*
 import dev.ligature.inmemory.LigatureInMemory
 import dev.ligature.Ligature
-import dev.ligature.xodus.createXodusLigature
-import java.nio.file.Paths
 
 private class LigatureZeroMQ(val port: Int, ligature: Ligature)
     extends Runnable
@@ -66,6 +64,5 @@ def runServer(port: Int): AutoCloseable = {
 }
 
 @main def main =
-  val home = System.getProperty("user.home")
-  val server = LigatureZeroMQ(4200, createXodusLigature(Paths.get(home, ".ligature", "xodus")))
+  val server = LigatureZeroMQ(4200, LigatureInMemory())
   server.run()

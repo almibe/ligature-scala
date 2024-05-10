@@ -29,6 +29,8 @@ abstract class LigatureTestSuite extends FunSuite {
     }
   )
 
+//  runExternalTests(setup)
+
   setup.test("create and close store") { instance =>
     assertEquals(instance.allDatasets().toList, List())
   }
@@ -385,3 +387,40 @@ abstract class LigatureTestSuite extends FunSuite {
 // //    }
 // //  }
 }
+
+// def runExternalTests(setup: TestSetup) = {
+//   sys.env.get("WANDER_TEST_SUITE") match {
+//     case Some(dir) =>
+//       val files = File(dir).listFiles
+//         .filter(_.isFile)
+//         .filter(_.getName.endsWith(".test.wander"))
+//         .map(_.getPath)
+//         .toList
+//       files.foreach { f =>
+//         //val script = Source.fromFile(f).mkString
+//         //val library = DirectoryLibrary(Path.of(dir))
+//         run(script, std(List())) match {
+//           case Left(err) => fail(f.toString() + err.toString())
+//           case Right((results, _)) =>
+//             evaluateResults(results, f)
+//         }
+//       }
+//     case None => ()
+//   }
+
+//   def evaluateResults(results: BendValue, fileName: String) =
+//     results match
+//       case WanderValue.Array(tests) =>
+//         tests.foreach { currentTest =>
+//           currentTest match
+//             case WanderValue.Module(values) =>
+//               test(values(Field("name")).toString) {
+//                 val test = values(Field("test"))
+//                 val expected = values(Field("expect"))
+//                 assertEquals(test, expected)
+//               }
+//             case _ => ???
+//         }
+//       case _ =>
+//         throw RuntimeException(s"In $fileName -- Expected result to be array got ${results}")
+// }
