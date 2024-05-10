@@ -33,8 +33,8 @@ final class DirectoryLibrary(path: Path) extends ModuleLibrary {
     Right(modules.get(id))
 }
 
-val bendExt = ".bend"
-val bendTextExt = ".test.bend"
+val bendExt = ".wander"
+val bendTextExt = ".test.wander"
 
 private def loadFromPath(path: Path): Either[BendError, Map[ModuleId, BendValue.Module]] =
   boundary:

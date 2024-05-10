@@ -40,10 +40,10 @@ lazy val idgen = project
   )
   .disablePlugins(RevolverPlugin)
 
-lazy val bend = project
-  .in(file("bend"))
+lazy val wander = project
+  .in(file("wander"))
   .settings(
-    name := "bend",
+    name := "wander",
     scalaVersion := scala3Version,
     libraryDependencies += "com.google.code.gson" % "gson" % gsonVerison,
     libraryDependencies += "org.furyio" % "fury-core" % furyVersion,
@@ -67,7 +67,7 @@ lazy val ligatureZeroMQ = project
     libraryDependencies += "org.scalameta" %% "munit" % munitVersion % Test,
     fork := true
   )
-  .dependsOn(bend, ligature, ligatureInMemory)
+  .dependsOn(wander, ligature, ligatureInMemory)
 
 lazy val ligatureTestSuite = project
   .in(file("ligature-test-suite"))
