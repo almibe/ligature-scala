@@ -7,7 +7,7 @@ package dev.ligature.wander
 import munit.FunSuite
 
 class TagSuite extends FunSuite {
-  // def check(script: String, expected: BendValue) =
+  // def check(script: String, expected: WanderValue) =
   //   assertEquals(
   //     run(script, std()) match {
   //       case Left(err)         => throw err
@@ -23,7 +23,7 @@ class TagSuite extends FunSuite {
 
   // test("run passing tag assignment") {
   //   val script = "x: Core.Int = 5"
-  //   val result = BendValue.Int(5)
+  //   val result = WanderValue.Int(5)
   //   check(script, result)
   // }
 
@@ -39,7 +39,7 @@ class TagSuite extends FunSuite {
 
   // test("define and use passing Tag in lambda") {
   //   val script = "five = \\i -> Core.eq i 5, x: five = 5"
-  //   val result = BendValue.Int(5)
+  //   val result = WanderValue.Int(5)
   //   check(script, result)
   // }
 
@@ -50,7 +50,7 @@ class TagSuite extends FunSuite {
 
   // test("bind lambda with function tag that passes") {
   //   val script = "increment: Core.Int -> Core.Int = \\i -> Int.add i 1, nothing"
-  //   val result = BendValue.Nothing
+  //   val result = WanderValue.Nothing
   //   check(script, result)
   // }
 

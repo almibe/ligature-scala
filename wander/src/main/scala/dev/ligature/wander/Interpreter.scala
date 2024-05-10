@@ -32,27 +32,27 @@ enum Expression:
 def eval(
     expression: Expression,
     environment: Environment
-): Either[BendError, (BendValue, Environment)] =
+): Either[WanderError, (WanderValue, Environment)] =
   expression match {
-    case Expression.BooleanValue(value) => Right((BendValue.Bool(value), environment))
-    case Expression.IntegerValue(value) => Right((BendValue.Int(value), environment))
-    case Expression.Bytes(value)        => Right((BendValue.Bytes(value), environment))
+    case Expression.BooleanValue(value) => Right((WanderValue.Bool(value), environment))
+    case Expression.IntegerValue(value) => Right((WanderValue.Int(value), environment))
+    case Expression.Bytes(value)        => Right((WanderValue.Bytes(value), environment))
     case Expression.StringValue(value, interpolated) =>
       if interpolated then interpolateString(value, environment)
-      else Right((BendValue.String(value), environment))
+      else Right((WanderValue.String(value), environment))
     case Expression.Identifier(value) =>
-      Right((BendValue.Identifier(LigatureValue.Identifier(value)), environment))
+      Right((WanderValue.Identifier(LigatureValue.Identifier(value)), environment))
     case Expression.Array(value)                   => handleArray(value, environment)
     case Expression.FieldExpression(field)         => readField(field, environment)
     case Expression.FieldPathExpression(fieldPath) => readFieldPath(fieldPath, environment)
     case Expression.Binding(name, tag, value) =>
       handleBinding(name, tag, value, environment)
-    case lambda: Expression.Lambda => Right((BendValue.Function(Lambda(lambda)), environment))
+    case lambda: Expression.Lambda => Right((WanderValue.Function(Lambda(lambda)), environment))
     case Expression.WhenExpression(conditionals) =>
       handleWhenExpression(conditionals, environment)
     case Expression.Grouping(expressions)    => handleGrouping(expressions, environment)
     case Expression.Application(expressions) => handleApplication(expressions, environment)
-    case Expression.QuestionMark             => Right((BendValue.QuestionMark, environment))
+    case Expression.QuestionMark             => Right((WanderValue.QuestionMark, environment))
     case Expression.Module(values)           => handleModule(values, environment)
     case Expression.Graph(expressions)       => handleGraph(expressions, environment)
   }
@@ -60,7 +60,7 @@ def eval(
 def readField(
     field: Field,
     environment: Environment
-): Either[BendError, (BendValue, Environment)] =
+): Either[WanderError, (WanderValue, Environment)] =
   environment.read(field) match
     case Left(err)          => Left(err)
     case Right(Some(value)) => Right((value, environment))
@@ -69,16 +69,16 @@ def readField(
 def readFieldPath(
     fieldPath: FieldPath,
     environment: Environment
-): Either[BendError, (BendValue, Environment)] =
+): Either[WanderError, (WanderValue, Environment)] =
   environment.read(fieldPath) match
     case Left(err)          => Left(err)
     case Right(Some(value)) => Right((value, environment))
-    case Right(None)        => Left(BendError(s"Could not read $fieldPath."))
+    case Right(None)        => Left(WanderError(s"Could not read $fieldPath."))
 
 def interpolateString(
     value: String,
     environment: Environment
-): Either[BendError, (BendValue, Environment)] =
+): Either[WanderError, (WanderValue, Environment)] =
   boundary:
     val sb = StringBuffer()
     val it = value.iterator
@@ -95,28 +95,28 @@ def interpolateString(
                       break(contents.toString())
                     case c => contents.append(c)
               contents match
-                case _: Unit => break(Left(BendError("Should never reach")))
+                case _: Unit => break(Left(WanderError("Should never reach")))
                 case contents: String =>
                   run(contents, environment) match
                     case Left(err) =>
                       break(Left(err))
-                    case Right((BendValue.String(value), _)) => val _ = sb.append(value)
+                    case Right((WanderValue.String(value), _)) => val _ = sb.append(value)
                     case _                                   => ???
             case _ =>
               break(
                 Left(
-                  BendError("Syntax error, in an interpolated String `$` must be followed by `(`.")
+                  WanderError("Syntax error, in an interpolated String `$` must be followed by `(`.")
                 )
               )
         case c => val _ = sb.append(c)
-    Right((BendValue.String(sb.toString), environment))
+    Right((WanderValue.String(sb.toString), environment))
 
 def handleGrouping(
     expressions: Seq[Expression],
     environment: Environment
-): Either[BendError, (BendValue, Environment)] = {
-  var error: Option[BendError] = None
-  var res: (BendValue, Environment) = (BendValue.Module(Map()), environment)
+): Either[WanderError, (WanderValue, Environment)] = {
+  var error: Option[WanderError] = None
+  var res: (WanderValue, Environment) = (WanderValue.Module(Map()), environment)
   val itr = expressions.iterator
   while error.isEmpty && itr.hasNext do
     eval(itr.next(), res._2) match {
@@ -130,21 +130,21 @@ def handleGrouping(
 def handleModule(
     values: Seq[(Field, Expression)],
     environment: Environment
-): Either[BendError, (BendValue, Environment)] =
+): Either[WanderError, (WanderValue, Environment)] =
   boundary:
-    val results = collection.mutable.HashMap[Field, BendValue]()
+    val results = collection.mutable.HashMap[Field, WanderValue]()
     values.foreach((name, value) =>
       eval(value, environment) match {
         case Left(err)         => break(Left(err))
         case Right((value, _)) => results += name -> value
       }
     )
-    Right((BendValue.Module(results.toMap), environment))
+    Right((WanderValue.Module(results.toMap), environment))
 
 def handleGraph(
     expressions: Seq[Expression],
     environment: Environment
-): Either[BendError, (BendValue, Environment)] =
+): Either[WanderError, (WanderValue, Environment)] =
   expressions match
     case Seq(
           Expression.Identifier(entity),
@@ -153,7 +153,7 @@ def handleGraph(
         ) =>
       Right(
         (
-          BendValue.Graph(
+          WanderValue.Graph(
             Set(
               Statement(
                 LigatureValue.Identifier(entity),
@@ -172,7 +172,7 @@ def handleBinding(
     tag: Option[FieldPath],
     value: Expression,
     environment: Environment
-): Either[BendError, (BendValue, Environment)] =
+): Either[WanderError, (WanderValue, Environment)] =
   eval(value, environment) match {
     case Left(err) => Left(err)
     case Right(value) =>
@@ -187,7 +187,7 @@ def handleBinding(
 def handleApplication(
     expression: Seq[Expression],
     environment: Environment
-): Either[BendError, (BendValue, Environment)] =
+): Either[WanderError, (WanderValue, Environment)] =
   expression.head match {
     case Expression.Identifier(identifier) =>
       expression match
@@ -200,7 +200,7 @@ def handleApplication(
             case Expression.Identifier(value) =>
               Right(
                 (
-                  BendValue.Statement(
+                  WanderValue.Statement(
                     Statement(
                       LigatureValue.Identifier(entity),
                       LigatureValue.Identifier(attribute),
@@ -213,7 +213,7 @@ def handleApplication(
             case Expression.IntegerValue(value) =>
               Right(
                 (
-                  BendValue.Statement(
+                  WanderValue.Statement(
                     Statement(
                       LigatureValue.Identifier(entity),
                       LigatureValue.Identifier(attribute),
@@ -226,7 +226,7 @@ def handleApplication(
             case Expression.Bytes(value) =>
               Right(
                 (
-                  BendValue.Statement(
+                  WanderValue.Statement(
                     Statement(
                       LigatureValue.Identifier(entity),
                       LigatureValue.Identifier(attribute),
@@ -238,10 +238,10 @@ def handleApplication(
               )
             case module: Expression.Module =>
               eval(module, environment) match {
-                case Right((BendValue.Module(result), _)) =>
+                case Right((WanderValue.Module(result), _)) =>
                   Right(
                     (
-                      BendValue.Statement(
+                      WanderValue.Statement(
                         Statement(
                           LigatureValue.Identifier(entity),
                           LigatureValue.Identifier(attribute),
@@ -255,10 +255,10 @@ def handleApplication(
               }
             case stringValue: Expression.StringValue =>
               eval(stringValue, environment) match {
-                case Right((BendValue.String(result), _)) =>
+                case Right((WanderValue.String(result), _)) =>
                   Right(
                     (
-                      BendValue.Statement(
+                      WanderValue.Statement(
                         Statement(
                           LigatureValue.Identifier(entity),
                           LigatureValue.Identifier(attribute),
@@ -270,82 +270,82 @@ def handleApplication(
                   )
                 case _ => ???
               }
-            case _ => Left(BendError(s"Invalid Statement - ${expression}"))
-        case _ => Left(BendError(s"Invalid Statement - ${expression}"))
+            case _ => Left(WanderError(s"Invalid Statement - ${expression}"))
+        case _ => Left(WanderError(s"Invalid Statement - ${expression}"))
     case Expression.FieldPathExpression(fieldPath) =>
       environment.read(fieldPath) match {
         case Left(err)   => Left(err)
-        case Right(None) => Left(BendError(s"Error: Could not read $fieldPath."))
+        case Right(None) => Left(WanderError(s"Error: Could not read $fieldPath."))
         case Right(Some(value)) =>
           val arguments = expression.tail
           value match {
-            case BendValue.Function(Lambda(Expression.Lambda(parameters, body))) =>
+            case WanderValue.Function(Lambda(Expression.Lambda(parameters, body))) =>
               callLambda(arguments, parameters, body, environment)
-            case BendValue.Function(fn: HostFunction) =>
+            case WanderValue.Function(fn: HostFunction) =>
               callHostFunction(fn, arguments, environment)
-            case BendValue.Function(
+            case WanderValue.Function(
                   PartialFunction(args, Lambda(Expression.Lambda(parameters, body)))
                 ) =>
               callPartialLambda(args, arguments, parameters, body, environment)
-            case BendValue.Function(PartialFunction(args, fn: HostFunction)) =>
+            case WanderValue.Function(PartialFunction(args, fn: HostFunction)) =>
               callPartialHostFunction(args, fn, arguments, environment)
-            case BendValue.Array(values)  => callArray(values, arguments, environment)
-            case BendValue.Module(values) => callModule(values, arguments, environment)
-            case _                        => Left(BendError(s"Could not call function."))
+            case WanderValue.Array(values)  => callArray(values, arguments, environment)
+            case WanderValue.Module(values) => callModule(values, arguments, environment)
+            case _                        => Left(WanderError(s"Could not call function."))
           }
       }
-    case x => Left(BendError(s"Unexpected start of application - $x"))
+    case x => Left(WanderError(s"Unexpected start of application - $x"))
   }
 
-def moduleToRecord(module: Map[Field, BendValue]): LigatureValue.Record =
-  LigatureValue.Record(module.map((f, b) => (f.name, bendToLigatureValue(b))))
+def moduleToRecord(module: Map[Field, WanderValue]): LigatureValue.Record =
+  LigatureValue.Record(module.map((f, b) => (f.name, wanderToLigatureValue(b))))
 
-def bendToLigatureValue(value: BendValue): LigatureValue =
+def wanderToLigatureValue(value: WanderValue): LigatureValue =
   value match
-    case BendValue.Bytes(value)      => LigatureValue.BytesValue(value)
-    case BendValue.Int(value)        => LigatureValue.IntegerValue(value)
-    case BendValue.String(value)     => LigatureValue.StringValue(value)
-    case BendValue.Identifier(value) => value
+    case WanderValue.Bytes(value)      => LigatureValue.BytesValue(value)
+    case WanderValue.Int(value)        => LigatureValue.IntegerValue(value)
+    case WanderValue.String(value)     => LigatureValue.StringValue(value)
+    case WanderValue.Identifier(value) => value
     case _                           => ???
 
 def callArray(
-    values: Seq[BendValue],
+    values: Seq[WanderValue],
     arguments: Seq[Expression],
     environment: Environment
-): Either[BendError, (BendValue, Environment)] =
+): Either[WanderError, (WanderValue, Environment)] =
   arguments match
     case Seq(value: Expression) =>
       eval(value, environment) match
         case Left(err) => Left(err)
-        case Right((BendValue.Int(index), _)) =>
+        case Right((WanderValue.Int(index), _)) =>
           if values.size > index then Right((values(index.toInt), environment))
           else
             Left(
-              BendError(
+              WanderError(
                 s"Error indexing Array, index $index greater than Array's length of ${values.size}."
               )
             )
-        case _ => Left(BendError("Error attempting to index Array."))
-    case _ => Left(BendError("Error attempting to index Array."))
+        case _ => Left(WanderError("Error attempting to index Array."))
+    case _ => Left(WanderError("Error attempting to index Array."))
 
 def callModule(
-    values: Map[Field, BendValue],
+    values: Map[Field, WanderValue],
     arguments: Seq[Expression],
     environment: Environment
-): Either[BendError, (BendValue, Environment)] =
+): Either[WanderError, (WanderValue, Environment)] =
   arguments match
     case Seq(value: Expression) =>
       eval(value, environment) match
         case Left(err) => Left(err)
-        case Right((BendValue.String(fieldName), _)) =>
+        case Right((WanderValue.String(fieldName), _)) =>
           if values.contains(Field(fieldName)) then Right(values(Field(fieldName)), environment)
-          else Left(BendError(s"Could not read $fieldName from Module."))
+          else Left(WanderError(s"Could not read $fieldName from Module."))
         case _ =>
           Left(
-            BendError(s"When calling a Module only pass a single String argument.\n$arguments")
+            WanderError(s"When calling a Module only pass a single String argument.\n$arguments")
           )
     case _ =>
-      Left(BendError(s"When calling a Module only pass a single String argument.\n$arguments"))
+      Left(WanderError(s"When calling a Module only pass a single String argument.\n$arguments"))
 
 def callLambda(
     arguments: Seq[Expression],
@@ -367,7 +367,7 @@ def callLambda(
     }
     eval(body, fnScope)
   } else if (arguments.size < parameters.size) {
-    val args = ListBuffer[BendValue]()
+    val args = ListBuffer[WanderValue]()
     arguments.zipWithIndex.foreach { (arg, _) =>
       eval(arg, environment) match {
         case Left(value) => throw RuntimeException(s"Error - $value")
@@ -376,17 +376,17 @@ def callLambda(
       }
     }
     Right(
-      BendValue.Function(
+      WanderValue.Function(
         dev.ligature.wander.PartialFunction(args.toSeq, Lambda(Expression.Lambda(parameters, body)))
       ),
       environment
     )
   } else {
-    Left(BendError("Too many arguments passed."))
+    Left(WanderError("Too many arguments passed."))
   }
 
 def callPartialLambda(
-    values: Seq[BendValue],
+    values: Seq[WanderValue],
     arguments: Seq[Expression],
     parameters: Seq[Field],
     body: Expression,
@@ -408,7 +408,7 @@ def callPartialLambda(
     }
     eval(body, fnScope)
   } else if (values.size + arguments.size < parameters.size) {
-    val args = ListBuffer[BendValue]().concat(values)
+    val args = ListBuffer[WanderValue]().concat(values)
     arguments.foreach { argument =>
       eval(argument, environment) match {
         case Left(value) => ???
@@ -417,20 +417,20 @@ def callPartialLambda(
       }
     }
     Right(
-      BendValue.Function(
+      WanderValue.Function(
         dev.ligature.wander.PartialFunction(args.toSeq, Lambda(Expression.Lambda(parameters, body)))
       ),
       environment
     )
   } else {
-    Left(BendError("Too many arguments passed."))
+    Left(WanderError("Too many arguments passed."))
   }
 
 def callHostFunction(
     hostFunction: HostFunction,
     arguments: Seq[Expression],
     environment: Environment
-): Either[BendError, (BendValue, Environment)] =
+): Either[WanderError, (WanderValue, Environment)] =
   if arguments.size == hostFunction.parameters.size then
     callHostFunctionComplete(hostFunction, arguments, environment)
   else if arguments.size < hostFunction.parameters.size then
@@ -441,9 +441,9 @@ private def callHostFunctionComplete(
     hostFunction: HostFunction,
     arguments: Seq[Expression],
     environment: Environment
-): Either[BendError, (BendValue, Environment)] =
+): Either[WanderError, (WanderValue, Environment)] =
   boundary:
-    val args = ListBuffer[BendValue]()
+    val args = ListBuffer[WanderValue]()
     arguments.zipWithIndex.foreach((arg, i) =>
       val argValue = eval(arg, environment) match
         case Left(err)    => break(Left(err))
@@ -460,9 +460,9 @@ private def callHostFunctionPartially(
     hostFunction: HostFunction,
     arguments: Seq[Expression],
     environment: Environment
-): Either[BendError, (BendValue, Environment)] =
+): Either[WanderError, (WanderValue, Environment)] =
   boundary:
-    val args = ListBuffer[BendValue]()
+    val args = ListBuffer[WanderValue]()
     arguments.zipWithIndex.foreach((arg, i) =>
       val argValue = eval(arg, environment) match
         case Left(err)    => break(Left(err))
@@ -473,14 +473,14 @@ private def callHostFunctionPartially(
         case Right(value) => args.append(argValue)
       }
     )
-    Right((BendValue.Function(PartialFunction(args.toSeq, hostFunction)), environment))
+    Right((WanderValue.Function(PartialFunction(args.toSeq, hostFunction)), environment))
 
 def callPartialHostFunction(
-    values: Seq[BendValue],
+    values: Seq[WanderValue],
     hostFunction: HostFunction,
     arguments: Seq[Expression],
     environment: Environment
-): Either[BendError, (BendValue, Environment)] =
+): Either[WanderError, (WanderValue, Environment)] =
   if values.size + arguments.size == hostFunction.parameters.size then
     callPartialHostFunctionComplete(values, hostFunction, arguments, environment)
   else if values.size + arguments.size < hostFunction.parameters.size then
@@ -488,13 +488,13 @@ def callPartialHostFunction(
   else ???
 
 private def callPartialHostFunctionComplete(
-    values: Seq[BendValue],
+    values: Seq[WanderValue],
     hostFunction: HostFunction,
     arguments: Seq[Expression],
     environment: Environment
-): Either[BendError, (BendValue, Environment)] =
+): Either[WanderError, (WanderValue, Environment)] =
   boundary:
-    var args = ListBuffer[BendValue]()
+    var args = ListBuffer[WanderValue]()
     args = args.concat(values)
     arguments.zipWithIndex.foreach((arg, _i) =>
       val i = _i + values.size
@@ -510,13 +510,13 @@ private def callPartialHostFunctionComplete(
     hostFunction.fn(args.toSeq, environment)
 
 private def callPartialHostFunctionPartially(
-    values: Seq[BendValue],
+    values: Seq[WanderValue],
     hostFunction: HostFunction,
     arguments: Seq[Expression],
     environment: Environment
-): Either[BendError, (BendValue, Environment)] =
+): Either[WanderError, (WanderValue, Environment)] =
   boundary:
-    var args = ListBuffer[BendValue]()
+    var args = ListBuffer[WanderValue]()
     args = args.concat(values)
     arguments.zipWithIndex.foreach((arg, index) =>
       val paramIndex = index + values.size
@@ -529,32 +529,32 @@ private def callPartialHostFunctionPartially(
         case Right(value) => args.append(argValue)
       }
     )
-    Right((BendValue.Function(PartialFunction(args.toSeq, hostFunction)), environment))
+    Right((WanderValue.Function(PartialFunction(args.toSeq, hostFunction)), environment))
 
 def handleWhenExpression(
     conditionals: Seq[(Expression, Expression)],
     environment: Environment
-): Either[BendError, (BendValue, Environment)] =
+): Either[WanderError, (WanderValue, Environment)] =
   boundary:
     conditionals.find { (conditional, _) =>
       eval(conditional, environment) match {
         case Right((value, _)) =>
           value match {
-            case BendValue.Bool(value) => value
-            case _ => break(Left(BendError("Conditionals must evaluate to Bool.")))
+            case WanderValue.Bool(value) => value
+            case _ => break(Left(WanderError("Conditionals must evaluate to Bool.")))
           }
         case Left(err) => break(Left(err))
       }
     } match {
-      case None            => Left(BendError("No matching cases."))
+      case None            => Left(WanderError("No matching cases."))
       case Some((_, body)) => eval(body, environment)
     }
 
 def handleArray(
     expressions: Seq[Expression],
     environment: Environment
-): Either[BendError, (BendValue.Array, Environment)] = {
-  val res = ListBuffer[BendValue]()
+): Either[WanderError, (WanderValue.Array, Environment)] = {
+  val res = ListBuffer[WanderValue]()
   val itre = expressions.iterator
   val continue = true
   while continue && itre.hasNext
@@ -563,5 +563,5 @@ def handleArray(
     eval(expression, environment) match
       case Left(err)    => return Left(err)
       case Right(value) => res += value._1
-  Right((BendValue.Array(res.toList), environment))
+  Right((WanderValue.Array(res.toList), environment))
 }

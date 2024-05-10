@@ -8,13 +8,13 @@ import dev.ligature.wander.HostFunction
 import dev.ligature.wander.TaggedField
 import dev.ligature.wander.Field
 import dev.ligature.wander.Tag
-import dev.ligature.wander.BendValue
+import dev.ligature.wander.WanderValue
 import dev.ligature.LigatureValue
-import dev.ligature.wander.BendError
+import dev.ligature.wander.WanderError
 
-val identifierModule: BendValue.Module = BendValue.Module(
+val identifierModule: WanderValue.Module = WanderValue.Module(
   Map(
-    Field("toString") -> BendValue.Function(
+    Field("toString") -> WanderValue.Function(
       HostFunction(
         "Convert an Identifier to a String.",
         Seq(
@@ -23,12 +23,12 @@ val identifierModule: BendValue.Module = BendValue.Module(
         Tag.Untagged,
         (arguments, environment) =>
           arguments match
-            case Seq(BendValue.Identifier(value)) =>
-              Right((BendValue.String(s"`${value.value}`"), environment))
-            case _ => Left(BendError("Unexpected value."))
+            case Seq(WanderValue.Identifier(value)) =>
+              Right((WanderValue.String(s"`${value.value}`"), environment))
+            case _ => Left(WanderError("Unexpected value."))
       )
     ),
-    Field("value") -> BendValue.Function(
+    Field("value") -> WanderValue.Function(
       HostFunction(
         "Get value of Identifier as a String.",
         Seq(
@@ -37,9 +37,9 @@ val identifierModule: BendValue.Module = BendValue.Module(
         Tag.Untagged,
         (arguments, environment) =>
           arguments match
-            case Seq(BendValue.Identifier(value)) =>
-              Right((BendValue.String(value.value), environment))
-            case _ => Left(BendError("Unexpected value."))
+            case Seq(WanderValue.Identifier(value)) =>
+              Right((WanderValue.String(value.value), environment))
+            case _ => Left(WanderError("Unexpected value."))
       )
     )
   )

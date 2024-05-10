@@ -5,7 +5,7 @@
 package dev.ligature.wander.modules
 
 import dev.ligature.wander.HostFunction
-import dev.ligature.wander.BendValue
+import dev.ligature.wander.WanderValue
 import dev.ligature.wander.TaggedField
 import dev.ligature.wander.Tag
 import dev.ligature.wander.Field
@@ -18,35 +18,35 @@ val fury = Fury
   .withRefTracking(true)
   .build()
 
-val bytesModule: BendValue.Module = BendValue.Module(
+val bytesModule: WanderValue.Module = WanderValue.Module(
   Map(
-    Field("encode") -> BendValue.Function(
+    Field("encode") -> WanderValue.Function(
       HostFunction(
         "",
         Seq(TaggedField(Field("value"), Tag.Untagged)),
         Tag.Untagged,
         (args, env) =>
           args match
-            case Seq(value: BendValue) => Right((BendValue.Bytes(encodeBendValue(value)), env))
+            case Seq(value: WanderValue) => Right((WanderValue.Bytes(encodeWanderValue(value)), env))
             case _                     => ???
       )
     ),
-    Field("decode") -> BendValue.Function(
+    Field("decode") -> WanderValue.Function(
       HostFunction(
         "",
         Seq(TaggedField(Field("value"), Tag.Untagged)),
         Tag.Untagged,
         (args, env) =>
           args match
-            case Seq(BendValue.Bytes(value)) => Right((decodeBendValue(value), env))
+            case Seq(WanderValue.Bytes(value)) => Right((decodeWanderValue(value), env))
             case _                           => ???
       )
     )
   )
 )
 
-def encodeBendValue(value: BendValue): Seq[Byte] =
+def encodeWanderValue(value: WanderValue): Seq[Byte] =
   fury.serialize(value).toIndexedSeq
 
-def decodeBendValue(value: Seq[Byte]): BendValue =
-  fury.deserialize(value.toArray).asInstanceOf[BendValue]
+def decodeWanderValue(value: Seq[Byte]): WanderValue =
+  fury.deserialize(value.toArray).asInstanceOf[WanderValue]

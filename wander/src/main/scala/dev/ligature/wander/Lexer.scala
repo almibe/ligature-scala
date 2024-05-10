@@ -41,20 +41,20 @@ enum Token:
     OpenBracket, CloseBracket, QuestionMark, EndKeyword, Period,
     Backtick, Hash, Lambda, Pipe, Comma
 
-def tokenize(input: String): Either[BendError, Seq[Token]] = {
+def tokenize(input: String): Either[WanderError, Seq[Token]] = {
   val gaze = Gaze.from(input)
   gaze.attempt(tokensNib) match {
     case Result.NoMatch =>
       if (gaze.isComplete) {
         Right(List())
       } else {
-        Left(BendError(s"Error tokenizing NoMatch, Next: ${gaze.peek()}."))
+        Left(WanderError(s"Error tokenizing NoMatch, Next: ${gaze.peek()}."))
       }
     case Result.Match(res) =>
       if (gaze.isComplete) {
         Right(res)
       } else {
-        Left(BendError(s"Error tokenizing not complete, Next: ${gaze.peek()}."))
+        Left(WanderError(s"Error tokenizing not complete, Next: ${gaze.peek()}."))
       }
     case Result.EmptyMatch => ???
   }

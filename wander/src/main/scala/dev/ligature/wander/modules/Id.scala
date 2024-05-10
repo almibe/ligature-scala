@@ -8,14 +8,14 @@ import dev.ligature.wander.HostFunction
 import dev.ligature.wander.TaggedField
 import dev.ligature.wander.Field
 import dev.ligature.wander.Tag
-import dev.ligature.wander.BendValue
+import dev.ligature.wander.WanderValue
 import io.hypersistence.tsid.TSID
 import com.github.f4b6a3.ulid.UlidCreator
 import dev.ligature.LigatureValue
 
-val idModule: BendValue.Module = BendValue.Module(
+val idModule: WanderValue.Module = WanderValue.Module(
   Map(
-    Field("tsid") -> BendValue.Function(
+    Field("tsid") -> WanderValue.Function(
       HostFunction(
         "Get next random TSID value.",
         Seq(
@@ -25,13 +25,13 @@ val idModule: BendValue.Module = BendValue.Module(
         (arguments, environment) =>
           Right(
             (
-              BendValue.Identifier(LigatureValue.Identifier(TSID.Factory.getTsid().toString())),
+              WanderValue.Identifier(LigatureValue.Identifier(TSID.Factory.getTsid().toString())),
               environment
             )
           )
       )
     ),
-    Field("ulid") -> BendValue.Function(
+    Field("ulid") -> WanderValue.Function(
       HostFunction(
         "Get next random ULID value.",
         Seq(
@@ -41,7 +41,7 @@ val idModule: BendValue.Module = BendValue.Module(
         (arguments, environment) =>
           Right(
             (
-              BendValue.Identifier(LigatureValue.Identifier(UlidCreator.getUlid().toLowerCase())),
+              WanderValue.Identifier(LigatureValue.Identifier(UlidCreator.getUlid().toLowerCase())),
               environment
             )
           )

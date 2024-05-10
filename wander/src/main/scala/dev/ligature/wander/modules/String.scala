@@ -7,12 +7,12 @@ package dev.ligature.wander.modules
 import dev.ligature.wander.HostFunction
 import dev.ligature.wander.TaggedField
 import dev.ligature.wander.Tag
-import dev.ligature.wander.BendValue
+import dev.ligature.wander.WanderValue
 import dev.ligature.wander.Field
 
-val stringModule: BendValue.Module = BendValue.Module(
+val stringModule: WanderValue.Module = WanderValue.Module(
   Map(
-    Field("replace") -> BendValue.Function(
+    Field("replace") -> WanderValue.Function(
       HostFunction(
         "Replace all character sequences with another and create a new String.",
         Seq(
@@ -24,19 +24,19 @@ val stringModule: BendValue.Module = BendValue.Module(
         (args, environment) =>
           args match
             case Seq(
-                  BendValue.String(toMatch),
-                  BendValue.String(replacement),
-                  BendValue.String(data)
+                  WanderValue.String(toMatch),
+                  WanderValue.String(replacement),
+                  WanderValue.String(data)
                 ) =>
               Right(
                 (
-                  BendValue.String(data.replace(toMatch, replacement)),
+                  WanderValue.String(data.replace(toMatch, replacement)),
                   environment
                 )
               )
       )
     ),
-    Field("toBytes") -> BendValue.Function(
+    Field("toBytes") -> WanderValue.Function(
       HostFunction(
         // FieldPath(Seq(Field("String"), Field("toBytes"))),
         "Get a String encoded as Bytes.",
@@ -46,16 +46,16 @@ val stringModule: BendValue.Module = BendValue.Module(
         Tag.Untagged,
         (args, environment) =>
           args match
-            case Seq(BendValue.String(value)) =>
+            case Seq(WanderValue.String(value)) =>
               Right(
                 (
-                  ???,//BendValue.Bytes(StringBinding.stringToEntry(value).getBytesUnsafe().toSeq),
+                  ???,//WanderValue.Bytes(StringBinding.stringToEntry(value).getBytesUnsafe().toSeq),
                   environment
                 )
               )
       )
     ),
-    Field("fromBytes") -> BendValue.Function(
+    Field("fromBytes") -> WanderValue.Function(
       HostFunction(
         // FieldPath(Seq(Field("String"), Field("fromBytes"))),
         "Decode Bytes to a String.",
@@ -65,10 +65,10 @@ val stringModule: BendValue.Module = BendValue.Module(
         Tag.Untagged,
         (args, environment) =>
           args match
-            case Seq(BendValue.Bytes(value)) =>
+            case Seq(WanderValue.Bytes(value)) =>
               Right(
                 (
-                  ???,//BendValue.String(StringBinding.entryToString(ArrayByteIterable(value.toArray))),
+                  ???,//WanderValue.String(StringBinding.entryToString(ArrayByteIterable(value.toArray))),
                   environment
                 )
               )

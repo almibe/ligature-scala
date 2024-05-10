@@ -4,11 +4,11 @@
 
 package dev.ligature.wander.libraries
 
-import dev.ligature.wander.BendError
-import dev.ligature.wander.BendValue
+import dev.ligature.wander.WanderError
+import dev.ligature.wander.WanderValue
 
-final class HostLibrary(hostModules: Map[ModuleId, BendValue.Module]) extends ModuleLibrary {
-  override def lookup(id: ModuleId): Either[BendError, Option[BendValue.Module]] =
+final class HostLibrary(hostModules: Map[ModuleId, WanderValue.Module]) extends ModuleLibrary {
+  override def lookup(id: ModuleId): Either[WanderError, Option[WanderValue.Module]] =
     hostModules.get(id) match
       case Some(value) => Right(Some(value))
       case None        => Right(None)

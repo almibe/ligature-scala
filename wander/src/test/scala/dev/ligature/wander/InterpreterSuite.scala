@@ -10,23 +10,23 @@ import dev.ligature.Statement
 import dev.ligature.LigatureValue
 
 class InterpreterSuite extends FunSuite {
-  def check(script: String, expected: BendValue) =
+  def check(script: String, expected: WanderValue) =
     run(script, std()) match
       case Left(err)         => throw RuntimeException(err.toString())
       case Right((value, _)) => assertEquals(value, expected)
 
   test("load script with no exports") {
     val script = "x = false, {}"
-    check(script, BendValue.Module(Map()))
+    check(script, WanderValue.Module(Map()))
   }
   test("load script with one exports") {
     val script = "hello = 2, { hello }"
-    val tokens = BendValue.Module(Map(Field("hello") -> BendValue.Int(2)))
+    val tokens = WanderValue.Module(Map(Field("hello") -> WanderValue.Int(2)))
     check(script, tokens)
   }
   test("Statement support") {
     val script = "`a` `b` `c`"
-    val result = BendValue.Statement(
+    val result = WanderValue.Statement(
       Statement(
         LigatureValue.Identifier("a"),
         LigatureValue.Identifier("b"),
@@ -37,7 +37,7 @@ class InterpreterSuite extends FunSuite {
   }
   test("Graph support") {
     val script = "{ `a` `b` `c` }"
-    val result = BendValue.Graph(
+    val result = WanderValue.Graph(
       Set(
         Statement(
           LigatureValue.Identifier("a"),
@@ -50,7 +50,7 @@ class InterpreterSuite extends FunSuite {
   }
   test("Statement with empty Record as Value") {
     val script = "`a` `a` {}"
-    val result = BendValue.Statement(
+    val result = WanderValue.Statement(
       Statement(
         LigatureValue.Identifier("a"),
         LigatureValue.Identifier("a"),

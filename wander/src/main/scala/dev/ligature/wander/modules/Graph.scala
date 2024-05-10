@@ -4,35 +4,35 @@
 
 package dev.ligature.wander.modules
 
-import dev.ligature.wander.BendValue
+import dev.ligature.wander.WanderValue
 import dev.ligature.wander.Field
 import dev.ligature.wander.HostFunction
 import dev.ligature.wander.Tag
 import dev.ligature.wander.TaggedField
 
-val graphModule: BendValue.Module = BendValue.Module(
+val graphModule: WanderValue.Module = WanderValue.Module(
   Map(
-    Field("length") -> BendValue.Function(
+    Field("length") -> WanderValue.Function(
       HostFunction(
         "Get the number of elements in a Graph.",
         Seq(TaggedField(Field("array"), Tag.Untagged)),
         Tag.Untagged,
         (args, environment) =>
           args match
-            case Seq(BendValue.Graph(value)) =>
-              Right((BendValue.Int(value.size), environment))
+            case Seq(WanderValue.Graph(value)) =>
+              Right((WanderValue.Int(value.size), environment))
             case _ => ???
       )
     ),
-    Field("merge") -> BendValue.Function(
+    Field("merge") -> WanderValue.Function(
       HostFunction(
         "Merge two Graphs.",
         Seq(TaggedField(Field("array"), Tag.Untagged), TaggedField(Field("array"), Tag.Untagged)),
         Tag.Untagged,
         (args, environment) =>
           args match
-            case Seq(BendValue.Graph(lvalue), BendValue.Graph(rvalue)) =>
-              Right((BendValue.Graph(lvalue ++ rvalue), environment))
+            case Seq(WanderValue.Graph(lvalue), WanderValue.Graph(rvalue)) =>
+              Right((WanderValue.Graph(lvalue ++ rvalue), environment))
             case _ => ???
       )
     )

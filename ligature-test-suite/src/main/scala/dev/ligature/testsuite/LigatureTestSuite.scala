@@ -408,7 +408,7 @@ abstract class LigatureTestSuite extends FunSuite {
 //     case None => ()
 //   }
 
-//   def evaluateResults(results: BendValue, fileName: String) =
+//   def evaluateResults(results: WanderValue, fileName: String) =
 //     results match
 //       case WanderValue.Array(tests) =>
 //         tests.foreach { currentTest =>

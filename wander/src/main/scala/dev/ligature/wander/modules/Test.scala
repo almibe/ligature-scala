@@ -8,12 +8,12 @@ import dev.ligature.wander.HostFunction
 import dev.ligature.wander.TaggedField
 import dev.ligature.wander.Field
 import dev.ligature.wander.Tag
-import dev.ligature.wander.BendValue
-import dev.ligature.wander.BendError
+import dev.ligature.wander.WanderValue
+import dev.ligature.wander.WanderError
 
-val testingModule: BendValue.Module = BendValue.Module(
+val testingModule: WanderValue.Module = WanderValue.Module(
   Map(
-    Field("assertEq") -> BendValue.Function(
+    Field("assertEq") -> WanderValue.Function(
       HostFunction(
         // FieldPath(Seq(Field("Test"), Field("assertEq"))),
         "Check if two values are equal and fail if they are not.",
@@ -25,13 +25,13 @@ val testingModule: BendValue.Module = BendValue.Module(
         Tag.Untagged,
         (arguments, environment) =>
           arguments match {
-            case Seq(description: BendValue.String, left: BendValue, right: BendValue) =>
+            case Seq(description: WanderValue.String, left: WanderValue, right: WanderValue) =>
               if left != right then
                 Left(
-                  BendError(s"$description failed $left != $right")
+                  WanderError(s"$description failed $left != $right")
                 ) // TODO print value correctly
-              else Right(BendValue.Module(Map()), environment)
-            case _ => Left(BendError(s"Test.assertEq failed: $arguments"))
+              else Right(WanderValue.Module(Map()), environment)
+            case _ => Left(WanderError(s"Test.assertEq failed: $arguments"))
           }
       )
     )

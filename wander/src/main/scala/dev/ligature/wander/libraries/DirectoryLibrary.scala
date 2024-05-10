@@ -4,10 +4,10 @@
 
 package dev.ligature.wander.libraries
 
-import dev.ligature.wander.BendValue
+import dev.ligature.wander.WanderValue
 import java.nio.file.Path
 import dev.ligature.wander.Environment
-import dev.ligature.wander.BendError
+import dev.ligature.wander.WanderError
 import scala.util.boundary
 import scala.util.boundary.break
 import java.nio.file.Files
@@ -21,8 +21,8 @@ import scala.util.Using
 import dev.ligature.wander.modules.std
 
 final class DirectoryLibrary(path: Path) extends ModuleLibrary {
-  var modules: Map[ModuleId, BendValue.Module] = Map()
-  override def lookup(id: ModuleId): Either[BendError, Option[BendValue.Module]] =
+  var modules: Map[ModuleId, WanderValue.Module] = Map()
+  override def lookup(id: ModuleId): Either[WanderError, Option[WanderValue.Module]] =
     boundary:
       if (modules.isEmpty) {
         modules = loadFromPath(path) match {
@@ -33,34 +33,34 @@ final class DirectoryLibrary(path: Path) extends ModuleLibrary {
     Right(modules.get(id))
 }
 
-val bendExt = ".wander"
-val bendTextExt = ".test.wander"
+val wanderExt = ".wander"
+val wanderTextExt = ".test.wander"
 
-private def loadFromPath(path: Path): Either[BendError, Map[ModuleId, BendValue.Module]] =
+private def loadFromPath(path: Path): Either[WanderError, Map[ModuleId, WanderValue.Module]] =
   boundary:
-    val results = scala.collection.mutable.HashMap[ModuleId, BendValue.Module]()
+    val results = scala.collection.mutable.HashMap[ModuleId, WanderValue.Module]()
     Files
       .walk(path)
       .iterator()
       .asScala
       .filter(Files.isRegularFile(_))
       .filter(f =>
-        f.getFileName().toString().endsWith(bendExt)
+        f.getFileName().toString().endsWith(wanderExt)
           &&
-            !f.getFileName().toString().endsWith(bendTextExt)
+            !f.getFileName().toString().endsWith(wanderTextExt)
       )
       .foreach { file =>
-        val modname = file.toFile().getName().dropRight(bendExt.length())
-        val module = scala.collection.mutable.HashMap[Field, BendValue]()
+        val modname = file.toFile().getName().dropRight(wanderExt.length())
+        val module = scala.collection.mutable.HashMap[Field, WanderValue]()
         Using(Source.fromFile(file.toFile()))(_.mkString) match
           case Failure(exception) =>
-            break(Left(BendError(s"Error reading $file\n${exception.getMessage()}")))
+            break(Left(WanderError(s"Error reading $file\n${exception.getMessage()}")))
           case Success(script) =>
             run(script, std()) match
               case Left(err) => break(Left(err))
-              case Right((BendValue.Module(values), _)) =>
+              case Right((WanderValue.Module(values), _)) =>
                 values.foreach((name, value) => module.put(name, value))
-              case x => break(Left(BendError("Unexpected value from load result. $x")))
-        results += (modname -> BendValue.Module(module.toMap))
+              case x => break(Left(WanderError("Unexpected value from load result. $x")))
+        results += (modname -> WanderValue.Module(module.toMap))
       }
     Right(results.toMap)

@@ -10,7 +10,7 @@ An implementation of [Ligature knowledge graph](https://ligature.dev) library wr
 | ligature-test-suite      | A shared test suite for Ligature instances.                                      |
 | idgen                    | A basic implementation of nanoid for use with Ligature.                          |
 | ligature-in-memory       | An in-memory implementation of Ligature.                                         |
-| bend                     | A scripting language for working with Ligature.                                  |
+| wander                     | A scripting language for working with Ligature.                                  |
 | gaze                     | A utility library for parsing text/data structures.                              |
 
 ## Building

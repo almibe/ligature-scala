@@ -9,7 +9,7 @@ import dev.ligature.wander.Environment
 import dev.ligature.wander.libraries.ModuleLibrary
 import dev.ligature.Ligature
 
-/** Create the "default" environment for working with Bend.
+/** Create the "default" environment for working with Wander.
   */
 def std(libraries: List[ModuleLibrary] = List()): Environment =
   Environment(libraries)

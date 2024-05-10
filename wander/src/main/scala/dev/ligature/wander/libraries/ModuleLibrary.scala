@@ -4,10 +4,10 @@
 
 package dev.ligature.wander.libraries
 
-import dev.ligature.wander.BendValue
-import dev.ligature.wander.BendError
+import dev.ligature.wander.WanderValue
+import dev.ligature.wander.WanderError
 
 type ModuleId = String
 
 trait ModuleLibrary:
-  def lookup(id: ModuleId): Either[BendError, Option[BendValue.Module]]
+  def lookup(id: ModuleId): Either[WanderError, Option[WanderValue.Module]]

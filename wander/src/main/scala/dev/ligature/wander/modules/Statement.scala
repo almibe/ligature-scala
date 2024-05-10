@@ -5,12 +5,12 @@
 package dev.ligature.wander.modules
 
 import dev.ligature.LigatureValue
-import dev.ligature.wander.{BendValue, Field, HostFunction, TaggedField, Tag}
-import dev.ligature.wander.BendError
+import dev.ligature.wander.{WanderValue, Field, HostFunction, TaggedField, Tag}
+import dev.ligature.wander.WanderError
 
-val statementModule: BendValue.Module = BendValue.Module(
+val statementModule: WanderValue.Module = WanderValue.Module(
   Map(
-    Field("entity") -> BendValue.Function(
+    Field("entity") -> WanderValue.Function(
       HostFunction(
         "Extract the Entity from a Statement.",
         Seq(
@@ -19,12 +19,12 @@ val statementModule: BendValue.Module = BendValue.Module(
         Tag.Untagged, // Tag.Single(Field("Core.Int")),
         (args, environment) =>
           args match
-            case Seq(BendValue.Statement(statement)) =>
-              Right((BendValue.Identifier(statement.entity), environment))
-            case _ => Left(BendError("Unexpected value."))
+            case Seq(WanderValue.Statement(statement)) =>
+              Right((WanderValue.Identifier(statement.entity), environment))
+            case _ => Left(WanderError("Unexpected value."))
       )
     ),
-    Field("attribute") -> BendValue.Function(
+    Field("attribute") -> WanderValue.Function(
       HostFunction(
         "Extract the Attribute from a Statement.",
         Seq(
@@ -33,12 +33,12 @@ val statementModule: BendValue.Module = BendValue.Module(
         Tag.Untagged, // Tag.Single(Field("Core.Int")),
         (args, environment) =>
           args match
-            case Seq(BendValue.Statement(statement)) =>
-              Right((BendValue.Identifier(statement.attribute), environment))
-            case _ => Left(BendError("Unexpected value."))
+            case Seq(WanderValue.Statement(statement)) =>
+              Right((WanderValue.Identifier(statement.attribute), environment))
+            case _ => Left(WanderError("Unexpected value."))
       )
     ),
-    Field("value") -> BendValue.Function(
+    Field("value") -> WanderValue.Function(
       HostFunction(
         "Extract the Value from a Statement.",
         Seq(
@@ -47,17 +47,17 @@ val statementModule: BendValue.Module = BendValue.Module(
         Tag.Untagged, // Tag.Single(Field("Core.Int")),
         (args, environment) =>
           args match
-            case Seq(BendValue.Statement(statement)) =>
+            case Seq(WanderValue.Statement(statement)) =>
               statement.value match {
                 case identifier: LigatureValue.Identifier =>
-                  Right((BendValue.Identifier(identifier), environment))
+                  Right((WanderValue.Identifier(identifier), environment))
                 case LigatureValue.StringValue(value) =>
-                  Right((BendValue.String(value), environment))
-                case LigatureValue.IntegerValue(value) => Right((BendValue.Int(value), environment))
-                case LigatureValue.BytesValue(value) => Right((BendValue.Bytes(value), environment))
+                  Right((WanderValue.String(value), environment))
+                case LigatureValue.IntegerValue(value) => Right((WanderValue.Int(value), environment))
+                case LigatureValue.BytesValue(value) => Right((WanderValue.Bytes(value), environment))
                 case LigatureValue.Record(_)         => ???
               }
-            case _ => Left(BendError("Unexpected value."))
+            case _ => Left(WanderError("Unexpected value."))
       )
     )
   )

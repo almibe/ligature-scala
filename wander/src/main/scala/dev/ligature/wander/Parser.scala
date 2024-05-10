@@ -33,7 +33,7 @@ enum Term:
   case Lambda(parameters: Seq[Field], body: Term)
   case Pipe
 
-def parse(script: Seq[Token]): Either[BendError, Seq[Term]] = {
+def parse(script: Seq[Token]): Either[WanderError, Seq[Term]] = {
   val filteredInput = script.filter {
     _ match
       case Token.Spaces(_) | Token.NewLine | Token.Comment => false
@@ -46,13 +46,13 @@ def parse(script: Seq[Token]): Either[BendError, Seq[Term]] = {
       if (gaze.isComplete) {
         Right(Seq(Term.Module(Seq())))
       } else {
-        Left(BendError(s"Error Parsing - No Match - Next Token: ${gaze.next()}"))
+        Left(WanderError(s"Error Parsing - No Match - Next Token: ${gaze.next()}"))
       }
     case Result.Match(res) =>
       if (gaze.isComplete) {
         Right(res)
       } else {
-        Left(BendError(s"Error Parsing - No Match - Next Token: ${gaze.next()}"))
+        Left(WanderError(s"Error Parsing - No Match - Next Token: ${gaze.next()}"))
       }
     case Result.EmptyMatch => Right(Seq(Term.Module(Seq())))
   }

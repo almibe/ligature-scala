@@ -7,7 +7,7 @@ package dev.ligature.wander
 import dev.ligature.wander.modules.std
 
 class BindingSuite extends munit.FunSuite {
-  def check(script: String, expected: BendValue) =
+  def check(script: String, expected: WanderValue) =
     assertEquals(
       run(script, std()) match
         case Right(value) => value._1
@@ -17,17 +17,17 @@ class BindingSuite extends munit.FunSuite {
     )
   test("basic binding") {
     val script = "x = 5"
-    val result = BendValue.Int(5)
+    val result = WanderValue.Int(5)
     check(script, result)
   }
   test("basic binding and reference") {
     val script = "x = 5, x"
-    val result = BendValue.Int(5)
+    val result = WanderValue.Int(5)
     check(script, result)
   }
   test("read Module") {
     val script = "rec = { x = { y = 5 } }, rec.x.y"
-    val result = BendValue.Int(5)
+    val result = WanderValue.Int(5)
     check(script, result)
   }
 }
