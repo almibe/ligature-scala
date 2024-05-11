@@ -21,7 +21,7 @@ val boolModule: WanderValue.Module = WanderValue.Module(
         (args, environment) =>
           args match
             case Seq(WanderValue.Bool(value)) => Right((WanderValue.Bool(!value), environment))
-            case _                          => Left(WanderError("Unexpected input " + args))
+            case _                            => Left(WanderError("Unexpected input " + args))
       )
     ),
     Field("and") -> WanderValue.Function(
@@ -56,7 +56,7 @@ val boolModule: WanderValue.Module = WanderValue.Module(
             case Seq(WanderValue.Bool(value)) =>
               Right(
                 (
-                  ???,///WanderValue.Bytes(BooleanBinding.booleanToEntry(value).getBytesUnsafe().toSeq),
+                  ???, /// WanderValue.Bytes(BooleanBinding.booleanToEntry(value).getBytesUnsafe().toSeq),
                   environment
                 )
               )
@@ -74,7 +74,7 @@ val boolModule: WanderValue.Module = WanderValue.Module(
             case Seq(WanderValue.Bytes(value)) =>
               Right(
                 (
-                  ???, //WanderValue.Bool(BooleanBinding.entryToBoolean(ArrayByteIterable(value.toArray))),
+                  ???, // WanderValue.Bool(BooleanBinding.entryToBoolean(ArrayByteIterable(value.toArray))),
                   environment
                 )
               )

@@ -53,9 +53,11 @@ val statementModule: WanderValue.Module = WanderValue.Module(
                   Right((WanderValue.Identifier(identifier), environment))
                 case LigatureValue.StringValue(value) =>
                   Right((WanderValue.String(value), environment))
-                case LigatureValue.IntegerValue(value) => Right((WanderValue.Int(value), environment))
-                case LigatureValue.BytesValue(value) => Right((WanderValue.Bytes(value), environment))
-                case LigatureValue.Record(_)         => ???
+                case LigatureValue.IntegerValue(value) =>
+                  Right((WanderValue.Int(value), environment))
+                case LigatureValue.BytesValue(value) =>
+                  Right((WanderValue.Bytes(value), environment))
+                case LigatureValue.Record(_) => ???
               }
             case _ => Left(WanderError("Unexpected value."))
       )
