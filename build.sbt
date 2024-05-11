@@ -13,15 +13,6 @@ val ulidVersion = "5.2.3"
 val gsonVerison = "2.10.1"
 val furyVersion = "0.4.1"
 
-lazy val ligature = project
-  .in(file("ligature"))
-  .settings(
-    name := "ligature",
-    scalaVersion := scala3Version,
-    libraryDependencies += "org.scalameta" %% "munit" % munitVersion % Test
-  )
-  .disablePlugins(RevolverPlugin)
-
 lazy val gaze = project
   .in(file("gaze"))
   .settings(
@@ -53,7 +44,7 @@ lazy val wander = project
     libraryDependencies += "com.typesafe.scala-logging" %% "scala-logging" % scalaLoggingVersion,
     libraryDependencies += "org.scalameta" %% "munit" % munitVersion % Test
   )
-  .dependsOn(gaze, ligature, ligatureInMemory)
+  .dependsOn(gaze)
   .disablePlugins(RevolverPlugin)
 
 lazy val ligatureZeroMQ = project
@@ -67,7 +58,7 @@ lazy val ligatureZeroMQ = project
     libraryDependencies += "org.scalameta" %% "munit" % munitVersion % Test,
     fork := true
   )
-  .dependsOn(wander, ligature, ligatureInMemory)
+  .dependsOn(wander, ligatureInMemory)
 
 lazy val ligatureTestSuite = project
   .in(file("ligature-test-suite"))
@@ -76,7 +67,7 @@ lazy val ligatureTestSuite = project
     scalaVersion := scala3Version,
     libraryDependencies += "org.scalameta" %% "munit" % munitVersion
   )
-  .dependsOn(ligature)
+  .dependsOn(wander)
   .disablePlugins(RevolverPlugin)
 
 lazy val ligatureInMemory = project
@@ -85,7 +76,7 @@ lazy val ligatureInMemory = project
     name := "ligature-in-memory",
     scalaVersion := scala3Version
   )
-  .dependsOn(ligature, idgen, ligatureTestSuite % Test)
+  .dependsOn(wander, idgen, ligatureTestSuite % Test)
   .disablePlugins(RevolverPlugin)
 
 disablePlugins(RevolverPlugin)

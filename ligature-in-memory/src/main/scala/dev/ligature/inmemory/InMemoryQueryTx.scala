@@ -6,35 +6,37 @@ package dev.ligature.inmemory
 
 import dev.ligature.*
 
+case class Test2(val x: Int)
+
 /** Represents a QueryTx within the context of a Ligature instance and a single
   * Dataset
   */
-class InMemoryQueryTx(private val store: DatasetStore) extends QueryTx {
+// class InMemoryQueryTx(private val store: DatasetStore) extends QueryTx {
 
-  /** Returns all PersistedStatements in this Dataset. */
-  def allStatements(): Iterator[Statement] = store.edges.iterator
+//   /** Returns all PersistedStatements in this Dataset. */
+//   def allStatements(): Iterator[Statement] = store.edges.iterator
 
-  /** Returns all PersistedStatements that match the given criteria. If a
-    * parameter is None then it matches all, so passing all Nones is the same as
-    * calling allStatements.
-    */
-  override def matchStatements(
-      entity: Option[LigatureValue.Identifier],
-      attribute: Option[LigatureValue.Identifier],
-      value: Option[LigatureValue]
-  ): Iterator[Statement] = {
-    var res = store.edges.iterator
-    if (entity.isDefined) {
-      res = res.filter(_.entity == entity.get)
-    }
-    if (attribute.isDefined) {
-      res = res.filter(_.attribute == attribute.get)
-    }
-    if (value.isDefined) {
-      res = res.filter(_.value == value.get)
-    }
-    res
-  }
+//   /** Returns all PersistedStatements that match the given criteria. If a
+//     * parameter is None then it matches all, so passing all Nones is the same as
+//     * calling allStatements.
+//     */
+//   override def matchStatements(
+//       entity: Option[LigatureValue.Identifier],
+//       attribute: Option[LigatureValue.Identifier],
+//       value: Option[LigatureValue]
+//   ): Iterator[Statement] = {
+//     var res = store.edges.iterator
+//     if (entity.isDefined) {
+//       res = res.filter(_.entity == entity.get)
+//     }
+//     if (attribute.isDefined) {
+//       res = res.filter(_.attribute == attribute.get)
+//     }
+//     if (value.isDefined) {
+//       res = res.filter(_.value == value.get)
+//     }
+//     res
+//   }
 
 //  /** Returns all PersistedStatements that match the given criteria. If a
 //    * parameter is None then it matches all.
@@ -63,4 +65,4 @@ class InMemoryQueryTx(private val store: DatasetStore) extends QueryTx {
 //    }
 //    res
 //  }
-}
+// }

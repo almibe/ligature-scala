@@ -7,7 +7,7 @@ package dev.ligature.wander.modules
 import dev.ligature.wander.*
 import dev.ligature.wander.Environment
 import dev.ligature.wander.libraries.ModuleLibrary
-import dev.ligature.Ligature
+//import dev.ligature.Ligature
 
 /** Create the "default" environment for working with Wander.
   */
@@ -26,9 +26,9 @@ def std(libraries: List[ModuleLibrary] = List()): Environment =
     .bindVariable(Field("Identifier"), identifierModule)
     .bindVariable(Field("import"), importFunction)
 
-def stdWithLigature(
-    ligature: Ligature,
-    libraries: List[ModuleLibrary] = List()
-): Environment =
-  std(libraries)
-    .bindVariable(Field("Ligature"), createLigatureModule(ligature))
+// def stdWithLigature(
+//     ligature: Ligature,
+//     libraries: List[ModuleLibrary] = List()
+// ): Environment =
+//   std(libraries)
+//     .bindVariable(Field("Ligature"), createLigatureModule(ligature))

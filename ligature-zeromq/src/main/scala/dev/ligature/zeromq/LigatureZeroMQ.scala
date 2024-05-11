@@ -12,18 +12,19 @@ import dev.ligature.wander.printWanderValue
 import dev.ligature.wander.printResult
 import dev.ligature.wander.*
 import com.typesafe.scalalogging.Logger
-import dev.ligature.wander.modules.*
-import dev.ligature.inmemory.LigatureInMemory
-import dev.ligature.Ligature
+import dev.ligature.wander.modules.std
+// import dev.ligature.wander.modules.*
+// import dev.ligature.inmemory.LigatureInMemory
+// import dev.ligature.Ligature
 
-private class LigatureZeroMQ(val port: Int, ligature: Ligature)
+private class LigatureZeroMQ(val port: Int)
     extends Runnable
     with AutoCloseable {
   val logger = Logger("LigatureZeroMQ")
   private val zContext = ZContext()
 
   override def run(): Unit =
-    val environment = stdWithLigature(ligature)
+    val environment = std()
     val socket = zContext.createSocket(SocketType.REP)
     socket.bind(s"tcp://localhost:$port")
     var continue = true
@@ -55,7 +56,7 @@ def printError(message: String): String =
   printWanderValue(WanderValue.Module(Map(Field("error") -> WanderValue.String(message))))
 
 def runServer(port: Int): AutoCloseable = {
-  val server = LigatureZeroMQ(port, LigatureInMemory())
+  val server = LigatureZeroMQ(port)
   val thread = Thread(server)
   thread.start()
   new AutoCloseable {
@@ -64,5 +65,5 @@ def runServer(port: Int): AutoCloseable = {
 }
 
 @main def main =
-  val server = LigatureZeroMQ(4200, LigatureInMemory())
+  val server = LigatureZeroMQ(4200)
   server.run()
