@@ -10,7 +10,7 @@ val scalaLoggingVersion = "3.9.5"
 val logBackVersion = "1.5.1"
 val tsidVersion = "1.1.0"
 val ulidVersion = "5.2.3"
-val gsonVerison = "2.10.1"
+val gsonVerison = "2.11.0"
 val furyVersion = "0.4.1"
 
 lazy val gaze = project
