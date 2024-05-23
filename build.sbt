@@ -4,7 +4,7 @@ ThisBuild / version := "0.1.0-SNAPSHOT"
 ThisBuild / organization := "dev.ligature"
 ThisBuild / organizationName := "ligature"
 
-val munitVersion = "1.0.0-M11"
+val munitVersion = "1.0.0"
 val jeromqVersion = "0.6.0"
 val scalaLoggingVersion = "3.9.5"
 val logBackVersion = "1.5.1"
