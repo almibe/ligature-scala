@@ -139,7 +139,7 @@ def takeUntil[I](toMatch: I): Nibbler[I, Seq[I]] =
           if (v == toMatch) {
             matched = true
           } else {
-            gaze.next()
+            val _ = gaze.next()
             result.append(v)
           }
         case None =>
@@ -162,7 +162,7 @@ def takeUntil[I](toMatch: Nibbler[I, I]): Nibbler[I, Seq[I]] =
           check match {
             case Result.Match(_) => matched = true
             case Result.NoMatch =>
-              gaze.next()
+              val _ = gaze.next()
               result.append(v)
             case Result.EmptyMatch => ???
           }

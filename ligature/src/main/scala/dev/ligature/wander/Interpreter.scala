@@ -101,11 +101,13 @@ def interpolateString(
                     case Left(err) =>
                       break(Left(err))
                     case Right((WanderValue.String(value), _)) => val _ = sb.append(value)
-                    case _                                   => ???
+                    case _                                     => ???
             case _ =>
               break(
                 Left(
-                  WanderError("Syntax error, in an interpolated String `$` must be followed by `(`.")
+                  WanderError(
+                    "Syntax error, in an interpolated String `$` must be followed by `(`."
+                  )
                 )
               )
         case c => val _ = sb.append(c)
@@ -291,7 +293,7 @@ def handleApplication(
               callPartialHostFunction(args, fn, arguments, environment)
             case WanderValue.Array(values)  => callArray(values, arguments, environment)
             case WanderValue.Module(values) => callModule(values, arguments, environment)
-            case _                        => Left(WanderError(s"Could not call function."))
+            case _                          => Left(WanderError(s"Could not call function."))
           }
       }
     case x => Left(WanderError(s"Unexpected start of application - $x"))
@@ -306,7 +308,7 @@ def wanderToLigatureValue(value: WanderValue): LigatureValue =
     case WanderValue.Int(value)        => LigatureValue.IntegerValue(value)
     case WanderValue.String(value)     => LigatureValue.StringValue(value)
     case WanderValue.Identifier(value) => value
-    case _                           => ???
+    case _                             => ???
 
 def callArray(
     values: Seq[WanderValue],

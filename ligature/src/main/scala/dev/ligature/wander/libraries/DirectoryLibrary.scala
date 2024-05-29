@@ -23,7 +23,7 @@ import dev.ligature.wander.modules.std
 final class DirectoryLibrary(path: Path) extends ModuleLibrary {
   var modules: Map[ModuleId, WanderValue.Module] = Map()
   override def lookup(id: ModuleId): Either[WanderError, Option[WanderValue.Module]] =
-    boundary:
+    val _ = boundary:
       if (modules.isEmpty) {
         modules = loadFromPath(path) match {
           case Left(value)  => break(Left(value))

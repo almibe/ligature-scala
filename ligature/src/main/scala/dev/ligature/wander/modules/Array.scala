@@ -59,7 +59,7 @@ val arrayModule: WanderValue.Module = WanderValue.Module(
                     case Right(value) =>
                       value match
                         case WanderValue.Bool(value) => value
-                        case _                     => ??? /// break(Left(LigatureError("")
+                        case _                       => ??? /// break(Left(LigatureError("")
                 )
                 Right((WanderValue.Array(results), environment))
             case _ => ???
@@ -126,7 +126,7 @@ val arrayModule: WanderValue.Module = WanderValue.Module(
                       .map(
                         _ match
                           case WanderValue.String(value) => value
-                          case _                       => ???
+                          case _                         => ???
                       )
                       .mkString("")
                   ),
@@ -153,7 +153,7 @@ val arrayModule: WanderValue.Module = WanderValue.Module(
                       .map(
                         _ match
                           case WanderValue.String(value) => value
-                          case _                       => ???
+                          case _                         => ???
                       )
                       .mkString("\n")
                   ),

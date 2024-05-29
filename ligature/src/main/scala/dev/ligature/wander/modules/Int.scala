@@ -41,7 +41,7 @@ val intModule: WanderValue.Module = WanderValue.Module(
             case Seq(WanderValue.Int(value)) =>
               Right(
                 (
-                  ???,//WanderValue.Bytes(LongBinding.longToEntry(value).getBytesUnsafe().toSeq),
+                  ???, // WanderValue.Bytes(LongBinding.longToEntry(value).getBytesUnsafe().toSeq),
                   environment
                 )
               )
@@ -60,7 +60,7 @@ val intModule: WanderValue.Module = WanderValue.Module(
             case Seq(WanderValue.Bytes(value)) =>
               Right(
                 (
-                  ???,//WanderValue.Int(LongBinding.entryToLong(ArrayByteIterable(value.toArray))),
+                  ???, // WanderValue.Int(LongBinding.entryToLong(ArrayByteIterable(value.toArray))),
                   environment
                 )
               )

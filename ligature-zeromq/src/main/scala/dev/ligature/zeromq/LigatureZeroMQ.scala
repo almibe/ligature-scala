@@ -17,9 +17,7 @@ import dev.ligature.wander.modules.std
 // import dev.ligature.inmemory.LigatureInMemory
 // import dev.ligature.Ligature
 
-private class LigatureZeroMQ(val port: Int)
-    extends Runnable
-    with AutoCloseable {
+private class LigatureZeroMQ(val port: Int) extends Runnable with AutoCloseable {
   val logger = Logger("LigatureZeroMQ")
   private val zContext = ZContext()
 

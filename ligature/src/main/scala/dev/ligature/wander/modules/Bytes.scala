@@ -27,8 +27,9 @@ val bytesModule: WanderValue.Module = WanderValue.Module(
         Tag.Untagged,
         (args, env) =>
           args match
-            case Seq(value: WanderValue) => Right((WanderValue.Bytes(encodeWanderValue(value)), env))
-            case _                     => ???
+            case Seq(value: WanderValue) =>
+              Right((WanderValue.Bytes(encodeWanderValue(value)), env))
+            case _ => ???
       )
     ),
     Field("decode") -> WanderValue.Function(
@@ -39,7 +40,7 @@ val bytesModule: WanderValue.Module = WanderValue.Module(
         (args, env) =>
           args match
             case Seq(WanderValue.Bytes(value)) => Right((decodeWanderValue(value), env))
-            case _                           => ???
+            case _                             => ???
       )
     )
   )

@@ -153,7 +153,7 @@ def printStatementValue(value: LigatureValue): String =
     case value: LigatureValue.Identifier   => printIdentifier(value)
     case LigatureValue.IntegerValue(value) => value.toString()
     case LigatureValue.StringValue(value)  => printString(value)
-    case LigatureValue.Record(values)       => 
+    case LigatureValue.Record(values) =>
       "{" + values
         .map((field, value) => field + " = " + printStatementValue(value))
         .mkString(", ") + "}"

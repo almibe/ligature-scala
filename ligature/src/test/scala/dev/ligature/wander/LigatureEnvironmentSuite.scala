@@ -13,16 +13,16 @@ import dev.ligature.wander.WanderValue
 //import dev.ligature.wander.modules.std
 
 class LigatureTestSuite extends FunSuite {
-  //val setup = ???//FunFixture[(Environment, Ligature)](
-    //setup = { test =>
-    //  ???
-      // val instance = LigatureInMemory()
-      // (stdWithLigature(instance), instance)
-   // },
-   // teardown = { instance =>
-   //   instance._2.close()
+  // val setup = ???//FunFixture[(Environment, Ligature)](
+  // setup = { test =>
+  //  ???
+  // val instance = LigatureInMemory()
+  // (stdWithLigature(instance), instance)
+  // },
+  // teardown = { instance =>
+  //   instance._2.close()
   //  }
- // )
+  // )
 
   def check(script: String, environment: Environment): WanderValue =
     run(script, environment) match {
