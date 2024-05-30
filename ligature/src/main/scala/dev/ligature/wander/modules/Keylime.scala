@@ -79,67 +79,95 @@ class InMemoryKeylimeEditTx(store: HashMap[Seq[Byte], Seq[Byte]]) extends Keylim
 def keylimeQueryModule(instance: KeylimeReadTx): WanderValue.Module =
     WanderValue.Module(
     Map(
-      // Field("get") -> WanderValue.Function(
-      //   HostFunction(
-      //     "Read a value from the Store.",
-      //     Seq(
-      //       TaggedField(Field("key"), Tag.Untagged)
-      //     ),
-      //     Tag.Untagged,
-      //     (arguments, environment) =>
-      //       ???
-      //   )
-      // ),
-      // Field("prefix") -> WanderValue.Function(
-      //   HostFunction(
-      //     "Read a prefix from the Store.",
-      //     Seq(
-      //       TaggedField(Field("prefix"), Tag.Untagged)
-      //     ),
-      //     Tag.Untagged,
-      //     (arguments, environment) =>
-      //       ???
-      //   )
-      // ),
+      Field("get") -> WanderValue.Function(
+        HostFunction(
+          "Read a value from the Store.",
+          Seq(
+            TaggedField(Field("key"), Tag.Untagged)
+          ),
+          Tag.Untagged,
+          (arguments, environment) =>
+            arguments match {
+              case Seq(WanderValue.Bytes(key)) => 
+                instance.get(key) match {
+                  case Some(value) => Right((WanderValue.Bytes(value), environment))
+                  case None => ???
+                }
+              case _ => ???
+            }
+        )
+      ),
+      Field("prefix") -> WanderValue.Function(
+        HostFunction(
+          "Read a prefix from the Store.",
+          Seq(
+            TaggedField(Field("prefix"), Tag.Untagged)
+          ),
+          Tag.Untagged,
+          (arguments, environment) =>
+            arguments match {
+              case Seq(WanderValue.Bytes(prefix)) =>
+                Right((WanderValue.Array(instance.prefix(prefix).map(res => WanderValue.Bytes(res))), environment))
+              case _ => ???
+            }
+        )
+      ),
     ))
 
 def keylimeEditModule(instance: KeylimeEditTx): WanderValue.Module =
     WanderValue.Module(
     Map(
-    //   Field("get") -> WanderValue.Function(
-    //     HostFunction(
-    //       "Get a value from the Store.",
-    //       Seq(
-    //         TaggedField(Field("key"), Tag.Untagged)
-    //       ),
-    //       Tag.Untagged,
-    //       (_arguments, environment) =>
-    //         ???
-    //     )
-    //   ),
-    //   Field("put") -> WanderValue.Function(
-    //     HostFunction(
-    //       "Set a value in the Store.",
-    //       Seq(
-    //         TaggedField(Field("key"), Tag.Untagged),
-    //         TaggedField(Field("value"), Tag.Untagged)
-    //       ),
-    //       Tag.Untagged,
-    //       (_arguments, environment) =>
-    //         ???
-    //     )
-    //   ),
-    //   Field("delete") -> WanderValue.Function(
-    //     HostFunction(
-    //       "Delete a value from the Store.",
-    //       Seq(
-    //         TaggedField(Field("key"), Tag.Untagged)
-    //       ),
-    //       Tag.Untagged,
-    //       (_arguments, environment) =>
-    //         ???
-    //     )
-      // ),
+      Field("get") -> WanderValue.Function(
+        HostFunction(
+          "Read a value from the Store.",
+          Seq(
+            TaggedField(Field("key"), Tag.Untagged)
+          ),
+          Tag.Untagged,
+          (arguments, environment) =>
+            arguments match {
+              case Seq(WanderValue.Bytes(key)) => 
+                instance.get(key) match {
+                  case Some(value) => Right((WanderValue.Bytes(value), environment))
+                  case None => ???
+                }
+              case _ => ???
+            }
+        )
+      ),
+      Field("put") -> WanderValue.Function(
+        HostFunction(
+          "Set a value in the Store.",
+          Seq(
+            TaggedField(Field("key"), Tag.Untagged),
+            TaggedField(Field("value"), Tag.Untagged)
+          ),
+          Tag.Untagged,
+          (arguments, environment) =>
+            arguments match {
+              case Seq(WanderValue.Bytes(key), WanderValue.Bytes(value)) =>
+                instance.put(key, value)
+                Right((WanderValue.Module(Map.empty), environment))
+              case _ => ???
+            }
+        )
+      ),
+      Field("delete") -> WanderValue.Function(
+        HostFunction(
+          "Delete a value from the Store.",
+          Seq(
+            TaggedField(Field("key"), Tag.Untagged)
+          ),
+          Tag.Untagged,
+          (arguments, environment) =>
+            arguments match {
+              case Seq(WanderValue.Bytes(key)) =>
+                instance.delete(key)
+                Right((WanderValue.Module(Map.empty), environment))
+              case _ => ???
+            }
+        )
+      ),
     ))
 
 val keylimeModule: WanderValue.Module =
@@ -190,17 +218,24 @@ val keylimeModule: WanderValue.Module =
             }
         )
       ),
-      // Field("edit") -> WanderValue.Function(
-      //   HostFunction(
-      //     "Edit a Store.",
-      //     Seq(
-      //       TaggedField(Field("storeName"), Tag.Untagged)
-      //     ),
-      //     Tag.Untagged,
-      //     (arguments, environment) =>
-      //       ???
-      //   )
-      // ),
+      Field("edit") -> WanderValue.Function(
+        HostFunction(
+          "Edit a Store.",
+          Seq(
+            TaggedField(Field("storeName"), Tag.Untagged),
+            TaggedField(Field("fn"), Tag.Untagged)
+          ),
+          Tag.Untagged,
+          (arguments, environment) =>
+            arguments match {
+              case Seq(WanderValue.String(name), WanderValue.Function(fn)) => {
+                val readModule = keylimeEditModule(instance.edit(name))
+                fn.call(Seq(readModule), environment).map((_, environment))
+              }
+              case _ => ???
+            }
+        )
+      ),
       Field("query") -> WanderValue.Function(
         HostFunction(
           "Query a Store.",
