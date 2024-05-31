@@ -6,13 +6,25 @@ package dev.ligature.wander.modules
 
 import dev.ligature.wander.*
 import dev.ligature.wander.Environment
-import dev.ligature.wander.libraries.ModuleLibrary
-//import dev.ligature.Ligature
+import java.nio.file.Paths
+import dev.ligature.wander.libraries.loadFromPath
 
-/** Create the "default" environment for working with Wander.
-  */
-def std(libraries: List[ModuleLibrary] = List()): Environment =
-  Environment(libraries)
+/**
+ * Create a Environment with core HostFunctions
+ * and all of the libraries in WANDER_LIBS directory.
+ */
+def wanderLibs(): Environment =
+  val path = Paths.get(sys.env("WANDER_LIBS"))
+  loadFromPath(path) match {
+    case Right(libs) => Environment(List(libs))
+    case Left(_) => ???
+  }
+
+/** 
+ * Create the "default" environment for working with Wander.
+ */
+def std(): Environment =
+  Environment()
     .bindVariable(Field("Array"), arrayModule)
     .bindVariable(Field("Bool"), boolModule)
     .bindVariable(Field("Bytes"), bytesModule)
@@ -25,11 +37,5 @@ def std(libraries: List[ModuleLibrary] = List()): Environment =
     .bindVariable(Field("Id"), idModule)
     .bindVariable(Field("Identifier"), identifierModule)
     .bindVariable(Field("Keylime"), keylimeModule)
+    .bindVariable(Field("Xodus"), xodusModule)
     .bindVariable(Field("import"), importFunction)
-
-// def stdWithLigature(
-//     ligature: Ligature,
-//     libraries: List[ModuleLibrary] = List()
-// ): Environment =
-//   std(libraries)
-//     .bindVariable(Field("Ligature"), createLigatureModule(ligature))

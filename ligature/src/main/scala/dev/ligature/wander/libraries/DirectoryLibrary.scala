@@ -19,26 +19,14 @@ import scala.util.Failure
 import scala.io.Source
 import scala.util.Using
 import dev.ligature.wander.modules.std
-
-final class DirectoryLibrary(path: Path) extends ModuleLibrary {
-  var modules: Map[ModuleId, WanderValue.Module] = Map()
-  override def lookup(id: ModuleId): Either[WanderError, Option[WanderValue.Module]] =
-    val _ = boundary:
-      if (modules.isEmpty) {
-        modules = loadFromPath(path) match {
-          case Left(value)  => break(Left(value))
-          case Right(value) => value
-        }
-      }
-    Right(modules.get(id))
-}
+import dev.ligature.wander.Tag
 
 val wanderExt = ".wander"
-val wanderTextExt = ".test.wander"
+val wanderTestExt = ".test.wander"
 
-private def loadFromPath(path: Path): Either[WanderError, Map[ModuleId, WanderValue.Module]] =
+def loadFromPath(path: Path): Either[WanderError, Map[Field, (Tag, WanderValue)]] =
   boundary:
-    val results = scala.collection.mutable.HashMap[ModuleId, WanderValue.Module]()
+    val results = scala.collection.mutable.HashMap[Field, (Tag, WanderValue)]()
     Files
       .walk(path)
       .iterator()
@@ -47,7 +35,7 @@ private def loadFromPath(path: Path): Either[WanderError, Map[ModuleId, WanderVa
       .filter(f =>
         f.getFileName().toString().endsWith(wanderExt)
           &&
-            !f.getFileName().toString().endsWith(wanderTextExt)
+            !f.getFileName().toString().endsWith(wanderTestExt)
       )
       .foreach { file =>
         val modname = file.toFile().getName().dropRight(wanderExt.length())
@@ -61,6 +49,6 @@ private def loadFromPath(path: Path): Either[WanderError, Map[ModuleId, WanderVa
               case Right((WanderValue.Module(values), _)) =>
                 values.foreach((name, value) => module.put(name, value))
               case x => break(Left(WanderError("Unexpected value from load result. $x")))
-        results += (modname -> WanderValue.Module(module.toMap))
+        results += (Field(modname) -> (Tag.Untagged, WanderValue.Module(module.toMap)))
       }
     Right(results.toMap)

@@ -13,6 +13,7 @@ val ulidVersion = "5.2.3"
 val gsonVerison = "2.11.0"
 val furyVersion = "0.4.1"
 val lmdbVersion = "0.9.0"
+val xodusVersion = "2.0.1"
 
 lazy val gaze = project
   .in(file("gaze"))
@@ -43,8 +44,10 @@ lazy val ligature = project
     libraryDependencies += "io.hypersistence" % "tsid" % tsidVersion,
     libraryDependencies += "ch.qos.logback" % "logback-classic" % logBackVersion,
     libraryDependencies += "com.typesafe.scala-logging" %% "scala-logging" % scalaLoggingVersion,
+    libraryDependencies += "org.lmdbjava" % "lmdbjava" % lmdbVersion,
+    libraryDependencies += "org.jetbrains.xodus" % "xodus-openAPI" % xodusVersion,
+    libraryDependencies += "org.jetbrains.xodus" % "xodus-environment" % xodusVersion,
     libraryDependencies += "org.scalameta" %% "munit" % munitVersion % Test,
-    libraryDependencies += "org.lmdbjava" % "lmdbjava" % lmdbVersion
   )
   .dependsOn(gaze)
   .disablePlugins(RevolverPlugin)

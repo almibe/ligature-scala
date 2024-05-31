@@ -15,6 +15,7 @@ trait KeylimeEditTx {
   def get(key: Seq[Byte]): Option[Seq[Byte]]
   def put(key: Seq[Byte], value: Seq[Byte]): Unit
   def delete(key: Seq[Byte]): Unit
+  def commit(): Unit
 }
 
 trait KeylimeReadTx {
@@ -74,6 +75,8 @@ class InMemoryKeylimeEditTx(store: HashMap[Seq[Byte], Seq[Byte]]) extends Keylim
 
   override def delete(key: Seq[Byte]): Unit =
     val _ = store.remove(key)
+
+  override def commit(): Unit = ()
 }
 
 def keylimeQueryModule(instance: KeylimeReadTx): WanderValue.Module =
@@ -91,7 +94,7 @@ def keylimeQueryModule(instance: KeylimeReadTx): WanderValue.Module =
               case Seq(WanderValue.Bytes(key)) => 
                 instance.get(key) match {
                   case Some(value) => Right((WanderValue.Bytes(value), environment))
-                  case None => ???
+                  case None => Right((WanderValue.Module(Map.empty), environment))
                 }
               case _ => ???
             }
@@ -129,7 +132,7 @@ def keylimeEditModule(instance: KeylimeEditTx): WanderValue.Module =
               case Seq(WanderValue.Bytes(key)) => 
                 instance.get(key) match {
                   case Some(value) => Right((WanderValue.Bytes(value), environment))
-                  case None => ???
+                  case None => Right((WanderValue.Module(Map.empty), environment))
                 }
               case _ => ???
             }

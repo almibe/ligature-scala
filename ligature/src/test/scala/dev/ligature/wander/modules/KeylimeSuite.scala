@@ -49,6 +49,7 @@ class KeylimeSuite extends munit.FunSuite {
     val instance = InMemoryKeylime()
     instance.addStore("test")
     val editTx = instance.edit("test")
+    editTx.put(Seq(0.toByte), Seq(6.toByte))
     editTx.put(Seq(0.toByte, 0.toByte), Seq(0.toByte))
     editTx.put(Seq(0.toByte, 1.toByte), Seq(1.toByte))
     editTx.put(Seq(1.toByte, 2.toByte), Seq(2.toByte))
@@ -58,6 +59,6 @@ class KeylimeSuite extends munit.FunSuite {
     editTx.put(Seq(1.toByte, 6.toByte), Seq(6.toByte))
     val tx = instance.read("test")
     val res = Right(tx.prefix(Seq(0.toByte)))
-    assertEquals(res, Right(Seq(Seq(0.toByte), Seq(1.toByte))))
+    assertEquals(res, Right(Seq(Seq(6.toByte), Seq(0.toByte), Seq(1.toByte))))
   }
 }
