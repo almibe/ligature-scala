@@ -10,29 +10,29 @@ import dev.ligature.wander.HostFunction
 import dev.ligature.wander.Tag
 import dev.ligature.wander.TaggedField
 
-val graphModule: WanderValue.Module = WanderValue.Module(
+val networkModule: WanderValue.Module = WanderValue.Module(
   Map(
     Field("length") -> WanderValue.Function(
       HostFunction(
-        "Get the number of elements in a Graph.",
+        "Get the number of elements in a Network.",
         Seq(TaggedField(Field("array"), Tag.Untagged)),
         Tag.Untagged,
         (args, environment) =>
           args match
-            case Seq(WanderValue.Graph(value)) =>
+            case Seq(WanderValue.Network(value)) =>
               Right((WanderValue.Int(value.size), environment))
             case _ => ???
       )
     ),
     Field("merge") -> WanderValue.Function(
       HostFunction(
-        "Merge two Graphs.",
+        "Merge two Networks.",
         Seq(TaggedField(Field("array"), Tag.Untagged), TaggedField(Field("array"), Tag.Untagged)),
         Tag.Untagged,
         (args, environment) =>
           args match
-            case Seq(WanderValue.Graph(lvalue), WanderValue.Graph(rvalue)) =>
-              Right((WanderValue.Graph(lvalue ++ rvalue), environment))
+            case Seq(WanderValue.Network(lvalue), WanderValue.Network(rvalue)) =>
+              Right((WanderValue.Network(lvalue ++ rvalue), environment))
             case _ => ???
       )
     )

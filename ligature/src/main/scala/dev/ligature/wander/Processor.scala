@@ -21,7 +21,7 @@ def process(terms: Seq[Term]): Either[WanderError, Seq[Expression]] =
 def process(term: Term): Either[WanderError, Expression] =
   term match {
     case Term.Pipe                            => ???
-    case Term.QuestionMark                    => Right(Expression.QuestionMark)
+    case Term.Slot(name)                      => Right(Expression.Slot(name))
     case Term.Array(terms)                    => processArray(terms)
     case Term.BooleanLiteral(value)           => Right(Expression.BooleanValue(value))
     case Term.Binding(name, tag, value)       => processBinding(name, tag, value)
@@ -36,19 +36,19 @@ def process(term: Term): Either[WanderError, Expression] =
     case Term.Module(values)                  => processModule(values)
     case Term.Bytes(value)                    => Right(Expression.Bytes(value))
     case Term.Identifier(value)               => Right(Expression.Identifier(value))
-    case Term.Graph(roots)                    => processGraph(roots)
-    case Term.GraphRoot(_)                    => ??? // TODO probably return error?
+    case Term.Network(roots)                    => processNetwork(roots)
+    case Term.NetworkRoot(_)                    => ??? // TODO probably return error?
   }
 
-def processGraph(terms: Seq[Term.GraphRoot]): Either[WanderError, Expression.Graph] =
+def processNetwork(terms: Seq[Term.NetworkRoot]): Either[WanderError, Expression.Network] =
   terms match {
     case Seq(
-          Term.GraphRoot(
+          Term.NetworkRoot(
             Seq(Term.Identifier(entity), Term.Identifier(attribute), Term.Identifier(value))
           )
         ) =>
       Right(
-        Expression.Graph(
+        Expression.Network(
           Seq(
             Expression.Identifier(entity),
             Expression.Identifier(attribute),

@@ -60,7 +60,7 @@ val logger = Logger("LigatureModule")
 //         (args, env) =>
 //           args match
 //             case Seq(WanderValue.String(datasetName)) =>
-//               Right(WanderValue.Bool(ligature.graphExists(DatasetName(datasetName))), env)
+//               Right(WanderValue.Bool(ligature.networkExists(DatasetName(datasetName))), env)
 //             case _ => ???
 //       )
 //     ),

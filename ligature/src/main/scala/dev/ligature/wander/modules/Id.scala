@@ -11,7 +11,7 @@ import dev.ligature.wander.Tag
 import dev.ligature.wander.WanderValue
 import io.hypersistence.tsid.TSID
 import com.github.f4b6a3.ulid.UlidCreator
-import dev.ligature.LigatureValue
+import dev.ligature.wander.LigatureValue
 
 val idModule: WanderValue.Module = WanderValue.Module(
   Map(

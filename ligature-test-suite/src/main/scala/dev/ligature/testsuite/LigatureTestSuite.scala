@@ -37,7 +37,7 @@ case class Test(val x: Int)
 //     assertEquals(instance.allDatasets().toList, List())
 //   }
 
-//   setup.test("creating a new graph") { instance =>
+//   setup.test("creating a new network") { instance =>
 //     instance.createDataset(testDataset)
 //     val res = instance.allDatasets().toList
 //     assertEquals(res, List(testDataset))
@@ -45,8 +45,8 @@ case class Test(val x: Int)
 
 //   setup.test("check if datasets exist") { instance =>
 //     instance.createDataset(testDataset)
-//     val exists1 = instance.graphExists(testDataset)
-//     val exists2 = instance.graphExists(testDataset2)
+//     val exists1 = instance.networkExists(testDataset)
+//     val exists2 = instance.networkExists(testDataset2)
 //     val res = (exists1, exists2)
 //     assertEquals(res, (true, false))
 //   }
@@ -91,7 +91,7 @@ case class Test(val x: Int)
 //     assertEquals((res1, res2, res3), (2, 4, 5)) // TODO check instances not just counts
 //   }
 
-//   setup.test("create and delete new graph") { instance =>
+//   setup.test("create and delete new network") { instance =>
 //     instance.createDataset(testDataset)
 //     instance.deleteDataset(testDataset)
 //     instance.deleteDataset(testDataset2)
@@ -179,9 +179,9 @@ case class Test(val x: Int)
 // // //   //     _ <- instance.createDataset(testDataset)
 // // //   //     _ <- instance.write(testDataset) { tx =>
 // // //   //       for {
-// // //   //         entity <- tx.newLabel("entity-")
-// // //   //         attribute <- tx.newLabel("attribute-")
-// // //   //         value <- tx.newLabel("value-")
+// // //   //         entity <- tx.newIdentifier("entity-")
+// // //   //         attribute <- tx.newIdentifier("attribute-")
+// // //   //         value <- tx.newIdentifier("value-")
 // // //   //         _ <- tx.addStatement(Statement(entity, attribute, value))
 // // //   //       } yield IO.unit
 // // //   //     }
@@ -193,7 +193,7 @@ case class Test(val x: Int)
 // // //   //     assert(it.entity.name.startsWith("entity-"))
 // // //   //     assert(it.attribute.name.startsWith("attribute-"))
 // // //   //     it.value match {
-// // //   //       case Label(id) => assert(id.startsWith("value-"))
+// // //   //       case Identifier(id) => assert(id.startsWith("value-"))
 // // //   //       case _              => assert(false)
 // // //   //     }
 // // //   //   }

@@ -20,13 +20,13 @@ enum Term:
   case IntegerValue(value: Long)
   case StringValue(value: String, interpolated: Boolean = false)
   case BooleanLiteral(value: Boolean)
-  case QuestionMark
+  case Slot(name: String)
   case Array(value: Seq[Term])
   case Identifier(value: String)
   case Binding(field: Field, tag: Option[FieldPath], term: Term)
   case Module(bindings: Seq[(Field, Term)])
-  case Graph(roots: Seq[GraphRoot])
-  case GraphRoot(terms: Seq[Term])
+  case Network(roots: Seq[NetworkRoot])
+  case NetworkRoot(terms: Seq[Term])
   case WhenExpression(conditionals: Seq[(Term, Term)])
   case Application(terms: Seq[Term])
   case Grouping(terms: Seq[Term])
@@ -58,9 +58,9 @@ def parse(script: Seq[Token]): Either[WanderError, Seq[Term]] = {
   }
 }
 
-val questionMarkTermNib: Nibbler[Token, Term] = gaze =>
+val slotTermNib: Nibbler[Token, Term] = gaze =>
   gaze.next() match
-    case Some(Token.QuestionMark) => Result.Match(Term.QuestionMark)
+    case Some(Token.Slot(name)) => Result.Match(Term.Slot(name))
     case _                        => Result.NoMatch
 
 val booleanNib: Nibbler[Token, Term.BooleanLiteral] = gaze =>
@@ -90,7 +90,7 @@ val stringNib: Nibbler[Token, Term.StringValue] = gaze =>
 
 val identifierNib: Nibbler[Token, Term.Identifier] = gaze =>
   gaze.next() match
-    case Some(Token.Label(value)) => Result.Match(Term.Identifier(value))
+    case Some(Token.Identifier(value)) => Result.Match(Term.Identifier(value))
     case _                        => Result.NoMatch
 
 val fieldNib: Nibbler[Token, Field] = gaze =>
@@ -212,16 +212,16 @@ val moduleNib: Nibbler[Token, Term.Module] = { gaze =>
     case _                                 => Result.NoMatch
 }
 
-val graphNib: Nibbler[Token, Term.Graph] = { gaze =>
+val networkNib: Nibbler[Token, Term.Network] = { gaze =>
   val res = for
     _ <- gaze.attempt(take(Token.OpenBrace))
     entity <- gaze.attempt(identifierNib)
     attribute <- gaze.attempt(identifierNib)
     value <- gaze.attempt(identifierNib)
     _ <- gaze.attempt(take(Token.CloseBrace))
-  yield Term.Graph(Seq(Term.GraphRoot(Seq(entity, attribute, value))))
+  yield Term.Network(Seq(Term.NetworkRoot(Seq(entity, attribute, value))))
   res match
-    case Result.Match(Term.Graph(values)) => Result.Match(Term.Graph(values))
+    case Result.Match(Term.Network(values)) => Result.Match(Term.Network(values))
     case _                                => Result.NoMatch
 }
 
@@ -285,10 +285,10 @@ val applicationInternalNib =
     integerNib,
     whenExpressionNib,
     arrayNib,
-    graphNib,
+    networkNib,
     moduleNib,
     booleanNib,
-    questionMarkTermNib,
+    slotTermNib,
     fieldPathTermNib
   )
 
@@ -306,10 +306,10 @@ val expressionNib =
     integerNib,
     whenExpressionNib,
     arrayNib,
-    graphNib,
+    networkNib,
     moduleNib,
     booleanNib,
-    questionMarkTermNib,
+    slotTermNib,
     fieldPathTermNib,
     pipeTermNib
   )

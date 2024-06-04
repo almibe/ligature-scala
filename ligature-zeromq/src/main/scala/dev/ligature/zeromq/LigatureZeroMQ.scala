@@ -12,14 +12,14 @@ import dev.ligature.wander.printWanderValue
 import dev.ligature.wander.printResult
 import dev.ligature.wander.*
 import com.typesafe.scalalogging.Logger
-import dev.ligature.wander.modules.{std, wanderLibs}
+import dev.ligature.wander.modules.{std}//, wanderLibs}
 
 private class LigatureZeroMQ(val port: Int) extends Runnable with AutoCloseable {
   val logger = Logger("LigatureZeroMQ")
   private val zContext = ZContext()
 
   override def run(): Unit =
-    val environment = std().combine(wanderLibs())
+    val environment = std()//.combine(wanderLibs())
     val socket = zContext.createSocket(SocketType.REP)
     socket.bind(s"tcp://localhost:$port")
     var continue = true

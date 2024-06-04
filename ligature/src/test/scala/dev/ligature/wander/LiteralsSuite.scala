@@ -5,7 +5,6 @@
 package dev.ligature.wander
 
 import dev.ligature.wander.modules.std
-import dev.ligature.LigatureValue
 
 class LiteralsSuite extends munit.FunSuite {
   def check(script: String, expected: WanderValue) =

@@ -4,7 +4,7 @@
 
 package dev.ligature.wander.modules
 
-import dev.ligature.LigatureValue
+import dev.ligature.wander.LigatureValue
 import dev.ligature.wander.{WanderValue, Field, HostFunction, TaggedField, Tag}
 import dev.ligature.wander.WanderError
 

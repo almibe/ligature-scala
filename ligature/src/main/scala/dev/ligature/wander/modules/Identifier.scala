@@ -9,7 +9,7 @@ import dev.ligature.wander.TaggedField
 import dev.ligature.wander.Field
 import dev.ligature.wander.Tag
 import dev.ligature.wander.WanderValue
-import dev.ligature.LigatureValue
+import dev.ligature.wander.LigatureValue
 import dev.ligature.wander.WanderError
 
 val identifierModule: WanderValue.Module = WanderValue.Module(

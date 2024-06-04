@@ -6,8 +6,6 @@ package dev.ligature.wander
 
 import munit.FunSuite
 import dev.ligature.wander.modules.std
-import dev.ligature.Statement
-import dev.ligature.LigatureValue
 
 class InterpreterSuite extends FunSuite {
   def check(script: String, expected: WanderValue) =
@@ -35,9 +33,9 @@ class InterpreterSuite extends FunSuite {
     )
     check(script, result)
   }
-  test("Graph support") {
+  test("Network support") {
     val script = "{ `a` `b` `c` }"
-    val result = WanderValue.Graph(
+    val result = WanderValue.Network(
       Set(
         Statement(
           LigatureValue.Identifier("a"),

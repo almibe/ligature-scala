@@ -91,7 +91,7 @@ class ParserSuite extends FunSuite {
         Term.Application(
           Seq(
             Term.FieldPathTerm(FieldPath(Seq(Field("query")))),
-            Term.QuestionMark
+            Term.Slot("")
           )
         )
       )
@@ -212,26 +212,26 @@ class ParserSuite extends FunSuite {
     )
     assertEquals(result, expected)
   }
-  test("parse graph with one statement") {
+  test("parse network with one statement") {
     val result = check("{ `a` `b` `c` }")
     val expected = Right(
       Seq(
-        Term.Graph(
-          Seq(Term.GraphRoot(Seq(Term.Identifier("a"), Term.Identifier("b"), Term.Identifier("c"))))
+        Term.Network(
+          Seq(Term.NetworkRoot(Seq(Term.Identifier("a"), Term.Identifier("b"), Term.Identifier("c"))))
         )
       )
     )
     assertEquals(result, expected)
   }
-  test("parse graph with multiple statements".ignore) {
+  test("parse network with multiple statements".ignore) {
     val result = check("{ <a> <b> <c>, <a> <b> <d>, <b> <c> <d> }")
     val expected = Right(
       Seq(
-        Term.Graph(
+        Term.Network(
           Seq(
-            Term.GraphRoot(Seq(Term.Identifier("a"), Term.Identifier("b"), Term.Identifier("c"))),
-            Term.GraphRoot(Seq(Term.Identifier("a"), Term.Identifier("b"), Term.Identifier("d"))),
-            Term.GraphRoot(Seq(Term.Identifier("b"), Term.Identifier("c"), Term.Identifier("d")))
+            Term.NetworkRoot(Seq(Term.Identifier("a"), Term.Identifier("b"), Term.Identifier("c"))),
+            Term.NetworkRoot(Seq(Term.Identifier("a"), Term.Identifier("b"), Term.Identifier("d"))),
+            Term.NetworkRoot(Seq(Term.Identifier("b"), Term.Identifier("c"), Term.Identifier("d")))
           )
         )
       )

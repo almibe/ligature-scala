@@ -28,7 +28,8 @@ import java.util.HexFormat
 import dev.ligature.wander.LigNibblers.identifierNibbler
 
 enum Token:
-  case Label(value: String)
+  case Identifier(value: String)
+  case Slot(value: String)
   case BooleanLiteral(value: Boolean)
   case Spaces(value: String)
   case Bytes(value: Seq[Byte])
@@ -38,7 +39,7 @@ enum Token:
   case TaggedField(name: String, tag: String)
   case OpenBrace, CloseBrace, Colon, OpenParen, CloseParen, NewLine,
     Arrow, WideArrow, Dot, At, WhenKeyword, EqualSign, Comment,
-    OpenBracket, CloseBracket, QuestionMark, EndKeyword, Period,
+    OpenBracket, CloseBracket, EndKeyword, Period,
     Backtick, Hash, Lambda, Pipe, Comma
 
 def tokenize(input: String): Either[WanderError, Seq[Token]] = {
@@ -116,9 +117,6 @@ val atNib =
 val pipeNib =
   takeString("|").map(res => Token.Pipe)
 
-val questionMarkNib =
-  takeString("?").map(res => Token.QuestionMark)
-
 val equalSignTokenNib =
   takeString("=").map(res => Token.EqualSign)
 
@@ -165,11 +163,18 @@ val integerTokenNib =
   LigNibblers.numberNibbler.map(res => Token.IntegerValue(res.mkString.toLong))
 
 val identifierTokenNib =
-  LigNibblers.identifierNibbler.map(res => Token.Label(res))
+  LigNibblers.identifierNibbler.map(res => Token.Identifier(res))
 
 val spacesTokenNib =
   concat(takeWhile[String](_ == " "))
     .map(res => Token.Spaces(res.mkString))
+
+val slotNib = takeAll(
+    takeString("?"),
+    optional(concat(takeWhile { (c: String) =>
+      "[a-zA-Z0-9-._~:/?#\\[\\]@!$&'()*+,;%=]".r.matches(c)
+    })),
+  ).map(res => Token.Slot(res.tail.mkString))
 
 val tokensNib: Nibbler[String, Seq[Token]] = repeat(
   takeFirst(
@@ -197,7 +202,7 @@ val tokensNib: Nibbler[String, Seq[Token]] = repeat(
     backtickTokenNib,
     commentTokenNib,
     equalSignTokenNib,
-    questionMarkNib,
+    slotNib,
     hashTokenNib
   )
 )

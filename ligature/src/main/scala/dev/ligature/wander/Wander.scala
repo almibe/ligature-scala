@@ -6,8 +6,7 @@ package dev.ligature.wander
 
 import dev.ligature.wander.parse
 import java.util.HexFormat
-import dev.ligature.LigatureValue
-import dev.ligature.Statement
+import dev.ligature.wander.Statement
 import com.google.gson.Gson
 
 /** Represents a Value in the Wander language.
@@ -19,11 +18,11 @@ enum WanderValue:
   case String(value: java.lang.String)
   case Array(values: Seq[WanderValue])
   case Identifier(value: LigatureValue.Identifier)
-  case Statement(statement: dev.ligature.Statement)
-  case Graph(value: Set[dev.ligature.Statement])
+  case Slot(name: java.lang.String)
+  case Statement(statement: dev.ligature.wander.Statement)
+  case Network(value: Set[dev.ligature.wander.Statement])
   case Module(values: Map[Field, WanderValue])
   case Function(function: dev.ligature.wander.Function)
-  case QuestionMark
 
 case class Field(name: String)
 case class FieldPath(parts: Seq[Field])
@@ -123,7 +122,7 @@ val formatter = HexFormat.of()
 
 def printWanderValue(value: WanderValue): String =
   value match
-    case WanderValue.QuestionMark       => "?"
+    case WanderValue.Slot(name)         => s"?$name"
     case WanderValue.Bool(value)        => value.toString()
     case WanderValue.Int(value)         => value.toString()
     case WanderValue.String(value)      => printString(value)
@@ -135,7 +134,7 @@ def printWanderValue(value: WanderValue): String =
         .map((field, value) => field.name + " = " + printWanderValue(value))
         .mkString(", ") + "}"
     case WanderValue.Bytes(value)           => printBytes(value)
-    case WanderValue.Graph(value)           => printGraph(value)
+    case WanderValue.Network(value)           => printNetwork(value)
     case WanderValue.Identifier(identifier) => printIdentifier(identifier)
     case WanderValue.Statement(statement)   => printStatement(statement)
 
@@ -158,9 +157,9 @@ def printStatementValue(value: LigatureValue): String =
         .map((field, value) => field + " = " + printStatementValue(value))
         .mkString(", ") + "}"
 
-def printGraph(graph: Set[Statement]) = graph
+def printNetwork(network: Set[Statement]) = network
   .map(printStatement)
-  .mkString("{ ", ", ", " }") //s"{ ${graph.map(statement => printStatement(statement))} }"
+  .mkString("{ ", ", ", " }") //s"{ ${network.map(statement => printStatement(statement))} }"
 
 def printString(value: String) =
   val gson = Gson()

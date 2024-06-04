@@ -38,9 +38,14 @@ class LexerSuite extends FunSuite {
     )
     check(script, tokens)
   }
-  test("tokenize Label") {
+  test("tokenize Identifier") {
     val script = "`hello`"
-    val tokens = Right(Seq(Token.Label("hello")))
+    val tokens = Right(Seq(Token.Identifier("hello")))
+    check(script, tokens)
+  }
+  test("tokenize Slot") {
+    val script = "?hello"
+    val tokens = Right(Seq(Token.Slot("hello")))
     check(script, tokens)
   }
   test("tokenize Strings") {
@@ -75,12 +80,11 @@ class LexerSuite extends FunSuite {
     check(script, tokens)
   }
   test("tokenize symbols") {
-    val script = "when ?{}:()][\n\r\n->=>= --test"
+    val script = "when {}:()][\n\r\n->=>= --test"
     val tokens = Right(
       Seq(
         Token.WhenKeyword,
         sp,
-        Token.QuestionMark,
         Token.OpenBrace,
         Token.CloseBrace,
         Token.Colon,

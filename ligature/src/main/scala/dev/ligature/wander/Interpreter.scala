@@ -8,8 +8,6 @@ import dev.ligature.wander.*
 import scala.collection.mutable.ListBuffer
 import scala.util.boundary, boundary.break
 import scala.collection.mutable
-import dev.ligature.LigatureValue
-import dev.ligature.Statement
 
 enum Expression:
   case FieldExpression(field: dev.ligature.wander.Field)
@@ -22,12 +20,12 @@ enum Expression:
   case Array(value: Seq[Expression])
   case Binding(name: Field, tag: Option[FieldPath], value: Expression)
   case Module(values: Seq[(dev.ligature.wander.Field, Expression)])
-  case Graph(expressions: Seq[Expression])
+  case Network(expressions: Seq[Expression])
   case Lambda(parameters: Seq[Field], body: Expression)
   case WhenExpression(conditionals: Seq[(Expression, Expression)])
   case Application(expressions: Seq[Expression])
   case Grouping(expressions: Seq[Expression])
-  case QuestionMark
+  case Slot(name: String)
 
 def eval(
     expression: Expression,
@@ -52,9 +50,9 @@ def eval(
       handleWhenExpression(conditionals, environment)
     case Expression.Grouping(expressions)    => handleGrouping(expressions, environment)
     case Expression.Application(expressions) => handleApplication(expressions, environment)
-    case Expression.QuestionMark             => Right((WanderValue.QuestionMark, environment))
+    case Expression.Slot(name)               => Right((WanderValue.Slot(name), environment))
     case Expression.Module(values)           => handleModule(values, environment)
-    case Expression.Graph(expressions)       => handleGraph(expressions, environment)
+    case Expression.Network(expressions)       => handleNetwork(expressions, environment)
   }
 
 def readField(
@@ -143,7 +141,7 @@ def handleModule(
     )
     Right((WanderValue.Module(results.toMap), environment))
 
-def handleGraph(
+def handleNetwork(
     expressions: Seq[Expression],
     environment: Environment
 ): Either[WanderError, (WanderValue, Environment)] =
@@ -155,7 +153,7 @@ def handleGraph(
         ) =>
       Right(
         (
-          WanderValue.Graph(
+          WanderValue.Network(
             Set(
               Statement(
                 LigatureValue.Identifier(entity),

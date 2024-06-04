@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at https://mozilla.org/MPL/2.0/. */
 
-package dev.ligature
+package dev.ligature.wander
 
 final case class DatasetName(name: String) extends Ordered[DatasetName]:
   override def compare(that: DatasetName): Int = this.name.compare(that.name)
