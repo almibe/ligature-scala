@@ -217,7 +217,9 @@ class ParserSuite extends FunSuite {
     val expected = Right(
       Seq(
         Term.Network(
-          Seq(Term.NetworkRoot(Seq(Term.Identifier("a"), Term.Identifier("b"), Term.Identifier("c"))))
+          Seq(
+            Term.NetworkRoot(Seq(Term.Identifier("a"), Term.Identifier("b"), Term.Identifier("c")))
+          )
         )
       )
     )

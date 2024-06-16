@@ -61,7 +61,7 @@ def parse(script: Seq[Token]): Either[WanderError, Seq[Term]] = {
 val slotTermNib: Nibbler[Token, Term] = gaze =>
   gaze.next() match
     case Some(Token.Slot(name)) => Result.Match(Term.Slot(name))
-    case _                        => Result.NoMatch
+    case _                      => Result.NoMatch
 
 val booleanNib: Nibbler[Token, Term.BooleanLiteral] = gaze =>
   gaze.next() match
@@ -91,7 +91,7 @@ val stringNib: Nibbler[Token, Term.StringValue] = gaze =>
 val identifierNib: Nibbler[Token, Term.Identifier] = gaze =>
   gaze.next() match
     case Some(Token.Identifier(value)) => Result.Match(Term.Identifier(value))
-    case _                        => Result.NoMatch
+    case _                             => Result.NoMatch
 
 val fieldNib: Nibbler[Token, Field] = gaze =>
   gaze.next() match
@@ -222,7 +222,7 @@ val networkNib: Nibbler[Token, Term.Network] = { gaze =>
   yield Term.Network(Seq(Term.NetworkRoot(Seq(entity, attribute, value))))
   res match
     case Result.Match(Term.Network(values)) => Result.Match(Term.Network(values))
-    case _                                => Result.NoMatch
+    case _                                  => Result.NoMatch
 }
 
 val applicationNib: Nibbler[Token, Term] = { gaze =>

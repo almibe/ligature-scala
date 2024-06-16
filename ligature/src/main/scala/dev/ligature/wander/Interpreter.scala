@@ -52,7 +52,7 @@ def eval(
     case Expression.Application(expressions) => handleApplication(expressions, environment)
     case Expression.Slot(name)               => Right((WanderValue.Slot(name), environment))
     case Expression.Module(values)           => handleModule(values, environment)
-    case Expression.Network(expressions)       => handleNetwork(expressions, environment)
+    case Expression.Network(expressions)     => handleNetwork(expressions, environment)
   }
 
 def readField(

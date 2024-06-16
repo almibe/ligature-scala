@@ -36,8 +36,8 @@ def process(term: Term): Either[WanderError, Expression] =
     case Term.Module(values)                  => processModule(values)
     case Term.Bytes(value)                    => Right(Expression.Bytes(value))
     case Term.Identifier(value)               => Right(Expression.Identifier(value))
-    case Term.Network(roots)                    => processNetwork(roots)
-    case Term.NetworkRoot(_)                    => ??? // TODO probably return error?
+    case Term.Network(roots)                  => processNetwork(roots)
+    case Term.NetworkRoot(_)                  => ??? // TODO probably return error?
   }
 
 def processNetwork(terms: Seq[Term.NetworkRoot]): Either[WanderError, Expression.Network] =

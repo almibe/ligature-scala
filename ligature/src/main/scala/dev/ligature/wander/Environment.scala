@@ -12,9 +12,8 @@ import scala.collection.mutable.ListBuffer
 case class Environment(
     scopes: List[Map[Field, (Tag, WanderValue)]] = List(Map())
 ) {
-  def combine(other: Environment): Environment = {
+  def combine(other: Environment): Environment =
     Environment(this.scopes ++ other.scopes)
-  }
 
   def readAllBindings(): WanderValue.Array = {
     val results = ListBuffer[WanderValue]()
