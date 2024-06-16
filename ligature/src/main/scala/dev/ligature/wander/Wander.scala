@@ -134,7 +134,7 @@ def printWanderValue(value: WanderValue): String =
         .map((field, value) => field.name + " = " + printWanderValue(value))
         .mkString(", ") + "}"
     case WanderValue.Bytes(value)           => printBytes(value)
-    case WanderValue.Network(value)           => printNetwork(value)
+    case WanderValue.Network(value)         => printNetwork(value)
     case WanderValue.Identifier(identifier) => printIdentifier(identifier)
     case WanderValue.Statement(statement)   => printStatement(statement)
 

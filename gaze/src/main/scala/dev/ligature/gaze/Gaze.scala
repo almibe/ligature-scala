@@ -96,12 +96,12 @@ class StringGaze(input: StringSource) extends Gaze[String](input) {
 
 enum Result[+T]:
   def map[U](f: T => U): Result[U] =
-    this match {
-      case EmptyMatch   => EmptyMatch
-      case NoMatch      => NoMatch
-      case Match(value) => Match(f(value))
-    }
-    // if (isEmpty) None else Some(f(this.get))
+  this match {
+    case EmptyMatch   => EmptyMatch
+    case NoMatch      => NoMatch
+    case Match(value) => Match(f(value))
+  }
+  // if (isEmpty) None else Some(f(this.get))
   def flatten[U](implicit ev: T <:< Result[U]): Result[U] =
     this match {
       case EmptyMatch   => EmptyMatch

@@ -28,30 +28,30 @@ class InMemoryStore extends LigatureStore {
   override def networks(): Seq[String] =
     store.keys.toSeq
 
-  override def addNetwork(name: String): Unit = 
+  override def addNetwork(name: String): Unit =
     val _ = store.put(name, HashSet())
     ()
 
-  override def removeNetwork(name: String): Unit = 
+  override def removeNetwork(name: String): Unit =
     val _ = store.remove(name)
     ()
 
   override def add(name: String, network: Seq[Statement]): Unit =
     store.get(name) match {
-      case None => ???
+      case None             => ???
       case Some(statements) => statements.addAll(network)
     }
 
-  override def remove(name: String, network: Seq[Statement]): Unit = 
+  override def remove(name: String, network: Seq[Statement]): Unit =
     store.get(name) match {
-      case None => ???
+      case None             => ???
       case Some(statements) => statements.subtractAll(network)
     }
 
-  override def query(name: String, network: Seq[Statement]): Seq[Statement] = 
+  override def query(name: String, network: Seq[Statement]): Seq[Statement] =
     store.get(name) match {
       case None => ???
-      case Some(value) => 
+      case Some(value) =>
         value.toSeq
     }
 }
@@ -81,7 +81,7 @@ val inMemoryModule: WanderValue.Module =
           Tag.Untagged,
           (arguments, environment) =>
             arguments match {
-              case Seq(WanderValue.String(name)) => 
+              case Seq(WanderValue.String(name)) =>
                 instance.addNetwork(name)
                 Right((WanderValue.Module(Map.empty), environment))
               case _ => ???
@@ -97,7 +97,7 @@ val inMemoryModule: WanderValue.Module =
           Tag.Untagged,
           (arguments, environment) =>
             arguments match {
-              case Seq(WanderValue.String(name)) => 
+              case Seq(WanderValue.String(name)) =>
                 instance.removeNetwork(name)
                 Right((WanderValue.Module(Map.empty), environment))
               case _ => ???
@@ -114,10 +114,9 @@ val inMemoryModule: WanderValue.Module =
           Tag.Untagged,
           (arguments, environment) =>
             arguments match {
-              case Seq(WanderValue.String(name), WanderValue.Network(network)) => {
+              case Seq(WanderValue.String(name), WanderValue.Network(network)) =>
                 instance.add(name, network.toSeq)
                 Right((WanderValue.Network(Set.empty), environment))
-              }
               case _ => ???
             }
         )
@@ -132,10 +131,9 @@ val inMemoryModule: WanderValue.Module =
           Tag.Untagged,
           (arguments, environment) =>
             arguments match {
-              case Seq(WanderValue.String(name), WanderValue.Network(network)) => {
+              case Seq(WanderValue.String(name), WanderValue.Network(network)) =>
                 instance.add(name, network.toSeq)
                 Right((WanderValue.Network(Set.empty), environment))
-              }
               case _ => ???
             }
         )
@@ -150,13 +148,12 @@ val inMemoryModule: WanderValue.Module =
           Tag.Untagged,
           (arguments, environment) =>
             arguments match {
-              case Seq(WanderValue.String(name), WanderValue.Network(network)) => {
+              case Seq(WanderValue.String(name), WanderValue.Network(network)) =>
                 val res = instance.query(name, network.toSeq)
                 Right((WanderValue.Network(res.toSet), environment))
-              }
               case _ => ???
             }
         )
       )
+    )
   )
-)

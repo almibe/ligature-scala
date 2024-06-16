@@ -9,20 +9,18 @@ import dev.ligature.wander.Environment
 import java.nio.file.Paths
 import dev.ligature.wander.libraries.loadFromPath
 
-/**
- * Create a Environment with core HostFunctions
- * and all of the libraries in WANDER_LIBS directory.
- */
+/** Create a Environment with core HostFunctions
+  * and all of the libraries in WANDER_LIBS directory.
+  */
 def wanderLibs(): Environment =
   val path = Paths.get(sys.env("WANDER_LIBS"))
   loadFromPath(path) match {
     case Right(libs) => Environment(List(libs))
-    case Left(_) => ???
+    case Left(_)     => ???
   }
 
-/** 
- * Create the "default" environment for working with Wander.
- */
+/** Create the "default" environment for working with Wander.
+  */
 def std(): Environment =
   Environment()
     .bindVariable(Field("Array"), arrayModule)

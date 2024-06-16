@@ -170,11 +170,11 @@ val spacesTokenNib =
     .map(res => Token.Spaces(res.mkString))
 
 val slotNib = takeAll(
-    takeString("?"),
-    optional(concat(takeWhile { (c: String) =>
-      "[a-zA-Z0-9-._~:/?#\\[\\]@!$&'()*+,;%=]".r.matches(c)
-    })),
-  ).map(res => Token.Slot(res.tail.mkString))
+  takeString("?"),
+  optional(concat(takeWhile { (c: String) =>
+    "[a-zA-Z0-9-._~:/?#\\[\\]@!$&'()*+,;%=]".r.matches(c)
+  }))
+).map(res => Token.Slot(res.tail.mkString))
 
 val tokensNib: Nibbler[String, Seq[Token]] = repeat(
   takeFirst(
