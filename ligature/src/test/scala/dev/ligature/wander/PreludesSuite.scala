@@ -4,7 +4,7 @@
 
 // package dev.ligature.wander.preludes
 
-// import dev.ligature.{Identifier, LigatureValue, LigatureError, Statement}
+// import dev.ligature.{Word, LigatureValue, LigatureError, Statement}
 // import dev.ligature.wander.Token
 // import dev.ligature.wander.ScriptResult
 // import cats.effect.IO
@@ -12,7 +12,7 @@
 // import dev.ligature.wander.preludes.termsToStatements
 // import dev.ligature.wander.*
 
-// def i(i: String): Identifier = Identifier.fromString(i).getOrElse(???)
+// def i(i: String): Word = Word.fromString(i).getOrElse(???)
 
 // class LibrarysSuite extends munit.FunSuite {
 //   test("termsToStatements empty input") {
@@ -23,9 +23,9 @@
 //   test("termsToStatements single Statement") {
 //     val input = Seq(Term.List(
 //         Seq(
-//             Term.IdentifierLiteral(i("a")),
-//             Term.IdentifierLiteral(i("b")),
-//             Term.IdentifierLiteral(i("c")))))
+//             Term.WordLiteral(i("a")),
+//             Term.WordLiteral(i("b")),
+//             Term.WordLiteral(i("c")))))
 //     val expected = Right(Seq(Statement(i("a"), i("b"), i("c"))))
 //     assertEquals(termsToStatements(input, ListBuffer()), expected)
 //   }

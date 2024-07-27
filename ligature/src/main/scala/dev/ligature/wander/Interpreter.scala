@@ -15,7 +15,7 @@ enum Expression:
   case IntegerValue(value: Long)
   case Bytes(value: Seq[Byte])
   case StringValue(value: String, interpolated: Boolean = false)
-  case Identifier(value: String)
+  case Word(value: String)
   case Array(value: Seq[Expression])
   case Network(expressions: Seq[Expression])
   case Application(expressions: Seq[Expression])
@@ -32,8 +32,8 @@ def eval(
     case Expression.StringValue(value, interpolated) =>
       if interpolated then interpolateString(value, environment)
       else Right((WanderValue.String(value), environment))
-    case Expression.Identifier(value) =>
-      Right((WanderValue.Identifier(LigatureValue.Identifier(value)), environment))
+    case Expression.Word(value) =>
+      Right((WanderValue.Word(LigatureValue.Word(value)), environment))
     case Expression.Array(value)                   => handleArray(value, environment)
     case Expression.FieldExpression(field)         => readField(field, environment)
     case Expression.FieldPathExpression(fieldPath) => readFieldPath(fieldPath, environment)
@@ -135,18 +135,18 @@ def handleNetwork(
 ): Either[WanderError, (WanderValue, Environment)] =
   expressions match
     case Seq(
-          Expression.Identifier(entity),
-          Expression.Identifier(attribute),
-          Expression.Identifier(value)
+          Expression.Word(entity),
+          Expression.Word(attribute),
+          Expression.Word(value)
         ) =>
       Right(
         (
           WanderValue.Network(
             Set(
               Statement(
-                LigatureValue.Identifier(entity),
-                LigatureValue.Identifier(attribute),
-                LigatureValue.Identifier(value)
+                LigatureValue.Word(entity),
+                LigatureValue.Word(attribute),
+                LigatureValue.Word(value)
               )
             )
           ),
@@ -177,22 +177,22 @@ def handleApplication(
     environment: Environment
 ): Either[WanderError, (WanderValue, Environment)] =
   expression.head match {
-    case Expression.Identifier(identifier) =>
+    case Expression.Word(word) =>
       expression match
         case Seq(
-              Expression.Identifier(entity),
-              Expression.Identifier(attribute),
+              Expression.Word(entity),
+              Expression.Word(attribute),
               value: Expression
             ) =>
           value match
-            case Expression.Identifier(value) => ???
+            case Expression.Word(value) => ???
               // Right(
               //   (
               //     WanderValue.Statement(
               //       Statement(
-              //         LigatureValue.Identifier(entity),
-              //         LigatureValue.Identifier(attribute),
-              //         LigatureValue.Identifier(value)
+              //         LigatureValue.Word(entity),
+              //         LigatureValue.Word(attribute),
+              //         LigatureValue.Word(value)
               //       )
               //     ),
               //     environment
@@ -203,8 +203,8 @@ def handleApplication(
               //   (
               //     WanderValue.Statement(
               //       Statement(
-              //         LigatureValue.Identifier(entity),
-              //         LigatureValue.Identifier(attribute),
+              //         LigatureValue.Word(entity),
+              //         LigatureValue.Word(attribute),
               //         LigatureValue.IntegerValue(value)
               //       )
               //     ),
@@ -216,8 +216,8 @@ def handleApplication(
               //   (
               //     WanderValue.Statement(
               //       Statement(
-              //         LigatureValue.Identifier(entity),
-              //         LigatureValue.Identifier(attribute),
+              //         LigatureValue.Word(entity),
+              //         LigatureValue.Word(attribute),
               //         LigatureValue.BytesValue(value)
               //       )
               //     ),
@@ -231,8 +231,8 @@ def handleApplication(
               //       (
               //         WanderValue.Statement(
               //           Statement(
-              //             LigatureValue.Identifier(entity),
-              //             LigatureValue.Identifier(attribute),
+              //             LigatureValue.Word(entity),
+              //             LigatureValue.Word(attribute),
               //             LigatureValue.StringValue(result)
               //           )
               //         ),
@@ -276,7 +276,7 @@ def wanderToLigatureValue(value: WanderValue): LigatureValue =
     case WanderValue.Bytes(value)      => LigatureValue.BytesValue(value)
     case WanderValue.Int(value)        => LigatureValue.IntegerValue(value)
     case WanderValue.String(value)     => LigatureValue.StringValue(value)
-    case WanderValue.Identifier(value) => value
+    case WanderValue.Word(value) => value
     case _                             => ???
 
 def callArray(

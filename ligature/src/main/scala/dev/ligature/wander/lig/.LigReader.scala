@@ -8,7 +8,7 @@
 // import dev.ligature.gaze.*
 // import dev.ligature.idgen.genId
 // import dev.ligature.lig.LigNibblers.{numberNibbler, stringContentNibbler, whiteSpaceAndNewLineNibbler, whiteSpaceNibbler}
-// import dev.ligature.lig.{createIdentifier, parseIntegerValue, parseStringValue}
+// import dev.ligature.lig.{createWord, parseIntegerValue, parseStringValue}
 
 // import scala.collection.mutable.{ArrayBuffer, HashMap}
 
@@ -63,11 +63,11 @@
 // //    _ <- gaze
 // //      .attempt(optional(whiteSpaceAndNewLineNibbler))
 // //      .toRight(LigError("Error parsing optional whitespace before Statement"))
-// //    entity <- parseIdentifier(gaze)
+// //    entity <- parseWord(gaze)
 // //    _ <- gaze
 // //      .attempt(whiteSpaceNibbler)
 // //      .toRight(LigError("Error parsing whitespace after Entity"))
-// //    attribute <- parseIdentifier(gaze)
+// //    attribute <- parseWord(gaze)
 // //    _ <- gaze
 // //      .attempt(whiteSpaceNibbler)
 // //      .toRight(LigError("Error parsing whitespace after Attribute"))
@@ -77,11 +77,11 @@
 // //      .toRight(LigError(""))
 // //  } yield Statement(entity, attribute, value)
 
-// def createIdentifier(id: String): Either[LigError, Identifier] =
-//   Identifier
+// def createWord(id: String): Either[LigError, Word] =
+//   Word
 //     .fromString(id)
 //     .left
-//     .map(_ => LigError("Invalid Identifier Id - $id"))
+//     .map(_ => LigError("Invalid Word Id - $id"))
 
 // def parseIntegerValue(gaze: Gaze[Char]): Either[LigError, LigatureValue.IntegerValue] =
 //   gaze.attempt(numberNibbler) match {
@@ -166,11 +166,11 @@
 //     _ <- gaze
 //       .attempt(optional(whiteSpaceAndNewLineNibbler))
 //       .toRight(LigError("Error parsing optional whitespace before Statement"))
-//     entity <- parseIdentifier(gaze, prefixes, lastEntity(lastStatement))
+//     entity <- parseWord(gaze, prefixes, lastEntity(lastStatement))
 //     _ <- gaze
 //       .attempt(whiteSpaceNibbler)
 //       .toRight(LigError("Error parsing whitespace after Entity"))
-//     attribute <- parseIdentifier(gaze, prefixes, lastAttribute(lastStatement))
+//     attribute <- parseWord(gaze, prefixes, lastAttribute(lastStatement))
 //     _ <- gaze
 //       .attempt(whiteSpaceNibbler)
 //       .toRight(LigError("Error parsing whitespace after Attribute"))
@@ -180,13 +180,13 @@
 //       .toRight(LigError(""))
 //   } yield Statement(entity, attribute, value)
 
-// def lastEntity(lastStatement: Option[Statement]): Option[Identifier] =
+// def lastEntity(lastStatement: Option[Statement]): Option[Word] =
 //   lastStatement match {
 //     case None            => None
 //     case Some(statement) => Some(statement.entity)
 //   }
 
-// def lastAttribute(lastStatement: Option[Statement]): Option[Identifier] =
+// def lastAttribute(lastStatement: Option[Statement]): Option[Word] =
 //   lastStatement match {
 //     case None            => None
 //     case Some(statement) => Some(statement.attribute)
@@ -198,15 +198,15 @@
 //     case Some(statement) => Some(statement.value)
 //   }
 
-// def parseIdentifier(
+// def parseWord(
 //     gaze: Gaze[Char],
 //     prefixes: Map[String, String],
-//     lastIdentifier: Option[Identifier]
-// ): Either[LigError, Identifier] = {
+//     lastWord: Option[Word]
+// ): Either[LigError, Word] = {
 //   // attempt copy character
 //   val copyChar = gaze.attempt(LigNibblers.copyNibbler)
 //   if (copyChar.isDefined) {
-//     lastIdentifier match {
+//     lastWord match {
 //       case None =>
 //         return Left(
 //           LigError("Can't Use Copy Character Without Existing Instance.")
@@ -251,11 +251,11 @@
 //     }
 //   }
 
-//   Left(LigError(s"Could not match Identifier. ${gaze.location}"))
+//   Left(LigError(s"Could not match Word. ${gaze.location}"))
 // }
 
-// def handleIdGenId(input: String): Either[LigError, Identifier] =
-//   Identifier.fromString(genIdId(input)).left.map(err => LigError(err.userMessage))
+// def handleIdGenId(input: String): Either[LigError, Word] =
+//   Word.fromString(genIdId(input)).left.map(err => LigError(err.userMessage))
 
 // def genIdId(input: String): String = {
 //   val itr = input.toCharArray.iterator
@@ -273,13 +273,13 @@
 // def handlePrefixedId(
 //     input: Seq[Seq[Char]],
 //     prefixes: Map[String, String]
-// ): Either[LigError, Identifier] = {
+// ): Either[LigError, Word] = {
 //   val prefixName = input(0).mkString
 //   prefixes.get(prefixName) match {
 //     case None => Left(LigError(s"Prefix Name $prefixName, Doesn't Exist."))
 //     case Some(prefixValue) =>
 //       val postfix = input(2).mkString
-//       Identifier
+//       Word
 //         .fromString(prefixValue + postfix)
 //         .left
 //         .map(err => LigError(err.userMessage))
@@ -289,13 +289,13 @@
 // def handlePrefixedGenId(
 //     input: Seq[Seq[Char]],
 //     prefixes: Map[String, String]
-// ): Either[LigError, Identifier] = {
+// ): Either[LigError, Word] = {
 //   val prefixName = input(0).mkString
 //   prefixes.get(prefixName) match {
 //     case None => Left(LigError(s"Prefix Name $prefixName, Doesn't Exist."))
 //     case Some(prefixValue) =>
 //       val postfix = input(2).mkString
-//       Identifier
+//       Word
 //         .fromString(genIdId(prefixValue + postfix))
 //         .left
 //         .map(err => LigError(err.userMessage))
@@ -319,7 +319,7 @@
 //     }
 //   }
 
-//   val entityRes = parseIdentifier(
+//   val entityRes = parseWord(
 //     gaze,
 //     prefixes,
 //     None

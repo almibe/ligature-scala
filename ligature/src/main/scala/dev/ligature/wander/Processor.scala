@@ -31,7 +31,7 @@ def process(term: Term): Either[WanderError, Expression] =
     case Term.Grouping(terms)                 => processGrouping(terms)
     case Term.Application(terms)              => processApplication(terms)
     case Term.Bytes(value)                    => Right(Expression.Bytes(value))
-    case Term.Identifier(value)               => Right(Expression.Identifier(value))
+    case Term.Word(value)               => Right(Expression.Word(value))
     case Term.Network(roots)                    => processNetwork(roots)
     case Term.NetworkRoot(_)                    => ??? // TODO probably return error?
   }
@@ -41,15 +41,15 @@ def processNetwork(terms: Seq[Term.NetworkRoot]): Either[WanderError, Expression
   terms match {
     case Seq(
           Term.NetworkRoot(
-            Seq(Term.Identifier(entity), Term.Identifier(attribute), Term.Identifier(value))
+            Seq(Term.Word(entity), Term.Word(attribute), Term.Word(value))
           )
         ) =>
       Right(
         Expression.Network(
           Seq(
-            Expression.Identifier(entity),
-            Expression.Identifier(attribute),
-            Expression.Identifier(value)
+            Expression.Word(entity),
+            Expression.Word(attribute),
+            Expression.Word(value)
           )
         )
       )

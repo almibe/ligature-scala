@@ -35,7 +35,7 @@ def std(): Environment =
     // .bindVariable(Field("String"), stringModule)
     // .bindVariable(Field("Test"), testingModule)
     // .bindVariable(Field("Id"), idModule)
-    // .bindVariable(Field("Identifier"), identifierModule)
+    // .bindVariable(Field("Word"), wordModule)
     // .bindVariable(Field("InMemory"), inMemoryModule)
 //    .bindVariable(Field("Xodus"), xodusModule)
     // .bindVariable(Field("import"), importFunction)

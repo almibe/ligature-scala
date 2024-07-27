@@ -5,18 +5,18 @@
 // package dev.ligature.lig
 
 // import munit.FunSuite
-// import dev.ligature.{Identifier, LigatureValue, Statement}
+// import dev.ligature.{Word, LigatureValue, Statement}
 // import dev.ligature.gaze.Gaze
 
 // class LigSuite extends FunSuite {
-//   val testIdentifier = Identifier.fromString("test").getOrElse(???)
-//   def identifier(id: String) = Identifier.fromString(id).getOrElse(???)
+//   val testWord = Word.fromString("test").getOrElse(???)
+//   def word(id: String) = Word.fromString(id).getOrElse(???)
 
 //   test("basic Statement with all Entities") {
 //     val statement = Statement(
-//       identifier("e1"),
-//       identifier("a1"),
-//       identifier("e2")
+//       word("e1"),
+//       word("a1"),
+//       word("e2")
 //     )
 //     val lines = write(List(statement).iterator)
 //     val resStatements = read(lines)
@@ -29,18 +29,18 @@
 //   test("list of Statements with Literal Values") {
 //     val statements = List(
 //       Statement(
-//         identifier("e1"),
-//         identifier("a1"),
-//         identifier("e2")
+//         word("e1"),
+//         word("a1"),
+//         word("e2")
 //       ),
 //       Statement(
-//         identifier("e2"),
-//         identifier("a2"),
+//         word("e2"),
+//         word("a2"),
 //         LigatureValue.StringValue("string literal")
 //       ),
 //       Statement(
-//         identifier("e2"),
-//         identifier("a3"),
+//         word("e2"),
+//         word("a3"),
 //         LigatureValue.IntegerValue(Long.MaxValue)
 //       )
 //     )
@@ -60,9 +60,9 @@
 //         |<a> <b> "Test"
 //         |""".stripMargin
 //     val expectedStatements = Set(
-//       Statement(identifier("a"), identifier("b"), identifier("c")),
-//       Statement(identifier("a"), identifier("b"), LigatureValue.IntegerValue(123)),
-//       Statement(identifier("a"), identifier("b"), LigatureValue.StringValue("Test")),
+//       Statement(word("a"), word("b"), word("c")),
+//       Statement(word("a"), word("b"), LigatureValue.IntegerValue(123)),
+//       Statement(word("a"), word("b"), LigatureValue.StringValue("Test")),
 //     )
 //     val resStatements = read(statements)
 //     resStatements match {
@@ -71,18 +71,18 @@
 //     }
 //   }
 
-//   test("parse identifiers") {
+//   test("parse words") {
 //     val test = "<test>"
-//     val identifier = parseIdentifier(Gaze.from(test), Map(), None)
-//     assertEquals(identifier, Right(testIdentifier))
+//     val word = parseWord(Gaze.from(test), Map(), None)
+//     assertEquals(word, Right(testWord))
 //   }
 
-//   test("parse complex identifier") {
-//     val identifierS = "<http$://&&this@2]34.[42;342?#--__>"
-//     val identifierRes = parseIdentifier(Gaze.from(identifierS), Map(), None)
+//   test("parse complex word") {
+//     val wordS = "<http$://&&this@2]34.[42;342?#--__>"
+//     val wordRes = parseWord(Gaze.from(wordS), Map(), None)
 //     assertEquals(
-//       identifierRes,
-//       Right(identifier("http$://&&this@2]34.[42;342?#--__"))
+//       wordRes,
+//       Right(word("http$://&&this@2]34.[42;342?#--__"))
 //     )
 //   }
 
@@ -98,8 +98,8 @@
 //     assertEquals(res, Right(LigatureValue.StringValue("3452345\\nHello")))
 //   }
 
-//   test("write identifiers") {
-//     val res = writeIdentifier(testIdentifier)
+//   test("write words") {
+//     val res = writeWord(testWord)
 //     assertEquals(res, "<test>")
 //   }
 

@@ -25,10 +25,10 @@ import scala.collection.mutable.ArrayBuffer
 import dev.ligature.gaze.between
 import dev.ligature.gaze.takeAny
 import java.util.HexFormat
-import dev.ligature.wander.LigNibblers.identifierNibbler
+import dev.ligature.wander.LigNibblers.wordNibbler
 
 enum Token:
-  case Identifier(value: String)
+  case Word(value: String)
   case Slot(value: String)
   case BooleanLiteral(value: Boolean)
   case Spaces(value: String)
@@ -162,8 +162,8 @@ val lambdaTokenNib =
 val integerTokenNib =
   LigNibblers.numberNibbler.map(res => Token.IntegerValue(res.mkString.toLong))
 
-val identifierTokenNib =
-  LigNibblers.identifierNibbler.map(res => Token.Identifier(res))
+val wordTokenNib =
+  LigNibblers.wordNibbler.map(res => Token.Word(res))
 
 val spacesTokenNib =
   concat(takeWhile[String](_ == " "))
@@ -179,7 +179,7 @@ val slotNib = takeAll(
 val tokensNib: Nibbler[String, Seq[Token]] = repeat(
   takeFirst(
     spacesTokenNib,
-    identifierTokenNib,
+    wordTokenNib,
     stringTokenNib,
     nameTokenNib,
     colonTokenNib,
@@ -222,7 +222,7 @@ object LigNibblers {
       )
     )
 
-  val identifierNibbler: Nibbler[String, String] = between(
+  val wordNibbler: Nibbler[String, String] = between(
     takeString("`"),
     concat(takeWhile { (c: String) =>
       "[a-zA-Z0-9-._~:/?#\\[\\]@!$&'()*+,;%=]".r.matches(c)
@@ -294,7 +294,7 @@ object LigNibblers {
   // private val validPrefixName =
   //   (('a' to 'z') ++ ('A' to 'Z') ++ ('0' to '9')).toList.appended('_')
 
-  // val identifierIdGenNibbler = ??? //matches <{}> <prefix:{}> <{}:postfix> <pre:{}:post> etc
-  // val prefixedIdentifierNibbler = ??? //matches prefix:value:after:prefix
+  // val wordIdGenNibbler = ??? //matches <{}> <prefix:{}> <{}:postfix> <pre:{}:post> etc
+  // val prefixedWordNibbler = ??? //matches prefix:value:after:prefix
   // val prefixedIdGenNibbler = ??? // matches prefix:value:after:prefix:{}
 }

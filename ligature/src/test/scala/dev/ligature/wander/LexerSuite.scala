@@ -38,9 +38,9 @@ class LexerSuite extends FunSuite {
     )
     check(script, tokens)
   }
-  test("tokenize Identifier") {
+  test("tokenize Word") {
     val script = "`hello`"
-    val tokens = Right(Seq(Token.Identifier("hello")))
+    val tokens = Right(Seq(Token.Word("hello")))
     check(script, tokens)
   }
   test("tokenize Slot") {

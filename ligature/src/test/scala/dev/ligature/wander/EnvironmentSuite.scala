@@ -7,8 +7,8 @@ package dev.ligature.wander
 import munit.FunSuite
 
 class EnvironmentSuite extends FunSuite {
-  // private val identifier = TaggedField(Field("test"), Tag.Untagged)
-  // private val identifier2 = TaggedField(Field("test2"), Tag.Untagged)
+  // private val word = TaggedField(Field("test"), Tag.Untagged)
+  // private val word2 = TaggedField(Field("test2"), Tag.Untagged)
 
   // private val value1 = WanderValue.String("this is a test")
   // private val value2 = WanderValue.String("this is a test2")
@@ -16,27 +16,27 @@ class EnvironmentSuite extends FunSuite {
 
   // test("add single value and read") {
   //   val environment = Environment()
-  //   val environment2 = environment.bindVariable(identifier, value1).getOrElse(???)
-  //   val res = environment.read(identifier.field)
-  //   val res2 = environment2.read(identifier.field)
+  //   val environment2 = environment.bindVariable(word, value1).getOrElse(???)
+  //   val res = environment.read(word.field)
+  //   val res2 = environment2.read(word.field)
 
   //   assertEquals(res, Right(None))
-  //   assertEquals(environment.read(identifier2.field), Right(None))
+  //   assertEquals(environment.read(word2.field), Right(None))
   //   assertEquals(res2, Right(Some(value1)))
-  //   assertEquals(environment2.read(identifier2.field), Right(None))
+  //   assertEquals(environment2.read(word2.field), Right(None))
   // }
 
   // test("test scoping") {
   //   val environment = Environment()
-  //   val environment2 = environment.bindVariable(identifier, value1).getOrElse(???)
-  //   assertEquals(environment2.read(identifier.field), Right(Some(value1)))
+  //   val environment2 = environment.bindVariable(word, value1).getOrElse(???)
+  //   assertEquals(environment2.read(word.field), Right(Some(value1)))
 
   //   val environment3 = environment2.newScope()
-  //   assertEquals(environment3.read(identifier.field), Right(Some(value1)))
+  //   assertEquals(environment3.read(word.field), Right(Some(value1)))
 
-  //   val environment4 = environment3.bindVariable(identifier, value2).getOrElse(???)
-  //   val environment5 = environment4.bindVariable(identifier2, value3).getOrElse(???)
-  //   assertEquals(environment5.read(identifier.field), Right(Some(value2)))
-  //   assertEquals(environment5.read(identifier2.field), Right(Some(value3)))
+  //   val environment4 = environment3.bindVariable(word, value2).getOrElse(???)
+  //   val environment5 = environment4.bindVariable(word2, value3).getOrElse(???)
+  //   assertEquals(environment5.read(word.field), Right(Some(value2)))
+  //   assertEquals(environment5.read(word2.field), Right(Some(value3)))
   // }
 }

@@ -19,7 +19,7 @@
 //   takeWhile,
 //   optional
 // }
-// import dev.ligature.{Identifier, Statement, LigatureValue, Value}
+// import dev.ligature.{Word, Statement, LigatureValue, Value}
 
 // object LigNibblers {
 //   val whiteSpaceNibbler = takeCharacters(' ', '\t')
@@ -27,7 +27,7 @@
 //   val numberNibbler =
 //     takeAll(optional(take('-')), takeCharacters(('0' to '9').toSeq*))
 
-//   val identifierNibbler = between(
+//   val wordNibbler = between(
 //     takeString("<"),
 //     takeWhile { c =>
 //       "[a-zA-Z0-9-._~:/?#\\[\\]@!$&'()*+,;%=]".r.matches(c.toString)
@@ -101,7 +101,7 @@
 //   val copyNibbler = takeString("^") // matches ^
 
 //   val idGenNibbler = takeString("{}") // matches {}
-//   // val identifierIdGenNibbler = ??? //matches <{}> <prefix:{}> <{}:postfix> <pre:{}:post> etc
-//   // val prefixedIdentifierNibbler = ??? //matches prefix:value:after:prefix
+//   // val wordIdGenNibbler = ??? //matches <{}> <prefix:{}> <{}:postfix> <pre:{}:post> etc
+//   // val prefixedWordNibbler = ??? //matches prefix:value:after:prefix
 //   // val prefixedIdGenNibbler = ??? // matches prefix:value:after:prefix:{}
 // }

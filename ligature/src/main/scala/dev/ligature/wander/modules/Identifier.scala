@@ -12,34 +12,34 @@ package dev.ligature.wander.modules
 // import dev.ligature.wander.LigatureValue
 // import dev.ligature.wander.WanderError
 
-val identifier = 0
+val word = 0
 
-// val identifierModule: WanderValue.Module = WanderValue.Module(
+// val wordModule: WanderValue.Module = WanderValue.Module(
 //   Map(
 //     Field("toString") -> WanderValue.Function(
 //       HostFunction(
-//         "Convert an Identifier to a String.",
+//         "Convert an Word to a String.",
 //         Seq(
-//           TaggedField(Field("identifier"), Tag.Untagged)
+//           TaggedField(Field("word"), Tag.Untagged)
 //         ),
 //         Tag.Untagged,
 //         (arguments, environment) =>
 //           arguments match
-//             case Seq(WanderValue.Identifier(value)) =>
+//             case Seq(WanderValue.Word(value)) =>
 //               Right((WanderValue.String(s"`${value.value}`"), environment))
 //             case _ => Left(WanderError("Unexpected value."))
 //       )
 //     ),
 //     Field("value") -> WanderValue.Function(
 //       HostFunction(
-//         "Get value of Identifier as a String.",
+//         "Get value of Word as a String.",
 //         Seq(
-//           TaggedField(Field("identifier"), Tag.Untagged)
+//           TaggedField(Field("word"), Tag.Untagged)
 //         ),
 //         Tag.Untagged,
 //         (arguments, environment) =>
 //           arguments match
-//             case Seq(WanderValue.Identifier(value)) =>
+//             case Seq(WanderValue.Word(value)) =>
 //               Right((WanderValue.String(value.value), environment))
 //             case _ => Left(WanderError("Unexpected value."))
 //       )

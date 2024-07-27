@@ -21,8 +21,8 @@ case class Test2(val x: Int)
 //     * calling allStatements.
 //     */
 //   override def matchStatements(
-//       entity: Option[LigatureValue.Identifier],
-//       attribute: Option[LigatureValue.Identifier],
+//       entity: Option[LigatureValue.Word],
+//       attribute: Option[LigatureValue.Word],
 //       value: Option[LigatureValue]
 //   ): Iterator[Statement] = {
 //     var res = store.edges.iterator
@@ -42,8 +42,8 @@ case class Test2(val x: Int)
 //    * parameter is None then it matches all.
 //    */
 //  override def matchStatementsRange(
-//      source: Option[Identifier],
-//      label: Option[Identifier],
+//      source: Option[Word],
+//      label: Option[Word],
 //      range: dev.ligature.Range
 //  ): Iterator[Statement] = {
 //    var res = Stream.emits(store.edges.toSeq)

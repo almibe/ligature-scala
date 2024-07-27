@@ -18,9 +18,9 @@ class LiteralsSuite extends munit.FunSuite {
     val result = WanderValue.Bytes(Seq(1.byteValue, -1.byteValue))
     check(script, result)
   }
-  test("Identifier literal") {
+  test("Word literal") {
     val script = "`0x01FF`"
-    val result = WanderValue.Identifier(LigatureValue.Identifier("0x01FF"))
+    val result = WanderValue.Word(LigatureValue.Word("0x01FF"))
     check(script, result)
   }
   test("test printing bytes") {

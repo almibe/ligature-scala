@@ -27,7 +27,7 @@ val id = 0
 //         (arguments, environment) =>
 //           Right(
 //             (
-//               WanderValue.Identifier(LigatureValue.Identifier(TSID.Factory.getTsid().toString())),
+//               WanderValue.Word(LigatureValue.Word(TSID.Factory.getTsid().toString())),
 //               environment
 //             )
 //           )
@@ -43,7 +43,7 @@ val id = 0
 //         (arguments, environment) =>
 //           Right(
 //             (
-//               WanderValue.Identifier(LigatureValue.Identifier(UlidCreator.getUlid().toLowerCase())),
+//               WanderValue.Word(LigatureValue.Word(UlidCreator.getUlid().toLowerCase())),
 //               environment
 //             )
 //           )

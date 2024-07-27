@@ -20,7 +20,7 @@ val statementModule = 0//: WanderValue.Module = WanderValue.Module(
 //         (args, environment) =>
 //           args match
 //             case Seq(WanderValue.Statement(statement)) =>
-//               Right((WanderValue.Identifier(statement.entity), environment))
+//               Right((WanderValue.Word(statement.entity), environment))
 //             case _ => Left(WanderError("Unexpected value."))
 //       )
 //     ),
@@ -34,7 +34,7 @@ val statementModule = 0//: WanderValue.Module = WanderValue.Module(
 //         (args, environment) =>
 //           args match
 //             case Seq(WanderValue.Statement(statement)) =>
-//               Right((WanderValue.Identifier(statement.attribute), environment))
+//               Right((WanderValue.Word(statement.attribute), environment))
 //             case _ => Left(WanderError("Unexpected value."))
 //       )
 //     ),
@@ -49,8 +49,8 @@ val statementModule = 0//: WanderValue.Module = WanderValue.Module(
 //           args match
 //             case Seq(WanderValue.Statement(statement)) =>
 //               statement.value match {
-//                 case identifier: LigatureValue.Identifier =>
-//                   Right((WanderValue.Identifier(identifier), environment))
+//                 case word: LigatureValue.Word =>
+//                   Right((WanderValue.Word(word), environment))
 //                 case LigatureValue.StringValue(value) =>
 //                   Right((WanderValue.String(value), environment))
 //                 case LigatureValue.IntegerValue(value) =>

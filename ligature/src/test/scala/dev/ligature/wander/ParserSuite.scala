@@ -39,15 +39,15 @@ class ParserSuite extends FunSuite {
     val expected = Right(Seq(Term.Bytes(Seq(17.byteValue))))
     assertEquals(result, expected)
   }
-  test("parse Identifier") {
+  test("parse Word") {
     val result = check("`hello`")
-    val expected = Right(Seq(Term.Identifier("hello")))
+    val expected = Right(Seq(Term.Word("hello")))
     assertEquals(result, expected)
   }
   test("parse Statement") {
     val result = check("`a` `b` `c`")
     val expected = Right(
-      Seq(Term.Application(Seq(Term.Identifier("a"), Term.Identifier("b"), Term.Identifier("c"))))
+      Seq(Term.Application(Seq(Term.Word("a"), Term.Word("b"), Term.Word("c"))))
     )
     assertEquals(result, expected)
   }
@@ -217,7 +217,7 @@ class ParserSuite extends FunSuite {
     val expected = Right(
       Seq(
         Term.Network(
-          Seq(Term.NetworkRoot(Seq(Term.Identifier("a"), Term.Identifier("b"), Term.Identifier("c"))))
+          Seq(Term.NetworkRoot(Seq(Term.Word("a"), Term.Word("b"), Term.Word("c"))))
         )
       )
     )
@@ -229,9 +229,9 @@ class ParserSuite extends FunSuite {
       Seq(
         Term.Network(
           Seq(
-            Term.NetworkRoot(Seq(Term.Identifier("a"), Term.Identifier("b"), Term.Identifier("c"))),
-            Term.NetworkRoot(Seq(Term.Identifier("a"), Term.Identifier("b"), Term.Identifier("d"))),
-            Term.NetworkRoot(Seq(Term.Identifier("b"), Term.Identifier("c"), Term.Identifier("d")))
+            Term.NetworkRoot(Seq(Term.Word("a"), Term.Word("b"), Term.Word("c"))),
+            Term.NetworkRoot(Seq(Term.Word("a"), Term.Word("b"), Term.Word("d"))),
+            Term.NetworkRoot(Seq(Term.Word("b"), Term.Word("c"), Term.Word("d")))
           )
         )
       )
@@ -351,8 +351,8 @@ class ParserSuite extends FunSuite {
   //     Seq(
   //       Term.Application(
   //         Seq(
-  //           Term.Identifier("a"),
-  //           Term.Identifier("a"),
+  //           Term.Word("a"),
+  //           Term.Word("a"),
   //           Term.Module(Seq())
   //         )
   //       )

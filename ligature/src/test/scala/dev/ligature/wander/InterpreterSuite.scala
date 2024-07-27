@@ -26,9 +26,9 @@ class InterpreterSuite extends FunSuite {
   //   val script = "`a` `b` `c`"
   //   val result = WanderValue.Statement(
   //     Statement(
-  //       LigatureValue.Identifier("a"),
-  //       LigatureValue.Identifier("b"),
-  //       LigatureValue.Identifier("c")
+  //       LigatureValue.Word("a"),
+  //       LigatureValue.Word("b"),
+  //       LigatureValue.Word("c")
   //     )
   //   )
   //   check(script, result)
@@ -38,9 +38,9 @@ class InterpreterSuite extends FunSuite {
     val result = WanderValue.Network(
       Set(
         Statement(
-          LigatureValue.Identifier("a"),
-          LigatureValue.Identifier("b"),
-          LigatureValue.Identifier("c")
+          LigatureValue.Word("a"),
+          LigatureValue.Word("b"),
+          LigatureValue.Word("c")
         )
       )
     )
@@ -50,8 +50,8 @@ class InterpreterSuite extends FunSuite {
   //   val script = "`a` `a` {}"
   //   val result = WanderValue.Statement(
   //     Statement(
-  //       LigatureValue.Identifier("a"),
-  //       LigatureValue.Identifier("a"),
+  //       LigatureValue.Word("a"),
+  //       LigatureValue.Word("a"),
   //       LigatureValue.Record(Map())
   //     )
   //   )

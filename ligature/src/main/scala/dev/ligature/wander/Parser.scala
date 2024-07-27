@@ -21,7 +21,7 @@ enum Term:
   case StringValue(value: String, interpolated: Boolean = false)
   case Slot(name: String)
   case Array(value: Seq[Term])
-  case Identifier(value: String)
+  case Word(value: String)
   case Network(roots: Seq[NetworkRoot])
   case NetworkRoot(terms: Seq[Term])
   case Application(terms: Seq[Term])
@@ -72,9 +72,9 @@ val stringNib: Nibbler[Token, Term.StringValue] = gaze =>
     case Some(Token.StringValue(s, i)) => Result.Match(Term.StringValue(s, i))
     case _                             => Result.NoMatch
 
-val identifierNib: Nibbler[Token, Term.Identifier] = gaze =>
+val wordNib: Nibbler[Token, Term.Word] = gaze =>
   gaze.next() match
-    case Some(Token.Identifier(value)) => Result.Match(Term.Identifier(value))
+    case Some(Token.Word(value)) => Result.Match(Term.Word(value))
     case _                        => Result.NoMatch
 
 val fieldNib: Nibbler[Token, Field] = gaze =>
@@ -171,9 +171,9 @@ val fieldPathTermNib: Nibbler[Token, Term.FieldPathTerm] =
 val networkNib: Nibbler[Token, Term.Network] = { gaze =>
   val res = for
     _ <- gaze.attempt(take(Token.OpenBrace))
-    entity <- gaze.attempt(takeFirst(identifierNib, slotTermNib))
-    attribute <- gaze.attempt(takeFirst(identifierNib, slotTermNib))
-    value <- gaze.attempt(takeFirst(identifierNib, slotTermNib))
+    entity <- gaze.attempt(takeFirst(wordNib, slotTermNib))
+    attribute <- gaze.attempt(takeFirst(wordNib, slotTermNib))
+    value <- gaze.attempt(takeFirst(wordNib, slotTermNib))
     _ <- gaze.attempt(take(Token.CloseBrace))
   yield Term.Network(Seq(Term.NetworkRoot(Seq(entity, attribute, value))))
   res match
@@ -203,7 +203,7 @@ val groupingNib: Nibbler[Token, Term.Grouping] = { gaze =>
 val applicationInternalNib =
   takeFirst(
     groupingNib,
-    identifierNib,
+    wordNib,
     stringNib,
     bytesNib,
     integerNib,
@@ -217,7 +217,7 @@ val expressionNib =
   takeFirst(
     applicationNib,
     groupingNib,
-    identifierNib,
+    wordNib,
     stringNib,
     bytesNib,
     integerNib,

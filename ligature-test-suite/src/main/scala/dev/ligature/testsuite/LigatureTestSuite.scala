@@ -15,11 +15,11 @@ case class Test(val x: Int)
 //   val testDataset = DatasetName("test/test")
 //   val testDataset2 = DatasetName("test/test2")
 //   val testDataset3 = DatasetName("test3/test")
-//   val a: LigatureValue.Identifier = LigatureValue.Identifier("a")
-//   val b: LigatureValue.Identifier = LigatureValue.Identifier("b")
-//   val label1: LigatureValue.Identifier = LigatureValue.Identifier("a")
-//   val label2: LigatureValue.Identifier = LigatureValue.Identifier("b")
-//   val label3: LigatureValue.Identifier = LigatureValue.Identifier("c")
+//   val a: LigatureValue.Word = LigatureValue.Word("a")
+//   val b: LigatureValue.Word = LigatureValue.Word("b")
+//   val label1: LigatureValue.Word = LigatureValue.Word("a")
+//   val label2: LigatureValue.Word = LigatureValue.Word("b")
+//   val label3: LigatureValue.Word = LigatureValue.Word("c")
 
 //   val setup = FunFixture[Ligature](
 //     setup = { test =>
@@ -173,15 +173,15 @@ case class Test(val x: Int)
 //     )
 //   }
 
-// // //   // setup.test("new identifiers") {
+// // //   // setup.test("new words") {
 // // //   //   val instance = createLigature
 // // //   //   val res = for {
 // // //   //     _ <- instance.createDataset(testDataset)
 // // //   //     _ <- instance.write(testDataset) { tx =>
 // // //   //       for {
-// // //   //         entity <- tx.newIdentifier("entity-")
-// // //   //         attribute <- tx.newIdentifier("attribute-")
-// // //   //         value <- tx.newIdentifier("value-")
+// // //   //         entity <- tx.newWord("entity-")
+// // //   //         attribute <- tx.newWord("attribute-")
+// // //   //         value <- tx.newWord("value-")
 // // //   //         _ <- tx.addStatement(Statement(entity, attribute, value))
 // // //   //       } yield IO.unit
 // // //   //     }
@@ -193,7 +193,7 @@ case class Test(val x: Int)
 // // //   //     assert(it.entity.name.startsWith("entity-"))
 // // //   //     assert(it.attribute.name.startsWith("attribute-"))
 // // //   //     it.value match {
-// // //   //       case Identifier(id) => assert(id.startsWith("value-"))
+// // //   //       case Word(id) => assert(id.startsWith("value-"))
 // // //   //       case _              => assert(false)
 // // //   //     }
 // // //   //   }

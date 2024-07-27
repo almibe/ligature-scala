@@ -5,19 +5,19 @@
 // package dev.ligature.lig
 
 // import dev.ligature.gaze.Gaze
-// import dev.ligature.{Identifier, Statement, LigatureValue}
+// import dev.ligature.{Word, Statement, LigatureValue}
 // import munit.FunSuite
 
 // class LigInputSuite extends FunSuite {
 //   test("id gen") {
-//     val input = parseIdentifier(Gaze.from("<{}>"), Map(), None).getOrElse(???)
+//     val input = parseWord(Gaze.from("<{}>"), Map(), None).getOrElse(???)
 //     val resultRegEx = "[0-9_\\-a-fA-F]{12}".r
 //     assert(resultRegEx.matches(input.name))
 //   }
 
 //   test("id gen with prefix") {
 //     val input =
-//       parseIdentifier(Gaze.from("<this:is:a/prefix{}>"), Map(), None)
+//       parseWord(Gaze.from("<this:is:a/prefix{}>"), Map(), None)
 //         .getOrElse(???)
 //     val resultRegEx = "this:is:a/prefix[0-9_\\-a-fA-F]{12}".r
 //     assert(resultRegEx.matches(input.name))
@@ -25,7 +25,7 @@
 
 //   test("id gen in infix") {
 //     val input =
-//       parseIdentifier(Gaze.from("<this{}is:a/infix>"), Map(), None)
+//       parseWord(Gaze.from("<this{}is:a/infix>"), Map(), None)
 //         .getOrElse(???)
 //     val resultRegEx = "this[0-9_\\-a-fA-F]{12}is:a/infix".r
 //     assert(resultRegEx.matches(input.name))
@@ -33,22 +33,22 @@
 
 //   test("id gen in postfix") {
 //     val input =
-//       parseIdentifier(Gaze.from("<this::is:a/postfix/{}>"), Map(), None)
+//       parseWord(Gaze.from("<this::is:a/postfix/{}>"), Map(), None)
 //         .getOrElse(???)
 //     val resultRegEx = "this::is:a/postfix/[0-9_\\-a-fA-F]{12}".r
 //     assert(resultRegEx.matches(input.name))
 //   }
 
 //   test("basic prefix definition") {
-//     val res = parsePrefix(Gaze.from("prefix name = prefixed:identifier:"))
+//     val res = parsePrefix(Gaze.from("prefix name = prefixed:word:"))
 //       .getOrElse(???)
 //       .get
-//     assertEquals(res, ("name", "prefixed:identifier:"))
+//     assertEquals(res, ("name", "prefixed:word:"))
 //   }
 
 //   test("prefixed id") {
 //     val input =
-//       parseIdentifier(
+//       parseWord(
 //         Gaze.from("prefix:world"),
 //         Map("prefix" -> "hello:"),
 //         None
@@ -61,13 +61,13 @@
 //     val input = "<e> <a> 234\n^ ^ 432"
 //     val expected = List(
 //       Statement(
-//         Identifier.fromString("e").getOrElse(???),
-//         Identifier.fromString("a").getOrElse(???),
+//         Word.fromString("e").getOrElse(???),
+//         Word.fromString("a").getOrElse(???),
 //         LigatureValue.IntegerValue(234)
 //       ),
 //       Statement(
-//         Identifier.fromString("e").getOrElse(???),
-//         Identifier.fromString("a").getOrElse(???),
+//         Word.fromString("e").getOrElse(???),
+//         Word.fromString("a").getOrElse(???),
 //         LigatureValue.IntegerValue(432)
 //       )
 //     )
@@ -88,13 +88,13 @@
 //     val input = "<e> <a> 234\n<e2> ^ ^"
 //     val expected = List(
 //       Statement(
-//         Identifier.fromString("e").getOrElse(???),
-//         Identifier.fromString("a").getOrElse(???),
+//         Word.fromString("e").getOrElse(???),
+//         Word.fromString("a").getOrElse(???),
 //         LigatureValue.IntegerValue(234)
 //       ),
 //       Statement(
-//         Identifier.fromString("e2").getOrElse(???),
-//         Identifier.fromString("a").getOrElse(???),
+//         Word.fromString("e2").getOrElse(???),
+//         Word.fromString("a").getOrElse(???),
 //         LigatureValue.IntegerValue(234)
 //       )
 //     )
@@ -125,15 +125,15 @@
 //         assertEquals(statements.length, 1)
 //         assertEquals(
 //           statements(0).entity,
-//           Identifier.fromString("this:hello").getOrElse(???)
+//           Word.fromString("this:hello").getOrElse(???)
 //         )
 //         assertEquals(
 //           statements(0).attribute,
-//           Identifier.fromString("this:cruel").getOrElse(???)
+//           Word.fromString("this:cruel").getOrElse(???)
 //         )
 //         assertEquals(
 //           statements(0).value,
-//           Identifier.fromString("this:world").getOrElse(???)
+//           Word.fromString("this:world").getOrElse(???)
 //         )
 //       case Left(err) => fail("failed", clues(err))
 //     }
@@ -145,14 +145,14 @@
 //     result match {
 //       case Right(statements) =>
 //         assertEquals(statements.length, 1)
-// //        assertEquals(statements(0).entity, Identifier.fromString("this:hello").getOrElse(???))
+// //        assertEquals(statements(0).entity, Word.fromString("this:hello").getOrElse(???))
 //         assertEquals(
 //           statements(0).attribute,
-//           Identifier.fromString("this:cruel").getOrElse(???)
+//           Word.fromString("this:cruel").getOrElse(???)
 //         )
 //         assertEquals(
 //           statements(0).value,
-//           Identifier.fromString("this:world").getOrElse(???)
+//           Word.fromString("this:world").getOrElse(???)
 //         )
 //       case Left(err) => fail("failed", clues(err))
 //     }

@@ -14,7 +14,7 @@ enum WanderValue:
   case Bytes(value: Seq[Byte])
   case String(value: java.lang.String)
   case Array(values: Seq[WanderValue])
-  case Identifier(value: LigatureValue.Identifier)
+  case Word(value: LigatureValue.Word)
   case Slot(name: java.lang.String)
   case Network(value: Set[dev.ligature.wander.Statement])
 
@@ -123,11 +123,11 @@ def printWanderValue(value: WanderValue): String =
       "[" + values.map(value => printWanderValue(value)).mkString(", ") + "]"
     case WanderValue.Bytes(value)           => printBytes(value)
     case WanderValue.Network(value)           => printNetwork(value)
-    case WanderValue.Identifier(identifier) => printIdentifier(identifier)
+    case WanderValue.Word(word) => printWord(word)
 
 def printBytes(bytes: Seq[Byte]) = s"0x${formatter.formatHex(bytes.toArray)}"
 
-def printIdentifier(identifier: LigatureValue.Identifier) = s"`${identifier.value}`"
+def printWord(word: LigatureValue.Word) = s"`${word.value}`"
 
 def printStatement(statement: Statement) =
   val value = printStatementValue(statement.value)
@@ -136,7 +136,7 @@ def printStatement(statement: Statement) =
 def printStatementValue(value: LigatureValue): String =
   value match
     case LigatureValue.BytesValue(value)   => printBytes(value)
-    case value: LigatureValue.Identifier   => printIdentifier(value)
+    case value: LigatureValue.Word   => printWord(value)
     case LigatureValue.IntegerValue(value) => value.toString()
     case LigatureValue.StringValue(value)  => printString(value)
     case LigatureValue.Record(values) =>

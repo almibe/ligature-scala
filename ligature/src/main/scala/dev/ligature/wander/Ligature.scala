@@ -10,7 +10,7 @@ final case class DatasetName(name: String) extends Ordered[DatasetName]:
 case class LigatureError(val userMessage: String) extends Throwable(userMessage)
 
 enum LigatureValue:
-  case Identifier(value: String)
+  case Word(value: String)
   case StringValue(value: String)
   case IntegerValue(value: Long)
   case BytesValue(value: Seq[Byte])
@@ -20,7 +20,7 @@ enum LigatureValue:
 //final case class StringValueRange(start: String, end: String) extends Range
 //final case class IntegerValueRange(start: Long, end: Long) extends Range
 final case class Statement(
-    entity: LigatureValue.Identifier,
-    attribute: LigatureValue.Identifier,
+    entity: LigatureValue.Word,
+    attribute: LigatureValue.Word,
     value: LigatureValue
 )
