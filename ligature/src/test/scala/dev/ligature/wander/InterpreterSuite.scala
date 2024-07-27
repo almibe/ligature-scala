@@ -13,26 +13,26 @@ class InterpreterSuite extends FunSuite {
       case Left(err)         => throw RuntimeException(err.toString())
       case Right((value, _)) => assertEquals(value, expected)
 
-  test("load script with no exports") {
-    val script = "x = false, {}"
-    check(script, WanderValue.Module(Map()))
-  }
-  test("load script with one exports") {
-    val script = "hello = 2, { hello }"
-    val tokens = WanderValue.Module(Map(Field("hello") -> WanderValue.Int(2)))
-    check(script, tokens)
-  }
-  test("Statement support") {
-    val script = "`a` `b` `c`"
-    val result = WanderValue.Statement(
-      Statement(
-        LigatureValue.Identifier("a"),
-        LigatureValue.Identifier("b"),
-        LigatureValue.Identifier("c")
-      )
-    )
-    check(script, result)
-  }
+  // test("load script with no exports") {
+  //   val script = "x = false, {}"
+  //   check(script, WanderValue.Module(Map()))
+  // }
+  // test("load script with one exports") {
+  //   val script = "hello = 2, { hello }"
+  //   val tokens = WanderValue.Module(Map(Field("hello") -> WanderValue.Int(2)))
+  //   check(script, tokens)
+  // }
+  // test("Statement support") {
+  //   val script = "`a` `b` `c`"
+  //   val result = WanderValue.Statement(
+  //     Statement(
+  //       LigatureValue.Identifier("a"),
+  //       LigatureValue.Identifier("b"),
+  //       LigatureValue.Identifier("c")
+  //     )
+  //   )
+  //   check(script, result)
+  // }
   test("Network support") {
     val script = "{ `a` `b` `c` }"
     val result = WanderValue.Network(
@@ -46,15 +46,15 @@ class InterpreterSuite extends FunSuite {
     )
     check(script, result)
   }
-  test("Statement with empty Record as Value") {
-    val script = "`a` `a` {}"
-    val result = WanderValue.Statement(
-      Statement(
-        LigatureValue.Identifier("a"),
-        LigatureValue.Identifier("a"),
-        LigatureValue.Record(Map())
-      )
-    )
-    check(script, result)
-  }
+  // test("Statement with empty Record as Value") {
+  //   val script = "`a` `a` {}"
+  //   val result = WanderValue.Statement(
+  //     Statement(
+  //       LigatureValue.Identifier("a"),
+  //       LigatureValue.Identifier("a"),
+  //       LigatureValue.Record(Map())
+  //     )
+  //   )
+  //   check(script, result)
+  // }
 }

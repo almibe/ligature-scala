@@ -22,14 +22,10 @@ enum Term:
   case Slot(name: String)
   case Array(value: Seq[Term])
   case Identifier(value: String)
-  case Binding(field: Field, tag: Option[FieldPath], term: Term)
-  case Module(bindings: Seq[(Field, Term)])
   case Network(roots: Seq[NetworkRoot])
   case NetworkRoot(terms: Seq[Term])
   case Application(terms: Seq[Term])
   case Grouping(terms: Seq[Term])
-  case Lambda(parameters: Seq[Field], body: Term)
-  case Pipe
 
 def parse(script: Seq[Token]): Either[WanderError, Seq[Term]] = {
   val filteredInput = script.filter {
@@ -42,7 +38,7 @@ def parse(script: Seq[Token]): Either[WanderError, Seq[Term]] = {
   res match {
     case Result.NoMatch =>
       if (gaze.isComplete) {
-        Right(Seq(Term.Module(Seq())))
+        ??? //Right(Seq(Term.Module(Seq())))
       } else {
         Left(WanderError(s"Error Parsing - No Match - Next Token: ${gaze.next()}"))
       }
@@ -52,7 +48,7 @@ def parse(script: Seq[Token]): Either[WanderError, Seq[Term]] = {
       } else {
         Left(WanderError(s"Error Parsing - No Match - Next Token: ${gaze.next()}"))
       }
-    case Result.EmptyMatch => Right(Seq(Term.Module(Seq())))
+    case Result.EmptyMatch => ??? //Right(Seq(Term.Module(Seq())))
   }
 }
 
@@ -65,11 +61,6 @@ val bytesNib: Nibbler[Token, Term.Bytes] = gaze =>
   gaze.next() match
     case Some(Token.Bytes(b)) => Result.Match(Term.Bytes(b))
     case _                    => Result.NoMatch
-
-val pipeTermNib: Nibbler[Token, Term] = gaze =>
-  gaze.next() match
-    case Some(Token.Pipe) => Result.Match(Term.Pipe)
-    case _                => Result.NoMatch
 
 val integerNib: Nibbler[Token, Term.IntegerValue] = gaze =>
   gaze.next() match
@@ -132,22 +123,14 @@ val fieldTermNib: Nibbler[Token, Term.FieldTerm] = gaze =>
 //     case _                      => Result.NoMatch
 // }
 
-val lambdaNib: Nibbler[Token, Term.Lambda] = { gaze =>
-  for {
-    _ <- gaze.attempt(take(Token.Lambda))
-    parameters <- gaze.attempt(optionalSeq(repeat(fieldNib)))
-    _ <- gaze.attempt(take(Token.Arrow))
-    body <- gaze.attempt(expressionNib)
-  } yield Term.Lambda(parameters, body) // TODO handle this body better
-}
-
-val conditionalsNib: Nibbler[Token, (Term, Term)] = { gaze =>
-  for {
-    condition <- gaze.attempt(expressionNib)
-    _ <- gaze.attempt(take(Token.WideArrow))
-    body <- gaze.attempt(expressionNib)
-  } yield (condition, body)
-}
+// val lambdaNib: Nibbler[Token, Term.Lambda] = { gaze =>
+//   for {
+//     _ <- gaze.attempt(take(Token.Lambda))
+//     parameters <- gaze.attempt(optionalSeq(repeat(fieldNib)))
+//     _ <- gaze.attempt(take(Token.Arrow))
+//     body <- gaze.attempt(expressionNib)
+//   } yield Term.Lambda(parameters, body) // TODO handle this body better
+// }
 
 val arrayNib: Nibbler[Token, Term.Array] = { gaze =>
   for
@@ -185,17 +168,6 @@ val moduleFieldNib: Nibbler[Token, (dev.ligature.wander.Field, Term)] =
 val fieldPathTermNib: Nibbler[Token, Term.FieldPathTerm] =
   fieldPathNib.map(Term.FieldPathTerm(_))
 
-val moduleNib: Nibbler[Token, Term.Module] = { gaze =>
-  val res = for
-    _ <- gaze.attempt(take(Token.OpenBrace))
-    fields <- gaze.attempt(optionalSeq(repeatSep(moduleFieldNib, Token.Comma)))
-    _ <- gaze.attempt(take(Token.CloseBrace))
-  yield Term.Module(fields)
-  res match
-    case Result.Match(Term.Module(values)) => Result.Match(Term.Module(values))
-    case _                                 => Result.NoMatch
-}
-
 val networkNib: Nibbler[Token, Term.Network] = { gaze =>
   val res = for
     _ <- gaze.attempt(take(Token.OpenBrace))
@@ -228,40 +200,8 @@ val groupingNib: Nibbler[Token, Term.Grouping] = { gaze =>
   yield Term.Grouping(decls)
 }
 
-val functionBindingNib: Nibbler[Token, Term.Binding] = { gaze =>
-  for {
-    field <- gaze.attempt(fieldNib)
-    parameters <- gaze.attempt(repeat(fieldNib))
-    // tag <- gaze.attempt(tagNib)
-    _ <- gaze.attempt(take(Token.EqualSign))
-    body <- gaze.attempt(expressionNib)
-  } yield Term.Binding(field, None, Term.Lambda(parameters, body))
-}
-
-val bindingNib: Nibbler[Token, Term.Binding] = { gaze =>
-  for {
-    field <- gaze.attempt(fieldNib)
-    // tag <- gaze.attempt(tagNib)
-    _ <- gaze.attempt(take(Token.EqualSign))
-    value <- gaze.attempt(expressionNib)
-  } yield Term.Binding(field, None, value)
-}
-
-val taggedBindingNib: Nibbler[Token, Term.Binding] = { gaze =>
-  for {
-    field <- gaze.attempt(fieldNib)
-    _ <- gaze.attempt(take(Token.Colon))
-    tag <- gaze.attempt(fieldPathNib)
-    _ <- gaze.attempt(take(Token.EqualSign))
-    value <- gaze.attempt(expressionNib)
-  } yield Term.Binding(field, Some(tag), value)
-}
-
 val applicationInternalNib =
   takeFirst(
-    bindingNib,
-    taggedBindingNib,
-    lambdaNib,
     groupingNib,
     identifierNib,
     stringNib,
@@ -269,18 +209,13 @@ val applicationInternalNib =
     integerNib,
     arrayNib,
     networkNib,
-    moduleNib,
     slotTermNib,
     fieldPathTermNib
   )
 
 val expressionNib =
   takeFirst(
-    functionBindingNib,
-    bindingNib,
-    taggedBindingNib,
     applicationNib,
-    lambdaNib,
     groupingNib,
     identifierNib,
     stringNib,
@@ -288,9 +223,7 @@ val expressionNib =
     integerNib,
     arrayNib,
     networkNib,
-    moduleNib,
     fieldPathTermNib,
-    pipeTermNib
   )
 
 //val scriptNib = optionalSeq(repeatSep(expressionNib, Token.Comma))

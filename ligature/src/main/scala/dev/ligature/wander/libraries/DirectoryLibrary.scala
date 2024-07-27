@@ -39,16 +39,16 @@ def loadFromPath(path: Path): Either[WanderError, Map[Field, (Tag, WanderValue)]
       )
       .foreach { file =>
         val modname = file.toFile().getName().dropRight(wanderExt.length())
-        val module = scala.collection.mutable.HashMap[Field, WanderValue]()
+        //val module = scala.collection.mutable.HashMap[Field, WanderValue]()
         Using(Source.fromFile(file.toFile()))(_.mkString) match
           case Failure(exception) =>
             break(Left(WanderError(s"Error reading $file\n${exception.getMessage()}")))
           case Success(script) =>
             run(script, std()) match
               case Left(err) => break(Left(err))
-              case Right((WanderValue.Module(values), _)) =>
-                values.foreach((name, value) => module.put(name, value))
+              // case Right((WanderValue.Module(values), _)) =>
+              //   values.foreach((name, value) => module.put(name, value))
               case x => break(Left(WanderError("Unexpected value from load result. $x")))
-        results += (Field(modname) -> (Tag.Untagged, WanderValue.Module(module.toMap)))
+        results += (Field(modname) -> ???)///(Tag.Untagged, WanderValue.Module(module.toMap)))
       }
     Right(results.toMap)

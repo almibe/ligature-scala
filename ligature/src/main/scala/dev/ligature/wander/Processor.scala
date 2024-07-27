@@ -5,7 +5,9 @@
 package dev.ligature.wander
 
 import scala.collection.mutable.ListBuffer
-import scala.util.boundary, boundary.break
+
+//import scala.collection.mutable.ListBuffer
+//import scala.util.boundary, boundary.break
 
 def process(terms: Seq[Term]): Either[WanderError, Seq[Expression]] =
   val expressions = terms.map(term =>
@@ -20,18 +22,14 @@ def process(terms: Seq[Term]): Either[WanderError, Seq[Expression]] =
 
 def process(term: Term): Either[WanderError, Expression] =
   term match {
-    case Term.Pipe                            => ???
     case Term.Slot(name)                      => Right(Expression.Slot(name))
     case Term.Array(terms)                    => processArray(terms)
-    case Term.Binding(name, tag, value)       => processBinding(name, tag, value)
     case Term.IntegerValue(value)             => Right(Expression.IntegerValue(value))
     case Term.FieldPathTerm(value)            => Right(Expression.FieldPathExpression(value))
     case Term.FieldTerm(value)                => Right(Expression.FieldExpression(value))
     case Term.StringValue(value, interpolate) => Right(Expression.StringValue(value, interpolate))
-    case Term.Lambda(parameters, body)        => processLambda(parameters, body)
     case Term.Grouping(terms)                 => processGrouping(terms)
     case Term.Application(terms)              => processApplication(terms)
-    case Term.Module(values)                  => processModule(values)
     case Term.Bytes(value)                    => Right(Expression.Bytes(value))
     case Term.Identifier(value)               => Right(Expression.Identifier(value))
     case Term.Network(roots)                    => processNetwork(roots)
@@ -84,31 +82,31 @@ def processApplication(terms: Seq[Term]): Either[WanderError, Expression.Applica
   else Right(Expression.Application(res.toSeq))
 }
 
-def processModule(values: Seq[(dev.ligature.wander.Field, Term)]): Either[WanderError, Expression] =
-  boundary:
-    val results = ListBuffer[(Field, Expression)]()
-    values.foreach((name, value) =>
-      process(value) match
-        case Left(err)    => break(Left(err))
-        case Right(value) => results.append((name, value))
-    )
-    Right(Expression.Module(results.toSeq))
+// def processModule(values: Seq[(dev.ligature.wander.Field, Term)]): Either[WanderError, Expression] =
+//   boundary:
+//     val results = ListBuffer[(Field, Expression)]()
+//     values.foreach((name, value) =>
+//       process(value) match
+//         case Left(err)    => break(Left(err))
+//         case Right(value) => results.append((name, value))
+//     )
+//     Right(Expression.Module(results.toSeq))
 
-def processLambda(parameters: Seq[Field], body: Term): Either[WanderError, Expression.Lambda] =
-  process(body) match {
-    case Left(err)    => Left(err)
-    case Right(value) => Right(Expression.Lambda(parameters, value))
-  }
+// def processLambda(parameters: Seq[Field], body: Term): Either[WanderError, Expression.Lambda] =
+//   process(body) match {
+//     case Left(err)    => Left(err)
+//     case Right(value) => Right(Expression.Lambda(parameters, value))
+//   }
 
-def processBinding(
-    name: Field,
-    tag: Option[FieldPath],
-    value: Term
-): Either[WanderError, Expression.Binding] =
-  process(value) match {
-    case Left(err)         => ???
-    case Right(expression) => Right(Expression.Binding(name, tag, expression))
-  }
+// def processBinding(
+//     name: Field,
+//     tag: Option[FieldPath],
+//     value: Term
+// ): Either[WanderError, Expression.Binding] =
+//   process(value) match {
+//     case Left(err)         => ???
+//     case Right(expression) => Right(Expression.Binding(name, tag, expression))
+//   }
 
 def processArray(terms: Seq[Term]): Either[WanderError, Expression.Array] = {
   val expressions = terms.map { t =>

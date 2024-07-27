@@ -6,8 +6,6 @@ package dev.ligature.wander
 
 import dev.ligature.wander.parse
 import java.util.HexFormat
-import dev.ligature.wander.Statement
-import com.google.gson.Gson
 
 /** Represents a Value in the Wander language.
   */
@@ -18,10 +16,7 @@ enum WanderValue:
   case Array(values: Seq[WanderValue])
   case Identifier(value: LigatureValue.Identifier)
   case Slot(name: java.lang.String)
-  case Statement(statement: dev.ligature.wander.Statement)
   case Network(value: Set[dev.ligature.wander.Statement])
-  case Module(values: Map[Field, WanderValue])
-  case Function(function: dev.ligature.wander.Function)
 
 case class Field(name: String)
 case class FieldPath(parts: Seq[Field])
@@ -35,26 +30,26 @@ enum Tag:
 trait Function:
   def call(args: Seq[WanderValue], environment: Environment): Either[WanderError, WanderValue]
 
-case class Lambda(val lambda: Expression.Lambda) extends Function {
-  override def call(
-      args: Seq[WanderValue],
-      environment: Environment
-  ): Either[WanderError, WanderValue] =
-    var env = environment
-    lambda.parameters.zipWithIndex.foreach { (param, i) =>
-      env = env.bindVariable(param, args(i))
-    }
-    val res = eval(lambda.body, env).map(_._1)
-    res
-}
+// case class Lambda(val lambda: Expression.Lambda) extends Function {
+//   override def call(
+//       args: Seq[WanderValue],
+//       environment: Environment
+//   ): Either[WanderError, WanderValue] =
+//     var env = environment
+//     lambda.parameters.zipWithIndex.foreach { (param, i) =>
+//       env = env.bindVariable(param, args(i))
+//     }
+//     val res = eval(lambda.body, env).map(_._1)
+//     res
+// }
 
-case class PartialFunction(args: Seq[WanderValue], function: dev.ligature.wander.Function)
-    extends Function {
-  override def call(
-      args: Seq[WanderValue],
-      environment: Environment
-  ): Either[WanderError, WanderValue] = ???
-}
+// case class PartialFunction(args: Seq[WanderValue], function: dev.ligature.wander.Function)
+//     extends Function {
+//   override def call(
+//       args: Seq[WanderValue],
+//       environment: Environment
+//   ): Either[WanderError, WanderValue] = ???
+// }
 
 case class HostFunction(
     docString: String,
@@ -124,17 +119,11 @@ def printWanderValue(value: WanderValue): String =
     case WanderValue.Slot(name)         => s"?$name"
     case WanderValue.Int(value)         => value.toString()
     case WanderValue.String(value)      => printString(value)
-    case WanderValue.Function(function) => "\"[Function]\""
     case WanderValue.Array(values) =>
       "[" + values.map(value => printWanderValue(value)).mkString(", ") + "]"
-    case WanderValue.Module(values) =>
-      "{" + values
-        .map((field, value) => field.name + " = " + printWanderValue(value))
-        .mkString(", ") + "}"
     case WanderValue.Bytes(value)           => printBytes(value)
     case WanderValue.Network(value)           => printNetwork(value)
     case WanderValue.Identifier(identifier) => printIdentifier(identifier)
-    case WanderValue.Statement(statement)   => printStatement(statement)
 
 def printBytes(bytes: Seq[Byte]) = s"0x${formatter.formatHex(bytes.toArray)}"
 
@@ -159,6 +148,6 @@ def printNetwork(network: Set[Statement]) = network
   .map(printStatement)
   .mkString("{ ", ", ", " }") //s"{ ${network.map(statement => printStatement(statement))} }"
 
-def printString(value: String) =
-  val gson = Gson()
-  gson.toJson(value)
+def printString(value: String) = ???
+  // val gson = Gson()
+  // gson.toJson(value)

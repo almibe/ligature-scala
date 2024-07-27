@@ -15,19 +15,19 @@ class BindingSuite extends munit.FunSuite {
       ,
       expected
     )
-  test("basic binding") {
-    val script = "x = 5"
-    val result = WanderValue.Int(5)
-    check(script, result)
-  }
-  test("basic binding and reference") {
-    val script = "x = 5, x"
-    val result = WanderValue.Int(5)
-    check(script, result)
-  }
-  test("read Module") {
-    val script = "rec = { x = { y = 5 } }, rec.x.y"
-    val result = WanderValue.Int(5)
-    check(script, result)
-  }
+  // test("basic binding") {
+  //   val script = "x = 5"
+  //   val result = WanderValue.Int(5)
+  //   check(script, result)
+  // }
+  // test("basic binding and reference") {
+  //   val script = "x = 5, x"
+  //   val result = WanderValue.Int(5)
+  //   check(script, result)
+  // }
+  // test("read Module") {
+  //   val script = "rec = { x = { y = 5 } }, rec.x.y"
+  //   val result = WanderValue.Int(5)
+  //   check(script, result)
+  // }
 }

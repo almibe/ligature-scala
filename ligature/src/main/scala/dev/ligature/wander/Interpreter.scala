@@ -17,10 +17,7 @@ enum Expression:
   case StringValue(value: String, interpolated: Boolean = false)
   case Identifier(value: String)
   case Array(value: Seq[Expression])
-  case Binding(name: Field, tag: Option[FieldPath], value: Expression)
-  case Module(values: Seq[(dev.ligature.wander.Field, Expression)])
   case Network(expressions: Seq[Expression])
-  case Lambda(parameters: Seq[Field], body: Expression)
   case Application(expressions: Seq[Expression])
   case Grouping(expressions: Seq[Expression])
   case Slot(name: String)
@@ -40,13 +37,9 @@ def eval(
     case Expression.Array(value)                   => handleArray(value, environment)
     case Expression.FieldExpression(field)         => readField(field, environment)
     case Expression.FieldPathExpression(fieldPath) => readFieldPath(fieldPath, environment)
-    case Expression.Binding(name, tag, value) =>
-      handleBinding(name, tag, value, environment)
-    case lambda: Expression.Lambda => Right((WanderValue.Function(Lambda(lambda)), environment))
     case Expression.Grouping(expressions)    => handleGrouping(expressions, environment)
     case Expression.Application(expressions) => handleApplication(expressions, environment)
     case Expression.Slot(name)               => Right((WanderValue.Slot(name), environment))
-    case Expression.Module(values)           => handleModule(values, environment)
     case Expression.Network(expressions)       => handleNetwork(expressions, environment)
   }
 
@@ -109,32 +102,32 @@ def interpolateString(
 def handleGrouping(
     expressions: Seq[Expression],
     environment: Environment
-): Either[WanderError, (WanderValue, Environment)] = {
-  var error: Option[WanderError] = None
-  var res: (WanderValue, Environment) = (WanderValue.Module(Map()), environment)
-  val itr = expressions.iterator
-  while error.isEmpty && itr.hasNext do
-    eval(itr.next(), res._2) match {
-      case Left(err)    => error = Some(err)
-      case Right(value) => res = value
-    }
-  if error.isDefined then Left(error.get)
-  else Right(res)
-}
+): Either[WanderError, (WanderValue, Environment)] = ???//{
+//   var error: Option[WanderError] = None
+//   var res: (WanderValue, Environment) = (WanderValue.Module(Map()), environment)
+//   val itr = expressions.iterator
+//   while error.isEmpty && itr.hasNext do
+//     eval(itr.next(), res._2) match {
+//       case Left(err)    => error = Some(err)
+//       case Right(value) => res = value
+//     }
+//   if error.isDefined then Left(error.get)
+//   else Right(res)
+// }
 
-def handleModule(
-    values: Seq[(Field, Expression)],
-    environment: Environment
-): Either[WanderError, (WanderValue, Environment)] =
-  boundary:
-    val results = collection.mutable.HashMap[Field, WanderValue]()
-    values.foreach((name, value) =>
-      eval(value, environment) match {
-        case Left(err)         => break(Left(err))
-        case Right((value, _)) => results += name -> value
-      }
-    )
-    Right((WanderValue.Module(results.toMap), environment))
+// def handleModule(
+//     values: Seq[(Field, Expression)],
+//     environment: Environment
+// ): Either[WanderError, (WanderValue, Environment)] =
+//   boundary:
+//     val results = collection.mutable.HashMap[Field, WanderValue]()
+//     values.foreach((name, value) =>
+//       eval(value, environment) match {
+//         case Left(err)         => break(Left(err))
+//         case Right((value, _)) => results += name -> value
+//       }
+//     )
+//     Right((WanderValue.Module(results.toMap), environment))
 
 def handleNetwork(
     expressions: Seq[Expression],
@@ -192,103 +185,86 @@ def handleApplication(
               value: Expression
             ) =>
           value match
-            case Expression.Identifier(value) =>
-              Right(
-                (
-                  WanderValue.Statement(
-                    Statement(
-                      LigatureValue.Identifier(entity),
-                      LigatureValue.Identifier(attribute),
-                      LigatureValue.Identifier(value)
-                    )
-                  ),
-                  environment
-                )
-              )
-            case Expression.IntegerValue(value) =>
-              Right(
-                (
-                  WanderValue.Statement(
-                    Statement(
-                      LigatureValue.Identifier(entity),
-                      LigatureValue.Identifier(attribute),
-                      LigatureValue.IntegerValue(value)
-                    )
-                  ),
-                  environment
-                )
-              )
-            case Expression.Bytes(value) =>
-              Right(
-                (
-                  WanderValue.Statement(
-                    Statement(
-                      LigatureValue.Identifier(entity),
-                      LigatureValue.Identifier(attribute),
-                      LigatureValue.BytesValue(value)
-                    )
-                  ),
-                  environment
-                )
-              )
-            case module: Expression.Module =>
-              eval(module, environment) match {
-                case Right((WanderValue.Module(result), _)) =>
-                  Right(
-                    (
-                      WanderValue.Statement(
-                        Statement(
-                          LigatureValue.Identifier(entity),
-                          LigatureValue.Identifier(attribute),
-                          moduleToRecord(result)
-                        )
-                      ),
-                      environment
-                    )
-                  )
-                case _ => ???
-              }
-            case stringValue: Expression.StringValue =>
-              eval(stringValue, environment) match {
-                case Right((WanderValue.String(result), _)) =>
-                  Right(
-                    (
-                      WanderValue.Statement(
-                        Statement(
-                          LigatureValue.Identifier(entity),
-                          LigatureValue.Identifier(attribute),
-                          LigatureValue.StringValue(result)
-                        )
-                      ),
-                      environment
-                    )
-                  )
-                case _ => ???
-              }
+            case Expression.Identifier(value) => ???
+              // Right(
+              //   (
+              //     WanderValue.Statement(
+              //       Statement(
+              //         LigatureValue.Identifier(entity),
+              //         LigatureValue.Identifier(attribute),
+              //         LigatureValue.Identifier(value)
+              //       )
+              //     ),
+              //     environment
+              //   )
+              // )
+            case Expression.IntegerValue(value) => ???
+              // Right(
+              //   (
+              //     WanderValue.Statement(
+              //       Statement(
+              //         LigatureValue.Identifier(entity),
+              //         LigatureValue.Identifier(attribute),
+              //         LigatureValue.IntegerValue(value)
+              //       )
+              //     ),
+              //     environment
+              //   )
+              // )
+            case Expression.Bytes(value) => ???
+              // Right(
+              //   (
+              //     WanderValue.Statement(
+              //       Statement(
+              //         LigatureValue.Identifier(entity),
+              //         LigatureValue.Identifier(attribute),
+              //         LigatureValue.BytesValue(value)
+              //       )
+              //     ),
+              //     environment
+              //   )
+              // )
+            case stringValue: Expression.StringValue => ???
+              // eval(stringValue, environment) match {
+              //   case Right((WanderValue.String(result), _)) =>
+              //     Right(
+              //       (
+              //         WanderValue.Statement(
+              //           Statement(
+              //             LigatureValue.Identifier(entity),
+              //             LigatureValue.Identifier(attribute),
+              //             LigatureValue.StringValue(result)
+              //           )
+              //         ),
+              //         environment
+              //       )
+              //     )
+              //   case _ => ???
+              // }
             case _ => Left(WanderError(s"Invalid Statement - ${expression}"))
         case _ => Left(WanderError(s"Invalid Statement - ${expression}"))
-    case Expression.FieldPathExpression(fieldPath) =>
-      environment.read(fieldPath) match {
-        case Left(err)   => Left(err)
-        case Right(None) => Left(WanderError(s"Error: Could not read $fieldPath."))
-        case Right(Some(value)) =>
-          val arguments = expression.tail
-          value match {
-            case WanderValue.Function(Lambda(Expression.Lambda(parameters, body))) =>
-              callLambda(arguments, parameters, body, environment)
-            case WanderValue.Function(fn: HostFunction) =>
-              callHostFunction(fn, arguments, environment)
-            case WanderValue.Function(
-                  PartialFunction(args, Lambda(Expression.Lambda(parameters, body)))
-                ) =>
-              callPartialLambda(args, arguments, parameters, body, environment)
-            case WanderValue.Function(PartialFunction(args, fn: HostFunction)) => ???
-              // callPartialHostFunction(args, fn, arguments, environment)
-            case WanderValue.Array(values)  => callArray(values, arguments, environment)
-            case WanderValue.Module(values) => callModule(values, arguments, environment)
-            case _                          => Left(WanderError(s"Could not call function."))
-          }
-      }
+    case Expression.FieldPathExpression(fieldPath) => ???
+      // environment.read(fieldPath) match {
+      //   case Left(err)   => Left(err)
+      //   case Right(None) => Left(WanderError(s"Error: Could not read $fieldPath."))
+      //   case Right(Some(value)) =>
+      //     val arguments = expression.tail
+      //     value match {
+      //       case WanderValue.Function(Lambda(Expression.Lambda(parameters, body))) =>
+      //         callLambda(arguments, parameters, body, environment)
+      //       case WanderValue.Function(fn: HostFunction) =>
+      //         callHostFunction(fn, arguments, environment)
+      //       case WanderValue.Function(
+      //             PartialFunction(args, Lambda(Expression.Lambda(parameters, body)))
+      //           ) =>
+      //         callPartialLambda(args, arguments, parameters, body, environment)
+      //       case WanderValue.Function(PartialFunction(args, fn: HostFunction)) => ???
+      //         // callPartialHostFunction(args, fn, arguments, environment)
+      //       case WanderValue.Array(values)  => callArray(values, arguments, environment)
+      //       case WanderValue.Module(values) => callModule(values, arguments, environment)
+      //       case _                          => Left(WanderError(s"Could not call function."))
+      //     }
+      // }
     case x => Left(WanderError(s"Unexpected start of application - $x"))
   }
 
@@ -370,12 +346,13 @@ def callLambda(
           args.append(value._1)
       }
     }
-    Right(
-      WanderValue.Function(
-        dev.ligature.wander.PartialFunction(args.toSeq, Lambda(Expression.Lambda(parameters, body)))
-      ),
-      environment
-    )
+    ???
+    // Right(
+    //   WanderValue.Function(
+    //     dev.ligature.wander.PartialFunction(args.toSeq, Lambda(Expression.Lambda(parameters, body)))
+    //   ),
+    //   environment
+    // )
   } else {
     Left(WanderError("Too many arguments passed."))
   }
@@ -411,12 +388,13 @@ def callPartialLambda(
           args.append(value._1)
       }
     }
-    Right(
-      WanderValue.Function(
-        dev.ligature.wander.PartialFunction(args.toSeq, Lambda(Expression.Lambda(parameters, body)))
-      ),
-      environment
-    )
+    ???
+    // Right(
+    //   WanderValue.Function(
+    //     dev.ligature.wander.PartialFunction(args.toSeq, Lambda(Expression.Lambda(parameters, body)))
+    //   ),
+    //   environment
+    // )
   } else {
     Left(WanderError("Too many arguments passed."))
   }

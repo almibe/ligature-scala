@@ -39,26 +39,26 @@ class LiteralsSuite extends munit.FunSuite {
     val result = WanderValue.Int(-111)
     check(script, result)
   }
-  test("comment + nothing test") {
-    val script = "--nothing   " + System.lineSeparator()
-    val result = WanderValue.Module(Map())
-    check(script, result)
-  }
+  // test("comment + nothing test") {
+  //   val script = "--nothing   " + System.lineSeparator()
+  //   val result = WanderValue.Module(Map())
+  //   check(script, result)
+  // }
   test("string primitives") {
     val script = "\"hello world\" "
     val result = WanderValue.String("hello world")
     check(script, result)
   }
-  test("empty record literal") {
-    val script = "{}"
-    val result = WanderValue.Module(Map())
-    check(script, result)
-  }
-  test("record literal with one value") {
-    val script = "{x = 5}"
-    val result = WanderValue.Module(Map((Field("x"), WanderValue.Int(5))))
-    check(script, result)
-  }
+  // test("empty record literal") {
+  //   val script = "{}"
+  //   val result = WanderValue.Module(Map())
+  //   check(script, result)
+  // }
+  // test("record literal with one value") {
+  //   val script = "{x = 5}"
+  //   val result = WanderValue.Module(Map((Field("x"), WanderValue.Int(5))))
+  //   check(script, result)
+  // }
   // test("record literal with multiple values") {
   //   val script = "{x = 5, notFalse = true}"
   //   val result = WanderValue.Module(

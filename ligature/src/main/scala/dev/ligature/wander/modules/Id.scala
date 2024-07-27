@@ -4,48 +4,50 @@
 
 package dev.ligature.wander.modules
 
-import dev.ligature.wander.HostFunction
-import dev.ligature.wander.TaggedField
-import dev.ligature.wander.Field
-import dev.ligature.wander.Tag
-import dev.ligature.wander.WanderValue
-import io.hypersistence.tsid.TSID
-import com.github.f4b6a3.ulid.UlidCreator
-import dev.ligature.wander.LigatureValue
+// import dev.ligature.wander.HostFunction
+// import dev.ligature.wander.TaggedField
+// import dev.ligature.wander.Field
+// import dev.ligature.wander.Tag
+// import dev.ligature.wander.WanderValue
+// import io.hypersistence.tsid.TSID
+// import com.github.f4b6a3.ulid.UlidCreator
+// import dev.ligature.wander.LigatureValue
 
-val idModule: WanderValue.Module = WanderValue.Module(
-  Map(
-    Field("tsid") -> WanderValue.Function(
-      HostFunction(
-        "Get next random TSID value.",
-        Seq(
-          TaggedField(Field("_"), Tag.Untagged)
-        ),
-        Tag.Untagged,
-        (arguments, environment) =>
-          Right(
-            (
-              WanderValue.Identifier(LigatureValue.Identifier(TSID.Factory.getTsid().toString())),
-              environment
-            )
-          )
-      )
-    ),
-    Field("ulid") -> WanderValue.Function(
-      HostFunction(
-        "Get next random ULID value.",
-        Seq(
-          TaggedField(Field("_"), Tag.Untagged)
-        ),
-        Tag.Untagged,
-        (arguments, environment) =>
-          Right(
-            (
-              WanderValue.Identifier(LigatureValue.Identifier(UlidCreator.getUlid().toLowerCase())),
-              environment
-            )
-          )
-      )
-    )
-  )
-)
+val id = 0
+
+// val idModule: WanderValue.Module = WanderValue.Module(
+//   Map(
+//     Field("tsid") -> WanderValue.Function(
+//       HostFunction(
+//         "Get next random TSID value.",
+//         Seq(
+//           TaggedField(Field("_"), Tag.Untagged)
+//         ),
+//         Tag.Untagged,
+//         (arguments, environment) =>
+//           Right(
+//             (
+//               WanderValue.Identifier(LigatureValue.Identifier(TSID.Factory.getTsid().toString())),
+//               environment
+//             )
+//           )
+//       )
+//     ),
+//     Field("ulid") -> WanderValue.Function(
+//       HostFunction(
+//         "Get next random ULID value.",
+//         Seq(
+//           TaggedField(Field("_"), Tag.Untagged)
+//         ),
+//         Tag.Untagged,
+//         (arguments, environment) =>
+//           Right(
+//             (
+//               WanderValue.Identifier(LigatureValue.Identifier(UlidCreator.getUlid().toLowerCase())),
+//               environment
+//             )
+//           )
+//       )
+//     )
+//   )
+// )

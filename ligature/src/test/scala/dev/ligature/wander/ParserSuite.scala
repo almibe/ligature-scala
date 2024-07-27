@@ -114,35 +114,35 @@ class ParserSuite extends FunSuite {
     )
     assertEquals(result, expected)
   }
-  test("parse let expression") {
-    val result = check("x = 5")
-    val expected =
-      Right(Seq(Term.Binding(Field("x"), None, Term.IntegerValue(5))))
-    assertEquals(result, expected)
-  }
-  test("parse Lambda") {
-    val result = check("\\x -> x")
-    val expected = Right(
-      Seq(
-        Term.Lambda(Seq(Field("x")), Term.FieldPathTerm(FieldPath(Seq(Field("x")))))
-      )
-    )
-    assertEquals(result, expected)
-  }
-  test("parse let expression with lambda") {
-    val result = check("id = \\x -> x")
-    val expected =
-      Right(
-        Seq(
-          Term.Binding(
-            Field("id"),
-            None,
-            Term.Lambda(Seq(Field("x")), Term.FieldPathTerm(FieldPath(Seq(Field("x")))))
-          )
-        )
-      )
-    assertEquals(result, expected)
-  }
+  // test("parse let expression") {
+  //   val result = check("x = 5")
+  //   val expected =
+  //     Right(Seq(Term.Binding(Field("x"), None, Term.IntegerValue(5))))
+  //   assertEquals(result, expected)
+  // }
+  // test("parse Lambda") {
+  //   val result = check("\\x -> x")
+  //   val expected = Right(
+  //     Seq(
+  //       Term.Lambda(Seq(Field("x")), Term.FieldPathTerm(FieldPath(Seq(Field("x")))))
+  //     )
+  //   )
+  //   assertEquals(result, expected)
+  // }
+  // test("parse let expression with lambda") {
+  //   val result = check("id = \\x -> x")
+  //   val expected =
+  //     Right(
+  //       Seq(
+  //         Term.Binding(
+  //           Field("id"),
+  //           None,
+  //           Term.Lambda(Seq(Field("x")), Term.FieldPathTerm(FieldPath(Seq(Field("x")))))
+  //         )
+  //       )
+  //     )
+  //   assertEquals(result, expected)
+  // }
   test("parse empty grouping") {
     val result = check("()")
     val expected = Right(
@@ -188,30 +188,30 @@ class ParserSuite extends FunSuite {
   //   )
   //   assertEquals(result, expected)
   // }
-  test("parse Module with one entry") {
-    val result = check("{x = 5}")
-    val expected = Right(
-      Seq(
-        Term.Module(
-          Seq(
-            (Field("x"), Term.IntegerValue(5))
-          )
-        )
-      )
-    )
-    assertEquals(result, expected)
-  }
-  test("parse Module with multiple entries") {
-    val result = check("{x = 5, y = 6}")
-    val expected = Right(
-      Seq(
-        Term.Module(
-          Seq((Field("x"), Term.IntegerValue(5)), (Field("y"), Term.IntegerValue(6)))
-        )
-      )
-    )
-    assertEquals(result, expected)
-  }
+  // test("parse Module with one entry") {
+  //   val result = check("{x = 5}")
+  //   val expected = Right(
+  //     Seq(
+  //       Term.Module(
+  //         Seq(
+  //           (Field("x"), Term.IntegerValue(5))
+  //         )
+  //       )
+  //     )
+  //   )
+  //   assertEquals(result, expected)
+  // }
+  // test("parse Module with multiple entries") {
+  //   val result = check("{x = 5, y = 6}")
+  //   val expected = Right(
+  //     Seq(
+  //       Term.Module(
+  //         Seq((Field("x"), Term.IntegerValue(5)), (Field("y"), Term.IntegerValue(6)))
+  //       )
+  //     )
+  //   )
+  //   assertEquals(result, expected)
+  // }
   test("parse network with one statement") {
     val result = check("{ `a` `b` `c` }")
     val expected = Right(
@@ -274,19 +274,19 @@ class ParserSuite extends FunSuite {
   //   )
   //   assertEquals(result, expected)
   // }
-  test("parse tagged Field in assignment") {
-    val result = check("zero: Core.Int = 0")
-    val expected = Right(
-      Seq(
-        Term.Binding(
-          Field("zero"),
-          Some(FieldPath(Seq(Field("Core"), Field("Int")))),
-          Term.IntegerValue(0)
-        )
-      )
-    )
-    assertEquals(result, expected)
-  }
+  // test("parse tagged Field in assignment") {
+  //   val result = check("zero: Core.Int = 0")
+  //   val expected = Right(
+  //     Seq(
+  //       Term.Binding(
+  //         Field("zero"),
+  //         Some(FieldPath(Seq(Field("Core"), Field("Int")))),
+  //         Term.IntegerValue(0)
+  //       )
+  //     )
+  //   )
+  //   assertEquals(result, expected)
+  // }
   // test("parse tagged lambda") {
   //   val result = check("x: Core.Int -> Core.Bool = \\i -> false")
   //   val expected = Right(
@@ -299,19 +299,19 @@ class ParserSuite extends FunSuite {
   //   )
   //   assertEquals(result, expected)
   // }
-  test("parse lambda bindings syntax") {
-    val result = check("id i i2 = i")
-    val expected = Right(
-      Seq(
-        Term.Binding(
-          Field("id"),
-          None,
-          Term.Lambda(Seq(Field("i"), Field("i2")), Term.FieldPathTerm(FieldPath(Seq(Field("i")))))
-        )
-      )
-    )
-    assertEquals(result, expected)
-  }
+  // test("parse lambda bindings syntax") {
+  //   val result = check("id i i2 = i")
+  //   val expected = Right(
+  //     Seq(
+  //       Term.Binding(
+  //         Field("id"),
+  //         None,
+  //         Term.Lambda(Seq(Field("i"), Field("i2")), Term.FieldPathTerm(FieldPath(Seq(Field("i")))))
+  //       )
+  //     )
+  //   )
+  //   assertEquals(result, expected)
+  // }
   // test("parse pipe") {
   //   val result = check("true | not")
   //   val expected = Right(
@@ -345,19 +345,19 @@ class ParserSuite extends FunSuite {
   //   )
   //   assertEquals(result, expected)
   // }
-  test("parse Statement with empty Record for Value") {
-    val result = check("`a` `a` {}")
-    val expected = Right(
-      Seq(
-        Term.Application(
-          Seq(
-            Term.Identifier("a"),
-            Term.Identifier("a"),
-            Term.Module(Seq())
-          )
-        )
-      )
-    )
-    assertEquals(result, expected)
-  }
+  // test("parse Statement with empty Record for Value") {
+  //   val result = check("`a` `a` {}")
+  //   val expected = Right(
+  //     Seq(
+  //       Term.Application(
+  //         Seq(
+  //           Term.Identifier("a"),
+  //           Term.Identifier("a"),
+  //           Term.Module(Seq())
+  //         )
+  //       )
+  //     )
+  //   )
+  //   assertEquals(result, expected)
+  // }
 }
