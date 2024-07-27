@@ -16,13 +16,11 @@ enum Expression:
   case Bytes(value: Seq[Byte])
   case StringValue(value: String, interpolated: Boolean = false)
   case Identifier(value: String)
-  case BooleanValue(value: Boolean)
   case Array(value: Seq[Expression])
   case Binding(name: Field, tag: Option[FieldPath], value: Expression)
   case Module(values: Seq[(dev.ligature.wander.Field, Expression)])
   case Network(expressions: Seq[Expression])
   case Lambda(parameters: Seq[Field], body: Expression)
-  case WhenExpression(conditionals: Seq[(Expression, Expression)])
   case Application(expressions: Seq[Expression])
   case Grouping(expressions: Seq[Expression])
   case Slot(name: String)
@@ -32,7 +30,6 @@ def eval(
     environment: Environment
 ): Either[WanderError, (WanderValue, Environment)] =
   expression match {
-    case Expression.BooleanValue(value) => Right((WanderValue.Bool(value), environment))
     case Expression.IntegerValue(value) => Right((WanderValue.Int(value), environment))
     case Expression.Bytes(value)        => Right((WanderValue.Bytes(value), environment))
     case Expression.StringValue(value, interpolated) =>
@@ -46,8 +43,6 @@ def eval(
     case Expression.Binding(name, tag, value) =>
       handleBinding(name, tag, value, environment)
     case lambda: Expression.Lambda => Right((WanderValue.Function(Lambda(lambda)), environment))
-    case Expression.WhenExpression(conditionals) =>
-      handleWhenExpression(conditionals, environment)
     case Expression.Grouping(expressions)    => handleGrouping(expressions, environment)
     case Expression.Application(expressions) => handleApplication(expressions, environment)
     case Expression.Slot(name)               => Right((WanderValue.Slot(name), environment))
@@ -287,8 +282,8 @@ def handleApplication(
                   PartialFunction(args, Lambda(Expression.Lambda(parameters, body)))
                 ) =>
               callPartialLambda(args, arguments, parameters, body, environment)
-            case WanderValue.Function(PartialFunction(args, fn: HostFunction)) =>
-              callPartialHostFunction(args, fn, arguments, environment)
+            case WanderValue.Function(PartialFunction(args, fn: HostFunction)) => ???
+              // callPartialHostFunction(args, fn, arguments, environment)
             case WanderValue.Array(values)  => callArray(values, arguments, environment)
             case WanderValue.Module(values) => callModule(values, arguments, environment)
             case _                          => Left(WanderError(s"Could not call function."))
@@ -430,125 +425,13 @@ def callHostFunction(
     hostFunction: HostFunction,
     arguments: Seq[Expression],
     environment: Environment
-): Either[WanderError, (WanderValue, Environment)] =
-  if arguments.size == hostFunction.parameters.size then
-    callHostFunctionComplete(hostFunction, arguments, environment)
-  else if arguments.size < hostFunction.parameters.size then
-    callHostFunctionPartially(hostFunction, arguments, environment)
-  else ???
+): Either[WanderError, (WanderValue, Environment)] = ???
+  // if arguments.size == hostFunction.parameters.size then
+  //   callHostFunctionComplete(hostFunction, arguments, environment)
+  // else if arguments.size < hostFunction.parameters.size then
+  //   callHostFunctionPartially(hostFunction, arguments, environment)
+  // else ???
 
-private def callHostFunctionComplete(
-    hostFunction: HostFunction,
-    arguments: Seq[Expression],
-    environment: Environment
-): Either[WanderError, (WanderValue, Environment)] =
-  boundary:
-    val args = ListBuffer[WanderValue]()
-    arguments.zipWithIndex.foreach((arg, i) =>
-      val argValue = eval(arg, environment) match
-        case Left(err)    => break(Left(err))
-        case Right(value) => value._1
-      val tag = hostFunction.parameters(i).tag
-      environment.checkTag(tag, argValue) match {
-        case Left(err)    => break(Left(err))
-        case Right(value) => args.append(argValue)
-      }
-    )
-    hostFunction.fn(args.toSeq, environment)
-
-private def callHostFunctionPartially(
-    hostFunction: HostFunction,
-    arguments: Seq[Expression],
-    environment: Environment
-): Either[WanderError, (WanderValue, Environment)] =
-  boundary:
-    val args = ListBuffer[WanderValue]()
-    arguments.zipWithIndex.foreach((arg, i) =>
-      val argValue = eval(arg, environment) match
-        case Left(err)    => break(Left(err))
-        case Right(value) => value._1
-      val tag = hostFunction.parameters(i).tag
-      environment.checkTag(tag, argValue) match {
-        case Left(err)    => break(Left(err))
-        case Right(value) => args.append(argValue)
-      }
-    )
-    Right((WanderValue.Function(PartialFunction(args.toSeq, hostFunction)), environment))
-
-def callPartialHostFunction(
-    values: Seq[WanderValue],
-    hostFunction: HostFunction,
-    arguments: Seq[Expression],
-    environment: Environment
-): Either[WanderError, (WanderValue, Environment)] =
-  if values.size + arguments.size == hostFunction.parameters.size then
-    callPartialHostFunctionComplete(values, hostFunction, arguments, environment)
-  else if values.size + arguments.size < hostFunction.parameters.size then
-    callPartialHostFunctionPartially(values, hostFunction, arguments, environment)
-  else ???
-
-private def callPartialHostFunctionComplete(
-    values: Seq[WanderValue],
-    hostFunction: HostFunction,
-    arguments: Seq[Expression],
-    environment: Environment
-): Either[WanderError, (WanderValue, Environment)] =
-  boundary:
-    var args = ListBuffer[WanderValue]()
-    args = args.concat(values)
-    arguments.zipWithIndex.foreach((arg, _i) =>
-      val i = _i + values.size
-      val argValue = eval(arg, environment) match
-        case Left(err)    => break(Left(err))
-        case Right(value) => value._1
-      val tag = hostFunction.parameters(i).tag
-      environment.checkTag(tag, argValue) match {
-        case Left(err)    => break(Left(err))
-        case Right(value) => args.append(argValue)
-      }
-    )
-    hostFunction.fn(args.toSeq, environment)
-
-private def callPartialHostFunctionPartially(
-    values: Seq[WanderValue],
-    hostFunction: HostFunction,
-    arguments: Seq[Expression],
-    environment: Environment
-): Either[WanderError, (WanderValue, Environment)] =
-  boundary:
-    var args = ListBuffer[WanderValue]()
-    args = args.concat(values)
-    arguments.zipWithIndex.foreach((arg, index) =>
-      val paramIndex = index + values.size
-      val argValue = eval(arg, environment) match
-        case Left(err)    => break(Left(err))
-        case Right(value) => value._1
-      val tag = hostFunction.parameters(paramIndex).tag
-      environment.checkTag(tag, argValue) match {
-        case Left(err)    => break(Left(err))
-        case Right(value) => args.append(argValue)
-      }
-    )
-    Right((WanderValue.Function(PartialFunction(args.toSeq, hostFunction)), environment))
-
-def handleWhenExpression(
-    conditionals: Seq[(Expression, Expression)],
-    environment: Environment
-): Either[WanderError, (WanderValue, Environment)] =
-  boundary:
-    conditionals.find { (conditional, _) =>
-      eval(conditional, environment) match {
-        case Right((value, _)) =>
-          value match {
-            case WanderValue.Bool(value) => value
-            case _ => break(Left(WanderError("Conditionals must evaluate to Bool.")))
-          }
-        case Left(err) => break(Left(err))
-      }
-    } match {
-      case None            => Left(WanderError("No matching cases."))
-      case Some((_, body)) => eval(body, environment)
-    }
 
 def handleArray(
     expressions: Seq[Expression],

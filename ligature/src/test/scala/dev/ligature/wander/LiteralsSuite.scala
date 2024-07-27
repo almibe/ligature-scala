@@ -13,21 +13,6 @@ class LiteralsSuite extends munit.FunSuite {
       expected
     )
 
-  test("true boolean primitive") {
-    val script = "true"
-    val result = WanderValue.Bool(true)
-    check(script, result)
-  }
-  test("false boolean primitive") {
-    val script = "false"
-    val result = WanderValue.Bool(false)
-    check(script, result)
-  }
-  test("true boolean primitive with trailing whitespace") {
-    val script = "true   "
-    val result = WanderValue.Bool(true)
-    check(script, result)
-  }
   test("bytes") {
     val script = "0x01FF"
     val result = WanderValue.Bytes(Seq(1.byteValue, -1.byteValue))
@@ -74,11 +59,11 @@ class LiteralsSuite extends munit.FunSuite {
     val result = WanderValue.Module(Map((Field("x"), WanderValue.Int(5))))
     check(script, result)
   }
-  test("record literal with multiple values") {
-    val script = "{x = 5, notFalse = true}"
-    val result = WanderValue.Module(
-      Map((Field("x"), WanderValue.Int(5)), (Field("notFalse"), WanderValue.Bool(true)))
-    )
-    check(script, result)
-  }
+  // test("record literal with multiple values") {
+  //   val script = "{x = 5, notFalse = true}"
+  //   val result = WanderValue.Module(
+  //     Map((Field("x"), WanderValue.Int(5)), (Field("notFalse"), WanderValue.Bool(true)))
+  //   )
+  //   check(script, result)
+  // }
 }

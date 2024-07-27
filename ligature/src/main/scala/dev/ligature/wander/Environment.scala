@@ -66,19 +66,7 @@ case class Environment(
   def bindVariable(
       taggedField: TaggedField,
       wanderValue: WanderValue
-  ): Either[WanderError, Environment] =
-    this.checkTag(taggedField.tag, wanderValue) match {
-      case Left(value) => Left(value)
-      case Right(value) =>
-        val currentScope = this.scopes.last
-        val newVariables = currentScope + (taggedField.field -> (taggedField.tag, wanderValue))
-        val oldScope = this.scopes.dropRight(1)
-        Right(
-          Environment(
-            oldScope.appended(newVariables)
-          )
-        )
-    }
+  ): Either[WanderError, Environment] = ???
 
   def read(field: Field): Either[WanderError, Option[WanderValue]] =
     var currentScopeOffset = this.scopes.length - 1
@@ -91,23 +79,23 @@ case class Environment(
     }
     Right(None)
 
-  def read(fieldPath: FieldPath): Either[WanderError, Option[WanderValue]] =
-    boundary:
-      var result: Option[WanderValue] = None
-      fieldPath.parts.foreach(field =>
-        if result.isEmpty then
-          this.read(field) match
-            case Left(err)    => break(Left(err))
-            case Right(value) => result = value
-        else
-          result match
-            case None => throw RuntimeException(s"Error trying to read $fieldPath\n$this")
-            case Some(WanderValue.Module(module)) =>
-              if module.contains(field) then result = Some(module(field))
-              else Left(WanderError(s"Could not read field path, $fieldPath."))
-            case _ => ???
-      )
-      Right(result)
+  def read(fieldPath: FieldPath): Either[WanderError, Option[WanderValue]] = ???
+    // boundary:
+    //   var result: Option[WanderValue] = None
+    //   fieldPath.parts.foreach(field =>
+    //     if result.isEmpty then
+    //       this.read(field) match
+    //         case Left(err)    => break(Left(err))
+    //         case Right(value) => result = value
+    //     else
+    //       result match
+    //         case None => throw RuntimeException(s"Error trying to read $fieldPath\n$this")
+    //         case Some(WanderValue.Module(module)) =>
+    //           if module.contains(field) then result = Some(module(field))
+    //           else Left(WanderError(s"Could not read field path, $fieldPath."))
+    //         case _ => ???
+    //   )
+    //   Right(result)
 
   def importModule(fieldPath: FieldPath): Either[WanderError, Environment] =
     var currentEnvironemnt = this
@@ -119,39 +107,6 @@ case class Environment(
           module.foreach((k, v) => currentEnvironemnt = currentEnvironemnt.bindVariable(k, v))
         case _ => ???
     Right(currentEnvironemnt)
-
-  def checkTag(tag: Tag, value: WanderValue): Either[WanderError, WanderValue] =
-    tag match {
-      case Tag.Untagged    => Right(value)
-      case Tag.Single(tag) => checkSingleTag(tag, value)
-      case Tag.Chain(tags) => ??? /// checkFunctionTag(tags, value)
-    }
-
-  private def checkSingleTag(tag: Function, value: WanderValue): Either[WanderError, WanderValue] =
-    tag match {
-      case hf: HostFunction =>
-        hf.fn(Seq(value), this) match {
-          case Right((WanderValue.Bool(true), _)) => Right(value)
-          case Right((WanderValue.Bool(false), _)) =>
-            Left(WanderError("Value failed Tag Function."))
-          case Left(err) => Left(err)
-          case _         => Left(WanderError("Invalid Tag, Tag Functions must return a Bool."))
-        }
-      case lambda: Lambda =>
-        assert(lambda.lambda.parameters.size == 1)
-        val environment = this.newScope()
-        // environment = environment
-        //   .bindVariable(TaggedField(lambda.lambda.parameters.head, Tag.Untagged), value)
-        //   .getOrElse(???)
-        dev.ligature.wander.eval(lambda.lambda.body, environment) match {
-          case Right((WanderValue.Bool(true), _)) => Right(value)
-          case Right((WanderValue.Bool(false), _)) =>
-            Left(WanderError("Value failed Tag Function."))
-          case Left(err) => Left(err)
-          case _         => Left(WanderError("Invalid Tag, Tag Functions must return a Bool."))
-        }
-      case _ => Left(WanderError(s"${tag} was not a valid tag."))
-    }
 
   // private def checkFunctionTag(
   //     tags: Seq[Function],

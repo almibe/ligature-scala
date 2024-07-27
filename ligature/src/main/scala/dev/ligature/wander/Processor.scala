@@ -23,7 +23,6 @@ def process(term: Term): Either[WanderError, Expression] =
     case Term.Pipe                            => ???
     case Term.Slot(name)                      => Right(Expression.Slot(name))
     case Term.Array(terms)                    => processArray(terms)
-    case Term.BooleanLiteral(value)           => Right(Expression.BooleanValue(value))
     case Term.Binding(name, tag, value)       => processBinding(name, tag, value)
     case Term.IntegerValue(value)             => Right(Expression.IntegerValue(value))
     case Term.FieldPathTerm(value)            => Right(Expression.FieldPathExpression(value))
@@ -31,7 +30,6 @@ def process(term: Term): Either[WanderError, Expression] =
     case Term.StringValue(value, interpolate) => Right(Expression.StringValue(value, interpolate))
     case Term.Lambda(parameters, body)        => processLambda(parameters, body)
     case Term.Grouping(terms)                 => processGrouping(terms)
-    case Term.WhenExpression(conditionals)    => processWhenExpression(conditionals)
     case Term.Application(terms)              => processApplication(terms)
     case Term.Module(values)                  => processModule(values)
     case Term.Bytes(value)                    => Right(Expression.Bytes(value))
@@ -41,6 +39,7 @@ def process(term: Term): Either[WanderError, Expression] =
   }
 
 def processNetwork(terms: Seq[Term.NetworkRoot]): Either[WanderError, Expression.Network] =
+  
   terms match {
     case Seq(
           Term.NetworkRoot(
@@ -84,23 +83,6 @@ def processApplication(terms: Seq[Term]): Either[WanderError, Expression.Applica
   if error.isDefined then Left(error.get)
   else Right(Expression.Application(res.toSeq))
 }
-
-def processWhenExpression(
-    conditionals: Seq[(Term, Term)]
-): Either[WanderError, Expression.WhenExpression] =
-  boundary:
-    val expressionConditionals = conditionals.map { (c, b) =>
-      val conditional = process(c) match {
-        case Left(err)    => break(Left(err))
-        case Right(value) => value
-      }
-      val body = process(b) match {
-        case Left(err)    => break(Left(err))
-        case Right(value) => value
-      }
-      (conditional, body)
-    }
-    Right(Expression.WhenExpression(expressionConditionals))
 
 def processModule(values: Seq[(dev.ligature.wander.Field, Term)]): Either[WanderError, Expression] =
   boundary:

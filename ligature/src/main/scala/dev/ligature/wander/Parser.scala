@@ -4,7 +4,7 @@
 
 package dev.ligature.wander
 
-import dev.ligature.gaze.{Gaze, Nibbler, take, takeAll, takeFirst, repeat}
+import dev.ligature.gaze.{Gaze, Nibbler, take, takeFirst, repeat}
 import dev.ligature.gaze.Result
 import dev.ligature.gaze.SeqSource
 import dev.ligature.gaze.optionalSeq
@@ -19,7 +19,6 @@ enum Term:
   case Bytes(value: Seq[Byte])
   case IntegerValue(value: Long)
   case StringValue(value: String, interpolated: Boolean = false)
-  case BooleanLiteral(value: Boolean)
   case Slot(name: String)
   case Array(value: Seq[Term])
   case Identifier(value: String)
@@ -27,7 +26,6 @@ enum Term:
   case Module(bindings: Seq[(Field, Term)])
   case Network(roots: Seq[NetworkRoot])
   case NetworkRoot(terms: Seq[Term])
-  case WhenExpression(conditionals: Seq[(Term, Term)])
   case Application(terms: Seq[Term])
   case Grouping(terms: Seq[Term])
   case Lambda(parameters: Seq[Field], body: Term)
@@ -62,11 +60,6 @@ val slotTermNib: Nibbler[Token, Term] = gaze =>
   gaze.next() match
     case Some(Token.Slot(name)) => Result.Match(Term.Slot(name))
     case _                        => Result.NoMatch
-
-val booleanNib: Nibbler[Token, Term.BooleanLiteral] = gaze =>
-  gaze.next() match
-    case Some(Token.BooleanLiteral(b)) => Result.Match(Term.BooleanLiteral(b))
-    case _                             => Result.NoMatch
 
 val bytesNib: Nibbler[Token, Term.Bytes] = gaze =>
   gaze.next() match
@@ -156,15 +149,6 @@ val conditionalsNib: Nibbler[Token, (Term, Term)] = { gaze =>
   } yield (condition, body)
 }
 
-val whenExpressionNib: Nibbler[Token, Term.WhenExpression] = { gaze =>
-  for {
-    _ <- gaze.attempt(takeAll(take(Token.WhenKeyword)))
-    conditionals <- gaze.attempt(optionalSeq(repeatSep(conditionalsNib, Token.Comma)))
-    // `else` <- gaze.attempt(optional(elseExpressionNib))
-    _ <- gaze.attempt(take(Token.EndKeyword))
-  } yield Term.WhenExpression(conditionals)
-}
-
 val arrayNib: Nibbler[Token, Term.Array] = { gaze =>
   for
     _ <- gaze.attempt(take(Token.OpenBracket))
@@ -215,9 +199,9 @@ val moduleNib: Nibbler[Token, Term.Module] = { gaze =>
 val networkNib: Nibbler[Token, Term.Network] = { gaze =>
   val res = for
     _ <- gaze.attempt(take(Token.OpenBrace))
-    entity <- gaze.attempt(identifierNib)
-    attribute <- gaze.attempt(identifierNib)
-    value <- gaze.attempt(identifierNib)
+    entity <- gaze.attempt(takeFirst(identifierNib, slotTermNib))
+    attribute <- gaze.attempt(takeFirst(identifierNib, slotTermNib))
+    value <- gaze.attempt(takeFirst(identifierNib, slotTermNib))
     _ <- gaze.attempt(take(Token.CloseBrace))
   yield Term.Network(Seq(Term.NetworkRoot(Seq(entity, attribute, value))))
   res match
@@ -283,11 +267,9 @@ val applicationInternalNib =
     stringNib,
     bytesNib,
     integerNib,
-    whenExpressionNib,
     arrayNib,
     networkNib,
     moduleNib,
-    booleanNib,
     slotTermNib,
     fieldPathTermNib
   )
@@ -304,12 +286,9 @@ val expressionNib =
     stringNib,
     bytesNib,
     integerNib,
-    whenExpressionNib,
     arrayNib,
     networkNib,
     moduleNib,
-    booleanNib,
-    slotTermNib,
     fieldPathTermNib,
     pipeTermNib
   )

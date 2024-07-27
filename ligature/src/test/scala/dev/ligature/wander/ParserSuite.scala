@@ -67,23 +67,23 @@ class ParserSuite extends FunSuite {
     val expected = Right(Seq(Term.StringValue("hello $(UName)", true)))
     assertEquals(result, expected)
   }
-  test("parse Boolean") {
-    val result = check("false")
-    val expected = Right(Seq(Term.BooleanLiteral(false)))
-    assertEquals(result, expected)
-  }
-  test("parse Function Calls") {
-    val input = check("not true")
-    val expected =
-      Right(
-        Seq(
-          Term.Application(
-            Seq(Term.FieldPathTerm(FieldPath(Seq(Field("not")))), Term.BooleanLiteral(true))
-          )
-        )
-      )
-    assertEquals(input, expected)
-  }
+  // test("parse Boolean") {
+  //   val result = check("false")
+  //   val expected = Right(Seq(Term.BooleanLiteral(false)))
+  //   assertEquals(result, expected)
+  // }
+  // test("parse Function Calls") {
+  //   val input = check("not true")
+  //   val expected =
+  //     Right(
+  //       Seq(
+  //         Term.Application(
+  //           Seq(Term.FieldPathTerm(FieldPath(Seq(Field("not")))), Term.BooleanLiteral(true))
+  //         )
+  //       )
+  //     )
+  //   assertEquals(input, expected)
+  // }
   test("parse Function Call with question mark argument") {
     val result = check("query ?")
     val expected = Right(
@@ -165,20 +165,20 @@ class ParserSuite extends FunSuite {
     )
     assertEquals(result, expected)
   }
-  test("parse grouping") {
-    val result = check("(true, 4)")
-    val expected = Right(
-      Seq(
-        Term.Grouping(
-          Seq(
-            Term.BooleanLiteral(true),
-            Term.IntegerValue(4)
-          )
-        )
-      )
-    )
-    assertEquals(result, expected)
-  }
+  // test("parse grouping") {
+  //   val result = check("(true, 4)")
+  //   val expected = Right(
+  //     Seq(
+  //       Term.Grouping(
+  //         Seq(
+  //           Term.BooleanLiteral(true),
+  //           Term.IntegerValue(4)
+  //         )
+  //       )
+  //     )
+  //   )
+  //   assertEquals(result, expected)
+  // }
   // test("parse empty Dataset".ignore) {
   //   val result = check("{}")
   //   val expected = Right(
@@ -238,20 +238,42 @@ class ParserSuite extends FunSuite {
     )
     assertEquals(result, expected)
   }
-  test("parse when expression") {
-    val result = check("when true => 6, false => 7 end")
+  test("parse network with slots") {
+    val result = check("{ ? ? ? }")
     val expected = Right(
       Seq(
-        Term.WhenExpression(
-          Seq(
-            (Term.BooleanLiteral(true), Term.IntegerValue(6)),
-            (Term.BooleanLiteral(false), Term.IntegerValue(7))
-          )
+        Term.Network(
+          Seq(Term.NetworkRoot(Seq(Term.Slot(""), Term.Slot(""), Term.Slot(""))))
         )
       )
     )
     assertEquals(result, expected)
   }
+  test("parse network with named slots") {
+    val result = check("{ ?a ?b ?c }")
+    val expected = Right(
+      Seq(
+        Term.Network(
+          Seq(Term.NetworkRoot(Seq(Term.Slot("a"), Term.Slot("b"), Term.Slot("c"))))
+        )
+      )
+    )
+    assertEquals(result, expected)
+  }
+  // test("parse when expression") {
+  //   val result = check("when true => 6, false => 7 end")
+  //   val expected = Right(
+  //     Seq(
+  //       Term.WhenExpression(
+  //         Seq(
+  //           (Term.BooleanLiteral(true), Term.IntegerValue(6)),
+  //           (Term.BooleanLiteral(false), Term.IntegerValue(7))
+  //         )
+  //       )
+  //     )
+  //   )
+  //   assertEquals(result, expected)
+  // }
   test("parse tagged Field in assignment") {
     val result = check("zero: Core.Int = 0")
     val expected = Right(
@@ -290,39 +312,39 @@ class ParserSuite extends FunSuite {
     )
     assertEquals(result, expected)
   }
-  test("parse pipe") {
-    val result = check("true | not")
-    val expected = Right(
-      Seq(
-        Term.Application(
-          Seq(
-            Term.FieldPathTerm(FieldPath(List(Field("not")))),
-            Term.BooleanLiteral(true)
-          )
-        )
-      )
-    )
-    assertEquals(result, expected)
-  }
-  test("parse chained pipe") {
-    val result = check("true | not | not")
-    val expected = Right(
-      Seq(
-        Term.Application(
-          Seq(
-            Term.FieldPathTerm(FieldPath(List(Field("not")))),
-            Term.Application(
-              Seq(
-                Term.FieldPathTerm(FieldPath(List(Field("not")))),
-                Term.BooleanLiteral(true)
-              )
-            )
-          )
-        )
-      )
-    )
-    assertEquals(result, expected)
-  }
+  // test("parse pipe") {
+  //   val result = check("true | not")
+  //   val expected = Right(
+  //     Seq(
+  //       Term.Application(
+  //         Seq(
+  //           Term.FieldPathTerm(FieldPath(List(Field("not")))),
+  //           Term.BooleanLiteral(true)
+  //         )
+  //       )
+  //     )
+  //   )
+  //   assertEquals(result, expected)
+  // }
+  // test("parse chained pipe") {
+  //   val result = check("true | not | not")
+  //   val expected = Right(
+  //     Seq(
+  //       Term.Application(
+  //         Seq(
+  //           Term.FieldPathTerm(FieldPath(List(Field("not")))),
+  //           Term.Application(
+  //             Seq(
+  //               Term.FieldPathTerm(FieldPath(List(Field("not")))),
+  //               Term.BooleanLiteral(true)
+  //             )
+  //           )
+  //         )
+  //       )
+  //     )
+  //   )
+  //   assertEquals(result, expected)
+  // }
   test("parse Statement with empty Record for Value") {
     val result = check("`a` `a` {}")
     val expected = Right(

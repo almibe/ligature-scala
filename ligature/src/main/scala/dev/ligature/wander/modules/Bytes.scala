@@ -4,11 +4,11 @@
 
 package dev.ligature.wander.modules
 
-import dev.ligature.wander.HostFunction
-import dev.ligature.wander.WanderValue
-import dev.ligature.wander.TaggedField
-import dev.ligature.wander.Tag
-import dev.ligature.wander.Field
+// import dev.ligature.wander.HostFunction
+// import dev.ligature.wander.WanderValue
+// import dev.ligature.wander.TaggedField
+// import dev.ligature.wander.Tag
+// import dev.ligature.wander.Field
 import io.fury.Fury
 
 val fury = Fury
@@ -18,36 +18,36 @@ val fury = Fury
   .withRefTracking(true)
   .build()
 
-val bytesModule: WanderValue.Module = WanderValue.Module(
-  Map(
-    Field("encode") -> WanderValue.Function(
-      HostFunction(
-        "",
-        Seq(TaggedField(Field("value"), Tag.Untagged)),
-        Tag.Untagged,
-        (args, env) =>
-          args match
-            case Seq(value: WanderValue) =>
-              Right((WanderValue.Bytes(encodeWanderValue(value)), env))
-            case _ => ???
-      )
-    ),
-    Field("decode") -> WanderValue.Function(
-      HostFunction(
-        "",
-        Seq(TaggedField(Field("value"), Tag.Untagged)),
-        Tag.Untagged,
-        (args, env) =>
-          args match
-            case Seq(WanderValue.Bytes(value)) => Right((decodeWanderValue(value), env))
-            case _                             => ???
-      )
-    )
-  )
-)
+// val bytesModule: WanderValue.Module = WanderValue.Module(
+//   Map(
+//     Field("encode") -> WanderValue.Function(
+//       HostFunction(
+//         "",
+//         Seq(TaggedField(Field("value"), Tag.Untagged)),
+//         Tag.Untagged,
+//         (args, env) =>
+//           args match
+//             case Seq(value: WanderValue) =>
+//               Right((WanderValue.Bytes(encodeWanderValue(value)), env))
+//             case _ => ???
+//       )
+//     ),
+//     Field("decode") -> WanderValue.Function(
+//       HostFunction(
+//         "",
+//         Seq(TaggedField(Field("value"), Tag.Untagged)),
+//         Tag.Untagged,
+//         (args, env) =>
+//           args match
+//             case Seq(WanderValue.Bytes(value)) => Right((decodeWanderValue(value), env))
+//             case _                             => ???
+//       )
+//     )
+//   )
+// )
 
-def encodeWanderValue(value: WanderValue): Seq[Byte] =
-  fury.serialize(value).toIndexedSeq
+// def encodeWanderValue(value: WanderValue): Seq[Byte] =
+//   fury.serialize(value).toIndexedSeq
 
-def decodeWanderValue(value: Seq[Byte]): WanderValue =
-  fury.deserialize(value.toArray).asInstanceOf[WanderValue]
+// def decodeWanderValue(value: Seq[Byte]): WanderValue =
+//   fury.deserialize(value.toArray).asInstanceOf[WanderValue]

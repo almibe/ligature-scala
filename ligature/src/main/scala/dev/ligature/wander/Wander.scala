@@ -13,7 +13,6 @@ import com.google.gson.Gson
   */
 enum WanderValue:
   case Int(value: Long)
-  case Bool(value: Boolean)
   case Bytes(value: Seq[Byte])
   case String(value: java.lang.String)
   case Array(values: Seq[WanderValue])
@@ -123,7 +122,6 @@ val formatter = HexFormat.of()
 def printWanderValue(value: WanderValue): String =
   value match
     case WanderValue.Slot(name)         => s"?$name"
-    case WanderValue.Bool(value)        => value.toString()
     case WanderValue.Int(value)         => value.toString()
     case WanderValue.String(value)      => printString(value)
     case WanderValue.Function(function) => "\"[Function]\""
