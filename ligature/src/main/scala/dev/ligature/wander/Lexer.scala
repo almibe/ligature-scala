@@ -22,7 +22,6 @@ import dev.ligature.gaze.seq
 import dev.ligature.gaze.flatten
 import dev.ligature.gaze.concat
 import scala.collection.mutable.ArrayBuffer
-import dev.ligature.gaze.between
 import dev.ligature.gaze.takeAny
 import java.util.HexFormat
 import dev.ligature.wander.LigNibblers.wordNibbler
@@ -170,7 +169,7 @@ val spacesTokenNib =
     .map(res => Token.Spaces(res.mkString))
 
 val slotNib = takeAll(
-    takeString("?"),
+    takeString("$"),
     optional(concat(takeWhile { (c: String) =>
       "[a-zA-Z0-9-._~:/?#\\[\\]@!$&'()*+,;%=]".r.matches(c)
     })),
@@ -179,6 +178,12 @@ val slotNib = takeAll(
 val tokensNib: Nibbler[String, Seq[Token]] = repeat(
   takeFirst(
     spacesTokenNib,
+    openBraceTokenNib,
+    closeBraceTokenNib,
+    openBracketTokenNib,
+    closeBracketTokenNib,
+    integerTokenNib,
+    slotNib,
     wordTokenNib,
     stringTokenNib,
     nameTokenNib,
@@ -190,19 +195,12 @@ val tokensNib: Nibbler[String, Seq[Token]] = repeat(
     arrowTokenNib,
     dotNib,
     atNib,
-    pipeNib,
     lambdaTokenNib,
     bytesTokenNib,
-    integerTokenNib,
     newLineTokenNib,
-    openBraceTokenNib,
-    closeBraceTokenNib,
-    openBracketTokenNib,
-    closeBracketTokenNib,
     backtickTokenNib,
     commentTokenNib,
     equalSignTokenNib,
-    slotNib,
     hashTokenNib
   )
 )
@@ -222,13 +220,10 @@ object LigNibblers {
       )
     )
 
-  val wordNibbler: Nibbler[String, String] = between(
-    takeString("`"),
+  val wordNibbler: Nibbler[String, String] =
     concat(takeWhile { (c: String) =>
       "[a-zA-Z0-9-._~:/?#\\[\\]@!$&'()*+,;%=]".r.matches(c)
-    }),
-    takeString("`")
-  )
+    })
 
   val stringContentNibbler: Nibbler[String, String] =
     (gaze: Gaze[String]) => {

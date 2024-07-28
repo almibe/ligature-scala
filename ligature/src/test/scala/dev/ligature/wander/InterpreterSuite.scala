@@ -34,7 +34,7 @@ class InterpreterSuite extends FunSuite {
   //   check(script, result)
   // }
   test("Network support") {
-    val script = "{ `a` `b` `c` }"
+    val script = "{ a b c }"
     val result = WanderValue.Network(
       Set(
         Statement(

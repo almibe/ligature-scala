@@ -143,6 +143,8 @@ def printStatementValue(value: LigatureValue): String =
       "{" + values
         .map((field, value) => field + " = " + printStatementValue(value))
         .mkString(", ") + "}"
+    case LigatureValue.Quote(quote) => ???
+    case LigatureValue.Network => ???
 
 def printNetwork(network: Set[Statement]) = network
   .map(printStatement)
