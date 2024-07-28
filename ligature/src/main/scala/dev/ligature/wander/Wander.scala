@@ -18,17 +18,13 @@ enum WanderValue:
   case Slot(name: java.lang.String)
   case Network(value: Set[dev.ligature.wander.Statement])
 
-case class Field(name: String)
-case class FieldPath(parts: Seq[Field])
-case class TaggedField(field: Field, tag: Tag)
-
 enum Tag:
   case Untagged
   case Single(tag: Function)
   case Chain(names: Seq[Function])
 
 trait Function:
-  def call(args: Seq[WanderValue], environment: Environment): Either[WanderError, WanderValue]
+  def call(args: Seq[WanderValue]): Either[WanderError, WanderValue]
 
 // case class Lambda(val lambda: Expression.Lambda) extends Function {
 //   override def call(
@@ -53,26 +49,23 @@ trait Function:
 
 case class HostFunction(
     docString: String,
-    parameters: Seq[TaggedField],
+    parameters: Seq[String],
     resultTag: Tag,
     fn: (
         arguments: Seq[WanderValue],
-        environment: Environment
-    ) => Either[WanderError, (WanderValue, Environment)]
+    ) => Either[WanderError, (WanderValue)]
 ) extends Function {
   override def call(
       args: Seq[WanderValue],
-      environment: Environment
-  ): Either[WanderError, WanderValue] =
-    fn.apply(args, environment).map(_._1)
+  ): Either[WanderError, WanderValue] = ???
+//    fn.apply(args).map(_)
 }
 
 case class WanderError(val userMessage: String) extends Throwable(userMessage)
 
 def run(
     script: String,
-    environment: Environment
-): Either[WanderError, (WanderValue, Environment)] =
+): Either[WanderError, (WanderValue)] =
   val expression = for {
     tokens <- tokenize(script)
     terms <- parse(tokens)
@@ -80,7 +73,7 @@ def run(
   } yield expression
   expression match
     case Left(value)  => Left(value)
-    case Right(value) => environment.eval(value)
+    case Right(value) => ???//Right(value)
 
 case class Inspect(
     tokens: Either[WanderError, Seq[Token]],
@@ -106,10 +99,10 @@ def inspect(script: String): Inspect = {
   Inspect(tokens, terms, expression)
 }
 
-def printResult(value: Either[WanderError, (WanderValue, Environment)]): String =
+def printResult(value: Either[WanderError, (WanderValue)]): String =
   value match {
     case Left(value)  => "Error: " + value.userMessage
-    case Right(value) => printWanderValue(value._1)
+    case Right(value) => printWanderValue(value)
   }
 
 val formatter = HexFormat.of()

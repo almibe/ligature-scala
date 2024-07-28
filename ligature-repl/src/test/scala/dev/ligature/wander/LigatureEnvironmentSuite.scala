@@ -7,6 +7,7 @@ package dev.ligature.testsuite
 import dev.ligature._
 import munit.FunSuite
 //import dev.ligature.inmemory.LigatureInMemory
+import dev.ligature.wander.Environment
 import dev.ligature.wander.run
 import dev.ligature.wander.WanderValue
 //import dev.ligature.wander.modules.std
@@ -23,10 +24,10 @@ class LigatureTestSuite extends FunSuite {
   //  }
   // )
 
-  def check(script: String): WanderValue =
-    run(script) match {
+  def check(script: String, environment: Environment): WanderValue =
+    run(script, environment) match {
       case Left(value)  => throw value
-      case Right(value) => value
+      case Right(value) => value._1
     }
 
   // setup.test("run empty string") { (instance, _) =>

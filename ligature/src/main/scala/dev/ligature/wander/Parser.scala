@@ -14,11 +14,9 @@ import scala.util.boundary.break
 import scala.collection.mutable.ArrayBuffer
 
 enum Term:
-  case FieldTerm(field: Field)
-  case FieldPathTerm(fieldPath: FieldPath)
   case Bytes(value: Seq[Byte])
   case IntegerValue(value: Long)
-  case StringValue(value: String, interpolated: Boolean = false)
+  case StringValue(value: String)
   case Slot(name: String)
   case Array(value: Seq[Term])
   case Word(value: String)
@@ -69,27 +67,13 @@ val integerNib: Nibbler[Token, Term.IntegerValue] = gaze =>
 
 val stringNib: Nibbler[Token, Term.StringValue] = gaze =>
   gaze.next() match
-    case Some(Token.StringValue(s, i)) => Result.Match(Term.StringValue(s, i))
+    case Some(Token.StringValue(s)) => Result.Match(Term.StringValue(s))
     case _                             => Result.NoMatch
 
 val wordNib: Nibbler[Token, Term.Word] = gaze =>
   gaze.next() match
     case Some(Token.Word(value)) => Result.Match(Term.Word(value))
     case _                        => Result.NoMatch
-
-val fieldNib: Nibbler[Token, Field] = gaze =>
-  gaze.next() match
-    case Some(Token.Field(name)) => Result.Match(Field(name))
-    case _                       => Result.NoMatch
-
-val fieldPathNib: Nibbler[Token, FieldPath] = gaze =>
-  for values <- gaze.attempt(repeatSep(fieldNib, Token.Dot))
-  yield FieldPath(values)
-
-val fieldTermNib: Nibbler[Token, Term.FieldTerm] = gaze =>
-  gaze.next() match
-    case Some(Token.Field(name)) => Result.Match(Term.FieldTerm(Field(name)))
-    case _                       => Result.NoMatch
 
 // val tagNib: Nibbler[Token, Option[Field]] = gaze =>
 //   gaze.peek() match
@@ -140,34 +124,6 @@ val arrayNib: Nibbler[Token, Term.Array] = { gaze =>
   yield Term.Array(values)
 }
 
-val fieldNibNameOnly: Nibbler[Token, (Field, Term)] = { gaze =>
-  val res =
-    for name <- gaze.attempt(fieldNib)
-    yield name
-  res match {
-    case Result.Match(field) => Result.Match((field, Term.FieldTerm(field)))
-    case _                   => Result.NoMatch
-  }
-}
-
-val fieldNibNameValue: Nibbler[Token, (Field, Term)] = { gaze =>
-  val res = for
-    field <- gaze.attempt(fieldNib)
-    _ <- gaze.attempt(take(Token.EqualSign))
-    expression <- gaze.attempt(expressionNib)
-  yield (field, expression)
-  res match {
-    case Result.Match((field, term: Term)) => Result.Match((field, term))
-    case _                                 => Result.NoMatch
-  }
-}
-
-val moduleFieldNib: Nibbler[Token, (dev.ligature.wander.Field, Term)] =
-  takeFirst(fieldNibNameValue, fieldNibNameOnly)
-
-val fieldPathTermNib: Nibbler[Token, Term.FieldPathTerm] =
-  fieldPathNib.map(Term.FieldPathTerm(_))
-
 val networkNib: Nibbler[Token, Term.Network] = { gaze =>
   val res = for
     _ <- gaze.attempt(take(Token.OpenBrace))
@@ -210,7 +166,6 @@ val applicationInternalNib =
     arrayNib,
     networkNib,
     slotTermNib,
-    fieldPathTermNib
   )
 
 val expressionNib =
@@ -223,7 +178,6 @@ val expressionNib =
     integerNib,
     arrayNib,
     networkNib,
-    fieldPathTermNib,
   )
 
 //val scriptNib = optionalSeq(repeatSep(expressionNib, Token.Comma))
@@ -244,10 +198,6 @@ val scriptNib: Nibbler[Token, Seq[Term]] = { gaze =>
                   value match
                     case Term.Application(terms) =>
                       results += Term.Application(terms ++ Seq(pipedTerm))
-                    case term: Term.FieldTerm =>
-                      results += Term.Application(Seq(term, pipedTerm))
-                    case term: Term.FieldPathTerm =>
-                      results += Term.Application(Seq(term, pipedTerm))
                     case _ => break(Result.NoMatch)
             case Some(Token.Pipe) =>
               pipedValue match
@@ -256,10 +206,6 @@ val scriptNib: Nibbler[Token, Seq[Term]] = { gaze =>
                   value match
                     case Term.Application(terms) =>
                       pipedValue = Some(Term.Application(terms ++ Seq(pipedTerm)))
-                    case term: Term.FieldTerm =>
-                      pipedValue = Some(Term.Application(Seq(term, pipedTerm)))
-                    case term: Term.FieldPathTerm =>
-                      pipedValue = Some(Term.Application(Seq(term, pipedTerm)))
                     case _ => break(Result.NoMatch)
             case Some(_) => break(Result.NoMatch)
     break(Result.Match(results.toSeq))

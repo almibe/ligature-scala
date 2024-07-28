@@ -4,12 +4,13 @@
 
 package dev.ligature.wander
 
+import dev.ligature.wander.modules.std
 
 class LiteralsSuite extends munit.FunSuite {
   def check(script: String, expected: WanderValue) =
-    val (res) = run(script) match {
+    val (res, _) = run(script, std()) match {
       case Right(res) => res
-      case Left(err) => ???//throw err
+      case Left(err) => throw err
     }
     
     assertEquals(

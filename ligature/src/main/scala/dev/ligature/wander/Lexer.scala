@@ -33,7 +33,7 @@ enum Token:
   case Spaces(value: String)
   case Bytes(value: Seq[Byte])
   case IntegerValue(value: Long)
-  case StringValue(value: String, interpolated: Boolean = false)
+  case StringValue(value: String)
   case Field(name: String)
   case TaggedField(name: String, tag: String)
   case OpenBrace, CloseBrace, Colon, OpenParen, CloseParen, NewLine,
@@ -64,7 +64,7 @@ val stringTokenNib: Nibbler[String, Token] =
   LigNibblers.stringNibbler.map(results =>
     results.size match
       case 2 => Token.StringValue(results(1))
-      case 3 => Token.StringValue(results(2), true)
+      case 3 => Token.StringValue(results(2))
       case _ => ???
   )
 
@@ -200,7 +200,6 @@ val tokensNib: Nibbler[String, Seq[Token]] = repeat(
     newLineTokenNib,
     backtickTokenNib,
     commentTokenNib,
-    equalSignTokenNib,
     hashTokenNib
   )
 )

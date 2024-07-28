@@ -4,12 +4,14 @@
 
 package dev.ligature.wander
 
+import dev.ligature.wander.modules.std
+
 class WanderSuiteCommonMode extends munit.FunSuite {
-  def check(script: String, expected: WanderValue) =
+  def check(script: String, expected: WanderValue, environment: Environment = std()) =
     assertEquals(
-      run(script) match
+      run(script, environment) match
         case Left(value)                 => throw RuntimeException(value.toString())
-        case Right((value)) => value
+        case Right((value, environment)) => value
       ,
       expected
     )

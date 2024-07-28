@@ -5,12 +5,13 @@
 package dev.ligature.wander
 
 import munit.FunSuite
+import dev.ligature.wander.modules.std
 
 class InterpreterSuite extends FunSuite {
   def check(script: String, expected: WanderValue) =
-    run(script) match
+    run(script, std()) match
       case Left(err)         => throw RuntimeException(err.toString())
-      case Right((value)) => assertEquals(value, expected)
+      case Right((value, _)) => assertEquals(value, expected)
 
   // test("load script with no exports") {
   //   val script = "x = false, {}"

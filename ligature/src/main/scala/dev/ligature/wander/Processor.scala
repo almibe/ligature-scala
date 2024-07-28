@@ -25,15 +25,13 @@ def process(term: Term): Either[WanderError, Expression] =
     case Term.Slot(name)                      => Right(Expression.Slot(name))
     case Term.Array(terms)                    => processArray(terms)
     case Term.IntegerValue(value)             => Right(Expression.IntegerValue(value))
-    case Term.FieldPathTerm(value)            => Right(Expression.FieldPathExpression(value))
-    case Term.FieldTerm(value)                => Right(Expression.FieldExpression(value))
-    case Term.StringValue(value, interpolate) => Right(Expression.StringValue(value, interpolate))
+    case Term.StringValue(value) => Right(Expression.StringValue(value))
     case Term.Grouping(terms)                 => processGrouping(terms)
     case Term.Application(terms)              => processApplication(terms)
     case Term.Bytes(value)                    => Right(Expression.Bytes(value))
     case Term.Word(value)               => Right(Expression.Word(value))
     case Term.Network(roots)                    => processNetwork(roots)
-    case Term.NetworkRoot(_)                    => ??? // TODO probably return error?
+    case Term.NetworkRoot(_)                    => ???
   }
 
 def processNetwork(terms: Seq[Term.NetworkRoot]): Either[WanderError, Expression.Network] =
