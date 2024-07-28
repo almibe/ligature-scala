@@ -53,19 +53,19 @@ class LiteralsSuite extends munit.FunSuite {
   //   val result = LigatureValue.String("hello world")
   //   check(script, result)
   // }
-  // test("empty record literal") {
-  //   val script = "{}"
-  //   val result = LigatureValue.Network(Set())
-  //   check(script, result)
-  // }
+  test("empty record literal") {
+    val script = "{}"
+    val result = LigatureValue.Network(InMemoryNetwork(Set()))
+    check(script, result)
+  }
   test("record literal with one value") {
     val script = "{x = x}"
-    val result = LigatureValue.Network(Set(
+    val result = LigatureValue.Network(InMemoryNetwork(Set(
         Triple(
           LigatureValue.Word("x"),
           LigatureValue.Word("="),
           LigatureValue.Word("x")
-        )
+        ))
       )
 )
     check(script, result)

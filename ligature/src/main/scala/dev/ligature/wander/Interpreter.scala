@@ -14,6 +14,7 @@ enum Expression:
   case StringValue(value: String)
   case Word(value: String)
   case Array(value: Seq[Expression])
+  case Triple(entity: Expression, attribute: Expression, value: Expression)
   case Network(expressions: Seq[Expression])
   case Application(expressions: Seq[Expression])
   case Grouping(expressions: Seq[Expression])
@@ -33,6 +34,7 @@ def eval(
     case Expression.Application(expressions) => handleApplication(expressions)
     case Expression.Slot(name)               => Right((LigatureValue.Slot(name)))
     case Expression.Network(expressions)       => handleNetwork(expressions)
+    case Expression.Triple(_, _, _) => ???
   }
 
 // def readFieldPath(
@@ -81,20 +83,20 @@ def handleNetwork(
           Expression.Word(entity),
           Expression.Word(attribute),
           Expression.Word(value)
-        ) => ???
-      // Right(
-      //   (
-      //     LigatureValue.Network(
-      //       Set(
-      //         Triple(
-      //           LigatureValue.Word(entity),
-      //           LigatureValue.Word(attribute),
-      //           LigatureValue.Word(value)
-      //         )
-      //       )
-      //     )
-      //   )
-      // )
+        ) =>
+      Right(
+        (
+          LigatureValue.Network(InMemoryNetwork(
+            Set(
+              Triple(
+                LigatureValue.Word(entity),
+                LigatureValue.Word(attribute),
+                LigatureValue.Word(value)
+              )
+            )
+          )
+        )
+      ))
     case _ => ???
 
 def handleApplication(

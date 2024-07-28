@@ -20,8 +20,9 @@ enum Term:
   case Slot(name: String)
   case Array(value: Seq[Term])
   case Word(value: String)
-  case Network(roots: Seq[NetworkRoot])
-  case NetworkRoot(terms: Seq[Term])
+  case Triple(entity: Term, attribute: Term, value: Term)
+  case Network(roots: Seq[Triple])
+  // case NetworkRoot(terms: Seq[Term])
   case Application(terms: Seq[Term])
   case Grouping(terms: Seq[Term])
 
@@ -124,14 +125,20 @@ val arrayNib: Nibbler[Token, Term.Array] = { gaze =>
   yield Term.Array(values)
 }
 
-val networkNib: Nibbler[Token, Term.Network] = { gaze =>
-  val res = for
-    _ <- gaze.attempt(take(Token.OpenBrace))
+val tripleNib: Nibbler[Token, Term.Triple] = { gaze =>
+  for
     entity <- gaze.attempt(takeFirst(wordNib, slotTermNib))
     attribute <- gaze.attempt(takeFirst(wordNib, slotTermNib))
     value <- gaze.attempt(takeFirst(wordNib, slotTermNib))
+  yield Term.Triple(entity, attribute, value)
+}
+
+val networkNib: Nibbler[Token, Term.Network] = { gaze =>
+  val res = for
+    _ <- gaze.attempt(take(Token.OpenBrace))
+    triples <- gaze.attempt(optionalSeq(repeatSep(tripleNib, Token.Comma)))
     _ <- gaze.attempt(take(Token.CloseBrace))
-  yield Term.Network(Seq(Term.NetworkRoot(Seq(entity, attribute, value))))
+  yield Term.Network(triples)
   res match
     case Result.Match(Term.Network(values)) => Result.Match(Term.Network(values))
     case _                                => Result.NoMatch

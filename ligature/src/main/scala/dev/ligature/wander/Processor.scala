@@ -5,6 +5,7 @@
 package dev.ligature.wander
 
 import scala.collection.mutable.ListBuffer
+import scala.annotation.tailrec
 
 //import scala.collection.mutable.ListBuffer
 //import scala.util.boundary, boundary.break
@@ -30,29 +31,30 @@ def process(term: Term): Either[WanderError, Expression] =
     case Term.Application(terms)              => processApplication(terms)
     case Term.Bytes(value)                    => Right(Expression.Bytes(value))
     case Term.Word(value)               => Right(Expression.Word(value))
-    case Term.Network(roots)                    => processNetwork(roots)
-    case Term.NetworkRoot(_)                    => ???
+    case Term.Network(triples)                    => processNetwork(triples, Array())
+    case Term.Triple(_, _, _)                    => ???
   }
 
-def processNetwork(terms: Seq[Term.NetworkRoot]): Either[WanderError, Expression.Network] =
-  
-  terms match {
-    case Seq(
-          Term.NetworkRoot(
-            Seq(Term.Word(entity), Term.Word(attribute), Term.Word(value))
-          )
-        ) =>
+def processTriple(triple: Term.Triple): Either[WanderError, Expression.Triple] =
+  triple match {
+    case Term.Triple(Term.Word(entity), Term.Word(attribute), Term.Word(value)) =>
       Right(
-        Expression.Network(
-          Seq(
-            Expression.Word(entity),
-            Expression.Word(attribute),
-            Expression.Word(value)
-          )
+        Expression.Triple(
+          Expression.Word(entity),
+          Expression.Word(attribute),
+          Expression.Word(value)
         )
       )
     case _ => ???
   }
+
+@tailrec
+def processNetwork(terms: Seq[Term.Triple], resuluts: Array[Expression.Triple]): Either[WanderError, Expression.Network] =
+  terms match
+    case head :: next =>
+      processTriple(head) match
+        case Left(value) => Left(value)
+        case Right(value) => processNetwork(next, resuluts :+ value)  
 
 def processGrouping(terms: Seq[Term]): Either[WanderError, Expression.Grouping] = {
   var error: Option[WanderError] = None

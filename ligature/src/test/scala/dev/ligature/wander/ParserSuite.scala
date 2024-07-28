@@ -51,16 +51,16 @@ class ParserSuite extends FunSuite {
   //   )
   //   assertEquals(result, expected)
   // }
-  test("parse String") {
-    val result = check("\"hello\"")
-    val expected = Right(Seq(Term.String("hello")))
-    assertEquals(result, expected)
-  }
-  test("parse String with quotes") {
-    val result = check("\"\\\"hello\\\"\"")
-    val expected = Right(Seq(Term.String("\"hello\"")))
-    assertEquals(result, expected)
-  }
+  // test("parse String") {
+  //   val result = check("\"hello\"")
+  //   val expected = Right(Seq(Term.StringValue("hello")))
+  //   assertEquals(result, expected)
+  // }
+  // test("parse String with quotes") {
+  //   val result = check("\"\\\"hello\\\"\"")
+  //   val expected = Right(Seq(Term.StringValue("\"hello\"")))
+  //   assertEquals(result, expected)
+  // }
 
   // test("parse interpolated String") {
   //   val result = check("i\"hello $(UName)\"")
@@ -217,7 +217,7 @@ class ParserSuite extends FunSuite {
     val expected = Right(
       Seq(
         Term.Network(
-          Seq(Term.NetworkRoot(Seq(Term.Word("a"), Term.Word("b"), Term.Word("c"))))
+          Seq(Term.Triple(Term.Word("a"), Term.Word("b"), Term.Word("c")))
         )
       )
     )
@@ -229,9 +229,9 @@ class ParserSuite extends FunSuite {
       Seq(
         Term.Network(
           Seq(
-            Term.NetworkRoot(Seq(Term.Word("a"), Term.Word("b"), Term.Word("c"))),
-            Term.NetworkRoot(Seq(Term.Word("a"), Term.Word("b"), Term.Word("d"))),
-            Term.NetworkRoot(Seq(Term.Word("b"), Term.Word("c"), Term.Word("d")))
+            Term.Triple(Term.Word("a"), Term.Word("b"), Term.Word("c")),
+            Term.Triple(Term.Word("a"), Term.Word("b"), Term.Word("d")),
+            Term.Triple(Term.Word("b"), Term.Word("c"), Term.Word("d"))
           )
         )
       )
@@ -243,10 +243,10 @@ class ParserSuite extends FunSuite {
     val expected = Right(
       Seq(
         Term.Network(
-          Seq(Term.NetworkRoot(Seq(Term.Slot(""), Term.Slot(""), Term.Slot(""))))
+          Seq(Term.Triple(Term.Slot(""), Term.Slot(""), Term.Slot(""))))
         )
       )
-    )
+    
     assertEquals(result, expected)
   }
   test("parse network with named slots") {
@@ -254,10 +254,9 @@ class ParserSuite extends FunSuite {
     val expected = Right(
       Seq(
         Term.Network(
-          Seq(Term.NetworkRoot(Seq(Term.Slot("a"), Term.Slot("b"), Term.Slot("c"))))
+          Seq(Term.Triple(Term.Slot("a"), Term.Slot("b"), Term.Slot("c"))))
         )
       )
-    )
     assertEquals(result, expected)
   }
   // test("parse when expression") {

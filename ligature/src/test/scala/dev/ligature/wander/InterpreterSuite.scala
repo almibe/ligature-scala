@@ -34,7 +34,7 @@ class InterpreterSuite extends FunSuite {
   // }
   test("Network support") {
     val script = "{ a b c }"
-    val result = LigatureValue.Network(
+    val result = LigatureValue.Network(InMemoryNetwork(
       Set(
         Triple(
           LigatureValue.Word("a"),
@@ -42,7 +42,7 @@ class InterpreterSuite extends FunSuite {
           LigatureValue.Word("c")
         )
       )
-    )
+    ))
     check(script, result)
   }
   // test("Triple with empty Record as Value") {

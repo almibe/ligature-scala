@@ -62,7 +62,8 @@ def run(
   } yield expression
   expression match
     case Left(value)  => Left(value)
-    case Right(value) => ???//Right(value)
+    case Right(value) => 
+      eval(value.head)
 
 case class Inspect(
     tokens: Either[WanderError, Seq[Token]],
