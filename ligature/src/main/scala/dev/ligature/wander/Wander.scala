@@ -6,6 +6,7 @@ package dev.ligature.wander
 
 import dev.ligature.wander.parse
 import java.util.HexFormat
+import com.google.gson.Gson
 
 enum Tag:
   case Untagged
@@ -110,6 +111,8 @@ def printLigatureValue(value: LigatureValue): String =
 
 def printBytes(bytes: Seq[Byte]) = s"0x${formatter.formatHex(bytes.toArray)}"
 
+def printQuote(values: Seq[LigatureValue]) = ???
+
 def printTriple(triple: Triple) =
   val value = printTripleValue(triple.value)
   s"`${triple.entity.value}` `${triple.attribute.value}` $value"
@@ -120,14 +123,18 @@ def printTripleValue(value: LigatureValue): String =
     case LigatureValue.Word(word)   => word
     case LigatureValue.Int(value) => value.toString()
     case LigatureValue.StringValue(value)  => printString(value)
-    case LigatureValue.Quote(quote) => ???///printQuote(quote)
+    case LigatureValue.Quote(quote) => printQuote(quote)
     case LigatureValue.Network(network) => ???
-    case LigatureValue.Slot(_) => ???
-    
+    case LigatureValue.Slot(slot) => "$" + slot
+
+def printQuote(network: INetwork) = network.write()
+  .map(printTriple)
+  .mkString("{ ", ", ", " }") //s"{ ${network.map(triple => printTriple(triple))} }"
+
 def printNetwork(network: INetwork) = network.write()
   .map(printTriple)
   .mkString("{ ", ", ", " }") //s"{ ${network.map(triple => printTriple(triple))} }"
 
-def printString(value: String) = ???
-  // val gson = Gson()
-  // gson.toJson(value)
+def printString(value: String) =
+  val gson = Gson()
+  gson.toJson(value)

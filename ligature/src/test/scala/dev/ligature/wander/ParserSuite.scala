@@ -98,11 +98,6 @@ class ParserSuite extends FunSuite {
   //   )
   //   assertEquals(result, expected)
   // }
-  test("parse empty List") {
-    val result = check("[]")
-    val expected = Right(Seq(Term.Array(Seq())))
-    assertEquals(result, expected)
-  }
   // test("parse List") {
   //   val result = check("[1, 2, \"three\"]")
   //   val expected = Right(
@@ -259,33 +254,30 @@ class ParserSuite extends FunSuite {
       )
     assertEquals(result, expected)
   }
-  // test("parse when expression") {
-  //   val result = check("when true => 6, false => 7 end")
-  //   val expected = Right(
-  //     Seq(
-  //       Term.WhenExpression(
-  //         Seq(
-  //           (Term.BooleanLiteral(true), Term.Int(6)),
-  //           (Term.BooleanLiteral(false), Term.Int(7))
-  //         )
-  //       )
-  //     )
-  //   )
-  //   assertEquals(result, expected)
-  // }
-  // test("parse tagged Field in assignment") {
-  //   val result = check("zero: Core.Int = 0")
-  //   val expected = Right(
-  //     Seq(
-  //       Term.Binding(
-  //         Field("zero"),
-  //         Some(FieldPath(Seq(Field("Core"), Field("Int")))),
-  //         Term.Int(0)
-  //       )
-  //     )
-  //   )
-  //   assertEquals(result, expected)
-  // }
+  test("parse network with empty Quote in Value postition") {
+    val result = check("{ a b [] }")
+    val expected = Right(
+      Seq(
+        Term.Network(
+          Seq(Term.Triple(Term.Word("a"), Term.Word("b"), Term.Quote(Seq()))))
+        )
+      )
+    assertEquals(result, expected)
+  }
+  test("parse network with simple Quote in Value postition") {
+    val result = check("{ a b [a 1 \"2\"] }")
+    val expected = Right(
+      Seq(
+        Term.Network(
+          Seq(Term.Triple(Term.Word("a"), Term.Word("b"), Term.Quote(Seq(
+            Term.Word("a"),
+            Term.Int(1),
+            Term.StringValue("2"),
+          )))))
+        )
+      )
+    assertEquals(result, expected)
+  }
   // test("parse tagged lambda") {
   //   val result = check("x: Core.Int -> Core.Bool = \\i -> false")
   //   val expected = Right(

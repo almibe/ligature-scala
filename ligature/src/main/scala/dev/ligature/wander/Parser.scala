@@ -18,7 +18,7 @@ enum Term:
   case Int(value: Long)
   case StringValue(value: String)
   case Slot(name: String)
-  case Array(value: Seq[Term])
+  case Quote(value: Seq[Term])
   case Word(value: String)
   case Triple(entity: Term, attribute: Term, value: Term)
   case Network(roots: Seq[Triple])
@@ -116,19 +116,19 @@ val wordNib: Nibbler[Token, Term.Word] = gaze =>
 //   } yield Term.Lambda(parameters, body) // TODO handle this body better
 // }
 
-val arrayNib: Nibbler[Token, Term.Array] = { gaze =>
+val quoteNib: Nibbler[Token, Term.Quote] = { gaze =>
   for
     _ <- gaze.attempt(take(Token.OpenBracket))
-    values <- gaze.attempt(optionalSeq(repeatSep(expressionNib, Token.Comma)))
+    values <- gaze.attempt(optionalSeq(repeat(expressionNib)))
     _ <- gaze.attempt(take(Token.CloseBracket))
-  yield Term.Array(values)
+  yield Term.Quote(values)
 }
 
 val tripleNib: Nibbler[Token, Term.Triple] = { gaze =>
   for
     entity <- gaze.attempt(takeFirst(wordNib, slotTermNib))
     attribute <- gaze.attempt(takeFirst(wordNib, slotTermNib))
-    value <- gaze.attempt(takeFirst(wordNib, slotTermNib, integerNib, stringNib))
+    value <- gaze.attempt(takeFirst(wordNib, slotTermNib, integerNib, stringNib, quoteNib))
   yield Term.Triple(entity, attribute, value)
 }
 
@@ -169,7 +169,7 @@ val applicationInternalNib =
     stringNib,
     bytesNib,
     integerNib,
-    arrayNib,
+    quoteNib,
     networkNib,
     slotTermNib,
   )
@@ -182,7 +182,7 @@ val expressionNib =
     stringNib,
     bytesNib,
     integerNib,
-    arrayNib,
+    quoteNib,
     networkNib,
   )
 

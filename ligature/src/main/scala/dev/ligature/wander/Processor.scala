@@ -24,7 +24,7 @@ def process(terms: Seq[Term]): Either[WanderError, Seq[Expression]] =
 def process(term: Term): Either[WanderError, Expression] =
   term match {
     case Term.Slot(name)                      => Right(Expression.Slot(name))
-    case Term.Array(terms)                    => processArray(terms)
+    case Term.Quote(terms)                    => processArray(terms)
     case Term.Int(value)             => Right(Expression.Int(value))
     case Term.StringValue(value) => Right(Expression.StringValue(value))
     case Term.Grouping(terms)                 => processGrouping(terms)
@@ -37,15 +37,26 @@ def process(term: Term): Either[WanderError, Expression] =
 
 def processTriple(triple: Term.Triple): Either[WanderError, Expression.Triple] =
   triple match {
-    case Term.Triple(Term.Word(entity), Term.Word(attribute), Term.Word(value)) =>
+    case Term.Triple(Term.Word(entity), Term.Word(attribute), value) =>
+      val ligatureValue: Expression = value match {
+        case Term.Application(terms) => ???
+        case Term.Word(word) => Expression.Word(word)
+        case Term.Bytes(_) => ???
+        case Term.Int(int) => Expression.Int(int)
+        case Term.StringValue(value) => Expression.StringValue(value)
+        case Term.Slot(slot) => Expression.Slot(slot)
+        case Term.Quote(_) => ???
+        case Term.Triple(_, _, _) => ???
+        case Term.Network(_) => ???
+        case Term.Grouping(_) => ???
+      }
       Right(
         Expression.Triple(
           Expression.Word(entity),
           Expression.Word(attribute),
-          Expression.Word(value)
-        )
-      )
-    case _ => ???
+          ligatureValue
+        ))
+    case _ => Left(WanderError("Could not parse triple."))
   }
 
 @tailrec
@@ -83,7 +94,7 @@ def processApplication(terms: Seq[Term]): Either[WanderError, Expression.Applica
   else Right(Expression.Application(res.toSeq))
 }
 
-// def processModule(values: Seq[(dev.ligature.wander.Field, Term)]): Either[WanderError, Expression] =
+// def processModule(values: Seq[(Field, Term)]): Either[WanderError, Expression] =
 //   boundary:
 //     val results = ListBuffer[(Field, Expression)]()
 //     values.foreach((name, value) =>

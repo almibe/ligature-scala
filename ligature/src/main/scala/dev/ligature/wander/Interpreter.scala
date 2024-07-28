@@ -80,12 +80,24 @@ def handleTriple(triple: Expression.Triple): Triple =
     case Expression.Triple(
           Expression.Word(entity),
           Expression.Word(attribute),
-          Expression.Word(value)
+          value
         ) =>
+          val ligatureValue = value match {
+            case Expression.Word(word) => LigatureValue.Word(word)
+            case Expression.Int(int) => LigatureValue.Int(int)
+            case Expression.Bytes(_) => ???
+            case Expression.StringValue(value) => LigatureValue.StringValue(value)
+            case Expression.Array(_) => ???
+            case Expression.Triple(_, _, _) => ???
+            case Expression.Network(_) => ???
+            case Expression.Application(_) => ???
+            case Expression.Grouping(_) => ???
+            case Expression.Slot(_) => ???
+          }
           Triple(
             LigatureValue.Word(entity),
             LigatureValue.Word(attribute),
-            LigatureValue.Word(value)
+            ligatureValue
           )
     case _ => ???
 
