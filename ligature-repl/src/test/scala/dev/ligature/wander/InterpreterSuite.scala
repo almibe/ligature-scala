@@ -8,23 +8,23 @@ import munit.FunSuite
 import dev.ligature.wander.modules.std
 
 class InterpreterSuite extends FunSuite {
-  def check(script: String, expected: WanderValue) =
+  def check(script: String, expected: LigatureValue) =
     run(script, std()) match
       case Left(err)         => throw RuntimeException(err.toString())
       case Right((value, _)) => assertEquals(value, expected)
 
   // test("load script with no exports") {
   //   val script = "x = false, {}"
-  //   check(script, WanderValue.Module(Map()))
+  //   check(script, LigatureValue.Module(Map()))
   // }
   // test("load script with one exports") {
   //   val script = "hello = 2, { hello }"
-  //   val tokens = WanderValue.Module(Map(Field("hello") -> WanderValue.Int(2)))
+  //   val tokens = LigatureValue.Module(Map(Field("hello") -> LigatureValue.Int(2)))
   //   check(script, tokens)
   // }
   // test("Triple support") {
   //   val script = "`a` `b` `c`"
-  //   val result = WanderValue.Triple(
+  //   val result = LigatureValue.Triple(
   //     Triple(
   //       LigatureValue.Word("a"),
   //       LigatureValue.Word("b"),
@@ -35,7 +35,7 @@ class InterpreterSuite extends FunSuite {
   // }
   test("Network support") {
     val script = "{ a b c }"
-    val result = WanderValue.Network(
+    val result = LigatureValue.Network(
       Set(
         Triple(
           LigatureValue.Word("a"),
@@ -48,7 +48,7 @@ class InterpreterSuite extends FunSuite {
   }
   // test("Triple with empty Record as Value") {
   //   val script = "`a` `a` {}"
-  //   val result = WanderValue.Triple(
+  //   val result = LigatureValue.Triple(
   //     Triple(
   //       LigatureValue.Word("a"),
   //       LigatureValue.Word("a"),

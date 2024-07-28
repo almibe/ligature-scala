@@ -4,7 +4,7 @@
 
 package dev.ligature.wander.modules
 
-// import dev.ligature.wander.WanderValue
+// import dev.ligature.wander.LigatureValue
 // import dev.ligature.wander.WanderError
 // import dev.ligature.wander.HostFunction
 // import dev.ligature.wander.TaggedField
@@ -13,32 +13,32 @@ package dev.ligature.wander.modules
 
 val bool = 0
 
-// val boolModule: WanderValue.Module = WanderValue.Module(
+// val boolModule: LigatureValue.Module = LigatureValue.Module(
 //   Map(
-//     Field("not") -> WanderValue.Function(
+//     Field("not") -> LigatureValue.Function(
 //       HostFunction(
 //         "Perform a not operation on a Bool value.",
 //         Seq(TaggedField(Field("value"), Tag.Untagged)),
 //         Tag.Untagged,
 //         (args, environment) =>
 //           args match
-//             case Seq(WanderValue.Bool(value)) => Right((WanderValue.Bool(!value), environment))
+//             case Seq(LigatureValue.Bool(value)) => Right((LigatureValue.Bool(!value), environment))
 //             case _                            => Left(WanderError("Unexpected input " + args))
 //       )
 //     ),
-//     Field("and") -> WanderValue.Function(
+//     Field("and") -> LigatureValue.Function(
 //       HostFunction(
 //         "Perform a logical and on two Bools.",
 //         Seq(TaggedField(Field("left"), Tag.Untagged), TaggedField(Field("right"), Tag.Untagged)),
 //         Tag.Untagged,
 //         (args, environment) =>
 //           args match
-//             case Seq(WanderValue.Bool(left), WanderValue.Bool(right)) =>
-//               Right((WanderValue.Bool(left && right), environment))
+//             case Seq(LigatureValue.Bool(left), LigatureValue.Bool(right)) =>
+//               Right((LigatureValue.Bool(left && right), environment))
 //             case _ => ???
 //       )
 //     ),
-//     Field("or") -> WanderValue.Function(
+//     Field("or") -> LigatureValue.Function(
 //       HostFunction(
 //         "Perform a logical or on two Bools.",
 //         Seq(TaggedField(Field("left"), Tag.Untagged), TaggedField(Field("right"), Tag.Untagged)),
@@ -46,7 +46,7 @@ val bool = 0
 //         (_, _) => ???
 //       )
 //     ),
-//     Field("toBytes") -> WanderValue.Function(
+//     Field("toBytes") -> LigatureValue.Function(
 //       HostFunction(
 //         "Encod a Bool as Bytes.",
 //         Seq(
@@ -55,16 +55,16 @@ val bool = 0
 //         Tag.Untagged,
 //         (args, environment) =>
 //           args match
-//             case Seq(WanderValue.Bool(value)) =>
+//             case Seq(LigatureValue.Bool(value)) =>
 //               Right(
 //                 (
-//                   ???, /// WanderValue.Bytes(BooleanBinding.booleanToEntry(value).getBytesUnsafe().toSeq),
+//                   ???, /// LigatureValue.Bytes(BooleanBinding.booleanToEntry(value).getBytesUnsafe().toSeq),
 //                   environment
 //                 )
 //               )
 //       )
 //     ),
-//     Field("fromBytes") -> WanderValue.Function(
+//     Field("fromBytes") -> LigatureValue.Function(
 //       HostFunction(
 //         "Decode Bytes to a Bool.",
 //         Seq(
@@ -73,10 +73,10 @@ val bool = 0
 //         Tag.Untagged,
 //         (args, environment) =>
 //           args match
-//             case Seq(WanderValue.Bytes(value)) =>
+//             case Seq(LigatureValue.Bytes(value)) =>
 //               Right(
 //                 (
-//                   ???, // WanderValue.Bool(BooleanBinding.entryToBoolean(ArrayByteIterable(value.toArray))),
+//                   ???, // LigatureValue.Bool(BooleanBinding.entryToBoolean(ArrayByteIterable(value.toArray))),
 //                   environment
 //                 )
 //               )

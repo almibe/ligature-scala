@@ -7,7 +7,7 @@ package dev.ligature.wander.modules
 val im = 0
 
 // import scala.collection.mutable.HashMap
-// import dev.ligature.wander.WanderValue
+// import dev.ligature.wander.LigatureValue
 // import dev.ligature.wander.Field
 // import dev.ligature.wander.HostFunction
 // import dev.ligature.wander.TaggedField
@@ -58,11 +58,11 @@ val im = 0
 //     }
 // }
 
-// val inMemoryModule: WanderValue.Module =
+// val inMemoryModule: LigatureValue.Module =
 //   val instance = InMemoryStore()
-//   WanderValue.Module(
+//   LigatureValue.Module(
 //     Map(
-//       Field("networks") -> WanderValue.Function(
+//       Field("networks") -> LigatureValue.Function(
 //         HostFunction(
 //           "Get all Network names.",
 //           Seq(
@@ -70,11 +70,11 @@ val im = 0
 //           ),
 //           Tag.Untagged,
 //           (_arguments, environment) =>
-//             val names = instance.networks().map(name => WanderValue.String(name))
-//             Right((WanderValue.Array(names), environment))
+//             val names = instance.networks().map(name => LigatureValue.String(name))
+//             Right((LigatureValue.Array(names), environment))
 //         )
 //       ),
-//       Field("addNetwork") -> WanderValue.Function(
+//       Field("addNetwork") -> LigatureValue.Function(
 //         HostFunction(
 //           "Add a new Network.",
 //           Seq(
@@ -83,14 +83,14 @@ val im = 0
 //           Tag.Untagged,
 //           (arguments, environment) =>
 //             arguments match {
-//               case Seq(WanderValue.String(name)) => 
+//               case Seq(LigatureValue.String(name)) => 
 //                 instance.addNetwork(name)
-//                 Right((WanderValue.Module(Map.empty), environment))
+//                 Right((LigatureValue.Module(Map.empty), environment))
 //               case _ => ???
 //             }
 //         )
 //       ),
-//       Field("removeNetwork") -> WanderValue.Function(
+//       Field("removeNetwork") -> LigatureValue.Function(
 //         HostFunction(
 //           "Delete a Network.",
 //           Seq(
@@ -99,14 +99,14 @@ val im = 0
 //           Tag.Untagged,
 //           (arguments, environment) =>
 //             arguments match {
-//               case Seq(WanderValue.String(name)) => 
+//               case Seq(LigatureValue.String(name)) => 
 //                 instance.removeNetwork(name)
-//                 Right((WanderValue.Module(Map.empty), environment))
+//                 Right((LigatureValue.Module(Map.empty), environment))
 //               case _ => ???
 //             }
 //         )
 //       ),
-//       Field("add") -> WanderValue.Function(
+//       Field("add") -> LigatureValue.Function(
 //         HostFunction(
 //           "Add Triples to an existing Network.",
 //           Seq(
@@ -116,15 +116,15 @@ val im = 0
 //           Tag.Untagged,
 //           (arguments, environment) =>
 //             arguments match {
-//               case Seq(WanderValue.String(name), WanderValue.Network(network)) => {
+//               case Seq(LigatureValue.String(name), LigatureValue.Network(network)) => {
 //                 instance.add(name, network.toSeq)
-//                 Right((WanderValue.Network(Set.empty), environment))
+//                 Right((LigatureValue.Network(Set.empty), environment))
 //               }
 //               case _ => ???
 //             }
 //         )
 //       ),
-//       Field("remove") -> WanderValue.Function(
+//       Field("remove") -> LigatureValue.Function(
 //         HostFunction(
 //           "Remove Triples from an existing Network.",
 //           Seq(
@@ -134,15 +134,15 @@ val im = 0
 //           Tag.Untagged,
 //           (arguments, environment) =>
 //             arguments match {
-//               case Seq(WanderValue.String(name), WanderValue.Network(network)) => {
+//               case Seq(LigatureValue.String(name), LigatureValue.Network(network)) => {
 //                 instance.add(name, network.toSeq)
-//                 Right((WanderValue.Network(Set.empty), environment))
+//                 Right((LigatureValue.Network(Set.empty), environment))
 //               }
 //               case _ => ???
 //             }
 //         )
 //       ),
-//       Field("query") -> WanderValue.Function(
+//       Field("query") -> LigatureValue.Function(
 //         HostFunction(
 //           "Query a Store.",
 //           Seq(
@@ -152,9 +152,9 @@ val im = 0
 //           Tag.Untagged,
 //           (arguments, environment) =>
 //             arguments match {
-//               case Seq(WanderValue.String(name), WanderValue.Network(network)) => {
+//               case Seq(LigatureValue.String(name), LigatureValue.Network(network)) => {
 //                 val res = instance.query(name, network.toSeq)
-//                 Right((WanderValue.Network(res.toSet), environment))
+//                 Right((LigatureValue.Network(res.toSet), environment))
 //               }
 //               case _ => ???
 //             }

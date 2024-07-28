@@ -32,7 +32,7 @@ enum Token:
   case BooleanLiteral(value: Boolean)
   case Spaces(value: String)
   case Bytes(value: Seq[Byte])
-  case IntegerValue(value: Long)
+  case Int(value: Long)
   case StringValue(value: String)
   case Field(name: String)
   case TaggedField(name: String, tag: String)
@@ -159,7 +159,7 @@ val lambdaTokenNib =
   takeString("\\").map(res => Token.Lambda)
 
 val integerTokenNib =
-  LigNibblers.numberNibbler.map(res => Token.IntegerValue(res.mkString.toLong))
+  LigNibblers.numberNibbler.map(res => Token.Int(res.mkString.toLong))
 
 val wordTokenNib =
   LigNibblers.wordNibbler.map(res => Token.Word(res))

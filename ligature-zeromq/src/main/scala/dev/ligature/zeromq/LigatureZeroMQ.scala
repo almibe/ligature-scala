@@ -7,8 +7,8 @@ package dev.ligature.wander.zeromq
 import org.zeromq.{ZMQ, ZContext, SocketType}
 
 import dev.ligature.wander.run as runWander
-import dev.ligature.wander.WanderValue
-import dev.ligature.wander.printWanderValue
+import dev.ligature.wander.LigatureValue
+import dev.ligature.wander.printLigatureValue
 import dev.ligature.wander.printResult
 import dev.ligature.wander.*
 import com.typesafe.scalalogging.Logger
@@ -34,7 +34,7 @@ private class LigatureZeroMQ(val port: Int) extends Runnable with AutoCloseable 
             val message = s"Error running command: $command -- ${err.userMessage}"
             logger.error(message)
             val _ = socket.send(message.getBytes(ZMQ.CHARSET), 0)
-          case result: Right[WanderError, (WanderValue, Environment)] =>
+          case result: Right[WanderError, (LigatureValue, Environment)] =>
             logger.info(s"Result for command: $command -- ${printResult(result)}")
             val _ = socket.send(printResult(result).getBytes(ZMQ.CHARSET), 0)
       catch
@@ -48,7 +48,7 @@ private class LigatureZeroMQ(val port: Int) extends Runnable with AutoCloseable 
 }
 
 def printError(message: String): String =
-  printWanderValue(WanderValue.Module(Map(Field("error") -> WanderValue.String(message))))
+  printLigatureValue(LigatureValue.Module(Map(Field("error") -> LigatureValue.String(message))))
 
 def runServer(port: Int): AutoCloseable = {
   val server = LigatureZeroMQ(port)

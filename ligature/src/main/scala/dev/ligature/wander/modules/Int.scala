@@ -7,12 +7,12 @@ package dev.ligature.wander.modules
 // import dev.ligature.wander.HostFunction
 // import dev.ligature.wander.TaggedField
 // import dev.ligature.wander.Tag
-// import dev.ligature.wander.WanderValue
+// import dev.ligature.wander.LigatureValue
 // import dev.ligature.wander.Field
 
-val intModule = 0//: WanderValue.Module = WanderValue.Module(
+val intModule = 0//: LigatureValue.Module = LigatureValue.Module(
 //   Map(
-//     Field("add") -> WanderValue.Function(
+//     Field("add") -> LigatureValue.Function(
 //       HostFunction(
 //         // FieldPath(Seq(Field("Int"), Field("add"))),
 //         "Add two Ints.",
@@ -23,12 +23,12 @@ val intModule = 0//: WanderValue.Module = WanderValue.Module(
 //         Tag.Untagged, // Tag.Single(Field("Core.Int")),
 //         (args, environment) =>
 //           args match
-//             case Seq(WanderValue.Int(left), WanderValue.Int(right)) =>
-//               Right((WanderValue.Int(left + right), environment))
+//             case Seq(LigatureValue.Int(left), LigatureValue.Int(right)) =>
+//               Right((LigatureValue.Int(left + right), environment))
 //             case _ => ???
 //       )
 //     ),
-//     Field("toBytes") -> WanderValue.Function(
+//     Field("toBytes") -> LigatureValue.Function(
 //       HostFunction(
 //         // FieldPath(Seq(Field("Int"), Field("toBytes"))),
 //         "Encode an Int as Bytes.",
@@ -38,16 +38,16 @@ val intModule = 0//: WanderValue.Module = WanderValue.Module(
 //         Tag.Untagged,
 //         (args, environment) =>
 //           args match
-//             case Seq(WanderValue.Int(value)) =>
+//             case Seq(LigatureValue.Int(value)) =>
 //               Right(
 //                 (
-//                   ???, // WanderValue.Bytes(LongBinding.longToEntry(value).getBytesUnsafe().toSeq),
+//                   ???, // LigatureValue.Bytes(LongBinding.longToEntry(value).getBytesUnsafe().toSeq),
 //                   environment
 //                 )
 //               )
 //       )
 //     ),
-//     Field("fromBytes") -> WanderValue.Function(
+//     Field("fromBytes") -> LigatureValue.Function(
 //       HostFunction(
 //         // FieldPath(Seq(Field("Int"), Field("fromBytes"))),
 //         "Decode Bytes to an Int.",
@@ -57,10 +57,10 @@ val intModule = 0//: WanderValue.Module = WanderValue.Module(
 //         Tag.Untagged,
 //         (args, environment) =>
 //           args match
-//             case Seq(WanderValue.Bytes(value)) =>
+//             case Seq(LigatureValue.Bytes(value)) =>
 //               Right(
 //                 (
-//                   ???, // WanderValue.Int(LongBinding.entryToLong(ArrayByteIterable(value.toArray))),
+//                   ???, // LigatureValue.Int(LongBinding.entryToLong(ArrayByteIterable(value.toArray))),
 //                   environment
 //                 )
 //               )

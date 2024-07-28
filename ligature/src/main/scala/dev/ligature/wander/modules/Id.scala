@@ -8,16 +8,16 @@ package dev.ligature.wander.modules
 // import dev.ligature.wander.TaggedField
 // import dev.ligature.wander.Field
 // import dev.ligature.wander.Tag
-// import dev.ligature.wander.WanderValue
+// import dev.ligature.wander.LigatureValue
 // import io.hypersistence.tsid.TSID
 // import com.github.f4b6a3.ulid.UlidCreator
 // import dev.ligature.wander.LigatureValue
 
 val id = 0
 
-// val idModule: WanderValue.Module = WanderValue.Module(
+// val idModule: LigatureValue.Module = LigatureValue.Module(
 //   Map(
-//     Field("tsid") -> WanderValue.Function(
+//     Field("tsid") -> LigatureValue.Function(
 //       HostFunction(
 //         "Get next random TSID value.",
 //         Seq(
@@ -27,13 +27,13 @@ val id = 0
 //         (arguments, environment) =>
 //           Right(
 //             (
-//               WanderValue.Word(LigatureValue.Word(TSID.Factory.getTsid().toString())),
+//               LigatureValue.Word(LigatureValue.Word(TSID.Factory.getTsid().toString())),
 //               environment
 //             )
 //           )
 //       )
 //     ),
-//     Field("ulid") -> WanderValue.Function(
+//     Field("ulid") -> LigatureValue.Function(
 //       HostFunction(
 //         "Get next random ULID value.",
 //         Seq(
@@ -43,7 +43,7 @@ val id = 0
 //         (arguments, environment) =>
 //           Right(
 //             (
-//               WanderValue.Word(LigatureValue.Word(UlidCreator.getUlid().toLowerCase())),
+//               LigatureValue.Word(LigatureValue.Word(UlidCreator.getUlid().toLowerCase())),
 //               environment
 //             )
 //           )

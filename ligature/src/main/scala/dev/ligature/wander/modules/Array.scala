@@ -7,7 +7,7 @@ package dev.ligature.wander.modules
 
 object x {}
 
-// import dev.ligature.wander.WanderValue
+// import dev.ligature.wander.LigatureValue
 // import dev.ligature.wander.Field
 // import dev.ligature.wander.HostFunction
 // import dev.ligature.wander.Tag
@@ -15,67 +15,67 @@ object x {}
 // import scala.util.boundary
 // import dev.ligature.wander.WanderError
 
-// val arrayModule: WanderValue.Module = WanderValue.Module(
+// val arrayModule: LigatureValue.Module = LigatureValue.Module(
 //   Map(
-//     Field("length") -> WanderValue.Function(
+//     Field("length") -> LigatureValue.Function(
 //       HostFunction(
 //         "Get the number of elements in an Array.",
 //         Seq(TaggedField(Field("array"), Tag.Untagged)),
 //         Tag.Untagged,
 //         (args, environment) =>
 //           args match
-//             case Seq(WanderValue.Array(value)) =>
-//               Right((WanderValue.Int(value.length), environment))
+//             case Seq(LigatureValue.Array(value)) =>
+//               Right((LigatureValue.Int(value.length), environment))
 //             case _ => ???
 //       )
 //     ),
-//     Field("map") -> WanderValue.Function(
+//     Field("map") -> LigatureValue.Function(
 //       HostFunction(
 //         "Map the values of an Array with the given function.",
 //         Seq(TaggedField(Field("fn"), Tag.Untagged), TaggedField(Field("array"), Tag.Untagged)),
 //         Tag.Untagged,
 //         (args, environment) =>
 //           args match
-//             case Seq(WanderValue.Function(fn), WanderValue.Array(values)) =>
+//             case Seq(LigatureValue.Function(fn), LigatureValue.Array(values)) =>
 //               boundary:
 //                 val results = values.map(value =>
 //                   fn.call(Seq(value), environment) match
 //                     case Left(_)      => ??? /// break(value)
 //                     case Right(value) => value
 //                 )
-//                 Right((WanderValue.Array(results), environment))
+//                 Right((LigatureValue.Array(results), environment))
 //             case _ => ???
 //       )
 //     ),
-//     Field("filter") -> WanderValue.Function(
+//     Field("filter") -> LigatureValue.Function(
 //       HostFunction(
 //         "Filter an Array with the given predicate.",
 //         Seq(TaggedField(Field("fn"), Tag.Untagged), TaggedField(Field("array"), Tag.Untagged)),
 //         Tag.Untagged,
 //         (args, environment) =>
 //           args match
-//             case Seq(WanderValue.Function(fn), WanderValue.Array(values)) =>
+//             case Seq(LigatureValue.Function(fn), LigatureValue.Array(values)) =>
 //               boundary:
 //                 val results = values.filter(value =>
 //                   fn.call(Seq(value), environment) match
 //                     case Left(_) => ??? /// break(err)
 //                     case Right(value) =>
 //                       value match
-//                         case WanderValue.Bool(value) => value
+//                         case LigatureValue.Bool(value) => value
 //                         case _                       => ??? /// break(Left(LigatureError("")
 //                 )
-//                 Right((WanderValue.Array(results), environment))
+//                 Right((LigatureValue.Array(results), environment))
 //             case _ => ???
 //       )
 //     ),
-//     Field("first") -> WanderValue.Function(
+//     Field("first") -> LigatureValue.Function(
 //       HostFunction(
 //         "Get the first element of an Array.",
 //         Seq(TaggedField(Field("array"), Tag.Untagged)),
 //         Tag.Untagged,
 //         (args, environment) =>
 //           args match
-//             case Seq(WanderValue.Array(value)) =>
+//             case Seq(LigatureValue.Array(value)) =>
 //               if (value.length > 0) {
 //                 Right((value.head, environment))
 //               } else {
@@ -84,26 +84,26 @@ object x {}
 //             case _ => ???
 //       )
 //     ),
-//     Field("rest") -> WanderValue.Function(
+//     Field("rest") -> LigatureValue.Function(
 //       HostFunction(
 //         "Get a Array containing all elements except the first.",
 //         Seq(TaggedField(Field("array"), Tag.Untagged)),
 //         Tag.Untagged,
 //         (args, environment) =>
 //           args match
-//             case Seq(WanderValue.Array(value)) =>
-//               Right((WanderValue.Array(value.tail), environment))
+//             case Seq(LigatureValue.Array(value)) =>
+//               Right((LigatureValue.Array(value.tail), environment))
 //             case _ => ???
 //       )
 //     ),
-//     Field("last") -> WanderValue.Function(
+//     Field("last") -> LigatureValue.Function(
 //       HostFunction(
 //         "Get the last element of an Array.",
 //         Seq(TaggedField(Field("array"), Tag.Untagged)),
 //         Tag.Untagged,
 //         (args, environment) =>
 //           args match
-//             case Seq(WanderValue.Array(value)) =>
+//             case Seq(LigatureValue.Array(value)) =>
 //               if (value.length > 0) {
 //                 Right((value.last, environment))
 //               } else {
@@ -112,7 +112,7 @@ object x {}
 //             case _ => ???
 //       )
 //     ),
-//     Field("cat") -> WanderValue.Function(
+//     Field("cat") -> LigatureValue.Function(
 //       HostFunction(
 //         "Concat all Strings in this Array.",
 //         Seq(
@@ -121,14 +121,14 @@ object x {}
 //         Tag.Untagged,
 //         (args, environment) =>
 //           args match
-//             case Seq(WanderValue.Array(value)) =>
+//             case Seq(LigatureValue.Array(value)) =>
 //               Right(
 //                 (
-//                   WanderValue.String(
+//                   LigatureValue.String(
 //                     value
 //                       .map(
 //                         _ match
-//                           case WanderValue.String(value) => value
+//                           case LigatureValue.String(value) => value
 //                           case _                         => ???
 //                       )
 //                       .mkString("")
@@ -139,7 +139,7 @@ object x {}
 //             case _ => ???
 //       )
 //     ),
-//     Field("join") -> WanderValue.Function(
+//     Field("join") -> LigatureValue.Function(
 //       HostFunction(
 //         "Join this array.",
 //         Seq(
@@ -148,14 +148,14 @@ object x {}
 //         Tag.Untagged,
 //         (args, environment) =>
 //           args match
-//             case Seq(WanderValue.Array(value)) =>
+//             case Seq(LigatureValue.Array(value)) =>
 //               Right(
 //                 (
-//                   WanderValue.String(
+//                   LigatureValue.String(
 //                     value
 //                       .map(
 //                         _ match
-//                           case WanderValue.String(value) => value
+//                           case LigatureValue.String(value) => value
 //                           case _                         => ???
 //                       )
 //                       .mkString("\n")
@@ -166,7 +166,7 @@ object x {}
 //             case _ => ???
 //       )
 //     ),
-//     Field("foldLeft") -> WanderValue.Function(
+//     Field("foldLeft") -> LigatureValue.Function(
 //       HostFunction(
 //         "Perform foldLeft on this array.",
 //         Seq(
@@ -176,8 +176,8 @@ object x {}
 //         Tag.Untagged,
 //         (args, environment) =>
 //           args match
-//             case Seq(WanderValue.Array(value)) =>
-//               Right((WanderValue.Array(value.tail), environment))
+//             case Seq(LigatureValue.Array(value)) =>
+//               Right((LigatureValue.Array(value.tail), environment))
 //             case _ => ???
 //       )
 //     )

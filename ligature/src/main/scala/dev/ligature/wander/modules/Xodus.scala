@@ -6,7 +6,7 @@ package dev.ligature.wander.modules
 
 class Test {}
 
-// import dev.ligature.wander.WanderValue
+// import dev.ligature.wander.LigatureValue
 // import dev.ligature.wander.Field
 // import dev.ligature.wander.HostFunction
 // import dev.ligature.wander.TaggedField
@@ -78,13 +78,13 @@ class Test {}
 //     val _ = txn.commit()
 // }
 
-// val xodusModule: WanderValue.Module =
+// val xodusModule: LigatureValue.Module =
 //   val sep = System.getProperty("file.separator")
 //   val home = System.getProperty("user.home")
 //   val instance = XodusKeylime(s"${home}${sep}.ligature${sep}xodus${sep}")
-//   WanderValue.Module(
+//   LigatureValue.Module(
 //     Map(
-//       Field("stores") -> WanderValue.Function(
+//       Field("stores") -> LigatureValue.Function(
 //         HostFunction(
 //           "Get all Store names.",
 //           Seq(
@@ -92,11 +92,11 @@ class Test {}
 //           ),
 //           Tag.Untagged,
 //           (_arguments, environment) =>
-//             val names = instance.stores().map(name => WanderValue.String(name))
-//             Right((WanderValue.Array(names), environment))
+//             val names = instance.stores().map(name => LigatureValue.String(name))
+//             Right((LigatureValue.Array(names), environment))
 //         )
 //       ),
-//       Field("addStore") -> WanderValue.Function(
+//       Field("addStore") -> LigatureValue.Function(
 //         HostFunction(
 //           "Add a new Store.",
 //           Seq(
@@ -105,14 +105,14 @@ class Test {}
 //           Tag.Untagged,
 //           (arguments, environment) =>
 //             arguments match {
-//               case Seq(WanderValue.String(name)) => 
+//               case Seq(LigatureValue.String(name)) => 
 //                 instance.addStore(name)
-//                 Right((WanderValue.Module(Map.empty), environment))
+//                 Right((LigatureValue.Module(Map.empty), environment))
 //               case _ => ???
 //             }
 //         )
 //       ),
-//       Field("deleteStore") -> WanderValue.Function(
+//       Field("deleteStore") -> LigatureValue.Function(
 //         HostFunction(
 //           "Delete a Store.",
 //           Seq(
@@ -121,14 +121,14 @@ class Test {}
 //           Tag.Untagged,
 //           (arguments, environment) =>
 //             arguments match {
-//               case Seq(WanderValue.String(name)) => 
+//               case Seq(LigatureValue.String(name)) => 
 //                 instance.removeStore(name)
-//                 Right((WanderValue.Module(Map.empty), environment))
+//                 Right((LigatureValue.Module(Map.empty), environment))
 //               case _ => ???
 //             }
 //         )
 //       ),
-//       Field("edit") -> WanderValue.Function(
+//       Field("edit") -> LigatureValue.Function(
 //         HostFunction(
 //           "Edit a Store.",
 //           Seq(
@@ -138,7 +138,7 @@ class Test {}
 //           Tag.Untagged,
 //           (arguments, environment) =>
 //             arguments match {
-//               case Seq(WanderValue.String(name), WanderValue.Function(fn)) => {
+//               case Seq(LigatureValue.String(name), LigatureValue.Function(fn)) => {
 //                 val tx = instance.edit(name)
 //                 val editModule = keylimeEditModule(tx)
 //                 val res = fn.call(Seq(editModule), environment).map((_, environment))
@@ -149,7 +149,7 @@ class Test {}
 //             }
 //         )
 //       ),
-//       Field("query") -> WanderValue.Function(
+//       Field("query") -> LigatureValue.Function(
 //         HostFunction(
 //           "Query a Store.",
 //           Seq(
@@ -159,7 +159,7 @@ class Test {}
 //           Tag.Untagged,
 //           (arguments, environment) =>
 //             arguments match {
-//               case Seq(WanderValue.String(name), WanderValue.Function(fn)) => {
+//               case Seq(LigatureValue.String(name), LigatureValue.Function(fn)) => {
 //                 // val readModule = keylimeQueryModule(instance.read(name))
 //                 // fn.call(Seq(readModule), environment).map((_, environment))
 //                 ???

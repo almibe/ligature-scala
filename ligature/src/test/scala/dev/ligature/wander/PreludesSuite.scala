@@ -34,7 +34,7 @@
 // class InstanceLibrarySuite extends WanderSuiteInstanceLibrary {
 //   test("add/remove Datasets") {
 //     val input = """addDataset("hello") addDataset("hello2") removeDataset("hello2") datasets()"""
-//     val result = """["hello"]""" //WanderValue.ListValue(Seq(WanderValue.LigatureValue(LigatureValue.StringValue("hello"))))
+//     val result = """["hello"]""" //LigatureValue.ListValue(Seq(LigatureValue.LigatureValue(LigatureValue.String("hello"))))
 //     check(input, result)
 //   }
 //   test("add Triples") {

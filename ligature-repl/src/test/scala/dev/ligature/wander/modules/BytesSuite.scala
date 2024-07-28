@@ -4,32 +4,32 @@
 
 package dev.ligature.wander.modules
 
-// import dev.ligature.wander.WanderValue
+// import dev.ligature.wander.LigatureValue
 
 class BytesSuite extends munit.FunSuite {
   // test("encode and decode basic types") {
   //   val values = Seq(
-  //     WanderValue.Int(4),
-  //     WanderValue.Bytes(Seq(0x12, 0x45)),
-  //     WanderValue.String("Hello")
+  //     LigatureValue.Int(4),
+  //     LigatureValue.Bytes(Seq(0x12, 0x45)),
+  //     LigatureValue.String("Hello")
   //   )
-  //   val results = values.map(value => decodeWanderValue(encodeWanderValue(value)))
+  //   val results = values.map(value => decodeLigatureValue(encodeLigatureValue(value)))
   //   assertEquals(values, results)
   // }
 
   // test("encode and decode arrays") {
   //   val values = Seq(
-  //     WanderValue.Array(Seq())
+  //     LigatureValue.Array(Seq())
   //   )
-  //   val results = values.map(value => decodeWanderValue(encodeWanderValue(value)))
+  //   val results = values.map(value => decodeLigatureValue(encodeLigatureValue(value)))
   //   assertEquals(values, results)
   // }
 
   // test("encode and decode structs".ignore) {
   //   val values = Seq(
-  //     WanderValue.Module(Map())
+  //     LigatureValue.Module(Map())
   //   )
-  //   val results = values.map(value => decodeWanderValue(encodeWanderValue(value)))
+  //   val results = values.map(value => decodeLigatureValue(encodeLigatureValue(value)))
   //   assertEquals(values, results)
   // }
 }

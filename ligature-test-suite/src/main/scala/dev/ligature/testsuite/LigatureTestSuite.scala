@@ -125,16 +125,16 @@ case class Test(val x: Int)
 //     )
 //   }
 
-//   setup.test("add Triple with IntegerValue Value") { instance =>
+//   setup.test("add Triple with Int Value") { instance =>
 //     instance.createDataset(testDataset)
 //     instance.addTriples(
 //       testDataset,
 //       Seq(
 //         Triple(label1, a, label2),
-//         Triple(label1, a, LigatureValue.IntegerValue(100)),
-//         Triple(label1, a, LigatureValue.IntegerValue(101)),
-//         Triple(label1, a, LigatureValue.IntegerValue(100)),
-//         Triple(label2, a, LigatureValue.IntegerValue(-243729))
+//         Triple(label1, a, LigatureValue.Int(100)),
+//         Triple(label1, a, LigatureValue.Int(101)),
+//         Triple(label1, a, LigatureValue.Int(100)),
+//         Triple(label2, a, LigatureValue.Int(-243729))
 //       ).iterator
 //     )
 //     val edges = instance.allTriples(testDataset).toSet
@@ -142,23 +142,23 @@ case class Test(val x: Int)
 //       edges,
 //       Set(
 //         Triple(label1, a, label2),
-//         Triple(label1, a, LigatureValue.IntegerValue(100)),
-//         Triple(label1, a, LigatureValue.IntegerValue(101)),
-//         Triple(label2, a, LigatureValue.IntegerValue(-243729))
+//         Triple(label1, a, LigatureValue.Int(100)),
+//         Triple(label1, a, LigatureValue.Int(101)),
+//         Triple(label2, a, LigatureValue.Int(-243729))
 //       )
 //     )
 //   }
 
-//   setup.test("add Triple with StringValue Value") { instance =>
+//   setup.test("add Triple with String Value") { instance =>
 //     instance.createDataset(testDataset)
 //     instance.addTriples(
 //       testDataset,
 //       Seq(
 //         Triple(label1, a, label2),
-//         Triple(label1, a, LigatureValue.StringValue("text")),
-//         Triple(label1, a, LigatureValue.StringValue("text2")),
-//         Triple(label1, a, LigatureValue.StringValue("text")),
-//         Triple(label2, a, LigatureValue.StringValue("text"))
+//         Triple(label1, a, LigatureValue.String("text")),
+//         Triple(label1, a, LigatureValue.String("text2")),
+//         Triple(label1, a, LigatureValue.String("text")),
+//         Triple(label2, a, LigatureValue.String("text"))
 //       ).iterator
 //     )
 //     val edges = instance.allTriples(testDataset).toSet
@@ -166,9 +166,9 @@ case class Test(val x: Int)
 //       edges,
 //       Set(
 //         Triple(label1, a, label2),
-//         Triple(label1, a, LigatureValue.StringValue("text")),
-//         Triple(label1, a, LigatureValue.StringValue("text2")),
-//         Triple(label2, a, LigatureValue.StringValue("text"))
+//         Triple(label1, a, LigatureValue.String("text")),
+//         Triple(label1, a, LigatureValue.String("text2")),
+//         Triple(label2, a, LigatureValue.String("text"))
 //       )
 //     )
 //   }
@@ -230,17 +230,17 @@ case class Test(val x: Int)
 //     instance.addTriples(
 //       testDataset,
 //       Seq(
-//         Triple(label1, a, LigatureValue.StringValue("hello")),
-//         Triple(label1, a, LigatureValue.StringValue("hello")),
-//         Triple(label2, a, LigatureValue.StringValue("hello"))
+//         Triple(label1, a, LigatureValue.String("hello")),
+//         Triple(label1, a, LigatureValue.String("hello")),
+//         Triple(label2, a, LigatureValue.String("hello"))
 //       ).iterator
 //     )
 //     instance.removeTriples(
 //       testDataset,
-//       Seq(Triple(label1, a, LigatureValue.StringValue("hello"))).iterator
+//       Seq(Triple(label1, a, LigatureValue.String("hello"))).iterator
 //     )
 //     val edges = instance.allTriples(testDataset).toSet
-//     assertEquals(edges, Set(Triple(label2, a, LigatureValue.StringValue("hello"))))
+//     assertEquals(edges, Set(Triple(label2, a, LigatureValue.String("hello"))))
 //   }
 
 // // //   // setup.test("allow canceling WriteTx by throwing exception") {
@@ -274,38 +274,38 @@ case class Test(val x: Int)
 //     instance.addTriples(
 //       testDataset,
 //       Seq(
-//         Triple(label1, a, LigatureValue.StringValue("Hello")),
+//         Triple(label1, a, LigatureValue.String("Hello")),
 //         Triple(label2, a, label1),
 //         Triple(label2, a, label3),
 //         Triple(label3, b, label2),
-//         Triple(label3, b, LigatureValue.StringValue("Hello"))
+//         Triple(label3, b, LigatureValue.String("Hello"))
 //       ).iterator
 //     )
 //     val (all, as, hellos, helloa) = instance.query(testDataset) { tx =>
 //       val all = tx.matchTriples().toSet
 //       val as = tx.matchTriples(None, Some(a)).toSet
 //       val hellos = tx
-//         .matchTriples(None, None, Some(LigatureValue.StringValue("Hello")))
+//         .matchTriples(None, None, Some(LigatureValue.String("Hello")))
 //         .toSet
 //       val helloa = tx
-//         .matchTriples(None, Some(a), Some(LigatureValue.StringValue("Hello")))
+//         .matchTriples(None, Some(a), Some(LigatureValue.String("Hello")))
 //         .toSet
 //       (all, as, hellos, helloa)
 //     }
 //     assertEquals(
 //       all,
 //       Set(
-//         Triple(label1, a, LigatureValue.StringValue("Hello")),
+//         Triple(label1, a, LigatureValue.String("Hello")),
 //         Triple(label2, a, label1),
 //         Triple(label2, a, label3),
 //         Triple(label3, b, label2),
-//         Triple(label3, b, LigatureValue.StringValue("Hello"))
+//         Triple(label3, b, LigatureValue.String("Hello"))
 //       )
 //     )
 //     assertEquals(
 //       as,
 //       Set(
-//         Triple(label1, a, LigatureValue.StringValue("Hello")),
+//         Triple(label1, a, LigatureValue.String("Hello")),
 //         Triple(label2, a, label1),
 //         Triple(label2, a, label3)
 //       )
@@ -313,14 +313,14 @@ case class Test(val x: Int)
 //     assertEquals(
 //       hellos,
 //       Set(
-//         Triple(label1, a, LigatureValue.StringValue("Hello")),
-//         Triple(label3, b, LigatureValue.StringValue("Hello"))
+//         Triple(label1, a, LigatureValue.String("Hello")),
+//         Triple(label3, b, LigatureValue.String("Hello"))
 //       )
 //     )
 //     assertEquals(
 //       helloa,
 //       Set(
-//         Triple(label1, a, LigatureValue.StringValue("Hello"))
+//         Triple(label1, a, LigatureValue.String("Hello"))
 //       )
 //     )
 //   }
@@ -333,34 +333,34 @@ case class Test(val x: Int)
 // // //        for {
 // // //          _ <- tx.addTriple(Triple(label1, a, label2))
 // // //          _ <- tx
-// // //            .addTriple(Triple(label1, b, StringValue("add")))
+// // //            .addTriple(Triple(label1, b, String("add")))
 // // //          _ <- tx
-// // //            .addTriple(Triple(label1, a, IntegerValue(5L)))
+// // //            .addTriple(Triple(label1, a, Int(5L)))
 // // //          _ <- tx
-// // //            .addTriple(Triple(label2, a, IntegerValue(3L)))
+// // //            .addTriple(Triple(label2, a, Int(3L)))
 // // //          _ <- tx.addTriple(
-// // //            Triple(label2, a, StringValue("divide"))
+// // //            Triple(label2, a, String("divide"))
 // // //          )
 // // //          _ <- tx.addTriple(Triple(label2, b, label3))
 // // //          _ <- tx
-// // //            .addTriple(Triple(label3, a, IntegerValue(7L)))
+// // //            .addTriple(Triple(label3, a, Int(7L)))
 // // //          _ <- tx.addTriple(
-// // //            Triple(label3, b, StringValue("decimal"))
+// // //            Triple(label3, b, String("decimal"))
 // // //          )
 // // //        } yield ()
 // // //      }
 // // //      res <- instance.query(testDataset) { tx =>
 // // //        for {
 // // //          res1 <- tx
-// // //            .matchTriplesRange(None, None, StringValueRange("a", "dd"))
+// // //            .matchTriplesRange(None, None, StringRange("a", "dd"))
 // // //            .compile
 // // //            .toList
 // // //          res2 <- tx
-// // //            .matchTriplesRange(None, None, IntegerValueRange(3, 6))
+// // //            .matchTriplesRange(None, None, IntRange(3, 6))
 // // //            .compile
 // // //            .toList
 // // //          res3 <- tx
-// // //            .matchTriplesRange(None, Some(b), StringValueRange("ae", "df"))
+// // //            .matchTriplesRange(None, Some(b), StringRange("ae", "df"))
 // // //            .compile
 // // //            .toList
 // // //        } yield (res1.toSet, res2.toSet, res3.toSet)
@@ -370,20 +370,20 @@ case class Test(val x: Int)
 // // //      assertEquals(
 // // //        res1,
 // // //        Set(
-// // //          Triple(label1, b, StringValue("add"))
+// // //          Triple(label1, b, String("add"))
 // // //        )
 // // //      )
 // // //      assertEquals(
 // // //        res2,
 // // //        Set(
-// // //          Triple(label2, a, IntegerValue(3L)),
-// // //          Triple(label1, a, IntegerValue(5L))
+// // //          Triple(label2, a, Int(3L)),
+// // //          Triple(label1, a, Int(5L))
 // // //        )
 // // //      )
 // // //      assertEquals(
 // // //        res3,
 // // //        Set(
-// // //          Triple(label3, b, StringValue("decimal"))
+// // //          Triple(label3, b, String("decimal"))
 // // //        )
 // // //      )
 // // //    }
@@ -410,12 +410,12 @@ case class Test(val x: Int)
 // //     case None => ()
 // //   }
 
-// //   def evaluateResults(results: WanderValue, fileName: String) =
+// //   def evaluateResults(results: LigatureValue, fileName: String) =
 // //     results match
-// //       case WanderValue.Array(tests) =>
+// //       case LigatureValue.Array(tests) =>
 // //         tests.foreach { currentTest =>
 // //           currentTest match
-// //             case WanderValue.Module(values) =>
+// //             case LigatureValue.Module(values) =>
 // //               test(values(Field("name")).toString) {
 // //                 val test = values(Field("test"))
 // //                 val expected = values(Field("expect"))

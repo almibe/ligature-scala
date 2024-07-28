@@ -8,15 +8,15 @@ package dev.ligature.wander.modules
 // import dev.ligature.wander.TaggedField
 // import dev.ligature.wander.Field
 // import dev.ligature.wander.Tag
-// import dev.ligature.wander.WanderValue
+// import dev.ligature.wander.LigatureValue
 // import dev.ligature.wander.LigatureValue
 // import dev.ligature.wander.WanderError
 
 val word = 0
 
-// val wordModule: WanderValue.Module = WanderValue.Module(
+// val wordModule: LigatureValue.Module = LigatureValue.Module(
 //   Map(
-//     Field("toString") -> WanderValue.Function(
+//     Field("toString") -> LigatureValue.Function(
 //       HostFunction(
 //         "Convert an Word to a String.",
 //         Seq(
@@ -25,12 +25,12 @@ val word = 0
 //         Tag.Untagged,
 //         (arguments, environment) =>
 //           arguments match
-//             case Seq(WanderValue.Word(value)) =>
-//               Right((WanderValue.String(s"`${value.value}`"), environment))
+//             case Seq(LigatureValue.Word(value)) =>
+//               Right((LigatureValue.String(s"`${value.value}`"), environment))
 //             case _ => Left(WanderError("Unexpected value."))
 //       )
 //     ),
-//     Field("value") -> WanderValue.Function(
+//     Field("value") -> LigatureValue.Function(
 //       HostFunction(
 //         "Get value of Word as a String.",
 //         Seq(
@@ -39,8 +39,8 @@ val word = 0
 //         Tag.Untagged,
 //         (arguments, environment) =>
 //           arguments match
-//             case Seq(WanderValue.Word(value)) =>
-//               Right((WanderValue.String(value.value), environment))
+//             case Seq(LigatureValue.Word(value)) =>
+//               Right((LigatureValue.String(value.value), environment))
 //             case _ => Left(WanderError("Unexpected value."))
 //       )
 //     )

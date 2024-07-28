@@ -8,7 +8,7 @@ import dev.ligature._
 import munit.FunSuite
 //import dev.ligature.inmemory.LigatureInMemory
 import dev.ligature.wander.run
-import dev.ligature.wander.WanderValue
+import dev.ligature.wander.LigatureValue
 //import dev.ligature.wander.modules.std
 
 class LigatureTestSuite extends FunSuite {
@@ -23,24 +23,24 @@ class LigatureTestSuite extends FunSuite {
   //  }
   // )
 
-  def check(script: String): WanderValue =
+  def check(script: String): LigatureValue =
     run(script) match {
       case Left(value)  => throw value
       case Right(value) => value
     }
 
   // setup.test("run empty string") { (instance, _) =>
-  //   assertEquals(check("", instance), WanderValue.Module(Map()))
+  //   assertEquals(check("", instance), LigatureValue.Module(Map()))
   // }
 
   // setup.test("datasets should start empty") { (instance, _) =>
-  //   assertEquals(check("Ligature.datasets ()", instance), WanderValue.Array(Seq()))
+  //   assertEquals(check("Ligature.datasets ()", instance), LigatureValue.Array(Seq()))
   // }
 
   // setup.test("create datasets") { (instance, _) =>
   //   assertEquals(
   //     check("Ligature.addDataset \"hello\", Ligature.datasets ()", instance),
-  //     WanderValue.Array(Seq(WanderValue.String("hello")))
+  //     LigatureValue.Array(Seq(LigatureValue.String("hello")))
   //   )
   // }
 
@@ -50,7 +50,7 @@ class LigatureTestSuite extends FunSuite {
   //       "Ligature.addDataset \"hello\", Ligature.removeDataset \"hello\", Ligature.datasets ()",
   //       instance
   //     ),
-  //     WanderValue.Array(Seq())
+  //     LigatureValue.Array(Seq())
   //   )
   // }
 }

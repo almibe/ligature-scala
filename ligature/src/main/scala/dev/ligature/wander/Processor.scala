@@ -24,7 +24,7 @@ def process(term: Term): Either[WanderError, Expression] =
   term match {
     case Term.Slot(name)                      => Right(Expression.Slot(name))
     case Term.Array(terms)                    => processArray(terms)
-    case Term.IntegerValue(value)             => Right(Expression.IntegerValue(value))
+    case Term.Int(value)             => Right(Expression.Int(value))
     case Term.StringValue(value) => Right(Expression.StringValue(value))
     case Term.Grouping(terms)                 => processGrouping(terms)
     case Term.Application(terms)              => processApplication(terms)

@@ -15,7 +15,7 @@ import scala.collection.mutable.ArrayBuffer
 
 enum Term:
   case Bytes(value: Seq[Byte])
-  case IntegerValue(value: Long)
+  case Int(value: Long)
   case StringValue(value: String)
   case Slot(name: String)
   case Array(value: Seq[Term])
@@ -60,9 +60,9 @@ val bytesNib: Nibbler[Token, Term.Bytes] = gaze =>
     case Some(Token.Bytes(b)) => Result.Match(Term.Bytes(b))
     case _                    => Result.NoMatch
 
-val integerNib: Nibbler[Token, Term.IntegerValue] = gaze =>
+val integerNib: Nibbler[Token, Term.Int] = gaze =>
   gaze.next() match
-    case Some(Token.IntegerValue(i)) => Result.Match(Term.IntegerValue(i))
+    case Some(Token.Int(i)) => Result.Match(Term.Int(i))
     case _                           => Result.NoMatch
 
 val stringNib: Nibbler[Token, Term.StringValue] = gaze =>

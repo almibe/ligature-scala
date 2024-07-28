@@ -13,13 +13,10 @@ trait INetwork {
   def minus(other: INetwork): INetwork
   def apply(values: Map[String, LigatureValue]): INetwork
   def educe(pattern: INetwork): Set[Map[String, LigatureValue]]
-  // def query: Network -> Network -> Network
-  // def infer: Network -> Network -> Network
+  def query(search: INetwork, template: INetwork): INetwork
+  def infer(search: INetwork, template: INetwork): INetwork
 }
 
-//sealed trait Range
-//final case class StringValueRange(start: String, end: String) extends Range
-//final case class IntegerValueRange(start: Long, end: Long) extends Range
 final case class Triple(
     entity: LigatureValue.Word,
     attribute: LigatureValue.Word,
@@ -28,9 +25,9 @@ final case class Triple(
 
 enum LigatureValue:
   case Word(value: String)
+  case Slot(value: String)
   case StringValue(value: String)
-  case IntegerValue(value: Long)
-  case BytesValue(value: Seq[Byte])
-  case Record(values: Map[String, LigatureValue])
+  case Int(value: Long)
+  case Bytes(value: Seq[Byte])
   case Quote(value: Seq[LigatureValue])
   case Network(network: INetwork)

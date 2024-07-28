@@ -7,12 +7,12 @@ package dev.ligature.wander.modules
 // import dev.ligature.wander.HostFunction
 // import dev.ligature.wander.TaggedField
 // import dev.ligature.wander.Tag
-// import dev.ligature.wander.WanderValue
+// import dev.ligature.wander.LigatureValue
 // import dev.ligature.wander.Field
 
-val stringModule = 0 //: WanderValue.Module = WanderValue.Module(
+val stringModule = 0 //: LigatureValue.Module = LigatureValue.Module(
 //   Map(
-//     Field("replace") -> WanderValue.Function(
+//     Field("replace") -> LigatureValue.Function(
 //       HostFunction(
 //         "Replace all character sequences with another and create a new String.",
 //         Seq(
@@ -24,19 +24,19 @@ val stringModule = 0 //: WanderValue.Module = WanderValue.Module(
 //         (args, environment) =>
 //           args match
 //             case Seq(
-//                   WanderValue.String(toMatch),
-//                   WanderValue.String(replacement),
-//                   WanderValue.String(data)
+//                   LigatureValue.String(toMatch),
+//                   LigatureValue.String(replacement),
+//                   LigatureValue.String(data)
 //                 ) =>
 //               Right(
 //                 (
-//                   WanderValue.String(data.replace(toMatch, replacement)),
+//                   LigatureValue.String(data.replace(toMatch, replacement)),
 //                   environment
 //                 )
 //               )
 //       )
 //     ),
-//     Field("toBytes") -> WanderValue.Function(
+//     Field("toBytes") -> LigatureValue.Function(
 //       HostFunction(
 //         // FieldPath(Seq(Field("String"), Field("toBytes"))),
 //         "Get a String encoded as Bytes.",
@@ -46,16 +46,16 @@ val stringModule = 0 //: WanderValue.Module = WanderValue.Module(
 //         Tag.Untagged,
 //         (args, environment) =>
 //           args match
-//             case Seq(WanderValue.String(value)) =>
+//             case Seq(LigatureValue.String(value)) =>
 //               Right(
 //                 (
-//                   ???, // WanderValue.Bytes(StringBinding.stringToEntry(value).getBytesUnsafe().toSeq),
+//                   ???, // LigatureValue.Bytes(StringBinding.stringToEntry(value).getBytesUnsafe().toSeq),
 //                   environment
 //                 )
 //               )
 //       )
 //     ),
-//     Field("fromBytes") -> WanderValue.Function(
+//     Field("fromBytes") -> LigatureValue.Function(
 //       HostFunction(
 //         // FieldPath(Seq(Field("String"), Field("fromBytes"))),
 //         "Decode Bytes to a String.",
@@ -65,10 +65,10 @@ val stringModule = 0 //: WanderValue.Module = WanderValue.Module(
 //         Tag.Untagged,
 //         (args, environment) =>
 //           args match
-//             case Seq(WanderValue.Bytes(value)) =>
+//             case Seq(LigatureValue.Bytes(value)) =>
 //               Right(
 //                 (
-//                   ???, // WanderValue.String(StringBinding.entryToString(ArrayByteIterable(value.toArray))),
+//                   ???, // LigatureValue.String(StringBinding.entryToString(ArrayByteIterable(value.toArray))),
 //                   environment
 //                 )
 //               )

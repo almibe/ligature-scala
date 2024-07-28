@@ -10,9 +10,9 @@ class EnvironmentSuite extends FunSuite {
   // private val word = TaggedField(Field("test"), Tag.Untagged)
   // private val word2 = TaggedField(Field("test2"), Tag.Untagged)
 
-  // private val value1 = WanderValue.String("this is a test")
-  // private val value2 = WanderValue.String("this is a test2")
-  // private val value3 = WanderValue.String("this is a test3")
+  // private val value1 = LigatureValue.String("this is a test")
+  // private val value2 = LigatureValue.String("this is a test2")
+  // private val value3 = LigatureValue.String("this is a test3")
 
   // test("add single value and read") {
   //   val environment = Environment()

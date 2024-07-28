@@ -9,7 +9,7 @@ import scala.collection.mutable.ListBuffer
 import scala.collection.mutable
 
 enum Expression:
-  case IntegerValue(value: Long)
+  case Int(value: Long)
   case Bytes(value: Seq[Byte])
   case StringValue(value: String)
   case Word(value: String)
@@ -21,24 +21,24 @@ enum Expression:
 
 def eval(
     expression: Expression,
-): Either[WanderError, WanderValue] =
+): Either[WanderError, LigatureValue] =
   expression match {
-    case Expression.IntegerValue(value) => Right((WanderValue.Int(value)))
-    case Expression.Bytes(value)        => Right((WanderValue.Bytes(value)))
-    case Expression.StringValue(value) => Right((WanderValue.String(value)))
+    case Expression.Int(value) => Right((LigatureValue.Int(value)))
+    case Expression.Bytes(value)        => Right((LigatureValue.Bytes(value)))
+    case Expression.StringValue(value) => Right((LigatureValue.StringValue(value)))
     case Expression.Word(value) =>
-      Right((WanderValue.Word(LigatureValue.Word(value))))
+      Right((LigatureValue.Word(value)))
     case Expression.Array(value)                   => handleArray(value)
     case Expression.Grouping(expressions)    => handleGrouping(expressions)
     case Expression.Application(expressions) => handleApplication(expressions)
-    case Expression.Slot(name)               => Right((WanderValue.Slot(name)))
+    case Expression.Slot(name)               => Right((LigatureValue.Slot(name)))
     case Expression.Network(expressions)       => handleNetwork(expressions)
   }
 
 // def readFieldPath(
 //     fieldPath: FieldPath,
 //     environment: Environment
-// ): Either[WanderError, (WanderValue, Environment)] =
+// ): Either[WanderError, (LigatureValue, Environment)] =
 //   environment.read(fieldPath) match
 //     case Left(err)          => Left(err)
 //     case Right(Some(value)) => Right((value))
@@ -46,9 +46,9 @@ def eval(
 
 def handleGrouping(
     expressions: Seq[Expression],
-): Either[WanderError, (WanderValue)] = ???//{
+): Either[WanderError, (LigatureValue)] = ???//{
 //   var error: Option[WanderError] = None
-//   var res: (WanderValue, Environment) = (WanderValue.Module(Map()))
+//   var res: (LigatureValue, Environment) = (LigatureValue.Module(Map()))
 //   val itr = expressions.iterator
 //   while error.isEmpty && itr.hasNext do
 //     eval(itr.next(), res._2) match {
@@ -62,44 +62,44 @@ def handleGrouping(
 // def handleModule(
 //     values: Seq[(Field, Expression)],
 //     environment: Environment
-// ): Either[WanderError, (WanderValue, Environment)] =
+// ): Either[WanderError, (LigatureValue, Environment)] =
 //   boundary:
-//     val results = collection.mutable.HashMap[Field, WanderValue]()
+//     val results = collection.mutable.HashMap[Field, LigatureValue]()
 //     values.foreach((name, value) =>
 //       eval(value) match {
 //         case Left(err)         => break(Left(err))
 //         case Right((value, _)) => results += name -> value
 //       }
 //     )
-//     Right((WanderValue.Module(results.toMap)))
+//     Right((LigatureValue.Module(results.toMap)))
 
 def handleNetwork(
     expressions: Seq[Expression],
-): Either[WanderError, (WanderValue)] =
+): Either[WanderError, (LigatureValue)] =
   expressions match
     case Seq(
           Expression.Word(entity),
           Expression.Word(attribute),
           Expression.Word(value)
-        ) =>
-      Right(
-        (
-          WanderValue.Network(
-            Set(
-              Triple(
-                LigatureValue.Word(entity),
-                LigatureValue.Word(attribute),
-                LigatureValue.Word(value)
-              )
-            )
-          )
-        )
-      )
+        ) => ???
+      // Right(
+      //   (
+      //     LigatureValue.Network(
+      //       Set(
+      //         Triple(
+      //           LigatureValue.Word(entity),
+      //           LigatureValue.Word(attribute),
+      //           LigatureValue.Word(value)
+      //         )
+      //       )
+      //     )
+      //   )
+      // )
     case _ => ???
 
 def handleApplication(
     expression: Seq[Expression],
-): Either[WanderError, (WanderValue)] =
+): Either[WanderError, (LigatureValue)] =
   expression.head match {
     case Expression.Word(word) =>
       expression match
@@ -112,7 +112,7 @@ def handleApplication(
             case Expression.Word(value) => ???
               // Right(
               //   (
-              //     WanderValue.Triple(
+              //     LigatureValue.Triple(
               //       Triple(
               //         LigatureValue.Word(entity),
               //         LigatureValue.Word(attribute),
@@ -122,14 +122,14 @@ def handleApplication(
               //     environment
               //   )
               // )
-            case Expression.IntegerValue(value) => ???
+            case Expression.Int(value) => ???
               // Right(
               //   (
-              //     WanderValue.Triple(
+              //     LigatureValue.Triple(
               //       Triple(
               //         LigatureValue.Word(entity),
               //         LigatureValue.Word(attribute),
-              //         LigatureValue.IntegerValue(value)
+              //         LigatureValue.Int(value)
               //       )
               //     ),
               //     environment
@@ -138,11 +138,11 @@ def handleApplication(
             case Expression.Bytes(value) => ???
               // Right(
               //   (
-              //     WanderValue.Triple(
+              //     LigatureValue.Triple(
               //       Triple(
               //         LigatureValue.Word(entity),
               //         LigatureValue.Word(attribute),
-              //         LigatureValue.BytesValue(value)
+              //         LigatureValue.Bytes(value)
               //       )
               //     ),
               //     environment
@@ -150,14 +150,14 @@ def handleApplication(
               // )
             case stringValue: Expression.StringValue => ???
               // eval(stringValue) match {
-              //   case Right((WanderValue.String(result), _)) =>
+              //   case Right((LigatureValue.String(result), _)) =>
               //     Right(
               //       (
-              //         WanderValue.Triple(
+              //         LigatureValue.Triple(
               //           Triple(
               //             LigatureValue.Word(entity),
               //             LigatureValue.Word(attribute),
-              //             LigatureValue.StringValue(result)
+              //             LigatureValue.String(result)
               //           )
               //         ),
               //         environment
@@ -170,18 +170,10 @@ def handleApplication(
     case x => Left(WanderError(s"Unexpected start of application - $x"))
   }
 
-def wanderToLigatureValue(value: WanderValue): LigatureValue =
-  value match
-    case WanderValue.Bytes(value)      => LigatureValue.BytesValue(value)
-    case WanderValue.Int(value)        => LigatureValue.IntegerValue(value)
-    case WanderValue.String(value)     => LigatureValue.StringValue(value)
-    case WanderValue.Word(value) => value
-    case _                             => ???
-
 def callHostFunction(
     hostFunction: HostFunction,
     arguments: Seq[Expression],
-): Either[WanderError, (WanderValue)] = ???
+): Either[WanderError, (LigatureValue)] = ???
   // if arguments.size == hostFunction.parameters.size then
   //   callHostFunctionComplete(hostFunction, arguments)
   // else if arguments.size < hostFunction.parameters.size then
@@ -191,8 +183,8 @@ def callHostFunction(
 
 def handleArray(
     expressions: Seq[Expression],
-): Either[WanderError, (WanderValue.Array)] = {
-  val res = ListBuffer[WanderValue]()
+): Either[WanderError, (LigatureValue.Quote)] = {
+  val res = ListBuffer[LigatureValue]()
   val itre = expressions.iterator
   val continue = true
   while continue && itre.hasNext
@@ -201,5 +193,5 @@ def handleArray(
     eval(expression) match
       case Left(err)    => return Left(err)
       case Right(value) => res += value
-  Right((WanderValue.Array(res.toList)))
+  Right((LigatureValue.Quote(res.toList)))
 }

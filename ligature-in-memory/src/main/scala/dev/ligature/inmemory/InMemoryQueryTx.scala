@@ -56,9 +56,9 @@ case class Test2(val x: Int)
 //    res = res.filter { ps =>
 //      val testValue = ps.target
 //      (testValue, range) match {
-//        case (StringValue(v), StringValueRange(start, end)) =>
+//        case (String(v), StringRange(start, end)) =>
 //          v >= start && v < end
-//        case (IntegerValue(v), IntegerValueRange(start, end)) =>
+//        case (Int(v), IntRange(start, end)) =>
 //          v >= start && v < end
 //        case _ => false
 //      }

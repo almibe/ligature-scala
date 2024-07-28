@@ -4,7 +4,7 @@
 
 package dev.ligature.wander.modules
 
-// import dev.ligature.wander.WanderValue
+// import dev.ligature.wander.LigatureValue
 // import dev.ligature.wander.Field
 // import dev.ligature.wander.HostFunction
 // import dev.ligature.wander.Tag
@@ -12,29 +12,29 @@ package dev.ligature.wander.modules
 
 val graph = 0
 
-// val networkModule: WanderValue.Module = WanderValue.Module(
+// val networkModule: LigatureValue.Module = LigatureValue.Module(
 //   Map(
-//     Field("length") -> WanderValue.Function(
+//     Field("length") -> LigatureValue.Function(
 //       HostFunction(
 //         "Get the number of elements in a Network.",
 //         Seq(TaggedField(Field("array"), Tag.Untagged)),
 //         Tag.Untagged,
 //         (args, environment) =>
 //           args match
-//             case Seq(WanderValue.Network(value)) =>
-//               Right((WanderValue.Int(value.size), environment))
+//             case Seq(LigatureValue.Network(value)) =>
+//               Right((LigatureValue.Int(value.size), environment))
 //             case _ => ???
 //       )
 //     ),
-//     Field("merge") -> WanderValue.Function(
+//     Field("merge") -> LigatureValue.Function(
 //       HostFunction(
 //         "Merge two Networks.",
 //         Seq(TaggedField(Field("array"), Tag.Untagged), TaggedField(Field("array"), Tag.Untagged)),
 //         Tag.Untagged,
 //         (args, environment) =>
 //           args match
-//             case Seq(WanderValue.Network(lvalue), WanderValue.Network(rvalue)) =>
-//               Right((WanderValue.Network(lvalue ++ rvalue), environment))
+//             case Seq(LigatureValue.Network(lvalue), LigatureValue.Network(rvalue)) =>
+//               Right((LigatureValue.Network(lvalue ++ rvalue), environment))
 //             case _ => ???
 //       )
 //     )

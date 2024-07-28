@@ -6,7 +6,7 @@ package dev.ligature.wander
 
 
 class LiteralsSuite extends munit.FunSuite {
-  def check(script: String, expected: WanderValue) =
+  def check(script: String, expected: LigatureValue) =
     val (res) = run(script) match {
       case Right(res) => res
       case Left(err) => ???//throw err
@@ -19,48 +19,48 @@ class LiteralsSuite extends munit.FunSuite {
 
   // test("bytes") {
   //   val script = "0x01FF"
-  //   val result = WanderValue.Bytes(Seq(1.byteValue, -1.byteValue))
+  //   val result = LigatureValue.Bytes(Seq(1.byteValue, -1.byteValue))
   //   check(script, result)
   // }
   // test("Word literal") {
   //   val script = "`0x01FF`"
-  //   val result = WanderValue.Word(LigatureValue.Word("0x01FF"))
+  //   val result = LigatureValue.Word(LigatureValue.Word("0x01FF"))
   //   check(script, result)
   // }
   // test("test printing bytes") {
   //   run("0xFF", std()) match {
-  //     case Right((bytes, _)) => assertEquals(printWanderValue(bytes), "0xff")
+  //     case Right((bytes, _)) => assertEquals(printLigatureValue(bytes), "0xff")
   //     case Left(_)           => ???
   //   }
   // }
   // test("integer") {
   //   val script = "24601"
-  //   val result = WanderValue.Int(24601)
+  //   val result = LigatureValue.Int(24601)
   //   check(script, result)
   // }
   // test("negative integer") {
   //   val script = "-111"
-  //   val result = WanderValue.Int(-111)
+  //   val result = LigatureValue.Int(-111)
   //   check(script, result)
   // }
   // // test("comment + nothing test") {
   //   val script = "--nothing   " + System.lineSeparator()
-  //   val result = WanderValue.Module(Map())
+  //   val result = LigatureValue.Module(Map())
   //   check(script, result)
   // }
   // test("string primitives") {
   //   val script = "\"hello world\" "
-  //   val result = WanderValue.String("hello world")
+  //   val result = LigatureValue.String("hello world")
   //   check(script, result)
   // }
   // test("empty record literal") {
   //   val script = "{}"
-  //   val result = WanderValue.Network(Set())
+  //   val result = LigatureValue.Network(Set())
   //   check(script, result)
   // }
   test("record literal with one value") {
     val script = "{x = x}"
-    val result = WanderValue.Network(Set(
+    val result = LigatureValue.Network(Set(
         Triple(
           LigatureValue.Word("x"),
           LigatureValue.Word("="),

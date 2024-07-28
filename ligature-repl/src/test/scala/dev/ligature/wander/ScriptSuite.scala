@@ -30,12 +30,12 @@ class ScriptSuite extends munit.FunSuite {
   //   case None => ()
   // }
 
-  // def evaluateResults(results: WanderValue, fileName: String) =
+  // def evaluateResults(results: LigatureValue, fileName: String) =
   //   results match
-  //     case WanderValue.Array(tests) =>
+  //     case LigatureValue.Array(tests) =>
   //       tests.foreach { currentTest =>
   //         currentTest match
-  //           case WanderValue.Module(values) =>
+  //           case LigatureValue.Module(values) =>
   //             test(values(Field("name")).toString) {
   //               val test = values(Field("test"))
   //               val expected = values(Field("expect"))

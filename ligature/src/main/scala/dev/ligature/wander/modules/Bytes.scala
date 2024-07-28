@@ -5,7 +5,7 @@
 package dev.ligature.wander.modules
 
 // import dev.ligature.wander.HostFunction
-// import dev.ligature.wander.WanderValue
+// import dev.ligature.wander.LigatureValue
 // import dev.ligature.wander.TaggedField
 // import dev.ligature.wander.Tag
 // import dev.ligature.wander.Field
@@ -18,36 +18,36 @@ val fury = Fury
   .withRefTracking(true)
   .build()
 
-// val bytesModule: WanderValue.Module = WanderValue.Module(
+// val bytesModule: LigatureValue.Module = LigatureValue.Module(
 //   Map(
-//     Field("encode") -> WanderValue.Function(
+//     Field("encode") -> LigatureValue.Function(
 //       HostFunction(
 //         "",
 //         Seq(TaggedField(Field("value"), Tag.Untagged)),
 //         Tag.Untagged,
 //         (args, env) =>
 //           args match
-//             case Seq(value: WanderValue) =>
-//               Right((WanderValue.Bytes(encodeWanderValue(value)), env))
+//             case Seq(value: LigatureValue) =>
+//               Right((LigatureValue.Bytes(encodeLigatureValue(value)), env))
 //             case _ => ???
 //       )
 //     ),
-//     Field("decode") -> WanderValue.Function(
+//     Field("decode") -> LigatureValue.Function(
 //       HostFunction(
 //         "",
 //         Seq(TaggedField(Field("value"), Tag.Untagged)),
 //         Tag.Untagged,
 //         (args, env) =>
 //           args match
-//             case Seq(WanderValue.Bytes(value)) => Right((decodeWanderValue(value), env))
+//             case Seq(LigatureValue.Bytes(value)) => Right((decodeLigatureValue(value), env))
 //             case _                             => ???
 //       )
 //     )
 //   )
 // )
 
-// def encodeWanderValue(value: WanderValue): Seq[Byte] =
+// def encodeLigatureValue(value: LigatureValue): Seq[Byte] =
 //   fury.serialize(value).toIndexedSeq
 
-// def decodeWanderValue(value: Seq[Byte]): WanderValue =
-//   fury.deserialize(value.toArray).asInstanceOf[WanderValue]
+// def decodeLigatureValue(value: Seq[Byte]): LigatureValue =
+//   fury.deserialize(value.toArray).asInstanceOf[LigatureValue]

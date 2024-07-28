@@ -7,30 +7,19 @@ package dev.ligature.wander
 import dev.ligature.wander.parse
 import java.util.HexFormat
 
-/** Represents a Value in the Wander language.
-  */
-enum WanderValue:
-  case Int(value: Long)
-  case Bytes(value: Seq[Byte])
-  case String(value: java.lang.String)
-  case Array(values: Seq[WanderValue])
-  case Word(value: LigatureValue.Word)
-  case Slot(name: java.lang.String)
-  case Network(value: Set[dev.ligature.wander.Triple])
-
 enum Tag:
   case Untagged
   case Single(tag: Function)
   case Chain(names: Seq[Function])
 
 trait Function:
-  def call(args: Seq[WanderValue]): Either[WanderError, WanderValue]
+  def call(args: Seq[LigatureValue]): Either[WanderError, LigatureValue]
 
 // case class Lambda(val lambda: Expression.Lambda) extends Function {
 //   override def call(
-//       args: Seq[WanderValue],
+//       args: Seq[LigatureValue],
 //       environment: Environment
-//   ): Either[WanderError, WanderValue] =
+//   ): Either[WanderError, LigatureValue] =
 //     var env = environment
 //     lambda.parameters.zipWithIndex.foreach { (param, i) =>
 //       env = env.bindVariable(param, args(i))
@@ -39,12 +28,12 @@ trait Function:
 //     res
 // }
 
-// case class PartialFunction(args: Seq[WanderValue], function: dev.ligature.wander.Function)
+// case class PartialFunction(args: Seq[LigatureValue], function: dev.ligature.wander.Function)
 //     extends Function {
 //   override def call(
-//       args: Seq[WanderValue],
+//       args: Seq[LigatureValue],
 //       environment: Environment
-//   ): Either[WanderError, WanderValue] = ???
+//   ): Either[WanderError, LigatureValue] = ???
 // }
 
 case class HostFunction(
@@ -52,12 +41,12 @@ case class HostFunction(
     parameters: Seq[String],
     resultTag: Tag,
     fn: (
-        arguments: Seq[WanderValue],
-    ) => Either[WanderError, (WanderValue)]
+        arguments: Seq[LigatureValue],
+    ) => Either[WanderError, (LigatureValue)]
 ) extends Function {
   override def call(
-      args: Seq[WanderValue],
-  ): Either[WanderError, WanderValue] = ???
+      args: Seq[LigatureValue],
+  ): Either[WanderError, LigatureValue] = ???
 //    fn.apply(args).map(_)
 }
 
@@ -65,7 +54,7 @@ case class WanderError(val userMessage: String) extends Throwable(userMessage)
 
 def run(
     script: String,
-): Either[WanderError, (WanderValue)] =
+): Either[WanderError, (LigatureValue)] =
   val expression = for {
     tokens <- tokenize(script)
     terms <- parse(tokens)
@@ -99,28 +88,26 @@ def inspect(script: String): Inspect = {
   Inspect(tokens, terms, expression)
 }
 
-def printResult(value: Either[WanderError, (WanderValue)]): String =
+def printResult(value: Either[WanderError, (LigatureValue)]): String =
   value match {
     case Left(value)  => "Error: " + value.userMessage
-    case Right(value) => printWanderValue(value)
+    case Right(value) => printLigatureValue(value)
   }
 
 val formatter = HexFormat.of()
 
-def printWanderValue(value: WanderValue): String =
+def printLigatureValue(value: LigatureValue): String =
   value match
-    case WanderValue.Slot(name)         => s"?$name"
-    case WanderValue.Int(value)         => value.toString()
-    case WanderValue.String(value)      => printString(value)
-    case WanderValue.Array(values) =>
-      "[" + values.map(value => printWanderValue(value)).mkString(", ") + "]"
-    case WanderValue.Bytes(value)           => printBytes(value)
-    case WanderValue.Network(value)           => printNetwork(value)
-    case WanderValue.Word(word) => printWord(word)
+    case LigatureValue.Slot(name)         => s"?$name"
+    case LigatureValue.Int(value)         => value.toString()
+    case LigatureValue.StringValue(value)      => printString(value)
+    case LigatureValue.Quote(values) =>
+      "[" + values.map(value => printLigatureValue(value)).mkString(", ") + "]"
+    case LigatureValue.Bytes(value)           => printBytes(value)
+    case LigatureValue.Network(value)           => printNetwork(value)
+    case LigatureValue.Word(word) => word
 
 def printBytes(bytes: Seq[Byte]) = s"0x${formatter.formatHex(bytes.toArray)}"
-
-def printWord(word: LigatureValue.Word) = s"`${word.value}`"
 
 def printTriple(triple: Triple) =
   val value = printTripleValue(triple.value)
@@ -128,18 +115,15 @@ def printTriple(triple: Triple) =
 
 def printTripleValue(value: LigatureValue): String =
   value match
-    case LigatureValue.BytesValue(value)   => printBytes(value)
-    case value: LigatureValue.Word   => printWord(value)
-    case LigatureValue.IntegerValue(value) => value.toString()
+    case LigatureValue.Bytes(value)   => printBytes(value)
+    case LigatureValue.Word(word)   => word
+    case LigatureValue.Int(value) => value.toString()
     case LigatureValue.StringValue(value)  => printString(value)
-    case LigatureValue.Record(values) =>
-      "{" + values
-        .map((field, value) => field + " = " + printTripleValue(value))
-        .mkString(", ") + "}"
-    case LigatureValue.Quote(quote) => ???
+    case LigatureValue.Quote(quote) => ???///printQuote(quote)
     case LigatureValue.Network(network) => ???
+    case LigatureValue.Slot(_) => ???
     
-def printNetwork(network: Set[Triple]) = network
+def printNetwork(network: INetwork) = network.write()
   .map(printTriple)
   .mkString("{ ", ", ", " }") //s"{ ${network.map(triple => printTriple(triple))} }"
 

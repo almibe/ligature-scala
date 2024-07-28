@@ -5,12 +5,12 @@
 package dev.ligature.wander.modules
 
 // import dev.ligature.wander.LigatureValue
-// import dev.ligature.wander.{WanderValue, Field, HostFunction, TaggedField, Tag}
+// import dev.ligature.wander.{LigatureValue, Field, HostFunction, TaggedField, Tag}
 // import dev.ligature.wander.WanderError
 
-val tripleModule = 0//: WanderValue.Module = WanderValue.Module(
+val tripleModule = 0//: LigatureValue.Module = LigatureValue.Module(
 //   Map(
-//     Field("entity") -> WanderValue.Function(
+//     Field("entity") -> LigatureValue.Function(
 //       HostFunction(
 //         "Extract the Entity from a Triple.",
 //         Seq(
@@ -19,12 +19,12 @@ val tripleModule = 0//: WanderValue.Module = WanderValue.Module(
 //         Tag.Untagged, // Tag.Single(Field("Core.Int")),
 //         (args, environment) =>
 //           args match
-//             case Seq(WanderValue.Triple(triple)) =>
-//               Right((WanderValue.Word(triple.entity), environment))
+//             case Seq(LigatureValue.Triple(triple)) =>
+//               Right((LigatureValue.Word(triple.entity), environment))
 //             case _ => Left(WanderError("Unexpected value."))
 //       )
 //     ),
-//     Field("attribute") -> WanderValue.Function(
+//     Field("attribute") -> LigatureValue.Function(
 //       HostFunction(
 //         "Extract the Attribute from a Triple.",
 //         Seq(
@@ -33,12 +33,12 @@ val tripleModule = 0//: WanderValue.Module = WanderValue.Module(
 //         Tag.Untagged, // Tag.Single(Field("Core.Int")),
 //         (args, environment) =>
 //           args match
-//             case Seq(WanderValue.Triple(triple)) =>
-//               Right((WanderValue.Word(triple.attribute), environment))
+//             case Seq(LigatureValue.Triple(triple)) =>
+//               Right((LigatureValue.Word(triple.attribute), environment))
 //             case _ => Left(WanderError("Unexpected value."))
 //       )
 //     ),
-//     Field("value") -> WanderValue.Function(
+//     Field("value") -> LigatureValue.Function(
 //       HostFunction(
 //         "Extract the Value from a Triple.",
 //         Seq(
@@ -47,16 +47,16 @@ val tripleModule = 0//: WanderValue.Module = WanderValue.Module(
 //         Tag.Untagged, // Tag.Single(Field("Core.Int")),
 //         (args, environment) =>
 //           args match
-//             case Seq(WanderValue.Triple(triple)) =>
+//             case Seq(LigatureValue.Triple(triple)) =>
 //               triple.value match {
 //                 case word: LigatureValue.Word =>
-//                   Right((WanderValue.Word(word), environment))
-//                 case LigatureValue.StringValue(value) =>
-//                   Right((WanderValue.String(value), environment))
-//                 case LigatureValue.IntegerValue(value) =>
-//                   Right((WanderValue.Int(value), environment))
-//                 case LigatureValue.BytesValue(value) =>
-//                   Right((WanderValue.Bytes(value), environment))
+//                   Right((LigatureValue.Word(word), environment))
+//                 case LigatureValue.String(value) =>
+//                   Right((LigatureValue.String(value), environment))
+//                 case LigatureValue.Int(value) =>
+//                   Right((LigatureValue.Int(value), environment))
+//                 case LigatureValue.Bytes(value) =>
+//                   Right((LigatureValue.Bytes(value), environment))
 //                 case LigatureValue.Record(_) => ???
 //               }
 //             case _ => Left(WanderError("Unexpected value."))

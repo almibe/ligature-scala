@@ -19,7 +19,7 @@ class LexerSuite extends FunSuite {
   // test("tokenize Integers") {
   //   val script = "123 0 -123"
   //   val tokens = Right(
-  //     Seq(Token.IntegerValue(123), sp, Token.IntegerValue(0), sp, Token.IntegerValue(-123))
+  //     Seq(Token.Int(123), sp, Token.Int(0), sp, Token.Int(-123))
   //   )
   //   check(script, tokens)
   // }
@@ -50,18 +50,18 @@ class LexerSuite extends FunSuite {
   // }
   // test("tokenize Strings") {
   //   val script = "\"hello, world!\""
-  //   val tokens = Right(Seq(Token.StringValue("hello, world!")))
+  //   val tokens = Right(Seq(Token.String("hello, world!")))
   //   check(script, tokens)
   // }
   // test("tokenize Strings with quotes") {
   //   val script = "\"\\\"hello, world!\\\"\""
-  //   val tokens = Right(Seq(Token.StringValue("\"hello, world!\"")))
+  //   val tokens = Right(Seq(Token.String("\"hello, world!\"")))
   //   check(script, tokens)
   // }
 
   // test("tokenize interpolated Strings") {
   //   val script = "i\"hello, world!\""
-  //   val tokens = Right(Seq(Token.StringValue("hello, world!", true)))
+  //   val tokens = Right(Seq(Token.String("hello, world!", true)))
   //   check(script, tokens)
   // }
   // test("tokenize Names") {
@@ -106,7 +106,7 @@ class LexerSuite extends FunSuite {
   // test("tokenize grouping") {
   //   val script = "(hello 2)"
   //   val tokens = Right(
-  //     Seq(Token.OpenParen, Token.Field("hello"), sp, Token.IntegerValue(2), Token.CloseParen)
+  //     Seq(Token.OpenParen, Token.Field("hello"), sp, Token.Int(2), Token.CloseParen)
   //   )
   //   check(script, tokens)
   // }
