@@ -9,7 +9,7 @@ class LiteralsSuite extends munit.FunSuite {
   def check(script: String, expected: LigatureValue) =
     val (res) = run(script) match {
       case Right(res) => res
-      case Left(err) => ???//throw err
+      case Left(err) => throw err
     }
     
     assertEquals(

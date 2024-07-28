@@ -25,7 +25,7 @@ class BytesSuite extends munit.FunSuite {
   //   assertEquals(values, results)
   // }
 
-  // test("encode and decode structs".ignore) {
+  // test("encode and decode structs") {
   //   val values = Seq(
   //     LigatureValue.Module(Map())
   //   )

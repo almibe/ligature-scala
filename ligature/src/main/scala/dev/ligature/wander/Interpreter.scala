@@ -15,7 +15,7 @@ enum Expression:
   case Word(value: String)
   case Array(value: Seq[Expression])
   case Triple(entity: Expression, attribute: Expression, value: Expression)
-  case Network(expressions: Seq[Expression])
+  case Network(expressions: Seq[Triple])
   case Application(expressions: Seq[Expression])
   case Grouping(expressions: Seq[Expression])
   case Slot(name: String)
@@ -75,29 +75,24 @@ def handleGrouping(
 //     )
 //     Right((LigatureValue.Module(results.toMap)))
 
-def handleNetwork(
-    expressions: Seq[Expression],
-): Either[WanderError, (LigatureValue)] =
-  expressions match
-    case Seq(
+def handleTriple(triple: Expression.Triple): Triple =
+  triple match
+    case Expression.Triple(
           Expression.Word(entity),
           Expression.Word(attribute),
           Expression.Word(value)
         ) =>
-      Right(
-        (
-          LigatureValue.Network(InMemoryNetwork(
-            Set(
-              Triple(
-                LigatureValue.Word(entity),
-                LigatureValue.Word(attribute),
-                LigatureValue.Word(value)
-              )
-            )
+          Triple(
+            LigatureValue.Word(entity),
+            LigatureValue.Word(attribute),
+            LigatureValue.Word(value)
           )
-        )
-      ))
     case _ => ???
+
+def handleNetwork(
+    triples: Seq[Expression.Triple],
+): Either[WanderError, LigatureValue.Network] =
+  Right(LigatureValue.Network(InMemoryNetwork(triples.map(handleTriple).toSet)))
 
 def handleApplication(
     expression: Seq[Expression],

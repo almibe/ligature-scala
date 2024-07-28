@@ -49,12 +49,13 @@ def processTriple(triple: Term.Triple): Either[WanderError, Expression.Triple] =
   }
 
 @tailrec
-def processNetwork(terms: Seq[Term.Triple], resuluts: Array[Expression.Triple]): Either[WanderError, Expression.Network] =
+def processNetwork(terms: Seq[Term.Triple], results: Array[Expression.Triple]): Either[WanderError, Expression.Network] =
   terms match
+    case Nil => Right(Expression.Network(results.toIndexedSeq))
     case head :: next =>
       processTriple(head) match
         case Left(value) => Left(value)
-        case Right(value) => processNetwork(next, resuluts :+ value)  
+        case Right(value) => processNetwork(next, results :+ value)  
 
 def processGrouping(terms: Seq[Term]): Either[WanderError, Expression.Grouping] = {
   var error: Option[WanderError] = None

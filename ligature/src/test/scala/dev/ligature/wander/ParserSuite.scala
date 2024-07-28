@@ -179,7 +179,7 @@ class ParserSuite extends FunSuite {
   //   )
   //   assertEquals(result, expected)
   // }
-  // test("parse empty Dataset".ignore) {
+  // test("parse empty Dataset") {
   //   val result = check("{}")
   //   val expected = Right(
   //     Seq(
@@ -223,7 +223,7 @@ class ParserSuite extends FunSuite {
     )
     assertEquals(result, expected)
   }
-  test("parse network with multiple triples".ignore) {
+  test("parse network with multiple triples") {
     val result = check("{ a b c, a b d, b c d }")
     val expected = Right(
       Seq(

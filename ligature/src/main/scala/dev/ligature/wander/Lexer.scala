@@ -221,7 +221,7 @@ object LigNibblers {
 
   val wordNibbler: Nibbler[String, String] =
     concat(takeWhile { (c: String) =>
-      "[a-zA-Z0-9-._~:/?#\\[\\]@!$&'()*+,;%=]".r.matches(c)
+      "[a-zA-Z0-9-._:?!=]".r.matches(c)
     })
 
   val stringContentNibbler: Nibbler[String, String] =

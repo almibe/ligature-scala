@@ -22,7 +22,6 @@ enum Term:
   case Word(value: String)
   case Triple(entity: Term, attribute: Term, value: Term)
   case Network(roots: Seq[Triple])
-  // case NetworkRoot(terms: Seq[Term])
   case Application(terms: Seq[Term])
   case Grouping(terms: Seq[Term])
 
@@ -37,7 +36,7 @@ def parse(script: Seq[Token]): Either[WanderError, Seq[Term]] = {
   res match {
     case Result.NoMatch =>
       if (gaze.isComplete) {
-        ??? //Right(Seq(Term.Module(Seq())))
+        Right(Seq())
       } else {
         Left(WanderError(s"Error Parsing - No Match - Next Token: ${gaze.next()}"))
       }
@@ -129,7 +128,7 @@ val tripleNib: Nibbler[Token, Term.Triple] = { gaze =>
   for
     entity <- gaze.attempt(takeFirst(wordNib, slotTermNib))
     attribute <- gaze.attempt(takeFirst(wordNib, slotTermNib))
-    value <- gaze.attempt(takeFirst(wordNib, slotTermNib))
+    value <- gaze.attempt(takeFirst(wordNib, slotTermNib, integerNib, stringNib))
   yield Term.Triple(entity, attribute, value)
 }
 

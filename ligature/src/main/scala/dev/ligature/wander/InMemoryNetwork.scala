@@ -4,7 +4,7 @@
 
 package dev.ligature.wander
 
-class InMemoryNetwork(private val triples: Set[Triple]) extends INetwork {
+case class InMemoryNetwork(val triples: Set[Triple]) extends INetwork {
 
   override def educe(pattern: INetwork): Set[Map[String, LigatureValue]] = 
     ???
