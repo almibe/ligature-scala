@@ -64,58 +64,58 @@ val logger = Logger("LigatureModule")
 //             case _ => ???
 //       )
 //     ),
-//     Field("allStatements") -> WanderValue.Function(
+//     Field("allTriples") -> WanderValue.Function(
 //       HostFunction(
-//         "Get all Statements in a Dataset.",
+//         "Get all Triples in a Dataset.",
 //         Seq(TaggedField(Field("datasetName"), Tag.Untagged)),
 //         Tag.Untagged,
 //         (arguments, environment) =>
 //           arguments.head match
 //             case WanderValue.String(datasetName) =>
 //               val res = ligature
-//                 .allStatements(DatasetName(datasetName))
-//                 .map(statement => WanderValue.Statement(statement))
+//                 .allTriples(DatasetName(datasetName))
+//                 .map(triple => WanderValue.Triple(triple))
 //                 .toList
 //               Right((WanderValue.Array(res), environment))
 //             case _ => ???
 //       )
 //     ),
-//     Field("addStatements") -> WanderValue.Function(
+//     Field("addTriples") -> WanderValue.Function(
 //       HostFunction(
-//         "Add a collection of Statements to a Dataset.",
+//         "Add a collection of Triples to a Dataset.",
 //         Seq(
 //           TaggedField(Field("datasetName"), Tag.Untagged),
-//           TaggedField(Field("statements"), Tag.Untagged)
+//           TaggedField(Field("triples"), Tag.Untagged)
 //         ),
 //         Tag.Untagged,
 //         (arguments, environment) =>
 //           (arguments(0), arguments(1)) match
-//             case (WanderValue.String(datasetName), WanderValue.Array(statementTerms)) =>
+//             case (WanderValue.String(datasetName), WanderValue.Array(tripleTerms)) =>
 //               val dataset = DatasetName(datasetName)
-//               wanderValuesToStatements(statementTerms, ListBuffer()) match
+//               wanderValuesToTriples(tripleTerms, ListBuffer()) match
 //                 case Left(value) => ???
 //                 case Right(edges) =>
-//                   ligature.addStatements(dataset, edges.iterator)
+//                   ligature.addTriples(dataset, edges.iterator)
 //                   Right((WanderValue.Module(Map()), environment))
 //             case _ => ???
 //       )
 //     ),
-//     Field("removeStatements") -> WanderValue.Function(
+//     Field("removeTriples") -> WanderValue.Function(
 //       HostFunction(
-//         "Remove a collection of Statements from a Dataset.",
+//         "Remove a collection of Triples from a Dataset.",
 //         Seq(
 //           TaggedField(Field("datasetName"), Tag.Untagged),
-//           TaggedField(Field("statements"), Tag.Untagged)
+//           TaggedField(Field("triples"), Tag.Untagged)
 //         ),
 //         Tag.Untagged,
 //         (arguments, environment) =>
 //           (arguments(0), arguments(1)) match
-//             case (WanderValue.String(datasetName), WanderValue.Array(statements)) =>
+//             case (WanderValue.String(datasetName), WanderValue.Array(triples)) =>
 //               val dataset = DatasetName(datasetName)
-//               wanderValuesToStatements(statements, ListBuffer()) match
+//               wanderValuesToTriples(triples, ListBuffer()) match
 //                 case Left(value) => ???
-//                 case Right(statements) =>
-//                   ligature.removeStatements(dataset, statements.iterator)
+//                 case Right(triples) =>
+//                   ligature.removeTriples(dataset, triples.iterator)
 //                   Right((WanderValue.Module(Map()), environment))
 //             case _ => ???
 //       )
@@ -140,15 +140,15 @@ val logger = Logger("LigatureModule")
 //   )
 // )
 
-// def wanderValuesToStatements(
+// def wanderValuesToTriples(
 //     values: Seq[WanderValue],
-//     edges: ListBuffer[Statement]
-// ): Either[LigatureError, Seq[Statement]] =
+//     edges: ListBuffer[Triple]
+// ): Either[LigatureError, Seq[Triple]] =
 //   if values.nonEmpty then
 //     values.head match
-//       case WanderValue.Statement(statement) =>
-//         wanderValuesToStatements(values.tail, edges += statement)
-//       case err => Left(LigatureError(s"Invalid statement - $err"))
+//       case WanderValue.Triple(triple) =>
+//         wanderValuesToTriples(values.tail, edges += triple)
+//       case err => Left(LigatureError(s"Invalid triple - $err"))
 //   else Right(edges.toSeq)
 
 // def handleQuery(
@@ -178,7 +178,7 @@ val logger = Logger("LigatureModule")
 //     val dataset = DatasetName(datasetName)
 //     ligature.query(dataset) { tx =>
 //       val res = tx
-//         .matchStatements(entity, attribute, value)
-//         .map(statement => WanderValue.Statement(statement))
+//         .matchTriples(entity, attribute, value)
+//         .map(triple => WanderValue.Triple(triple))
 //       Right((WanderValue.Array(res.toSeq), environment))
 //     }

@@ -16,7 +16,7 @@ enum WanderValue:
   case Array(values: Seq[WanderValue])
   case Word(value: LigatureValue.Word)
   case Slot(name: java.lang.String)
-  case Network(value: Set[dev.ligature.wander.Statement])
+  case Network(value: Set[dev.ligature.wander.Triple])
 
 enum Tag:
   case Untagged
@@ -122,11 +122,11 @@ def printBytes(bytes: Seq[Byte]) = s"0x${formatter.formatHex(bytes.toArray)}"
 
 def printWord(word: LigatureValue.Word) = s"`${word.value}`"
 
-def printStatement(statement: Statement) =
-  val value = printStatementValue(statement.value)
-  s"`${statement.entity.value}` `${statement.attribute.value}` $value"
+def printTriple(triple: Triple) =
+  val value = printTripleValue(triple.value)
+  s"`${triple.entity.value}` `${triple.attribute.value}` $value"
 
-def printStatementValue(value: LigatureValue): String =
+def printTripleValue(value: LigatureValue): String =
   value match
     case LigatureValue.BytesValue(value)   => printBytes(value)
     case value: LigatureValue.Word   => printWord(value)
@@ -134,14 +134,14 @@ def printStatementValue(value: LigatureValue): String =
     case LigatureValue.StringValue(value)  => printString(value)
     case LigatureValue.Record(values) =>
       "{" + values
-        .map((field, value) => field + " = " + printStatementValue(value))
+        .map((field, value) => field + " = " + printTripleValue(value))
         .mkString(", ") + "}"
     case LigatureValue.Quote(quote) => ???
-    case LigatureValue.Network => ???
-
-def printNetwork(network: Set[Statement]) = network
-  .map(printStatement)
-  .mkString("{ ", ", ", " }") //s"{ ${network.map(statement => printStatement(statement))} }"
+    case LigatureValue.Network(network) => ???
+    
+def printNetwork(network: Set[Triple]) = network
+  .map(printTriple)
+  .mkString("{ ", ", ", " }") //s"{ ${network.map(triple => printTriple(triple))} }"
 
 def printString(value: String) = ???
   // val gson = Gson()

@@ -4,30 +4,30 @@
 
 // package dev.ligature.wander.preludes
 
-// import dev.ligature.{Word, LigatureValue, LigatureError, Statement}
+// import dev.ligature.{Word, LigatureValue, LigatureError, Triple}
 // import dev.ligature.wander.Token
 // import dev.ligature.wander.ScriptResult
 // import cats.effect.IO
 // import scala.collection.mutable.ListBuffer
-// import dev.ligature.wander.preludes.termsToStatements
+// import dev.ligature.wander.preludes.termsToTriples
 // import dev.ligature.wander.*
 
 // def i(i: String): Word = Word.fromString(i).getOrElse(???)
 
 // class LibrarysSuite extends munit.FunSuite {
-//   test("termsToStatements empty input") {
+//   test("termsToTriples empty input") {
 //     val input = Seq()
 //     val expected = Right(Seq())
-//     assertEquals(termsToStatements(input, ListBuffer()), expected)
+//     assertEquals(termsToTriples(input, ListBuffer()), expected)
 //   }
-//   test("termsToStatements single Statement") {
+//   test("termsToTriples single Triple") {
 //     val input = Seq(Term.List(
 //         Seq(
 //             Term.WordLiteral(i("a")),
 //             Term.WordLiteral(i("b")),
 //             Term.WordLiteral(i("c")))))
-//     val expected = Right(Seq(Statement(i("a"), i("b"), i("c"))))
-//     assertEquals(termsToStatements(input, ListBuffer()), expected)
+//     val expected = Right(Seq(Triple(i("a"), i("b"), i("c"))))
+//     assertEquals(termsToTriples(input, ListBuffer()), expected)
 //   }
 // }
 
@@ -37,43 +37,43 @@
 //     val result = """["hello"]""" //WanderValue.ListValue(Seq(WanderValue.LigatureValue(LigatureValue.StringValue("hello"))))
 //     check(input, result)
 //   }
-//   test("add Statements") {
-//     val input = """addDataset("hello") addStatements("hello" [[<a> <b> <c>]]) allStatements("hello")"""
+//   test("add Triples") {
+//     val input = """addDataset("hello") addTriples("hello" [[<a> <b> <c>]]) allTriples("hello")"""
 //     val result = "[[<a> <b> <c>]]"
 //     check(input, result)
 //   }
-//   test("add/remove Statements") {
-//     val input = """addDataset("hello") addStatements("hello" [[<a> <b> <c>][<a2> <b2> <c2>][<e> <f> <g>]])
-//                   |removeStatements("hello" [[<a2> <b2> <c2>]]) allStatements("hello")""".stripMargin
+//   test("add/remove Triples") {
+//     val input = """addDataset("hello") addTriples("hello" [[<a> <b> <c>][<a2> <b2> <c2>][<e> <f> <g>]])
+//                   |removeTriples("hello" [[<a2> <b2> <c2>]]) allTriples("hello")""".stripMargin
 //     val result = "[[<a> <b> <c>] [<e> <f> <g>]]"
 //     check(input, result)
 //   }
-//   test("query Statements") {
-//     val input = """addDataset("hello") addStatements("hello" [[<a> <b> <c>][<a2> <b2> <c2>][<e> <f> <g>]])
+//   test("query Triples") {
+//     val input = """addDataset("hello") addTriples("hello" [[<a> <b> <c>][<a2> <b2> <c2>][<e> <f> <g>]])
 //                   |query("hello" <a> <b> <c>)""".stripMargin
 //     val result = "[[<a> <b> <c>]]"
 //     check(input, result)
 //   }
-//   test("query Statements no match") {
-//     val input = """addDataset("hello") addStatements("hello" [[<a> <b> <c>][<a2> <b2> <c2>][<e> <f> <g>]])
+//   test("query Triples no match") {
+//     val input = """addDataset("hello") addTriples("hello" [[<a> <b> <c>][<a2> <b2> <c2>][<e> <f> <g>]])
 //                   |query("hello" <a1> <b> <c>)""".stripMargin
 //     val result = "[]"
 //     check(input, result)
 //   }
-//   test("query Statements full wildcard match") {
-//     val input = """addDataset("hello") addStatements("hello" [[<a> <b> <c>][<a2> <b2> <c2>][<e> <f> <g>]])
+//   test("query Triples full wildcard match") {
+//     val input = """addDataset("hello") addTriples("hello" [[<a> <b> <c>][<a2> <b2> <c2>][<e> <f> <g>]])
 //                   |query("hello" ? ? ?)""".stripMargin
 //     val result = "[[<a> <b> <c>] [<a2> <b2> <c2>] [<e> <f> <g>]]"
 //     check(input, result)
 //   }
-//   test("query Statements partial wildcard match") {
-//     val input = """addDataset("hello") addStatements("hello" [[<a> <b> <c>][<a2> <b> <c2>][<e> <f> <g>]])
+//   test("query Triples partial wildcard match") {
+//     val input = """addDataset("hello") addTriples("hello" [[<a> <b> <c>][<a2> <b> <c2>][<e> <f> <g>]])
 //                   |query("hello" ? <b> ?)""".stripMargin
 //     val result = "[[<a> <b> <c>] [<a2> <b> <c2>]]"
 //     check(input, result)
 //   }
 //   test("query with closure") {
-//     val input = """addDataset("hello") addStatements("hello" [[<a> <b> <c>][<a2> <b> <c2>][<e> <f> <g>]])
+//     val input = """addDataset("hello") addTriples("hello" [[<a> <b> <c>][<a2> <b> <c2>][<e> <f> <g>]])
 //                   |query("hello" { match -> match(? <b> ?)})""".stripMargin
 //     val result = "[[<a> <b> <c>] [<a2> <b> <c2>]]"
 //     check(input, result)

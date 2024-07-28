@@ -4,11 +4,11 @@
 
 package dev.ligature.inmemory
 
-// import dev.ligature.{Ligature, QueryTx, Statement}
+// import dev.ligature.{Ligature, QueryTx, Triple}
 // import scala.collection.mutable.{Set, TreeMap}
 // import dev.ligature.DatasetName
 
-// protected case class DatasetStore(var counter: Long = 0, val edges: Set[Statement] = Set())
+// protected case class DatasetStore(var counter: Long = 0, val edges: Set[Triple] = Set())
 
 case class Test(val x: Int)
 
@@ -50,7 +50,7 @@ case class Test(val x: Int)
 //   override def deleteDataset(network: DatasetName): Unit =
 //     val _ = this.store.remove(network)
 
-//   override def allStatements(network: DatasetName): Iterator[Statement] =
+//   override def allTriples(network: DatasetName): Iterator[Triple] =
 //     this.store.get(network) match
 //       case None        => Iterator.empty
 //       case Some(value) => value.edges.iterator
@@ -65,7 +65,7 @@ case class Test(val x: Int)
 //         val tx = InMemoryQueryTx(networkStore)
 //         fn(tx)
 
-//   override def addStatements(network: DatasetName, edges: Iterator[Statement]): Unit =
+//   override def addTriples(network: DatasetName, edges: Iterator[Triple]): Unit =
 //     this.store.get(network) match {
 //       case None =>
 //         this.store.addOne((network, DatasetStore(0, Set.from(edges.toSet))))
@@ -83,7 +83,7 @@ case class Test(val x: Int)
 //     //         store.updated(network, networkStore)
 //     //       }
 
-//   override def removeStatements(network: DatasetName, edges: Iterator[Statement]): Unit =
+//   override def removeTriples(network: DatasetName, edges: Iterator[Triple]): Unit =
 //     this.store.get(network) match {
 //       case None        => ???
 //       case Some(store) => store.edges.subtractAll(edges)

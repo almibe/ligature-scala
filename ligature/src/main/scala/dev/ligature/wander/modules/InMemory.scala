@@ -12,20 +12,20 @@ val im = 0
 // import dev.ligature.wander.HostFunction
 // import dev.ligature.wander.TaggedField
 // import dev.ligature.wander.Tag
-// import dev.ligature.wander.Statement
+// import dev.ligature.wander.Triple
 // import scala.collection.mutable.HashSet
 
 // trait LigatureStore {
 //   def networks(): Seq[String]
 //   def addNetwork(name: String): Unit
 //   def removeNetwork(name: String): Unit
-//   def add(name: String, network: Seq[Statement]): Unit
-//   def remove(name: String, network: Seq[Statement]): Unit
-//   def query(name: String, network: Seq[Statement]): Seq[Statement]
+//   def add(name: String, network: Seq[Triple]): Unit
+//   def remove(name: String, network: Seq[Triple]): Unit
+//   def query(name: String, network: Seq[Triple]): Seq[Triple]
 // }
 
 // class InMemoryStore extends LigatureStore {
-//   private val store = scala.collection.mutable.HashMap[String, HashSet[Statement]]()
+//   private val store = scala.collection.mutable.HashMap[String, HashSet[Triple]]()
 
 //   override def networks(): Seq[String] =
 //     store.keys.toSeq
@@ -38,19 +38,19 @@ val im = 0
 //     val _ = store.remove(name)
 //     ()
 
-//   override def add(name: String, network: Seq[Statement]): Unit =
+//   override def add(name: String, network: Seq[Triple]): Unit =
 //     store.get(name) match {
 //       case None => ???
-//       case Some(statements) => statements.addAll(network)
+//       case Some(triples) => triples.addAll(network)
 //     }
 
-//   override def remove(name: String, network: Seq[Statement]): Unit = 
+//   override def remove(name: String, network: Seq[Triple]): Unit = 
 //     store.get(name) match {
 //       case None => ???
-//       case Some(statements) => statements.subtractAll(network)
+//       case Some(triples) => triples.subtractAll(network)
 //     }
 
-//   override def query(name: String, network: Seq[Statement]): Seq[Statement] = 
+//   override def query(name: String, network: Seq[Triple]): Seq[Triple] = 
 //     store.get(name) match {
 //       case None => ???
 //       case Some(value) => 
@@ -108,7 +108,7 @@ val im = 0
 //       ),
 //       Field("add") -> WanderValue.Function(
 //         HostFunction(
-//           "Add Statements to an existing Network.",
+//           "Add Triples to an existing Network.",
 //           Seq(
 //             TaggedField(Field("storeName"), Tag.Untagged),
 //             TaggedField(Field("network"), Tag.Untagged)
@@ -126,7 +126,7 @@ val im = 0
 //       ),
 //       Field("remove") -> WanderValue.Function(
 //         HostFunction(
-//           "Remove Statements from an existing Network.",
+//           "Remove Triples from an existing Network.",
 //           Seq(
 //             TaggedField(Field("storeName"), Tag.Untagged),
 //             TaggedField(Field("network"), Tag.Untagged)

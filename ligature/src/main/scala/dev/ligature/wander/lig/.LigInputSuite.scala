@@ -5,7 +5,7 @@
 // package dev.ligature.lig
 
 // import dev.ligature.gaze.Gaze
-// import dev.ligature.{Word, Statement, LigatureValue}
+// import dev.ligature.{Word, Triple, LigatureValue}
 // import munit.FunSuite
 
 // class LigInputSuite extends FunSuite {
@@ -60,12 +60,12 @@
 //   test("copy character test with entity and attribute") {
 //     val input = "<e> <a> 234\n^ ^ 432"
 //     val expected = List(
-//       Statement(
+//       Triple(
 //         Word.fromString("e").getOrElse(???),
 //         Word.fromString("a").getOrElse(???),
 //         LigatureValue.IntegerValue(234)
 //       ),
-//       Statement(
+//       Triple(
 //         Word.fromString("e").getOrElse(???),
 //         Word.fromString("a").getOrElse(???),
 //         LigatureValue.IntegerValue(432)
@@ -73,7 +73,7 @@
 //     )
 //     val res = read(input)
 //     res match {
-//       case Right(statements) => assertEquals(statements, expected)
+//       case Right(triples) => assertEquals(triples, expected)
 //       case Left(err)         => fail("failed", clues(err))
 //     }
 //   }
@@ -87,12 +87,12 @@
 //   test("copy character test with attribute and value") {
 //     val input = "<e> <a> 234\n<e2> ^ ^"
 //     val expected = List(
-//       Statement(
+//       Triple(
 //         Word.fromString("e").getOrElse(???),
 //         Word.fromString("a").getOrElse(???),
 //         LigatureValue.IntegerValue(234)
 //       ),
-//       Statement(
+//       Triple(
 //         Word.fromString("e2").getOrElse(???),
 //         Word.fromString("a").getOrElse(???),
 //         LigatureValue.IntegerValue(234)
@@ -100,7 +100,7 @@
 //     )
 //     val result = read(input)
 //     result match {
-//       case Right(statements) => assertEquals(statements, expected)
+//       case Right(triples) => assertEquals(triples, expected)
 //       case Left(err)         => fail("failed", clues(err))
 //     }
 //   }
@@ -121,18 +121,18 @@
 //     val input = "prefix x = this:\nx:hello x:cruel x:world"
 //     val result = read(input)
 //     result match {
-//       case Right(statements) =>
-//         assertEquals(statements.length, 1)
+//       case Right(triples) =>
+//         assertEquals(triples.length, 1)
 //         assertEquals(
-//           statements(0).entity,
+//           triples(0).entity,
 //           Word.fromString("this:hello").getOrElse(???)
 //         )
 //         assertEquals(
-//           statements(0).attribute,
+//           triples(0).attribute,
 //           Word.fromString("this:cruel").getOrElse(???)
 //         )
 //         assertEquals(
-//           statements(0).value,
+//           triples(0).value,
 //           Word.fromString("this:world").getOrElse(???)
 //         )
 //       case Left(err) => fail("failed", clues(err))
@@ -143,15 +143,15 @@
 //     val input = "prefix x = this:\nx:hello{} x:cruel x:world"
 //     val result = read(input)
 //     result match {
-//       case Right(statements) =>
-//         assertEquals(statements.length, 1)
-// //        assertEquals(statements(0).entity, Word.fromString("this:hello").getOrElse(???))
+//       case Right(triples) =>
+//         assertEquals(triples.length, 1)
+// //        assertEquals(triples(0).entity, Word.fromString("this:hello").getOrElse(???))
 //         assertEquals(
-//           statements(0).attribute,
+//           triples(0).attribute,
 //           Word.fromString("this:cruel").getOrElse(???)
 //         )
 //         assertEquals(
-//           statements(0).value,
+//           triples(0).value,
 //           Word.fromString("this:world").getOrElse(???)
 //         )
 //       case Left(err) => fail("failed", clues(err))
@@ -162,8 +162,8 @@
 //     val input = "prefix x = this:\nx:{} x:{}is:a x:prefix{}"
 //     val result = read(input)
 //     result match {
-//       case Right(statements) =>
-//         assertEquals(statements.length, 1)
+//       case Right(triples) =>
+//         assertEquals(triples.length, 1)
 //       // TODO add more checks
 //       case Left(err) => fail("failed", clues(err))
 //     }

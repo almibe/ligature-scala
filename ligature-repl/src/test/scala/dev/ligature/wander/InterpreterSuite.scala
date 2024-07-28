@@ -22,10 +22,10 @@ class InterpreterSuite extends FunSuite {
   //   val tokens = WanderValue.Module(Map(Field("hello") -> WanderValue.Int(2)))
   //   check(script, tokens)
   // }
-  // test("Statement support") {
+  // test("Triple support") {
   //   val script = "`a` `b` `c`"
-  //   val result = WanderValue.Statement(
-  //     Statement(
+  //   val result = WanderValue.Triple(
+  //     Triple(
   //       LigatureValue.Word("a"),
   //       LigatureValue.Word("b"),
   //       LigatureValue.Word("c")
@@ -37,7 +37,7 @@ class InterpreterSuite extends FunSuite {
     val script = "{ a b c }"
     val result = WanderValue.Network(
       Set(
-        Statement(
+        Triple(
           LigatureValue.Word("a"),
           LigatureValue.Word("b"),
           LigatureValue.Word("c")
@@ -46,10 +46,10 @@ class InterpreterSuite extends FunSuite {
     )
     check(script, result)
   }
-  // test("Statement with empty Record as Value") {
+  // test("Triple with empty Record as Value") {
   //   val script = "`a` `a` {}"
-  //   val result = WanderValue.Statement(
-  //     Statement(
+  //   val result = WanderValue.Triple(
+  //     Triple(
   //       LigatureValue.Word("a"),
   //       LigatureValue.Word("a"),
   //       LigatureValue.Record(Map())

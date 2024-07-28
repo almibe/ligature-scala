@@ -86,7 +86,7 @@ def handleNetwork(
         (
           WanderValue.Network(
             Set(
-              Statement(
+              Triple(
                 LigatureValue.Word(entity),
                 LigatureValue.Word(attribute),
                 LigatureValue.Word(value)
@@ -112,8 +112,8 @@ def handleApplication(
             case Expression.Word(value) => ???
               // Right(
               //   (
-              //     WanderValue.Statement(
-              //       Statement(
+              //     WanderValue.Triple(
+              //       Triple(
               //         LigatureValue.Word(entity),
               //         LigatureValue.Word(attribute),
               //         LigatureValue.Word(value)
@@ -125,8 +125,8 @@ def handleApplication(
             case Expression.IntegerValue(value) => ???
               // Right(
               //   (
-              //     WanderValue.Statement(
-              //       Statement(
+              //     WanderValue.Triple(
+              //       Triple(
               //         LigatureValue.Word(entity),
               //         LigatureValue.Word(attribute),
               //         LigatureValue.IntegerValue(value)
@@ -138,8 +138,8 @@ def handleApplication(
             case Expression.Bytes(value) => ???
               // Right(
               //   (
-              //     WanderValue.Statement(
-              //       Statement(
+              //     WanderValue.Triple(
+              //       Triple(
               //         LigatureValue.Word(entity),
               //         LigatureValue.Word(attribute),
               //         LigatureValue.BytesValue(value)
@@ -153,8 +153,8 @@ def handleApplication(
               //   case Right((WanderValue.String(result), _)) =>
               //     Right(
               //       (
-              //         WanderValue.Statement(
-              //           Statement(
+              //         WanderValue.Triple(
+              //           Triple(
               //             LigatureValue.Word(entity),
               //             LigatureValue.Word(attribute),
               //             LigatureValue.StringValue(result)
@@ -165,8 +165,8 @@ def handleApplication(
               //     )
               //   case _ => ???
               // }
-            case _ => Left(WanderError(s"Invalid Statement - ${expression}"))
-        case _ => Left(WanderError(s"Invalid Statement - ${expression}"))
+            case _ => Left(WanderError(s"Invalid Triple - ${expression}"))
+        case _ => Left(WanderError(s"Invalid Triple - ${expression}"))
     case x => Left(WanderError(s"Unexpected start of application - $x"))
   }
 

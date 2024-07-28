@@ -14,15 +14,15 @@
 
 // case class LigError(message: String)
 
-// //def read(input: String): Either[LigError, List[Statement]] = {
+// //def read(input: String): Either[LigError, List[Triple]] = {
 // //  val gaze = Gaze.from(input)
-// //  val statements: ArrayBuffer[Statement] = ArrayBuffer()
+// //  val triples: ArrayBuffer[Triple] = ArrayBuffer()
 // //  var continue = true
 // //  while (continue && !gaze.isComplete) {
 // //    gaze.attempt(optional(whiteSpaceAndNewLineNibbler))
-// //    parseStatement(gaze) match {
-// //      case Left(resStatement)  => return Left(resStatement)
-// //      case Right(resStatement) => statements.append(resStatement)
+// //    parseTriple(gaze) match {
+// //      case Left(resTriple)  => return Left(resTriple)
+// //      case Right(resTriple) => triples.append(resTriple)
 // //    }
 // //    val check = gaze.attempt(optional(whiteSpaceAndNewLineNibbler))
 // //    if (check.isDefined && !gaze.isComplete) {
@@ -31,22 +31,22 @@
 // //      continue = false
 // //    }
 // //  }
-// //  Right(statements.toList)
+// //  Right(triples.toList)
 // //}
 
-// def read(input: String): Either[LigError, List[Statement]] = {
+// def read(input: String): Either[LigError, List[Triple]] = {
 //   val gaze = Gaze.from(input)
 //   // val model: ArrayBuffer[DLigModel] = ArrayBuffer()
 //   for {
 //     prefixes <- parsePrefixes(gaze)
-//     statements <- parseStatements(gaze, prefixes)
-//   } yield statements
+//     triples <- parseTriples(gaze, prefixes)
+//   } yield triples
 // //   var continue = true
 // //   while (continue && !gaze.isComplete) {
 // //     gaze.attempt(optional(whiteSpaceAndNewLineNibbler))
-// //     parseStatement(gaze) match {
-// //       case Left(resStatement)  => return Left(resStatement)
-// //       case Right(resStatement) => statements.append(resStatement)
+// //     parseTriple(gaze) match {
+// //       case Left(resTriple)  => return Left(resTriple)
+// //       case Right(resTriple) => triples.append(resTriple)
 // //     }
 // //     val check = gaze.attempt(optional(whiteSpaceAndNewLineNibbler))
 // //     if (check.isDefined && !gaze.isComplete) {
@@ -58,11 +58,11 @@
 // //  return Right(model.toList)
 // }
 
-// //def parseStatement(gaze: Gaze[Char]): Either[LigError, Statement] =
+// //def parseTriple(gaze: Gaze[Char]): Either[LigError, Triple] =
 // //  for {
 // //    _ <- gaze
 // //      .attempt(optional(whiteSpaceAndNewLineNibbler))
-// //      .toRight(LigError("Error parsing optional whitespace before Statement"))
+// //      .toRight(LigError("Error parsing optional whitespace before Triple"))
 // //    entity <- parseWord(gaze)
 // //    _ <- gaze
 // //      .attempt(whiteSpaceNibbler)
@@ -75,7 +75,7 @@
 // //    _ <- gaze
 // //      .attempt(optional(whiteSpaceAndNewLineNibbler))
 // //      .toRight(LigError(""))
-// //  } yield Statement(entity, attribute, value)
+// //  } yield Triple(entity, attribute, value)
 
 // def createWord(id: String): Either[LigError, Word] =
 //   Word
@@ -115,7 +115,7 @@
 //   Right(result.toMap)
 // }
 
-// //TODO: this function never returns an Error so if there is a malformed prefix it won't be caught until we try to read a Statement
+// //TODO: this function never returns an Error so if there is a malformed prefix it won't be caught until we try to read a Triple
 // def parsePrefix(
 //     gaze: Gaze[Char]
 // ): Either[LigError, Option[(String, String)]] = {
@@ -141,61 +141,61 @@
 //   }
 // }
 
-// def parseStatements(
+// def parseTriples(
 //     gaze: Gaze[Char],
 //     prefixes: Map[String, String]
-// ): Either[LigError, List[Statement]] = {
-//   val statements = ArrayBuffer[Statement]()
-//   var lastStatement: Option[Statement] = None
+// ): Either[LigError, List[Triple]] = {
+//   val triples = ArrayBuffer[Triple]()
+//   var lastTriple: Option[Triple] = None
 //   while (!gaze.isComplete)
-//     parseStatement(gaze, prefixes, lastStatement) match {
+//     parseTriple(gaze, prefixes, lastTriple) match {
 //       case Left(err) => return Left(err)
-//       case Right(statement) =>
-//         lastStatement = Some(statement)
-//         statements.addOne(statement)
+//       case Right(triple) =>
+//         lastTriple = Some(triple)
+//         triples.addOne(triple)
 //     }
-//   Right(statements.toList)
+//   Right(triples.toList)
 // }
 
-// def parseStatement(
+// def parseTriple(
 //     gaze: Gaze[Char],
 //     prefixes: Map[String, String],
-//     lastStatement: Option[Statement]
-// ): Either[LigError, Statement] =
+//     lastTriple: Option[Triple]
+// ): Either[LigError, Triple] =
 //   for {
 //     _ <- gaze
 //       .attempt(optional(whiteSpaceAndNewLineNibbler))
-//       .toRight(LigError("Error parsing optional whitespace before Statement"))
-//     entity <- parseWord(gaze, prefixes, lastEntity(lastStatement))
+//       .toRight(LigError("Error parsing optional whitespace before Triple"))
+//     entity <- parseWord(gaze, prefixes, lastEntity(lastTriple))
 //     _ <- gaze
 //       .attempt(whiteSpaceNibbler)
 //       .toRight(LigError("Error parsing whitespace after Entity"))
-//     attribute <- parseWord(gaze, prefixes, lastAttribute(lastStatement))
+//     attribute <- parseWord(gaze, prefixes, lastAttribute(lastTriple))
 //     _ <- gaze
 //       .attempt(whiteSpaceNibbler)
 //       .toRight(LigError("Error parsing whitespace after Attribute"))
-//     value <- parseValue(gaze, prefixes, lastValue(lastStatement))
+//     value <- parseValue(gaze, prefixes, lastValue(lastTriple))
 //     _ <- gaze
 //       .attempt(optional(whiteSpaceAndNewLineNibbler))
 //       .toRight(LigError(""))
-//   } yield Statement(entity, attribute, value)
+//   } yield Triple(entity, attribute, value)
 
-// def lastEntity(lastStatement: Option[Statement]): Option[Word] =
-//   lastStatement match {
+// def lastEntity(lastTriple: Option[Triple]): Option[Word] =
+//   lastTriple match {
 //     case None            => None
-//     case Some(statement) => Some(statement.entity)
+//     case Some(triple) => Some(triple.entity)
 //   }
 
-// def lastAttribute(lastStatement: Option[Statement]): Option[Word] =
-//   lastStatement match {
+// def lastAttribute(lastTriple: Option[Triple]): Option[Word] =
+//   lastTriple match {
 //     case None            => None
-//     case Some(statement) => Some(statement.attribute)
+//     case Some(triple) => Some(triple.attribute)
 //   }
 
-// def lastValue(lastStatement: Option[Statement]): Option[Value] =
-//   lastStatement match {
+// def lastValue(lastTriple: Option[Triple]): Option[Value] =
+//   lastTriple match {
 //     case None            => None
-//     case Some(statement) => Some(statement.value)
+//     case Some(triple) => Some(triple.value)
 //   }
 
 // def parseWord(

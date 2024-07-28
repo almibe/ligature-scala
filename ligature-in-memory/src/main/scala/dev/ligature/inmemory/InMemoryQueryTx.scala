@@ -13,18 +13,18 @@ case class Test2(val x: Int)
   */
 // class InMemoryQueryTx(private val store: DatasetStore) extends QueryTx {
 
-//   /** Returns all PersistedStatements in this Dataset. */
-//   def allStatements(): Iterator[Statement] = store.edges.iterator
+//   /** Returns all PersistedTriples in this Dataset. */
+//   def allTriples(): Iterator[Triple] = store.edges.iterator
 
-//   /** Returns all PersistedStatements that match the given criteria. If a
+//   /** Returns all PersistedTriples that match the given criteria. If a
 //     * parameter is None then it matches all, so passing all Nones is the same as
-//     * calling allStatements.
+//     * calling allTriples.
 //     */
-//   override def matchStatements(
+//   override def matchTriples(
 //       entity: Option[LigatureValue.Word],
 //       attribute: Option[LigatureValue.Word],
 //       value: Option[LigatureValue]
-//   ): Iterator[Statement] = {
+//   ): Iterator[Triple] = {
 //     var res = store.edges.iterator
 //     if (entity.isDefined) {
 //       res = res.filter(_.entity == entity.get)
@@ -38,14 +38,14 @@ case class Test2(val x: Int)
 //     res
 //   }
 
-//  /** Returns all PersistedStatements that match the given criteria. If a
+//  /** Returns all PersistedTriples that match the given criteria. If a
 //    * parameter is None then it matches all.
 //    */
-//  override def matchStatementsRange(
+//  override def matchTriplesRange(
 //      source: Option[Word],
 //      label: Option[Word],
 //      range: dev.ligature.Range
-//  ): Iterator[Statement] = {
+//  ): Iterator[Triple] = {
 //    var res = Stream.emits(store.edges.toSeq)
 //    if (source.isDefined) {
 //      res = res.filter(_.source == source.get)

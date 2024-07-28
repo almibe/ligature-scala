@@ -62,7 +62,7 @@ class LiteralsSuite extends munit.FunSuite {
   test("record literal with one value") {
     val script = "{x = x}"
     val result = WanderValue.Network(Set(
-        Statement(
+        Triple(
           LigatureValue.Word("x"),
           LigatureValue.Word("="),
           LigatureValue.Word("x")

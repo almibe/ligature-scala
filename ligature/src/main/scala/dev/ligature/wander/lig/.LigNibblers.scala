@@ -19,7 +19,7 @@
 //   takeWhile,
 //   optional
 // }
-// import dev.ligature.{Word, Statement, LigatureValue, Value}
+// import dev.ligature.{Word, Triple, LigatureValue, Value}
 
 // object LigNibblers {
 //   val whiteSpaceNibbler = takeCharacters(' ', '\t')

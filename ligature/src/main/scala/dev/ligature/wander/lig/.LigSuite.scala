@@ -5,68 +5,68 @@
 // package dev.ligature.lig
 
 // import munit.FunSuite
-// import dev.ligature.{Word, LigatureValue, Statement}
+// import dev.ligature.{Word, LigatureValue, Triple}
 // import dev.ligature.gaze.Gaze
 
 // class LigSuite extends FunSuite {
 //   val testWord = Word.fromString("test").getOrElse(???)
 //   def word(id: String) = Word.fromString(id).getOrElse(???)
 
-//   test("basic Statement with all Entities") {
-//     val statement = Statement(
+//   test("basic Triple with all Entities") {
+//     val triple = Triple(
 //       word("e1"),
 //       word("a1"),
 //       word("e2")
 //     )
-//     val lines = write(List(statement).iterator)
-//     val resStatements = read(lines)
-//     resStatements match {
-//       case Right(statements) => assertEquals(statements, List(statement))
+//     val lines = write(List(triple).iterator)
+//     val resTriples = read(lines)
+//     resTriples match {
+//       case Right(triples) => assertEquals(triples, List(triple))
 //       case Left(err)         => fail("failed", clues(err))
 //     }
 //   }
 
-//   test("list of Statements with Literal Values") {
-//     val statements = List(
-//       Statement(
+//   test("list of Triples with Literal Values") {
+//     val triples = List(
+//       Triple(
 //         word("e1"),
 //         word("a1"),
 //         word("e2")
 //       ),
-//       Statement(
+//       Triple(
 //         word("e2"),
 //         word("a2"),
 //         LigatureValue.StringValue("string literal")
 //       ),
-//       Statement(
+//       Triple(
 //         word("e2"),
 //         word("a3"),
 //         LigatureValue.IntegerValue(Long.MaxValue)
 //       )
 //     )
-//     val lines = write(statements.iterator)
-//     val resStatements = read(lines)
-//     resStatements match {
-//       case Right(res) => assertEquals(res, statements)
+//     val lines = write(triples.iterator)
+//     val resTriples = read(lines)
+//     resTriples match {
+//       case Right(res) => assertEquals(res, triples)
 //       case Left(err)  => fail("failed", clues(err))
 //     }
 //   }
 
-//   test("parse Statement from multi-line String") {
-//     val statements =
+//   test("parse Triple from multi-line String") {
+//     val triples =
 //       """
 //         |<a> <b> <c>
 //         |<a> <b> 123
 //         |<a> <b> "Test"
 //         |""".stripMargin
-//     val expectedStatements = Set(
-//       Statement(word("a"), word("b"), word("c")),
-//       Statement(word("a"), word("b"), LigatureValue.IntegerValue(123)),
-//       Statement(word("a"), word("b"), LigatureValue.StringValue("Test")),
+//     val expectedTriples = Set(
+//       Triple(word("a"), word("b"), word("c")),
+//       Triple(word("a"), word("b"), LigatureValue.IntegerValue(123)),
+//       Triple(word("a"), word("b"), LigatureValue.StringValue("Test")),
 //     )
-//     val resStatements = read(statements)
-//     resStatements match {
-//       case Right(res) => assertEquals(res.toSet, expectedStatements)
+//     val resTriples = read(triples)
+//     resTriples match {
+//       case Right(res) => assertEquals(res.toSet, expectedTriples)
 //       case Left(err)  => fail("failed", clues(err))
 //     }
 //   }

@@ -44,7 +44,7 @@ class ParserSuite extends FunSuite {
   //   val expected = Right(Seq(Term.Word("hello")))
   //   assertEquals(result, expected)
   // }
-  // test("parse Statement") {
+  // test("parse Triple") {
   //   val result = check("`a` `b` `c`")
   //   val expected = Right(
   //     Seq(Term.Application(Seq(Term.Word("a"), Term.Word("b"), Term.Word("c"))))
@@ -212,7 +212,7 @@ class ParserSuite extends FunSuite {
   //   )
   //   assertEquals(result, expected)
   // }
-  test("parse network with one statement") {
+  test("parse network with one triple") {
     val result = check("{ a b c }")
     val expected = Right(
       Seq(
@@ -223,7 +223,7 @@ class ParserSuite extends FunSuite {
     )
     assertEquals(result, expected)
   }
-  test("parse network with multiple statements".ignore) {
+  test("parse network with multiple triples".ignore) {
     val result = check("{ a b c, a b d, b c d }")
     val expected = Right(
       Seq(
@@ -345,7 +345,7 @@ class ParserSuite extends FunSuite {
   //   )
   //   assertEquals(result, expected)
   // }
-  // test("parse Statement with empty Record for Value") {
+  // test("parse Triple with empty Record for Value") {
   //   val result = check("`a` `a` {}")
   //   val expected = Right(
   //     Seq(
