@@ -111,11 +111,12 @@ def printLigatureValue(value: LigatureValue): String =
 
 def printBytes(bytes: Seq[Byte]) = s"0x${formatter.formatHex(bytes.toArray)}"
 
-def printQuote(values: Seq[LigatureValue]) = ???
+def printQuote(values: Seq[LigatureValue]) =
+  values.foldLeft("[ ")((state: String, value: LigatureValue) => {state + printLigatureValue(value) + " " }) + "]"
 
 def printTriple(triple: Triple) =
   val value = printTripleValue(triple.value)
-  s"`${triple.entity.value}` `${triple.attribute.value}` $value"
+  s"${triple.entity.value} ${triple.attribute.value} $value"
 
 def printTripleValue(value: LigatureValue): String =
   value match

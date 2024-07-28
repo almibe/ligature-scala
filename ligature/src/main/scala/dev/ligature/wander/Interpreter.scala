@@ -13,7 +13,7 @@ enum Expression:
   case Bytes(value: Seq[Byte])
   case StringValue(value: String)
   case Word(value: String)
-  case Array(value: Seq[Expression])
+  case Quote(value: Seq[Expression])
   case Triple(entity: Expression, attribute: Expression, value: Expression)
   case Network(expressions: Seq[Triple])
   case Application(expressions: Seq[Expression])
@@ -29,7 +29,7 @@ def eval(
     case Expression.StringValue(value) => Right((LigatureValue.StringValue(value)))
     case Expression.Word(value) =>
       Right((LigatureValue.Word(value)))
-    case Expression.Array(value)                   => handleArray(value)
+    case Expression.Quote(value)                   => Right(handleQuote(value))
     case Expression.Grouping(expressions)    => handleGrouping(expressions)
     case Expression.Application(expressions) => handleApplication(expressions)
     case Expression.Slot(name)               => Right((LigatureValue.Slot(name)))
@@ -87,7 +87,7 @@ def handleTriple(triple: Expression.Triple): Triple =
             case Expression.Int(int) => LigatureValue.Int(int)
             case Expression.Bytes(_) => ???
             case Expression.StringValue(value) => LigatureValue.StringValue(value)
-            case Expression.Array(_) => ???
+            case Expression.Quote(quote) => handleQuote(quote)
             case Expression.Triple(_, _, _) => ???
             case Expression.Network(_) => ???
             case Expression.Application(_) => ???
@@ -189,10 +189,9 @@ def callHostFunction(
   //   callHostFunctionPartially(hostFunction, arguments)
   // else ???
 
-
-def handleArray(
+def handleQuote(
     expressions: Seq[Expression],
-): Either[WanderError, (LigatureValue.Quote)] = {
+): LigatureValue.Quote = {
   val res = ListBuffer[LigatureValue]()
   val itre = expressions.iterator
   val continue = true
@@ -200,7 +199,7 @@ def handleArray(
   do
     val expression = itre.next()
     eval(expression) match
-      case Left(err)    => return Left(err)
+      case Left(err)    => ???//return Left(err)
       case Right(value) => res += value
-  Right((LigatureValue.Quote(res.toList)))
+  LigatureValue.Quote(res.toList)
 }

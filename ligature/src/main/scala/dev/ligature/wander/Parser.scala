@@ -144,14 +144,11 @@ val networkNib: Nibbler[Token, Term.Network] = { gaze =>
 }
 
 val applicationNib: Nibbler[Token, Term] = { gaze =>
-  val res =
-    for decls <- gaze.attempt(repeat(applicationInternalNib))
-    yield Term.Application(decls)
-  res match {
-    case Result.Match(Term.Application(Seq(singleValue))) =>
-      Result.Match(singleValue)
-    case _ => res
-  }
+  for
+    entity <- gaze.attempt(takeFirst(wordNib, slotTermNib))
+    attribute <- gaze.attempt(takeFirst(wordNib, slotTermNib))
+    value <- gaze.attempt(takeFirst(wordNib, slotTermNib, integerNib, stringNib, quoteNib))
+  yield Term.Triple(entity, attribute, value)
 }
 
 val groupingNib: Nibbler[Token, Term.Grouping] = { gaze =>
@@ -162,21 +159,8 @@ val groupingNib: Nibbler[Token, Term.Grouping] = { gaze =>
   yield Term.Grouping(decls)
 }
 
-val applicationInternalNib =
-  takeFirst(
-    groupingNib,
-    wordNib,
-    stringNib,
-    bytesNib,
-    integerNib,
-    quoteNib,
-    networkNib,
-    slotTermNib,
-  )
-
 val expressionNib =
   takeFirst(
-    applicationNib,
     groupingNib,
     wordNib,
     stringNib,
@@ -184,6 +168,7 @@ val expressionNib =
     integerNib,
     quoteNib,
     networkNib,
+    applicationNib,
   )
 
 //val scriptNib = optionalSeq(repeatSep(expressionNib, Token.Comma))

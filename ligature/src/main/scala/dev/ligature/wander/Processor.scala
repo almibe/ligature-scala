@@ -24,7 +24,7 @@ def process(terms: Seq[Term]): Either[WanderError, Seq[Expression]] =
 def process(term: Term): Either[WanderError, Expression] =
   term match {
     case Term.Slot(name)                      => Right(Expression.Slot(name))
-    case Term.Quote(terms)                    => processArray(terms)
+    case Term.Quote(terms)                    => Right(processQuote(terms))
     case Term.Int(value)             => Right(Expression.Int(value))
     case Term.StringValue(value) => Right(Expression.StringValue(value))
     case Term.Grouping(terms)                 => processGrouping(terms)
@@ -45,7 +45,7 @@ def processTriple(triple: Term.Triple): Either[WanderError, Expression.Triple] =
         case Term.Int(int) => Expression.Int(int)
         case Term.StringValue(value) => Expression.StringValue(value)
         case Term.Slot(slot) => Expression.Slot(slot)
-        case Term.Quote(_) => ???
+        case Term.Quote(quote) => processQuote(quote)//Expression.Quote(quote)
         case Term.Triple(_, _, _) => ???
         case Term.Network(_) => ???
         case Term.Grouping(_) => ???
@@ -94,6 +94,16 @@ def processApplication(terms: Seq[Term]): Either[WanderError, Expression.Applica
   else Right(Expression.Application(res.toSeq))
 }
 
+def processQuote(terms: Seq[Term]): Expression.Quote = {
+  val expressions = terms.map { t =>
+    process(t) match {
+      case Left(err)    => ???
+      case Right(value) => value
+    }
+  }
+  Expression.Quote(expressions)
+}
+
 // def processModule(values: Seq[(Field, Term)]): Either[WanderError, Expression] =
 //   boundary:
 //     val results = ListBuffer[(Field, Expression)]()
@@ -119,13 +129,3 @@ def processApplication(terms: Seq[Term]): Either[WanderError, Expression.Applica
 //     case Left(err)         => ???
 //     case Right(expression) => Right(Expression.Binding(name, tag, expression))
 //   }
-
-def processArray(terms: Seq[Term]): Either[WanderError, Expression.Array] = {
-  val expressions = terms.map { t =>
-    process(t) match {
-      case Left(err)    => ???
-      case Right(value) => value
-    }
-  }
-  Right(Expression.Array(expressions))
-}
