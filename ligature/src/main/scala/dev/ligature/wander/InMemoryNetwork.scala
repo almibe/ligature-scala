@@ -14,7 +14,8 @@ case class InMemoryNetwork(val triples: Set[Triple]) extends INetwork {
   override def count(): Long = this.triples.size
 
   override def union(other: INetwork): INetwork = 
-    ???
+    val otherTriples = other.write()
+    return InMemoryNetwork(triples.union(otherTriples))
 
   override def apply(values: Map[String, LigatureValue]): INetwork = 
     ???
@@ -27,3 +28,5 @@ case class InMemoryNetwork(val triples: Set[Triple]) extends INetwork {
 
 
 }
+
+val empty = InMemoryNetwork(Set.empty)

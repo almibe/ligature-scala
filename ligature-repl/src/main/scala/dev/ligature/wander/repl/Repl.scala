@@ -8,7 +8,9 @@ import scala.swing._
 import java.awt.event.KeyAdapter
 import java.awt.event.KeyEvent
 import dev.ligature.wander.run
-import dev.ligature.wander.printResult
+import dev.ligature.wander.INetwork
+import dev.ligature.wander.InMemoryNetwork
+import dev.ligature.wander.printNetwork
 
 def content () = {
     new BorderPanel {
@@ -16,14 +18,20 @@ def content () = {
         val button = new Button("Run")
         val output = new TextArea("")
 
+        var network: INetwork = InMemoryNetwork(Set.empty)
+
         input.peer.addKeyListener(new KeyAdapter() {
             override def keyPressed(e: KeyEvent): Unit =
                 if e.getKeyCode()==KeyEvent.VK_ENTER then
                     val script = input.text
                     input.text = ""
-                    val res = printResult(run(script))
-                    val result = output.text
-                    output.text = res + "\n" + result
+                    run(script, network) match
+                      case Left(dev.ligature.wander.WanderError(value)) =>
+                        output.text = value + "\n" + output.text                        
+                      case Right(res) => 
+                        val result = output.text
+                        network = network.union(res)
+                        output.text = printNetwork(res) + "\n" + result
         })
 
         import BorderPanel.Position._

@@ -54,8 +54,8 @@ case class HostFunction(
 case class WanderError(val userMessage: String) extends Throwable(userMessage)
 
 def run(
-    script: String,
-): Either[WanderError, (LigatureValue)] =
+    script: String, runtimeNetwork: INetwork
+): Either[WanderError, INetwork] =
   val expression = for {
     tokens <- tokenize(script)
     terms <- parse(tokens)
@@ -64,7 +64,11 @@ def run(
   expression match
     case Left(value)  => Left(value)
     case Right(value) => 
-      eval(value.head)
+      eval(value.head, runtimeNetwork) match
+        case Right(LigatureValue.Network(value)) => Right(value)
+        case Right(LigatureValue.Word(word)) => ???
+        case Right(_) => ???
+        case Left(value) => Left(value)
 
 case class Inspect(
     tokens: Either[WanderError, Seq[Token]],

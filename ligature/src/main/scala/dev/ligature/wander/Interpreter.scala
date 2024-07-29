@@ -6,7 +6,6 @@ package dev.ligature.wander
 
 import dev.ligature.wander.*
 import scala.collection.mutable.ListBuffer
-import scala.collection.mutable
 
 enum Expression:
   case Int(value: Long)
@@ -21,7 +20,26 @@ enum Expression:
   case Slot(name: String)
 
 def eval(
+    expressions: Seq[Expression],
+    runtimeNetwork: INetwork
+): Either[WanderError, LigatureValue] = ???
+//   expression match {
+//     case Expression.Int(value) => Right((LigatureValue.Int(value)))
+//     case Expression.Bytes(value)        => Right((LigatureValue.Bytes(value)))
+//     case Expression.StringValue(value) => Right((LigatureValue.StringValue(value)))
+//     case Expression.Word(value) =>
+//       Right((LigatureValue.Word(value)))
+//     case Expression.Quote(value)                   => Right(handleQuote(value, runtimeNetwork))
+//     case Expression.Grouping(expressions)    => handleGrouping(expressions)
+//     case Expression.Application(expressions) => handleApplication(expressions)
+//     case Expression.Slot(name)               => Right((LigatureValue.Slot(name)))
+//     case Expression.Network(expressions)       => handleNetwork(expressions, runtimeNetwork)
+//     case Expression.Triple(_, _, _) => ???
+// }
+
+def eval(
     expression: Expression,
+    runtimeNetwork: INetwork
 ): Either[WanderError, LigatureValue] =
   expression match {
     case Expression.Int(value) => Right((LigatureValue.Int(value)))
@@ -29,11 +47,11 @@ def eval(
     case Expression.StringValue(value) => Right((LigatureValue.StringValue(value)))
     case Expression.Word(value) =>
       Right((LigatureValue.Word(value)))
-    case Expression.Quote(value)                   => Right(handleQuote(value))
+    case Expression.Quote(value)                   => Right(handleQuote(value, runtimeNetwork))
     case Expression.Grouping(expressions)    => handleGrouping(expressions)
     case Expression.Application(expressions) => handleApplication(expressions)
     case Expression.Slot(name)               => Right((LigatureValue.Slot(name)))
-    case Expression.Network(expressions)       => handleNetwork(expressions)
+    case Expression.Network(expressions)       => handleNetwork(expressions, runtimeNetwork)
     case Expression.Triple(_, _, _) => ???
   }
 
@@ -75,7 +93,7 @@ def handleGrouping(
 //     )
 //     Right((LigatureValue.Module(results.toMap)))
 
-def handleTriple(triple: Expression.Triple): Triple =
+def handleTriple(triple: Expression.Triple, runtimeNetwork: INetwork): Triple =
   triple match
     case Expression.Triple(
           Expression.Word(entity),
@@ -87,7 +105,7 @@ def handleTriple(triple: Expression.Triple): Triple =
             case Expression.Int(int) => LigatureValue.Int(int)
             case Expression.Bytes(_) => ???
             case Expression.StringValue(value) => LigatureValue.StringValue(value)
-            case Expression.Quote(quote) => handleQuote(quote)
+            case Expression.Quote(quote) => handleQuote(quote, runtimeNetwork)
             case Expression.Triple(_, _, _) => ???
             case Expression.Network(_) => ???
             case Expression.Application(_) => ???
@@ -103,8 +121,10 @@ def handleTriple(triple: Expression.Triple): Triple =
 
 def handleNetwork(
     triples: Seq[Expression.Triple],
+    runtimeNetwork: INetwork
 ): Either[WanderError, LigatureValue.Network] =
-  Right(LigatureValue.Network(InMemoryNetwork(triples.map(handleTriple).toSet)))
+  val network = triples.map(triple => handleTriple(triple, runtimeNetwork)).toSet
+  Right(LigatureValue.Network(runtimeNetwork.union(InMemoryNetwork(network))))
 
 def handleApplication(
     expression: Seq[Expression],
@@ -191,6 +211,7 @@ def callHostFunction(
 
 def handleQuote(
     expressions: Seq[Expression],
+    runtimeNetwork: INetwork
 ): LigatureValue.Quote = {
   val res = ListBuffer[LigatureValue]()
   val itre = expressions.iterator
@@ -198,8 +219,8 @@ def handleQuote(
   while continue && itre.hasNext
   do
     val expression = itre.next()
-    eval(expression) match
-      case Left(err)    => ???//return Left(err)
+    eval(expression, runtimeNetwork) match
       case Right(value) => res += value
+      case Left(err)    => ???//return Left(err)
   LigatureValue.Quote(res.toList)
 }
