@@ -13,21 +13,24 @@ class LexerSuite extends FunSuite {
 
   test("tokenize network") {
     val script = "{a b c, d e f}"
-    val tokens = Right(Seq(
-      Token.OpenBrace,
-      Token.Word("a"), 
-      sp,
-      Token.Word("b"),
-      sp,
-      Token.Word("c"),
-      Token.Comma,
-      sp,
-      Token.Word("d"),
-      sp,
-      Token.Word("e"),
-      sp,
-      Token.Word("f"),
-      Token.CloseBrace))
+    val tokens = Right(
+      Seq(
+        Token.OpenBrace,
+        Token.Word("a"),
+        sp,
+        Token.Word("b"),
+        sp,
+        Token.Word("c"),
+        Token.Comma,
+        sp,
+        Token.Word("d"),
+        sp,
+        Token.Word("e"),
+        sp,
+        Token.Word("f"),
+        Token.CloseBrace
+      )
+    )
     check(script, tokens)
   }
   // test("tokenize Integers") {

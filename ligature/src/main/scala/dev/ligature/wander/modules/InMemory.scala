@@ -30,11 +30,11 @@ val im = 0
 //   override def networks(): Seq[String] =
 //     store.keys.toSeq
 
-//   override def addNetwork(name: String): Unit = 
+//   override def addNetwork(name: String): Unit =
 //     val _ = store.put(name, HashSet())
 //     ()
 
-//   override def removeNetwork(name: String): Unit = 
+//   override def removeNetwork(name: String): Unit =
 //     val _ = store.remove(name)
 //     ()
 
@@ -44,16 +44,16 @@ val im = 0
 //       case Some(triples) => triples.addAll(network)
 //     }
 
-//   override def remove(name: String, network: Seq[Triple]): Unit = 
+//   override def remove(name: String, network: Seq[Triple]): Unit =
 //     store.get(name) match {
 //       case None => ???
 //       case Some(triples) => triples.subtractAll(network)
 //     }
 
-//   override def query(name: String, network: Seq[Triple]): Seq[Triple] = 
+//   override def query(name: String, network: Seq[Triple]): Seq[Triple] =
 //     store.get(name) match {
 //       case None => ???
-//       case Some(value) => 
+//       case Some(value) =>
 //         value.toSeq
 //     }
 // }
@@ -83,7 +83,7 @@ val im = 0
 //           Tag.Untagged,
 //           (arguments, environment) =>
 //             arguments match {
-//               case Seq(LigatureValue.String(name)) => 
+//               case Seq(LigatureValue.String(name)) =>
 //                 instance.addNetwork(name)
 //                 Right((LigatureValue.Module(Map.empty), environment))
 //               case _ => ???
@@ -99,7 +99,7 @@ val im = 0
 //           Tag.Untagged,
 //           (arguments, environment) =>
 //             arguments match {
-//               case Seq(LigatureValue.String(name)) => 
+//               case Seq(LigatureValue.String(name)) =>
 //                 instance.removeNetwork(name)
 //                 Right((LigatureValue.Module(Map.empty), environment))
 //               case _ => ???

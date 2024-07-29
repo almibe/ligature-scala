@@ -42,11 +42,11 @@ case class HostFunction(
     parameters: Seq[String],
     resultTag: Tag,
     fn: (
-        arguments: Seq[LigatureValue],
-    ) => Either[WanderError, (LigatureValue)]
+        arguments: Seq[LigatureValue]
+    ) => Either[WanderError, LigatureValue]
 ) extends Function {
   override def call(
-      args: Seq[LigatureValue],
+      args: Seq[LigatureValue]
   ): Either[WanderError, LigatureValue] = ???
 //    fn.apply(args).map(_)
 }
@@ -54,7 +54,8 @@ case class HostFunction(
 case class WanderError(val userMessage: String) extends Throwable(userMessage)
 
 def run(
-    script: String, runtimeNetwork: INetwork
+    script: String,
+    runtimeNetwork: INetwork
 ): Either[WanderError, INetwork] =
   val expression = for {
     tokens <- tokenize(script)
@@ -62,13 +63,13 @@ def run(
     expression <- process(terms)
   } yield expression
   expression match
-    case Left(value)  => Left(value)
-    case Right(value) => 
+    case Left(value) => Left(value)
+    case Right(value) =>
       eval(value.head, runtimeNetwork) match
         case Right(LigatureValue.Network(value)) => Right(value)
-        case Right(LigatureValue.Word(word)) => ???
-        case Right(_) => ???
-        case Left(value) => Left(value)
+        case Right(LigatureValue.Word(word))     => ???
+        case Right(_)                            => ???
+        case Left(value)                         => Left(value)
 
 case class Inspect(
     tokens: Either[WanderError, Seq[Token]],
@@ -94,7 +95,7 @@ def inspect(script: String): Inspect = {
   Inspect(tokens, terms, expression)
 }
 
-def printResult(value: Either[WanderError, (LigatureValue)]): String =
+def printResult(value: Either[WanderError, LigatureValue]): String =
   value match {
     case Left(value)  => "Error: " + value.userMessage
     case Right(value) => printLigatureValue(value)
@@ -106,17 +107,19 @@ def printLigatureValue(value: LigatureValue): String =
   value match
     case LigatureValue.Slot(name)         => s"?$name"
     case LigatureValue.Int(value)         => value.toString()
-    case LigatureValue.StringValue(value)      => printString(value)
+    case LigatureValue.StringValue(value) => printString(value)
     case LigatureValue.Quote(values) =>
       "[" + values.map(value => printLigatureValue(value)).mkString(", ") + "]"
-    case LigatureValue.Bytes(value)           => printBytes(value)
-    case LigatureValue.Network(value)           => printNetwork(value)
-    case LigatureValue.Word(word) => word
+    case LigatureValue.Bytes(value)   => printBytes(value)
+    case LigatureValue.Network(value) => printNetwork(value)
+    case LigatureValue.Word(word)     => word
 
 def printBytes(bytes: Seq[Byte]) = s"0x${formatter.formatHex(bytes.toArray)}"
 
 def printQuote(values: Seq[LigatureValue]) =
-  values.foldLeft("[ ")((state: String, value: LigatureValue) => {state + printLigatureValue(value) + " " }) + "]"
+  values.foldLeft("[ ") { (state: String, value: LigatureValue) =>
+    state + printLigatureValue(value) + " "
+  } + "]"
 
 def printTriple(triple: Triple) =
   val value = printTripleValue(triple.value)
@@ -124,19 +127,21 @@ def printTriple(triple: Triple) =
 
 def printTripleValue(value: LigatureValue): String =
   value match
-    case LigatureValue.Bytes(value)   => printBytes(value)
-    case LigatureValue.Word(word)   => word
-    case LigatureValue.Int(value) => value.toString()
-    case LigatureValue.StringValue(value)  => printString(value)
-    case LigatureValue.Quote(quote) => printQuote(quote)
-    case LigatureValue.Network(network) => ???
-    case LigatureValue.Slot(slot) => "$" + slot
+    case LigatureValue.Bytes(value)       => printBytes(value)
+    case LigatureValue.Word(word)         => word
+    case LigatureValue.Int(value)         => value.toString()
+    case LigatureValue.StringValue(value) => printString(value)
+    case LigatureValue.Quote(quote)       => printQuote(quote)
+    case LigatureValue.Network(network)   => ???
+    case LigatureValue.Slot(slot)         => "$" + slot
 
-def printQuote(network: INetwork) = network.write()
+def printQuote(network: INetwork) = network
+  .write()
   .map(printTriple)
   .mkString("{ ", ", ", " }") //s"{ ${network.map(triple => printTriple(triple))} }"
 
-def printNetwork(network: INetwork) = network.write()
+def printNetwork(network: INetwork) = network
+  .write()
   .map(printTriple)
   .mkString("{ ", ", ", " }") //s"{ ${network.map(triple => printTriple(triple))} }"
 

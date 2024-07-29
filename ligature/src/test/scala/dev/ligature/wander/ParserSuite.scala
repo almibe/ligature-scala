@@ -237,31 +237,28 @@ class ParserSuite extends FunSuite {
     val result = check("{ $ $ $ }")
     val expected = Right(
       Seq(
-        Term.Network(
-          Seq(Term.Triple(Term.Slot(""), Term.Slot(""), Term.Slot(""))))
-        )
+        Term.Network(Seq(Term.Triple(Term.Slot(""), Term.Slot(""), Term.Slot(""))))
       )
-    
+    )
+
     assertEquals(result, expected)
   }
   test("parse network with named slots") {
     val result = check("{ $a $b $c }")
     val expected = Right(
       Seq(
-        Term.Network(
-          Seq(Term.Triple(Term.Slot("a"), Term.Slot("b"), Term.Slot("c"))))
-        )
+        Term.Network(Seq(Term.Triple(Term.Slot("a"), Term.Slot("b"), Term.Slot("c"))))
       )
+    )
     assertEquals(result, expected)
   }
   test("parse network with empty Quote in Value postition") {
     val result = check("{ a b [] }")
     val expected = Right(
       Seq(
-        Term.Network(
-          Seq(Term.Triple(Term.Word("a"), Term.Word("b"), Term.Quote(Seq()))))
-        )
+        Term.Network(Seq(Term.Triple(Term.Word("a"), Term.Word("b"), Term.Quote(Seq()))))
       )
+    )
     assertEquals(result, expected)
   }
   test("parse network with simple Quote in Value postition") {
@@ -269,13 +266,22 @@ class ParserSuite extends FunSuite {
     val expected = Right(
       Seq(
         Term.Network(
-          Seq(Term.Triple(Term.Word("a"), Term.Word("b"), Term.Quote(Seq(
-            Term.Word("a"),
-            Term.Int(1),
-            Term.StringValue("2"),
-          )))))
+          Seq(
+            Term.Triple(
+              Term.Word("a"),
+              Term.Word("b"),
+              Term.Quote(
+                Seq(
+                  Term.Word("a"),
+                  Term.Int(1),
+                  Term.StringValue("2")
+                )
+              )
+            )
+          )
         )
       )
+    )
     assertEquals(result, expected)
   }
   // test("parse tagged lambda") {

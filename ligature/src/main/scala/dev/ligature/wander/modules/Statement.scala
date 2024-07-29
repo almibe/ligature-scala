@@ -8,7 +8,7 @@ package dev.ligature.wander.modules
 // import dev.ligature.wander.{LigatureValue, Field, HostFunction, TaggedField, Tag}
 // import dev.ligature.wander.WanderError
 
-val tripleModule = 0//: LigatureValue.Module = LigatureValue.Module(
+val tripleModule = 0 //: LigatureValue.Module = LigatureValue.Module(
 //   Map(
 //     Field("entity") -> LigatureValue.Function(
 //       HostFunction(

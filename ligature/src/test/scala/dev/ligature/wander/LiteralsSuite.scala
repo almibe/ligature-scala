@@ -4,14 +4,13 @@
 
 package dev.ligature.wander
 
-
 class LiteralsSuite extends munit.FunSuite {
   def check(script: String, expected: LigatureValue) =
-    val (res) = run(script) match {
+    val res = run(script) match {
       case Right(res) => res
-      case Left(err) => throw err
+      case Left(err)  => throw err
     }
-    
+
     assertEquals(
       res,
       expected
@@ -60,14 +59,17 @@ class LiteralsSuite extends munit.FunSuite {
   }
   test("record literal with one value") {
     val script = "{x = x}"
-    val result = LigatureValue.Network(InMemoryNetwork(Set(
-        Triple(
-          LigatureValue.Word("x"),
-          LigatureValue.Word("="),
-          LigatureValue.Word("x")
-        ))
+    val result = LigatureValue.Network(
+      InMemoryNetwork(
+        Set(
+          Triple(
+            LigatureValue.Word("x"),
+            LigatureValue.Word("="),
+            LigatureValue.Word("x")
+          )
+        )
       )
-)
+    )
     check(script, result)
   }
 }
