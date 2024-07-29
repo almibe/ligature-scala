@@ -42,17 +42,17 @@ def eval(
     runtimeNetwork: INetwork
 ): Either[WanderError, LigatureValue] =
   expression match {
-    case Expression.Int(value) => Right((LigatureValue.Int(value)))
-    case Expression.Bytes(value)        => Right((LigatureValue.Bytes(value)))
-    case Expression.StringValue(value) => Right((LigatureValue.StringValue(value)))
+    case Expression.Int(value)         => Right(LigatureValue.Int(value))
+    case Expression.Bytes(value)       => Right(LigatureValue.Bytes(value))
+    case Expression.StringValue(value) => Right(LigatureValue.StringValue(value))
     case Expression.Word(value) =>
-      Right((LigatureValue.Word(value)))
-    case Expression.Quote(value)                   => Right(handleQuote(value, runtimeNetwork))
+      Right(LigatureValue.Word(value))
+    case Expression.Quote(value)             => Right(handleQuote(value, runtimeNetwork))
     case Expression.Grouping(expressions)    => handleGrouping(expressions)
     case Expression.Application(expressions) => handleApplication(expressions)
-    case Expression.Slot(name)               => Right((LigatureValue.Slot(name)))
-    case Expression.Network(expressions)       => handleNetwork(expressions, runtimeNetwork)
-    case Expression.Triple(_, _, _) => ???
+    case Expression.Slot(name)               => Right(LigatureValue.Slot(name))
+    case Expression.Network(expressions)     => handleNetwork(expressions, runtimeNetwork)
+    case Expression.Triple(_, _, _)          => ???
   }
 
 // def readFieldPath(
@@ -65,8 +65,8 @@ def eval(
 //     case Right(None)        => Left(WanderError(s"Could not read $fieldPath."))
 
 def handleGrouping(
-    expressions: Seq[Expression],
-): Either[WanderError, (LigatureValue)] = ???//{
+    expressions: Seq[Expression]
+): Either[WanderError, LigatureValue] = ??? //{
 //   var error: Option[WanderError] = None
 //   var res: (LigatureValue, Environment) = (LigatureValue.Module(Map()))
 //   val itr = expressions.iterator
@@ -100,23 +100,23 @@ def handleTriple(triple: Expression.Triple, runtimeNetwork: INetwork): Triple =
           Expression.Word(attribute),
           value
         ) =>
-          val ligatureValue = value match {
-            case Expression.Word(word) => LigatureValue.Word(word)
-            case Expression.Int(int) => LigatureValue.Int(int)
-            case Expression.Bytes(_) => ???
-            case Expression.StringValue(value) => LigatureValue.StringValue(value)
-            case Expression.Quote(quote) => handleQuote(quote, runtimeNetwork)
-            case Expression.Triple(_, _, _) => ???
-            case Expression.Network(_) => ???
-            case Expression.Application(_) => ???
-            case Expression.Grouping(_) => ???
-            case Expression.Slot(_) => ???
-          }
-          Triple(
-            LigatureValue.Word(entity),
-            LigatureValue.Word(attribute),
-            ligatureValue
-          )
+      val ligatureValue = value match {
+        case Expression.Word(word)         => LigatureValue.Word(word)
+        case Expression.Int(int)           => LigatureValue.Int(int)
+        case Expression.Bytes(_)           => ???
+        case Expression.StringValue(value) => LigatureValue.StringValue(value)
+        case Expression.Quote(quote)       => handleQuote(quote, runtimeNetwork)
+        case Expression.Triple(_, _, _)    => ???
+        case Expression.Network(_)         => ???
+        case Expression.Application(_)     => ???
+        case Expression.Grouping(_)        => ???
+        case Expression.Slot(_)            => ???
+      }
+      Triple(
+        LigatureValue.Word(entity),
+        LigatureValue.Word(attribute),
+        ligatureValue
+      )
     case _ => ???
 
 def handleNetwork(
@@ -127,8 +127,8 @@ def handleNetwork(
   Right(LigatureValue.Network(runtimeNetwork.union(InMemoryNetwork(network))))
 
 def handleApplication(
-    expression: Seq[Expression],
-): Either[WanderError, (LigatureValue)] =
+    expression: Seq[Expression]
+): Either[WanderError, LigatureValue] =
   expression.head match {
     case Expression.Word(word) =>
       expression match
@@ -139,61 +139,61 @@ def handleApplication(
             ) =>
           value match
             case Expression.Word(value) => ???
-              // Right(
-              //   (
-              //     LigatureValue.Triple(
-              //       Triple(
-              //         LigatureValue.Word(entity),
-              //         LigatureValue.Word(attribute),
-              //         LigatureValue.Word(value)
-              //       )
-              //     ),
-              //     environment
-              //   )
-              // )
+            // Right(
+            //   (
+            //     LigatureValue.Triple(
+            //       Triple(
+            //         LigatureValue.Word(entity),
+            //         LigatureValue.Word(attribute),
+            //         LigatureValue.Word(value)
+            //       )
+            //     ),
+            //     environment
+            //   )
+            // )
             case Expression.Int(value) => ???
-              // Right(
-              //   (
-              //     LigatureValue.Triple(
-              //       Triple(
-              //         LigatureValue.Word(entity),
-              //         LigatureValue.Word(attribute),
-              //         LigatureValue.Int(value)
-              //       )
-              //     ),
-              //     environment
-              //   )
-              // )
+            // Right(
+            //   (
+            //     LigatureValue.Triple(
+            //       Triple(
+            //         LigatureValue.Word(entity),
+            //         LigatureValue.Word(attribute),
+            //         LigatureValue.Int(value)
+            //       )
+            //     ),
+            //     environment
+            //   )
+            // )
             case Expression.Bytes(value) => ???
-              // Right(
-              //   (
-              //     LigatureValue.Triple(
-              //       Triple(
-              //         LigatureValue.Word(entity),
-              //         LigatureValue.Word(attribute),
-              //         LigatureValue.Bytes(value)
-              //       )
-              //     ),
-              //     environment
-              //   )
-              // )
+            // Right(
+            //   (
+            //     LigatureValue.Triple(
+            //       Triple(
+            //         LigatureValue.Word(entity),
+            //         LigatureValue.Word(attribute),
+            //         LigatureValue.Bytes(value)
+            //       )
+            //     ),
+            //     environment
+            //   )
+            // )
             case stringValue: Expression.StringValue => ???
-              // eval(stringValue) match {
-              //   case Right((LigatureValue.String(result), _)) =>
-              //     Right(
-              //       (
-              //         LigatureValue.Triple(
-              //           Triple(
-              //             LigatureValue.Word(entity),
-              //             LigatureValue.Word(attribute),
-              //             LigatureValue.String(result)
-              //           )
-              //         ),
-              //         environment
-              //       )
-              //     )
-              //   case _ => ???
-              // }
+            // eval(stringValue) match {
+            //   case Right((LigatureValue.String(result), _)) =>
+            //     Right(
+            //       (
+            //         LigatureValue.Triple(
+            //           Triple(
+            //             LigatureValue.Word(entity),
+            //             LigatureValue.Word(attribute),
+            //             LigatureValue.String(result)
+            //           )
+            //         ),
+            //         environment
+            //       )
+            //     )
+            //   case _ => ???
+            // }
             case _ => Left(WanderError(s"Invalid Triple - ${expression}"))
         case _ => Left(WanderError(s"Invalid Triple - ${expression}"))
     case x => Left(WanderError(s"Unexpected start of application - $x"))
@@ -201,13 +201,13 @@ def handleApplication(
 
 def callHostFunction(
     hostFunction: HostFunction,
-    arguments: Seq[Expression],
-): Either[WanderError, (LigatureValue)] = ???
-  // if arguments.size == hostFunction.parameters.size then
-  //   callHostFunctionComplete(hostFunction, arguments)
-  // else if arguments.size < hostFunction.parameters.size then
-  //   callHostFunctionPartially(hostFunction, arguments)
-  // else ???
+    arguments: Seq[Expression]
+): Either[WanderError, LigatureValue] = ???
+// if arguments.size == hostFunction.parameters.size then
+//   callHostFunctionComplete(hostFunction, arguments)
+// else if arguments.size < hostFunction.parameters.size then
+//   callHostFunctionPartially(hostFunction, arguments)
+// else ???
 
 def handleQuote(
     expressions: Seq[Expression],
@@ -221,6 +221,6 @@ def handleQuote(
     val expression = itre.next()
     eval(expression, runtimeNetwork) match
       case Right(value) => res += value
-      case Left(err)    => ???//return Left(err)
+      case Left(err)    => ??? // return Left(err)
   LigatureValue.Quote(res.toList)
 }

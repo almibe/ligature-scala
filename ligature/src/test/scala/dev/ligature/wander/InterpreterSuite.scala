@@ -9,8 +9,8 @@ import munit.FunSuite
 class InterpreterSuite extends FunSuite {
   def check(script: String, expected: LigatureValue) =
     run(script) match
-      case Left(err)         => throw RuntimeException(err.toString())
-      case Right((value)) => assertEquals(value, expected)
+      case Left(err)    => throw RuntimeException(err.toString())
+      case Right(value) => assertEquals(value, expected)
 
   // test("load script with no exports") {
   //   val script = "x = false, {}"
@@ -34,15 +34,17 @@ class InterpreterSuite extends FunSuite {
   // }
   test("Network support") {
     val script = "{ a b c }"
-    val result = LigatureValue.Network(InMemoryNetwork(
-      Set(
-        Triple(
-          LigatureValue.Word("a"),
-          LigatureValue.Word("b"),
-          LigatureValue.Word("c")
+    val result = LigatureValue.Network(
+      InMemoryNetwork(
+        Set(
+          Triple(
+            LigatureValue.Word("a"),
+            LigatureValue.Word("b"),
+            LigatureValue.Word("c")
+          )
         )
       )
-    ))
+    )
     check(script, result)
   }
   // test("Triple with empty Record as Value") {

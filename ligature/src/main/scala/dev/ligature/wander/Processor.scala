@@ -20,16 +20,16 @@ def process(terms: Seq[Term]): Either[WanderError, Seq[Expression]] =
 
 def process(term: Term): Either[WanderError, Expression] =
   term match {
-    case Term.Slot(name)                      => Right(Expression.Slot(name))
-    case Term.Quote(terms)                    => Right(processQuote(terms))
-    case Term.Int(value)             => Right(Expression.Int(value))
+    case Term.Slot(name)         => Right(Expression.Slot(name))
+    case Term.Quote(terms)       => Right(processQuote(terms))
+    case Term.Int(value)         => Right(Expression.Int(value))
     case Term.StringValue(value) => Right(Expression.StringValue(value))
-    case Term.Grouping(terms)                 => processGrouping(terms)
-    case Term.Application(terms)              => processApplication(terms)
-    case Term.Bytes(value)                    => Right(Expression.Bytes(value))
-    case Term.Word(value)               => Right(Expression.Word(value))
-    case Term.Network(triples)                    => processNetwork(triples, Array())
-    case Term.Triple(_, _, _)                    => ???
+    case Term.Grouping(terms)    => processGrouping(terms)
+    case Term.Application(terms) => processApplication(terms)
+    case Term.Bytes(value)       => Right(Expression.Bytes(value))
+    case Term.Word(value)        => Right(Expression.Word(value))
+    case Term.Network(triples)   => processNetwork(triples, Array())
+    case Term.Triple(_, _, _)    => ???
   }
 
 def processTriple(triple: Term.Triple): Either[WanderError, Expression.Triple] =
@@ -37,33 +37,37 @@ def processTriple(triple: Term.Triple): Either[WanderError, Expression.Triple] =
     case Term.Triple(Term.Word(entity), Term.Word(attribute), value) =>
       val ligatureValue: Expression = value match {
         case Term.Application(terms) => ???
-        case Term.Word(word) => Expression.Word(word)
-        case Term.Bytes(_) => ???
-        case Term.Int(int) => Expression.Int(int)
+        case Term.Word(word)         => Expression.Word(word)
+        case Term.Bytes(_)           => ???
+        case Term.Int(int)           => Expression.Int(int)
         case Term.StringValue(value) => Expression.StringValue(value)
-        case Term.Slot(slot) => Expression.Slot(slot)
-        case Term.Quote(quote) => processQuote(quote)//Expression.Quote(quote)
-        case Term.Triple(_, _, _) => ???
-        case Term.Network(_) => ???
-        case Term.Grouping(_) => ???
+        case Term.Slot(slot)         => Expression.Slot(slot)
+        case Term.Quote(quote)       => processQuote(quote) // Expression.Quote(quote)
+        case Term.Triple(_, _, _)    => ???
+        case Term.Network(_)         => ???
+        case Term.Grouping(_)        => ???
       }
       Right(
         Expression.Triple(
           Expression.Word(entity),
           Expression.Word(attribute),
           ligatureValue
-        ))
+        )
+      )
     case _ => Left(WanderError("Could not parse triple."))
   }
 
 @tailrec
-def processNetwork(terms: Seq[Term.Triple], results: Array[Expression.Triple]): Either[WanderError, Expression.Network] =
+def processNetwork(
+    terms: Seq[Term.Triple],
+    results: Array[Expression.Triple]
+): Either[WanderError, Expression.Network] =
   terms match
     case Nil => Right(Expression.Network(results.toIndexedSeq))
     case head :: next =>
       processTriple(head) match
-        case Left(value) => Left(value)
-        case Right(value) => processNetwork(next, results :+ value)  
+        case Left(value)  => Left(value)
+        case Right(value) => processNetwork(next, results :+ value)
 
 def processGrouping(terms: Seq[Term]): Either[WanderError, Expression.Grouping] = {
   var error: Option[WanderError] = None

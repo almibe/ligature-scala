@@ -46,14 +46,14 @@ def parse(script: Seq[Token]): Either[WanderError, Seq[Term]] = {
       } else {
         Left(WanderError(s"Error Parsing - No Match - Next Token: ${gaze.next()}"))
       }
-    case Result.EmptyMatch => ??? //Right(Seq(Term.Module(Seq())))
+    case Result.EmptyMatch => ??? // Right(Seq(Term.Module(Seq())))
   }
 }
 
 val slotTermNib: Nibbler[Token, Term] = gaze =>
   gaze.next() match
     case Some(Token.Slot(name)) => Result.Match(Term.Slot(name))
-    case _                        => Result.NoMatch
+    case _                      => Result.NoMatch
 
 val bytesNib: Nibbler[Token, Term.Bytes] = gaze =>
   gaze.next() match
@@ -63,17 +63,17 @@ val bytesNib: Nibbler[Token, Term.Bytes] = gaze =>
 val integerNib: Nibbler[Token, Term.Int] = gaze =>
   gaze.next() match
     case Some(Token.Int(i)) => Result.Match(Term.Int(i))
-    case _                           => Result.NoMatch
+    case _                  => Result.NoMatch
 
 val stringNib: Nibbler[Token, Term.StringValue] = gaze =>
   gaze.next() match
     case Some(Token.StringValue(s)) => Result.Match(Term.StringValue(s))
-    case _                             => Result.NoMatch
+    case _                          => Result.NoMatch
 
 val wordNib: Nibbler[Token, Term.Word] = gaze =>
   gaze.next() match
     case Some(Token.Word(value)) => Result.Match(Term.Word(value))
-    case _                        => Result.NoMatch
+    case _                       => Result.NoMatch
 
 // val tagNib: Nibbler[Token, Option[Field]] = gaze =>
 //   gaze.peek() match
@@ -140,7 +140,7 @@ val networkNib: Nibbler[Token, Term.Network] = { gaze =>
   yield Term.Network(triples)
   res match
     case Result.Match(Term.Network(values)) => Result.Match(Term.Network(values))
-    case _                                => Result.NoMatch
+    case _                                  => Result.NoMatch
 }
 
 val applicationNib: Nibbler[Token, Term] = { gaze =>
@@ -168,7 +168,7 @@ val expressionNib =
     integerNib,
     quoteNib,
     networkNib,
-    applicationNib,
+    applicationNib
   )
 
 //val scriptNib = optionalSeq(repeatSep(expressionNib, Token.Comma))
