@@ -1,4 +1,4 @@
-lazy val scala3Version = "3.4.2"
+lazy val scala3Version = "3.4.3"
 
 ThisBuild / version := "0.1.0-SNAPSHOT"
 ThisBuild / organization := "dev.ligature"
@@ -47,7 +47,7 @@ lazy val ligature = project
     libraryDependencies += "org.lmdbjava" % "lmdbjava" % lmdbVersion,
     libraryDependencies += "org.jetbrains.xodus" % "xodus-openAPI" % xodusVersion,
     libraryDependencies += "org.jetbrains.xodus" % "xodus-environment" % xodusVersion,
-    libraryDependencies += "org.scalameta" %% "munit" % munitVersion % Test,
+    libraryDependencies += "org.scalameta" %% "munit" % munitVersion % Test
   )
   .dependsOn(gaze)
   .disablePlugins(RevolverPlugin)
