@@ -4,7 +4,7 @@ ThisBuild / version := "0.1.0-SNAPSHOT"
 ThisBuild / organization := "dev.ligature"
 ThisBuild / organizationName := "ligature"
 
-val munitVersion = "1.0.0"
+val munitVersion = "1.0.2"
 val jeromqVersion = "0.6.0"
 val scalaLoggingVersion = "3.9.5"
 val logBackVersion = "1.5.6"
@@ -47,7 +47,7 @@ lazy val ligature = project
     libraryDependencies += "org.lmdbjava" % "lmdbjava" % lmdbVersion,
     libraryDependencies += "org.jetbrains.xodus" % "xodus-openAPI" % xodusVersion,
     libraryDependencies += "org.jetbrains.xodus" % "xodus-environment" % xodusVersion,
-    libraryDependencies += "org.scalameta" %% "munit" % munitVersion % Test,
+    libraryDependencies += "org.scalameta" %% "munit" % munitVersion % Test
   )
   .dependsOn(gaze)
   .disablePlugins(RevolverPlugin)
