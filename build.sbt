@@ -52,19 +52,6 @@ lazy val ligature = project
   .dependsOn(gaze)
   .disablePlugins(RevolverPlugin)
 
-lazy val ligatureRepl = project
-  .in(file("ligature-repl"))
-  .settings(
-    name := "ligature-repl",
-    scalaVersion := scala3Version,
-    libraryDependencies += "org.scala-lang.modules" %% "scala-swing" % "3.0.0",
-    libraryDependencies += "ch.qos.logback" % "logback-classic" % logBackVersion,
-    libraryDependencies += "com.typesafe.scala-logging" %% "scala-logging" % scalaLoggingVersion,
-    libraryDependencies += "org.scalameta" %% "munit" % munitVersion % Test,
-    fork := true
-  )
-  .dependsOn(ligature, ligatureInMemory)
-
 lazy val ligatureZeroMQ = project
   .in(file("ligature-zeromq"))
   .settings(
@@ -100,3 +87,4 @@ lazy val ligatureInMemory = project
 disablePlugins(RevolverPlugin)
 
 addCommandAlias("cd", "project")
+addCommandAlias("ls", "projects")

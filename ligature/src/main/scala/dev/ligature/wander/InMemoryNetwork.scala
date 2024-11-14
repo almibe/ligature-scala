@@ -4,29 +4,29 @@
 
 package dev.ligature.wander
 
-case class InMemoryNetwork(val triples: Set[Triple]) extends INetwork {
+val x = 5
 
-  override def educe(pattern: INetwork): Set[Map[String, LigatureValue]] = 
-    ???
+// case class InMemoryNetwork(val triples: Set[Triple]) extends INetwork {
 
-  override def write(): Set[Triple] = this.triples
+//   override def educe(pattern: INetwork): Set[Map[String, LigatureValue]] = 
+//     ???
 
-  override def count(): Long = this.triples.size
+//   override def count(): Long = this.triples.size
 
-  override def union(other: INetwork): INetwork = 
-    val otherTriples = other.write()
-    return InMemoryNetwork(triples.union(otherTriples))
+//   override def union(other: INetwork): INetwork = ???
+//     // val otherTriples = other.write()
+//     // return InMemoryNetwork(triples.union(otherTriples))
 
-  override def apply(values: Map[String, LigatureValue]): INetwork = 
-    ???
+//   override def apply(values: Map[String, LigatureValue]): INetwork = 
+//     ???
 
-  override def minus(other: INetwork): INetwork = 
-    ???
-  override def query(search: INetwork, template: INetwork): INetwork = ???
+//   override def minus(other: INetwork): INetwork = 
+//     ???
+//   override def query(search: INetwork, template: INetwork): INetwork = ???
 
-  override def infer(search: INetwork, template: INetwork): INetwork = ???
+//   override def infer(search: INetwork, template: INetwork): INetwork = ???
 
 
-}
+// }
 
-val empty = InMemoryNetwork(Set.empty)
+// val empty = InMemoryNetwork(Set.empty)

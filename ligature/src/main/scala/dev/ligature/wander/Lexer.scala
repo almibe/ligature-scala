@@ -10,7 +10,6 @@ import dev.ligature.gaze.{
   optional,
   take,
   takeAll,
-  takeCond,
   takeFirst,
   takeString,
   takeUntil,
@@ -18,27 +17,16 @@ import dev.ligature.gaze.{
   repeat
 }
 import dev.ligature.gaze.Result
-import dev.ligature.gaze.seq
-import dev.ligature.gaze.flatten
 import dev.ligature.gaze.concat
 import scala.collection.mutable.ArrayBuffer
-import dev.ligature.gaze.takeAny
-import java.util.HexFormat
 import dev.ligature.wander.LigNibblers.wordNibbler
 
 enum Token:
-  case Word(value: String)
-  case Slot(value: String)
-  case BooleanLiteral(value: Boolean)
+  case Element(value: String)
   case Spaces(value: String)
-  case Bytes(value: Seq[Byte])
-  case Int(value: Long)
-  case StringValue(value: String)
-  case Field(name: String)
-  case TaggedField(name: String, tag: String)
   case OpenBrace, CloseBrace, Colon, OpenParen, CloseParen, NewLine,
-    Arrow, WideArrow, Dot, At, WhenKeyword, EqualSign, Comment,
-    OpenBracket, CloseBracket, EndKeyword, Period,
+    Arrow, WideArrow, Dot, At, EqualSign, Comment,
+    OpenBracket, CloseBracket, Period,
     Backtick, Hash, Lambda, Pipe, Comma
 
 def tokenize(input: String): Either[WanderError, Seq[Token]] = {
@@ -63,47 +51,35 @@ def tokenize(input: String): Either[WanderError, Seq[Token]] = {
 val stringTokenNib: Nibbler[String, Token] =
   LigNibblers.stringNibbler.map(results =>
     results.size match
-      case 2 => Token.StringValue(results(1))
-      case 3 => Token.StringValue(results(2))
+      case 2 => Token.Element(results(1))
+      case 3 => Token.Element(results(2))
       case _ => ???
   )
 
 val newLineTokenNib =
   takeFirst(takeString("\n"), takeString("\r\n")).map(res => Token.NewLine)
 
-val bytesTokenNib = takeAll(
-  seq(takeString("0x")),
-  takeWhile((c: String) => c(0).isLetter || c(0).isDigit)
-).map(res =>
-  val format = HexFormat.of()
-  Token.Bytes(format.parseHex(res(1).mkString).toSeq)
-)
-
 val commentTokenNib = takeAll(
   takeString("--"),
   takeUntil(takeFirst(takeString("\n"), takeString("\r\n")))
 ).map(results => Token.Comment)
 
-val nameValueNib: Nibbler[String, String] =
-  concat(
-    flatten(
-      takeAll(
-        seq(takeCond((c: String) => c(0).isLetter || c == "_")),
-        optional(takeWhile((c: String) => c(0).isLetter || c(0).isDigit || c == "_"))
-      )
-    )
-  )
+// val nameValueNib: Nibbler[String, String] =
+//   concat(
+//     flatten(
+//       takeAll(
+//         seq(takeCond((c: String) => c(0).isLetter || c(0).isDigit || c == "_")),
+//         optional(takeWhile((c: String) => c(0).isLetter || c(0).isDigit || c == "_"))
+//       )
+//     )
+//   )
 
 // /** This nibbler matches both names and keywords. After the initial match all
 //   * keywords are checked and if none match and name is returned.
 //   */
-val nameTokenNib: Nibbler[String, Token] = nameValueNib.map { values =>
+val nameTokenNib: Nibbler[String, Token] = wordNibbler.map { values =>
   values match {
-    case "when"        => Token.WhenKeyword
-    case "end"         => Token.EndKeyword
-    case "true"        => Token.BooleanLiteral(true)
-    case "false"       => Token.BooleanLiteral(false)
-    case value: String => Token.Field(value)
+    case value: String => Token.Element(value)
   }
 }
 
@@ -158,22 +134,9 @@ val wideArrowTokenNib =
 val lambdaTokenNib =
   takeString("\\").map(res => Token.Lambda)
 
-val integerTokenNib =
-  LigNibblers.numberNibbler.map(res => Token.Int(res.mkString.toLong))
-
-val wordTokenNib =
-  LigNibblers.wordNibbler.map(res => Token.Word(res))
-
 val spacesTokenNib =
   concat(takeWhile[String](_ == " "))
     .map(res => Token.Spaces(res.mkString))
-
-val slotNib = takeAll(
-    takeString("$"),
-    optional(concat(takeWhile { (c: String) =>
-      "[a-zA-Z0-9-._~:/?#\\[\\]@!$&'()*+,;%=]".r.matches(c)
-    })),
-  ).map(res => Token.Slot(res.tail.mkString))
 
 val tokensNib: Nibbler[String, Seq[Token]] = repeat(
   takeFirst(
@@ -182,9 +145,6 @@ val tokensNib: Nibbler[String, Seq[Token]] = repeat(
     closeBraceTokenNib,
     openBracketTokenNib,
     closeBracketTokenNib,
-    integerTokenNib,
-    slotNib,
-    wordTokenNib,
     stringTokenNib,
     nameTokenNib,
     colonTokenNib,
@@ -196,7 +156,6 @@ val tokensNib: Nibbler[String, Seq[Token]] = repeat(
     dotNib,
     atNib,
     lambdaTokenNib,
-    bytesTokenNib,
     newLineTokenNib,
     backtickTokenNib,
     commentTokenNib,
@@ -209,15 +168,6 @@ object LigNibblers {
   val whiteSpaceAndNewLineNibbler = takeAll(
     takeFirst(takeString(" "), takeString("\n"), takeString("\r\n"), takeString("\t"))
   )
-  val numberNibbler =
-    concat(
-      flatten(
-        takeAll(
-          seq(optional(take("-"))),
-          takeAny(('0' to '9').map((c: Char) => take(c.toString())).toSeq*)
-        )
-      )
-    )
 
   val wordNibbler: Nibbler[String, String] =
     concat(takeWhile { (c: String) =>

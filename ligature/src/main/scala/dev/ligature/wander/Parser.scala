@@ -4,26 +4,21 @@
 
 package dev.ligature.wander
 
-import dev.ligature.gaze.{Gaze, Nibbler, take, takeFirst, repeat}
+import dev.ligature.gaze.{Gaze, Nibbler, takeFirst}
 import dev.ligature.gaze.Result
 import dev.ligature.gaze.SeqSource
-import dev.ligature.gaze.optionalSeq
+// import dev.ligature.gaze.optionalSeq
 import dev.ligature.gaze.repeatSep
 import scala.util.boundary
 import scala.util.boundary.break
 import scala.collection.mutable.ArrayBuffer
+import dev.ligature.gaze.takeUntil
 
 enum Term:
-  case Bytes(value: Seq[Byte])
-  case Int(value: Long)
-  case StringValue(value: String)
-  case Slot(name: String)
-  case Quote(value: Seq[Term])
-  case Word(value: String)
-  case Triple(entity: Term, attribute: Term, value: Term)
-  case Network(roots: Seq[Triple])
+  case Element(value: String)
+  case Network(roots: Set[Entry])
   case Application(terms: Seq[Term])
-  case Grouping(terms: Seq[Term])
+  case Quote(terms: Seq[Term])
 
 def parse(script: Seq[Token]): Either[WanderError, Seq[Term]] = {
   val filteredInput = script.filter {
@@ -50,30 +45,10 @@ def parse(script: Seq[Token]): Either[WanderError, Seq[Term]] = {
   }
 }
 
-val slotTermNib: Nibbler[Token, Term] = gaze =>
+val elementNib: Nibbler[Token, Term.Element] = gaze =>
   gaze.next() match
-    case Some(Token.Slot(name)) => Result.Match(Term.Slot(name))
-    case _                        => Result.NoMatch
-
-val bytesNib: Nibbler[Token, Term.Bytes] = gaze =>
-  gaze.next() match
-    case Some(Token.Bytes(b)) => Result.Match(Term.Bytes(b))
-    case _                    => Result.NoMatch
-
-val integerNib: Nibbler[Token, Term.Int] = gaze =>
-  gaze.next() match
-    case Some(Token.Int(i)) => Result.Match(Term.Int(i))
-    case _                           => Result.NoMatch
-
-val stringNib: Nibbler[Token, Term.StringValue] = gaze =>
-  gaze.next() match
-    case Some(Token.StringValue(s)) => Result.Match(Term.StringValue(s))
-    case _                             => Result.NoMatch
-
-val wordNib: Nibbler[Token, Term.Word] = gaze =>
-  gaze.next() match
-    case Some(Token.Word(value)) => Result.Match(Term.Word(value))
-    case _                        => Result.NoMatch
+    case Some(Token.Element(value)) => Result.Match(Term.Element(value))
+    case _                          => Result.NoMatch
 
 // val tagNib: Nibbler[Token, Option[Field]] = gaze =>
 //   gaze.peek() match
@@ -116,57 +91,38 @@ val wordNib: Nibbler[Token, Term.Word] = gaze =>
 //   } yield Term.Lambda(parameters, body) // TODO handle this body better
 // }
 
-val quoteNib: Nibbler[Token, Term.Quote] = { gaze =>
-  for
-    _ <- gaze.attempt(take(Token.OpenBracket))
-    values <- gaze.attempt(optionalSeq(repeat(expressionNib)))
-    _ <- gaze.attempt(take(Token.CloseBracket))
-  yield Term.Quote(values)
-}
+val networkNib: Nibbler[Token, Term.Network] = { _gaze => Result.NoMatch }
+  // val res = for
+  //   _ <- gaze.attempt(take(Token.OpenBrace))
+  //   triples <- gaze.attempt(optionalSeq(repeatSep(tripleNib, Token.Comma)))
+  //   _ <- gaze.attempt(take(Token.CloseBrace))
+  // yield Term.Network(triples)
+  // res match
+  //   case Result.Match(Term.Network(values)) => Result.Match(Term.Network(values))
+  //   case _                                => Result.NoMatch
+//}
 
-val tripleNib: Nibbler[Token, Term.Triple] = { gaze =>
-  for
-    entity <- gaze.attempt(takeFirst(wordNib, slotTermNib))
-    attribute <- gaze.attempt(takeFirst(wordNib, slotTermNib))
-    value <- gaze.attempt(takeFirst(wordNib, slotTermNib, integerNib, stringNib, quoteNib))
-  yield Term.Triple(entity, attribute, value)
-}
-
-val networkNib: Nibbler[Token, Term.Network] = { gaze =>
-  val res = for
-    _ <- gaze.attempt(take(Token.OpenBrace))
-    triples <- gaze.attempt(optionalSeq(repeatSep(tripleNib, Token.Comma)))
-    _ <- gaze.attempt(take(Token.CloseBrace))
-  yield Term.Network(triples)
-  res match
-    case Result.Match(Term.Network(values)) => Result.Match(Term.Network(values))
-    case _                                => Result.NoMatch
-}
-
-val applicationNib: Nibbler[Token, Term] = { gaze =>
-  for
-    entity <- gaze.attempt(takeFirst(wordNib, slotTermNib))
-    attribute <- gaze.attempt(takeFirst(wordNib, slotTermNib))
-    value <- gaze.attempt(takeFirst(wordNib, slotTermNib, integerNib, stringNib, quoteNib))
-  yield Term.Triple(entity, attribute, value)
-}
-
-val groupingNib: Nibbler[Token, Term.Grouping] = { gaze =>
-  for
-    _ <- gaze.attempt(take(Token.OpenParen))
-    decls <- gaze.attempt(optionalSeq(repeatSep(expressionNib, Token.Comma)))
-    _ <- gaze.attempt(take(Token.CloseParen))
-  yield Term.Grouping(decls)
-}
+val applicationNib: Nibbler[Token, Term] = 
+  takeUntil(Token.Comma).map(tokens => 
+    parse(tokens) match {
+      case _ => ???
+    })
+//   { gaze =>
+//   val cont = true
+//   while (cont) {
+//     ???
+//   }
+//   Result.NoMatch
+//   // for
+//   //   entity <- gaze.attempt(elementNib) //gaze.attempt(takeFirst(wordNib, slotTermNib))
+//   //   attribute <- gaze.attempt(elementNib) //gaze.attempt(takeFirst(wordNib, slotTermNib))
+//   //   value <- gaze.attempt(elementNib)
+//   // yield Term.Application(Seq())
+// }
 
 val expressionNib =
   takeFirst(
-    groupingNib,
-    wordNib,
-    stringNib,
-    bytesNib,
-    integerNib,
-    quoteNib,
+    elementNib,
     networkNib,
     applicationNib,
   )

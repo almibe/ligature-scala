@@ -6,16 +6,16 @@ package dev.ligature.wander
 
 
 class LiteralsSuite extends munit.FunSuite {
-  def check(script: String, expected: LigatureValue) =
-    val (res) = run(script) match {
-      case Right(res) => res
-      case Left(err) => throw err
-    }
+  // def check(script: String, expected: LigatureValue) = ???
+    // val (res) = run(script) match {
+    //   case Right(res) => res
+    //   case Left(err) => throw err
+    // }
     
-    assertEquals(
-      res,
-      expected
-    )
+    // assertEquals(
+    //   res,
+    //   expected
+    // )
 
   // test("bytes") {
   //   val script = "0x01FF"
@@ -53,21 +53,21 @@ class LiteralsSuite extends munit.FunSuite {
   //   val result = LigatureValue.String("hello world")
   //   check(script, result)
   // }
-  test("empty record literal") {
-    val script = "{}"
-    val result = LigatureValue.Network(InMemoryNetwork(Set()))
-    check(script, result)
-  }
-  test("record literal with one value") {
-    val script = "{x = x}"
-    val result = LigatureValue.Network(InMemoryNetwork(Set(
-        Triple(
-          LigatureValue.Word("x"),
-          LigatureValue.Word("="),
-          LigatureValue.Word("x")
-        ))
-      )
-)
-    check(script, result)
-  }
+  // test("empty record literal") {
+  //   val script = "{}"
+  //   val result = LigatureValue.Network(InMemoryNetwork(Set()))
+  //   check(script, result)
+  // }
+  // test("record literal with one value") {
+  //   val script = "{x = x}"
+  //   val result = LigatureValue.Network(InMemoryNetwork(Set(
+  //       Triple(
+  //         LigatureValue.Word("x"),
+  //         LigatureValue.Word("="),
+  //         LigatureValue.Word("x")
+  //       ))
+  //     )
+// )
+//     check(script, result)
+//   }
 }

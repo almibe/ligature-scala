@@ -13,22 +13,22 @@ class ParserSuite extends FunSuite {
       case Right(tokens) => tokens
     parse(tokens)
 
-  // test("parse Grouping") {
-  //   val input = check("testing 1 2 3")
-  //   val expected = Right(
-  //     Seq(
-  //       Term.Application(
-  //         Seq(
-  //           Term.FieldPathTerm(FieldPath(Seq(Field("testing")))),
-  //           Term.Int(1),
-  //           Term.Int(2),
-  //           Term.Int(3)
-  //         )
-  //       )
-  //     )
-  //   )
-  //   assertEquals(input, expected)
-  // }
+  test("parse application") {
+    val input = check("testing 1 2 3")
+    val expected = Right(
+      Seq(
+        Term.Application(
+          Seq(
+            Term.Element("testing"),
+            Term.Element("1"),
+            Term.Element("2"),
+            Term.Element("3")
+          )
+        )
+      )
+    )
+    assertEquals(input, expected)
+  }
   // test("parse Integer") {
   //   val result = check("-321")
   //   val expected = Right(Seq(Term.Int(-321)))
@@ -207,77 +207,77 @@ class ParserSuite extends FunSuite {
   //   )
   //   assertEquals(result, expected)
   // }
-  test("parse network with one triple") {
-    val result = check("{ a b c }")
-    val expected = Right(
-      Seq(
-        Term.Network(
-          Seq(Term.Triple(Term.Word("a"), Term.Word("b"), Term.Word("c")))
-        )
-      )
-    )
-    assertEquals(result, expected)
-  }
-  test("parse network with multiple triples") {
-    val result = check("{ a b c, a b d, b c d }")
-    val expected = Right(
-      Seq(
-        Term.Network(
-          Seq(
-            Term.Triple(Term.Word("a"), Term.Word("b"), Term.Word("c")),
-            Term.Triple(Term.Word("a"), Term.Word("b"), Term.Word("d")),
-            Term.Triple(Term.Word("b"), Term.Word("c"), Term.Word("d"))
-          )
-        )
-      )
-    )
-    assertEquals(result, expected)
-  }
-  test("parse network with slots") {
-    val result = check("{ $ $ $ }")
-    val expected = Right(
-      Seq(
-        Term.Network(
-          Seq(Term.Triple(Term.Slot(""), Term.Slot(""), Term.Slot(""))))
-        )
-      )
+  // test("parse network with one triple") {
+  //   val result = check("{ a b c }")
+  //   val expected = Right(
+  //     Seq(
+  //       Term.Network(
+  //         Seq(Term.Triple(Term.Word("a"), Term.Word("b"), Term.Word("c")))
+  //       )
+  //     )
+  //   )
+  //   assertEquals(result, expected)
+  // }
+  // test("parse network with multiple triples") {
+  //   val result = check("{ a b c, a b d, b c d }")
+  //   val expected = Right(
+  //     Seq(
+  //       Term.Network(
+  //         Seq(
+  //           Term.Triple(Term.Word("a"), Term.Word("b"), Term.Word("c")),
+  //           Term.Triple(Term.Word("a"), Term.Word("b"), Term.Word("d")),
+  //           Term.Triple(Term.Word("b"), Term.Word("c"), Term.Word("d"))
+  //         )
+  //       )
+  //     )
+  //   )
+  //   assertEquals(result, expected)
+  // }
+  // test("parse network with slots") {
+  //   val result = check("{ $ $ $ }")
+  //   val expected = Right(
+  //     Seq(
+  //       Term.Network(
+  //         Seq(Term.Triple(Term.Slot(""), Term.Slot(""), Term.Slot(""))))
+  //       )
+  //     )
     
-    assertEquals(result, expected)
-  }
-  test("parse network with named slots") {
-    val result = check("{ $a $b $c }")
-    val expected = Right(
-      Seq(
-        Term.Network(
-          Seq(Term.Triple(Term.Slot("a"), Term.Slot("b"), Term.Slot("c"))))
-        )
-      )
-    assertEquals(result, expected)
-  }
-  test("parse network with empty Quote in Value postition") {
-    val result = check("{ a b [] }")
-    val expected = Right(
-      Seq(
-        Term.Network(
-          Seq(Term.Triple(Term.Word("a"), Term.Word("b"), Term.Quote(Seq()))))
-        )
-      )
-    assertEquals(result, expected)
-  }
-  test("parse network with simple Quote in Value postition") {
-    val result = check("{ a b [a 1 \"2\"] }")
-    val expected = Right(
-      Seq(
-        Term.Network(
-          Seq(Term.Triple(Term.Word("a"), Term.Word("b"), Term.Quote(Seq(
-            Term.Word("a"),
-            Term.Int(1),
-            Term.StringValue("2"),
-          )))))
-        )
-      )
-    assertEquals(result, expected)
-  }
+  //   assertEquals(result, expected)
+  // }
+  // test("parse network with named slots") {
+  //   val result = check("{ $a $b $c }")
+  //   val expected = Right(
+  //     Seq(
+  //       Term.Network(
+  //         Seq(Term.Triple(Term.Slot("a"), Term.Slot("b"), Term.Slot("c"))))
+  //       )
+  //     )
+  //   assertEquals(result, expected)
+  // }
+  // test("parse network with empty Quote in Value postition") {
+  //   val result = check("{ a b [] }")
+  //   val expected = Right(
+  //     Seq(
+  //       Term.Network(
+  //         Seq(Term.Triple(Term.Word("a"), Term.Word("b"), Term.Quote(Seq()))))
+  //       )
+  //     )
+  //   assertEquals(result, expected)
+  // }
+  // test("parse network with simple Quote in Value postition") {
+  //   val result = check("{ a b [a 1 \"2\"] }")
+  //   val expected = Right(
+  //     Seq(
+  //       Term.Network(
+  //         Seq(Term.Triple(Term.Word("a"), Term.Word("b"), Term.Quote(Seq(
+  //           Term.Word("a"),
+  //           Term.Int(1),
+  //           Term.StringValue("2"),
+  //         )))))
+  //       )
+  //     )
+  //   assertEquals(result, expected)
+  // }
   // test("parse tagged lambda") {
   //   val result = check("x: Core.Int -> Core.Bool = \\i -> false")
   //   val expected = Right(

@@ -15,84 +15,75 @@ class LexerSuite extends FunSuite {
     val script = "{a b c, d e f}"
     val tokens = Right(Seq(
       Token.OpenBrace,
-      Token.Word("a"), 
+      Token.Element("a"), 
       sp,
-      Token.Word("b"),
+      Token.Element("b"),
       sp,
-      Token.Word("c"),
+      Token.Element("c"),
       Token.Comma,
       sp,
-      Token.Word("d"),
+      Token.Element("d"),
       sp,
-      Token.Word("e"),
+      Token.Element("e"),
       sp,
-      Token.Word("f"),
+      Token.Element("f"),
       Token.CloseBrace))
     check(script, tokens)
   }
-  // test("tokenize Integers") {
-  //   val script = "123 0 -123"
-  //   val tokens = Right(
-  //     Seq(Token.Int(123), sp, Token.Int(0), sp, Token.Int(-123))
-  //   )
-  //   check(script, tokens)
-  // }
-  // test("tokenize Bytes") {
-  //   val script = "0x00 0xFF 0xfe 0x10"
-  //   val tokens = Right(
-  //     Seq(
-  //       Token.Bytes(Seq(0.byteValue)),
-  //       sp,
-  //       Token.Bytes(Seq(-1.byteValue)),
-  //       sp,
-  //       Token.Bytes(Seq(-2.byteValue)),
-  //       sp,
-  //       Token.Bytes(Seq(16.byteValue))
-  //     )
-  //   )
-  //   check(script, tokens)
-  // }
-  // test("tokenize Word") {
-  //   val script = "`hello`"
-  //   val tokens = Right(Seq(Token.Word("hello")))
-  //   check(script, tokens)
-  // }
-  // test("tokenize Slot") {
-  //   val script = "?hello"
-  //   val tokens = Right(Seq(Token.Slot("hello")))
-  //   check(script, tokens)
-  // }
-  // test("tokenize Strings") {
-  //   val script = "\"hello, world!\""
-  //   val tokens = Right(Seq(Token.String("hello, world!")))
-  //   check(script, tokens)
-  // }
-  // test("tokenize Strings with quotes") {
-  //   val script = "\"\\\"hello, world!\\\"\""
-  //   val tokens = Right(Seq(Token.String("\"hello, world!\"")))
-  //   check(script, tokens)
-  // }
+  test("tokenize Integers") {
+    val script = "123 0 -123"
+    val tokens = Right(
+      Seq(Token.Element("123"), sp, Token.Element("0"), sp, Token.Element("-123"))
+    )
+    check(script, tokens)
+  }
+  test("tokenize Bytes") {
+    val script = "0x00 0xFF"
+    val tokens = Right(
+      Seq(
+        Token.Element("0x00"),
+        sp,
+        Token.Element("0xFF"),
+      )
+    )
+    check(script, tokens)
+  }
+  test("tokenize call") {
+    val script = "hello arg"
+    val tokens = Right(Seq(Token.Element("hello"), sp, Token.Element("arg")))
+    check(script, tokens)
+  }
+  test("tokenize Slot") {
+    val script = "?hello"
+    val tokens = Right(Seq(Token.Element("?hello")))
+    check(script, tokens)
+  }
+  test("tokenize element strings") {
+    val script = "\"hello, world!\""
+    val tokens = Right(Seq(Token.Element("hello, world!")))
+    check(script, tokens)
+  }
+  test("tokenize Strings with quotes") {
+    val script = "\"\\\"hello, world!\\\"\""
+    val tokens = Right(Seq(Token.Element("\"hello, world!\"")))
+    check(script, tokens)
+  }
 
-  // test("tokenize interpolated Strings") {
-  //   val script = "i\"hello, world!\""
-  //   val tokens = Right(Seq(Token.String("hello, world!", true)))
-  //   check(script, tokens)
-  // }
-  // test("tokenize Names") {
-  //   val script = "hello world _test also_a_321test123"
-  //   val tokens = Right(
-  //     Seq(
-  //       Token.Field("hello"),
-  //       sp,
-  //       Token.Field("world"),
-  //       sp,
-  //       Token.Field("_test"),
-  //       sp,
-  //       Token.Field("also_a_321test123")
-  //     )
-  //   )
-  //   check(script, tokens)
-  // }
+  test("tokenize Names") {
+    val script = "hello world _test also_a_321test123"
+    val tokens = Right(
+      Seq(
+        Token.Element("hello"),
+        sp,
+        Token.Element("world"),
+        sp,
+        Token.Element("_test"),
+        sp,
+        Token.Element("also_a_321test123")
+      )
+    )
+    check(script, tokens)
+  }
   // test("tokenize symbols") {
   //   val script = "when {}:()][\n\r\n->=>= --test"
   //   val tokens = Right(
@@ -117,11 +108,11 @@ class LexerSuite extends FunSuite {
   //   )
   //   check(script, tokens)
   // }
-  // test("tokenize grouping") {
-  //   val script = "(hello 2)"
-  //   val tokens = Right(
-  //     Seq(Token.OpenParen, Token.Field("hello"), sp, Token.Int(2), Token.CloseParen)
-  //   )
-  //   check(script, tokens)
-  // }
+  test("tokenize quote") {
+    val script = "(hello 2)"
+    val tokens = Right(
+      Seq(Token.OpenParen, Token.Element("hello"), sp, Token.Element("2"), Token.CloseParen)
+    )
+    check(script, tokens)
+  }
 }

@@ -5,9 +5,9 @@
 package dev.ligature.wander
 
 class LigatureSuite extends munit.FunSuite {
-  test("check that two networks are equal") {
-    val left = InMemoryNetwork(Set())
-    val right = InMemoryNetwork(Set())
-    assertEquals(left, right)
-  }
+  // test("check that two networks are equal") {
+  //   val left = InMemoryNetwork(Set())
+  //   val right = InMemoryNetwork(Set())
+  //   assertEquals(left, right)
+  // }
 }

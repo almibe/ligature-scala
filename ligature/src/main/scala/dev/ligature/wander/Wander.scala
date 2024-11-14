@@ -6,74 +6,51 @@ package dev.ligature.wander
 
 import dev.ligature.wander.parse
 import java.util.HexFormat
-import com.google.gson.Gson
+//import com.google.gson.Gson
 
-enum Tag:
-  case Untagged
-  case Single(tag: Function)
-  case Chain(names: Seq[Function])
+enum WanderValue:
+  case Element(element: Element)
+  case Network(network: Set[Entry])
+  case Quote(name: Element, args: Seq[WanderValue])
 
 trait Function:
-  def call(args: Seq[LigatureValue]): Either[WanderError, LigatureValue]
-
-// case class Lambda(val lambda: Expression.Lambda) extends Function {
-//   override def call(
-//       args: Seq[LigatureValue],
-//       environment: Environment
-//   ): Either[WanderError, LigatureValue] =
-//     var env = environment
-//     lambda.parameters.zipWithIndex.foreach { (param, i) =>
-//       env = env.bindVariable(param, args(i))
-//     }
-//     val res = eval(lambda.body, env).map(_._1)
-//     res
-// }
-
-// case class PartialFunction(args: Seq[LigatureValue], function: dev.ligature.wander.Function)
-//     extends Function {
-//   override def call(
-//       args: Seq[LigatureValue],
-//       environment: Environment
-//   ): Either[WanderError, LigatureValue] = ???
-// }
+  def call(args: Seq[WanderValue]): Either[WanderError, WanderValue]
 
 case class HostFunction(
     docString: String,
     parameters: Seq[String],
-    resultTag: Tag,
     fn: (
-        arguments: Seq[LigatureValue],
-    ) => Either[WanderError, (LigatureValue)]
+        arguments: Seq[WanderValue],
+    ) => Either[WanderError, (WanderValue)]
 ) extends Function {
   override def call(
-      args: Seq[LigatureValue],
-  ): Either[WanderError, LigatureValue] = ???
+      args: Seq[WanderValue],
+  ): Either[WanderError, WanderValue] = ???
 //    fn.apply(args).map(_)
 }
 
 case class WanderError(val userMessage: String) extends Throwable(userMessage)
 
-def run(
-    script: String, runtimeNetwork: INetwork
-): Either[WanderError, INetwork] =
-  val expression = for {
-    tokens <- tokenize(script)
-    terms <- parse(tokens)
-    expression <- process(terms)
-  } yield expression
-  expression match
-    case Left(value)  => Left(value)
-    case Right(value) => 
-      eval(value.head, runtimeNetwork) match
-        case Right(LigatureValue.Network(value)) => Right(value)
-        case Right(LigatureValue.Word(word)) => ???
-        case Right(_) => ???
-        case Left(value) => Left(value)
+// def run(
+//     script: String, runtimeNetwork: Map[String, Set[Entry]]
+// ): Either[WanderError, INetwork] =
+//   val expression = for {
+//     tokens <- tokenize(script)
+//     terms <- parse(tokens)
+//     expression <- process(terms)
+//   } yield expression
+//   expression match
+//     case Left(value)  => Left(value)
+//     case Right(value) => 
+//       eval(value.head, runtimeNetwork) match
+//         case Right(LigatureValue.Network(value)) => Right(value)
+//         case Right(LigatureValue.Word(word)) => ???
+//         case Right(_) => ???
+//         case Left(value) => Left(value)
 
 case class Inspect(
     tokens: Either[WanderError, Seq[Token]],
     terms: Either[WanderError, Seq[Term]],
-    expression: Either[WanderError, Seq[Expression]]
 )
 
 def inspect(script: String): Inspect = {
@@ -85,61 +62,58 @@ def inspect(script: String): Inspect = {
     Left(WanderError("Previous error."))
   }
 
-  val expression = if (terms.isRight) {
-    process(terms.getOrElse(???))
-  } else {
-    Left(WanderError("Previous error."))
-  }
+  // val expression = if (terms.isRight) {
+  //   process(terms.getOrElse(???))
+  // } else {
+  //   Left(WanderError("Previous error."))
+  // }
 
-  Inspect(tokens, terms, expression)
+  Inspect(tokens, terms)
 }
 
-def printResult(value: Either[WanderError, (LigatureValue)]): String =
+def printResult(value: Either[WanderError, WanderValue]): String =
   value match {
     case Left(value)  => "Error: " + value.userMessage
-    case Right(value) => printLigatureValue(value)
+    case Right(value) => printWanderValue(value)
   }
 
 val formatter = HexFormat.of()
 
-def printLigatureValue(value: LigatureValue): String =
-  value match
-    case LigatureValue.Slot(name)         => s"?$name"
-    case LigatureValue.Int(value)         => value.toString()
-    case LigatureValue.StringValue(value)      => printString(value)
-    case LigatureValue.Quote(values) =>
-      "[" + values.map(value => printLigatureValue(value)).mkString(", ") + "]"
-    case LigatureValue.Bytes(value)           => printBytes(value)
-    case LigatureValue.Network(value)           => printNetwork(value)
-    case LigatureValue.Word(word) => word
+def printWanderValue(value: WanderValue): String = ???
 
-def printBytes(bytes: Seq[Byte]) = s"0x${formatter.formatHex(bytes.toArray)}"
+// def printLigatureValue(value: LigatureValue): String =
+//   value match
+//     case LigatureValue.Slot(name)         => s"?$name"
+//     case LigatureValue.Int(value)         => value.toString()
+//     case LigatureValue.StringValue(value)      => printString(value)
+//     case LigatureValue.Quote(values) =>
+//       "[" + values.map(value => printLigatureValue(value)).mkString(", ") + "]"
+//     case LigatureValue.Bytes(value)           => printBytes(value)
+//     case LigatureValue.Network(value)           => printNetwork(value)
+//     case LigatureValue.Word(word) => word
 
-def printQuote(values: Seq[LigatureValue]) =
-  values.foldLeft("[ ")((state: String, value: LigatureValue) => {state + printLigatureValue(value) + " " }) + "]"
+// def printTriple(triple: Triple) =
+//   val value = printTripleValue(triple.value)
+//   s"${triple.entity.value} ${triple.attribute.value} $value"
 
-def printTriple(triple: Triple) =
-  val value = printTripleValue(triple.value)
-  s"${triple.entity.value} ${triple.attribute.value} $value"
+// def printTripleValue(value: LigatureValue): String =
+//   value match
+//     case LigatureValue.Bytes(value)   => printBytes(value)
+//     case LigatureValue.Word(word)   => word
+//     case LigatureValue.Int(value) => value.toString()
+//     case LigatureValue.StringValue(value)  => printString(value)
+//     case LigatureValue.Quote(quote) => printQuote(quote)
+//     case LigatureValue.Network(network) => ???
+//     case LigatureValue.Slot(slot) => "$" + slot
 
-def printTripleValue(value: LigatureValue): String =
-  value match
-    case LigatureValue.Bytes(value)   => printBytes(value)
-    case LigatureValue.Word(word)   => word
-    case LigatureValue.Int(value) => value.toString()
-    case LigatureValue.StringValue(value)  => printString(value)
-    case LigatureValue.Quote(quote) => printQuote(quote)
-    case LigatureValue.Network(network) => ???
-    case LigatureValue.Slot(slot) => "$" + slot
+// def printQuote(network: INetwork) = network.write()
+//   .map(printTriple)
+//   .mkString("{ ", ", ", " }") //s"{ ${network.map(triple => printTriple(triple))} }"
 
-def printQuote(network: INetwork) = network.write()
-  .map(printTriple)
-  .mkString("{ ", ", ", " }") //s"{ ${network.map(triple => printTriple(triple))} }"
+// def printNetwork(network: INetwork) = network.write()
+//   .map(printTriple)
+//   .mkString("{ ", ", ", " }") //s"{ ${network.map(triple => printTriple(triple))} }"
 
-def printNetwork(network: INetwork) = network.write()
-  .map(printTriple)
-  .mkString("{ ", ", ", " }") //s"{ ${network.map(triple => printTriple(triple))} }"
-
-def printString(value: String) =
-  val gson = Gson()
-  gson.toJson(value)
+// def printString(value: String) =
+//   val gson = Gson()
+//   gson.toJson(value)

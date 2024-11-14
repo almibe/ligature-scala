@@ -7,8 +7,6 @@ package dev.ligature.testsuite
 import dev.ligature._
 import munit.FunSuite
 //import dev.ligature.inmemory.LigatureInMemory
-import dev.ligature.wander.run
-import dev.ligature.wander.LigatureValue
 //import dev.ligature.wander.modules.std
 
 class LigatureTestSuite extends FunSuite {
@@ -23,11 +21,11 @@ class LigatureTestSuite extends FunSuite {
   //  }
   // )
 
-  def check(script: String): LigatureValue =
-    run(script) match {
-      case Left(value)  => throw value
-      case Right(value) => value
-    }
+  def check(script: String) = ???
+    // run(script) match {
+    //   case Left(value)  => throw value
+    //   case Right(value) => value
+    // }
 
   // setup.test("run empty string") { (instance, _) =>
   //   assertEquals(check("", instance), LigatureValue.Module(Map()))

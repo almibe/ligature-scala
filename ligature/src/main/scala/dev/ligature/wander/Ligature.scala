@@ -6,28 +6,22 @@ package dev.ligature.wander
 
 case class LigatureError(val userMessage: String) extends Throwable(userMessage)
 
-trait INetwork {
-  def write(): Set[Triple]
-  def count(): Long
-  def union(other: INetwork): INetwork
-  def minus(other: INetwork): INetwork
-  def apply(values: Map[String, LigatureValue]): INetwork
-  def educe(pattern: INetwork): Set[Map[String, LigatureValue]]
-  def query(search: INetwork, template: INetwork): INetwork
-  def infer(search: INetwork, template: INetwork): INetwork
-}
+final case class Element(value: String)
 
-final case class Triple(
-    entity: LigatureValue.Word,
-    attribute: LigatureValue.Word,
-    value: LigatureValue
+final case class Extends(
+  element: Element,
+  concept: Element
 )
 
-enum LigatureValue:
-  case Word(value: String)
-  case Slot(value: String)
-  case StringValue(value: String)
-  case Int(value: Long)
-  case Bytes(value: Seq[Byte])
-  case Quote(value: Seq[LigatureValue])
-  case Network(network: INetwork)
+final case class NotExtends(
+  element: Element,
+  concept: Element
+)
+
+final case class Role(
+    first: Element,
+    second: Element,
+    role: Element
+)
+
+type Entry = Extends | NotExtends | Role
