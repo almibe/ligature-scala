@@ -10,7 +10,7 @@ package dev.ligature.wander.modules
 // import dev.ligature.wander.LigatureValue
 // import dev.ligature.wander.Field
 
-val intModule = 0//: LigatureValue.Module = LigatureValue.Module(
+val intModule = 0 //: LigatureValue.Module = LigatureValue.Module(
 //   Map(
 //     Field("add") -> LigatureValue.Function(
 //       HostFunction(

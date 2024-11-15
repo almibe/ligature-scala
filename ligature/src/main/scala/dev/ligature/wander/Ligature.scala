@@ -9,13 +9,13 @@ case class LigatureError(val userMessage: String) extends Throwable(userMessage)
 final case class Element(value: String)
 
 final case class Extends(
-  element: Element,
-  concept: Element
+    element: Element,
+    concept: Element
 )
 
 final case class NotExtends(
-  element: Element,
-  concept: Element
+    element: Element,
+    concept: Element
 )
 
 final case class Role(

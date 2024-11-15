@@ -241,7 +241,7 @@ class ParserSuite extends FunSuite {
   //         Seq(Term.Triple(Term.Slot(""), Term.Slot(""), Term.Slot(""))))
   //       )
   //     )
-    
+
   //   assertEquals(result, expected)
   // }
   // test("parse network with named slots") {

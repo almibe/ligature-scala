@@ -8,9 +8,9 @@ import munit.FunSuite
 
 class InterpreterSuite extends FunSuite {
   // def check(script: String, expected: LigatureValue) = ???
-    // run(script) match
-    //   case Left(err)         => throw RuntimeException(err.toString())
-    //   case Right((value)) => assertEquals(value, expected)
+  // run(script) match
+  //   case Left(err)         => throw RuntimeException(err.toString())
+  //   case Right((value)) => assertEquals(value, expected)
 
   // test("load script with no exports") {
   //   val script = "x = false, {}"

@@ -6,11 +6,11 @@ package dev.ligature.wander
 
 class WanderSuiteCommonMode extends munit.FunSuite {
 //  def check(script: String, expected: LigatureValue) = ???
-    // assertEquals(
-    //   run(script) match
-    //     case Left(value)                 => throw RuntimeException(value.toString())
-    //     case Right((value)) => value
-    //   ,
-    //   expected
-    // )
+  // assertEquals(
+  //   run(script) match
+  //     case Left(value)                 => throw RuntimeException(value.toString())
+  //     case Right((value)) => value
+  //   ,
+  //   expected
+  // )
 }
