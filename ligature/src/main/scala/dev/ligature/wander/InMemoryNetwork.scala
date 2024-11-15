@@ -8,7 +8,7 @@ val x = 5
 
 // case class InMemoryNetwork(val triples: Set[Triple]) extends INetwork {
 
-//   override def educe(pattern: INetwork): Set[Map[String, LigatureValue]] = 
+//   override def educe(pattern: INetwork): Set[Map[String, LigatureValue]] =
 //     ???
 
 //   override def count(): Long = this.triples.size
@@ -17,15 +17,14 @@ val x = 5
 //     // val otherTriples = other.write()
 //     // return InMemoryNetwork(triples.union(otherTriples))
 
-//   override def apply(values: Map[String, LigatureValue]): INetwork = 
+//   override def apply(values: Map[String, LigatureValue]): INetwork =
 //     ???
 
-//   override def minus(other: INetwork): INetwork = 
+//   override def minus(other: INetwork): INetwork =
 //     ???
 //   override def query(search: INetwork, template: INetwork): INetwork = ???
 
 //   override def infer(search: INetwork, template: INetwork): INetwork = ???
-
 
 // }
 

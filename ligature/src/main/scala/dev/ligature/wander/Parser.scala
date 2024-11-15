@@ -41,7 +41,7 @@ def parse(script: Seq[Token]): Either[WanderError, Seq[Term]] = {
       } else {
         Left(WanderError(s"Error Parsing - No Match - Next Token: ${gaze.next()}"))
       }
-    case Result.EmptyMatch => ??? //Right(Seq(Term.Module(Seq())))
+    case Result.EmptyMatch => ??? // Right(Seq(Term.Module(Seq())))
   }
 }
 
@@ -92,21 +92,22 @@ val elementNib: Nibbler[Token, Term.Element] = gaze =>
 // }
 
 val networkNib: Nibbler[Token, Term.Network] = { _gaze => Result.NoMatch }
-  // val res = for
-  //   _ <- gaze.attempt(take(Token.OpenBrace))
-  //   triples <- gaze.attempt(optionalSeq(repeatSep(tripleNib, Token.Comma)))
-  //   _ <- gaze.attempt(take(Token.CloseBrace))
-  // yield Term.Network(triples)
-  // res match
-  //   case Result.Match(Term.Network(values)) => Result.Match(Term.Network(values))
-  //   case _                                => Result.NoMatch
+// val res = for
+//   _ <- gaze.attempt(take(Token.OpenBrace))
+//   triples <- gaze.attempt(optionalSeq(repeatSep(tripleNib, Token.Comma)))
+//   _ <- gaze.attempt(take(Token.CloseBrace))
+// yield Term.Network(triples)
+// res match
+//   case Result.Match(Term.Network(values)) => Result.Match(Term.Network(values))
+//   case _                                => Result.NoMatch
 //}
 
-val applicationNib: Nibbler[Token, Term] = 
-  takeUntil(Token.Comma).map(tokens => 
+val applicationNib: Nibbler[Token, Term] =
+  takeUntil(Token.Comma).map(tokens =>
     parse(tokens) match {
       case _ => ???
-    })
+    }
+  )
 //   { gaze =>
 //   val cont = true
 //   while (cont) {
@@ -124,7 +125,7 @@ val expressionNib =
   takeFirst(
     elementNib,
     networkNib,
-    applicationNib,
+    applicationNib
   )
 
 //val scriptNib = optionalSeq(repeatSep(expressionNib, Token.Comma))

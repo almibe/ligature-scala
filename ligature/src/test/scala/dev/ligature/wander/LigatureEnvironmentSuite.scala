@@ -22,10 +22,10 @@ class LigatureTestSuite extends FunSuite {
   // )
 
   def check(script: String) = ???
-    // run(script) match {
-    //   case Left(value)  => throw value
-    //   case Right(value) => value
-    // }
+  // run(script) match {
+  //   case Left(value)  => throw value
+  //   case Right(value) => value
+  // }
 
   // setup.test("run empty string") { (instance, _) =>
   //   assertEquals(check("", instance), LigatureValue.Module(Map()))
