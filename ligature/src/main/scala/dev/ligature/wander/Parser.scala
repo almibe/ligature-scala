@@ -60,10 +60,10 @@ val partialNetworkNib: Nibbler[Token, Term.Network] = { gaze =>
       case Some(Token.CloseBrace) => 
         if (currentEntry.size == 3) {
           currentEntry(1) match {
-            case Element(":")  => entries.addOne(Extends(currentEntry(0), currentEntry(2)))
-            case Element("¬:") => entries.addOne(NotExtends(currentEntry(0), currentEntry(2)))
+            case Element(":")  => entries.addOne(Entry.Extends(currentEntry(0), currentEntry(2)))
+            case Element("¬:") => entries.addOne(Entry.NotExtends(currentEntry(0), currentEntry(2)))
             case Element(element) =>
-              entries.addOne(Role(currentEntry(0), currentEntry(1), currentEntry(2)))
+              entries.addOne(Entry.Role(currentEntry(0), currentEntry(1), currentEntry(2)))
           }
           currentEntry.clear()
         }
@@ -71,10 +71,10 @@ val partialNetworkNib: Nibbler[Token, Term.Network] = { gaze =>
       case Some(Token.Comma) => {
         if (currentEntry.size == 3) {
           currentEntry(1) match {
-            case Element(":")  => entries.addOne(Extends(currentEntry(0), currentEntry(2)))
-            case Element("¬:") => entries.addOne(NotExtends(currentEntry(0), currentEntry(2)))
+            case Element(":")  => entries.addOne(Entry.Extends(currentEntry(0), currentEntry(2)))
+            case Element("¬:") => entries.addOne(Entry.NotExtends(currentEntry(0), currentEntry(2)))
             case Element(element) =>
-              entries.addOne(Role(currentEntry(0), currentEntry(1), currentEntry(2)))
+              entries.addOne(Entry.Role(currentEntry(0), currentEntry(1), currentEntry(2)))
           }
           currentEntry.clear()
         }

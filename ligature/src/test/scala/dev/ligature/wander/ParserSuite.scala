@@ -140,7 +140,7 @@ class ParserSuite extends FunSuite {
         Term.Application(
           Seq(
             Term.Element("test"),
-            Term.Network(Set(Role(Element("x"), Element("="), Element("5"))))
+            Term.Network(Set(Entry.Role(Element("x"), Element("="), Element("5"))))
           )
         )
       )
@@ -153,8 +153,8 @@ class ParserSuite extends FunSuite {
       Seq(
         Term.Application(
           Seq(Term.Element("test"), Term.Network(Set(
-            Role(Element("x"), Element("="), Element("5")),
-            Role(Element("y"), Element("="), Element("6")),
+            Entry.Role(Element("x"), Element("="), Element("5")),
+            Entry.Role(Element("y"), Element("="), Element("6")),
           )))
         )
       )

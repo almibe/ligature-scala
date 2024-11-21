@@ -8,23 +8,23 @@ case class LigatureError(val userMessage: String) extends Throwable(userMessage)
 
 final case class Element(value: String)
 
-final case class Extends(
+enum Entry:
+  case Extends(
     element: Element,
     concept: Element
-)
-
-final case class NotExtends(
+  ) extends Entry
+  case NotExtends(
     element: Element,
     concept: Element
-)
-
-final case class Role(
+  ) extends Entry
+  case Role(
     first: Element,
     role: Element,
     second: Element,
-)
+  ) extends Entry
 
-type Entry = Extends | NotExtends | Role
+given Ordering[Entry] with
+  def compare(left: Entry, right: Entry): Int = left.ordinal compare right.ordinal
 
 enum Slot:
   case Variable(name: String) extends Slot

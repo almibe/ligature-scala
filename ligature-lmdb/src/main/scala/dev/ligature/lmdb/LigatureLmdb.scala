@@ -10,8 +10,6 @@ package dev.ligature.inmemory
 
 // protected case class DatasetStore(var counter: Long = 0, val edges: Set[Triple] = Set())
 
-case class Test(val x: Int)
-
 // final class LigatureInMemory(
 //     private val store: TreeMap[DatasetName, DatasetStore] = TreeMap[DatasetName, DatasetStore]()
 // ) extends Ligature {
