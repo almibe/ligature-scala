@@ -4,7 +4,6 @@
 
 package dev.ligature.wander.modules
 
-
 object x {}
 
 // import dev.ligature.wander.LigatureValue

@@ -24,10 +24,8 @@ import dev.ligature.wander.LigNibblers.wordNibbler
 enum Token:
   case Element(value: String)
   case Spaces(value: String)
-  case OpenBrace, CloseBrace, Colon, OpenParen, CloseParen, NewLine,
-    Arrow, WideArrow, Dot, At, EqualSign, Comment,
-    OpenBracket, CloseBracket, Period,
-    Backtick, Hash, Lambda, Pipe, Comma
+  case OpenBrace, CloseBrace, OpenParen, CloseParen, NewLine,
+    Comment, OpenBracket, CloseBracket, Pipe, Comma
 
 def tokenize(input: String): Either[WanderError, Seq[Token]] = {
   val gaze = Gaze.from(input)
@@ -83,20 +81,8 @@ val nameTokenNib: Nibbler[String, Token] = wordNibbler.map { values =>
   }
 }
 
-val dotNib =
-  takeString(".").map(res => Token.Dot)
-
-val atNib =
-  takeString("@").map(res => Token.At)
-
 val pipeNib =
   takeString("|").map(res => Token.Pipe)
-
-val equalSignTokenNib =
-  takeString("=").map(res => Token.EqualSign)
-
-val colonTokenNib =
-  takeString(":").map(res => Token.Colon)
 
 val openBraceTokenNib =
   takeString("{").map(res => Token.OpenBrace)
@@ -116,23 +102,8 @@ val openParenTokenNib =
 val closeParenTokenNib =
   takeString(")").map(res => Token.CloseParen)
 
-val hashTokenNib =
-  takeString("#").map(res => Token.Hash)
-
-val backtickTokenNib =
-  takeString("`").map(res => Token.Backtick)
-
 val commaTokenNib =
   takeString(",").map(res => Token.Comma)
-
-val arrowTokenNib =
-  takeString("->").map(res => Token.Arrow)
-
-val wideArrowTokenNib =
-  takeString("=>").map(res => Token.WideArrow)
-
-val lambdaTokenNib =
-  takeString("\\").map(res => Token.Lambda)
 
 val spacesTokenNib =
   concat(takeWhile[String](_ == " "))
@@ -147,19 +118,11 @@ val tokensNib: Nibbler[String, Seq[Token]] = repeat(
     closeBracketTokenNib,
     stringTokenNib,
     nameTokenNib,
-    colonTokenNib,
     commaTokenNib,
     openParenTokenNib,
     closeParenTokenNib,
-    wideArrowTokenNib,
-    arrowTokenNib,
-    dotNib,
-    atNib,
-    lambdaTokenNib,
     newLineTokenNib,
-    backtickTokenNib,
-    commentTokenNib,
-    hashTokenNib
+    commentTokenNib
   )
 )
 

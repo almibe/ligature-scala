@@ -7,11 +7,9 @@ package dev.ligature.wander
 import dev.ligature.wander.*
 //import scala.collection.mutable.ListBuffer
 
-type INetwork = {}
-
-def eval(
-    expressions: Seq[WanderValue],
-    runtimeNetwork: INetwork
+def eval[E](
+    applications: Seq[Term.Application],
+    runtimeNetwork: Ligature[E]
 ): Either[WanderError, WanderValue] = ???
 //   expression match {
 //     case Expression.Int(value) => Right((LigatureValue.Int(value)))
@@ -27,10 +25,10 @@ def eval(
 //     case Expression.Triple(_, _, _) => ???
 // }
 
-// def eval(
-//     expression: Expression,
-//     runtimeNetwork: INetwork
-// ): Either[WanderError, LigatureValue] =
+def eval[E](
+    application: Term.Application,
+    runtimeNetwork: Ligature[E]
+): Either[WanderError, WanderValue] = ???
 //   expression match {
 //     case Expression.Int(value) => Right((LigatureValue.Int(value)))
 //     case Expression.Bytes(value)        => Right((LigatureValue.Bytes(value)))
@@ -117,77 +115,77 @@ def eval(
 //   Right(LigatureValue.Network(runtimeNetwork.union(InMemoryNetwork(network))))
 
 def handleApplication(
-    expression: Seq[WanderValue],
-): Either[WanderError, (WanderValue)] = ???
-  // expression.head match {
-  //   case Expression.Word(word) =>
-  //     expression match
-  //       case Seq(
-  //             Expression.Word(entity),
-  //             Expression.Word(attribute),
-  //             value: Expression
-  //           ) =>
-  //         value match
-  //           case Expression.Word(value) => ???
-  //             // Right(
-  //             //   (
-  //             //     LigatureValue.Triple(
-  //             //       Triple(
-  //             //         LigatureValue.Word(entity),
-  //             //         LigatureValue.Word(attribute),
-  //             //         LigatureValue.Word(value)
-  //             //       )
-  //             //     ),
-  //             //     environment
-  //             //   )
-  //             // )
-  //           case Expression.Int(value) => ???
-  //             // Right(
-  //             //   (
-  //             //     LigatureValue.Triple(
-  //             //       Triple(
-  //             //         LigatureValue.Word(entity),
-  //             //         LigatureValue.Word(attribute),
-  //             //         LigatureValue.Int(value)
-  //             //       )
-  //             //     ),
-  //             //     environment
-  //             //   )
-  //             // )
-  //           case Expression.Bytes(value) => ???
-  //             // Right(
-  //             //   (
-  //             //     LigatureValue.Triple(
-  //             //       Triple(
-  //             //         LigatureValue.Word(entity),
-  //             //         LigatureValue.Word(attribute),
-  //             //         LigatureValue.Bytes(value)
-  //             //       )
-  //             //     ),
-  //             //     environment
-  //             //   )
-  //             // )
-  //           case stringValue: Expression.StringValue => ???
-  //             // eval(stringValue) match {
-  //             //   case Right((LigatureValue.String(result), _)) =>
-  //             //     Right(
-  //             //       (
-  //             //         LigatureValue.Triple(
-  //             //           Triple(
-  //             //             LigatureValue.Word(entity),
-  //             //             LigatureValue.Word(attribute),
-  //             //             LigatureValue.String(result)
-  //             //           )
-  //             //         ),
-  //             //         environment
-  //             //       )
-  //             //     )
-  //             //   case _ => ???
-  //             // }
-  //           case _ => Left(WanderError(s"Invalid Triple - ${expression}"))
-  //       case _ => Left(WanderError(s"Invalid Triple - ${expression}"))
-  //   case x => Left(WanderError(s"Unexpected start of application - $x"))
-  // }
+    expression: Seq[WanderValue]
+): Either[WanderError, WanderValue] = ???
+// expression.head match {
+//   case Expression.Word(word) =>
+//     expression match
+//       case Seq(
+//             Expression.Word(entity),
+//             Expression.Word(attribute),
+//             value: Expression
+//           ) =>
+//         value match
+//           case Expression.Word(value) => ???
+//             // Right(
+//             //   (
+//             //     LigatureValue.Triple(
+//             //       Triple(
+//             //         LigatureValue.Word(entity),
+//             //         LigatureValue.Word(attribute),
+//             //         LigatureValue.Word(value)
+//             //       )
+//             //     ),
+//             //     environment
+//             //   )
+//             // )
+//           case Expression.Int(value) => ???
+//             // Right(
+//             //   (
+//             //     LigatureValue.Triple(
+//             //       Triple(
+//             //         LigatureValue.Word(entity),
+//             //         LigatureValue.Word(attribute),
+//             //         LigatureValue.Int(value)
+//             //       )
+//             //     ),
+//             //     environment
+//             //   )
+//             // )
+//           case Expression.Bytes(value) => ???
+//             // Right(
+//             //   (
+//             //     LigatureValue.Triple(
+//             //       Triple(
+//             //         LigatureValue.Word(entity),
+//             //         LigatureValue.Word(attribute),
+//             //         LigatureValue.Bytes(value)
+//             //       )
+//             //     ),
+//             //     environment
+//             //   )
+//             // )
+//           case stringValue: Expression.StringValue => ???
+//             // eval(stringValue) match {
+//             //   case Right((LigatureValue.String(result), _)) =>
+//             //     Right(
+//             //       (
+//             //         LigatureValue.Triple(
+//             //           Triple(
+//             //             LigatureValue.Word(entity),
+//             //             LigatureValue.Word(attribute),
+//             //             LigatureValue.String(result)
+//             //           )
+//             //         ),
+//             //         environment
+//             //       )
+//             //     )
+//             //   case _ => ???
+//             // }
+//           case _ => Left(WanderError(s"Invalid Triple - ${expression}"))
+//       case _ => Left(WanderError(s"Invalid Triple - ${expression}"))
+//   case x => Left(WanderError(s"Unexpected start of application - $x"))
+// }
 
 // def callHostFunction(
 //     hostFunction: HostFunction,

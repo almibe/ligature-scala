@@ -22,7 +22,7 @@ class Test {}
 //     val txn = env.beginTransaction()
 //     val _ = env.openStore(name, StoreConfig.WITHOUT_DUPLICATES, txn)
 //     val _ = txn.commit()
-//   def edit(name: String): dev.ligature.wander.modules.KeylimeEditTx = 
+//   def edit(name: String): dev.ligature.wander.modules.KeylimeEditTx =
 //     val txn = env.beginTransaction()
 //     val store = env.openStore(name, StoreConfig.WITHOUT_DUPLICATES, txn)
 //     XodusKeylimeEditTx(store, txn)
@@ -34,7 +34,7 @@ class Test {}
 //     val txn = env.beginTransaction()
 //     val _ = env.removeStore(name, txn)
 //     val _ = txn.commit()
-//   def stores(): Seq[String] = 
+//   def stores(): Seq[String] =
 //     val txn = env.beginTransaction()
 //     val names = env.getAllStoreNames(txn)
 //     val _ = txn.commit()
@@ -44,7 +44,7 @@ class Test {}
 // def bytesToByteIterable(bytes: Seq[Byte]): ByteIterable =
 //   ArrayByteIterable(bytes.toArray)
 
-// def byteIterableToBytes(itr: ByteIterable): Seq[Byte] = 
+// def byteIterableToBytes(itr: ByteIterable): Seq[Byte] =
 //   itr.getBytesUnsafe().toSeq
 
 // class XodusKeylimeReadTx(store: Store, txn: Transaction) extends KeylimeReadTx {
@@ -105,7 +105,7 @@ class Test {}
 //           Tag.Untagged,
 //           (arguments, environment) =>
 //             arguments match {
-//               case Seq(LigatureValue.String(name)) => 
+//               case Seq(LigatureValue.String(name)) =>
 //                 instance.addStore(name)
 //                 Right((LigatureValue.Module(Map.empty), environment))
 //               case _ => ???
@@ -121,7 +121,7 @@ class Test {}
 //           Tag.Untagged,
 //           (arguments, environment) =>
 //             arguments match {
-//               case Seq(LigatureValue.String(name)) => 
+//               case Seq(LigatureValue.String(name)) =>
 //                 instance.removeStore(name)
 //                 Right((LigatureValue.Module(Map.empty), environment))
 //               case _ => ???

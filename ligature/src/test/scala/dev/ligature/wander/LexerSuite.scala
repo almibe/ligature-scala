@@ -115,4 +115,11 @@ class LexerSuite extends FunSuite {
     )
     check(script, tokens)
   }
+  test("tokenize multiople applications") {
+    val script = "test 1, test 2"
+    val tokens = Right(
+      Seq(Token.Element("test"), sp, Token.Element("1"), Token.Comma, sp, Token.Element("test"), sp, Token.Element("2"))
+    )
+    check(script, tokens)
+  }
 }

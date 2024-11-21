@@ -4,15 +4,13 @@
 
 package dev.ligature.wander
 
-import dev.ligature.gaze.{Gaze, Nibbler, takeFirst}
+import dev.ligature.gaze.{Gaze, Nibbler}
 import dev.ligature.gaze.Result
 import dev.ligature.gaze.SeqSource
-// import dev.ligature.gaze.optionalSeq
-import dev.ligature.gaze.repeatSep
 import scala.util.boundary
 import scala.util.boundary.break
 import scala.collection.mutable.ArrayBuffer
-import dev.ligature.gaze.takeUntil
+import scala.collection.mutable.ListBuffer
 
 enum Term:
   case Element(value: String)
@@ -41,7 +39,7 @@ def parse(script: Seq[Token]): Either[WanderError, Seq[Term]] = {
       } else {
         Left(WanderError(s"Error Parsing - No Match - Next Token: ${gaze.next()}"))
       }
-    case Result.EmptyMatch => ??? //Right(Seq(Term.Module(Seq())))
+    case Result.EmptyMatch => ??? // Right(Seq(Term.Module(Seq())))
   }
 }
 
@@ -50,110 +48,90 @@ val elementNib: Nibbler[Token, Term.Element] = gaze =>
     case Some(Token.Element(value)) => Result.Match(Term.Element(value))
     case _                          => Result.NoMatch
 
-// val tagNib: Nibbler[Token, Option[Field]] = gaze =>
-//   gaze.peek() match
-//     case Some(Token.Field(name)) =>
-//       gaze.next()
-//       Result.Match(Some(Field(name)))
-//     case _ =>
-//       Result.NoMatch
+// Handles parsing a network, assumes the initial "{"" token has already been parsed.
+val partialNetworkNib: Nibbler[Token, Term.Network] = { gaze =>
+  var cont = true
+  val entries = ListBuffer[Entry]()
+  val currentEntry = ListBuffer[Element]()
+  while cont do
+    gaze.next() match {
+      case Some(Token.Element(token)) =>
+        currentEntry.addOne(Element(token))
+      case Some(Token.CloseBrace) => 
+        if (currentEntry.size == 3) {
+          currentEntry(1) match {
+            case Element(":")  => entries.addOne(Extends(currentEntry(0), currentEntry(2)))
+            case Element("¬:") => entries.addOne(NotExtends(currentEntry(0), currentEntry(2)))
+            case Element(element) =>
+              entries.addOne(Role(currentEntry(0), currentEntry(1), currentEntry(2)))
+          }
+          currentEntry.clear()
+        }
+        cont = false
+      case Some(Token.Comma) => {
+        if (currentEntry.size == 3) {
+          currentEntry(1) match {
+            case Element(":")  => entries.addOne(Extends(currentEntry(0), currentEntry(2)))
+            case Element("¬:") => entries.addOne(NotExtends(currentEntry(0), currentEntry(2)))
+            case Element(element) =>
+              entries.addOne(Role(currentEntry(0), currentEntry(1), currentEntry(2)))
+          }
+          currentEntry.clear()
+        }
+      }
+      case None                   => ???
+      case _                      => ???
+    }
+  Result.Match(Term.Network(entries.toSet))
+}
 
-// val tagNib: Nibbler[Token, Term.TaggedFieldTerm] = gaze =>
-//   val names = ListBuffer[Field]()
-//   boundary:
-//     while !gaze.isComplete do
-//       gaze.next() match
-//         case Some(Token.Field(name)) =>
-//           names.append(Field(name))
-//           gaze.peek() match {
-//             case Some(Token.Arrow) => gaze.next() // swallow arrow, ouch!
-//             case _                 => break()
-//           }
-//         case _ => break()
-//   names.toSeq match {
-//     case Seq()                 => Result.NoMatch
-//     case Seq(field)             => Result.Match(Term.TaggedFieldTerm(field))
-//     case names => ???///Result.Match(Tag.Chain(names))
-//   }
+// Handles parsing a quote, assumes the initial "("" token has already been parsed.
+val partialQuoteNib: Nibbler[Token, Term.Quote] = { gaze =>
+  var cont = true
+  val terms = ListBuffer[Term]()
+  while cont do
+    gaze.next() match {
+      case Some(Token.Element(element)) => terms.addOne(Term.Element(element))
+      case Some(Token.CloseParen)       => cont = false
+      case None                         => ???
+      case _                            => ???
+    }
+  Result.Match(Term.Quote(terms.toSeq))
+}
 
-// val parameterNib: Nibbler[Token, Name] = { gaze =>
-//   gaze.next() match
-//     case Some(Token.Field(name)) => Result.Match(Name.from(name).getOrElse(???))
-//     case _                      => Result.NoMatch
-// }
+val applicationNib: Nibbler[Token, Term.Application] = { gaze =>
+  val terms = ListBuffer[Term]()
+  var cont = true
+  while cont do
+    gaze.next() match {
+      case Some(Token.Element(element)) => terms.addOne(Term.Element(element))
+      case Some(Token.Comma)            => cont = false
+      case Some(Token.OpenParen) =>
+        partialQuoteNib(gaze) match {
+          case Result.NoMatch      => ???
+          case Result.EmptyMatch   => ???
+          case Result.Match(quote) => terms.addOne(quote)
+        }
+      case Some(Token.OpenBrace) =>
+        partialNetworkNib(gaze) match {
+          case Result.NoMatch        => ???
+          case Result.EmptyMatch     => ???
+          case Result.Match(network) => terms.addOne(network)
+        }
+      case None => cont = false
+      case _    => ???
+    }
+  Result.Match(Term.Application(terms.toSeq))
+}
 
-// val lambdaNib: Nibbler[Token, Term.Lambda] = { gaze =>
-//   for {
-//     _ <- gaze.attempt(take(Token.Lambda))
-//     parameters <- gaze.attempt(optionalSeq(repeat(fieldNib)))
-//     _ <- gaze.attempt(take(Token.Arrow))
-//     body <- gaze.attempt(expressionNib)
-//   } yield Term.Lambda(parameters, body) // TODO handle this body better
-// }
-
-val networkNib: Nibbler[Token, Term.Network] = { _gaze => Result.NoMatch }
-  // val res = for
-  //   _ <- gaze.attempt(take(Token.OpenBrace))
-  //   triples <- gaze.attempt(optionalSeq(repeatSep(tripleNib, Token.Comma)))
-  //   _ <- gaze.attempt(take(Token.CloseBrace))
-  // yield Term.Network(triples)
-  // res match
-  //   case Result.Match(Term.Network(values)) => Result.Match(Term.Network(values))
-  //   case _                                => Result.NoMatch
-//}
-
-val applicationNib: Nibbler[Token, Term] = 
-  takeUntil(Token.Comma).map(tokens => 
-    parse(tokens) match {
-      case _ => ???
-    })
-//   { gaze =>
-//   val cont = true
-//   while (cont) {
-//     ???
-//   }
-//   Result.NoMatch
-//   // for
-//   //   entity <- gaze.attempt(elementNib) //gaze.attempt(takeFirst(wordNib, slotTermNib))
-//   //   attribute <- gaze.attempt(elementNib) //gaze.attempt(takeFirst(wordNib, slotTermNib))
-//   //   value <- gaze.attempt(elementNib)
-//   // yield Term.Application(Seq())
-// }
-
-val expressionNib =
-  takeFirst(
-    elementNib,
-    networkNib,
-    applicationNib,
-  )
-
-//val scriptNib = optionalSeq(repeatSep(expressionNib, Token.Comma))
 val scriptNib: Nibbler[Token, Seq[Term]] = { gaze =>
-  var pipedValue: Option[Term] = None
+  // var pipedValue: Option[Term] = None
   val results = ArrayBuffer[Term]()
   boundary:
     while !gaze.isComplete do
-      gaze.attempt(expressionNib) match
-        case Result.NoMatch    => break(Result.NoMatch)
-        case Result.EmptyMatch => break(Result.NoMatch)
-        case Result.Match(value: Term) =>
-          gaze.next() match
-            case Some(Token.Comma) | None =>
-              pipedValue match
-                case None => results += value
-                case Some(pipedTerm: Term) =>
-                  value match
-                    case Term.Application(terms) =>
-                      results += Term.Application(terms ++ Seq(pipedTerm))
-                    case _ => break(Result.NoMatch)
-            case Some(Token.Pipe) =>
-              pipedValue match
-                case None => pipedValue = Some(value)
-                case Some(pipedTerm: Term) =>
-                  value match
-                    case Term.Application(terms) =>
-                      pipedValue = Some(Term.Application(terms ++ Seq(pipedTerm)))
-                    case _ => break(Result.NoMatch)
-            case Some(_) => break(Result.NoMatch)
+      gaze.attempt(applicationNib) match
+        case Result.NoMatch     => break(Result.NoMatch)
+        case Result.EmptyMatch  => break(Result.NoMatch)
+        case Result.Match(term) => results.addOne(term)
     break(Result.Match(results.toSeq))
 }

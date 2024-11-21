@@ -20,11 +20,11 @@ case class HostFunction(
     docString: String,
     parameters: Seq[String],
     fn: (
-        arguments: Seq[WanderValue],
-    ) => Either[WanderError, (WanderValue)]
+        arguments: Seq[WanderValue]
+    ) => Either[WanderError, WanderValue]
 ) extends Function {
   override def call(
-      args: Seq[WanderValue],
+      args: Seq[WanderValue]
   ): Either[WanderError, WanderValue] = ???
 //    fn.apply(args).map(_)
 }
@@ -41,7 +41,7 @@ case class WanderError(val userMessage: String) extends Throwable(userMessage)
 //   } yield expression
 //   expression match
 //     case Left(value)  => Left(value)
-//     case Right(value) => 
+//     case Right(value) =>
 //       eval(value.head, runtimeNetwork) match
 //         case Right(LigatureValue.Network(value)) => Right(value)
 //         case Right(LigatureValue.Word(word)) => ???
@@ -50,7 +50,7 @@ case class WanderError(val userMessage: String) extends Throwable(userMessage)
 
 case class Inspect(
     tokens: Either[WanderError, Seq[Token]],
-    terms: Either[WanderError, Seq[Term]],
+    terms: Either[WanderError, Seq[Term]]
 )
 
 def inspect(script: String): Inspect = {
