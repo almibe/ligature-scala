@@ -14,6 +14,7 @@ val gsonVerison = "2.11.0"
 val furyVersion = "0.4.1"
 val lmdbVersion = "0.9.0"
 val xodusVersion = "2.0.1"
+val duckdbVersion = "1.1.3"
 
 lazy val gaze = project
   .in(file("gaze"))
@@ -63,7 +64,7 @@ lazy val ligatureZeroMQ = project
     libraryDependencies += "org.scalameta" %% "munit" % munitVersion % Test,
     fork := true
   )
-  .dependsOn(ligature, ligatureInMemory)
+  .dependsOn(ligature)
 
 lazy val ligatureTestSuite = project
   .in(file("ligature-test-suite"))
@@ -75,11 +76,13 @@ lazy val ligatureTestSuite = project
   .dependsOn(ligature)
   .disablePlugins(RevolverPlugin)
 
-lazy val ligatureInMemory = project
-  .in(file("ligature-in-memory"))
+lazy val ligatureDuckDB = project
+  .in(file("ligature-duckdb"))
   .settings(
-    name := "ligature-in-memory",
-    scalaVersion := scala3Version
+    name := "ligature-duckdb",
+    scalaVersion := scala3Version,
+    libraryDependencies += "org.duckdb" % "duckdb_jdbc" % duckdbVersion,
+    libraryDependencies += "org.scalameta" %% "munit" % munitVersion % Test,
   )
   .dependsOn(ligature, idgen, ligatureTestSuite % Test)
   .disablePlugins(RevolverPlugin)
