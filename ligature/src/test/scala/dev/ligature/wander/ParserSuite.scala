@@ -40,7 +40,7 @@ class ParserSuite extends FunSuite {
             Term.Element("2"),
             Term.Element("3")
           )
-        ),
+        )
       )
     )
     assertEquals(input, expected)
@@ -60,7 +60,7 @@ class ParserSuite extends FunSuite {
         Term.Application(
           Seq(
             Term.Element("test2"),
-            Term.Element("100"),
+            Term.Element("100")
           )
         )
       )
@@ -152,10 +152,15 @@ class ParserSuite extends FunSuite {
     val expected = Right(
       Seq(
         Term.Application(
-          Seq(Term.Element("test"), Term.Network(Set(
-            Entry.Role(Element("x"), Element("="), Element("5")),
-            Entry.Role(Element("y"), Element("="), Element("6")),
-          )))
+          Seq(
+            Term.Element("test"),
+            Term.Network(
+              Set(
+                Entry.Role(Element("x"), Element("="), Element("5")),
+                Entry.Role(Element("y"), Element("="), Element("6"))
+              )
+            )
+          )
         )
       )
     )

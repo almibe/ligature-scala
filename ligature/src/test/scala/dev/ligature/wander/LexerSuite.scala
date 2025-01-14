@@ -13,21 +13,24 @@ class LexerSuite extends FunSuite {
 
   test("tokenize network") {
     val script = "{a b c, d e f}"
-    val tokens = Right(Seq(
-      Token.OpenBrace,
-      Token.Element("a"), 
-      sp,
-      Token.Element("b"),
-      sp,
-      Token.Element("c"),
-      Token.Comma,
-      sp,
-      Token.Element("d"),
-      sp,
-      Token.Element("e"),
-      sp,
-      Token.Element("f"),
-      Token.CloseBrace))
+    val tokens = Right(
+      Seq(
+        Token.OpenBrace,
+        Token.Element("a"),
+        sp,
+        Token.Element("b"),
+        sp,
+        Token.Element("c"),
+        Token.Comma,
+        sp,
+        Token.Element("d"),
+        sp,
+        Token.Element("e"),
+        sp,
+        Token.Element("f"),
+        Token.CloseBrace
+      )
+    )
     check(script, tokens)
   }
   test("tokenize Integers") {
@@ -43,7 +46,7 @@ class LexerSuite extends FunSuite {
       Seq(
         Token.Element("0x00"),
         sp,
-        Token.Element("0xFF"),
+        Token.Element("0xFF")
       )
     )
     check(script, tokens)
@@ -118,7 +121,16 @@ class LexerSuite extends FunSuite {
   test("tokenize multiople applications") {
     val script = "test 1, test 2"
     val tokens = Right(
-      Seq(Token.Element("test"), sp, Token.Element("1"), Token.Comma, sp, Token.Element("test"), sp, Token.Element("2"))
+      Seq(
+        Token.Element("test"),
+        sp,
+        Token.Element("1"),
+        Token.Comma,
+        sp,
+        Token.Element("test"),
+        sp,
+        Token.Element("2")
+      )
     )
     check(script, tokens)
   }
