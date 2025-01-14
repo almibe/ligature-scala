@@ -48,7 +48,7 @@ lazy val ligature = project
     libraryDependencies += "org.lmdbjava" % "lmdbjava" % lmdbVersion,
     libraryDependencies += "org.jetbrains.xodus" % "xodus-openAPI" % xodusVersion,
     libraryDependencies += "org.jetbrains.xodus" % "xodus-environment" % xodusVersion,
-    libraryDependencies += "org.scalameta" %% "munit" % munitVersion % Test,
+    libraryDependencies += "org.scalameta" %% "munit" % munitVersion % Test
   )
   .dependsOn(gaze)
   .disablePlugins(RevolverPlugin)
@@ -82,7 +82,7 @@ lazy val ligatureDuckDB = project
     name := "ligature-duckdb",
     scalaVersion := scala3Version,
     libraryDependencies += "org.duckdb" % "duckdb_jdbc" % duckdbVersion,
-    libraryDependencies += "org.scalameta" %% "munit" % munitVersion % Test,
+    libraryDependencies += "org.scalameta" %% "munit" % munitVersion % Test
   )
   .dependsOn(ligature, idgen, ligatureTestSuite % Test)
   .disablePlugins(RevolverPlugin)
