@@ -10,30 +10,30 @@ final case class Element(value: String)
 
 enum Entry:
   case Extends(
-    element: Element,
-    concept: Element
+      element: Element,
+      concept: Element
   ) extends Entry
   case NotExtends(
-    element: Element,
-    concept: Element
+      element: Element,
+      concept: Element
   ) extends Entry
   case Role(
-    first: Element,
-    role: Element,
-    second: Element,
+      first: Element,
+      role: Element,
+      second: Element
   ) extends Entry
 
 given Ordering[Entry] with
-  def compare(left: Entry, right: Entry): Int = left.ordinal compare right.ordinal
+  def compare(left: Entry, right: Entry): Int = left.ordinal.compare(right.ordinal)
 
 enum Slot:
   case Variable(name: String) extends Slot
   case Value(element: Element) extends Slot
 
 final case class Query(
-  first: Slot,
-  role: Slot,
-  second: Slot
+    first: Slot,
+    role: Slot,
+    second: Slot
 )
 
 trait Ligature[E] {

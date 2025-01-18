@@ -7,18 +7,16 @@ import scala.collection.immutable.TreeSet
 
 case class Error(msg: String)
 
-
 class LigatureInMemory extends Ligature[Error] {
   var store: Map[String, SortedSet[Entry]] = TreeMap()
   val lock = ReentrantReadWriteLock();
 
   override def collections(): Either[Error, Seq[String]] = {
     lock.readLock().lock()
-    try {
+    try
       Right(store.keySet.toSeq)
-    } finally {
+    finally
       lock.readLock().unlock()
-    }
   }
 
   override def addCollection(name: String): Either[Error, Unit] = {
@@ -27,17 +25,12 @@ class LigatureInMemory extends Ligature[Error] {
 
       store = store + (name -> TreeSet())
       ???
-    } finally {
-      lock.readLock().unlock()
-    }
+    } finally lock.readLock().unlock()
   }
 
   override def removeCollection(name: String): Either[Error, Unit] = ???
 
-
   override def entries(name: String): Either[Error, Seq[Entry]] = ???
-
-
 
   override def addEntries(name: String, entries: Seq[Entry]): Either[Error, Unit] = ???
 

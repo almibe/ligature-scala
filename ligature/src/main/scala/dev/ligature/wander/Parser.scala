@@ -57,7 +57,7 @@ val partialNetworkNib: Nibbler[Token, Term.Network] = { gaze =>
     gaze.next() match {
       case Some(Token.Element(token)) =>
         currentEntry.addOne(Element(token))
-      case Some(Token.CloseBrace) => 
+      case Some(Token.CloseBrace) =>
         if (currentEntry.size == 3) {
           currentEntry(1) match {
             case Element(":")  => entries.addOne(Entry.Extends(currentEntry(0), currentEntry(2)))
@@ -68,7 +68,7 @@ val partialNetworkNib: Nibbler[Token, Term.Network] = { gaze =>
           currentEntry.clear()
         }
         cont = false
-      case Some(Token.Comma) => {
+      case Some(Token.Comma) =>
         if (currentEntry.size == 3) {
           currentEntry(1) match {
             case Element(":")  => entries.addOne(Entry.Extends(currentEntry(0), currentEntry(2)))
@@ -78,9 +78,8 @@ val partialNetworkNib: Nibbler[Token, Term.Network] = { gaze =>
           }
           currentEntry.clear()
         }
-      }
-      case None                   => ???
-      case _                      => ???
+      case None => ???
+      case _    => ???
     }
   Result.Match(Term.Network(entries.toSet))
 }
