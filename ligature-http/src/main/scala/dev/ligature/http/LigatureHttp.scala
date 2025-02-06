@@ -9,6 +9,7 @@ package dev.ligature.http
 import com.typesafe.scalalogging.Logger
 import io.vertx.core.Vertx
 import io.vertx.ext.web.Router
+import io.vertx.ext.web.handler.BodyHandler
 
 private class LigatureHttp(val port: Int) extends Runnable with AutoCloseable {
   val logger = Logger("LigatureHttp")
@@ -17,6 +18,20 @@ private class LigatureHttp(val port: Int) extends Runnable with AutoCloseable {
   override def run(): Unit =
     val server = vertx.createHttpServer()
     val router = Router.router(vertx);
+    
+    router.route().handler(BodyHandler.create());
+
+    router.patch("/network/:networkName").handler(ctx => {
+      val networkName = ctx.pathParam("networkName")
+      val request = ctx.body().asString()
+      println(networkName)
+      println(request)      
+      val response = ctx.response();
+      response.putHeader("content-type", "text/plain");
+      // Write to the response and end it
+      val _ = response.end(request);
+
+    })
 
     router.route().handler(ctx => {
 
