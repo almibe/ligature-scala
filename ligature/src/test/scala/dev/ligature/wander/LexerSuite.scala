@@ -58,14 +58,14 @@ class LexerSuite extends FunSuite {
     val tokens = Right(Seq(Token.Element("?hello")))
     check(script, tokens)
   }
-  test("tokenize element strings") {
+  test("tokenize literal") {
     val script = "\"hello, world!\""
-    val tokens = Right(Seq(Token.Element("hello, world!")))
+    val tokens = Right(Seq(Token.Literal("hello, world!")))
     check(script, tokens)
   }
-  test("tokenize Strings with quotes") {
+  test("tokenize Literal with quotes") {
     val script = "\"\\\"hello, world!\\\"\""
-    val tokens = Right(Seq(Token.Element("\"hello, world!\"")))
+    val tokens = Right(Seq(Token.Literal("\"hello, world!\"")))
     check(script, tokens)
   }
 

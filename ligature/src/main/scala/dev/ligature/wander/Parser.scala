@@ -14,8 +14,8 @@ import scala.collection.mutable.ListBuffer
 
 enum Term:
   case Element(value: String)
+  case Literal(value: String)
   case Network(roots: Set[Entry])
-  case Application(terms: Seq[Term])
   case Quote(terms: Seq[Term])
 
 def parse(script: Seq[Token]): Either[WanderError, Seq[Term]] = {
@@ -42,6 +42,12 @@ def parse(script: Seq[Token]): Either[WanderError, Seq[Term]] = {
     case Result.EmptyMatch => ??? // Right(Seq(Term.Module(Seq())))
   }
 }
+
+val literalNib: Nibbler[Token, Term.Literal] = gaze =>
+  gaze.next() match
+    case Some(Token.Literal(value)) => Result.Match(Term.Literal(value))
+    case _                          => Result.NoMatch
+
 
 val elementNib: Nibbler[Token, Term.Element] = gaze =>
   gaze.next() match
@@ -98,29 +104,40 @@ val partialQuoteNib: Nibbler[Token, Term.Quote] = { gaze =>
   Result.Match(Term.Quote(terms.toSeq))
 }
 
-val applicationNib: Nibbler[Token, Term.Application] = { gaze =>
-  val terms = ListBuffer[Term]()
+val applicationNib: Nibbler[Token, Term] = { gaze =>
+  var result: Option[Term] = None
   var cont = true
   while cont do
     gaze.next() match {
-      case Some(Token.Element(element)) => terms.addOne(Term.Element(element))
+      case Some(Token.Element(element)) => 
+        result = Some(Term.Element(element))
+        cont = false
+      case Some(Token.Literal(literal)) => 
+        result = Some(Term.Literal(literal))
       case Some(Token.Comma)            => cont = false
       case Some(Token.OpenParen) =>
         partialQuoteNib(gaze) match {
           case Result.NoMatch      => ???
           case Result.EmptyMatch   => ???
-          case Result.Match(quote) => terms.addOne(quote)
+          case Result.Match(quote) => 
+              result = Some(quote)
+              cont = false
         }
       case Some(Token.OpenBrace) =>
         partialNetworkNib(gaze) match {
           case Result.NoMatch        => ???
           case Result.EmptyMatch     => ???
-          case Result.Match(network) => terms.addOne(network)
+          case Result.Match(network) => 
+              result = Some(network)
+              cont = false
         }
       case None => cont = false
       case _    => ???
     }
-  Result.Match(Term.Application(terms.toSeq))
+  result match {
+    case None => ???
+    case Some(result) => Result.Match(result)
+  }
 }
 
 val scriptNib: Nibbler[Token, Seq[Term]] = { gaze =>

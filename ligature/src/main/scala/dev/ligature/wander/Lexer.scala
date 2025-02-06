@@ -26,7 +26,7 @@ enum Token:
   case Literal(value: String)
   case Spaces(value: String)
   case OpenBrace, CloseBrace, OpenParen, CloseParen, NewLine,
-    Comment, OpenBracket, CloseBracket, Pipe, Comma
+    Comment, OpenBracket, CloseBracket, Comma
 
 def tokenize(input: String): Either[WanderError, Seq[Token]] = {
   val gaze = Gaze.from(input)
@@ -50,8 +50,8 @@ def tokenize(input: String): Either[WanderError, Seq[Token]] = {
 val stringTokenNib: Nibbler[String, Token] =
   LigNibblers.stringNibbler.map(results =>
     results.size match
-      case 2 => Token.Element(results(1))
-      case 3 => Token.Element(results(2))
+      case 2 => Token.Literal(results(1))
+      case 3 => Token.Literal(results(2))
       case _ => ???
   )
 
@@ -81,9 +81,6 @@ val nameTokenNib: Nibbler[String, Token] = wordNibbler.map { values =>
     case value: String => Token.Element(value)
   }
 }
-
-val pipeNib =
-  takeString("|").map(res => Token.Pipe)
 
 val openBraceTokenNib =
   takeString("{").map(res => Token.OpenBrace)

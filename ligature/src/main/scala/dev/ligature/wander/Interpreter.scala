@@ -8,7 +8,7 @@ import dev.ligature.wander.*
 //import scala.collection.mutable.ListBuffer
 
 def eval[E](
-    applications: Seq[Term.Application],
+    terms: Seq[Term],
     runtimeNetwork: Ligature
 ): Either[WanderError, WanderValue] = ???
 //   expression match {
@@ -26,7 +26,7 @@ def eval[E](
 // }
 
 def eval[E](
-    application: Term.Application,
+    term: Term,
     runtimeNetwork: Ligature
 ): Either[WanderError, WanderValue] = ???
 //   application match {
