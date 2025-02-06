@@ -7,19 +7,15 @@ package dev.ligature.wander.zeromq
 import org.zeromq.{ZMQ, ZContext, SocketType}
 
 import dev.ligature.wander.run as runWander
-import dev.ligature.wander.LigatureValue
-import dev.ligature.wander.printLigatureValue
-import dev.ligature.wander.printResult
 import dev.ligature.wander.*
 import com.typesafe.scalalogging.Logger
-import dev.ligature.wander.modules.{std}//, wanderLibs}
 
 private class LigatureZeroMQ(val port: Int) extends Runnable with AutoCloseable {
   val logger = Logger("LigatureZeroMQ")
   private val zContext = ZContext()
 
   override def run(): Unit =
-    val environment = std()//.combine(wanderLibs())
+    val environment = ???//std()//.combine(wanderLibs())
     val socket = zContext.createSocket(SocketType.REP)
     socket.bind(s"tcp://localhost:$port")
     var continue = true
@@ -34,9 +30,10 @@ private class LigatureZeroMQ(val port: Int) extends Runnable with AutoCloseable 
             val message = s"Error running command: $command -- ${err.userMessage}"
             logger.error(message)
             val _ = socket.send(message.getBytes(ZMQ.CHARSET), 0)
-          case result: Right[WanderError, (LigatureValue, Environment)] =>
-            logger.info(s"Result for command: $command -- ${printResult(result)}")
-            val _ = socket.send(printResult(result).getBytes(ZMQ.CHARSET), 0)
+          case Right(_) => ???
+          // case result: Right[WanderError, (WanderValue, Environment)] =>
+          //   logger.info(s"Result for command: $command -- ${printResult(result)}")
+          //   val _ = socket.send(printResult(result).getBytes(ZMQ.CHARSET), 0)
       catch
         case e =>
           socket.close()
@@ -47,8 +44,8 @@ private class LigatureZeroMQ(val port: Int) extends Runnable with AutoCloseable 
   override def close(): Unit = zContext.close()
 }
 
-def printError(message: String): String =
-  printLigatureValue(LigatureValue.Module(Map(Field("error") -> LigatureValue.String(message))))
+def printError(message: String): String = ???
+//  printLigatureValue(LigatureValue.Module(Map(Field("error") -> LigatureValue.String(message))))
 
 def runServer(port: Int): AutoCloseable = {
   val server = LigatureZeroMQ(port)

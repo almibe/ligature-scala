@@ -26,27 +26,28 @@ case class HostFunction(
   override def call(
       args: Seq[WanderValue]
   ): Either[WanderError, WanderValue] = ???
-//    fn.apply(args).map(_)
+  //  fn.apply(args).map(_)
 }
 
 case class WanderError(val userMessage: String) extends Throwable(userMessage)
 
-// def run(
-//     script: String, runtimeNetwork: Map[String, Set[Entry]]
-// ): Either[WanderError, INetwork] =
-//   val expression = for {
-//     tokens <- tokenize(script)
-//     terms <- parse(tokens)
-//     expression <- process(terms)
-//   } yield expression
-//   expression match
-//     case Left(value)  => Left(value)
-//     case Right(value) =>
-//       eval(value.head, runtimeNetwork) match
-//         case Right(LigatureValue.Network(value)) => Right(value)
-//         case Right(LigatureValue.Word(word)) => ???
-//         case Right(_) => ???
-//         case Left(value) => Left(value)
+def run(
+    script: String,
+    state: Ligature
+): Either[WanderError, Ligature] =
+  val expression = for {
+    tokens <- tokenize(script)
+    terms <- parse(tokens)
+    expression <- process(terms)
+  } yield expression
+  expression match
+    case Left(value)  => Left(value)
+    case Right(value) => ???
+    // eval(value.head, state) match
+    //   case Right(WanderValue.Network(value)) => ???//Right(value)
+    //   case Right(WanderValue.Element(element)) => ???
+    //   case Right(_) => ???
+    //   case Left(value) => ???//Left(value)
 
 case class Inspect(
     tokens: Either[WanderError, Seq[Token]],

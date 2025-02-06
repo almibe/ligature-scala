@@ -9,7 +9,7 @@ import dev.ligature.wander.*
 
 def eval[E](
     applications: Seq[Term.Application],
-    runtimeNetwork: Ligature[E]
+    runtimeNetwork: Ligature
 ): Either[WanderError, WanderValue] = ???
 //   expression match {
 //     case Expression.Int(value) => Right((LigatureValue.Int(value)))
@@ -27,9 +27,9 @@ def eval[E](
 
 def eval[E](
     application: Term.Application,
-    runtimeNetwork: Ligature[E]
+    runtimeNetwork: Ligature
 ): Either[WanderError, WanderValue] = ???
-//   expression match {
+//   application match {
 //     case Expression.Int(value) => Right((LigatureValue.Int(value)))
 //     case Expression.Bytes(value)        => Right((LigatureValue.Bytes(value)))
 //     case Expression.StringValue(value) => Right((LigatureValue.StringValue(value)))

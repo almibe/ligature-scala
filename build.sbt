@@ -53,6 +53,20 @@ lazy val ligature = project
   .dependsOn(gaze)
   .disablePlugins(RevolverPlugin)
 
+lazy val ligatureHttp = project
+  .in(file("ligature-http"))
+  .settings(
+    name := "ligature-http",
+    scalaVersion := scala3Version,
+    libraryDependencies += "ch.qos.logback" % "logback-classic" % logBackVersion,
+    libraryDependencies += "com.typesafe.scala-logging" %% "scala-logging" % scalaLoggingVersion,
+    libraryDependencies += "io.vertx" % "vertx-core" % "4.5.12",
+    libraryDependencies += "io.vertx" % "vertx-web" % "4.5.12",
+    libraryDependencies += "org.scalameta" %% "munit" % munitVersion % Test,
+    fork := true
+  )
+  .dependsOn(ligature)
+
 lazy val ligatureZeroMQ = project
   .in(file("ligature-zeromq"))
   .settings(
@@ -76,12 +90,12 @@ lazy val ligatureTestSuite = project
   .dependsOn(ligature)
   .disablePlugins(RevolverPlugin)
 
-lazy val ligatureDuckDB = project
-  .in(file("ligature-duckdb"))
+lazy val ligatureLMDB = project
+  .in(file("ligature-lmdb"))
   .settings(
-    name := "ligature-duckdb",
+    name := "ligature-lmdb",
     scalaVersion := scala3Version,
-    libraryDependencies += "org.duckdb" % "duckdb_jdbc" % duckdbVersion,
+    libraryDependencies += "org.lmdbjava" % "lmdbjava" % "0.9.0",
     libraryDependencies += "org.scalameta" %% "munit" % munitVersion % Test,
   )
   .dependsOn(ligature, idgen, ligatureTestSuite % Test)

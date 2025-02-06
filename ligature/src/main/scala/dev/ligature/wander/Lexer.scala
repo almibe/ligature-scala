@@ -23,6 +23,7 @@ import dev.ligature.wander.LigNibblers.wordNibbler
 
 enum Token:
   case Element(value: String)
+  case Literal(value: String)
   case Spaces(value: String)
   case OpenBrace, CloseBrace, OpenParen, CloseParen, NewLine,
     Comment, OpenBracket, CloseBracket, Pipe, Comma
