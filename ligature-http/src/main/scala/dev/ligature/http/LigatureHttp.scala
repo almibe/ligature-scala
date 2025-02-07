@@ -18,22 +18,22 @@ private class LigatureHttp(val port: Int) extends Runnable with AutoCloseable {
   override def run(): Unit =
     val server = vertx.createHttpServer()
     val router = Router.router(vertx);
-    
+
     router.route().handler(BodyHandler.create());
 
-    router.patch("/network/:networkName").handler(ctx => {
+    router.patch("/network/:networkName").handler { ctx =>
       val networkName = ctx.pathParam("networkName")
       val request = ctx.body().asString()
       println(networkName)
-      println(request)      
+      println(request)
       val response = ctx.response();
       response.putHeader("content-type", "text/plain");
       // Write to the response and end it
       val _ = response.end(request);
 
-    })
+    }
 
-    router.route().handler(ctx => {
+    router.route().handler { ctx =>
 
       // This handler will be called for every request
       val response = ctx.response();
@@ -41,12 +41,12 @@ private class LigatureHttp(val port: Int) extends Runnable with AutoCloseable {
 
       // Write to the response and end it
       val _ = response.end("Hello World from Vert.x-Web!");
-    });
+    };
 
     val _ = server.requestHandler(router).listen(8080);
 
-  override def close(): Unit = 
-      val _ = vertx.close()
+  override def close(): Unit =
+    val _ = vertx.close()
 }
 
 def printError(message: String): String = ???

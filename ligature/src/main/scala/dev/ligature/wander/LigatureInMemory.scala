@@ -7,41 +7,40 @@ package dev.ligature.wander
 import scala.collection.immutable.SortedSet
 import scala.collection.immutable.TreeMap
 import java.util.concurrent.locks.ReentrantReadWriteLock
-import scala.collection.immutable.TreeSet
-import scala.math.Ordering.comparatorToOrdering
-import io.smallrye.mutiny.Multi
-import io.smallrye.mutiny.Uni
+import cats.effect.IO
+import fs2.Stream
 
 class LigatureInMemory extends Ligature {
   var store: Map[String, SortedSet[Triple]] = TreeMap()
   val lock = ReentrantReadWriteLock();
 
-  override def networks(): Multi[String] = ??? //{
-  //   lock.readLock().lock()
-  //   try
-  //     Right(store.keySet.toSeq)
-  //   finally
-  //     lock.readLock().unlock()
-  // }
+  override def networks(): Stream[IO, String] = {
+    lock.readLock().lock()
+    try
+      ???
+//      Multi.createFrom().iterable(store.keySet.asJava)
+    finally
+      lock.readLock().unlock()
+  }
 
-  override def addNetwork(name: String): Uni[Unit] = ??? //{
+  override def addNetwork(name: String): IO[Unit] = ??? // {
   //   lock.writeLock().lock()
   //   try {
   //     store = store + (name -> TreeSet())
   //     Right(())
   //   } finally lock.readLock().unlock()
   // }
-  def addEntries(name: String, entries: Multi[dev.ligature.wander.Triple])
-    : Uni[Unit] = ???
-  def query
-  (name: String, query: dev.ligature.wander.LigatureValue.Pattern, template:
+
+  def addEntries(name: String, entries: fs2.Stream[cats.effect.IO, dev.ligature.wander.Triple]
+    ): fs2.Stream[cats.effect.IO, Unit] = ???
+  def query(name: String, query: dev.ligature.wander.LigatureValue.Pattern, template:
     dev.ligature.wander.LigatureValue.Pattern |
     dev.ligature.wander.LigatureValue.Quote):
-    Multi[dev.ligature.wander.Triple] = ???
-  def read(name: String): Multi[dev.ligature.wander.Triple] = ???
+    fs2.Stream[cats.effect.IO, dev.ligature.wander.Triple] = ???
+  def read(name: String): fs2.Stream[cats.effect.IO, dev.ligature.wander.Triple] = ???
   def removeEntries
-  (name: String, entries: Multi[dev.ligature.wander.Triple])
-    : Uni[Unit] = ???
-  def removeNetwork(name: String): Uni[Unit] = ???
+  (name: String, entries: fs2.Stream[cats.effect.IO, dev.ligature.wander.Triple]
+    ): fs2.Stream[cats.effect.IO, Unit] = ???
+  def removeNetwork(name: String): cats.effect.IO[Unit] = ???
 
 }

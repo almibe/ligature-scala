@@ -28,19 +28,18 @@ class ParserSuite extends FunSuite {
   test("parse empty network") {
     val result = check("empty {}")
     val expected = Right(
-      (Seq(Term.Element("empty"), Term.Network(Set()))
-    ))
+      Seq(Term.Element("empty"), Term.Network(Set()))
+    )
     assertEquals(result, expected)
   }
   test("parse empty quote") {
     val result = check("empty ()")
-    val expected = Right(
-      (Seq(Term.Element("empty"), Term.Quote(Seq()))))
+    val expected = Right(Seq(Term.Element("empty"), Term.Quote(Seq())))
     assertEquals(result, expected)
   }
   test("parse String") {
     val result = check("\"hello\"")
-    val expected = Right(Seq((Term.Literal("hello"))))
+    val expected = Right(Seq(Term.Literal("hello")))
     assertEquals(result, expected)
   }
   test("parse String with quotes") {
@@ -51,41 +50,46 @@ class ParserSuite extends FunSuite {
   test("parse simple expression grouping") {
     val result = check("x (y)")
     val expected = Right(
-          Seq(
-            Term.Element("x"),
-            Term.Quote(Seq(Term.Element("y")))
-          )
-        )
+      Seq(
+        Term.Element("x"),
+        Term.Quote(Seq(Term.Element("y")))
+      )
+    )
     assertEquals(result, expected)
   }
   test("parse grouping") {
     val result = check("test (true 4)")
     val expected = Right(
-          Seq(
-            Term.Element("test"),
-            Term.Quote(Seq(Term.Element("true"), Term.Element("4")))
-          )
-        )
+      Seq(
+        Term.Element("test"),
+        Term.Quote(Seq(Term.Element("true"), Term.Element("4")))
+      )
+    )
     assertEquals(result, expected)
   }
   test("parse network with one entry") {
     val result = check("test {x = 5}")
     val expected = Right(
-          Seq(
-            Term.Element("test"),
-            Term.Network(Set(Entry.Role(Element("x"), Element("="), Element("5"))))
-          )
-        )
+      Seq(
+        Term.Element("test"),
+        Term.Network(Set((LigatureValue.Element("x"), LigatureValue.Element("="), LigatureValue.Element("5"))))
+      )
+    )
     assertEquals(result, expected)
   }
-  test("parse Module with multiple entries") {
+  test("parse Network with multiple entries") {
     val result = check("test {x = 5, y = 6}")
     val expected = Right(
-          Seq(Term.Element("test"), Term.Network(Set(
-            Entry.Role(Element("x"), Element("="), Element("5")),
-            Entry.Role(Element("y"), Element("="), Element("6")),
-          )))
+      Seq(
+        Term.Element("test"),
+        Term.Network(
+          Set(
+            (LigatureValue.Element("x"), LigatureValue.Element("="), LigatureValue.Element("5")),
+            (LigatureValue.Element("y"), LigatureValue.Element("="), LigatureValue.Element("6"))
+          )
         )
+      )
+    )
     assertEquals(result, expected)
   }
 }

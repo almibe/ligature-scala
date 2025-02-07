@@ -4,38 +4,38 @@
 
 package dev.ligature.testsuite
 
-// import dev.ligature._
-// import munit.FunSuite
+import dev.ligature.wander._
+import munit.FunSuite
 
-case class Test(val x: Int)
 
-// abstract class LigatureTestSuite extends FunSuite {
-//   def createLigature(): Ligature
+abstract class LigatureTestSuite extends FunSuite {
+  def createLigature(): Ligature
 
-//   val testDataset = DatasetName("test/test")
-//   val testDataset2 = DatasetName("test/test2")
-//   val testDataset3 = DatasetName("test3/test")
-//   val a: LigatureValue.Word = LigatureValue.Word("a")
-//   val b: LigatureValue.Word = LigatureValue.Word("b")
-//   val label1: LigatureValue.Word = LigatureValue.Word("a")
-//   val label2: LigatureValue.Word = LigatureValue.Word("b")
-//   val label3: LigatureValue.Word = LigatureValue.Word("c")
+  val testDataset = "test/test"
+  val testDataset2 = "test/test2"
+  val testDataset3 = "test3/test"
+  val a = LigatureValue.Element("a")
+  val b = LigatureValue.Element("b")
+//   val label1 = LigatureValue.Word("a")
+//   val label2 = LigatureValue.Word("b")
+//   val label3 = LigatureValue.Word("c")
 
-//   val setup = FunFixture[Ligature](
-//     setup = { test =>
-//       // Files.createTempFile("tmp", test.name)
-//       createLigature()
-//     },
-//     teardown = { instance =>
-//       instance.close()
-//     }
-//   )
+  val setup = FunFixture[Ligature](
+    setup = { test =>
+      // Files.createTempFile("tmp", test.name)
+      createLigature()
+    },
+    teardown = { instance =>
+      ???
+      //instance.close()
+    }
+  )
 
-// //  runExternalTests(setup)
+  //  runExternalTests(setup)
 
-//   setup.test("create and close store") { instance =>
-//     assertEquals(instance.allDatasets().toList, List())
-//   }
+  setup.test("create and close store") { instance =>
+    assertEquals(instance.networks().subscribe().asIterable().toList, List())
+  }
 
 //   setup.test("creating a new network") { instance =>
 //     instance.createDataset(testDataset)
@@ -425,4 +425,4 @@ case class Test(val x: Int)
 // //         }
 // //       case _ =>
 // //         throw RuntimeException(s"In $fileName -- Expected result to be array got ${results}")
-// // }
+}

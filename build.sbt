@@ -15,6 +15,10 @@ val furyVersion = "0.4.1"
 val lmdbVersion = "0.9.0"
 val duckdbVersion = "1.1.3"
 val mutinyVersion = "2.8.0"
+val scodecVersion = "2.3.2"
+val fs2Version = "3.11.0"
+val catsEffectVersion = "3.5.7"
+val http4sVersion = "0.23.30"
 
 lazy val gaze = project
   .in(file("gaze"))
@@ -46,7 +50,9 @@ lazy val ligature = project
     libraryDependencies += "ch.qos.logback" % "logback-classic" % logBackVersion,
     libraryDependencies += "com.typesafe.scala-logging" %% "scala-logging" % scalaLoggingVersion,
     libraryDependencies += "org.lmdbjava" % "lmdbjava" % lmdbVersion,
-    libraryDependencies += "io.smallrye.reactive" % "mutiny" % munitVersion,
+    libraryDependencies += "co.fs2" %% "fs2-core" % fs2Version,
+    libraryDependencies += "org.typelevel" %% "cats-effect" % catsEffectVersion,
+    libraryDependencies += "org.scodec" % "scodec-core_3" % scodecVersion,
     libraryDependencies += "org.scalameta" %% "munit" % munitVersion % Test,
   )
   .dependsOn(gaze)
@@ -59,8 +65,9 @@ lazy val ligatureHttp = project
     scalaVersion := scala3Version,
     libraryDependencies += "ch.qos.logback" % "logback-classic" % logBackVersion,
     libraryDependencies += "com.typesafe.scala-logging" %% "scala-logging" % scalaLoggingVersion,
-    libraryDependencies += "io.vertx" % "vertx-core" % "4.5.12",
-    libraryDependencies += "io.vertx" % "vertx-web" % "4.5.12",
+    libraryDependencies += "org.http4s" %% "http4s-ember-client" % http4sVersion,
+    libraryDependencies += "org.http4s" %% "http4s-ember-server" % http4sVersion,
+    libraryDependencies += "org.http4s" %% "http4s-dsl"          % http4sVersion,    
     libraryDependencies += "org.scalameta" %% "munit" % munitVersion % Test,
     fork := true
   )

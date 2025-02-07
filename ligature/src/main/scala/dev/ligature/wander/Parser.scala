@@ -48,7 +48,6 @@ val literalNib: Nibbler[Token, Term.Literal] = gaze =>
     case Some(Token.Literal(value)) => Result.Match(Term.Literal(value))
     case _                          => Result.NoMatch
 
-
 val elementNib: Nibbler[Token, Term.Element] = gaze =>
   gaze.next() match
     case Some(Token.Element(value)) => Result.Match(Term.Element(value))
@@ -64,18 +63,20 @@ val partialNetworkNib: Nibbler[Token, Term.Network] = { gaze =>
       case Some(Token.Element(token)) =>
         currentEntry.addOne(LigatureValue.Element(token))
       case Some(Token.CloseBrace) =>
-        currentEntry.collect match {
-          case (element: LigatureValue.Element) :: (attribute: LigatureValue.Element) :: (value: Value) =>
+        currentEntry.toList match {
+          case (element: LigatureValue.Element) :: (attribute: LigatureValue.Element) :: (value: Value) :: Nil =>
             entries.addOne(element, attribute, value)
             currentEntry.clear()
+          case Nil => ()
           case _ => ???
         }
         cont = false
       case Some(Token.Comma) =>
-        currentEntry.collect match {
-          case (element: LigatureValue.Element) :: (attribute: LigatureValue.Element) :: (value: Value ) =>
+        currentEntry.toList match {
+          case (element: LigatureValue.Element) :: (attribute: LigatureValue.Element) :: (value: Value) :: Nil =>
             entries.addOne(element, attribute, value)
             currentEntry.clear()
+          case Nil => ()
           case _ => ???
         }
       case None => ???
@@ -103,33 +104,33 @@ val applicationNib: Nibbler[Token, Term] = { gaze =>
   var cont = true
   while cont do
     gaze.next() match {
-      case Some(Token.Element(element)) => 
+      case Some(Token.Element(element)) =>
         result = Some(Term.Element(element))
         cont = false
-      case Some(Token.Literal(literal)) => 
+      case Some(Token.Literal(literal)) =>
         result = Some(Term.Literal(literal))
-      case Some(Token.Comma)            => cont = false
+      case Some(Token.Comma) => cont = false
       case Some(Token.OpenParen) =>
         partialQuoteNib(gaze) match {
-          case Result.NoMatch      => ???
-          case Result.EmptyMatch   => ???
-          case Result.Match(quote) => 
-              result = Some(quote)
-              cont = false
+          case Result.NoMatch    => ???
+          case Result.EmptyMatch => ???
+          case Result.Match(quote) =>
+            result = Some(quote)
+            cont = false
         }
       case Some(Token.OpenBrace) =>
         partialNetworkNib(gaze) match {
-          case Result.NoMatch        => ???
-          case Result.EmptyMatch     => ???
-          case Result.Match(network) => 
-              result = Some(network)
-              cont = false
+          case Result.NoMatch    => ???
+          case Result.EmptyMatch => ???
+          case Result.Match(network) =>
+            result = Some(network)
+            cont = false
         }
       case None => cont = false
       case _    => ???
     }
   result match {
-    case None => ???
+    case None         => ???
     case Some(result) => Result.Match(result)
   }
 }
