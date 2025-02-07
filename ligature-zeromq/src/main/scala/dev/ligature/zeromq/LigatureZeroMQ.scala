@@ -31,7 +31,7 @@ private class LigatureZeroMQ(val port: Int) extends Runnable with AutoCloseable 
             logger.error(message)
             val _ = socket.send(message.getBytes(ZMQ.CHARSET), 0)
           case Right(_) => ???
-          // case result: Right[WanderError, (WanderValue, Environment)] =>
+          // case result: Right[WanderError, (LigatureValue, Environment)] =>
           //   logger.info(s"Result for command: $command -- ${printResult(result)}")
           //   val _ = socket.send(printResult(result).getBytes(ZMQ.CHARSET), 0)
       catch

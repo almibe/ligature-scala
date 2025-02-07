@@ -7,7 +7,7 @@ package dev.ligature.wander
 //import scala.collection.mutable.ListBuffer
 //import scala.annotation.tailrec
 
-def process(terms: Seq[Term]): Either[WanderError, Seq[WanderValue]] = ???
+def process(terms: Seq[Term]): Either[WanderError, Seq[LigatureValue]] = ???
 // val expressions = terms.map(term =>
 //   process(term) match {
 //     case Left(err)    => ???

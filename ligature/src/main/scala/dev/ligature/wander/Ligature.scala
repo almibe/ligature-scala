@@ -4,46 +4,34 @@
 
 package dev.ligature.wander
 
+import io.smallrye.mutiny.Multi
+import io.smallrye.mutiny.Uni
+import scala.math.Ordered.orderingToOrdered
+
 case class LigatureError(val userMessage: String) extends Throwable(userMessage)
 
-final case class Element(value: String)
+enum LigatureValue:
+  case Element(value: String)
+  case Literal(value: String)
+  case Variable(value: String)
+  case Quote(value: Seq[LigatureValue])
+  case Network(value: Set[(Element, Element, Element | Literal | Quote)])
+  case Pattern(value: Set[(Element | Variable, Element | Variable, Variable | Element | Literal | Quote)])
 
-enum Entry:
-  case Extends(
-      element: Element,
-      concept: Element
-  ) extends Entry
-  case NotExtends(
-      element: Element,
-      concept: Element
-  ) extends Entry
-  case Role(
-      first: Element,
-      role: Element,
-      second: Element
-  ) extends Entry
+type Value = LigatureValue.Element | LigatureValue.Literal | LigatureValue.Quote
 
-given Ordering[Entry] with
-  def compare(left: Entry, right: Entry): Int = left.ordinal.compare(right.ordinal)
+type Triple = (LigatureValue.Element, LigatureValue.Element, Value)
 
-enum Slot:
-  case Any extends Slot
-  case Variable(name: String) extends Slot
-  case Value(element: Element) extends Slot
-
-final case class Query(
-    first: Slot,
-    role: Slot,
-    second: Slot
-)
+given Ordering[Triple] with
+  def compare(left: Triple, right: Triple) = ???
+//    left._1.value compare right._1.value
 
 trait Ligature {
-  def collections(): Either[LigatureError, Seq[String]]
-  def addCollection(name: String): Either[LigatureError, Unit]
-  def removeCollection(name: String): Either[LigatureError, Unit]
-  def entries(name: String): Either[LigatureError, Seq[Entry]]
-  def addEntries(name: String, entries: Seq[Entry]): Either[LigatureError, Unit]
-  def removeEntries(name: String, entries: Seq[Entry]): Either[LigatureError, Unit]
-  def filter(name: String, pattern: Query): Either[LigatureError, Seq[Entry]]
-//  def query(name: String, query: Set[Query]): Either[LigatureError, Seq[Entry]]
+  def networks(): Either[LigatureError, Multi[String]]
+  def addNetwork(name: String): Uni[Unit]
+  def removeNetwork(name: String): Uni[Unit]
+  def read(name: String): Multi[Triple]
+  def addEntries(name: String, entries: Multi[Triple]): Uni[Unit]
+  def removeEntries(name: String, entries: Multi[Triple]): Uni[Unit]
+  def query(name: String, query: LigatureValue.Pattern, template: LigatureValue.Pattern | LigatureValue.Quote): Multi[Triple]
 }

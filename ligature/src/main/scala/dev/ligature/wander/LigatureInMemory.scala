@@ -6,36 +6,42 @@ package dev.ligature.wander
 
 import scala.collection.immutable.SortedSet
 import scala.collection.immutable.TreeMap
-import java.util.concurrent.locks.ReentrantReadWriteLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock
 import scala.collection.immutable.TreeSet
+import scala.math.Ordering.comparatorToOrdering
+import io.smallrye.mutiny.Multi
+import io.smallrye.mutiny.Uni
 
 class LigatureInMemory extends Ligature {
-  var store: Map[String, SortedSet[Entry]] = TreeMap()
+  var store: Map[String, SortedSet[Triple]] = TreeMap()
   val lock = ReentrantReadWriteLock();
 
-  override def collections(): Either[LigatureError, Seq[String]] = {
-    lock.readLock().lock()
-    try
-      Right(store.keySet.toSeq)
-    finally
-      lock.readLock().unlock()
-  }
+  override def networks(): Multi[String] = ??? //{
+  //   lock.readLock().lock()
+  //   try
+  //     Right(store.keySet.toSeq)
+  //   finally
+  //     lock.readLock().unlock()
+  // }
 
-  override def addCollection(name: String): Either[LigatureError, Unit] = {
-    lock.writeLock().lock()
-    try {
-      store = store + (name -> TreeSet())
-      Right(())
-    } finally lock.readLock().unlock()
-  }
+  override def addNetwork(name: String): Uni[Unit] = ??? //{
+  //   lock.writeLock().lock()
+  //   try {
+  //     store = store + (name -> TreeSet())
+  //     Right(())
+  //   } finally lock.readLock().unlock()
+  // }
+  def addEntries(name: String, entries: Multi[dev.ligature.wander.Triple])
+    : Uni[Unit] = ???
+  def query
+  (name: String, query: dev.ligature.wander.LigatureValue.Pattern, template:
+    dev.ligature.wander.LigatureValue.Pattern |
+    dev.ligature.wander.LigatureValue.Quote):
+    Multi[dev.ligature.wander.Triple] = ???
+  def read(name: String): Multi[dev.ligature.wander.Triple] = ???
+  def removeEntries
+  (name: String, entries: Multi[dev.ligature.wander.Triple])
+    : Uni[Unit] = ???
+  def removeNetwork(name: String): Uni[Unit] = ???
 
-  override def removeCollection(name: String): Either[LigatureError, Unit] = ???
-
-  override def entries(name: String): Either[LigatureError, Seq[Entry]] = ???
-
-  override def addEntries(name: String, entries: Seq[Entry]): Either[LigatureError, Unit] = ???
-
-  override def removeEntries(name: String, entries: Seq[Entry]): Either[LigatureError, Unit] = ???
-//  override def query(name: String, query: Set[Query]): Either[LigatureError, Seq[Entry]] = ???
-  override def filter(name: String, pattern: Query): Either[LigatureError, Seq[Entry]] = ???
 }

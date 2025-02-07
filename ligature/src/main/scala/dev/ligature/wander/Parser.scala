@@ -15,8 +15,8 @@ import scala.collection.mutable.ListBuffer
 enum Term:
   case Element(value: String)
   case Literal(value: String)
-  case Network(roots: Set[Entry])
-  case Quote(terms: Seq[Term])
+  case Network(value: Set[Triple])
+  case Quote(value: Seq[Term])
 
 def parse(script: Seq[Token]): Either[WanderError, Seq[Term]] = {
   val filteredInput = script.filter {
@@ -57,32 +57,26 @@ val elementNib: Nibbler[Token, Term.Element] = gaze =>
 // Handles parsing a network, assumes the initial "{"" token has already been parsed.
 val partialNetworkNib: Nibbler[Token, Term.Network] = { gaze =>
   var cont = true
-  val entries = ListBuffer[Entry]()
-  val currentEntry = ListBuffer[Element]()
+  val entries = ListBuffer[Triple]()
+  val currentEntry = ListBuffer[LigatureValue]()
   while cont do
     gaze.next() match {
       case Some(Token.Element(token)) =>
-        currentEntry.addOne(Element(token))
+        currentEntry.addOne(LigatureValue.Element(token))
       case Some(Token.CloseBrace) =>
-        if (currentEntry.size == 3) {
-          currentEntry(1) match {
-            case Element(":")  => entries.addOne(Entry.Extends(currentEntry(0), currentEntry(2)))
-            case Element("¬:") => entries.addOne(Entry.NotExtends(currentEntry(0), currentEntry(2)))
-            case Element(element) =>
-              entries.addOne(Entry.Role(currentEntry(0), currentEntry(1), currentEntry(2)))
-          }
-          currentEntry.clear()
+        currentEntry.collect match {
+          case (element: LigatureValue.Element) :: (attribute: LigatureValue.Element) :: (value: Value) =>
+            entries.addOne(element, attribute, value)
+            currentEntry.clear()
+          case _ => ???
         }
         cont = false
       case Some(Token.Comma) =>
-        if (currentEntry.size == 3) {
-          currentEntry(1) match {
-            case Element(":")  => entries.addOne(Entry.Extends(currentEntry(0), currentEntry(2)))
-            case Element("¬:") => entries.addOne(Entry.NotExtends(currentEntry(0), currentEntry(2)))
-            case Element(element) =>
-              entries.addOne(Entry.Role(currentEntry(0), currentEntry(1), currentEntry(2)))
-          }
-          currentEntry.clear()
+        currentEntry.collect match {
+          case (element: LigatureValue.Element) :: (attribute: LigatureValue.Element) :: (value: Value ) =>
+            entries.addOne(element, attribute, value)
+            currentEntry.clear()
+          case _ => ???
         }
       case None => ???
       case _    => ???

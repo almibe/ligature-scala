@@ -13,8 +13,8 @@ val ulidVersion = "5.2.3"
 val gsonVerison = "2.11.0"
 val furyVersion = "0.4.1"
 val lmdbVersion = "0.9.0"
-val xodusVersion = "2.0.1"
 val duckdbVersion = "1.1.3"
+val mutinyVersion = "2.8.0"
 
 lazy val gaze = project
   .in(file("gaze"))
@@ -46,8 +46,7 @@ lazy val ligature = project
     libraryDependencies += "ch.qos.logback" % "logback-classic" % logBackVersion,
     libraryDependencies += "com.typesafe.scala-logging" %% "scala-logging" % scalaLoggingVersion,
     libraryDependencies += "org.lmdbjava" % "lmdbjava" % lmdbVersion,
-    libraryDependencies += "org.jetbrains.xodus" % "xodus-openAPI" % xodusVersion,
-    libraryDependencies += "org.jetbrains.xodus" % "xodus-environment" % xodusVersion,
+    libraryDependencies += "io.smallrye.reactive" % "mutiny" % munitVersion,
     libraryDependencies += "org.scalameta" %% "munit" % munitVersion % Test,
   )
   .dependsOn(gaze)

@@ -10,7 +10,7 @@ import dev.ligature.wander.*
 def eval[E](
     terms: Seq[Term],
     runtimeNetwork: Ligature
-): Either[WanderError, WanderValue] = ???
+): Either[WanderError, LigatureValue] = ???
 //   expression match {
 //     case Expression.Int(value) => Right((LigatureValue.Int(value)))
 //     case Expression.Bytes(value)        => Right((LigatureValue.Bytes(value)))
@@ -28,7 +28,7 @@ def eval[E](
 def eval[E](
     term: Term,
     runtimeNetwork: Ligature
-): Either[WanderError, WanderValue] = ???
+): Either[WanderError, LigatureValue] = ???
 //   application match {
 //     case Expression.Int(value) => Right((LigatureValue.Int(value)))
 //     case Expression.Bytes(value)        => Right((LigatureValue.Bytes(value)))
@@ -108,15 +108,15 @@ def eval[E](
 //     case _ => ???
 
 // def handleNetwork(
-//     triples: Seq[WanderValue.Triple],
+//     triples: Seq[LigatureValue.Triple],
 //     runtimeNetwork: INetwork
 // ): Either[WanderError, LigatureValue.Network] =
 //   val network = triples.map(triple => handleTriple(triple, runtimeNetwork)).toSet
 //   Right(LigatureValue.Network(runtimeNetwork.union(InMemoryNetwork(network))))
 
 def handleApplication(
-    expression: Seq[WanderValue]
-): Either[WanderError, WanderValue] = ???
+    expression: Seq[LigatureValue]
+): Either[WanderError, LigatureValue] = ???
 // expression.head match {
 //   case Expression.Word(word) =>
 //     expression match

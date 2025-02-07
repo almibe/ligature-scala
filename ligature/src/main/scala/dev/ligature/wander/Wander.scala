@@ -8,24 +8,19 @@ import dev.ligature.wander.parse
 import java.util.HexFormat
 //import com.google.gson.Gson
 
-enum WanderValue:
-  case Element(element: Element)
-  case Network(network: Set[Entry])
-  case Quote(name: Element, args: Seq[WanderValue])
-
 trait Function:
-  def call(args: Seq[WanderValue]): Either[WanderError, WanderValue]
+  def call(args: Seq[LigatureValue]): Either[WanderError, LigatureValue]
 
 case class HostFunction(
     docString: String,
     parameters: Seq[String],
     fn: (
-        arguments: Seq[WanderValue]
-    ) => Either[WanderError, WanderValue]
+        arguments: Seq[LigatureValue]
+    ) => Either[WanderError, LigatureValue]
 ) extends Function {
   override def call(
-      args: Seq[WanderValue]
-  ): Either[WanderError, WanderValue] = ???
+      args: Seq[LigatureValue]
+  ): Either[WanderError, LigatureValue] = ???
   //  fn.apply(args).map(_)
 }
 
@@ -44,8 +39,8 @@ def run(
     case Left(value)  => Left(value)
     case Right(value) => ???
     // eval(value.head, state) match
-    //   case Right(WanderValue.Network(value)) => ???//Right(value)
-    //   case Right(WanderValue.Element(element)) => ???
+    //   case Right(LigatureValue.Network(value)) => ???//Right(value)
+    //   case Right(LigatureValue.Element(element)) => ???
     //   case Right(_) => ???
     //   case Left(value) => ???//Left(value)
 
@@ -72,15 +67,15 @@ def inspect(script: String): Inspect = {
   Inspect(tokens, terms)
 }
 
-def printResult(value: Either[WanderError, WanderValue]): String =
+def printResult(value: Either[WanderError, LigatureValue]): String =
   value match {
     case Left(value)  => "Error: " + value.userMessage
-    case Right(value) => printWanderValue(value)
+    case Right(value) => printLigatureValue(value)
   }
 
 val formatter = HexFormat.of()
 
-def printWanderValue(value: WanderValue): String = ???
+def printLigatureValue(value: LigatureValue): String = ???
 
 // def printLigatureValue(value: LigatureValue): String =
 //   value match
