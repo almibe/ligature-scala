@@ -1,14 +1,14 @@
-// /* This Source Code Form is subject to the terms of the Mozilla Public
-//  * License, v. 2.0. If a copy of the MPL was not distributed with this
-//  * file, You can obtain one at https://mozilla.org/MPL/2.0/. */
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at https://mozilla.org/MPL/2.0/. */
 
 package dev.ligature.testsuite
 
 import dev.ligature.wander._
-import munit.FunSuite
+import munit.CatsEffectSuite
+import cats.effect.IO
 
-
-abstract class LigatureTestSuite extends FunSuite {
+abstract class LigatureTestSuite extends CatsEffectSuite {
   def createLigature(): Ligature
 
   val testDataset = "test/test"
@@ -20,22 +20,29 @@ abstract class LigatureTestSuite extends FunSuite {
 //   val label2 = LigatureValue.Word("b")
 //   val label3 = LigatureValue.Word("c")
 
-  val setup = FunFixture[Ligature](
-    setup = { test =>
-      // Files.createTempFile("tmp", test.name)
-      createLigature()
-    },
-    teardown = { instance =>
-      ???
-      //instance.close()
-    }
-  )
+
+  test("alternatively, assertions can be written via assertIO") {
+    assertIO(IO(42), 42)
+  }
+
+  // val setup = FunFixture[Ligature](
+  //   setup = { test =>
+  //     // Files.createTempFile("tmp", test.name)
+  //     createLigature()
+  //   },
+  //   teardown = { instance =>
+  //     ???
+  //     //instance.close()
+  //   }
+  // )
 
   //  runExternalTests(setup)
 
-  setup.test("create and close store") { instance =>
-    assertEquals(instance.networks().subscribe().asIterable().toList, List())
-  }
+
+//   test("create and close store") {
+    
+// //    assertIO(instance.networks().compile.toList, List())
+//   }
 
 //   setup.test("creating a new network") { instance =>
 //     instance.createDataset(testDataset)

@@ -4,7 +4,8 @@ ThisBuild / version := "0.1.0-SNAPSHOT"
 ThisBuild / organization := "dev.ligature"
 ThisBuild / organizationName := "ligature"
 
-val munitVersion = "1.0.0"
+val munitVersion = "1.0.4"
+val munitCatsEffectVersion = "2.0.0"
 val jeromqVersion = "0.6.0"
 val scalaLoggingVersion = "3.9.5"
 val logBackVersion = "1.5.6"
@@ -13,8 +14,6 @@ val ulidVersion = "5.2.3"
 val gsonVerison = "2.11.0"
 val furyVersion = "0.4.1"
 val lmdbVersion = "0.9.0"
-val duckdbVersion = "1.1.3"
-val mutinyVersion = "2.8.0"
 val scodecVersion = "2.3.2"
 val fs2Version = "3.11.0"
 val catsEffectVersion = "3.5.7"
@@ -54,6 +53,7 @@ lazy val ligature = project
     libraryDependencies += "org.typelevel" %% "cats-effect" % catsEffectVersion,
     libraryDependencies += "org.scodec" % "scodec-core_3" % scodecVersion,
     libraryDependencies += "org.scalameta" %% "munit" % munitVersion % Test,
+    libraryDependencies += "org.typelevel" %% "munit-cats-effect" % munitCatsEffectVersion % Test
   )
   .dependsOn(gaze)
   .disablePlugins(RevolverPlugin)
@@ -91,7 +91,8 @@ lazy val ligatureTestSuite = project
   .settings(
     name := "ligature-test-suite",
     scalaVersion := scala3Version,
-    libraryDependencies += "org.scalameta" %% "munit" % munitVersion
+    libraryDependencies += "org.scalameta" %% "munit" % munitVersion,
+    libraryDependencies += "org.typelevel" %% "munit-cats-effect" % munitCatsEffectVersion
   )
   .dependsOn(ligature)
   .disablePlugins(RevolverPlugin)
