@@ -2,25 +2,34 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at https://mozilla.org/MPL/2.0/. */
 
-package dev.ligature.lmdb
+package dev.ligature.wander
 
-import dev.ligature.wander.Ligature
-import dev.ligature.wander.LigatureError
-import dev.ligature.wander.Entry
-import dev.ligature.wander.Query
+import cats.effect.IO
+import fs2.Stream
 
-class LigatureDuckDB extends Ligature {
-  override def collections(): Either[LigatureError, Seq[String]] = ???
+class LigatureLMDB extends Ligature {
+  override def networks(): Stream[IO, String] = {
+    ???
+  }
 
-  override def addCollection(name: String): Either[LigatureError, Unit] = ???
+  override def addNetwork(name: String): IO[Unit] = {
+    ???
+  }
 
-  override def removeCollection(name: String): Either[LigatureError, Unit] = ???
+  def addEntries(name: String, entries: fs2.Stream[cats.effect.IO, dev.ligature.wander.Triple]
+    ): fs2.Stream[cats.effect.IO, Unit] = ???
 
-  override def entries(name: String): Either[LigatureError, Seq[Entry]] = ???
+  def query(name: String, query: dev.ligature.wander.LigatureValue.Pattern, template:
+    dev.ligature.wander.LigatureValue.Pattern |
+    dev.ligature.wander.LigatureValue.Quote):
+    fs2.Stream[cats.effect.IO, dev.ligature.wander.Triple] = ???
 
-  override def addEntries(name: String, entries: Seq[Entry]): Either[LigatureError, Unit] = ???
+  def read(name: String): fs2.Stream[cats.effect.IO, dev.ligature.wander.Triple] = ???
 
-  override def removeEntries(name: String, entries: Seq[Entry]): Either[LigatureError, Unit] = ???
-  override def query(name: String, query: Set[Query]): Either[LigatureError, Seq[Entry]] = ???
+  def removeEntries
+  (name: String, entries: fs2.Stream[cats.effect.IO, dev.ligature.wander.Triple]
+    ): fs2.Stream[cats.effect.IO, Unit] = ???
+    
+  def removeNetwork(name: String): cats.effect.IO[Unit] = ???
 
 }

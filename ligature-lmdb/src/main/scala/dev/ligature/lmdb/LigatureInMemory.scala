@@ -7,28 +7,38 @@ package dev.ligature.wander
 import java.util.concurrent.locks.ReentrantReadWriteLock
 import cats.effect.IO
 import fs2.Stream
-// import scala.collection.immutable.TreeSet
+import scala.collection.immutable.TreeMap
 import scodec.bits.ByteVector
 import scala.collection.immutable.SortedMap
 
-enum Tables:
+enum Table:
   case Id
   case NetworkToId
   case IdToNetwork
 
-// object TablesOrdering extends Ordering[Tables] {
-//  def compare(a:Tables, b:Tables) = a.ordinal.compare(b.ordinal)
+// object TableOrdering extends Ordering[Table] {
+//  def compare(a:Table, b:Table) = a.ordinal.compare(b.ordinal)
 // }
 
+def createStore(): Map[Table, SortedMap[ByteVector, ByteVector]] =
+  Table.values.foldLeft(Map())((state, value) => {
+    state + (value -> TreeMap[ByteVector, ByteVector]())
+  })
+
 class LigatureInMemory extends Ligature {
-  var store: Map[Tables, SortedMap[ByteVector, ByteVector]] = Map()//(TablesOrdering)
+  var store: Map[Table, SortedMap[ByteVector, ByteVector]] = createStore()
   val lock = ReentrantReadWriteLock()
+
+  def openTable(table: Table): SortedMap[ByteVector, ByteVector] =
+    ???
+
+  def byteVectorToNetworkName(input: ByteVector): String =
+    ""
 
   override def networks(): Stream[IO, String] = {
     lock.readLock().lock()
     try
-
-      Stream.emits(store.keySet.toSeq)
+      Stream.emits(openTable(Table.NetworkToId).keySet.map(byteVectorToNetworkName).toSeq)
     finally
       lock.readLock().unlock()
   }
