@@ -4,7 +4,7 @@ ThisBuild / version := "0.1.0-SNAPSHOT"
 ThisBuild / organization := "dev.ligature"
 ThisBuild / organizationName := "ligature"
 
-val munitVersion = "1.0.4"
+val munitVersion = "1.1.0"
 val munitCatsEffectVersion = "2.0.0"
 val jeromqVersion = "0.6.0"
 val scalaLoggingVersion = "3.9.5"
@@ -67,7 +67,7 @@ lazy val ligatureHttp = project
     libraryDependencies += "com.typesafe.scala-logging" %% "scala-logging" % scalaLoggingVersion,
     libraryDependencies += "org.http4s" %% "http4s-ember-client" % http4sVersion,
     libraryDependencies += "org.http4s" %% "http4s-ember-server" % http4sVersion,
-    libraryDependencies += "org.http4s" %% "http4s-dsl"          % http4sVersion,    
+    libraryDependencies += "org.http4s" %% "http4s-dsl" % http4sVersion,
     libraryDependencies += "org.scalameta" %% "munit" % munitVersion % Test,
     fork := true
   )
@@ -103,7 +103,7 @@ lazy val ligatureLMDB = project
     name := "ligature-lmdb",
     scalaVersion := scala3Version,
     libraryDependencies += "org.lmdbjava" % "lmdbjava" % "0.9.0",
-    libraryDependencies += "org.scalameta" %% "munit" % munitVersion % Test,
+    libraryDependencies += "org.scalameta" %% "munit" % munitVersion % Test
   )
   .dependsOn(ligature, idgen, ligatureTestSuite % Test)
   .disablePlugins(RevolverPlugin)
