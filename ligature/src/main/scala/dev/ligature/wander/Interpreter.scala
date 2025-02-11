@@ -12,12 +12,8 @@ def eval(
     terms: Seq[LigatureValue],
     stack: List[LigatureValue]
 ): IO[List[LigatureValue]] =
-    ???
-    // terms.foldLeft[IO[List[LigatureValue]]](Right(stack))((state, value) =>
-    //     state match {
-    //         case Left(err) => Left(err)
-    //         case Right(state) => eval(value, state)
-    //     })
+    terms.foldLeft[IO[List[LigatureValue]]](IO.pure(stack))((state, value) =>
+      state.flatMap(state => eval(value, state)))
 
 def eval(
     term: LigatureValue,
