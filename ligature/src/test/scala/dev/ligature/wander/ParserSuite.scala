@@ -25,15 +25,15 @@ class ParserSuite extends FunSuite {
     )
     assertEquals(input, expected)
   }
-  // test("parse empty network") {
-  //   val result = check("empty {}")
-  //   val expected = Right(
-  //     Seq(LigatureValue.Element("empty"), LigatureValue.Network(Set()))
-  //   )
-  //   assertEquals(result, expected)
-  // }
+  test("parse empty network") {
+    val result = check("empty {}")
+    val expected = Right(
+      Seq(LigatureValue.Element("empty"), LigatureValue.NetworkRef(InMemoryNetwork(Set())))
+    )
+    assertEquals(result, expected)
+  }
   test("parse empty quote") {
-    val result = check("empty ()")
+    val result = check("empty []")
     val expected = Right(Seq(LigatureValue.Element("empty"), LigatureValue.Quote(Seq())))
     assertEquals(result, expected)
   }
@@ -47,29 +47,30 @@ class ParserSuite extends FunSuite {
     val expected = Right(Seq(LigatureValue.Literal("\"hello\"")))
     assertEquals(result, expected)
   }
-  // test("parse network with one entry") {
-  //   val result = check("{x = 5}")
-  //   val expected = Right(
-  //     Seq(
-  //       LigatureValue.Element("test"),
-  //       LigatureValue.Network(Set((LigatureValue.Element("x"), LigatureValue.Element("="), LigatureValue.Element("5"))))
-  //     )
-  //   )
-  //   assertEquals(result, expected)
-  // }
-  // test("parse Network with multiple entries") {
-  //   val result = check("{x = 5, y = 6}")
-  //   val expected = Right(
-  //     Seq(
-  //       LigatureValue.Element("test"),
-  //       LigatureValue.Network(
-  //         Set(
-  //           (LigatureValue.Element("x"), LigatureValue.Element("="), LigatureValue.Element("5")),
-  //           (LigatureValue.Element("y"), LigatureValue.Element("="), LigatureValue.Element("6"))
-  //         )
-  //       )
-  //     )
-  //   )
-  //   assertEquals(result, expected)
-  // }
+  test("parse network with one entry") {
+    val result = check("test {x = 5}")
+    val expected = Right(
+      Seq(
+        LigatureValue.Element("test"),
+        LigatureValue.NetworkRef(InMemoryNetwork(Set((LigatureValue.Element("x"), LigatureValue.Element("="), LigatureValue.Element("5")))))
+      )
+    )
+    assertEquals(result, expected)
+  }
+  test("parse Network with multiple entries") {
+    val result = check("{x = 5, y = 6}")
+    val expected = Right(
+      Seq(
+        LigatureValue.NetworkRef(
+          InMemoryNetwork(
+            Set(
+              (LigatureValue.Element("x"), LigatureValue.Element("="), LigatureValue.Element("5")),
+              (LigatureValue.Element("y"), LigatureValue.Element("="), LigatureValue.Element("6"))
+            )
+          )
+        )
+      )
+    )
+    assertEquals(result, expected)
+  }
 }

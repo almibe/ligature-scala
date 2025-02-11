@@ -22,11 +22,10 @@ class InterpreterSuite extends FunSuite {
     check(script, List(LigatureValue.Literal("test")))
   }
 
-  // test("run script with single literal") {
-  //   val script = "\"test\""
-  //   check(script, List(LigatureValue.Literal("test")))
-  // }
-
+  test("run script with empty quote") {
+    val script = "[]"
+    check(script, List(LigatureValue.Quote(List())))
+  }
 
   // test("load script with one exports") {
   //   val script = "hello = 2, { hello }"

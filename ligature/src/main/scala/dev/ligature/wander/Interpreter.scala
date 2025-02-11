@@ -7,7 +7,7 @@ package dev.ligature.wander
 import dev.ligature.wander.*
 //import scala.collection.mutable.ListBuffer
 
-def eval[E](
+def eval(
     terms: Seq[LigatureValue],
     stack: List[LigatureValue]
 ): Either[WanderError, List[LigatureValue]] =
@@ -16,21 +16,8 @@ def eval[E](
             case Left(err) => Left(err)
             case Right(state) => eval(value, state)
         })
-//   expression match {
-//     case Expression.Int(value) => Right((LigatureValue.Int(value)))
-//     case Expression.Bytes(value)        => Right((LigatureValue.Bytes(value)))
-//     case Expression.StringValue(value) => Right((LigatureValue.StringValue(value)))
-//     case Expression.Word(value) =>
-//       Right((LigatureValue.Word(value)))
-//     case Expression.Quote(value)                   => Right(handleQuote(value, runtimeNetwork))
-//     case Expression.Grouping(expressions)    => handleGrouping(expressions)
-//     case Expression.Application(expressions) => handleApplication(expressions)
-//     case Expression.Slot(name)               => Right((LigatureValue.Slot(name)))
-//     case Expression.Network(expressions)       => handleNetwork(expressions, runtimeNetwork)
-//     case Expression.Triple(_, _, _) => ???
-// }
 
-def eval[E](
+def eval(
     term: LigatureValue,
     stack: List[LigatureValue]
 ): Either[WanderError, List[LigatureValue]] =

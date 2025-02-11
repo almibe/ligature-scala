@@ -76,18 +76,17 @@ val partialNetworkNib: Nibbler[Token, LigatureValue.NetworkRef] = { gaze =>
       case None => ???
       case _    => ???
     }
-  ???
-  //Result.Match(LigatureValue.Network(entries.toSet))
+  Result.Match(LigatureValue.NetworkRef(InMemoryNetwork(entries.toSet)))
 }
 
-// Handles parsing a quote, assumes the initial "("" token has already been parsed.
+// Handles parsing a quote, assumes the initial "[" token has already been parsed.
 val partialQuoteNib: Nibbler[Token, LigatureValue.Quote] = { gaze =>
   var cont = true
   val terms = ListBuffer[LigatureValue]()
   while cont do
     gaze.next() match {
       case Some(Token.Element(element)) => terms.addOne(LigatureValue.Element(element))
-      case Some(Token.CloseParen)       => cont = false
+      case Some(Token.CloseBracket)     => cont = false
       case None                         => ???
       case _                            => ???
     }
@@ -105,7 +104,7 @@ val applicationNib: Nibbler[Token, LigatureValue] = { gaze =>
       case Some(Token.Literal(literal)) =>
         result = Some(LigatureValue.Literal(literal))
       case Some(Token.Comma) => cont = false
-      case Some(Token.OpenParen) =>
+      case Some(Token.OpenBracket) =>
         partialQuoteNib(gaze) match {
           case Result.NoMatch    => ???
           case Result.EmptyMatch => ???
