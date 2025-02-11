@@ -7,15 +7,27 @@ package dev.ligature.wander
 import munit.FunSuite
 
 class InterpreterSuite extends FunSuite {
-  // def check(script: String, expected: LigatureValue) = ???
-  // run(script) match
-  //   case Left(err)         => throw RuntimeException(err.toString())
-  //   case Right((value)) => assertEquals(value, expected)
+  def check(script: String, expected: List[LigatureValue]) =
+    run(script) match
+      case Left(err)         => throw RuntimeException(err.toString())
+      case Right((value))    => assertEquals(value, expected)
 
-  // test("load script with no exports") {
-  //   val script = "x = false, {}"
-  //   check(script, LigatureValue.Module(Map()))
+  test("run empty script") {
+    val script = ""
+    check(script, List())
+  }
+
+  test("run script with single literal") {
+    val script = "\"test\""
+    check(script, List(LigatureValue.Literal("test")))
+  }
+
+  // test("run script with single literal") {
+  //   val script = "\"test\""
+  //   check(script, List(LigatureValue.Literal("test")))
   // }
+
+
   // test("load script with one exports") {
   //   val script = "hello = 2, { hello }"
   //   val tokens = LigatureValue.Module(Map(Field("hello") -> LigatureValue.Int(2)))

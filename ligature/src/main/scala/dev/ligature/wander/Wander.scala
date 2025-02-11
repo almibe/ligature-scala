@@ -28,25 +28,18 @@ case class WanderError(val userMessage: String) extends Throwable(userMessage)
 
 def run(
     script: String,
-    state: Ligature
-): Either[WanderError, Ligature] =
+): Either[WanderError, List[LigatureValue]] =
   val expression = for {
     tokens <- tokenize(script)
     terms <- parse(tokens)
-    expression <- process(terms)
-  } yield expression
+  } yield terms
   expression match
     case Left(value)  => Left(value)
-    case Right(value) => ???
-    // eval(value.head, state) match
-    //   case Right(LigatureValue.Network(value)) => ???//Right(value)
-    //   case Right(LigatureValue.Element(element)) => ???
-    //   case Right(_) => ???
-    //   case Left(value) => ???//Left(value)
+    case Right(value) => eval(value, List())
 
 case class Inspect(
     tokens: Either[WanderError, Seq[Token]],
-    terms: Either[WanderError, Seq[Term]]
+    terms: Either[WanderError, Seq[LigatureValue]]
 )
 
 def inspect(script: String): Inspect = {

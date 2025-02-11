@@ -8,9 +8,14 @@ import dev.ligature.wander.*
 //import scala.collection.mutable.ListBuffer
 
 def eval[E](
-    terms: Seq[Term],
-    runtimeNetwork: Ligature
-): Either[WanderError, LigatureValue] = ???
+    terms: Seq[LigatureValue],
+    stack: List[LigatureValue]
+): Either[WanderError, List[LigatureValue]] =
+    terms.foldLeft[Either[WanderError, List[LigatureValue]]](Right(stack))((state, value) =>
+        state match {
+            case Left(err) => Left(err)
+            case Right(state) => eval(value, state)
+        })
 //   expression match {
 //     case Expression.Int(value) => Right((LigatureValue.Int(value)))
 //     case Expression.Bytes(value)        => Right((LigatureValue.Bytes(value)))
@@ -26,22 +31,16 @@ def eval[E](
 // }
 
 def eval[E](
-    term: Term,
-    runtimeNetwork: Ligature
-): Either[WanderError, LigatureValue] = ???
-//   application match {
-//     case Expression.Int(value) => Right((LigatureValue.Int(value)))
-//     case Expression.Bytes(value)        => Right((LigatureValue.Bytes(value)))
-//     case Expression.StringValue(value) => Right((LigatureValue.StringValue(value)))
-//     case Expression.Word(value) =>
-//       Right((LigatureValue.Word(value)))
-//     case Expression.Quote(value)                   => Right(handleQuote(value, runtimeNetwork))
-//     case Expression.Grouping(expressions)    => handleGrouping(expressions)
-//     case Expression.Application(expressions) => handleApplication(expressions)
-//     case Expression.Slot(name)               => Right((LigatureValue.Slot(name)))
-//     case Expression.Network(expressions)       => handleNetwork(expressions, runtimeNetwork)
-//     case Expression.Triple(_, _, _) => ???
-//   }
+    term: LigatureValue,
+    stack: List[LigatureValue]
+): Either[WanderError, List[LigatureValue]] =
+  term match {
+    case term: LigatureValue.Element => ???
+    case term: LigatureValue.Literal => Right(term :: stack)
+    case term: LigatureValue.NetworkRef => Right(term :: stack)
+    case term: LigatureValue.Quote => Right(term :: stack)
+    case _ => ???
+  }
 
 // def readFieldPath(
 //     fieldPath: FieldPath,

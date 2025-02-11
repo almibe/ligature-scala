@@ -4,35 +4,44 @@
 
 package dev.ligature.wander
 
-import fs2.Stream
 import cats.effect.IO
+import fs2.Stream
 
 case class LigatureError(val userMessage: String) extends Throwable(userMessage)
+
+type Value = LigatureValue.Element | LigatureValue.Literal | LigatureValue.Quote
+
+type Triple = (LigatureValue.Element, LigatureValue.Element, Value)
+
+trait Network {
+  def toStream(): Stream[IO, Triple]
+}
+
+class InMemoryNetwork(val value: Set[Triple]) extends Network {
+  override def toStream(): Stream[IO, Triple] = 
+    Stream.emits(value.toSeq)
+}
 
 enum LigatureValue:
   case Element(value: String)
   case Literal(value: String)
   case Variable(value: String)
   case Quote(value: Seq[LigatureValue])
-  case Network(value: Set[(Element, Element, Element | Literal | Quote)])
+  case NetworkRef(value: Network)
   case Pattern(
       value: Set[(Element | Variable, Element | Variable, Variable | Element | Literal | Quote)]
   )
 
-type Value = LigatureValue.Element | LigatureValue.Literal | LigatureValue.Quote
-
-type Triple = (LigatureValue.Element, LigatureValue.Element, Value)
-
-trait Ligature {
-  def networks(): Stream[IO, String]
-  def addNetwork(name: String): IO[Unit]
-  def removeNetwork(name: String): IO[Unit]
-  def read(name: String): Stream[IO, Triple]
-  def addEntries(name: String, entries: Stream[IO, Triple]): Stream[IO, Unit]
-  def removeEntries(name: String, entries: Stream[IO, Triple]): Stream[IO, Unit]
-  def query(
-      name: String,
-      query: LigatureValue.Pattern,
-      template: LigatureValue.Pattern | LigatureValue.Quote
-  ): Stream[IO, Triple]
-}
+// trait Ligature {
+//   def networks(): Stream[IO, String]
+//   def addNetwork(name: String): IO[Unit]
+//   def removeNetwork(name: String): IO[Unit]
+//   def read(name: String): Stream[IO, Triple]
+//   def addEntries(name: String, entries: Stream[IO, Triple]): Stream[IO, Unit]
+//   def removeEntries(name: String, entries: Stream[IO, Triple]): Stream[IO, Unit]
+//   def query(
+//       name: String,
+//       query: LigatureValue.Pattern,
+//       template: LigatureValue.Pattern | LigatureValue.Quote
+//   ): Stream[IO, Triple]
+// }

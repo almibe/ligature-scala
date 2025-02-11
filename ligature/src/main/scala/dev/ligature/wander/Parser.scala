@@ -12,20 +12,14 @@ import scala.util.boundary.break
 import scala.collection.mutable.ArrayBuffer
 import scala.collection.mutable.ListBuffer
 
-enum Term:
-  case Element(value: String)
-  case Literal(value: String)
-  case Network(value: Set[Triple])
-  case Quote(value: Seq[Term])
-
-def parse(script: Seq[Token]): Either[WanderError, Seq[Term]] = {
+def parse(script: Seq[Token]): Either[WanderError, Seq[LigatureValue]] = {
   val filteredInput = script.filter {
     _ match
       case Token.Spaces(_) | Token.NewLine | Token.Comment => false
       case _                                               => true
   }
   val gaze = Gaze(SeqSource(filteredInput))
-  val res: Result[Seq[Term]] = gaze.attempt(scriptNib)
+  val res: Result[Seq[LigatureValue]] = gaze.attempt(scriptNib)
   res match {
     case Result.NoMatch =>
       if (gaze.isComplete) {
@@ -43,18 +37,18 @@ def parse(script: Seq[Token]): Either[WanderError, Seq[Term]] = {
   }
 }
 
-val literalNib: Nibbler[Token, Term.Literal] = gaze =>
+val literalNib: Nibbler[Token, LigatureValue.Literal] = gaze =>
   gaze.next() match
-    case Some(Token.Literal(value)) => Result.Match(Term.Literal(value))
+    case Some(Token.Literal(value)) => Result.Match(LigatureValue.Literal(value))
     case _                          => Result.NoMatch
 
-val elementNib: Nibbler[Token, Term.Element] = gaze =>
+val elementNib: Nibbler[Token, LigatureValue.Element] = gaze =>
   gaze.next() match
-    case Some(Token.Element(value)) => Result.Match(Term.Element(value))
+    case Some(Token.Element(value)) => Result.Match(LigatureValue.Element(value))
     case _                          => Result.NoMatch
 
 // Handles parsing a network, assumes the initial "{"" token has already been parsed.
-val partialNetworkNib: Nibbler[Token, Term.Network] = { gaze =>
+val partialNetworkNib: Nibbler[Token, LigatureValue.NetworkRef] = { gaze =>
   var cont = true
   val entries = ListBuffer[Triple]()
   val currentEntry = ListBuffer[LigatureValue]()
@@ -82,33 +76,34 @@ val partialNetworkNib: Nibbler[Token, Term.Network] = { gaze =>
       case None => ???
       case _    => ???
     }
-  Result.Match(Term.Network(entries.toSet))
+  ???
+  //Result.Match(LigatureValue.Network(entries.toSet))
 }
 
 // Handles parsing a quote, assumes the initial "("" token has already been parsed.
-val partialQuoteNib: Nibbler[Token, Term.Quote] = { gaze =>
+val partialQuoteNib: Nibbler[Token, LigatureValue.Quote] = { gaze =>
   var cont = true
-  val terms = ListBuffer[Term]()
+  val terms = ListBuffer[LigatureValue]()
   while cont do
     gaze.next() match {
-      case Some(Token.Element(element)) => terms.addOne(Term.Element(element))
+      case Some(Token.Element(element)) => terms.addOne(LigatureValue.Element(element))
       case Some(Token.CloseParen)       => cont = false
       case None                         => ???
       case _                            => ???
     }
-  Result.Match(Term.Quote(terms.toSeq))
+  Result.Match(LigatureValue.Quote(terms.toSeq))
 }
 
-val applicationNib: Nibbler[Token, Term] = { gaze =>
-  var result: Option[Term] = None
+val applicationNib: Nibbler[Token, LigatureValue] = { gaze =>
+  var result: Option[LigatureValue] = None
   var cont = true
   while cont do
     gaze.next() match {
       case Some(Token.Element(element)) =>
-        result = Some(Term.Element(element))
+        result = Some(LigatureValue.Element(element))
         cont = false
       case Some(Token.Literal(literal)) =>
-        result = Some(Term.Literal(literal))
+        result = Some(LigatureValue.Literal(literal))
       case Some(Token.Comma) => cont = false
       case Some(Token.OpenParen) =>
         partialQuoteNib(gaze) match {
@@ -135,9 +130,9 @@ val applicationNib: Nibbler[Token, Term] = { gaze =>
   }
 }
 
-val scriptNib: Nibbler[Token, Seq[Term]] = { gaze =>
+val scriptNib: Nibbler[Token, Seq[LigatureValue]] = { gaze =>
   // var pipedValue: Option[Term] = None
-  val results = ArrayBuffer[Term]()
+  val results = ArrayBuffer[LigatureValue]()
   boundary:
     while !gaze.isComplete do
       gaze.attempt(applicationNib) match
