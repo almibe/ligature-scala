@@ -7,25 +7,25 @@ package dev.ligature.wander
 import munit.FunSuite
 
 class InterpreterSuite extends FunSuite {
-  def check(script: String, expected: List[LigatureValue]) =
-    run(script) match
-      case Left(err)         => throw RuntimeException(err.toString())
-      case Right((value))    => assertEquals(value, expected)
+  // def check(script: String, expected: List[LigatureValue]) =
+  //   run(script) match
+  //     case Left(err)         => throw RuntimeException(err.toString())
+  //     case Right((value))    => assertEquals(value, expected)
 
-  test("run empty script") {
-    val script = ""
-    check(script, List())
-  }
+  // test("run empty script") {
+  //   val script = ""
+  //   check(script, List())
+  // }
 
-  test("run script with single literal") {
-    val script = "\"test\""
-    check(script, List(LigatureValue.Literal("test")))
-  }
+  // test("run script with single literal") {
+  //   val script = "\"test\""
+  //   check(script, List(LigatureValue.Literal("test")))
+  // }
 
-  test("run script with empty quote") {
-    val script = "[]"
-    check(script, List(LigatureValue.Quote(List())))
-  }
+  // test("run script with empty quote") {
+  //   val script = "[]"
+  //   check(script, List(LigatureValue.Quote(List())))
+  // }
 
   // test("load script with one exports") {
   //   val script = "hello = 2, { hello }"

@@ -7,34 +7,34 @@ package dev.ligature.wander
 import dev.ligature.wander.parse
 import java.util.HexFormat
 //import com.google.gson.Gson
+import cats.effect.IO
 
-trait Function:
-  def call(args: Seq[LigatureValue]): Either[WanderError, LigatureValue]
+trait Action:
+  def call(stack: List[LigatureValue]): IO[List[LigatureValue]]
 
 case class HostFunction(
     docString: String,
-    parameters: Seq[String],
     fn: (
-        arguments: Seq[LigatureValue]
-    ) => Either[WanderError, LigatureValue]
-) extends Function {
+        stack: List[LigatureValue]
+    ) => IO[List[LigatureValue]]
+) extends Action {
   override def call(
-      args: Seq[LigatureValue]
-  ): Either[WanderError, LigatureValue] = ???
-  //  fn.apply(args).map(_)
+      stack: List[LigatureValue]
+  ): IO[List[LigatureValue]] =
+    fn.apply(stack)
 }
 
 case class WanderError(val userMessage: String) extends Throwable(userMessage)
 
 def run(
     script: String,
-): Either[WanderError, List[LigatureValue]] =
+): IO[List[LigatureValue]] =
   val expression = for {
     tokens <- tokenize(script)
     terms <- parse(tokens)
   } yield terms
   expression match
-    case Left(value)  => Left(value)
+    case Left(value)  => ??? //Left(value)
     case Right(value) => eval(value, List())
 
 case class Inspect(

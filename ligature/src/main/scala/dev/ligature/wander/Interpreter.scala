@@ -6,26 +6,28 @@ package dev.ligature.wander
 
 import dev.ligature.wander.*
 //import scala.collection.mutable.ListBuffer
+import cats.effect.IO
 
 def eval(
     terms: Seq[LigatureValue],
     stack: List[LigatureValue]
-): Either[WanderError, List[LigatureValue]] =
-    terms.foldLeft[Either[WanderError, List[LigatureValue]]](Right(stack))((state, value) =>
-        state match {
-            case Left(err) => Left(err)
-            case Right(state) => eval(value, state)
-        })
+): IO[List[LigatureValue]] =
+    ???
+    // terms.foldLeft[IO[List[LigatureValue]]](Right(stack))((state, value) =>
+    //     state match {
+    //         case Left(err) => Left(err)
+    //         case Right(state) => eval(value, state)
+    //     })
 
 def eval(
     term: LigatureValue,
     stack: List[LigatureValue]
-): Either[WanderError, List[LigatureValue]] =
+): IO[List[LigatureValue]] =
   term match {
     case term: LigatureValue.Element => ???
-    case term: LigatureValue.Literal => Right(term :: stack)
-    case term: LigatureValue.NetworkRef => Right(term :: stack)
-    case term: LigatureValue.Quote => Right(term :: stack)
+    case term: LigatureValue.Literal => IO.pure(term :: stack)
+    case term: LigatureValue.NetworkRef => IO.pure(term :: stack)
+    case term: LigatureValue.Quote => IO.pure(term :: stack)
     case _ => ???
   }
 
