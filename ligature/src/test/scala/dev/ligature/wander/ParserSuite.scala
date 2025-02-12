@@ -52,7 +52,13 @@ class ParserSuite extends FunSuite {
     val expected = Right(
       Seq(
         LigatureValue.Element("test"),
-        LigatureValue.NetworkRef(InMemoryNetwork(Set((LigatureValue.Element("x"), LigatureValue.Element("="), LigatureValue.Element("5")))))
+        LigatureValue.NetworkRef(
+          InMemoryNetwork(
+            Set(
+              (LigatureValue.Element("x"), LigatureValue.Element("="), LigatureValue.Element("5"))
+            )
+          )
+        )
       )
     )
     assertEquals(result, expected)

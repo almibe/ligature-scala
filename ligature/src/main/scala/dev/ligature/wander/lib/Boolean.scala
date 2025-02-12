@@ -6,7 +6,7 @@ package dev.ligature.wander.lib
 
 // import dev.ligature.wander.LigatureValue
 // import dev.ligature.wander.WanderError
-// import dev.ligature.wander.HostFunction
+// import dev.ligature.wander.HostAction
 // import dev.ligature.wander.TaggedField
 // import dev.ligature.wander.Tag
 // import dev.ligature.wander.Field
@@ -16,7 +16,7 @@ val bool = 0
 // val boolModule: LigatureValue.Module = LigatureValue.Module(
 //   Map(
 //     Field("not") -> LigatureValue.Function(
-//       HostFunction(
+//       HostAction(
 //         "Perform a not operation on a Bool value.",
 //         Seq(TaggedField(Field("value"), Tag.Untagged)),
 //         Tag.Untagged,
@@ -27,7 +27,7 @@ val bool = 0
 //       )
 //     ),
 //     Field("and") -> LigatureValue.Function(
-//       HostFunction(
+//       HostAction(
 //         "Perform a logical and on two Bools.",
 //         Seq(TaggedField(Field("left"), Tag.Untagged), TaggedField(Field("right"), Tag.Untagged)),
 //         Tag.Untagged,
@@ -39,7 +39,7 @@ val bool = 0
 //       )
 //     ),
 //     Field("or") -> LigatureValue.Function(
-//       HostFunction(
+//       HostAction(
 //         "Perform a logical or on two Bools.",
 //         Seq(TaggedField(Field("left"), Tag.Untagged), TaggedField(Field("right"), Tag.Untagged)),
 //         Tag.Untagged,
@@ -47,7 +47,7 @@ val bool = 0
 //       )
 //     ),
 //     Field("toBytes") -> LigatureValue.Function(
-//       HostFunction(
+//       HostAction(
 //         "Encod a Bool as Bytes.",
 //         Seq(
 //           TaggedField(Field("value"), Tag.Untagged)
@@ -65,7 +65,7 @@ val bool = 0
 //       )
 //     ),
 //     Field("fromBytes") -> LigatureValue.Function(
-//       HostFunction(
+//       HostAction(
 //         "Decode Bytes to a Bool.",
 //         Seq(
 //           TaggedField(Field("value"), Tag.Untagged)

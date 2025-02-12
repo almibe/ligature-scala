@@ -7,35 +7,48 @@ package dev.ligature.wander
 import java.util.concurrent.locks.ReentrantReadWriteLock
 import cats.effect.IO
 import fs2.Stream
-import scala.collection.immutable.TreeMap
+import scala.collection.mutable.TreeMap
 import scodec.bits.ByteVector
-import scala.collection.immutable.SortedMap
+import scala.collection.mutable.SortedMap
+import scodec.Codec
+// import scodec.codecs.implicits._
+import scodec.Codec.given_Codec_String
 
 enum Table:
   case Id
   case NetworkToId
   case IdToNetwork
 
-// object TableOrdering extends Ordering[Table] {
-//  def compare(a:Table, b:Table) = a.ordinal.compare(b.ordinal)
-// }
+object TableOrdering extends Ordering[Table] {
+ def compare(a:Table, b:Table) = a.ordinal.compare(b.ordinal)
+}
 
-def createStore(): Map[Table, SortedMap[ByteVector, ByteVector]] =
-  Table.values.foldLeft(Map())((state, value) => {
-    state + (value -> TreeMap[ByteVector, ByteVector]())
-  })
+def createStore(): SortedMap[Table, SortedMap[ByteVector, ByteVector]] =
+  val store: SortedMap[Table, SortedMap[ByteVector, ByteVector]] = TreeMap[Table, SortedMap[ByteVector, ByteVector]]()(TableOrdering)
+  Table.values.foreach { value =>
+    store += (value -> TreeMap[ByteVector, ByteVector]())
+  }
+  store
 
-class LigatureInMemory extends Ligature {
-  var store: Map[Table, SortedMap[ByteVector, ByteVector]] = createStore()
+class InMemoryStore extends Store {
+  val store: SortedMap[Table, SortedMap[ByteVector, ByteVector]] = createStore()
   val lock = ReentrantReadWriteLock()
 
+  def nextId(): ByteVector =
+    val tbl = openTable(Table.Id)
+    tbl.get(ByteVector.empty) match
+      case None => ???
+      case Some(prevId) => ???
+
   def openTable(table: Table): SortedMap[ByteVector, ByteVector] =
-    ???
+    store.get(table) match
+      case None => ???
+      case Some(value) => value
 
   def byteVectorToNetworkName(input: ByteVector): String =
     ""
 
-  override def networks(): Stream[IO, String] = {
+  def networks(): Stream[IO, String] = {
     lock.readLock().lock()
     try
       Stream.emits(openTable(Table.NetworkToId).keySet.map(byteVectorToNetworkName).toSeq)
@@ -43,29 +56,31 @@ class LigatureInMemory extends Ligature {
       lock.readLock().unlock()
   }
 
-  override def addNetwork(name: String): IO[Unit] = {
+  def addNetwork(name: String): IO[Unit] =
+    lock.writeLock().lock()
+    try {
+      val encodedName = Codec.encode(name).require
+      val networkToIdTable = openTable(Table.NetworkToId)
+      if networkToIdTable.contains(encodedName.toByteVector) then
+        IO.pure(())
+      else
+
+        ???
+    } finally lock.writeLock().unlock()
+
+  def merge(
+      name: String,
+      network: Network
+  ): IO[Unit] = ???
+
+  def readNetwork(name: String): IO[Network] = {
     ???
-    // lock.writeLock().lock()
-    // try {
-    //   store = store + (name -> TreeSet())
-    //   Right(())
-    // } finally lock.readLock().unlock()
   }
 
-  def addEntries(name: String, entries: fs2.Stream[cats.effect.IO, dev.ligature.wander.Triple]
-    ): fs2.Stream[cats.effect.IO, Unit] = ???
+  def remove(
+      name: String,
+      network: Network
+  ): IO[Unit] = ???
 
-  def query(name: String, query: dev.ligature.wander.LigatureValue.Pattern, template:
-    dev.ligature.wander.LigatureValue.Pattern |
-    dev.ligature.wander.LigatureValue.Quote):
-    fs2.Stream[cats.effect.IO, dev.ligature.wander.Triple] = ???
-
-  def read(name: String): fs2.Stream[cats.effect.IO, dev.ligature.wander.Triple] = ???
-
-  def removeEntries
-  (name: String, entries: fs2.Stream[cats.effect.IO, dev.ligature.wander.Triple]
-    ): fs2.Stream[cats.effect.IO, Unit] = ???
-    
   def removeNetwork(name: String): cats.effect.IO[Unit] = ???
-
 }

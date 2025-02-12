@@ -12,7 +12,7 @@ import cats.effect.IO
 trait Action:
   def call(stack: List[LigatureValue]): IO[List[LigatureValue]]
 
-case class HostFunction(
+case class HostAction(
     docString: String,
     fn: (
         stack: List[LigatureValue]
@@ -28,14 +28,15 @@ case class WanderError(val userMessage: String) extends Throwable(userMessage)
 
 def run(
     script: String,
+    actions: Map[LigatureValue.Element, Action] = dev.ligature.wander.lib.stdActions // Map()
 ): IO[List[LigatureValue]] =
   val expression = for {
     tokens <- tokenize(script)
     terms <- parse(tokens)
   } yield terms
   expression match
-    case Left(value)  => ??? //Left(value)
-    case Right(value) => eval(value, List())
+    case Left(value)  => ??? // Left(value)
+    case Right(value) => eval(actions, value, List())
 
 case class Inspect(
     tokens: Either[WanderError, Seq[Token]],

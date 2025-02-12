@@ -6,7 +6,7 @@ package dev.ligature.wander.lib
 
 // import dev.ligature.wander.LigatureValue
 // import dev.ligature.wander.Field
-// import dev.ligature.wander.HostFunction
+// import dev.ligature.wander.HostAction
 // import dev.ligature.wander.Tag
 // import dev.ligature.wander.TaggedField
 
@@ -15,7 +15,7 @@ val graph = 0
 // val networkModule: LigatureValue.Module = LigatureValue.Module(
 //   Map(
 //     Field("length") -> LigatureValue.Function(
-//       HostFunction(
+//       HostAction(
 //         "Get the number of elements in a Network.",
 //         Seq(TaggedField(Field("array"), Tag.Untagged)),
 //         Tag.Untagged,
@@ -27,7 +27,7 @@ val graph = 0
 //       )
 //     ),
 //     Field("merge") -> LigatureValue.Function(
-//       HostFunction(
+//       HostAction(
 //         "Merge two Networks.",
 //         Seq(TaggedField(Field("array"), Tag.Untagged), TaggedField(Field("array"), Tag.Untagged)),
 //         Tag.Untagged,

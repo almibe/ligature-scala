@@ -9,7 +9,7 @@ val im = 0
 // import scala.collection.mutable.HashMap
 // import dev.ligature.wander.LigatureValue
 // import dev.ligature.wander.Field
-// import dev.ligature.wander.HostFunction
+// import dev.ligature.wander.HostAction
 // import dev.ligature.wander.TaggedField
 // import dev.ligature.wander.Tag
 // import dev.ligature.wander.Triple
@@ -63,7 +63,7 @@ val im = 0
 //   LigatureValue.Module(
 //     Map(
 //       Field("networks") -> LigatureValue.Function(
-//         HostFunction(
+//         HostAction(
 //           "Get all Network names.",
 //           Seq(
 //             TaggedField(Field("_"), Tag.Untagged)
@@ -75,7 +75,7 @@ val im = 0
 //         )
 //       ),
 //       Field("addNetwork") -> LigatureValue.Function(
-//         HostFunction(
+//         HostAction(
 //           "Add a new Network.",
 //           Seq(
 //             TaggedField(Field("networkName"), Tag.Untagged)
@@ -91,7 +91,7 @@ val im = 0
 //         )
 //       ),
 //       Field("removeNetwork") -> LigatureValue.Function(
-//         HostFunction(
+//         HostAction(
 //           "Delete a Network.",
 //           Seq(
 //             TaggedField(Field("networkName"), Tag.Untagged)
@@ -107,7 +107,7 @@ val im = 0
 //         )
 //       ),
 //       Field("add") -> LigatureValue.Function(
-//         HostFunction(
+//         HostAction(
 //           "Add Triples to an existing Network.",
 //           Seq(
 //             TaggedField(Field("storeName"), Tag.Untagged),
@@ -125,7 +125,7 @@ val im = 0
 //         )
 //       ),
 //       Field("remove") -> LigatureValue.Function(
-//         HostFunction(
+//         HostAction(
 //           "Remove Triples from an existing Network.",
 //           Seq(
 //             TaggedField(Field("storeName"), Tag.Untagged),
@@ -143,7 +143,7 @@ val im = 0
 //         )
 //       ),
 //       Field("query") -> LigatureValue.Function(
-//         HostFunction(
+//         HostAction(
 //           "Query a Store.",
 //           Seq(
 //             TaggedField(Field("storeName"), Tag.Untagged),

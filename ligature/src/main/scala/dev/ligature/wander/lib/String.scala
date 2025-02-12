@@ -4,7 +4,7 @@
 
 package dev.ligature.wander.lib
 
-// import dev.ligature.wander.HostFunction
+// import dev.ligature.wander.HostAction
 // import dev.ligature.wander.TaggedField
 // import dev.ligature.wander.Tag
 // import dev.ligature.wander.LigatureValue
@@ -13,7 +13,7 @@ package dev.ligature.wander.lib
 val stringModule = 0 //: LigatureValue.Module = LigatureValue.Module(
 //   Map(
 //     Field("replace") -> LigatureValue.Function(
-//       HostFunction(
+//       HostAction(
 //         "Replace all character sequences with another and create a new String.",
 //         Seq(
 //           TaggedField(Field("toMatch"), Tag.Untagged),
@@ -37,7 +37,7 @@ val stringModule = 0 //: LigatureValue.Module = LigatureValue.Module(
 //       )
 //     ),
 //     Field("toBytes") -> LigatureValue.Function(
-//       HostFunction(
+//       HostAction(
 //         // FieldPath(Seq(Field("String"), Field("toBytes"))),
 //         "Get a String encoded as Bytes.",
 //         Seq(
@@ -56,7 +56,7 @@ val stringModule = 0 //: LigatureValue.Module = LigatureValue.Module(
 //       )
 //     ),
 //     Field("fromBytes") -> LigatureValue.Function(
-//       HostFunction(
+//       HostAction(
 //         // FieldPath(Seq(Field("String"), Field("fromBytes"))),
 //         "Decode Bytes to a String.",
 //         Seq(

@@ -4,7 +4,7 @@
 
 package dev.ligature.wander.lib
 
-// import dev.ligature.wander.HostFunction
+// import dev.ligature.wander.HostAction
 // import dev.ligature.wander.TaggedField
 // import dev.ligature.wander.Tag
 // import dev.ligature.wander.LigatureValue
@@ -13,7 +13,7 @@ package dev.ligature.wander.lib
 val intModule = 0 //: LigatureValue.Module = LigatureValue.Module(
 //   Map(
 //     Field("add") -> LigatureValue.Function(
-//       HostFunction(
+//       HostAction(
 //         // FieldPath(Seq(Field("Int"), Field("add"))),
 //         "Add two Ints.",
 //         Seq(
@@ -29,7 +29,7 @@ val intModule = 0 //: LigatureValue.Module = LigatureValue.Module(
 //       )
 //     ),
 //     Field("toBytes") -> LigatureValue.Function(
-//       HostFunction(
+//       HostAction(
 //         // FieldPath(Seq(Field("Int"), Field("toBytes"))),
 //         "Encode an Int as Bytes.",
 //         Seq(
@@ -48,7 +48,7 @@ val intModule = 0 //: LigatureValue.Module = LigatureValue.Module(
 //       )
 //     ),
 //     Field("fromBytes") -> LigatureValue.Function(
-//       HostFunction(
+//       HostAction(
 //         // FieldPath(Seq(Field("Int"), Field("fromBytes"))),
 //         "Decode Bytes to an Int.",
 //         Seq(

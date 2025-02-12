@@ -5,13 +5,13 @@
 package dev.ligature.wander.lib
 
 // import dev.ligature.wander.LigatureValue
-// import dev.ligature.wander.{LigatureValue, Field, HostFunction, TaggedField, Tag}
+// import dev.ligature.wander.{LigatureValue, Field, HostAction, TaggedField, Tag}
 // import dev.ligature.wander.WanderError
 
 val tripleModule = 0 //: LigatureValue.Module = LigatureValue.Module(
 //   Map(
 //     Field("entity") -> LigatureValue.Function(
-//       HostFunction(
+//       HostAction(
 //         "Extract the Entity from a Triple.",
 //         Seq(
 //           TaggedField(Field("triple"), Tag.Untagged) // Tag.Single(Name("Core.Int"))),
@@ -25,7 +25,7 @@ val tripleModule = 0 //: LigatureValue.Module = LigatureValue.Module(
 //       )
 //     ),
 //     Field("attribute") -> LigatureValue.Function(
-//       HostFunction(
+//       HostAction(
 //         "Extract the Attribute from a Triple.",
 //         Seq(
 //           TaggedField(Field("triple"), Tag.Untagged) // Tag.Single(Name("Core.Int"))),
@@ -39,7 +39,7 @@ val tripleModule = 0 //: LigatureValue.Module = LigatureValue.Module(
 //       )
 //     ),
 //     Field("value") -> LigatureValue.Function(
-//       HostFunction(
+//       HostAction(
 //         "Extract the Value from a Triple.",
 //         Seq(
 //           TaggedField(Field("triple"), Tag.Untagged) // Tag.Single(Name("Core.Int"))),

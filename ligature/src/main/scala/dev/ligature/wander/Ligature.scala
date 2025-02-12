@@ -18,7 +18,7 @@ trait Network {
 }
 
 case class InMemoryNetwork(val value: Set[Triple]) extends Network {
-  override def toStream(): Stream[IO, Triple] = 
+  override def toStream(): Stream[IO, Triple] =
     Stream.emits(value.toSeq)
 }
 
@@ -31,3 +31,12 @@ enum LigatureValue:
   case Pattern(
       value: Set[(Element | Variable, Element | Variable, Variable | Element | Literal | Quote)]
   )
+
+trait Store {
+  def networks(): Stream[IO, String]
+  def addNetwork(name: String): IO[Unit]
+  def removeNetwork(name: String): IO[Unit]
+  def merge(name: String, network: Network): IO[Unit]
+  def remove(name: String, network: Network): IO[Unit]
+  def readNetwork(name: String): IO[Network]
+}

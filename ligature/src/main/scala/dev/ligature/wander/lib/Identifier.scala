@@ -4,7 +4,7 @@
 
 package dev.ligature.wander.lib
 
-// import dev.ligature.wander.HostFunction
+// import dev.ligature.wander.HostAction
 // import dev.ligature.wander.TaggedField
 // import dev.ligature.wander.Field
 // import dev.ligature.wander.Tag
@@ -17,7 +17,7 @@ val word = 0
 // val wordModule: LigatureValue.Module = LigatureValue.Module(
 //   Map(
 //     Field("toString") -> LigatureValue.Function(
-//       HostFunction(
+//       HostAction(
 //         "Convert an Word to a String.",
 //         Seq(
 //           TaggedField(Field("word"), Tag.Untagged)
@@ -31,7 +31,7 @@ val word = 0
 //       )
 //     ),
 //     Field("value") -> LigatureValue.Function(
-//       HostFunction(
+//       HostAction(
 //         "Get value of Word as a String.",
 //         Seq(
 //           TaggedField(Field("word"), Tag.Untagged)

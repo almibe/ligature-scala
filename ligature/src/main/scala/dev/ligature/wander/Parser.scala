@@ -62,7 +62,7 @@ val partialNetworkNib: Nibbler[Token, LigatureValue.NetworkRef] = { gaze =>
             entries.addOne(element, attribute, value)
             currentEntry.clear()
           case Nil => ()
-          case _ => ???
+          case _   => ???
         }
         cont = false
       case Some(Token.Comma) =>
@@ -71,7 +71,7 @@ val partialNetworkNib: Nibbler[Token, LigatureValue.NetworkRef] = { gaze =>
             entries.addOne(element, attribute, value)
             currentEntry.clear()
           case Nil => ()
-          case _ => ???
+          case _   => ???
         }
       case None => ???
       case _    => ???

@@ -9,112 +9,106 @@ import munit.CatsEffectSuite
 import cats.effect.IO
 
 abstract class LigatureTestSuite extends CatsEffectSuite {
-  def createLigature(): Ligature
+  def createStore(): Store
 
-  val testDataset = "test/test"
-  val testDataset2 = "test/test2"
-  val testDataset3 = "test3/test"
+  val testNetworkName = "test/test"
+  val testNetworkName2 = "test/test2"
+  val testNetworkName3 = "test3/test"
   val a = LigatureValue.Element("a")
   val b = LigatureValue.Element("b")
 //   val label1 = LigatureValue.Word("a")
 //   val label2 = LigatureValue.Word("b")
 //   val label3 = LigatureValue.Word("c")
 
-
-  test("alternatively, assertions can be written via assertIO") {
-    assertIO(IO(42), 42)
-  }
-
-  // val setup = FunFixture[Ligature](
-  //   setup = { test =>
-  //     // Files.createTempFile("tmp", test.name)
-  //     createLigature()
-  //   },
-  //   teardown = { instance =>
-  //     ???
-  //     //instance.close()
-  //   }
-  // )
+  val setup = FunFixture[Store](
+    setup = { test =>
+      createStore()
+    },
+    teardown = { store =>
+      //store.close()
+    }
+  )
 
   //  runExternalTests(setup)
 
+  setup.test("create and close store") { store =>    
+   assertIO(store.networks().compile.toList, List())
+  }
 
-//   test("create and close store") {
-    
-// //    assertIO(instance.networks().compile.toList, List())
-//   }
+  setup.test("creating a new network") { store =>
+    val res = 
+      for {
+        _ <- store.addNetwork(testNetworkName)
+        res <- store.networks().compile.toList
+      } yield res
+    assertIO(res, List(testNetworkName))
+  }
 
-//   setup.test("creating a new network") { instance =>
-//     instance.createDataset(testDataset)
-//     val res = instance.allDatasets().toList
-//     assertEquals(res, List(testDataset))
-//   }
-
-//   setup.test("check if datasets exist") { instance =>
-//     instance.createDataset(testDataset)
-//     val exists1 = instance.networkExists(testDataset)
-//     val exists2 = instance.networkExists(testDataset2)
+//   setup.test("check if datasets exist") { store =>
+//     store.createDataset(testDataset)
+//     val exists1 = store.networkExists(testDataset)
+//     val exists2 = store.networkExists(testDataset2)
 //     val res = (exists1, exists2)
 //     assertEquals(res, (true, false))
 //   }
 
-//   setup.test("match datasets prefix exact") { instance =>
-//     instance.createDataset(testDataset)
-//     val res = instance.matchDatasetsPrefix("test/test").toList
+//   setup.test("match datasets prefix exact") { store =>
+//     store.createDataset(testDataset)
+//     val res = store.matchDatasetsPrefix("test/test").toList
 //     assertEquals(res.length, 1)
 //   }
 
-//   setup.test("match datasets prefix") { instance =>
-//     instance.createDataset(testDataset)
-//     instance.createDataset(testDataset2)
-//     instance.createDataset(testDataset3)
-//     val res1 = instance.matchDatasetsPrefix("test").length
-//     val res2 = instance.matchDatasetsPrefix("test/").length
-//     val res3 = instance.matchDatasetsPrefix("snoo").length
+//   setup.test("match datasets prefix") { store =>
+//     store.createDataset(testDataset)
+//     store.createDataset(testDataset2)
+//     store.createDataset(testDataset3)
+//     val res1 = store.matchDatasetsPrefix("test").length
+//     val res2 = store.matchDatasetsPrefix("test/").length
+//     val res3 = store.matchDatasetsPrefix("snoo").length
 //     assertEquals((res1, res2, res3), (3, 2, 0))
 //   }
 
-//   setup.test("match datasets range") { instance =>
-//     instance.createDataset(DatasetName("a"))
-//     instance.createDataset(DatasetName("app"))
-//     instance.createDataset(DatasetName("b"))
-//     instance.createDataset(DatasetName("be"))
-//     instance.createDataset(DatasetName("bee"))
-//     instance.createDataset(
+//   setup.test("match datasets range") { store =>
+//     store.createDataset(DatasetName("a"))
+//     store.createDataset(DatasetName("app"))
+//     store.createDataset(DatasetName("b"))
+//     store.createDataset(DatasetName("be"))
+//     store.createDataset(DatasetName("bee"))
+//     store.createDataset(
 //       DatasetName("test1/test")
 //     )
-//     instance.createDataset(
+//     store.createDataset(
 //       DatasetName("test2/test2")
 //     )
-//     instance.createDataset(
+//     store.createDataset(
 //       DatasetName("test3/test")
 //     )
-//     instance.createDataset(DatasetName("test4"))
-//     instance.createDataset(DatasetName("z"))
-//     instance.allDatasets().toList.length
-//     val res1 = instance.matchDatasetsRange("a", "b").toList.length
-//     val res2 = instance.matchDatasetsRange("be", "test3").toList.length
-//     val res3 = instance.matchDatasetsRange("snoo", "zz").toList.length
-//     assertEquals((res1, res2, res3), (2, 4, 5)) // TODO check instances not just counts
+//     store.createDataset(DatasetName("test4"))
+//     store.createDataset(DatasetName("z"))
+//     store.allDatasets().toList.length
+//     val res1 = store.matchDatasetsRange("a", "b").toList.length
+//     val res2 = store.matchDatasetsRange("be", "test3").toList.length
+//     val res3 = store.matchDatasetsRange("snoo", "zz").toList.length
+//     assertEquals((res1, res2, res3), (2, 4, 5)) // TODO check stores not just counts
 //   }
 
-//   setup.test("create and delete new network") { instance =>
-//     instance.createDataset(testDataset)
-//     instance.deleteDataset(testDataset)
-//     instance.deleteDataset(testDataset2)
-//     val res = instance.allDatasets().toList
+//   setup.test("create and delete new network") { store =>
+//     store.createDataset(testDataset)
+//     store.deleteDataset(testDataset)
+//     store.deleteDataset(testDataset2)
+//     val res = store.allDatasets().toList
 //     assertEquals(res, List())
 //   }
 
-//   setup.test("new datasets should be empty") { instance =>
-//     instance.createDataset(testDataset)
-//     val res = instance.allTriples(testDataset).toList
+//   setup.test("new datasets should be empty") { store =>
+//     store.createDataset(testDataset)
+//     val res = store.allTriples(testDataset).toList
 //     assertEquals(res, List())
 //   }
 
-//   setup.test("adding triples to datasets") { instance =>
-//     instance.createDataset(testDataset)
-//     instance.addTriples(
+//   setup.test("adding triples to datasets") { store =>
+//     store.createDataset(testDataset)
+//     store.addTriples(
 //       testDataset,
 //       Seq(
 //         Triple(label1, a, label2),
@@ -122,7 +116,7 @@ abstract class LigatureTestSuite extends CatsEffectSuite {
 //         Triple(label1, a, label3)
 //       ).iterator
 //     )
-//     val edges = instance.allTriples(testDataset).toSet
+//     val edges = store.allTriples(testDataset).toSet
 //     assertEquals(
 //       edges,
 //       Set(
@@ -132,9 +126,9 @@ abstract class LigatureTestSuite extends CatsEffectSuite {
 //     )
 //   }
 
-//   setup.test("add Triple with Int Value") { instance =>
-//     instance.createDataset(testDataset)
-//     instance.addTriples(
+//   setup.test("add Triple with Int Value") { store =>
+//     store.createDataset(testDataset)
+//     store.addTriples(
 //       testDataset,
 //       Seq(
 //         Triple(label1, a, label2),
@@ -144,7 +138,7 @@ abstract class LigatureTestSuite extends CatsEffectSuite {
 //         Triple(label2, a, LigatureValue.Int(-243729))
 //       ).iterator
 //     )
-//     val edges = instance.allTriples(testDataset).toSet
+//     val edges = store.allTriples(testDataset).toSet
 //     assertEquals(
 //       edges,
 //       Set(
@@ -156,9 +150,9 @@ abstract class LigatureTestSuite extends CatsEffectSuite {
 //     )
 //   }
 
-//   setup.test("add Triple with String Value") { instance =>
-//     instance.createDataset(testDataset)
-//     instance.addTriples(
+//   setup.test("add Triple with String Value") { store =>
+//     store.createDataset(testDataset)
+//     store.addTriples(
 //       testDataset,
 //       Seq(
 //         Triple(label1, a, label2),
@@ -168,7 +162,7 @@ abstract class LigatureTestSuite extends CatsEffectSuite {
 //         Triple(label2, a, LigatureValue.String("text"))
 //       ).iterator
 //     )
-//     val edges = instance.allTriples(testDataset).toSet
+//     val edges = store.allTriples(testDataset).toSet
 //     assertEquals(
 //       edges,
 //       Set(
@@ -181,10 +175,10 @@ abstract class LigatureTestSuite extends CatsEffectSuite {
 //   }
 
 // // //   // setup.test("new words") {
-// // //   //   val instance = createLigature
+// // //   //   val store = createLigature
 // // //   //   val res = for {
-// // //   //     _ <- instance.createDataset(testDataset)
-// // //   //     _ <- instance.write(testDataset) { tx =>
+// // //   //     _ <- store.createDataset(testDataset)
+// // //   //     _ <- store.write(testDataset) { tx =>
 // // //   //       for {
 // // //   //         entity <- tx.newWord("entity-")
 // // //   //         attribute <- tx.newWord("attribute-")
@@ -192,7 +186,7 @@ abstract class LigatureTestSuite extends CatsEffectSuite {
 // // //   //         _ <- tx.addTriple(Triple(entity, attribute, value))
 // // //   //       } yield IO.unit
 // // //   //     }
-// // //   //     triples <- instance.query(testDataset) { tx =>
+// // //   //     triples <- store.query(testDataset) { tx =>
 // // //   //       tx.allTriples().toList
 // // //   //     }
 // // //   //   } yield triples.head
@@ -206,20 +200,20 @@ abstract class LigatureTestSuite extends CatsEffectSuite {
 // // //   //   }
 // // //   // }
 
-//   setup.test("removing triples from datasets") { instance =>
-//     instance.createDataset(testDataset)
-//     instance.addTriples(testDataset, Seq(Triple(label1, a, label2)).iterator)
-//     instance.removeTriples(
+//   setup.test("removing triples from datasets") { store =>
+//     store.createDataset(testDataset)
+//     store.addTriples(testDataset, Seq(Triple(label1, a, label2)).iterator)
+//     store.removeTriples(
 //       testDataset,
 //       Seq(Triple(label1, a, label2), Triple(label1, a, label2)).iterator
 //     )
-//     val edges = instance.allTriples(testDataset).toSet
+//     val edges = store.allTriples(testDataset).toSet
 //     assertEquals(edges, Set())
 //   }
 
-//   setup.test("removing triples from datasets with dupe") { instance =>
-//     instance.createDataset(testDataset)
-//     instance.addTriples(
+//   setup.test("removing triples from datasets with dupe") { store =>
+//     store.createDataset(testDataset)
+//     store.addTriples(
 //       testDataset,
 //       Seq(
 //         Triple(label1, a, label2),
@@ -227,14 +221,14 @@ abstract class LigatureTestSuite extends CatsEffectSuite {
 //         Triple(label1, a, label2)
 //       ).iterator
 //     )
-//     instance.removeTriples(testDataset, Seq(Triple(label1, a, label2)).iterator)
-//     val edges = instance.allTriples(testDataset).toSet
+//     store.removeTriples(testDataset, Seq(Triple(label1, a, label2)).iterator)
+//     val edges = store.allTriples(testDataset).toSet
 //     assertEquals(edges, Set(Triple(label3, a, label2)))
 //   }
 
-//   setup.test("removing triples from datasets with duplicate Strings") { instance =>
-//     instance.createDataset(testDataset)
-//     instance.addTriples(
+//   setup.test("removing triples from datasets with duplicate Strings") { store =>
+//     store.createDataset(testDataset)
+//     store.addTriples(
 //       testDataset,
 //       Seq(
 //         Triple(label1, a, LigatureValue.String("hello")),
@@ -242,31 +236,31 @@ abstract class LigatureTestSuite extends CatsEffectSuite {
 //         Triple(label2, a, LigatureValue.String("hello"))
 //       ).iterator
 //     )
-//     instance.removeTriples(
+//     store.removeTriples(
 //       testDataset,
 //       Seq(Triple(label1, a, LigatureValue.String("hello"))).iterator
 //     )
-//     val edges = instance.allTriples(testDataset).toSet
+//     val edges = store.allTriples(testDataset).toSet
 //     assertEquals(edges, Set(Triple(label2, a, LigatureValue.String("hello"))))
 //   }
 
 // // //   // setup.test("allow canceling WriteTx by throwing exception") {
-// // //   //     val res = createLigature.instance.use { instance  =>
+// // //   //     val res = createLigature.store.use { store  =>
 // // //   //         for {
-// // //   //             _ <- instance.createDataset(testDataset)
-// // //   //             _ <- instance.write(testDataset).use { tx =>
+// // //   //             _ <- store.createDataset(testDataset)
+// // //   //             _ <- store.write(testDataset).use { tx =>
 // // //   //                 for {
 // // //   //                     _ <- tx.addTriple(Triple(label1, a, label2))
 // // //   //                     _ <- tx.cancel()
 // // //   //                 } yield ()
 // // //   //             }
-// // //   //             _ <- instance.write(testDataset).use { tx =>
+// // //   //             _ <- store.write(testDataset).use { tx =>
 // // //   //                 for {
 // // //   //                     _ <- tx.addTriple(Triple(label2, a, label3))
 // // //   //                     _ <- tx.addTriple(Triple(label3, a, label2))
 // // //   //                 } yield ()
 // // //   //             }
-// // //   //             triples <- instance.query(testDataset).use { tx =>
+// // //   //             triples <- store.query(testDataset).use { tx =>
 // // //   //                 tx.allTriples().toList
 // // //   //             }
 // // //   //         } yield triples
@@ -276,9 +270,9 @@ abstract class LigatureTestSuite extends CatsEffectSuite {
 // // //   //         Triple(label3, a, label2)))
 // // //   // }
 
-//   setup.test("matching triples in datasets") { instance =>
-//     instance.createDataset(testDataset)
-//     instance.addTriples(
+//   setup.test("matching triples in datasets") { store =>
+//     store.createDataset(testDataset)
+//     store.addTriples(
 //       testDataset,
 //       Seq(
 //         Triple(label1, a, LigatureValue.String("Hello")),
@@ -288,7 +282,7 @@ abstract class LigatureTestSuite extends CatsEffectSuite {
 //         Triple(label3, b, LigatureValue.String("Hello"))
 //       ).iterator
 //     )
-//     val (all, as, hellos, helloa) = instance.query(testDataset) { tx =>
+//     val (all, as, hellos, helloa) = store.query(testDataset) { tx =>
 //       val all = tx.matchTriples().toSet
 //       val as = tx.matchTriples(None, Some(a)).toSet
 //       val hellos = tx
@@ -333,10 +327,10 @@ abstract class LigatureTestSuite extends CatsEffectSuite {
 //   }
 
 // // //  setup.test("matching triples with literals and ranges in datasets") {
-// // //    val instance = createLigature
+// // //    val store = createLigature
 // // //    val res = for {
-// // //      _ <- instance.createDataset(testDataset)
-// // //      _ <- instance.write(testDataset) { tx =>
+// // //      _ <- store.createDataset(testDataset)
+// // //      _ <- store.write(testDataset) { tx =>
 // // //        for {
 // // //          _ <- tx.addTriple(Triple(label1, a, label2))
 // // //          _ <- tx
@@ -356,7 +350,7 @@ abstract class LigatureTestSuite extends CatsEffectSuite {
 // // //          )
 // // //        } yield ()
 // // //      }
-// // //      res <- instance.query(testDataset) { tx =>
+// // //      res <- store.query(testDataset) { tx =>
 // // //        for {
 // // //          res1 <- tx
 // // //            .matchTriplesRange(None, None, StringRange("a", "dd"))

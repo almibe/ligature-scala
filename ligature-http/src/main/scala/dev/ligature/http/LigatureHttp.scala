@@ -4,59 +4,30 @@
 
 package dev.ligature.http
 
+import cats.effect._
+import com.comcast.ip4s._
+import org.http4s.HttpRoutes
+import org.http4s.dsl.io._
+import org.http4s.implicits._
+import org.http4s.ember.server._
 //import dev.ligature.wander.run as runWander
 //import dev.ligature.wander.*
-import com.typesafe.scalalogging.Logger
-import io.vertx.core.Vertx
-import io.vertx.ext.web.Router
-import io.vertx.ext.web.handler.BodyHandler
+//import com.typesafe.scalalogging.Logger
 
-private class LigatureHttp(val port: Int) extends Runnable with AutoCloseable {
-  val logger = Logger("LigatureHttp")
-  val vertx = Vertx.vertx()
+object Main extends IOApp {
 
-  override def run(): Unit =
-    val server = vertx.createHttpServer()
-    val router = Router.router(vertx);
+  val wanderService = HttpRoutes.of[IO] {
+    case POST -> Root =>
+      Ok(s"Hello")
+  }.orNotFound
 
-    router.route().handler(BodyHandler.create());
-
-    router.patch("/network/:networkName").handler { ctx =>
-      val networkName = ctx.pathParam("networkName")
-      val request = ctx.body().asString()
-      println(networkName)
-      println(request)
-      val response = ctx.response();
-      response.putHeader("content-type", "text/plain");
-      // Write to the response and end it
-      val _ = response.end(request);
-
-    }
-
-    router.route().handler { ctx =>
-
-      // This handler will be called for every request
-      val response = ctx.response();
-      response.putHeader("content-type", "text/plain");
-
-      // Write to the response and end it
-      val _ = response.end("Hello World from Vert.x-Web!");
-    };
-
-    val _ = server.requestHandler(router).listen(8080);
-
-  override def close(): Unit =
-    val _ = vertx.close()
+  def run(args: List[String]): IO[ExitCode] =
+    EmberServerBuilder
+      .default[IO]
+      .withHost(ipv4"0.0.0.0")
+      .withPort(port"8080")
+      .withHttpApp(wanderService)
+      .build
+      .use(_ => IO.never)
+      .as(ExitCode.Success)
 }
-
-def printError(message: String): String = ???
-//  printLigatureValue(LigatureValue.Module(Map(Field("error") -> LigatureValue.String(message))))
-
-def runServer(port: Int): AutoCloseable = {
-  val server = LigatureHttp(port)
-  server
-}
-
-@main def main =
-  val server = LigatureHttp(4200)
-  server.run()

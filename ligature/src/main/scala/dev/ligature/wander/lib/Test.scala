@@ -4,7 +4,7 @@
 
 package dev.ligature.wander.lib
 
-// import dev.ligature.wander.HostFunction
+// import dev.ligature.wander.HostAction
 // import dev.ligature.wander.TaggedField
 // import dev.ligature.wander.Field
 // import dev.ligature.wander.Tag
@@ -16,7 +16,7 @@ val t = 0
 // val testingModule: LigatureValue.Module = LigatureValue.Module(
 //   Map(
 //     Field("assertEq") -> LigatureValue.Function(
-//       HostFunction(
+//       HostAction(
 //         // FieldPath(Seq(Field("Test"), Field("assertEq"))),
 //         "Check if two values are equal and fail if they are not.",
 //         Seq(

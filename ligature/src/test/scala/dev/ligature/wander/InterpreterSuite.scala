@@ -25,22 +25,16 @@ class InterpreterSuite extends CatsEffectSuite {
     check(script, List(LigatureValue.Quote(List())))
   }
 
-  // test("load script with one exports") {
-  //   val script = "hello = 2, { hello }"
-  //   val tokens = LigatureValue.Module(Map(Field("hello") -> LigatureValue.Int(2)))
-  //   check(script, tokens)
-  // }
-  // test("Triple support") {
-  //   val script = "`a` `b` `c`"
-  //   val result = LigatureValue.Triple(
-  //     Triple(
-  //       LigatureValue.Word("a"),
-  //       LigatureValue.Word("b"),
-  //       LigatureValue.Word("c")
-  //     )
-  //   )
-  //   check(script, result)
-  // }
+  test("run nothing-doing action") {
+    val script = "[] nothing-doing"
+    check(script, List(LigatureValue.Quote(List())))
+  }
+
+  test("run clear action") {
+    val script = "[] clear"
+    check(script, List())
+  }
+
   // test("Network support") {
   //   val script = "{ a b c }"
   //   val result = LigatureValue.Network(InMemoryNetwork(
@@ -52,17 +46,6 @@ class InterpreterSuite extends CatsEffectSuite {
   //       )
   //     )
   //   ))
-  //   check(script, result)
-  // }
-  // test("Triple with empty Record as Value") {
-  //   val script = "`a` `a` {}"
-  //   val result = LigatureValue.Triple(
-  //     Triple(
-  //       LigatureValue.Word("a"),
-  //       LigatureValue.Word("a"),
-  //       LigatureValue.Record(Map())
-  //     )
-  //   )
   //   check(script, result)
   // }
 }

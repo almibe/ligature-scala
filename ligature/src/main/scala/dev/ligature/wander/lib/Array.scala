@@ -8,7 +8,7 @@ object x {}
 
 // import dev.ligature.wander.LigatureValue
 // import dev.ligature.wander.Field
-// import dev.ligature.wander.HostFunction
+// import dev.ligature.wander.HostAction
 // import dev.ligature.wander.Tag
 // import dev.ligature.wander.TaggedField
 // import scala.util.boundary
@@ -17,7 +17,7 @@ object x {}
 // val arrayModule: LigatureValue.Module = LigatureValue.Module(
 //   Map(
 //     Field("length") -> LigatureValue.Function(
-//       HostFunction(
+//       HostAction(
 //         "Get the number of elements in an Array.",
 //         Seq(TaggedField(Field("array"), Tag.Untagged)),
 //         Tag.Untagged,
@@ -29,7 +29,7 @@ object x {}
 //       )
 //     ),
 //     Field("map") -> LigatureValue.Function(
-//       HostFunction(
+//       HostAction(
 //         "Map the values of an Array with the given function.",
 //         Seq(TaggedField(Field("fn"), Tag.Untagged), TaggedField(Field("array"), Tag.Untagged)),
 //         Tag.Untagged,
@@ -47,7 +47,7 @@ object x {}
 //       )
 //     ),
 //     Field("filter") -> LigatureValue.Function(
-//       HostFunction(
+//       HostAction(
 //         "Filter an Array with the given predicate.",
 //         Seq(TaggedField(Field("fn"), Tag.Untagged), TaggedField(Field("array"), Tag.Untagged)),
 //         Tag.Untagged,
@@ -68,7 +68,7 @@ object x {}
 //       )
 //     ),
 //     Field("first") -> LigatureValue.Function(
-//       HostFunction(
+//       HostAction(
 //         "Get the first element of an Array.",
 //         Seq(TaggedField(Field("array"), Tag.Untagged)),
 //         Tag.Untagged,
@@ -84,7 +84,7 @@ object x {}
 //       )
 //     ),
 //     Field("rest") -> LigatureValue.Function(
-//       HostFunction(
+//       HostAction(
 //         "Get a Array containing all elements except the first.",
 //         Seq(TaggedField(Field("array"), Tag.Untagged)),
 //         Tag.Untagged,
@@ -96,7 +96,7 @@ object x {}
 //       )
 //     ),
 //     Field("last") -> LigatureValue.Function(
-//       HostFunction(
+//       HostAction(
 //         "Get the last element of an Array.",
 //         Seq(TaggedField(Field("array"), Tag.Untagged)),
 //         Tag.Untagged,
@@ -112,7 +112,7 @@ object x {}
 //       )
 //     ),
 //     Field("cat") -> LigatureValue.Function(
-//       HostFunction(
+//       HostAction(
 //         "Concat all Strings in this Array.",
 //         Seq(
 //           TaggedField(Field("array"), Tag.Untagged)
@@ -139,7 +139,7 @@ object x {}
 //       )
 //     ),
 //     Field("join") -> LigatureValue.Function(
-//       HostFunction(
+//       HostAction(
 //         "Join this array.",
 //         Seq(
 //           TaggedField(Field("array"), Tag.Untagged)
@@ -166,7 +166,7 @@ object x {}
 //       )
 //     ),
 //     Field("foldLeft") -> LigatureValue.Function(
-//       HostFunction(
+//       HostAction(
 //         "Perform foldLeft on this array.",
 //         Seq(
 //           TaggedField(Field("initial"), Tag.Untagged),

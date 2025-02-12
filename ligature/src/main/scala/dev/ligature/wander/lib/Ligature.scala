@@ -15,7 +15,7 @@ val logger = Logger("LigatureModule")
 // def createLigatureModule(ligature: Ligature): LigatureValue.Module = LigatureValue.Module(
 //   Map(
 //     Field("datasets") -> LigatureValue.Function(
-//       HostFunction(
+//       HostAction(
 //         "Get all datasets from this instance.",
 //         Seq(TaggedField(Field("_"), Tag.Untagged)),
 //         Tag.Untagged,
@@ -26,7 +26,7 @@ val logger = Logger("LigatureModule")
 //       )
 //     ),
 //     Field("addDataset") -> LigatureValue.Function(
-//       HostFunction(
+//       HostAction(
 //         "Add a new Dataset.",
 //         Seq(TaggedField(Field("datasetName"), Tag.Untagged)),
 //         Tag.Untagged,
@@ -40,7 +40,7 @@ val logger = Logger("LigatureModule")
 //       )
 //     ),
 //     Field("removeDataset") -> LigatureValue.Function(
-//       HostFunction(
+//       HostAction(
 //         "Remove a Dataset by name.",
 //         Seq(TaggedField(Field("datasetName"), Tag.Untagged)),
 //         Tag.Untagged,
@@ -53,7 +53,7 @@ val logger = Logger("LigatureModule")
 //       )
 //     ),
 //     Field("datasetExists") -> LigatureValue.Function(
-//       HostFunction(
+//       HostAction(
 //         "Check if Dataset exists.",
 //         Seq(TaggedField(Field("datasetName"), Tag.Untagged)),
 //         Tag.Untagged,
@@ -65,7 +65,7 @@ val logger = Logger("LigatureModule")
 //       )
 //     ),
 //     Field("allTriples") -> LigatureValue.Function(
-//       HostFunction(
+//       HostAction(
 //         "Get all Triples in a Dataset.",
 //         Seq(TaggedField(Field("datasetName"), Tag.Untagged)),
 //         Tag.Untagged,
@@ -81,7 +81,7 @@ val logger = Logger("LigatureModule")
 //       )
 //     ),
 //     Field("addTriples") -> LigatureValue.Function(
-//       HostFunction(
+//       HostAction(
 //         "Add a collection of Triples to a Dataset.",
 //         Seq(
 //           TaggedField(Field("datasetName"), Tag.Untagged),
@@ -101,7 +101,7 @@ val logger = Logger("LigatureModule")
 //       )
 //     ),
 //     Field("removeTriples") -> LigatureValue.Function(
-//       HostFunction(
+//       HostAction(
 //         "Remove a collection of Triples from a Dataset.",
 //         Seq(
 //           TaggedField(Field("datasetName"), Tag.Untagged),
@@ -121,7 +121,7 @@ val logger = Logger("LigatureModule")
 //       )
 //     ),
 //     Field("query") -> LigatureValue.Function(
-//       HostFunction(
+//       HostAction(
 //         "Query a Dataset.",
 //         Seq(
 //           TaggedField(Field("datasetName"), Tag.Untagged),

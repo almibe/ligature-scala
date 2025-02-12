@@ -5,7 +5,7 @@
 package dev.ligature.wander.lib
 
 // import dev.ligature.wander.Environment
-// import dev.ligature.wander.HostFunction
+// import dev.ligature.wander.HostAction
 // import dev.ligature.wander.LigatureValue
 // import dev.ligature.wander.TaggedField
 // import dev.ligature.wander.Tag
@@ -18,7 +18,7 @@ val core = 0
 // val coreModule: LigatureValue.Module = LigatureValue.Module(
 //   Map(
 //     Field("eq") -> LigatureValue.Function(
-//       HostFunction(
+//       HostAction(
 //         "Check if two values are equal.",
 //         Seq(
 //           TaggedField(Field("left"), Tag.Untagged),
@@ -34,7 +34,7 @@ val core = 0
 //       )
 //     ),
 //     Field("environment") -> LigatureValue.Function(
-//       HostFunction(
+//       HostAction(
 //         "Read all Bindings in the current scope.",
 //         Seq(TaggedField(Field(""), Tag.Untagged)),
 //         Tag.Untagged,
@@ -45,7 +45,7 @@ val core = 0
 // )
 
 // val importFunction = LigatureValue.Function(
-//   HostFunction(
+//   HostAction(
 //     // FieldPath(Seq(Field("import"))),
 //     "",
 //     Seq(TaggedField(Field("import"), Tag.Untagged)),
@@ -62,7 +62,7 @@ val core = 0
 //   )
 // )
 
-// // HostFunction(
+// // HostAction(
 // //   Name("Core.Any"),
 // //   "Checks if a value is an Any.",
 // //   Seq(TaggedField(Name("value"), Tag.Single(Name("Core.Any")))),
@@ -70,7 +70,7 @@ val core = 0
 // //   (args: Seq[LigatureValue], environment: Environment) =>
 // //     Right((LigatureValue.Bool(true), environment))
 // // ),
-// // HostFunction(
+// // HostAction(
 // //   Name("Core.Int"),
 // //   "Check if a value is an Int.",
 // //   Seq(TaggedField(Name("value"), Tag.Single(Name("Core.Any")))),
@@ -81,7 +81,7 @@ val core = 0
 // //       case Seq(_)                  => Right((LigatureValue.Bool(false), environment))
 // //       case _                       => ???
 // // ),
-// // HostFunction(
+// // HostAction(
 // //   Name("Core.Bool"),
 // //   "Check if a value is a Bool.",
 // //   Seq(TaggedField(Name("value"), Tag.Single(Name("Core.Any")))),
@@ -92,7 +92,7 @@ val core = 0
 // //       case Seq(_)                   => Right((LigatureValue.Bool(false), environment))
 // //       case _                        => ???
 // // ),
-// // HostFunction(
+// // HostAction(
 // //   Name("Core.Module"),
 // //   "Check if a value is a Module.",
 // //   Seq(TaggedField(Name("value"), Tag.Single(Name("Core.Any")))),
@@ -103,7 +103,7 @@ val core = 0
 // //       case Seq(_)                     => Right((LigatureValue.Bool(false), environment))
 // //       case _                          => ???
 // // ),
-// // HostFunction(
+// // HostAction(
 // //   Name("Core.Array"),
 // //   "Check if a value is an Array.",
 // //   Seq(TaggedField(Name("value"), Tag.Single(Name("Core.Any")))),
@@ -114,7 +114,7 @@ val core = 0
 // //       case Seq(_)                    => Right((LigatureValue.Bool(false), environment))
 // //       case _                         => ???
 // // ),
-// // HostFunction(
+// // HostAction(
 // //   Name("Core.String"),
 // //   "Check if a value is a String.",
 // //   Seq(TaggedField(Name("value"), Tag.Single(Name("Core.Any")))),
@@ -125,7 +125,7 @@ val core = 0
 // //       case Seq(_)                     => Right((LigatureValue.Bool(false), environment))
 // //       case _                          => ???
 // // ),
-// // HostFunction(
+// // HostAction(
 // //   Name("Core.Nothing"),
 // //   "Check if a value is Nothing.",
 // //   Seq(TaggedField(Name("value"), Tag.Single(Name("Core.Any")))),
@@ -136,7 +136,7 @@ val core = 0
 // //       case Seq(_)                   => Right((LigatureValue.Bool(false), environment))
 // //       case _                        => ???
 // // ),
-// // HostFunction(
+// // HostAction(
 // //   Name("Core.todo"),
 // //   "Exit a script at this point with the given TODO message, useful during development.",
 // //   Seq(TaggedField(Name("message"), Tag.Single(Name("Core.String")))),

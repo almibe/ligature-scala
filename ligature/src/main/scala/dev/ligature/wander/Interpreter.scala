@@ -9,22 +9,35 @@ import dev.ligature.wander.*
 import cats.effect.IO
 
 def eval(
+    actions: Map[LigatureValue.Element, Action],
     terms: Seq[LigatureValue],
     stack: List[LigatureValue]
 ): IO[List[LigatureValue]] =
-    terms.foldLeft[IO[List[LigatureValue]]](IO.pure(stack))((state, value) =>
-      state.flatMap(state => eval(value, state)))
+  terms.foldLeft[IO[List[LigatureValue]]](IO.pure(stack))((state, value) =>
+    state.flatMap(state => eval(actions, value, state))
+  )
 
 def eval(
+    actions: Map[LigatureValue.Element, Action],
     term: LigatureValue,
     stack: List[LigatureValue]
 ): IO[List[LigatureValue]] =
   term match {
-    case term: LigatureValue.Element => ???
-    case term: LigatureValue.Literal => IO.pure(term :: stack)
+    case term: LigatureValue.Element    => eval(actions, term, stack)
+    case term: LigatureValue.Literal    => IO.pure(term :: stack)
     case term: LigatureValue.NetworkRef => IO.pure(term :: stack)
-    case term: LigatureValue.Quote => IO.pure(term :: stack)
-    case _ => ???
+    case term: LigatureValue.Quote      => IO.pure(term :: stack)
+    case _                              => ???
+  }
+
+def eval(
+    actions: Map[LigatureValue.Element, Action],
+    action: LigatureValue.Element,
+    stack: List[LigatureValue]
+): IO[List[LigatureValue]] =
+  actions.get(action) match {
+    case Some(action) => action.call(stack)
+    case None         => ???
   }
 
 // def readFieldPath(
@@ -171,12 +184,12 @@ def handleApplication(
 //   case x => Left(WanderError(s"Unexpected start of application - $x"))
 // }
 
-// def callHostFunction(
-//     hostFunction: HostFunction,
+// def callHostAction(
+//     hostFunction: HostAction,
 //     arguments: Seq[Expression],
 // ): Either[WanderError, (LigatureValue)] = ???
 //   // if arguments.size == hostFunction.parameters.size then
-//   //   callHostFunctionComplete(hostFunction, arguments)
+//   //   callHostActionComplete(hostFunction, arguments)
 //   // else if arguments.size < hostFunction.parameters.size then
-//   //   callHostFunctionPartially(hostFunction, arguments)
+//   //   callHostActionPartially(hostFunction, arguments)
 //   // else ???

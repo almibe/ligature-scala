@@ -4,7 +4,7 @@
 
 package dev.ligature.wander.lib
 
-// import dev.ligature.wander.HostFunction
+// import dev.ligature.wander.HostAction
 // import dev.ligature.wander.TaggedField
 // import dev.ligature.wander.Field
 // import dev.ligature.wander.Tag
@@ -18,7 +18,7 @@ val id = 0
 // val idModule: LigatureValue.Module = LigatureValue.Module(
 //   Map(
 //     Field("tsid") -> LigatureValue.Function(
-//       HostFunction(
+//       HostAction(
 //         "Get next random TSID value.",
 //         Seq(
 //           TaggedField(Field("_"), Tag.Untagged)
@@ -34,7 +34,7 @@ val id = 0
 //       )
 //     ),
 //     Field("ulid") -> LigatureValue.Function(
-//       HostFunction(
+//       HostAction(
 //         "Get next random ULID value.",
 //         Seq(
 //           TaggedField(Field("_"), Tag.Untagged)

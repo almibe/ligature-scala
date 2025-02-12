@@ -4,7 +4,7 @@
 
 package dev.ligature.wander.lib
 
-// import dev.ligature.wander.HostFunction
+// import dev.ligature.wander.HostAction
 // import dev.ligature.wander.LigatureValue
 // import dev.ligature.wander.TaggedField
 // import dev.ligature.wander.Tag
@@ -21,7 +21,7 @@ val fury = Fury
 // val bytesModule: LigatureValue.Module = LigatureValue.Module(
 //   Map(
 //     Field("encode") -> LigatureValue.Function(
-//       HostFunction(
+//       HostAction(
 //         "",
 //         Seq(TaggedField(Field("value"), Tag.Untagged)),
 //         Tag.Untagged,
@@ -33,7 +33,7 @@ val fury = Fury
 //       )
 //     ),
 //     Field("decode") -> LigatureValue.Function(
-//       HostFunction(
+//       HostAction(
 //         "",
 //         Seq(TaggedField(Field("value"), Tag.Untagged)),
 //         Tag.Untagged,
