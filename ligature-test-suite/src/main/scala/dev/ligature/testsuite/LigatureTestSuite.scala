@@ -44,67 +44,27 @@ abstract class LigatureTestSuite extends CatsEffectSuite {
     assertIO(res, List(testNetworkName))
   }
 
-//   setup.test("check if datasets exist") { store =>
-//     store.createDataset(testDataset)
-//     val exists1 = store.networkExists(testDataset)
-//     val exists2 = store.networkExists(testDataset2)
-//     val res = (exists1, exists2)
-//     assertEquals(res, (true, false))
-//   }
+  setup.test("create and delete new network") { store =>
+    val res =
+      for {
+        _ <- store.addNetwork(testNetworkName)
+        _ <- store.removeNetwork(testNetworkName)
+        _ <- store.removeNetwork(testNetworkName2)
+        net <- store.readNetwork(testNetworkName)
+        res <- net.toStream().compile.toList
+      } yield res
+    interceptIO[WanderError](res)
+  }
 
-//   setup.test("match datasets prefix exact") { store =>
-//     store.createDataset(testDataset)
-//     val res = store.matchDatasetsPrefix("test/test").toList
-//     assertEquals(res.length, 1)
-//   }
-
-//   setup.test("match datasets prefix") { store =>
-//     store.createDataset(testDataset)
-//     store.createDataset(testDataset2)
-//     store.createDataset(testDataset3)
-//     val res1 = store.matchDatasetsPrefix("test").length
-//     val res2 = store.matchDatasetsPrefix("test/").length
-//     val res3 = store.matchDatasetsPrefix("snoo").length
-//     assertEquals((res1, res2, res3), (3, 2, 0))
-//   }
-
-//   setup.test("match datasets range") { store =>
-//     store.createDataset(DatasetName("a"))
-//     store.createDataset(DatasetName("app"))
-//     store.createDataset(DatasetName("b"))
-//     store.createDataset(DatasetName("be"))
-//     store.createDataset(DatasetName("bee"))
-//     store.createDataset(
-//       DatasetName("test1/test")
-//     )
-//     store.createDataset(
-//       DatasetName("test2/test2")
-//     )
-//     store.createDataset(
-//       DatasetName("test3/test")
-//     )
-//     store.createDataset(DatasetName("test4"))
-//     store.createDataset(DatasetName("z"))
-//     store.allDatasets().toList.length
-//     val res1 = store.matchDatasetsRange("a", "b").toList.length
-//     val res2 = store.matchDatasetsRange("be", "test3").toList.length
-//     val res3 = store.matchDatasetsRange("snoo", "zz").toList.length
-//     assertEquals((res1, res2, res3), (2, 4, 5)) // TODO check stores not just counts
-//   }
-
-//   setup.test("create and delete new network") { store =>
-//     store.createDataset(testDataset)
-//     store.deleteDataset(testDataset)
-//     store.deleteDataset(testDataset2)
-//     val res = store.allDatasets().toList
-//     assertEquals(res, List())
-//   }
-
-//   setup.test("new datasets should be empty") { store =>
-//     store.createDataset(testDataset)
-//     val res = store.allTriples(testDataset).toList
-//     assertEquals(res, List())
-//   }
+  setup.test("new datasets should be empty") { store =>
+    val res =
+      for {
+        _ <- store.addNetwork(testNetworkName)
+        net <- store.readNetwork(testNetworkName)
+        res <- net.toStream().compile.toList
+      } yield res
+    assertIO(res, List())
+  }
 
 //   setup.test("adding triples to datasets") { store =>
 //     store.createDataset(testDataset)

@@ -9,15 +9,31 @@ import cats.effect.IO
 import fs2.Stream
 import scala.collection.mutable.TreeMap
 import scodec.bits.ByteVector
-import scala.collection.mutable.SortedMap
 import scodec.Codec
-// import scodec.codecs.implicits._
+import scala.collection.mutable.SortedMap
+import scodec.Codec.given_Codec_Long
 import scodec.Codec.given_Codec_String
+//import java.nio.charset.StandardCharsets
 
 enum Table:
   case Id
   case NetworkToId
   case IdToNetwork
+  case ElementToId
+  case IdToElement
+  case LiteralToId
+  case IdToLiteral
+
+def encodeString(value: String): ByteVector = 
+  Codec.encode(value).require.toByteVector
+
+def decodeString(value: ByteVector): String = 
+  Codec[String].decode(value.toBitVector).require.value
+
+def encodeLong(value: Long): ByteVector =
+  Codec.encode(value).require.toByteVector
+
+def decodeLong(value: ByteVector): Long = ???
 
 object TableOrdering extends Ordering[Table] {
  def compare(a:Table, b:Table) = a.ordinal.compare(b.ordinal)
@@ -37,7 +53,10 @@ class InMemoryStore extends Store {
   def nextId(): ByteVector =
     val tbl = openTable(Table.Id)
     tbl.get(ByteVector.empty) match
-      case None => ???
+      case None =>
+        val id = encodeLong(0L)
+        tbl += ByteVector.empty -> id
+        id
       case Some(prevId) => ???
 
   def openTable(table: Table): SortedMap[ByteVector, ByteVector] =
@@ -45,13 +64,10 @@ class InMemoryStore extends Store {
       case None => ???
       case Some(value) => value
 
-  def byteVectorToNetworkName(input: ByteVector): String =
-    ""
-
   def networks(): Stream[IO, String] = {
     lock.readLock().lock()
     try
-      Stream.emits(openTable(Table.NetworkToId).keySet.map(byteVectorToNetworkName).toSeq)
+      Stream.emits(openTable(Table.NetworkToId).keySet.map(decodeString).toSeq)
     finally
       lock.readLock().unlock()
   }
@@ -59,28 +75,52 @@ class InMemoryStore extends Store {
   def addNetwork(name: String): IO[Unit] =
     lock.writeLock().lock()
     try {
-      val encodedName = Codec.encode(name).require
+      val encodedName = encodeString(name)
       val networkToIdTable = openTable(Table.NetworkToId)
-      if networkToIdTable.contains(encodedName.toByteVector) then
+      if networkToIdTable.contains(encodedName) then
         IO.pure(())
       else
-
-        ???
+        val id = nextId()
+        val idToNetworkTable = openTable(Table.IdToNetwork)
+        networkToIdTable += encodedName -> id
+        idToNetworkTable += id -> encodedName
+        IO.pure(())
     } finally lock.writeLock().unlock()
 
   def merge(
       name: String,
       network: Network
-  ): IO[Unit] = ???
-
-  def readNetwork(name: String): IO[Network] = {
+  ): IO[Unit] =
     ???
-  }
 
   def remove(
       name: String,
       network: Network
-  ): IO[Unit] = ???
+  ): IO[Unit] = 
+    ???
 
-  def removeNetwork(name: String): cats.effect.IO[Unit] = ???
+  def readNetwork(name: String): IO[Network] = {
+    lock.readLock().lock()
+    try {
+      val encodedName = encodeString(name)
+      val networkToIdTable = openTable(Table.NetworkToId)
+      networkToIdTable.get(encodedName) match
+        case Some(id) => IO(InMemoryNetwork(Set())) //TODO update
+        case None => IO.raiseError(WanderError(s"Could not read Network $name."))
+    } finally lock.readLock().unlock()
+  }
+
+  def removeNetwork(name: String): cats.effect.IO[Unit] =
+    lock.writeLock().lock()
+    try {
+      val encodedName = encodeString(name)
+      val networkToIdTable = openTable(Table.NetworkToId)
+      networkToIdTable.get(encodedName) match
+        case Some(id) =>
+          val idToNetworkTable = openTable(Table.IdToNetwork)
+          networkToIdTable -= encodedName
+          idToNetworkTable -= id
+          IO.pure(())
+        case None => IO.pure(())
+    } finally lock.writeLock().unlock()
 }

@@ -9,9 +9,7 @@ import fs2.Stream
 
 case class LigatureError(val userMessage: String) extends Throwable(userMessage)
 
-type Value = LigatureValue.Element | LigatureValue.Literal | LigatureValue.Quote
-
-type Triple = (LigatureValue.Element, LigatureValue.Element, Value)
+type Triple = (LigatureValue.Element, LigatureValue.Element, LigatureValue.Element)
 
 trait Network {
   def toStream(): Stream[IO, Triple]
@@ -24,12 +22,11 @@ case class InMemoryNetwork(val value: Set[Triple]) extends Network {
 
 enum LigatureValue:
   case Element(value: String)
-  case Literal(value: String)
   case Variable(value: String)
   case Quote(value: Seq[LigatureValue])
   case NetworkRef(value: Network)
   case Pattern(
-      value: Set[(Element | Variable, Element | Variable, Variable | Element | Literal | Quote)]
+      value: Set[(Element | Variable, Element | Variable, Variable | Element)]
   )
 
 trait Store {

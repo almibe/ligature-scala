@@ -11,8 +11,6 @@ val scalaLoggingVersion = "3.9.5"
 val logBackVersion = "1.5.6"
 val tsidVersion = "1.1.0"
 val ulidVersion = "5.2.3"
-val gsonVerison = "2.11.0"
-val furyVersion = "0.4.1"
 val lmdbVersion = "0.9.0"
 val scodecVersion = "2.3.2"
 val fs2Version = "3.11.0"
@@ -42,8 +40,6 @@ lazy val ligature = project
   .settings(
     name := "ligature",
     scalaVersion := scala3Version,
-    libraryDependencies += "com.google.code.gson" % "gson" % gsonVerison,
-    libraryDependencies += "org.furyio" % "fury-core" % furyVersion,
     libraryDependencies += "com.github.f4b6a3" % "ulid-creator" % ulidVersion,
     libraryDependencies += "io.hypersistence" % "tsid" % tsidVersion,
     libraryDependencies += "ch.qos.logback" % "logback-classic" % logBackVersion,

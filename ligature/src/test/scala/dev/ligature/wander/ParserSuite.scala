@@ -39,12 +39,12 @@ class ParserSuite extends FunSuite {
   }
   test("parse String") {
     val result = check("\"hello\"")
-    val expected = Right(Seq(LigatureValue.Literal("hello")))
+    val expected = Right(Seq(LigatureValue.Element("hello")))
     assertEquals(result, expected)
   }
   test("parse String with quotes") {
     val result = check("\"\\\"hello\\\"\"")
-    val expected = Right(Seq(LigatureValue.Literal("\"hello\"")))
+    val expected = Right(Seq(LigatureValue.Element("\"hello\"")))
     assertEquals(result, expected)
   }
   test("parse network with one entry") {

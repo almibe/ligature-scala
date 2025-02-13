@@ -24,7 +24,6 @@ def eval(
 ): IO[List[LigatureValue]] =
   term match {
     case term: LigatureValue.Element    => eval(actions, term, stack)
-    case term: LigatureValue.Literal    => IO.pure(term :: stack)
     case term: LigatureValue.NetworkRef => IO.pure(term :: stack)
     case term: LigatureValue.Quote      => IO.pure(term :: stack)
     case _                              => ???

@@ -37,9 +37,9 @@ def parse(script: Seq[Token]): Either[WanderError, Seq[LigatureValue]] = {
   }
 }
 
-val literalNib: Nibbler[Token, LigatureValue.Literal] = gaze =>
+val literalNib: Nibbler[Token, LigatureValue.Element] = gaze =>
   gaze.next() match
-    case Some(Token.Literal(value)) => Result.Match(LigatureValue.Literal(value))
+    case Some(Token.Literal(value)) => Result.Match(LigatureValue.Element(value))
     case _                          => Result.NoMatch
 
 val elementNib: Nibbler[Token, LigatureValue.Element] = gaze =>
@@ -58,7 +58,7 @@ val partialNetworkNib: Nibbler[Token, LigatureValue.NetworkRef] = { gaze =>
         currentEntry.addOne(LigatureValue.Element(token))
       case Some(Token.CloseBrace) =>
         currentEntry.toList match {
-          case (element: LigatureValue.Element) :: (attribute: LigatureValue.Element) :: (value: Value) :: Nil =>
+          case (element: LigatureValue.Element) :: (attribute: LigatureValue.Element) :: (value: LigatureValue.Element) :: Nil =>
             entries.addOne(element, attribute, value)
             currentEntry.clear()
           case Nil => ()
@@ -67,7 +67,7 @@ val partialNetworkNib: Nibbler[Token, LigatureValue.NetworkRef] = { gaze =>
         cont = false
       case Some(Token.Comma) =>
         currentEntry.toList match {
-          case (element: LigatureValue.Element) :: (attribute: LigatureValue.Element) :: (value: Value) :: Nil =>
+          case (element: LigatureValue.Element) :: (attribute: LigatureValue.Element) :: (value: LigatureValue.Element) :: Nil =>
             entries.addOne(element, attribute, value)
             currentEntry.clear()
           case Nil => ()
@@ -102,7 +102,7 @@ val applicationNib: Nibbler[Token, LigatureValue] = { gaze =>
         result = Some(LigatureValue.Element(element))
         cont = false
       case Some(Token.Literal(literal)) =>
-        result = Some(LigatureValue.Literal(literal))
+        result = Some(LigatureValue.Element(literal))
       case Some(Token.Comma) => cont = false
       case Some(Token.OpenBracket) =>
         partialQuoteNib(gaze) match {
