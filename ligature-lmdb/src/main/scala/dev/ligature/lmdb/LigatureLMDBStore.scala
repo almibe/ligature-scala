@@ -4,7 +4,7 @@
 
 package dev.ligature.wander
 
-// import java.util.concurrent.locks.ReentrantReadWriteLock
+import java.util.concurrent.locks.ReentrantReadWriteLock
 import cats.effect.IO
 import fs2.Stream
 import scala.collection.mutable.TreeMap
@@ -13,7 +13,6 @@ import scodec.Codec
 import scala.collection.mutable.SortedMap
 import scodec.Codec.given_Codec_Long
 import scodec.Codec.given_Codec_String
-//import java.nio.charset.StandardCharsets
 
 enum Table:
   case Id
@@ -51,47 +50,103 @@ def createInMemoryStore(): SortedMap[Table, SortedMap[ByteVector, ByteVector]] =
   }
   store
 
-trait KVStore {
+trait KVStoreRead {
   def get(table: Table, key: ByteVector): IO[Option[ByteVector]]
+  def scan(table: Table): Stream[IO, (ByteVector, ByteVector)]
+}
+
+trait KVStoreWrite extends KVStoreRead {
   def set(table: Table, key: ByteVector, value: ByteVector): IO[Unit]
 }
 
-// class InMemoryStore extends KVStore {
-//   val store: SortedMap[Table, SortedMap[ByteVector, ByteVector]] = createInMemoryStore()
-//   val lock = ReentrantReadWriteLock()
+trait KVStore {
+  def readTx[T](fn: (KVStoreRead) => T): T
+  def writeTx(fn: (KVStoreWrite) => Unit): Unit
+}
 
-//   def openTable(table: Table): SortedMap[ByteVector, ByteVector] =
-//     store.get(table) match
-//       case None => ???
-//       case Some(value) => value
+class InMemoryStoreWrite(val store: SortedMap[Table, SortedMap[ByteVector, ByteVector]]) extends KVStoreWrite {
+  override def get(table: Table, key: ByteVector): IO[Option[ByteVector]] =
+    ???
 
+  def scan(table: Table): Stream[IO, (ByteVector, ByteVector)] = ???
 
+  override def set(table: Table, key: ByteVector, value: ByteVector): IO[Unit] = ???
+}
+
+class InMemoryStoreRead(val store: SortedMap[Table, SortedMap[ByteVector, ByteVector]]) extends KVStoreRead {
+  def openTable(table: Table): SortedMap[ByteVector, ByteVector] =
+    store.get(table) match
+      case None => ???
+      case Some(value) => value
+
+  override def scan(table: Table): Stream[IO, (ByteVector, ByteVector)] =
+    Stream.emits(openTable(Table.NetworkToId).toSeq)
+
+  override def get(table: Table, key: ByteVector): IO[Option[ByteVector]] = {
+    ???
+  }
+}
+
+class InMemoryStore extends KVStore {
+  val store: SortedMap[Table, SortedMap[ByteVector, ByteVector]] = createInMemoryStore()
+  val lock = ReentrantReadWriteLock()
+
+  override def readTx[T](fn: (KVStoreRead) => T) =
+    lock.readLock().lock()
+    try {
+      val tx = InMemoryStoreRead(store)
+      fn(tx)
+    } finally {
+      lock.readLock().unlock()
+    }
+  override def writeTx(fn: (KVStoreWrite) => Unit) = 
+    lock.writeLock().lock()
+    try {
+      val tx = InMemoryStoreWrite(store)
+      fn(tx)
+    } finally {
+      lock.writeLock().unlock()
+    }
+}
+
+// class LMDBStoreRead extends KVStoreRead {
+//   override def get(table: Table, key: ByteVector): IO[Option[ByteVector]] =
+//     ???
+// }
+
+// class LMDBStoreWrite extends KVStoreWrite {
+//   def set(table: Table, key: ByteVector, value: ByteVector): IO[Unit] = ???
 // }
 
 // class LMDBStore extends KVStore {
-
+//   override def readTx[T](fn: (KVStoreRead) => IO[T]) = ???
+//   override def writeTx(fn: (KVStoreWrite) => IO[Unit]) = ???
 // }
 
 class KVBasedStore(val store: KVStore) extends Store {
-  def nextId(): ByteVector = ???
-    // store.get(Table.Id, ByteVector.empty) match {
-    //   case None =>
-    //     val id = encodeLong(0L)
-    //     store.set(Table.Id, ByteVector.empty, id)
-    //     id
-    //   case Some(prevId) => ???
-    // }
+  def nextId(): ByteVector = 
+    // store.writeTx(tx =>
+    //   for {
+    //     t <- tx.get(Table.Id, ByteVector.empty)
+    //   } yield t
+      //  match {
+      //   case None =>
+      //     val id = encodeLong(0L)
+      //     tx.set(Table.Id, ByteVector.empty, id)
+      //     id
+      //   case Some(prevId) => ???
+      // })
+    ???
 
   def networks(): Stream[IO, String] =
-    ???
-    // lock.readLock().lock()
-    // try
-    //   Stream.emits(openTable(Table.NetworkToId).keySet.map(decodeString).toSeq)
-    // finally
-    //   lock.readLock().unlock()
+    store.readTx((tx) =>
+      tx.scan(Table.NetworkToId).map((value) => decodeString(value._1))
+//      Stream.emits(openTable(Table.NetworkToId).keySet.map(decodeString).toSeq)
+      )
 
   def addNetwork(name: String): IO[Unit] =
-    ???
+    IO(store.writeTx((_) => 
+      ()))
     // lock.writeLock().lock()
     // try {
     //   val encodedName = encodeString(name)

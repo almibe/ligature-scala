@@ -7,5 +7,5 @@ package dev.ligature.wander
 import dev.ligature.testsuite.LigatureTestSuite
 
 class LigatureInMemorySuite extends LigatureTestSuite {
-  override def createStore() = InMemoryStore()
+  override def createStore() = KVBasedStore(InMemoryStore())
 }
