@@ -16,10 +16,11 @@ import org.http4s.ember.server._
 
 object Main extends IOApp {
 
-  val wanderService = HttpRoutes.of[IO] {
-    case POST -> Root =>
+  val wanderService = HttpRoutes
+    .of[IO] { case POST -> Root =>
       Ok(s"Hello")
-  }.orNotFound
+    }
+    .orNotFound
 
   def run(args: List[String]): IO[ExitCode] =
     EmberServerBuilder
