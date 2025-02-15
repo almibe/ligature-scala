@@ -25,18 +25,18 @@ abstract class LigatureTestSuite extends CatsEffectSuite {
       createStore()
     },
     teardown = { store =>
-      //store.close()
+      // store.close()
     }
   )
 
   //  runExternalTests(setup)
 
-  setup.test("create and close store") { store =>    
-   assertIO(store.networks().compile.toList, List())
+  setup.test("create and close store") { store =>
+    assertIO(store.networks().compile.toList, List())
   }
 
   setup.test("creating a new network") { store =>
-    val res = 
+    val res =
       for {
         _ <- store.addNetwork(testNetworkName)
         res <- store.networks().compile.toList

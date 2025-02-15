@@ -15,7 +15,7 @@ private class LigatureZeroMQ(val port: Int) extends Runnable with AutoCloseable 
   private val zContext = ZContext()
 
   override def run(): Unit =
-    val environment = ??? //std()//.combine(wanderLibs())
+    val environment = ??? // std()//.combine(wanderLibs())
     val socket = zContext.createSocket(SocketType.REP)
     socket.bind(s"tcp://localhost:$port")
     var continue = true
