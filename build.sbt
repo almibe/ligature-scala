@@ -11,7 +11,7 @@ val scalaLoggingVersion = "3.9.5"
 val logBackVersion = "1.5.6"
 val tsidVersion = "1.1.0"
 val ulidVersion = "5.2.3"
-val lmdbVersion = "0.9.0"
+val lmdbVersion = "0.9.1"
 val scodecVersion = "2.3.2"
 val fs2Version = "3.11.0"
 val catsEffectVersion = "3.5.7"
@@ -98,7 +98,7 @@ lazy val ligatureLMDB = project
   .settings(
     name := "ligature-lmdb",
     scalaVersion := scala3Version,
-    libraryDependencies += "org.lmdbjava" % "lmdbjava" % "0.9.0",
+    libraryDependencies += "org.lmdbjava" % "lmdbjava" % "0.9.1",
     libraryDependencies += "org.scalameta" %% "munit" % munitVersion % Test,
   )
   .dependsOn(ligature, idgen, ligatureTestSuite % Test)
