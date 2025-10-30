@@ -1,5 +1,7 @@
 # ligature-scala
 
+Note: moved to https://codeberg/almibe/ligature-scala
+
 An implementation of [Ligature knowledge graph](https://ligature.dev) library written in Scala for the JVM.
 
 ### Projects

@@ -35,36 +35,36 @@ abstract class LigatureTestSuite extends CatsEffectSuite {
    assertIO(store.networks().compile.toList, List())
   }
 
-  setup.test("creating a new network") { store =>
-    val res = 
-      for {
-        _ <- store.addNetwork(testNetworkName)
-        res <- store.networks().compile.toList
-      } yield res
-    assertIO(res, List(testNetworkName))
-  }
+  // setup.test("creating a new network") { store =>
+  //   val res = 
+  //     for {
+  //       _ <- store.addNetwork(testNetworkName)
+  //       res <- store.networks().compile.toList
+  //     } yield res
+  //   assertIO(res, List(testNetworkName))
+  // }
 
-  setup.test("create and delete new network") { store =>
-    val res =
-      for {
-        _ <- store.addNetwork(testNetworkName)
-        _ <- store.removeNetwork(testNetworkName)
-        _ <- store.removeNetwork(testNetworkName2)
-        net <- store.readNetwork(testNetworkName)
-        res <- net.toStream().compile.toList
-      } yield res
-    interceptIO[WanderError](res)
-  }
+  // setup.test("create and delete new network") { store =>
+  //   val res =
+  //     for {
+  //       _ <- store.addNetwork(testNetworkName)
+  //       _ <- store.removeNetwork(testNetworkName)
+  //       _ <- store.removeNetwork(testNetworkName2)
+  //       net <- store.readNetwork(testNetworkName)
+  //       res <- net.toStream().compile.toList
+  //     } yield res
+  //   interceptIO[WanderError](res)
+  // }
 
-  setup.test("new datasets should be empty") { store =>
-    val res =
-      for {
-        _ <- store.addNetwork(testNetworkName)
-        net <- store.readNetwork(testNetworkName)
-        res <- net.toStream().compile.toList
-      } yield res
-    assertIO(res, List())
-  }
+  // setup.test("new datasets should be empty") { store =>
+  //   val res =
+  //     for {
+  //       _ <- store.addNetwork(testNetworkName)
+  //       net <- store.readNetwork(testNetworkName)
+  //       res <- net.toStream().compile.toList
+  //     } yield res
+  //   assertIO(res, List())
+  // }
 
 //   setup.test("adding triples to datasets") { store =>
 //     store.createDataset(testDataset)

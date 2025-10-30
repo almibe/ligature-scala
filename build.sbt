@@ -93,17 +93,6 @@ lazy val ligatureTestSuite = project
   .dependsOn(ligature)
   .disablePlugins(RevolverPlugin)
 
-lazy val ligatureLMDB = project
-  .in(file("ligature-lmdb"))
-  .settings(
-    name := "ligature-lmdb",
-    scalaVersion := scala3Version,
-    libraryDependencies += "org.lmdbjava" % "lmdbjava" % "0.9.0",
-    libraryDependencies += "org.scalameta" %% "munit" % munitVersion % Test,
-  )
-  .dependsOn(ligature, idgen, ligatureTestSuite % Test)
-  .disablePlugins(RevolverPlugin)
-
 disablePlugins(RevolverPlugin)
 
 addCommandAlias("cd", "project")
